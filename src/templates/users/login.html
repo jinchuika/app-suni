@@ -1,0 +1,55 @@
+{% extends "base/base-account.html" %}
+{% block content %}
+{% load widget_tweaks %}
+{% load account socialaccount %}
+{% load i18n %}
+{% get_providers as socialaccount_providers %}
+<div class="login-box">
+	<div class="login-logo">
+		<a href="#"><b>SUNI</b></a>
+	</div>
+	<div class="login-box-body">
+		<p class="login-box-msg">Inicio de sesión</p>
+
+		<form action="{{action}}" method="post">
+			{{ form.non_field_errors }}
+			{% csrf_token %}
+			<div class="form-group has-feedback">
+				{{ form.login|append_attr:"class:form-control"}}
+				<span class="glyphicon glyphicon-user form-control-feedback"></span>
+			</div>
+			<div class="form-group has-feedback">
+				{{ form.password|append_attr:"class:form-control"}}
+				<span class="glyphicon glyphicon-lock form-control-feedback"></span>
+			</div>
+			<div class="row">
+				<div class="col-xs-8">
+					<div class="checkbox icheck">
+						<label>
+							{{ form.remember }} Recordar sesión
+						</label>
+					</div>
+				</div>
+				<!-- /.col -->
+				<div class="col-xs-4">
+					<button type="submit" class="btn btn-primary btn-block btn-flat">Entrar</button>
+				</div>
+				<!-- /.col -->
+			</div>
+		</form>
+	</div>
+	<div class="social-auth-links text-center">
+		{% if socialaccount_providers %}
+		{% for provider in socialaccount_providers %}
+		<p></p>
+		<a href="{% provider_login_url provider.id process=process scope=scope auth_params=auth_params %}" class="btn btn-block btn-social btn-{{provider.id}} btn-flat"><i class="fa fa-{{provider.name}}"></i> Entrar con 
+			{{provider.name}}</a>
+		</div>
+		{% endfor %}
+
+		{% endif %}
+		<a href="#">Olvidé mi contraseña</a><br>
+	</div>
+</div>
+
+{% endblock content %}

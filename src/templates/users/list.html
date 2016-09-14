@@ -1,0 +1,10 @@
+{% extends "base/base.html" %}
+{% block content %}
+	{% for c_perfil in perfil_list  %}
+		<a href="{{c_perfil.get_absolute_url}}">{{ c_perfil }}</a><br>
+	{% endfor %}
+
+	{% if is_paginated %}
+	
+	{% endif %}
+{% endblock content %}

@@ -1,0 +1,42 @@
+{% load thumbnail %}
+<!-- Logo -->
+<a href="index2.html" class="logo">
+	<span class="logo-mini"><b>SUNI</b></span>
+	<span class="logo-lg"><b>SUNI</b></span>
+</a>
+
+<!-- Header Navbar -->
+<nav class="navbar navbar-static-top" role="navigation">
+	<!-- Sidebar toggle button-->
+	<a href="#" class="sidebar-toggle" data-toggle="offcanvas" role="button">
+	<span class="sr-only">Cambiar navegación</span>
+	</a>
+	<!-- Navbar Right Menu -->
+	<div class="navbar-custom-menu">
+		<ul class="nav navbar-nav">
+			<!-- Perfil Menu -->
+			<li class="dropdown user user-menu">
+				<a href="#" class="dropdown-toggle" data-toggle="dropdown">
+					<img src="{{ user.perfil.foto|thumbnail_url:'avatar' }}" class="user-image" alt="Imagen de perfil">
+					<span class="hidden-xs">{{ user.first_name }}</span>
+				</a>
+				<ul class="dropdown-menu">
+					<li class="user-header">
+						<img src="{{ user.perfil.foto|thumbnail_url:'avatar' }}" class="img-circle" alt="User Image">
+						<p>
+							{{ user.first_name }} {{user.last_name}}
+						</p>
+					</li>
+					<li class="user-footer">
+						<div class="pull-left">
+							<a href="{% url "profile" %}" class="btn btn-default btn-flat">Perfil</a>
+						</div>
+						<div class="pull-right">
+							<a href="{% url "account_logout" %}" class="btn btn-default btn-flat">Cerrar sesión</a>
+						</div>
+					</li>
+				</ul>
+			</li>
+		</ul>
+	</div>
+</nav>

@@ -1,0 +1,42 @@
+{% extends "base/base.html" %}
+{% load widget_tweaks %}
+{% block content %}
+<section class="content-header">
+	<h1>
+		Edicion del perfil
+	</h1>
+</section>
+<section class="content">
+	<div class="row">
+		<div class="col-md-9">
+			<div class="box box-primary">
+				<div class="box-header with-border">
+					<h3 class="box-title">Edición de {{ perfil.user.first_name }} {{ perfil.user.last_name }}</h3>
+				</div>
+				<form role="form" method="post" action="{{action}}">
+					{% csrf_token %}
+					<div class="box-body">
+						{% for field in form %}
+						<div class="form-group">
+							<label>{{ field.label }}</label>
+							{% if field.type is 'checkbox' %}
+							{{ field }}
+							{% else %}
+							{{ field|attr:'class:form-control' }}
+							{% endif %}
+							{{ field.type }}
+						</div>
+						{% endfor %}
+					</div>
+					<!-- /.box-body -->
+
+					<div class="box-footer">
+						<button type="submit" class="btn btn-primary">Guardar</button>
+					</div>
+				</form>
+			</div>
+			<!-- /.box -->
+		</div>
+	</div>
+</section>
+{% endblock content %}

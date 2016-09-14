@@ -1,0 +1,36 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+	<link rel="stylesheet" type="text/css" href="{% static "css/bootstrap.min.css" %}">
+	<link rel="stylesheet" type="text/css" href="{% static "css/theme.min.css" %}">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.5.0/css/font-awesome.min.css">
+	<link rel="stylesheet" type="text/css" href="{% static "css/skin/skin-blue.min.css" %}">
+
+	{% block extra_css %}
+	{% endblock extra_css %}
+
+	{% block page_title %}
+	<title>SUNI</title>
+	{% endblock page_title %}
+
+</head>
+
+<body class="hold-transition login-page">
+	<div class="wrapper">
+		{% block content %}
+
+		{% endblock content %}
+	</div>
+</body>
+
+<script src="{% static "js/jquery.min.js" %}"></script>
+<script src="{% static "js/bootstrap.min.js" %}"></script>
+<script src="{% static "js/app.min.js" %}"></script>
+{% block extra_js %}
+
+{% endblock extra_js %}
+</html>
