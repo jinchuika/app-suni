@@ -67,6 +67,27 @@ class CustomSignupForm(forms.Form):
         new_user.save()
 
 class PerfilForm(forms.ModelForm):
+	first_name = forms.CharField(label='Nombre', max_length=30)
+	last_name = forms.CharField(label='Apellido', max_length=30)
+	fecha_nacimiento = forms.CharField(widget=forms.TextInput(attrs={'class':'datepicker'}))
+	
+	def __init__(self, *args, **kw):
+		super(PerfilForm, self).__init__(*args, **kw)
+		self.fields['first_name'].initial = self.instance.user.first_name
+		self.fields['last_name'].initial = self.instance.user.last_name
+
+		self.fields.keyOrder = [
+			'first_name',
+			'last_name',
+			]
+
+	def save(self, *args, **kwargs):
+		obj = super(PerfilForm, self).save(*args, **kwargs)
+		self.instance.user.first_name = self.cleaned_data.get('first_name')
+		self.instance.user.last_name = self.cleaned_data.get('last_name')
+		self.instance.user.save()
+		return obj
+
 	class Meta:
 		model = Perfil
 		fields = ['dpi', 'genero', 'fecha_nacimiento', 'direccion', 'foto']

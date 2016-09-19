@@ -28,12 +28,6 @@ class PerfilList(LoginRequiredMixin, PublicPerfilMixin, ListView):
 	template_name = 'users/list.html'
 
 class PerfilUpdate(LoginRequiredMixin, UpdateView):
-	template_name = 'users/edit.html'
+	template_name = 'users/perfil.html'
 	form_class = PerfilForm
-	success_url = reverse_lazy('profile')
 	model = Perfil
-
-	def get_context_data(self, **kwargs):
-		context = super(PerfilUpdate, self).get_context_data(**kwargs)
-		context['perfil'] = self.get_object()
-		return context
