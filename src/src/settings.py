@@ -151,7 +151,7 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "static"),
 ]
-MEDIA_ROOT = 'media/'
+MEDIA_ROOT = 'etc/media/'
 MEDIA_URL = '/media/'
 
 THUMBNAIL_ALIASES = {
