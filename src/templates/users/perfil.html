@@ -15,10 +15,10 @@
 			<div class="box box-primary">
 				<div class="box-body box-profile">
 					<img class="profile-user-img img-responsive img-circle" src="{{ perfil.foto|thumbnail_url:'avatar' }}" alt="Foto del usuario">
-
 					<h3 class="profile-username text-center">{{ perfil }}</h3>
-
-					<p class="text-muted text-center">Rol principal</p>
+					{% for group in perfil.user.groups.all %}						
+					<p class="text-muted text-center">{{ group }}</p>
+					{% endfor %}
 				</div>
 			</div>
 			<div class="box box-primary">
@@ -43,6 +43,7 @@
 				<ul class="nav nav-tabs">
 					<li class="active"><a href="#edicion" data-toggle="tab">Edición</a></li>
 					<li><a href="#cuentas" data-toggle="tab">Enlazar cuentas</a></li>
+					<li><a href="#preferencias" data-toggle="tab">Ajustes</a></li>
 				</ul>
 				<div class="tab-content">
 					<div class="tab-pane active" id="edicion">
@@ -68,6 +69,17 @@
 					<!-- /.tab-pane -->
 					<div class="tab-pane" id="cuentas">
 						<p><a href="{% provider_login_url "google" process="connect" %}">Google Apps</a></p>
+					</div>
+					<div class="tab-pane" id="preferencias">
+						<table class="table">
+							<form action="{% url "perfil_preferencias" pk=object.pk %}" method="post">
+								{% csrf_token %}
+								{{ preferencias_form.as_table }}
+								<tr>
+								<td><input type="submit" class="btn btn-primary" value="Guardar"></td>
+								</tr>
+							</form>
+						</table>
 					</div>
 				</div>
 			</div>

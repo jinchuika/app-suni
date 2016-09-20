@@ -11,6 +11,7 @@ urlpatterns = [
     url(r'profile/$', user_views.current_profile_redirect, name='profile'),
     
     url(r'^(?P<pk>\d+)/$', user_views.PerfilUpdate.as_view(), name='perfil_detail'),
+    url(r'^(?P<pk>\d+)/preferencias$', user_views.PerfilPreferenciasUpdate.as_view(), name='perfil_preferencias'),
     
     url(r'^(?P<pk>\d+)/update$', user_views.PerfilUpdate.as_view(), name='perfil_update'),
     url(r'^$', user_views.index, name='index_user'),
