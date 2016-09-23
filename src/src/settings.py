@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'dynamic_preferences',
     'widget_tweaks',
     'mptt',
+    'menu',
 
     'allauth',
     'allauth.account',

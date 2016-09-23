@@ -1,5 +1,8 @@
 {% load thumbnail %}
-{% load mptt_tags %}
+{% load menu %}
+
+{% block sidebar %}
+    
 
 <!-- sidebar: style can be found in sidebar.less -->
 <section class="sidebar">
@@ -16,19 +19,36 @@
 
 	<!-- Sidebar Menu -->
 	<ul class="sidebar-menu">
-		{% for group in request.user.groups.all %}
-		{% recursetree group.nav_menu.all.0.menu.all %}
-		<li>{{ node.name }}
-            {% if not node.is_leaf_node %}
-                <ul class="children">
-                    {{ children }}
-                </ul>
-            {% endif %}
-        </li>
-		{% endrecursetree %}
+		{% generate_menu %}
 
+		{% for key, menu in menus.items %}
+			{% for item in menu %}
+					{% if item.visible %}
+						{% if item.separator %}
+						<li class="header">....</li>
+						{% endif %}
 		
+						<li class="{% if item.selected %} active{% endif %}{% if item.children %} treeview{% endif %}" id="top-menu-{{ item.slug }}">
+							<a href="{{ item.url }}"{% if item.children %} {% endif %}>
+								{% if item.icon %}
+								<i class="{{ item.icon }}"></i>
+								{% endif %}
+								<span>{{ item.title }}</span>
+								{% if item.children %}
+									<span class="pull-right-container">
+										<i class="fa fa-angle-left pull-right"></i>
+									</span>
+								{% endif %}
+							</a>
+							{% if item.children %}
+							{% include 'base/main-sidebar-sub.html' with items=item.children %}
+							{% endif %}
+						</li>
+					{% endif %}
+				{% endfor %}
 		{% endfor %}
+		
+
 		<li class="header">HEADER</li>
 		<!-- Optionally, you can add icons to the links -->
 		<li ><a href="#"><i class="fa fa-link"></i> <span>Link</span></a></li>
@@ -59,3 +79,4 @@
 	<!-- /.sidebar-menu -->
 </section>
 <!-- /.sidebar -->
+{% endblock sidebar %}
