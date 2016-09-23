@@ -1,0 +1,25 @@
+#in-form{
+	border-radius: 5px;	
+}
+
+input, textarea, select{
+	border-radius: 2px;
+	width: 80%;
+	/*outline: none;*/
+	border-width: 1px;
+	
+	margin-top: 3px ;
+	padding-left: 2px;
+	
+	color: black;	
+}
+
+textarea{
+	height: 150px;
+}
+
+input[type="text"], [type="number"], [type="submit"], select{
+	height: 30px;
+
+}
+

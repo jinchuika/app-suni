@@ -1,0 +1,31 @@
+{% extends "base/base.html" %}
+{% load staticfiles %}
+{% block content %}
+<section class="content-header">
+	<h1>Salida del Kardex</h1>
+</section>
+<section class="content">
+	
+	<div class="container">
+		<div class="row-main">
+			<div class="col-sm-6">
+				<div class="box box-primary">
+
+					<table class="table table-hover table-bordered">
+						<form  method="POST" align="center" action="{{action}}" >
+							{% csrf_token %}
+							{{ form.as_table }}
+							<tr><td></td><td>
+								<input type="submit" class="btn btn-primary" value="Guardar">
+							</td></tr>
+						</form>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+{% endblock content %}
+{% block extra_css %}
+<link rel="stylesheet" type="text/css" href="{% static "css/kardex_estilo.css" %}">
+{% endblock extra_css %}

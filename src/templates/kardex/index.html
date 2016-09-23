@@ -1,0 +1,72 @@
+{% extends "base/base.html" %}
+{% load staticfiles%}
+{% block content %}
+<section class="content-header">
+	<h1>Equipo</h1>
+</section>
+<section class="content">
+	
+	<div class="container">
+		<div class="row-main">
+			<div class="col-md-6">
+
+				
+
+				<button type="button" class="btn btn-primary" data-toggle="modal" data-target=".bs-example-modal-lg" style="margin-top:10px; out-line:none;" >Agregar equipo</button>
+
+				<div class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel">
+				  <div class="modal-dialog modal-lg" role="document">
+				    <div class="modal-content">
+						<div class="row">
+							<div class="col-md-3"></div>
+							<div class="col-md-6">
+								<table width="50%" class="table table-hover table-striped table-bordered" style="margin-top: 20px;" >
+									<form method="POST" align="center" action="{{action}}">
+										{% csrf_token %}
+										{{ formequipo.as_table}}
+										<tr><td></td><td><input type="submit" class="btn btn-primary" value="Guardar"></td></tr>
+									</form>
+								</table>
+							</div>
+							<div class="col-md-3"></div>
+						</div>
+				    </div>
+				  </div>
+				</div>
+
+
+
+
+
+
+				<div class="box box-primary" style="margin-top:15px; ">
+					
+						<table class="table table-bordered table-hover" style="margin-top:10px;">
+							<thead class="thead-inverse">
+								<tr>
+									<th>Id</th><th>Nombre</th><th>Existencia</th>
+								</tr>
+							</thead>
+							<tbody>
+								{% for i in equipo_load %}
+								<tr><td width="25">{{i.id}}</td><td>{{i}}</td><td>{{ i.existencia }}</td></tr>
+								
+								{% endfor %}
+							</tbody>
+						</table>
+				</div>
+			</div>
+			
+		</div>
+	</div>
+
+
+
+</section>
+{% endblock content %}
+
+{% block extra_css %}
+	<link rel="stylesheet" type="text/css" href="{% static "css/kardex_estilo.css" %}">
+{% endblock extra_css %}
+
+
