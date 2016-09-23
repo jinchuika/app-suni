@@ -63,4 +63,4 @@ De forma ideal, las carpetas del sistema se verán así
 └── requirements.txt
 ```
 
-(Versión de Carloss añadida)
+(Versión de Carloss añadida)..
