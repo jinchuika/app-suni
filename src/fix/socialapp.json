@@ -1,0 +1,16 @@
+[
+{
+        "model": "socialaccount.socialapp",
+        "pk": 1,
+        "fields": {
+                "provider": "google",
+                "name": "Funsepa.org",
+                "client_id": "24017118225-q01cd6jkhhmbhsarjrtg09s7ia9t48qv.apps.googleusercontent.com",
+                "secret": "HtMqZY2yrMYKFVSTj3BZGi07",
+                "key": "",
+                "sites": [
+                        1
+                ]
+        }
+}
+]

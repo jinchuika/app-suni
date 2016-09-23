@@ -1,4 +1,6 @@
 {% load thumbnail %}
+{% load mptt_tags %}
+
 <!-- sidebar: style can be found in sidebar.less -->
 <section class="sidebar">
 
@@ -14,9 +16,22 @@
 
 	<!-- Sidebar Menu -->
 	<ul class="sidebar-menu">
+		{% for group in request.user.groups.all %}
+		{% recursetree group.nav_menu.all.0.menu.all %}
+		<li>{{ node.name }}
+            {% if not node.is_leaf_node %}
+                <ul class="children">
+                    {{ children }}
+                </ul>
+            {% endif %}
+        </li>
+		{% endrecursetree %}
+
+		
+		{% endfor %}
 		<li class="header">HEADER</li>
 		<!-- Optionally, you can add icons to the links -->
-		<li class="active"><a href="#"><i class="fa fa-link"></i> <span>Link</span></a></li>
+		<li ><a href="#"><i class="fa fa-link"></i> <span>Link</span></a></li>
 		<li><a href="#"><i class="fa fa-link"></i> <span>Another Link</span></a></li>
 		<li class="treeview">
 			<a href="#"><i class="fa fa-link"></i> <span>Multilevel</span>
@@ -27,6 +42,17 @@
 			<ul class="treeview-menu">
 				<li><a href="#">Link in level 2</a></li>
 				<li><a href="#">Link in level 2</a></li>
+				<li class="treeview">
+					<a href="#"><i class="fa fa-link"></i> <span>Multilevel</span>
+						<span class="pull-right-container">
+							<i class="fa fa-angle-left pull-right"></i>
+						</span>
+					</a>
+					<ul class="treeview-menu">
+						<li class="active"><a href="#">Link in level 3</a></li>
+						<li><a href="#">Link in level 3</a></li>
+					</ul>
+				</li>
 			</ul>
 		</li>
 	</ul>

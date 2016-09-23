@@ -1,0 +1,50 @@
+[
+{
+    "model": "auth.group",
+    "pk": 1,
+    "fields": {
+        "name": "Administraci\u00f3n",
+        "permissions": []
+    }
+},
+{
+    "model": "auth.group",
+    "pk": 2,
+    "fields": {
+        "name": "Soporte",
+        "permissions": []
+    }
+},
+{
+    "model": "auth.group",
+    "pk": 3,
+    "fields": {
+        "name": "Capacitaci\u00f3n",
+        "permissions": []
+    }
+},
+{
+    "model": "auth.group",
+    "pk": 4,
+    "fields": {
+        "name": "TPE",
+        "permissions": []
+    }
+},
+{
+    "model": "auth.group",
+    "pk": 5,
+    "fields": {
+        "name": "Monitoreo",
+        "permissions": []
+    }
+},
+{
+    "model": "auth.group",
+    "pk": 6,
+    "fields": {
+        "name": "FundRaising",
+        "permissions": []
+    }
+}
+]
