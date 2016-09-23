@@ -59,7 +59,6 @@ De forma ideal, las carpetas del sistema se verán así
 │   ├── static
 │   ├── templates
 │   └── manage.py
-├── pickled_dict
 ├── README.md
 └── requirements.txt
 ```

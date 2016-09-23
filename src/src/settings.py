@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'easy_thumbnails',
     'dynamic_preferences',
     'widget_tweaks',
+    'mptt',
 
     'allauth',
     'allauth.account',
