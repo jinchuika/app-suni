@@ -1,7 +1,6 @@
 from django.core.urlresolvers import reverse, reverse_lazy
 from menu import Menu, MenuItem
 from apps.users import views
-from apps.users import asdads
 
 Menu.add_item("main", MenuItem("Tools",
 	reverse_lazy('perfil_list'),
