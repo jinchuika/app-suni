@@ -1,0 +1,36 @@
+from django.core.urlresolvers import reverse, reverse_lazy
+from menu import Menu, MenuItem
+from apps.users import views
+from apps.users import asdads
+
+Menu.add_item("main", MenuItem("Tools",
+	reverse_lazy('perfil_list'),
+	weight=10,
+	icon="tools"))
+
+Menu.add_item("main", MenuItem("Reports",
+	"perfil_list",
+	weight=20,
+	icon="report"))
+
+myaccount_children = (
+	MenuItem("Lista de perfiles",
+		"perfil_list",
+		weight=10,
+		icon="user"),
+	MenuItem("Mi Perfil",
+		"profile",
+		weight=80,
+		separator=True),
+	MenuItem("Logout",
+		"login",
+		weight=90,
+		separator=True,
+		icon="fa fa-link"),
+	)
+
+# Add a My Account item to our user menu
+Menu.add_item("user", MenuItem("Administración",
+	"index",
+	weight=10,
+	children=myaccount_children))

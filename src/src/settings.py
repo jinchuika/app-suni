@@ -43,7 +43,7 @@ INSTALLED_APPS = [
     'easy_thumbnails',
     'dynamic_preferences',
     'widget_tweaks',
-    'mptt',
+    'menu',
 
     'allauth',
     'allauth.account',
@@ -52,6 +52,11 @@ INSTALLED_APPS = [
 
     'apps.main',
     'apps.users',
+<<<<<<< HEAD
+    'apps.escuela'
+=======
+    'apps.kardex',
+>>>>>>> ffda827eaf2e540e93aafb47a80026e24e7e06eb
 ]
 
 SITE_ID = 1
