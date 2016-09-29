@@ -11,5 +11,6 @@ urlpatterns = [
     url(r'^users/', include('apps.users.urls')),
     url(r'^escuela/', include('apps.escuela.urls')),
     url(r'^accounts/', include('allauth.urls')),
+    url(r'^kardex/', include('apps.kardex.urls')),
     url(r'^$', include('apps.main.urls')),
 ]

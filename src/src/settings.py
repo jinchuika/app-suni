@@ -52,7 +52,11 @@ INSTALLED_APPS = [
 
     'apps.main',
     'apps.users',
+<<<<<<< HEAD
     'apps.escuela'
+=======
+    'apps.kardex',
+>>>>>>> ffda827eaf2e540e93aafb47a80026e24e7e06eb
 ]
 
 SITE_ID = 1
