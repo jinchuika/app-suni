@@ -1,0 +1,28 @@
+{% extends "base/base.html" %}
+{% load widget_tweaks %}
+
+{% block content %}
+<section class="content-header">
+	<h1>Crear una nueva escuela</h1>
+</section>
+
+<section class="content">
+	<div class="row">
+		<div class="col-md-9">
+			<table class="table box box-primary">
+				<form action="{{action}}" method="post">
+					{% for field in form %}
+					<tr>
+						<td>{{field.label}}</td>
+						<td>{{ field|add_class:"form-control" }}</td>
+					</tr>
+					{% endfor %}
+					<tr>
+						<td><input type="submit" value="Guardar" class="btn btn-primary"></td>
+					</tr>
+				</form>
+			</table>
+		</div>
+	</div>
+</section>
+{% endblock content %}

@@ -43,7 +43,6 @@ INSTALLED_APPS = [
     'easy_thumbnails',
     'dynamic_preferences',
     'widget_tweaks',
-    'mptt',
     'menu',
 
     'allauth',
@@ -53,6 +52,7 @@ INSTALLED_APPS = [
 
     'apps.main',
     'apps.users',
+    'apps.escuela'
 ]
 
 SITE_ID = 1
