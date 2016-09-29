@@ -52,6 +52,7 @@ INSTALLED_APPS = [
 
     'apps.main',
     'apps.users',
+    'apps.kardex',
 ]
 
 SITE_ID = 1
