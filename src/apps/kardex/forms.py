@@ -17,7 +17,7 @@ class FormularioEntrada(forms.ModelForm):
 		model = Entrada
 		fields = '__all__'
 		widgets= {
-		'equipo':forms.Select(attrs={'class':' form-control'}),
+		'equipo':forms.Select(attrs={'class':' form-control select2'}),
 		'fecha':forms.TextInput(attrs={'class':'datepicker form-control', 'placeholder': 'Fecha'}),
 		'cantidad':forms.NumberInput(attrs={'class':' form-control','placeholder': 'Cantidad'}),
 		'precio': forms.NumberInput(attrs={'class':' form-control', 'placeholder' : 'Precio'}),
@@ -53,10 +53,10 @@ class FormularioSalida(forms.ModelForm):
 		model = Salida
 		fields = '__all__'
 		widgets= {
-		'equipo':forms.Select(attrs={'class':' form-control'}),
+		'equipo':forms.Select(attrs={'class':' form-control select2'}),
 		'fecha':forms.TextInput(attrs={'class':'datepicker form-control', 'placeholder': 'Fecha'}),
 		'cantidad':forms.NumberInput(attrs={'class':' form-control','placeholder': 'Cantidad'}),
-		'no_entrada': forms.Select(attrs={'class':' form-control'}),
+		'no_entrada': forms.Select(attrs={'class':' form-control select2'}),
 		}
 
 	def clean_cantidad(self):

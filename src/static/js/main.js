@@ -4,6 +4,7 @@ $(document).ready(function () {
 	});
 
 
+
 	$('.table-datatables').DataTable({
 		"language":{
 			"sProcessing":     "Procesando...",
@@ -30,5 +31,10 @@ $(document).ready(function () {
 			}
 		}
 	});
-	
+
+
+	$(".select2").select2({
+		    	width : '100%'
+		    });
+
 });
