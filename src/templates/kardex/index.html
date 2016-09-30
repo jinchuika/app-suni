@@ -4,187 +4,115 @@
 
 
 
-
 <section class="content-header">
 	<h1>Equipo</h1>
 </section>
 <section class="content">
 
 	<div class="nav-tabs-custom">
-	 	<!--barra navegacion-->
-		<ul class="nav nav-tabs">
+		<!--barra navegacion-->
+		<ul class="nav nav-tabs nav-justified">
 			<li class="active"><a href="#ingresar" data-toggle="tab">Ingresar Equipo</a></li>
-			<li><a href="#listar" data-toggle="tab">Lista de Equipos</a></li>
-			<li><a href="#buscar" data-toggle="tab">Buscar Equipos</a></li>
+			<li><a href="#listar" data-toggle="tab">Lista del Equipo</a></li>
 		</ul>
-	 	<!--/barra navegacion-->
+		<!--/barra navegacion-->
 		<div class="tab-content">
+
 			<div class="tab-pane active" id="ingresar">
 				<div class="row">
 					<div class="col-md-3"></div>
 					<div class="col-md-6">
-						<table width="50%" class="table table-hover table-striped table-bordered" style="margin-top: 20px;" >
+						<table width="50%" class="table table-hover table-striped table-bordered table-responsive" style="margin-top: 20px;" >
 							<form method="POST" align="center" action="{{action}}">
 								{% csrf_token %}
 								{{ formequipo.as_table}}
-								<tr><td></td><td><input type="submit" class="btn btn-primary" value="Guardar"></td></tr>
+								<tr>
+									<td></td>
+									<td><input type="submit" class="btn btn-primary" value="Guardar"></td>
+								</tr>
 							</form>
 						</table>
 					</div>
+
 					<div class="col-md-3"></div>
 				</div>
 			</div>
+
 			<div class="tab-pane" id="listar">
 				<div class="row">
 					<div class="col-md-1"></div>
 					<div class="col-md-10">
 						<div class="box box-Navy" style="margin-top:15px; ">
+
 							<div class="box-header">
 								<div class="box-title">Tecnonogía para Educar</div>
 							</div>
+
 							<div class="box-body">
-								<table id="tablelol" class="table table-datatables table-bordered table-hover" style="margin-top:10px;">
-									<thead>
-										<tr>
-											<th>Id</th><th>Nombre</th><th>Existencia</th>
-										</tr>
-									</thead>
-									<tbody>
-										{% for i in equipo_load %}
-										<tr><td width="25">{{i.id}}</td><td>{{i}}</td><td>{{ i.existencia }}</td></tr>
-										
-										{% endfor %}
-									</tbody>
-									<tfoot>
-										<tr>
-											<th>Id</th><th>Nombre</th><th>Existencia</th>
-										</tr>
-									</tfoot>
-								</table>
+								<div class="table-responsive">
+									<table id="tablelol" class="table table-datatables table-bordered table-hover" style="margin-top:10px;">
+										<thead>
+											<tr>
+												<th>Id</th>
+												<th>Nombre</th>
+												<th>Total Ingresadas</th>
+												<th>Total Egresadas</th>
+												<th>Existencia</th>
+											</tr>
+										</thead>
+										<tbody>
+											{% for i in equipo_load %}
+											<tr>
+												<td width="25">{{i.id}}</td>
+												<td>{{i}}</td>
+												<td><a href="#" onclick="entrada({{ i.id }}, '{{ i }}');">{{i.total_ingreso}}</a></td>
+												<td><a href="#" onclick="salida({{ i.id }}, '{{ i }}');">{{i.total_egreso}}</a></td>
+												<td>{{ i.existencia }}</td>
+											</tr>
+											{% endfor %}
+										</tbody>
+										<tfoot>
+											<tr>
+												<th>Id</th>
+												<th>Nombre</th>
+												<th>Total Ingresadas</th>
+												<th>Total Egresadas</th>
+												<th>Existencia</th>
+											</tr>
+										</tfoot>
+									</table>
+								</div>
+
 							</div>
 						</div>
 					</div>
 					<div class="col-md-1"></div>
-					
 				</div>
-			</div>
-			<div class="tab-pane" id="buscar">
-				buscando
 			</div>
 		</div>
 	</div>
-<div class="form-group">
-                <label>Date range:</label>
-
-                <div class="input-group">
-                  <div class="input-group-addon">
-                    <i class="fa fa-calendar"></i>
-                  </div>
-                  <input type="text" class="form-control pull-right" id="reservation">
-                </div>
-                <!-- /.input group -->
-              </div>
-
-
-
-
-
-<!--<script>
-  $(function () {
-    $('#tablalol').DataTable({
-      "paging": true,
-      "lengthChange": false,
-      "searching": false,
-      "ordering": true,
-      "info": true,
-      "autoWidth": false
+</div>
+  <!--<script>
+    $(function () {
+      $('#tablalol').DataTable({
+        "paging": true,
+        "lengthChange": false,
+        "searching": false,
+        "ordering": true,
+        "info": true,
+        "autoWidth": false
+      });
     });
-  });
 </script>-->
-
 </section>
-
 {% endblock content %}
 
 {% block extra_css %}
-	<link rel="stylesheet" type="text/css" href="{% static "css/kardex.css" %}">
+<link rel="stylesheet" type="text/css" href="{% static "css/kardex.css" %}">
 {% endblock extra_css %}
 
-
-
 {% block extra_js %}
-
-
-
-
-<script>
-  $(function () {
-    //Initialize Select2 Elements
-    $(".select2").select2();
-
-    //Datemask dd/mm/yyyy
-    $("#datemask").inputmask("dd/mm/yyyy", {"placeholder": "dd/mm/yyyy"});
-    //Datemask2 mm/dd/yyyy
-    $("#datemask2").inputmask("mm/dd/yyyy", {"placeholder": "mm/dd/yyyy"});
-    //Money Euro
-    $("[data-mask]").inputmask();
-
-    //Date range picker
-    $('#reservation').daterangepicker();
-    //Date range picker with time picker
-    $('#reservationtime').daterangepicker({timePicker: true, timePickerIncrement: 30, format: 'MM/DD/YYYY h:mm A'});
-    //Date range as a button
-    $('#daterange-btn').daterangepicker(
-        {
-          ranges: {
-            'Today': [moment(), moment()],
-            'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
-            'Last 7 Days': [moment().subtract(6, 'days'), moment()],
-            'Last 30 Days': [moment().subtract(29, 'days'), moment()],
-            'This Month': [moment().startOf('month'), moment().endOf('month')],
-            'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
-          },
-          startDate: moment().subtract(29, 'days'),
-          endDate: moment()
-        },
-        function (start, end) {
-          $('#daterange-btn span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
-        }
-    );
-
-    //Date picker
-    $('#datepicker').datepicker({
-      autoclose: true
-    });
-
-    //iCheck for checkbox and radio inputs
-    $('input[type="checkbox"].minimal, input[type="radio"].minimal').iCheck({
-      checkboxClass: 'icheckbox_minimal-blue',
-      radioClass: 'iradio_minimal-blue'
-    });
-    //Red color scheme for iCheck
-    $('input[type="checkbox"].minimal-red, input[type="radio"].minimal-red').iCheck({
-      checkboxClass: 'icheckbox_minimal-red',
-      radioClass: 'iradio_minimal-red'
-    });
-    //Flat red color scheme for iCheck
-    $('input[type="checkbox"].flat-red, input[type="radio"].flat-red').iCheck({
-      checkboxClass: 'icheckbox_flat-green',
-      radioClass: 'iradio_flat-green'
-    });
-
-    //Colorpicker
-    $(".my-colorpicker1").colorpicker();
-    //color picker with addon
-    $(".my-colorpicker2").colorpicker();
-
-    //Timepicker
-    $(".timepicker").timepicker({
-      showInputs: false
-    });
-  });
-</script>
-	
+<script src="{% static "js/extrajs/kardex.js" %}"></script>
 {% endblock extra_js %}
 
 

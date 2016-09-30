@@ -4,6 +4,8 @@ from apps.kardex.forms import *
 from django.views.generic.edit import CreateView
 from braces.views import LoginRequiredMixin
 from django.urls import reverse_lazy
+from django.http import HttpResponse
+import json
 
 
 
@@ -22,6 +24,32 @@ def index(request):
 		"equipo_load" : equipo,
 	}
 	return render(request, 'kardex/index.html', context)
+
+
+def equipo_entrada(request, id_equipo):
+	equipo =  Equipo.objects.get(id = id_equipo)
+	lista_entrada = Entrada.objects.filter(equipo = equipo)
+	lista_vacia = []
+	for ingreso in lista_entrada:
+		lista_vacia.append({'id':ingreso.id, 'fecha':str(ingreso.fecha), 'cantidad': ingreso.cantidad, 'observacion':ingreso.observacion})
+	return HttpResponse(
+			json.dumps({
+				"tablainf": lista_vacia,
+				})
+			)
+
+def equipo_salida(request, id_equipo):
+	equipo =  Equipo.objects.get(id = id_equipo)
+	lista_salida = Salida.objects.filter(equipo = equipo)
+	lista_vacia = []
+	for egreso in lista_salida:
+		lista_vacia.append({'id':egreso.id, 'fecha':str(egreso.fecha), 'tecnico':str(egreso.tecnico), 'cantidad': egreso.cantidad, 'observacion':egreso.observacion}, )
+	return HttpResponse(
+			json.dumps({
+				"tablainf": lista_vacia,
+				})
+			)
+	
 
 
 #entrada del equipo

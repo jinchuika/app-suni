@@ -5,16 +5,35 @@ from django.db import models
 #Equipo
 class Equipo(models.Model):
 	nombre_equipo = models.CharField(max_length= 70)
+	
+	#métodos
+	def get_entradas(self):
+		cantidad_ingresada = 0
+		entrada_list = Entrada.objects.filter(equipo = self)
+		for entrada in entrada_list:
+			cantidad_ingresada += entrada.cantidad
+
+		return cantidad_ingresada
+	
+	total_ingreso = property(get_entradas)
+
+	def get_salidas(self):
+		cantidad_egresada = 0
+		entrada_list = Salida.objects.filter(equipo = self)
+		for entrada in entrada_list:
+			cantidad_egresada += entrada.cantidad
+
+		return cantidad_egresada
+	
+	total_egreso = property(get_salidas)
+
+
+
+
 
 	def get_existencia(self):
-		existencia = 0
-		entrada_list = Entrada.objects.filter(equipo = self)
-		salida_list = Salida.objects.filter(equipo = self)
-		for entrada in entrada_list:
-			existencia = existencia + entrada.cantidad
-
-		for salida in salida_list:
-			existencia = existencia - salida.cantidad
+		existencia = self.total_ingreso - self.total_egreso
+		
 
 		return existencia
 	#nueva propiedad
@@ -85,7 +104,9 @@ class Entrada(models.Model):
 	factura = models.IntegerField(null = True, blank = True)
 	observacion = models.TextField(null = True, blank = True)
 
+
 	#metodos
+
 	def __str__(self):
 		return str(self.id) + " " + str(self.equipo) + " (" + str(self.fecha) + ")"
 
