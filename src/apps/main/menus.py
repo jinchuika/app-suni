@@ -3,7 +3,7 @@ from menu import Menu, MenuItem
 from apps.users import views
 
 Menu.add_item("main", MenuItem("Tools",
-	reverse_lazy('perfil_list'),
+	'perfil_list',
 	weight=10,
 	icon="tools"))
 
