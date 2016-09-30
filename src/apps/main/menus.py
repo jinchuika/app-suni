@@ -3,7 +3,7 @@ from menu import Menu, MenuItem
 from apps.users import views
 
 Menu.add_item("main", MenuItem("Tools",
-	reverse_lazy('perfil_list'),
+	'perfil_list',
 	weight=10,
 	icon="tools"))
 
@@ -33,3 +33,25 @@ Menu.add_item("user", MenuItem("Administración",
 	"index",
 	weight=10,
 	children=myaccount_children))
+
+kardex_children = (
+	MenuItem("Equipo",
+		reverse("kardex_equipo"),
+		weight=10,
+		icon="user"),
+	MenuItem("Entradas",
+		reverse("kardex_entrada"),
+		weight=80,
+		separator=True),
+	MenuItem("Salidas",
+		reverse("kardex_salida"),
+		weight=90,
+		separator=True,
+		icon="fa fa-link"),
+	)
+
+Menu.add_item("user", MenuItem(
+	"Kardex",
+	reverse('kardex_equipo'),
+	weight=10,
+	children=kardex_children))
