@@ -12,9 +12,13 @@
 	<link rel="stylesheet" type="text/css" href="{% static "css/font-awesome.min.css" %}">
 	<link rel="stylesheet" type="text/css" href="{% static "css/jquery.dataTables.min.css" %}">
 	<link rel="stylesheet" type="text/css" href="{% static "css/dataTables.bootstrap.css" %}">
+	{% if user.preferences %}
 	{% with 'css/skin/'|add:request.user.preferences.ui__skin|add:'.min.css' as skin %}
 	<link rel="stylesheet" type="text/css" href="{% static skin %}">
 	{% endwith %}
+	{% else %}
+	<link rel="stylesheet" type="text/css" href="{% static "css/skin/skin-blue.min.css" %}">
+	{% endif %}
 
 	{% block extra_css %}
 	{% endblock extra_css %}

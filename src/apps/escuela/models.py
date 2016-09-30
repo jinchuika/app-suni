@@ -1,5 +1,6 @@
 from django.db import models
 from apps.main.models import Municipio
+from django.urls import reverse
 
 class EscArea(models.Model):
 	area = models.CharField(max_length=20)
@@ -110,3 +111,6 @@ class Escuela(models.Model):
 
 	def __str__(self):
 		return self.nombre
+
+	def get_absolute_url(self):
+		return reverse('escuela_detail', kwargs={'pk':self.id})

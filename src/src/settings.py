@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
+    'invitations',
 
     'apps.main',
     'apps.users',
@@ -174,7 +175,7 @@ LOGIN_REDIRECT_URL = '/users/profile/'
 # account settings
 ACCOUNT_EMAIL_REQUIRED = True
 SOCIALACCOUNT_AUTO_SIGNUP = False
-ACCOUNT_ADAPTER = 'apps.users.account_adapter.NoNewUsersAccountAdapter'
+ACCOUNT_ADAPTER = 'invitations.models.InvitationsAdapter'
 ACCOUNT_SIGNUP_FORM_CLASS = 'apps.users.forms.CustomSignupForm'
 ACCOUNT_SIGNUP_PASSWORD_VERIFICATION = False
 
