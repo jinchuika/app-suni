@@ -6,8 +6,10 @@ from .forms import FormEscuelaCrear
 from .models import Escuela
 
 class EscuelaCrear(LoginRequiredMixin, GroupRequiredMixin, CreateView):
-	group_required = u"Monitoreo"
+	group_required = u"Administración"
 	template_name = 'escuela/add.html'
+	raise_exception = True
+	redirect_unauthenticated_users = True
 	form_class = FormEscuelaCrear
 
 class EscuelaDetail(LoginRequiredMixin, DetailView):

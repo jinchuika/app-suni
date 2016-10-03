@@ -1,0 +1,51 @@
+[
+{
+   "model": "escuela.escstatus",
+   "pk": 1,
+   "fields": {
+      "status": "Abierta"
+   }
+},
+{
+   "model": "escuela.escstatus",
+   "pk": 2,
+   "fields": {
+      "status": "Cerrada Temporalmente"
+   }
+},
+{
+   "model": "escuela.escstatus",
+   "pk": 3,
+   "fields": {
+      "status": "Eliminado"
+   }
+},
+{
+   "model": "escuela.escstatus",
+   "pk": 4,
+   "fields": {
+      "status": "Temporal T\u00edtulos"
+   }
+},
+{
+   "model": "escuela.escstatus",
+   "pk": 5,
+   "fields": {
+      "status": "Temporal Contrato 021"
+   }
+},
+{
+   "model": "escuela.escstatus",
+   "pk": 6,
+   "fields": {
+      "status": "Temporal Nombramiento"
+   }
+},
+{
+   "model": "escuela.escstatus",
+   "pk": 7,
+   "fields": {
+      "status": "Deshabilitado"
+   }
+}
+]

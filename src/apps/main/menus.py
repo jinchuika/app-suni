@@ -1,16 +1,24 @@
-from django.core.urlresolvers import reverse, reverse_lazy
+from django.core.urlresolvers import reverse, reverse_lazy, resolve
 from menu import Menu, MenuItem
 from apps.users import views
 
-Menu.add_item("main", MenuItem("Tools",
-	'perfil_list',
-	weight=10,
-	icon="tools"))
+class ViewMenuItem(MenuItem):
+	def __init__(self, *args, **kwargs):
+		super(ViewMenuItem, self).__init__(*args, **kwargs)
+		if 'perm' in kwargs:
+			self.perm = kwargs.pop('perm')
 
-Menu.add_item("main", MenuItem("Reports",
-	"perfil_list",
-	weight=20,
-	icon="report"))
+	def check(self, request):
+		"""Check permissions based on our view"""
+		is_visible = True
+		match = resolve(self.url)
+		if hasattr(self, 'perm'):
+			if request.user.has_perm(self.perm):
+				is_visible = True
+			else:
+				is_visible = False
+		self.visible = is_visible
+
 
 myaccount_children = (
 	MenuItem("Lista de perfiles",
@@ -28,6 +36,7 @@ myaccount_children = (
 		icon="fa fa-link"),
 	)
 
+
 # Add a My Account item to our user menu
 Menu.add_item("user", MenuItem("Administración",
 	"index",
@@ -35,23 +44,39 @@ Menu.add_item("user", MenuItem("Administración",
 	children=myaccount_children))
 
 kardex_children = (
-	MenuItem("Equipo",
-		reverse("kardex_equipo"),
+	ViewMenuItem("Equipo",
+		reverse_lazy("kardex_equipo"),
 		weight=10,
-		icon="user"),
-	MenuItem("Entradas",
-		reverse("kardex_entrada"),
+		icon="fa-desktop"),
+	ViewMenuItem("Entradas",
+		reverse_lazy("kardex_entrada"),
 		weight=80,
-		separator=True),
-	MenuItem("Salidas",
-		reverse("kardex_salida"),
+		icon='fa-arrow-up'),
+	ViewMenuItem("Salidas",
+		reverse_lazy("kardex_salida"),
 		weight=90,
-		separator=True,
-		icon="fa fa-link"),
+		icon="fa-arrow-down"),
 	)
 
 Menu.add_item("user", MenuItem(
 	"Kardex",
-	reverse('kardex_equipo'),
+	reverse_lazy('kardex_equipo'),
 	weight=10,
+	icon="fa-cogs",
 	children=kardex_children))
+
+
+# KARDEX
+escuela_children = (
+	ViewMenuItem("Crear escuela",
+		reverse_lazy("escuela_add"),
+		weight=10,
+		icon="user",
+		perm='escuela.add_escuela'),
+	)
+
+Menu.add_item("user", MenuItem(
+	"Escuelas",
+	'#',
+	weight=10,
+	children=escuela_children))

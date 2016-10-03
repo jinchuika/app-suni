@@ -2,12 +2,18 @@
 	{% for item in items %}
         {% if item.visible %}
         	<li class="{% if item.selected %} active{% endif %}{% if item.children %} treeview{% endif %}">
-        	<a href="{{ item.url }}">{{ item.title }}</a>
+            <a href="{{ item.url }}">
+                {% if item.icon %}
+                <i class="fa {{ item.icon }}"></i>
+                {% endif %}
+                {{ item.title }}
+            </a>
             {% if item.children %}
                 {% with items=item.children template_name='main-sidebar-sub.html' %}
                    {% include template_name %}
                 {% endwith %}
             {% endif %}
+            </li>
         {% endif %}
     {% endfor %}
 </ul>

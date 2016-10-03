@@ -78,14 +78,14 @@ class EscSector(models.Model):
 	def __str__(self):
 		return self.sector
 
-class EscSatus(models.Model):
+class EscStatus(models.Model):
 	"""
 	Description: Status de la escuela (Abierta, cerrada)
 	"""
 	status = models.CharField(max_length=25)
 
 	class Meta:
-		verbose_name = 'Stat'
+		verbose_name = 'Status'
 		verbose_name_plural = 'Statues'
 
 	def __str__(self):
@@ -104,7 +104,7 @@ class Escuela(models.Model):
 	nivel = models.ForeignKey(EscNivel, on_delete=models.PROTECT)
 	sector = models.ForeignKey(EscSector, on_delete=models.PROTECT)
 	area = models.ForeignKey(EscArea, on_delete=models.PROTECT)
-	status = models.ForeignKey(EscSatus, on_delete=models.PROTECT)
+	status = models.ForeignKey(EscStatus, on_delete=models.PROTECT)
 	modalidad = models.ForeignKey(EscModalidad, on_delete=models.PROTECT)
 	jornada = models.ForeignKey(EscJornada, on_delete=models.PROTECT)
 	plan = models.ForeignKey(EscPlan, on_delete=models.PROTECT)
