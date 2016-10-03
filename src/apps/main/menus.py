@@ -22,13 +22,9 @@ class ViewMenuItem(MenuItem):
 
 myaccount_children = (
 	MenuItem("Lista de perfiles",
-		"perfil_list",
+		reverse_lazy("perfil_list"),
 		weight=10,
 		icon="user"),
-	MenuItem("Mi Perfil",
-		"profile",
-		weight=80,
-		separator=True),
 	MenuItem("Logout",
 		"login",
 		weight=90,
@@ -41,6 +37,7 @@ myaccount_children = (
 Menu.add_item("user", MenuItem("Administración",
 	"index",
 	weight=10,
+	icon="fa-key",
 	children=myaccount_children))
 
 kardex_children = (

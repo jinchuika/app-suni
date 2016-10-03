@@ -6,7 +6,7 @@ from django.views import(
 	)
 urlpatterns = [
     url(r'login', user_views.UserLogin.as_view(), name='login'),
-    url(r'all$', user_views.PerfilList.as_view(), name='perfil_list '),
+    url(r'all$', user_views.PerfilList.as_view(), name='perfil_list'),
     url(r'profile/edit/$', user_views.PerfilUpdate.as_view(), name='profile_edit'),
     url(r'profile/$', user_views.current_profile_redirect, name='profile'),
     

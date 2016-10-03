@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.views.generic import DetailView
-from django.views.generic.edit import CreateView
-from braces.views import LoginRequiredMixin, GroupRequiredMixin
+from django.views.generic.edit import CreateView, UpdateView
+from braces.views import LoginRequiredMixin, GroupRequiredMixin, PermissionRequiredMixin
 from .forms import FormEscuelaCrear
 from .models import Escuela
 
@@ -15,3 +15,11 @@ class EscuelaCrear(LoginRequiredMixin, GroupRequiredMixin, CreateView):
 class EscuelaDetail(LoginRequiredMixin, DetailView):
 	template_name = 'escuela/detail.html'
 	model = Escuela
+
+class EscuelaEditar(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
+	permission_required = "escuela.change_escuela"
+	model = Escuela
+	template_name = 'escuela/add.html'
+	form_class = FormEscuelaCrear
+	raise_exception = True
+	redirect_unauthenticated_users = True

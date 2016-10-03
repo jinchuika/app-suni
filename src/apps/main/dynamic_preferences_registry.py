@@ -15,3 +15,10 @@ class ThemeSkin(ChoicePreference):
 	section = "ui"
 	name = "skin"
 	default = "skin-blue"
+
+@user_preferences_registry.register
+class ThemeSkin(BooleanPreference):
+	verbose_name = "Navegación estática"
+	section = "ui"
+	name = "fixed"
+	default = False

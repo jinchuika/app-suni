@@ -109,8 +109,56 @@ class Escuela(models.Model):
 	jornada = models.ForeignKey(EscJornada, on_delete=models.PROTECT)
 	plan = models.ForeignKey(EscPlan, on_delete=models.PROTECT)
 
+	class Meta:
+		verbose_name = "Escuela"
+		verbose_name_plural = "Escuelas"
+
 	def __str__(self):
 		return self.nombre
 
 	def get_absolute_url(self):
 		return reverse('escuela_detail', kwargs={'pk':self.id})
+
+class EscContactoRol(models.Model):
+	"""
+	Description: Rol para el contacto de escuela
+	"""
+	rol = models.CharField(max_length=30)
+
+	class Meta:
+		verbose_name = "Rol de contacto"
+		verbose_name_plural = "Roles de contacto"
+
+	def __str__(self):
+		return self.rol
+
+class EscContacto(models.Model):
+	nombre = models.CharField(max_length=100)
+	apellido = models.CharField(max_length=100)
+	nombre = models.CharField(max_length=100)
+	rol = models.ForeignKey(EscContactoRol, on_delete=models.PROTECT)
+
+	class Meta:
+		verbose_name = "Contacto"
+		verbose_name_plural = "Contactos de escuela"
+
+	def __str__(self):
+		return self.nombre + " " + self.apellido
+
+class EscContactoTelefono(models.Model):
+	contacto = models.ForeignKey(EscContacto, related_name="telefono")
+	telefono = models.CharField(max_length=11)
+	descripcion = models.CharField(max_length=30, null=True, blank=True, verbose_name="Descripción")
+
+	def __str__(self):
+		return self.telefono
+
+class EscContactoMail(models.Model):
+	"""
+	Description: Correo de contacto
+	"""
+	contacto = models.ForeignKey(EscContacto, related_name="mail")
+	mail = models.EmailField(max_length=125)
+
+	def __str__(self):
+		return self.mail
