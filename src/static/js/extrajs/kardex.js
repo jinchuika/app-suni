@@ -13,11 +13,10 @@ function entrada(id_equipo, equipo){
                             texto += "<td>Fecha </td>";
                             texto += "<td>Cantidad Ingresado</td>";
                             texto += "<td>Observación</td>";
-                            texto += "<td>Usuario</td>";
                           texto += "</tr>";
                         texto += "</thead>";
         $.each(respuesta.tablainf, function(index, item){
-          texto += "<tr><td>" + item.id + "</td><td>"+ item.fecha + "</td><td>" + item.cantidad + "</td><td>" + item.observacion + "</td><td>" + item.tecnico + "</td></tr>";
+          texto += "<tr><td>" + item.id + "</td><td>"+ item.fecha + "</td><td>" + item.cantidad + "</td><td>" + item.observacion + "</td></tr>";
           
         })
         
@@ -48,10 +47,11 @@ function salida(id_equipo, equipo){
                             texto += "<td>Fecha </td>";
                             texto += "<td>Cantidad Ingresado</td>";
                             texto += "<td>observación</td>";
+                            texto += "<td>Usuario</td>";
                           texto += "</tr>";
                         texto += "</thead>";
         $.each(respuesta.tablainf, function(index, item){
-          texto += "<tr><td>" + item.id + "</td><td>"+ item.fecha + "</td><td>" + item.cantidad + "</td><td>" + item.observacion +"</td></tr>";
+          texto += "<tr><td>" + item.id + "</td><td>"+ item.fecha + "</td><td>" + item.cantidad + "</td><td>" + item.observacion + "</td><td>" + item.tecnico + "</td></tr>";
           
         })
         
