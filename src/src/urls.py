@@ -13,5 +13,5 @@ urlpatterns = [
     url(r'^accounts/', include('allauth.urls')),
     url(r'^kardex/', include('apps.kardex.urls')),
     url(r'^invitations/', include('invitations.urls', namespace='invitations')),
-    url(r'^$', include('apps.main.urls')),
+    url(r'^/', include('apps.main.urls')),
 ]
