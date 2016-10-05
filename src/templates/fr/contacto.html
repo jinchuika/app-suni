@@ -17,10 +17,16 @@
 					<ul class="nav nav-tabs nav-justified">
 						
 						<li class="active">
-							<a href="#listempresa" data-toggle="tab">Listado de Contactos</a>
+							<a href="#listempresa" data-toggle="tab">
+								<i class="fa fa-list"></i>
+								Listado de Contactos
+							</a>
 						</li>
 						<li>
-							<a href="#addempresa" data-toggle="tab">Agregar Contactos</a>
+							<a href="#addempresa" data-toggle="tab">
+								<i class="fa fa-user-plus"></i>
+								Agregar Contactos
+							</a>
 						</li>
 
 					</ul>
@@ -60,18 +66,29 @@
 																		<td>{{i.direccion}}</td>
 																		<td>
 																			{% for tag in i.etiquetas.all %}
+																			<a href="#" onclick="contacto({{tag.id}}, '{{ tag }}');">
 																				<span class="badge bg-{{tag.color}}">
-																				<i class="fa fa-tag"></i>
+																				<!--
+																				nombre
+																				empresa
+																				puesto
+																				telefono
+																				correo
+
+
+																				-->
+																					<i class="fa fa-tag"></i>
 																					{{tag}}
 																				</span>
+																			</a>
 																			{% endfor %}
 																		</td>
 																		<td>
 																			{% for evento in i.evento.all %}
-																				<span class="badge bg-{{evento.color}}">
+																			<span class="badge bg-{{evento.color}}">
 																				<i class="fa fa-calendar-check-o"></i>
-																					{{evento}}
-																				</span>
+																				{{evento}}
+																			</span>
 																			{% endfor %}
 																		</td>
 																		<td>{{i.empresa}}</td>
@@ -155,3 +172,8 @@
 </section>
 
 {% endblock content %}
+
+
+{% block extra_js %}
+<script src="{% static "js/extrajs/fr.js" %}"></script>
+{% endblock extra_js %}

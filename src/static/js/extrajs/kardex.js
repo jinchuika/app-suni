@@ -9,10 +9,10 @@ function entrada(id_equipo, equipo){
         var texto = "<table class='table table-datatables'>";
                         texto += "<thead>";
                           texto += "<tr>";
-                            texto += "<td>Id de entrada</td>";
-                            texto += "<td>Fecha </td>";
-                            texto += "<td>Cantidad Ingresado</td>";
-                            texto += "<td>Observación</td>";
+                            texto += "<th>Id de entrada</th>";
+                            texto += "<th>Fecha </th>";
+                            texto += "<th>Cantidad Ingresado</th>";
+                            texto += "<th>Observación</th>";
                           texto += "</tr>";
                         texto += "</thead>";
         $.each(respuesta.tablainf, function(index, item){
@@ -43,11 +43,11 @@ function salida(id_equipo, equipo){
         var texto = "<table class='table table-datatables'>";
                         texto += "<thead>";
                           texto += "<tr>";
-                            texto += "<td>id de entrada</td>";
-                            texto += "<td>Fecha </td>";
-                            texto += "<td>Cantidad Ingresado</td>";
-                            texto += "<td>observación</td>";
-                            texto += "<td>Usuario</td>";
+                            texto += "<th>id de entrada</th>";
+                            texto += "<th>Fecha </th>";
+                            texto += "<th>Cantidad Ingresado</th>";
+                            texto += "<th>observación</th>";
+                            texto += "<th>Usuario</th>";
                           texto += "</tr>";
                         texto += "</thead>";
         $.each(respuesta.tablainf, function(index, item){

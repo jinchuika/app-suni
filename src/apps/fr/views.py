@@ -45,5 +45,18 @@ class CreateContacto(LoginRequiredMixin, ListMixin, CreateView):
 
 
 
+def contacto_etiqueta(request, id_tag):
+	tag =  Etiqueta.objects.get(id = id_tag)
+	lista_contacto = Contacto.objects.filter(etiqueta = tag)
+	lista_vacia = []
+	for contacto in lista_contacto:
+		lista_vacia.append({'nombre':contacto, 'empresa': contacto.empresa, 'puesto': contacto.puesto, 'telefono':contacto.telefono, 'correo': contacto.correo})
+	return HttpResponse(
+			json.dumps({
+				"contacto": lista_vacia,
+				})
+			)
+
+
 
 # Create your views here.
