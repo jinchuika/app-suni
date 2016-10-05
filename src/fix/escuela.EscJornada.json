@@ -1,0 +1,37 @@
+[
+{
+   "model": "escuela.escjornada",
+   "pk": 1,
+   "fields": {
+      "jornada": "Doble"
+   }
+},
+{
+   "model": "escuela.escjornada",
+   "pk": 2,
+   "fields": {
+      "jornada": "Intermedia"
+   }
+},
+{
+   "model": "escuela.escjornada",
+   "pk": 3,
+   "fields": {
+      "jornada": "Matutina"
+   }
+},
+{
+   "model": "escuela.escjornada",
+   "pk": 4,
+   "fields": {
+      "jornada": "Nocturna"
+   }
+},
+{
+   "model": "escuela.escjornada",
+   "pk": 5,
+   "fields": {
+      "jornada": "Vespertina"
+   }
+}
+]

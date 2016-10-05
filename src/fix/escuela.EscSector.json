@@ -1,0 +1,30 @@
+[
+{
+   "model": "escuela.escsector",
+   "pk": 1,
+   "fields": {
+      "sector": "Cooperativa"
+   }
+},
+{
+   "model": "escuela.escsector",
+   "pk": 2,
+   "fields": {
+      "sector": "Municipal"
+   }
+},
+{
+   "model": "escuela.escsector",
+   "pk": 3,
+   "fields": {
+      "sector": "Oficial"
+   }
+},
+{
+   "model": "escuela.escsector",
+   "pk": 4,
+   "fields": {
+      "sector": "Privado"
+   }
+}
+]

@@ -1,0 +1,179 @@
+{% extends "base/base.html" %}
+{% load staticfiles %}
+{% load widget_tweaks %}
+
+{% block content %}
+
+<section class="content-header">
+	<h1>Contactos</h1>
+</section>
+
+<section class="content">
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-md-1"></div>
+			<div class="col-md-10">
+				<div class="nav-tabs-custom">
+					<ul class="nav nav-tabs nav-justified">
+						
+						<li class="active">
+							<a href="#listempresa" data-toggle="tab">
+								<i class="fa fa-list"></i>
+								Listado de Contactos
+							</a>
+						</li>
+						<li>
+							<a href="#addempresa" data-toggle="tab">
+								<i class="fa fa-user-plus"></i>
+								Agregar Contactos
+							</a>
+						</li>
+
+					</ul>
+
+					<div class="tab-content">
+						
+						<div class="tab-pane active" id="listempresa">
+							<div class="row">
+								<div class="col-md-1"></div>
+								<div class="col-md-10">
+									<div class="box box-primary">
+										<div class="box-header">
+											<div class="box-title">Listado de Contactos</div>
+
+											<div class="box-body">
+												<div class="row">
+													<div class="col-md-12">
+														<div class="table-responsive">
+															<table class="table table-datatables table-bordered table-hover ">
+																<thead>
+																	<tr>
+																		<th>ID</th>
+																		<th>Nombre</th>
+																		<th>Direccion</th>
+																		<th>Etiquetas</th>
+																		<th>Eventos</th>
+																		<th>Empresa</th>
+																		<th>Puesto</th>
+																		<th>Observación</th>
+																	</tr>
+																</thead>
+																<tbody>
+																	{% for i in lista %}
+																	<tr>
+																		<td>{{i.id}}</td> 
+																		<td>{{i}}</td>
+																		<td>{{i.direccion}}</td>
+																		<td>
+																			{% for tag in i.etiquetas.all %}
+																			<a href="#" onclick="contacto({{tag.id}}, '{{ tag }}');">
+																				<span class="badge bg-{{tag.color}}">
+																				<!--
+																				nombre
+																				empresa
+																				puesto
+																				telefono
+																				correo
+
+
+																				-->
+																					<i class="fa fa-tag"></i>
+																					{{tag}}
+																				</span>
+																			</a>
+																			{% endfor %}
+																		</td>
+																		<td>
+																			{% for evento in i.evento.all %}
+																			<span class="badge bg-{{evento.color}}">
+																				<i class="fa fa-calendar-check-o"></i>
+																				{{evento}}
+																			</span>
+																			{% endfor %}
+																		</td>
+																		<td>{{i.empresa}}</td>
+																		<td>{{i.puesto}}</td>
+																		<td>{{i.observacion}}</td>
+																	</tr>
+																	{% endfor %}
+																</tbody>
+																<tfoot>
+																	<tr>
+																		<th>ID</th>
+																		<th>Nombre</th>
+																		<th>Direccion</th>
+																		<th>Etiquetas</th>
+																		<th>Eventos</th>
+																		<th>Empresa</th>
+																		<th>Puesto</th>
+																		<th>Observación</th>
+																	</tr>
+																</tfoot>										
+															</table>
+														</div>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+								<div class="col-md-1"></div>
+							</div>
+						</div>
+
+						<div class="tab-pane " id="addempresa">
+							<div class="row">
+								<div class="col-md-1"></div>
+								<div class="col-md-10">
+									<div class="box box-navy">
+										
+										<div class="box-header">
+											<div class="box-title">Agregar Contacto</div>
+										</div>
+
+										<div class="box-body">
+											<div class="row">
+												<div class="col-md-1"></div>
+												<div class="col-md-10">
+													<div class="table-responsive">
+														<table class="table table-hover table-striped table-bordered">
+															<form method="POST" align="center" action="{{action}}">
+																{% csrf_token %}
+																{% for field in form %}
+																<tr>
+																	<td>{{field.label}}</td>
+																	<td>{{ field|add_class:"form-control" }}</td>
+																</tr>
+																{% endfor %}
+																<tr>
+																	<td></td>
+																	<td> <input type="submit" class="btn btn-primary" value="Guardar"> </td>
+																</tr>
+															</form>
+														</table>
+													</div>
+												</div>
+												<div class="col-md-1"></div>
+											</div>
+										</div>
+
+									</div>
+								</div>
+								<div class="col-md-1"></div>
+							</div>
+						</div>
+					</div>
+
+				</div>
+			</div>
+			<div class="col-md-1"></div>
+		</div>
+	</div>
+</section>
+
+{% endblock content %}
+
+
+{% block extra_js %}
+<script src="{% static "js/extrajs/fr.js" %}"></script>
+{% endblock extra_js %}

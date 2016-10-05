@@ -29,7 +29,7 @@
 
 </head>
 
-<body class="hold-transition {{ request.user.preferences.ui__skin }} sidebar-mini">
+<body class="hold-transition {{ request.user.preferences.ui__skin }} sidebar-mini {% if user.preferences.ui__fixed is True %}fixed {% endif %}">
 	<div class="wrapper">
 		{% if user.is_authenticated %}
 			<header class="main-header">

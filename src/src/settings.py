@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     'apps.users',
     'apps.escuela',
     'apps.kardex',
+    'apps.fr',
 ]
 
 SITE_ID = 1
@@ -178,6 +179,7 @@ SOCIALACCOUNT_AUTO_SIGNUP = False
 ACCOUNT_ADAPTER = 'invitations.models.InvitationsAdapter'
 ACCOUNT_SIGNUP_FORM_CLASS = 'apps.users.forms.CustomSignupForm'
 ACCOUNT_SIGNUP_PASSWORD_VERIFICATION = False
+
 
 DYNAMIC_PREFERENCES = {
 

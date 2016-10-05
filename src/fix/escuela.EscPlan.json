@@ -1,0 +1,44 @@
+[
+{
+   "model": "escuela.escplan",
+   "pk": 1,
+   "fields": {
+      "plan": "A Distancia"
+   }
+},
+{
+   "model": "escuela.escplan",
+   "pk": 2,
+   "fields": {
+      "plan": "Diario (Regular)"
+   }
+},
+{
+   "model": "escuela.escplan",
+   "pk": 3,
+   "fields": {
+      "plan": "Dominical"
+   }
+},
+{
+   "model": "escuela.escplan",
+   "pk": 4,
+   "fields": {
+      "plan": "Fin de Semana"
+   }
+},
+{
+   "model": "escuela.escplan",
+   "pk": 5,
+   "fields": {
+      "plan": "Irregular"
+   }
+},
+{
+   "model": "escuela.escplan",
+   "pk": 6,
+   "fields": {
+      "plan": "Sabatino"
+   }
+}
+]

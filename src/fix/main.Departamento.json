@@ -1,0 +1,156 @@
+[
+{
+   "model": "main.departamento",
+   "pk": 1,
+   "fields": {
+      "nombre": "GUATEMALA"
+   }
+},
+{
+   "model": "main.departamento",
+   "pk": 2,
+   "fields": {
+      "nombre": "EL PROGRESO"
+   }
+},
+{
+   "model": "main.departamento",
+   "pk": 3,
+   "fields": {
+      "nombre": "SACATEPEQUEZ"
+   }
+},
+{
+   "model": "main.departamento",
+   "pk": 4,
+   "fields": {
+      "nombre": "CHIMALTENANGO"
+   }
+},
+{
+   "model": "main.departamento",
+   "pk": 5,
+   "fields": {
+      "nombre": "ESCUINTLA"
+   }
+},
+{
+   "model": "main.departamento",
+   "pk": 6,
+   "fields": {
+      "nombre": "SANTA ROSA"
+   }
+},
+{
+   "model": "main.departamento",
+   "pk": 7,
+   "fields": {
+      "nombre": "SOLOLA"
+   }
+},
+{
+   "model": "main.departamento",
+   "pk": 8,
+   "fields": {
+      "nombre": "TOTONICAPAN"
+   }
+},
+{
+   "model": "main.departamento",
+   "pk": 9,
+   "fields": {
+      "nombre": "QUETZALTENANGO"
+   }
+},
+{
+   "model": "main.departamento",
+   "pk": 10,
+   "fields": {
+      "nombre": "SUCHITEPEQUEZ"
+   }
+},
+{
+   "model": "main.departamento",
+   "pk": 11,
+   "fields": {
+      "nombre": "RETALHULEU"
+   }
+},
+{
+   "model": "main.departamento",
+   "pk": 12,
+   "fields": {
+      "nombre": "SAN MARCOS"
+   }
+},
+{
+   "model": "main.departamento",
+   "pk": 13,
+   "fields": {
+      "nombre": "HUEHUETENANGO"
+   }
+},
+{
+   "model": "main.departamento",
+   "pk": 14,
+   "fields": {
+      "nombre": "QUICHE"
+   }
+},
+{
+   "model": "main.departamento",
+   "pk": 15,
+   "fields": {
+      "nombre": "BAJA VERAPAZ"
+   }
+},
+{
+   "model": "main.departamento",
+   "pk": 16,
+   "fields": {
+      "nombre": "ALTA VERAPAZ"
+   }
+},
+{
+   "model": "main.departamento",
+   "pk": 17,
+   "fields": {
+      "nombre": "PETEN"
+   }
+},
+{
+   "model": "main.departamento",
+   "pk": 18,
+   "fields": {
+      "nombre": "IZABAL"
+   }
+},
+{
+   "model": "main.departamento",
+   "pk": 19,
+   "fields": {
+      "nombre": "ZACAPA"
+   }
+},
+{
+   "model": "main.departamento",
+   "pk": 20,
+   "fields": {
+      "nombre": "CHIQUIMULA"
+   }
+},
+{
+   "model": "main.departamento",
+   "pk": 21,
+   "fields": {
+      "nombre": "JALAPA"
+   }
+},
+{
+   "model": "main.departamento",
+   "pk": 22,
+   "fields": {
+      "nombre": "JUTIAPA"
+   }
+}
+]

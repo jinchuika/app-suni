@@ -1,0 +1,51 @@
+[
+{
+   "model": "escuela.escnivel",
+   "pk": 1,
+   "fields": {
+      "nivel": "Preprimaria Biling\u00fce"
+   }
+},
+{
+   "model": "escuela.escnivel",
+   "pk": 2,
+   "fields": {
+      "nivel": "B\u00e1sico"
+   }
+},
+{
+   "model": "escuela.escnivel",
+   "pk": 3,
+   "fields": {
+      "nivel": "Parvulos"
+   }
+},
+{
+   "model": "escuela.escnivel",
+   "pk": 4,
+   "fields": {
+      "nivel": "Primaria"
+   }
+},
+{
+   "model": "escuela.escnivel",
+   "pk": 5,
+   "fields": {
+      "nivel": "Primaria de Adultos"
+   }
+},
+{
+   "model": "escuela.escnivel",
+   "pk": 6,
+   "fields": {
+      "nivel": "Diversificado"
+   }
+},
+{
+   "model": "escuela.escnivel",
+   "pk": 7,
+   "fields": {
+      "nivel": "Ninguno"
+   }
+}
+]
