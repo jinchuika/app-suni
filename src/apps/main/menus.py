@@ -2,6 +2,8 @@ from django.core.urlresolvers import reverse, reverse_lazy, resolve
 from menu import Menu, MenuItem
 from apps.users import views
 
+admin_children = (
+
 class ViewMenuItem(MenuItem):
 	def __init__(self, *args, **kwargs):
 		super(ViewMenuItem, self).__init__(*args, **kwargs)
@@ -37,6 +39,21 @@ myaccount_children = (
 Menu.add_item("user", MenuItem("Administración",
 	"index",
 	weight=10,
+	children=admin_children))
+
+kardex_children = (
+	MenuItem("Equipo",
+		reverse("kardex_equipo"),
+		weight=80,
+		icon="user"),
+	MenuItem("Entradas",
+		reverse("kardex_entrada"),
+		weight=10,
+		icon="user"),
+	MenuItem("Salidas",
+		reverse("kardex_salida"),
+		weight=20,
+		icon="fa fa-link"),
 	icon="fa-key",
 	children=myaccount_children))
 
@@ -53,13 +70,13 @@ kardex_children = (
 		reverse_lazy("kardex_salida"),
 		weight=90,
 		icon="fa-arrow-down"),
+
 	)
 
 Menu.add_item("user", MenuItem(
 	"Kardex",
-	reverse_lazy('kardex_equipo'),
-	weight=10,
-	icon="fa-cogs",
+	reverse('kardex_equipo'),
+	weight=20,
 	children=kardex_children))
 
 

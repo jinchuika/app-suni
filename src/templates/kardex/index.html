@@ -9,89 +9,97 @@
 </section>
 <section class="content">
 
-	<div class="nav-tabs-custom">
-		<!--barra navegacion-->
-		<ul class="nav nav-tabs nav-justified">
-			<li class="active"><a href="#ingresar" data-toggle="tab">Ingresar Equipo</a></li>
-			<li><a href="#listar" data-toggle="tab">Lista del Equipo</a></li>
-		</ul>
-		<!--/barra navegacion-->
-		<div class="tab-content">
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-md-1"></div>
+			<div class="col-md-10">
+				<div class="nav-tabs-custom">
+					<!--barra navegacion-->
+					<ul class="nav nav-tabs nav-justified">
+						<li class="active"><a href="#listar" data-toggle="tab">Lista del Equipo</a></li>
+						<li><a href="#ingresar" data-toggle="tab">Ingresar Equipo</a></li>
+					</ul>
+					<!--/barra navegacion-->
+					<div class="tab-content">
 
-			<div class="tab-pane active" id="ingresar">
-				<div class="row">
-					<div class="col-md-3"></div>
-					<div class="col-md-6">
-						<table width="50%" class="table table-hover table-striped table-bordered table-responsive" style="margin-top: 20px;" >
-							<form method="POST" align="center" action="{{action}}">
-								{% csrf_token %}
-								{{ formequipo.as_table}}
-								<tr>
-									<td></td>
-									<td><input type="submit" class="btn btn-primary" value="Guardar"></td>
-								</tr>
-							</form>
-						</table>
-					</div>
+						<div class="tab-pane active" id="listar">
+							<div class="row">
+								<div class="col-md-1"></div>
+								<div class="col-md-10">
+									<div class="box box-Navy" style="margin-top:15px; ">
 
-					<div class="col-md-3"></div>
-				</div>
-			</div>
+										<div class="box-header">
+											<div class="box-title">Tecnonogía para Educar</div>
+										</div>
 
-			<div class="tab-pane" id="listar">
-				<div class="row">
-					<div class="col-md-1"></div>
-					<div class="col-md-10">
-						<div class="box box-Navy" style="margin-top:15px; ">
+										<div class="box-body">
+											<div class="table-responsive">
+												<table id="tablelol" class="table table-datatables table-bordered table-hover" style="margin-top:10px;">
+													<thead>
+														<tr>
+															<th>Id</th>
+															<th>Nombre</th>
+															<th>Total Ingresadas</th>
+															<th>Total Egresadas</th>
+															<th>Existencia</th>
+														</tr>
+													</thead>
+													<tbody>
+														{% for i in equipo_load %}
+														<tr>
+															<td width="25">{{i.id}}</td>
+															<td>{{i}}</td>
+															<td><a href="#" onclick="entrada({{ i.id }}, '{{ i }}');">{{i.total_ingreso}}</a></td>
+															<td><a href="#" onclick="salida({{ i.id }}, '{{ i }}');">{{i.total_egreso}}</a></td>
+															<td>{{ i.existencia }}</td>
+														</tr>
+														{% endfor %}
+													</tbody>
+													<tfoot>
+														<tr>
+															<th>Id</th>
+															<th>Nombre</th>
+															<th>Total Ingresadas</th>
+															<th>Total Egresadas</th>
+															<th>Existencia</th>
+														</tr>
+													</tfoot>
+												</table>
+											</div>
 
-							<div class="box-header">
-								<div class="box-title">Tecnonogía para Educar</div>
+										</div>
+									</div>
+								</div>
+								<div class="col-md-1"></div>
 							</div>
+						</div>
 
-							<div class="box-body">
-								<div class="table-responsive">
-									<table id="tablelol" class="table table-datatables table-bordered table-hover" style="margin-top:10px;">
-										<thead>
+						<div class="tab-pane" id="ingresar">
+							<div class="row">
+								<div class="col-md-3"></div>
+								<div class="col-md-6">
+									<table width="50%" class="table table-hover table-striped table-bordered table-responsive" style="margin-top: 20px;" >
+										<form method="POST" align="center" action="{{action}}">
+											{% csrf_token %}
+											{{ formequipo.as_table}}
 											<tr>
-												<th>Id</th>
-												<th>Nombre</th>
-												<th>Total Ingresadas</th>
-												<th>Total Egresadas</th>
-												<th>Existencia</th>
+												<td></td>
+												<td><input type="submit" class="btn btn-primary" value="Guardar"></td>
 											</tr>
-										</thead>
-										<tbody>
-											{% for i in equipo_load %}
-											<tr>
-												<td width="25">{{i.id}}</td>
-												<td>{{i}}</td>
-												<td><a href="#" onclick="entrada({{ i.id }}, '{{ i }}');">{{i.total_ingreso}}</a></td>
-												<td><a href="#" onclick="salida({{ i.id }}, '{{ i }}');">{{i.total_egreso}}</a></td>
-												<td>{{ i.existencia }}</td>
-											</tr>
-											{% endfor %}
-										</tbody>
-										<tfoot>
-											<tr>
-												<th>Id</th>
-												<th>Nombre</th>
-												<th>Total Ingresadas</th>
-												<th>Total Egresadas</th>
-												<th>Existencia</th>
-											</tr>
-										</tfoot>
+										</form>
 									</table>
 								</div>
 
+								<div class="col-md-3"></div>
 							</div>
-						</div>
+						</div>	
 					</div>
-					<div class="col-md-1"></div>
 				</div>
 			</div>
+			<div class="col-md-1"></div>
 		</div>
 	</div>
-</div>
+
   <!--<script>
     $(function () {
       $('#tablalol').DataTable({

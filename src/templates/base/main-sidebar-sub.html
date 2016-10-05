@@ -1,6 +1,10 @@
+{% load menu %}
 <ul class="treeview-menu">
+    {% generate_menu %}
 	{% for item in items %}
         {% if item.visible %}
+        	<li class="{% if item.selected %} active {% endif %} {% if item.children %} treeview {% endif %}">
+        	<a href="{{ item.url }}">{{ item.title }}</a>
         	<li class="{% if item.selected %} active{% endif %}{% if item.children %} treeview{% endif %}">
             <a href="{{ item.url }}">
                 {% if item.icon %}
