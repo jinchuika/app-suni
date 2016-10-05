@@ -1,0 +1,2690 @@
+[
+{
+   "model": "main.municipio",
+   "pk": 101,
+   "fields": {
+      "departamento": 1,
+      "nombre": "GUATEMALA"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 102,
+   "fields": {
+      "departamento": 1,
+      "nombre": "SANTA CATARINA PINULA"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 103,
+   "fields": {
+      "departamento": 1,
+      "nombre": "SAN JOSE PINULA"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 104,
+   "fields": {
+      "departamento": 1,
+      "nombre": "SAN JOSE DEL GOLFO"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 105,
+   "fields": {
+      "departamento": 1,
+      "nombre": "PALENCIA"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 106,
+   "fields": {
+      "departamento": 1,
+      "nombre": "CHINAUTLA"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 107,
+   "fields": {
+      "departamento": 1,
+      "nombre": "SAN PEDRO AYAMPUC"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 108,
+   "fields": {
+      "departamento": 1,
+      "nombre": "MIXCO"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 109,
+   "fields": {
+      "departamento": 1,
+      "nombre": "SAN PEDRO SACATEPEQUEZ"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 110,
+   "fields": {
+      "departamento": 1,
+      "nombre": "SAN JUAN SACATEPEQUEZ"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 111,
+   "fields": {
+      "departamento": 1,
+      "nombre": "SAN RAYMUNDO"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 112,
+   "fields": {
+      "departamento": 1,
+      "nombre": "CHUARRANCHO"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 113,
+   "fields": {
+      "departamento": 1,
+      "nombre": "FRAIJANES"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 114,
+   "fields": {
+      "departamento": 1,
+      "nombre": "AMATITLAN"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 115,
+   "fields": {
+      "departamento": 1,
+      "nombre": "VILLA NUEVA"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 116,
+   "fields": {
+      "departamento": 1,
+      "nombre": "VILLA CANALES"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 117,
+   "fields": {
+      "departamento": 1,
+      "nombre": "SAN MIGUEL PETAPA"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 201,
+   "fields": {
+      "departamento": 2,
+      "nombre": "GUASTATOYA"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 202,
+   "fields": {
+      "departamento": 2,
+      "nombre": "MORAZAN"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 203,
+   "fields": {
+      "departamento": 2,
+      "nombre": "SAN AGUSTIN ACASAGUASTLAN"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 204,
+   "fields": {
+      "departamento": 2,
+      "nombre": "SAN CRISTOBAL ACASAGUASTLAN"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 205,
+   "fields": {
+      "departamento": 2,
+      "nombre": "EL JICARO"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 206,
+   "fields": {
+      "departamento": 2,
+      "nombre": "SANSARE"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 207,
+   "fields": {
+      "departamento": 2,
+      "nombre": "SANARATE"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 208,
+   "fields": {
+      "departamento": 2,
+      "nombre": "SAN ANTONIO LA PAZ"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 301,
+   "fields": {
+      "departamento": 3,
+      "nombre": "ANTIGUA GUATEMALA"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 302,
+   "fields": {
+      "departamento": 3,
+      "nombre": "JOCOTENANGO"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 303,
+   "fields": {
+      "departamento": 3,
+      "nombre": "PASTORES"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 304,
+   "fields": {
+      "departamento": 3,
+      "nombre": "SUMPANGO"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 305,
+   "fields": {
+      "departamento": 3,
+      "nombre": "SANTO DOMINGO XENACOJ"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 306,
+   "fields": {
+      "departamento": 3,
+      "nombre": "SANTIAGO SACATEPEQUEZ"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 307,
+   "fields": {
+      "departamento": 3,
+      "nombre": "SAN BARTOLOME MILPAS ALTAS"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 308,
+   "fields": {
+      "departamento": 3,
+      "nombre": "SAN LUCAS SACATEPEQUEZ"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 309,
+   "fields": {
+      "departamento": 3,
+      "nombre": "SANTA LUCIA MILPAS ALTAS"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 310,
+   "fields": {
+      "departamento": 3,
+      "nombre": "MAGDALENA MILPAS ALTAS"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 311,
+   "fields": {
+      "departamento": 3,
+      "nombre": "SANTA MARIA DE JESUS"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 312,
+   "fields": {
+      "departamento": 3,
+      "nombre": "CIUDAD VIEJA"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 313,
+   "fields": {
+      "departamento": 3,
+      "nombre": "SAN MIGUEL DUE\u00d1AS"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 314,
+   "fields": {
+      "departamento": 3,
+      "nombre": "SAN JUAN ALOTENANGO"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 315,
+   "fields": {
+      "departamento": 3,
+      "nombre": "SAN ANTONIO AGUAS CALIENTES"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 316,
+   "fields": {
+      "departamento": 3,
+      "nombre": "SANTA CATARINA BARAHONA"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 401,
+   "fields": {
+      "departamento": 4,
+      "nombre": "CHIMALTENANGO"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 402,
+   "fields": {
+      "departamento": 4,
+      "nombre": "SAN JOSE POAQUIL"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 403,
+   "fields": {
+      "departamento": 4,
+      "nombre": "SAN MARTIN JILOTEPEQUE"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 404,
+   "fields": {
+      "departamento": 4,
+      "nombre": "SAN JUAN COMALAPA"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 405,
+   "fields": {
+      "departamento": 4,
+      "nombre": "SANTA APOLONIA"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 406,
+   "fields": {
+      "departamento": 4,
+      "nombre": "TECPAN GUATEMALA"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 407,
+   "fields": {
+      "departamento": 4,
+      "nombre": "PATZUN"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 408,
+   "fields": {
+      "departamento": 4,
+      "nombre": "SAN MIGUEL POCHUTA"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 409,
+   "fields": {
+      "departamento": 4,
+      "nombre": "PATZICIA"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 410,
+   "fields": {
+      "departamento": 4,
+      "nombre": "SANTA CRUZ BALANYA"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 411,
+   "fields": {
+      "departamento": 4,
+      "nombre": "ACATENANGO"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 412,
+   "fields": {
+      "departamento": 4,
+      "nombre": "SAN PEDRO YEPOCAPA"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 413,
+   "fields": {
+      "departamento": 4,
+      "nombre": "SAN ANDRES ITZAPA"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 414,
+   "fields": {
+      "departamento": 4,
+      "nombre": "PARRAMOS"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 415,
+   "fields": {
+      "departamento": 4,
+      "nombre": "ZARAGOZA"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 416,
+   "fields": {
+      "departamento": 4,
+      "nombre": "EL TEJAR"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 501,
+   "fields": {
+      "departamento": 5,
+      "nombre": "ESCUINTLA"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 502,
+   "fields": {
+      "departamento": 5,
+      "nombre": "SANTA LUCIA COTZUMALGUAPA"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 503,
+   "fields": {
+      "departamento": 5,
+      "nombre": "LA DEMOCRACIA"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 504,
+   "fields": {
+      "departamento": 5,
+      "nombre": "SIQUINALA"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 505,
+   "fields": {
+      "departamento": 5,
+      "nombre": "MASAGUA"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 506,
+   "fields": {
+      "departamento": 5,
+      "nombre": "PUEBLO NUEVO TIQUISATE"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 507,
+   "fields": {
+      "departamento": 5,
+      "nombre": "LA GOMERA"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 508,
+   "fields": {
+      "departamento": 5,
+      "nombre": "GUANAGAZAPA"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 509,
+   "fields": {
+      "departamento": 5,
+      "nombre": "SAN JOSE"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 510,
+   "fields": {
+      "departamento": 5,
+      "nombre": "IZTAPA"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 511,
+   "fields": {
+      "departamento": 5,
+      "nombre": "PALIN"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 512,
+   "fields": {
+      "departamento": 5,
+      "nombre": "SAN VICENTE PACAYA"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 513,
+   "fields": {
+      "departamento": 5,
+      "nombre": "NUEVA CONCEPCION"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 514,
+   "fields": {
+      "departamento": 5,
+      "nombre": "Chipot\u00f3n"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 601,
+   "fields": {
+      "departamento": 6,
+      "nombre": "CUILAPA"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 602,
+   "fields": {
+      "departamento": 6,
+      "nombre": "BARBERENA"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 603,
+   "fields": {
+      "departamento": 6,
+      "nombre": "SANTA ROSA DE LIMA"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 604,
+   "fields": {
+      "departamento": 6,
+      "nombre": "CASILLAS"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 605,
+   "fields": {
+      "departamento": 6,
+      "nombre": "SAN RAFAEL LAS FLORES"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 606,
+   "fields": {
+      "departamento": 6,
+      "nombre": "ORATORIO"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 607,
+   "fields": {
+      "departamento": 6,
+      "nombre": "SAN JUAN TECUACO"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 608,
+   "fields": {
+      "departamento": 6,
+      "nombre": "CHIQUIMULILLA"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 609,
+   "fields": {
+      "departamento": 6,
+      "nombre": "TAXISCO"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 610,
+   "fields": {
+      "departamento": 6,
+      "nombre": "SANTA MARIA IXHUATAN"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 611,
+   "fields": {
+      "departamento": 6,
+      "nombre": "GUAZACAPAN"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 612,
+   "fields": {
+      "departamento": 6,
+      "nombre": "SANTA CRUZ NARANJO"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 613,
+   "fields": {
+      "departamento": 6,
+      "nombre": "PUEBLO NUEVO VI\u00d1AS"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 614,
+   "fields": {
+      "departamento": 6,
+      "nombre": "NUEVA SANTA ROSA"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 701,
+   "fields": {
+      "departamento": 7,
+      "nombre": "SOLOLA"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 702,
+   "fields": {
+      "departamento": 7,
+      "nombre": "SAN JOSE CHACAYA"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 703,
+   "fields": {
+      "departamento": 7,
+      "nombre": "SANTA MARIA VISITACION"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 704,
+   "fields": {
+      "departamento": 7,
+      "nombre": "SANTA LUCIA UTATLAN"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 705,
+   "fields": {
+      "departamento": 7,
+      "nombre": "NAHUALA"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 706,
+   "fields": {
+      "departamento": 7,
+      "nombre": "SANTA CATARINA IXTAHUACAN"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 707,
+   "fields": {
+      "departamento": 7,
+      "nombre": "SANTA CLARA LA LAGUNA"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 708,
+   "fields": {
+      "departamento": 7,
+      "nombre": "CONCEPCION"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 709,
+   "fields": {
+      "departamento": 7,
+      "nombre": "SAN ANDRES SEMETABAJ"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 710,
+   "fields": {
+      "departamento": 7,
+      "nombre": "PANAJACHEL"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 711,
+   "fields": {
+      "departamento": 7,
+      "nombre": "SANTA CATARINA PALOPO"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 712,
+   "fields": {
+      "departamento": 7,
+      "nombre": "SAN ANTONIO PALOPO"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 713,
+   "fields": {
+      "departamento": 7,
+      "nombre": "SAN LUCAS TOLIMAN"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 714,
+   "fields": {
+      "departamento": 7,
+      "nombre": "SANTA CRUZ LA LAGUNA"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 715,
+   "fields": {
+      "departamento": 7,
+      "nombre": "SAN PABLO LA LAGUNA"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 716,
+   "fields": {
+      "departamento": 7,
+      "nombre": "SAN MARCOS LA LAGUNA"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 717,
+   "fields": {
+      "departamento": 7,
+      "nombre": "SAN JUAN LA LAGUNA"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 718,
+   "fields": {
+      "departamento": 7,
+      "nombre": "SAN PEDRO LA LAGUNA"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 719,
+   "fields": {
+      "departamento": 7,
+      "nombre": "SANTIAGO ATITLAN"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 801,
+   "fields": {
+      "departamento": 8,
+      "nombre": "TOTONICAPAN"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 802,
+   "fields": {
+      "departamento": 8,
+      "nombre": "SAN CRISTOBAL TOTONICAPAN"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 803,
+   "fields": {
+      "departamento": 8,
+      "nombre": "SAN FRANCISCO EL ALTO"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 804,
+   "fields": {
+      "departamento": 8,
+      "nombre": "SAN ANDRES XECUL"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 805,
+   "fields": {
+      "departamento": 8,
+      "nombre": "MOMOSTENANGO"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 806,
+   "fields": {
+      "departamento": 8,
+      "nombre": "SANTA MARIA CHIQUIMULA"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 807,
+   "fields": {
+      "departamento": 8,
+      "nombre": "SANTA LUCIA LA REFORMA"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 808,
+   "fields": {
+      "departamento": 8,
+      "nombre": "SAN BARTOLO AGUAS CALIENTES"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 901,
+   "fields": {
+      "departamento": 9,
+      "nombre": "QUETZALTENANGO"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 902,
+   "fields": {
+      "departamento": 9,
+      "nombre": "SALCAJA"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 903,
+   "fields": {
+      "departamento": 9,
+      "nombre": "OLINTEPEQUE"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 904,
+   "fields": {
+      "departamento": 9,
+      "nombre": "SAN CARLOS SIJA"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 905,
+   "fields": {
+      "departamento": 9,
+      "nombre": "SIBILIA"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 906,
+   "fields": {
+      "departamento": 9,
+      "nombre": "CABRICAN"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 907,
+   "fields": {
+      "departamento": 9,
+      "nombre": "CAJOLA"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 908,
+   "fields": {
+      "departamento": 9,
+      "nombre": "SAN MIGUEL SIGUILA"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 909,
+   "fields": {
+      "departamento": 9,
+      "nombre": "SAN JUAN OSTUNCALCO"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 910,
+   "fields": {
+      "departamento": 9,
+      "nombre": "SAN MATEO"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 911,
+   "fields": {
+      "departamento": 9,
+      "nombre": "CONCEPCION CHIQUIRICHAPA"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 912,
+   "fields": {
+      "departamento": 9,
+      "nombre": "SAN MARTIN SACATEPEQUEZ"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 913,
+   "fields": {
+      "departamento": 9,
+      "nombre": "ALMOLONGA"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 914,
+   "fields": {
+      "departamento": 9,
+      "nombre": "CANTEL"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 915,
+   "fields": {
+      "departamento": 9,
+      "nombre": "HUITAN"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 916,
+   "fields": {
+      "departamento": 9,
+      "nombre": "ZUNIL"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 917,
+   "fields": {
+      "departamento": 9,
+      "nombre": "COLOMBA COSTA CUCA"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 918,
+   "fields": {
+      "departamento": 9,
+      "nombre": "SAN FRANCISCO LA UNION"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 919,
+   "fields": {
+      "departamento": 9,
+      "nombre": "EL PALMAR"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 920,
+   "fields": {
+      "departamento": 9,
+      "nombre": "COATEPEQUE"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 921,
+   "fields": {
+      "departamento": 9,
+      "nombre": "GENOVA COSTA CUCA"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 922,
+   "fields": {
+      "departamento": 9,
+      "nombre": "FLORES COSTA CUCA"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 923,
+   "fields": {
+      "departamento": 9,
+      "nombre": "LA ESPERANZA"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 924,
+   "fields": {
+      "departamento": 9,
+      "nombre": "PALESTINA DE LOS ALTOS"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1001,
+   "fields": {
+      "departamento": 10,
+      "nombre": "MAZATENANGO"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1002,
+   "fields": {
+      "departamento": 10,
+      "nombre": "CUYOTENANGO"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1003,
+   "fields": {
+      "departamento": 10,
+      "nombre": "SAN FRANCISCO ZAPOTITLAN"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1004,
+   "fields": {
+      "departamento": 10,
+      "nombre": "SAN BERNARDINO"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1005,
+   "fields": {
+      "departamento": 10,
+      "nombre": "SAN JOSE EL IDOLO"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1006,
+   "fields": {
+      "departamento": 10,
+      "nombre": "SANTO DOMINGO SUCHITEPEQUEZ"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1007,
+   "fields": {
+      "departamento": 10,
+      "nombre": "SAN LORENZO"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1008,
+   "fields": {
+      "departamento": 10,
+      "nombre": "SAMAYAC"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1009,
+   "fields": {
+      "departamento": 10,
+      "nombre": "SAN PABLO JOCOPILAS"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1010,
+   "fields": {
+      "departamento": 10,
+      "nombre": "SAN ANTONIO SUCHITEPEQUEZ"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1011,
+   "fields": {
+      "departamento": 10,
+      "nombre": "SAN MIGUEL PANAM"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1012,
+   "fields": {
+      "departamento": 10,
+      "nombre": "SAN GABRIEL"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1013,
+   "fields": {
+      "departamento": 10,
+      "nombre": "CHICACAO"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1014,
+   "fields": {
+      "departamento": 10,
+      "nombre": "PATULUL"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1015,
+   "fields": {
+      "departamento": 10,
+      "nombre": "SANTA BARBARA"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1016,
+   "fields": {
+      "departamento": 10,
+      "nombre": "SAN JUAN BAUTISTA"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1017,
+   "fields": {
+      "departamento": 10,
+      "nombre": "SANTO TOMAS LA UNION"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1018,
+   "fields": {
+      "departamento": 10,
+      "nombre": "ZUNILITO"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1019,
+   "fields": {
+      "departamento": 10,
+      "nombre": "PUEBLO NUEVO"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1020,
+   "fields": {
+      "departamento": 10,
+      "nombre": "RIO BRAVO"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1021,
+   "fields": {
+      "departamento": 10,
+      "nombre": "SAN JOS\u00c9 LA M\u00c1QUINA"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1101,
+   "fields": {
+      "departamento": 11,
+      "nombre": "RETALHULEU"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1102,
+   "fields": {
+      "departamento": 11,
+      "nombre": "SAN SEBASTIAN"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1103,
+   "fields": {
+      "departamento": 11,
+      "nombre": "SANTA CRUZ MULUA"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1104,
+   "fields": {
+      "departamento": 11,
+      "nombre": "SAN MARTIN ZAPOTITLAN"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1105,
+   "fields": {
+      "departamento": 11,
+      "nombre": "SAN FELIPE"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1106,
+   "fields": {
+      "departamento": 11,
+      "nombre": "SAN ANDRES VILLA SECA"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1107,
+   "fields": {
+      "departamento": 11,
+      "nombre": "CHAMPERICO"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1108,
+   "fields": {
+      "departamento": 11,
+      "nombre": "NUEVO SAN CARLOS"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1109,
+   "fields": {
+      "departamento": 11,
+      "nombre": "EL ASINTAL"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1201,
+   "fields": {
+      "departamento": 12,
+      "nombre": "SAN MARCOS"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1202,
+   "fields": {
+      "departamento": 12,
+      "nombre": "SAN PEDRO SACATEPEQUEZ"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1203,
+   "fields": {
+      "departamento": 12,
+      "nombre": "SAN ANTONIO SACATEPEQUEZ"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1204,
+   "fields": {
+      "departamento": 12,
+      "nombre": "COMITANCILLO"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1205,
+   "fields": {
+      "departamento": 12,
+      "nombre": "SAN MIGUEL IXTAHUACAN"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1206,
+   "fields": {
+      "departamento": 12,
+      "nombre": "CONCEPCION TUTUAPA"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1207,
+   "fields": {
+      "departamento": 12,
+      "nombre": "TACANA"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1208,
+   "fields": {
+      "departamento": 12,
+      "nombre": "SIBINAL"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1209,
+   "fields": {
+      "departamento": 12,
+      "nombre": "TAJUMULCO"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1210,
+   "fields": {
+      "departamento": 12,
+      "nombre": "TEJUTLA"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1211,
+   "fields": {
+      "departamento": 12,
+      "nombre": "SAN RAFAEL PIE DE LA CUESTA"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1212,
+   "fields": {
+      "departamento": 12,
+      "nombre": "NUEVO PROGRESO"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1213,
+   "fields": {
+      "departamento": 12,
+      "nombre": "EL TUMBADOR"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1214,
+   "fields": {
+      "departamento": 12,
+      "nombre": "SAN JOSE EL RODEO"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1215,
+   "fields": {
+      "departamento": 12,
+      "nombre": "MALACATAN"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1216,
+   "fields": {
+      "departamento": 12,
+      "nombre": "CATARINA"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1217,
+   "fields": {
+      "departamento": 12,
+      "nombre": "AYUTLA"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1218,
+   "fields": {
+      "departamento": 12,
+      "nombre": "OCOS"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1219,
+   "fields": {
+      "departamento": 12,
+      "nombre": "SAN PABLO"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1220,
+   "fields": {
+      "departamento": 12,
+      "nombre": "EL QUETZAL"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1221,
+   "fields": {
+      "departamento": 12,
+      "nombre": "LA REFORMA"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1222,
+   "fields": {
+      "departamento": 12,
+      "nombre": "PAJAPITA"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1223,
+   "fields": {
+      "departamento": 12,
+      "nombre": "IXCHIGUAN"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1224,
+   "fields": {
+      "departamento": 12,
+      "nombre": "SAN JOSE OJETENAM"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1225,
+   "fields": {
+      "departamento": 12,
+      "nombre": "SAN CRISTOBAL CUCHO"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1226,
+   "fields": {
+      "departamento": 12,
+      "nombre": "SIPACAPA"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1227,
+   "fields": {
+      "departamento": 12,
+      "nombre": "ESQUIPULAS PALO GORDO"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1228,
+   "fields": {
+      "departamento": 12,
+      "nombre": "RIO BLANCO"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1229,
+   "fields": {
+      "departamento": 12,
+      "nombre": "SAN LORENZO"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1301,
+   "fields": {
+      "departamento": 13,
+      "nombre": "HUEHUETENANGO"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1302,
+   "fields": {
+      "departamento": 13,
+      "nombre": "CHIANTLA"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1303,
+   "fields": {
+      "departamento": 13,
+      "nombre": "MALACATANCITO"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1304,
+   "fields": {
+      "departamento": 13,
+      "nombre": "CUILCO"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1305,
+   "fields": {
+      "departamento": 13,
+      "nombre": "NENTON"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1306,
+   "fields": {
+      "departamento": 13,
+      "nombre": "SAN PEDRO NECTA"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1307,
+   "fields": {
+      "departamento": 13,
+      "nombre": "JACALTENANGO"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1308,
+   "fields": {
+      "departamento": 13,
+      "nombre": "SAN PEDRO SOLOMA"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1309,
+   "fields": {
+      "departamento": 13,
+      "nombre": "SAN ILDELFONSO IXTAHUACAN"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1310,
+   "fields": {
+      "departamento": 13,
+      "nombre": "SANTA BARBARA"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1311,
+   "fields": {
+      "departamento": 13,
+      "nombre": "LA LIBERTAD"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1312,
+   "fields": {
+      "departamento": 13,
+      "nombre": "LA DEMOCRACIA"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1313,
+   "fields": {
+      "departamento": 13,
+      "nombre": "SAN MIGUEL ACATAN"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1314,
+   "fields": {
+      "departamento": 13,
+      "nombre": "SAN RAFAEL LA INDEPENDENCIA"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1315,
+   "fields": {
+      "departamento": 13,
+      "nombre": "TODOS SANTOS CUCHUMATAN"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1316,
+   "fields": {
+      "departamento": 13,
+      "nombre": "SAN JUAN ATITAN"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1317,
+   "fields": {
+      "departamento": 13,
+      "nombre": "SANTA EULALIA"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1318,
+   "fields": {
+      "departamento": 13,
+      "nombre": "SAN MATEO IXTATAN"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1319,
+   "fields": {
+      "departamento": 13,
+      "nombre": "COLOTENANGO"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1320,
+   "fields": {
+      "departamento": 13,
+      "nombre": "SAN SEBASTIAN HUEHUETENANGO"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1321,
+   "fields": {
+      "departamento": 13,
+      "nombre": "TECTITAN"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1322,
+   "fields": {
+      "departamento": 13,
+      "nombre": "CONCEPCION HUISTA"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1323,
+   "fields": {
+      "departamento": 13,
+      "nombre": "SAN JUAN IXCOY"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1324,
+   "fields": {
+      "departamento": 13,
+      "nombre": "SAN ANTONIO HUISTA"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1325,
+   "fields": {
+      "departamento": 13,
+      "nombre": "SAN SEBASTIAN COATAN"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1326,
+   "fields": {
+      "departamento": 13,
+      "nombre": "SANTA CRUZ BARILLAS"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1327,
+   "fields": {
+      "departamento": 13,
+      "nombre": "AGUACATAN"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1328,
+   "fields": {
+      "departamento": 13,
+      "nombre": "SAN RAFAEL PETZAL"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1329,
+   "fields": {
+      "departamento": 13,
+      "nombre": "SAN GASPAR IXCHIL"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1330,
+   "fields": {
+      "departamento": 13,
+      "nombre": "SANTIAGO CHIMALTENANGO"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1331,
+   "fields": {
+      "departamento": 13,
+      "nombre": "SANTA ANA HUISTA"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1332,
+   "fields": {
+      "departamento": 13,
+      "nombre": "UNION CANTINIL"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1401,
+   "fields": {
+      "departamento": 14,
+      "nombre": "SANTA CRUZ DEL QUICHE"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1402,
+   "fields": {
+      "departamento": 14,
+      "nombre": "CHICHE"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1403,
+   "fields": {
+      "departamento": 14,
+      "nombre": "CHINIQUE"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1404,
+   "fields": {
+      "departamento": 14,
+      "nombre": "ZACUALPA"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1405,
+   "fields": {
+      "departamento": 14,
+      "nombre": "CHAJUL"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1406,
+   "fields": {
+      "departamento": 14,
+      "nombre": "SANTO TOMAS CHICHICASTENANGO"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1407,
+   "fields": {
+      "departamento": 14,
+      "nombre": "PATZITE"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1408,
+   "fields": {
+      "departamento": 14,
+      "nombre": "SAN ANTONIO ILOTENANGO"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1409,
+   "fields": {
+      "departamento": 14,
+      "nombre": "SAN PEDRO JOCOPILAS"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1410,
+   "fields": {
+      "departamento": 14,
+      "nombre": "CUNEN"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1411,
+   "fields": {
+      "departamento": 14,
+      "nombre": "SAN JUAN COTZAL"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1412,
+   "fields": {
+      "departamento": 14,
+      "nombre": "JOYABAJ"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1413,
+   "fields": {
+      "departamento": 14,
+      "nombre": "SANTA MARIA NEBAJ"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1414,
+   "fields": {
+      "departamento": 14,
+      "nombre": "SAN ANDRES SAJCABAJA"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1415,
+   "fields": {
+      "departamento": 14,
+      "nombre": "SAN MIGUEL USPANTAN"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1416,
+   "fields": {
+      "departamento": 14,
+      "nombre": "SACAPULAS"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1417,
+   "fields": {
+      "departamento": 14,
+      "nombre": "SAN BARTOLOME JOCOTENANGO"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1418,
+   "fields": {
+      "departamento": 14,
+      "nombre": "CANILLA"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1419,
+   "fields": {
+      "departamento": 14,
+      "nombre": "CHICAMAN"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1420,
+   "fields": {
+      "departamento": 14,
+      "nombre": "PLAYA GRANDE IXCAN"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1421,
+   "fields": {
+      "departamento": 14,
+      "nombre": "PACHALUN"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1501,
+   "fields": {
+      "departamento": 15,
+      "nombre": "SALAMA"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1502,
+   "fields": {
+      "departamento": 15,
+      "nombre": "SAN MIGUEL CHICAJ"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1503,
+   "fields": {
+      "departamento": 15,
+      "nombre": "RABINAL"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1504,
+   "fields": {
+      "departamento": 15,
+      "nombre": "CUBULCO"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1505,
+   "fields": {
+      "departamento": 15,
+      "nombre": "GRANADOS"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1506,
+   "fields": {
+      "departamento": 15,
+      "nombre": "SANTA CRUZ EL CHOL"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1507,
+   "fields": {
+      "departamento": 15,
+      "nombre": "SAN JERONIMO"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1508,
+   "fields": {
+      "departamento": 15,
+      "nombre": "PURULHA"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1601,
+   "fields": {
+      "departamento": 16,
+      "nombre": "COBAN"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1602,
+   "fields": {
+      "departamento": 16,
+      "nombre": "SANTA CRUZ VERAPAZ"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1603,
+   "fields": {
+      "departamento": 16,
+      "nombre": "SAN CRISTOBAL VERAPAZ"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1604,
+   "fields": {
+      "departamento": 16,
+      "nombre": "TACTIC"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1605,
+   "fields": {
+      "departamento": 16,
+      "nombre": "TAMAHU"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1606,
+   "fields": {
+      "departamento": 16,
+      "nombre": "SAN MIGUEL TUCURU"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1607,
+   "fields": {
+      "departamento": 16,
+      "nombre": "PANZOS"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1608,
+   "fields": {
+      "departamento": 16,
+      "nombre": "SENAHU"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1609,
+   "fields": {
+      "departamento": 16,
+      "nombre": "SAN PEDRO CARCHA"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1610,
+   "fields": {
+      "departamento": 16,
+      "nombre": "SAN JUAN CHAMELCO"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1611,
+   "fields": {
+      "departamento": 16,
+      "nombre": "LANQUIN"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1612,
+   "fields": {
+      "departamento": 16,
+      "nombre": "SANTA MARIA CAHABON"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1613,
+   "fields": {
+      "departamento": 16,
+      "nombre": "CHISEC"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1614,
+   "fields": {
+      "departamento": 16,
+      "nombre": "CHAHAL"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1615,
+   "fields": {
+      "departamento": 16,
+      "nombre": "FRAY BARTOLOME DE LAS CASAS"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1616,
+   "fields": {
+      "departamento": 16,
+      "nombre": "SANTA CATALINA LA TINTA"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1617,
+   "fields": {
+      "departamento": 16,
+      "nombre": "RAXUHA"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1701,
+   "fields": {
+      "departamento": 17,
+      "nombre": "FLORES"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1702,
+   "fields": {
+      "departamento": 17,
+      "nombre": "SAN JOSE"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1703,
+   "fields": {
+      "departamento": 17,
+      "nombre": "SAN BENITO"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1704,
+   "fields": {
+      "departamento": 17,
+      "nombre": "SAN ANDRES"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1705,
+   "fields": {
+      "departamento": 17,
+      "nombre": "LA LIBERTAD"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1706,
+   "fields": {
+      "departamento": 17,
+      "nombre": "SAN FRANCISCO"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1707,
+   "fields": {
+      "departamento": 17,
+      "nombre": "SANTA ANA"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1708,
+   "fields": {
+      "departamento": 17,
+      "nombre": "DOLORES"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1709,
+   "fields": {
+      "departamento": 17,
+      "nombre": "SAN LUIS"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1710,
+   "fields": {
+      "departamento": 17,
+      "nombre": "SAYAXCHE"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1711,
+   "fields": {
+      "departamento": 17,
+      "nombre": "MELCHOR DE MENCOS"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1712,
+   "fields": {
+      "departamento": 17,
+      "nombre": "POPTUN"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1801,
+   "fields": {
+      "departamento": 18,
+      "nombre": "PUERTO BARRIOS"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1802,
+   "fields": {
+      "departamento": 18,
+      "nombre": "LIVINGSTON"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1803,
+   "fields": {
+      "departamento": 18,
+      "nombre": "EL ESTOR"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1804,
+   "fields": {
+      "departamento": 18,
+      "nombre": "MORALES"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1805,
+   "fields": {
+      "departamento": 18,
+      "nombre": "LOS AMATES"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1901,
+   "fields": {
+      "departamento": 19,
+      "nombre": "ZACAPA"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1902,
+   "fields": {
+      "departamento": 19,
+      "nombre": "ESTANZUELA"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1903,
+   "fields": {
+      "departamento": 19,
+      "nombre": "RIO HONDO"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1904,
+   "fields": {
+      "departamento": 19,
+      "nombre": "GUALAN"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1905,
+   "fields": {
+      "departamento": 19,
+      "nombre": "TECULUTAN"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1906,
+   "fields": {
+      "departamento": 19,
+      "nombre": "USUMATLAN"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1907,
+   "fields": {
+      "departamento": 19,
+      "nombre": "CABA\u00d1AS"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1908,
+   "fields": {
+      "departamento": 19,
+      "nombre": "SAN DIEGO"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1909,
+   "fields": {
+      "departamento": 19,
+      "nombre": "LA UNION"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1910,
+   "fields": {
+      "departamento": 19,
+      "nombre": "HUITE"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 1911,
+   "fields": {
+      "departamento": 19,
+      "nombre": "SAN JORGE"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 2001,
+   "fields": {
+      "departamento": 20,
+      "nombre": "CHIQUIMULA"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 2002,
+   "fields": {
+      "departamento": 20,
+      "nombre": "SAN JOSE LA ARADA"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 2003,
+   "fields": {
+      "departamento": 20,
+      "nombre": "SAN JUAN ERMITA"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 2004,
+   "fields": {
+      "departamento": 20,
+      "nombre": "JOCOTAN"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 2005,
+   "fields": {
+      "departamento": 20,
+      "nombre": "CAMOTAN"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 2006,
+   "fields": {
+      "departamento": 20,
+      "nombre": "OLOPA"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 2007,
+   "fields": {
+      "departamento": 20,
+      "nombre": "ESQUIPULAS"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 2008,
+   "fields": {
+      "departamento": 20,
+      "nombre": "CONCEPCION LAS MINAS"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 2009,
+   "fields": {
+      "departamento": 20,
+      "nombre": "QUEZALTEPEQUE"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 2010,
+   "fields": {
+      "departamento": 20,
+      "nombre": "SAN JACINTO"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 2011,
+   "fields": {
+      "departamento": 20,
+      "nombre": "IPALA"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 2101,
+   "fields": {
+      "departamento": 21,
+      "nombre": "JALAPA"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 2102,
+   "fields": {
+      "departamento": 21,
+      "nombre": "SAN PEDRO PINULA"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 2103,
+   "fields": {
+      "departamento": 21,
+      "nombre": "SAN LUIS JILOTEPEQUE"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 2104,
+   "fields": {
+      "departamento": 21,
+      "nombre": "SAN MANUEL CHAPARRON"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 2105,
+   "fields": {
+      "departamento": 21,
+      "nombre": "SAN CARLOS ALZATATE"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 2106,
+   "fields": {
+      "departamento": 21,
+      "nombre": "MONJAS"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 2107,
+   "fields": {
+      "departamento": 21,
+      "nombre": "MATAQUESCUINTLA"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 2201,
+   "fields": {
+      "departamento": 22,
+      "nombre": "JUTIAPA"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 2202,
+   "fields": {
+      "departamento": 22,
+      "nombre": "EL PROGRESO"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 2203,
+   "fields": {
+      "departamento": 22,
+      "nombre": "SANTA CATARINA MITA"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 2204,
+   "fields": {
+      "departamento": 22,
+      "nombre": "AGUA BLANCA"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 2205,
+   "fields": {
+      "departamento": 22,
+      "nombre": "ASUNCION MITA"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 2206,
+   "fields": {
+      "departamento": 22,
+      "nombre": "YUPILTEPEQUE"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 2207,
+   "fields": {
+      "departamento": 22,
+      "nombre": "ATESCATEMPA"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 2208,
+   "fields": {
+      "departamento": 22,
+      "nombre": "JEREZ"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 2209,
+   "fields": {
+      "departamento": 22,
+      "nombre": "EL ADELANTO"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 2210,
+   "fields": {
+      "departamento": 22,
+      "nombre": "ZAPOTITLAN"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 2211,
+   "fields": {
+      "departamento": 22,
+      "nombre": "COMAPA"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 2212,
+   "fields": {
+      "departamento": 22,
+      "nombre": "JALPATAGUA"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 2213,
+   "fields": {
+      "departamento": 22,
+      "nombre": "CONGUACO"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 2214,
+   "fields": {
+      "departamento": 22,
+      "nombre": "MOYUTA"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 2215,
+   "fields": {
+      "departamento": 22,
+      "nombre": "PASACO"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 2216,
+   "fields": {
+      "departamento": 22,
+      "nombre": "SAN JOSE ACATEMPA"
+   }
+},
+{
+   "model": "main.municipio",
+   "pk": 2217,
+   "fields": {
+      "departamento": 22,
+      "nombre": "QUESADA"
+   }
+}
+]

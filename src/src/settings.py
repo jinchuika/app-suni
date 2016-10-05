@@ -180,6 +180,7 @@ ACCOUNT_ADAPTER = 'invitations.models.InvitationsAdapter'
 ACCOUNT_SIGNUP_FORM_CLASS = 'apps.users.forms.CustomSignupForm'
 ACCOUNT_SIGNUP_PASSWORD_VERIFICATION = False
 
+
 DYNAMIC_PREFERENCES = {
 
     # a python attribute that will be added to model instances with preferences

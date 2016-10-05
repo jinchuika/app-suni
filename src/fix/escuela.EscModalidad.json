@@ -1,0 +1,16 @@
+[
+{
+   "model": "escuela.escmodalidad",
+   "pk": 1,
+   "fields": {
+      "modalidad": "Biling\u00fce"
+   }
+},
+{
+   "model": "escuela.escmodalidad",
+   "pk": 2,
+   "fields": {
+      "modalidad": "Monoling\u00fce"
+   }
+}
+]

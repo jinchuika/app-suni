@@ -1,5 +1,6 @@
 from django.db import models
 from apps.main.models import Municipio
+from apps.main.utils import get_telefonica
 from django.urls import reverse
 
 class EscArea(models.Model):
@@ -78,14 +79,14 @@ class EscSector(models.Model):
 	def __str__(self):
 		return self.sector
 
-class EscSatus(models.Model):
+class EscStatus(models.Model):
 	"""
 	Description: Status de la escuela (Abierta, cerrada)
 	"""
 	status = models.CharField(max_length=25)
 
 	class Meta:
-		verbose_name = 'Stat'
+		verbose_name = 'Status'
 		verbose_name_plural = 'Statues'
 
 	def __str__(self):
@@ -104,13 +105,64 @@ class Escuela(models.Model):
 	nivel = models.ForeignKey(EscNivel, on_delete=models.PROTECT)
 	sector = models.ForeignKey(EscSector, on_delete=models.PROTECT)
 	area = models.ForeignKey(EscArea, on_delete=models.PROTECT)
-	status = models.ForeignKey(EscSatus, on_delete=models.PROTECT)
+	status = models.ForeignKey(EscStatus, on_delete=models.PROTECT)
 	modalidad = models.ForeignKey(EscModalidad, on_delete=models.PROTECT)
 	jornada = models.ForeignKey(EscJornada, on_delete=models.PROTECT)
 	plan = models.ForeignKey(EscPlan, on_delete=models.PROTECT)
+
+	class Meta:
+		verbose_name = "Escuela"
+		verbose_name_plural = "Escuelas"
 
 	def __str__(self):
 		return self.nombre
 
 	def get_absolute_url(self):
 		return reverse('escuela_detail', kwargs={'pk':self.id})
+
+class EscContactoRol(models.Model):
+	"""
+	Description: Rol para el contacto de escuela
+	"""
+	rol = models.CharField(max_length=30)
+
+	class Meta:
+		verbose_name = "Rol de contacto"
+		verbose_name_plural = "Roles de contacto"
+
+	def __str__(self):
+		return self.rol
+
+class EscContacto(models.Model):
+	nombre = models.CharField(max_length=100)
+	apellido = models.CharField(max_length=100)
+	nombre = models.CharField(max_length=100)
+	rol = models.ForeignKey(EscContactoRol, on_delete=models.PROTECT)
+
+	class Meta:
+		verbose_name = "Contacto"
+		verbose_name_plural = "Contactos de escuela"
+
+	def __str__(self):
+		return self.nombre + " " + self.apellido
+
+class EscContactoTelefono(models.Model):
+	contacto = models.ForeignKey(EscContacto, related_name="telefono", null=True)
+	telefono = models.IntegerField()
+
+	def get_empresa(self):
+		return get_telefonica(self.telefono)
+	empresa = property(get_empresa)
+
+	def __str__(self):
+		return str(self.telefono) + " " + str(self.empresa)
+
+class EscContactoMail(models.Model):
+	"""
+	Description: Correo de contacto
+	"""
+	contacto = models.ForeignKey(EscContacto, related_name="mail", null=True)
+	mail = models.EmailField(max_length=125)
+
+	def __str__(self):
+		return self.mail

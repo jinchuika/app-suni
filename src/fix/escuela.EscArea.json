@@ -1,0 +1,16 @@
+[
+{
+   "model": "escuela.escarea",
+   "pk": 3,
+   "fields": {
+      "area": "Urbana"
+   }
+},
+{
+   "model": "escuela.escarea",
+   "pk": 4,
+   "fields": {
+      "area": "Rural"
+   }
+}
+]
