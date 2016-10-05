@@ -8,9 +8,17 @@ class ThemeSkin(ChoicePreference):
 	verbose_name = "Tema de interfaz"
 	choices = (
 		("skin-blue", "Azul"),
-		("skin-black", "Negro"),
+		("skin-blue-light", "Azul-blanco"),
+		("skin-black-light", "Blanco"),
+		("skin-black", "Blanco-negro"),
 		("skin-red", "Rojo"),
+		("skin-red-light", "Rojo-blanco"),
 		("skin-green", "Verde"),
+		("skin-green-light", "Verde-blanco"),
+		("skin-yellow", "Amarillo"),
+		("skin-yellow-light", "Amarillo-blanco"),
+		("skin-purple", "Morado"),
+		("skin-purple-light", "Morado-blanco"),
 		)
 	section = "ui"
 	name = "skin"
