@@ -1,5 +1,6 @@
 from django.db import models
 from apps.main.models import Municipio
+from apps.main.utils import get_telefonica
 from django.urls import reverse
 
 class EscArea(models.Model):
@@ -146,18 +147,21 @@ class EscContacto(models.Model):
 		return self.nombre + " " + self.apellido
 
 class EscContactoTelefono(models.Model):
-	contacto = models.ForeignKey(EscContacto, related_name="telefono")
-	telefono = models.CharField(max_length=11)
-	descripcion = models.CharField(max_length=30, null=True, blank=True, verbose_name="Descripción")
+	contacto = models.ForeignKey(EscContacto, related_name="telefono", null=True)
+	telefono = models.IntegerField()
+
+	def get_empresa(self):
+		return get_telefonica(self.telefono)
+	empresa = property(get_empresa)
 
 	def __str__(self):
-		return self.telefono
+		return str(self.telefono) + " " + str(self.empresa)
 
 class EscContactoMail(models.Model):
 	"""
 	Description: Correo de contacto
 	"""
-	contacto = models.ForeignKey(EscContacto, related_name="mail")
+	contacto = models.ForeignKey(EscContacto, related_name="mail", null=True)
 	mail = models.EmailField(max_length=125)
 
 	def __str__(self):
