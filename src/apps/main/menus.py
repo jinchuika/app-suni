@@ -1,8 +1,6 @@
 from django.core.urlresolvers import reverse, reverse_lazy, resolve
 from menu import Menu, MenuItem
-from apps.users import views
 
-admin_children = (
 
 class ViewMenuItem(MenuItem):
 	def __init__(self, *args, **kwargs):
@@ -13,7 +11,7 @@ class ViewMenuItem(MenuItem):
 	def check(self, request):
 		"""Check permissions based on our view"""
 		is_visible = True
-		match = resolve(self.url)
+		#match = resolve(self.url)
 		if hasattr(self, 'perm'):
 			if request.user.has_perm(self.perm):
 				is_visible = True
@@ -22,41 +20,23 @@ class ViewMenuItem(MenuItem):
 		self.visible = is_visible
 
 
-myaccount_children = (
-	MenuItem("Lista de perfiles",
+#Administración
+admin_children = (
+	ViewMenuItem("Lista de perfiles",
 		reverse_lazy("perfil_list"),
 		weight=10,
-		icon="user"),
-	MenuItem("Logout",
-		"login",
-		weight=90,
-		separator=True,
-		icon="fa fa-link"),
+		icon="fa-users"),
 	)
 
-
-# Add a My Account item to our user menu
-Menu.add_item("user", MenuItem("Administración",
-	"index",
+Menu.add_item("user", ViewMenuItem("Administración",
+	reverse_lazy("perfil_list"),
 	weight=10,
+	icon="fa-key",
 	children=admin_children))
 
-kardex_children = (
-	MenuItem("Equipo",
-		reverse("kardex_equipo"),
-		weight=80,
-		icon="user"),
-	MenuItem("Entradas",
-		reverse("kardex_entrada"),
-		weight=10,
-		icon="user"),
-	MenuItem("Salidas",
-		reverse("kardex_salida"),
-		weight=20,
-		icon="fa fa-link"),
-	icon="fa-key",
-	children=myaccount_children))
 
+
+#Kardex
 kardex_children = (
 	ViewMenuItem("Equipo",
 		reverse_lazy("kardex_equipo"),
@@ -64,33 +44,59 @@ kardex_children = (
 		icon="fa-desktop"),
 	ViewMenuItem("Entradas",
 		reverse_lazy("kardex_entrada"),
-		weight=80,
+		weight=20,
 		icon='fa-arrow-up'),
 	ViewMenuItem("Salidas",
 		reverse_lazy("kardex_salida"),
-		weight=90,
+		weight=30,
 		icon="fa-arrow-down"),
-
+	ViewMenuItem("Proveedores",
+		reverse_lazy("kardex_proveedor"),
+		weight=40,
+		icon="fa-truck"),
 	)
 
-Menu.add_item("user", MenuItem(
-	"Kardex",
+Menu.add_item("user", ViewMenuItem("Kardex",
 	reverse('kardex_equipo'),
 	weight=20,
+	icon="fa-cog",
 	children=kardex_children))
 
 
-# KARDEX
+# Escuelas
 escuela_children = (
 	ViewMenuItem("Crear escuela",
 		reverse_lazy("escuela_add"),
 		weight=10,
-		icon="user",
+		icon="fa-plus-square-o",
 		perm='escuela.add_escuela'),
 	)
 
-Menu.add_item("user", MenuItem(
+Menu.add_item("user", ViewMenuItem(
 	"Escuelas",
 	'#',
 	weight=10,
+	icon="fa-building-o",
 	children=escuela_children))
+
+# --- CONTACTOS FUNDRAISINGS --- #
+contacto_children = (
+	ViewMenuItem("Contactos",
+		reverse_lazy("contacto_contactos"),
+		weight=10,
+		icon="fa-user"),
+	ViewMenuItem("Empresa",
+		reverse_lazy("contacto_empresa"),
+		weight=20,
+		icon='fa-building-o'),
+	ViewMenuItem("Evento",
+		reverse_lazy("contacto_evento"),
+		weight=30,
+		icon="fa-calendar"),
+	)
+
+Menu.add_item("user", ViewMenuItem("Directorio",
+	reverse('contacto_contactos'),
+	weight=20,
+	icon="fa-users",
+	children=contacto_children))
