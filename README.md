@@ -44,6 +44,17 @@ Ejecutar el servidor con el archivo manage.py desde la raíz.
 python3 src/manage.py runserver 0.0.0.0:8000
 ```
 
+#### Ejecutar el servidor con la base de datos en 
+Escribir esto en settings_dev.py
+```
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+    }
+}
+```
+
 ## Estructura del sistema
 De forma ideal, las carpetas del sistema se verán así
 
