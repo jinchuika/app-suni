@@ -44,6 +44,12 @@ Ejecutar el servidor con el archivo manage.py desde la raíz.
 python3 src/manage.py runserver 0.0.0.0:8000
 ```
 
+#### Ejecutar el servidor dev
+Ejecutar el servidor con el archivo manage.py desde la raíz.
+```
+python3 src/manage.py runserver 0.0.0.0:8000 --settings=src.settings_dev
+```
+
 ## Estructura del sistema
 De forma ideal, las carpetas del sistema se verán así
 
@@ -62,5 +68,3 @@ De forma ideal, las carpetas del sistema se verán así
 ├── README.md
 └── requirements.txt
 ```
-
-(Versión de Carloss añadida)..
