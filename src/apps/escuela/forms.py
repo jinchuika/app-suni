@@ -17,6 +17,9 @@ class ContactoForm(forms.ModelForm):
 	class Meta:
 		model = EscContacto
 		fields = '__all__'
+		widgets = {
+			'escuela':forms.HiddenInput()
+		}
 
 class ContactoTelefonoForm(forms.ModelForm):
 	class Meta:

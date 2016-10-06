@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.views.generic import DetailView
 from django.views.generic.edit import CreateView, UpdateView
 from braces.views import LoginRequiredMixin, GroupRequiredMixin, PermissionRequiredMixin
@@ -31,9 +31,12 @@ class EscContactoCrear(LoginRequiredMixin, ContactoContextMixin, CreateView):
 	form_class = ContactoForm
 	success_url = 'escuela_add'
 
+	def get_initial(self):
+		escuela = get_object_or_404(Escuela, id=self.kwargs.get('id_escuela'))
+		return { 'escuela': escuela }
+
 class EscContactoEditar(LoginRequiredMixin, ContactoContextMixin, UpdateView):
 	template_name = 'escuela/contacto.html'
 	model = EscContacto
 	form_class = ContactoForm
 	success_url = 'escuela_add'
-	

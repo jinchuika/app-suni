@@ -1,56 +1,74 @@
 {% extends "base/base.html" %}
 {% load staticfiles %}
-{% block content %}
-<form action="{{ action }}" method="post">
-	<table class="table table-striped">
-		{% csrf_token %}
-		{{ form.as_table }}
-	</table>
-	<table class="table table-bordered table-striped" id="telefono_table">
-		<tbody>
-			{% for form_telefono in named_formsets.telefono.forms %}
-			<tr id="{{form_telefono.prefix}}-row" class="form-container-telefono">
-				<td>Teléfono</td>
-				{{ form_telefono.id }}
-				<td>
-				{% if form_telefono.instance.pk %}{{ form_telefono.DELETE }}{% endif %}
-				{{form_telefono.telefono}}
-				</td>
-			</tr>
-			{% endfor %}
-		</tbody>
-	</table>
-	<table class="table table-bordered table-striped" id="mail_table">
-		<tbody>
-			{% for form_mail in named_formsets.mail.forms %}
-			<tr id="{{form_mail.prefix}}-row" class="form-container-mail">
-				<td>Correo electrónico</td>
-				{{ form_mail.id }}
-				<td>
-				{% if form_mail.instance.pk %}{{ form_mail.DELETE }}{% endif %}
-				{{form_mail.mail}}
-				</td>
-			</tr>
-			{% endfor %}
-		</tbody>
-	</table>
-	<tr>
-		<td><input type="submit" value="Guardar"></td>
-	</tr>
-	{{ named_formsets.telefono.management_form }}
-	{{ named_formsets.mail.management_form }}
 
-</form>
+{% block page_title %}
+{% if form.instance.pk %}
+<title>{{form.instance.nombre}} {{form.instance.apellido}}</title>
+{% else %}
+<title>Contacto de escuela</title>
+{% endif %}
+{% endblock page_title %}
+
+
+{% block content %}
+<section class="content-header">
+	<h1>Contacto de escuela</h1>
+</section>
+<section class="content">
+	<div class="row-fluid">
+		<div class="col-md-12">
+		<form action="{{ action }}" class="box" method="post">
+				<table class="table table-striped">
+					{% csrf_token %}
+					{{ form.as_table }}
+				
+				
+					<tbody id="telefono_table">
+						{% for form_telefono in named_formsets.telefono.forms %}
+						<tr id="{{form_telefono.prefix}}-row" class="form-container-telefono">
+							<td>Teléfono</td>
+							{{ form_telefono.id }}
+							<td>
+								{% if form_telefono.instance.pk %}{{ form_telefono.DELETE }}{% endif %}
+								{{form_telefono.telefono}}
+							</td>
+						</tr>
+						{% endfor %}
+					</tbody>
+				
+					<tbody id="mail_table">
+						{% for form_mail in named_formsets.mail.forms %}
+						<tr id="{{form_mail.prefix}}-row" class="form-container-mail">
+							<td>Correo electrónico</td>
+							{{ form_mail.id }}
+							<td>
+								{% if form_mail.instance.pk %}{{ form_mail.DELETE }}{% endif %}
+								{{form_mail.mail}}
+							</td>
+						</tr>
+						{% endfor %}
+					</tbody>
+				<tr>
+					<td class="pull-right"><input type="submit" class="btn btn-primary" value="Guardar"></td>
+				</tr>
+				</table>
+				{{ named_formsets.telefono.management_form }}
+				{{ named_formsets.mail.management_form }}
+
+			</form>
+		</div>
+	</div>
+</section>
 {% endblock content %}
 
 {% block extra_js %}
 <script src="{% static "js/jquery.formset.js" %}"></script>
 <script type="text/javascript">
 	$(function() {
-		$('#telefono_table tbody tr').formset({
+		$('#telefono_table  tr').formset({
 			prefix: "{{ named_formsets.telefono.prefix }}"
 		});
-		$('#mail_table tbody tr').formset({
+		$('#mail_table  tr').formset({
 			prefix: "{{ named_formsets.mail.prefix }}"
 		});
 		$('table.form-container-telefono').formset({

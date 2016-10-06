@@ -4,6 +4,17 @@ from django.shortcuts import reverse
 from easy_thumbnails.fields import ThumbnailerImageField
 from .managers import *
 
+class PerfilQuerySet(models.QuerySet):
+	def capacitadores(self):
+		return self.filter(user__groups__in="Capacitación")
+
+class PerfilManager(models.Manager):
+	def get_queryset(self):
+		return PerfilQuerySet(self.model, using=self._db)
+
+	def capacitadores(self):
+		return self.get_queryset.capacitadores()
+
 class Perfil(models.Model):
 	GENERO_CHOICES = (
 		('M', 'Masculino'),
@@ -21,6 +32,8 @@ class Perfil(models.Model):
         blank=True,
         editable=True,
 		)
+	objects = models.Manager()
+	grupos = PerfilManager.from_queryset(PerfilQuerySet)()
 	
 	def get_nombre(self):
 		return self.user.first_name

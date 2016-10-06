@@ -1,5 +1,10 @@
 {% extends "base/base.html" %}
 {% load telefonica %}
+
+{% block page_title %}
+    <title>{{ escuela }}</title>
+{% endblock page_title %}
+
 {% block content %}
 <section class="content-header">
 	<h1>Perfil de escuela</h1>
@@ -25,7 +30,7 @@
 							{% if perms.escuela.change_escuela %}
 							<a href="{% url 'escuela_update' pk=escuela.id%}" class="btn btn-info btn-xs">
 								<i class="fa fa-pencil-square-o" aria-hidden="true"></i>
-							</a> 
+							</a>
 							{% endif %}
 							Información
 						</h3>
@@ -60,10 +65,18 @@
 					<div class="col-md-12">
 						<div class="nav-tabs-custom">
 							<ul class="nav nav-tabs nav-justified">
-								<li class="active"><a href="#capacitacion" data-toggle="tab">Capacitación</a></li>
-								<li><a href="#monitoreo" data-toggle="tab">Monitoreo</a></li>
-								<li><a href="#equipamiento" data-toggle="tab">Equipamiento</a></li>
-								<li><a href="#contactos" data-toggle="tab">Contactos</a></li>
+								<li class="active">
+									<a href="#capacitacion" data-toggle="tab"><i class="fa fa-graduation-cap" aria-hidden="true"></i> Capacitación</a>
+								</li>
+								<li>
+									<a href="#monitoreo" data-toggle="tab"><i class="fa fa-search" aria-hidden="true"></i> Monitoreo</a>
+								</li>
+								<li>
+									<a href="#equipamiento" data-toggle="tab"><i class="fa fa-television" aria-hidden="true"></i> Equipamiento</a>
+								</li>
+								<li>
+									<a href="#contactos" data-toggle="tab"><i class="fa fa-user" aria-hidden="true"></i> Contactos</a>
+								</li>
 							</ul>
 							<div class="tab-content">
 								<div class="tab-pane active" id="capacitacion">
@@ -75,10 +88,22 @@
 
 								</div>
 								<div class="tab-pane" id="contactos">
+									<h4>
+										<a class="btn btn-success" href="{% url "escuela_contacto_add" id_escuela=escuela.id %}">
+											<i class="fa fa-plus" aria-hidden="true"></i> Nuevo
+										</a>
+									</h4>
 									{% for contacto in escuela.contacto.all %}
 									<div class="box box-widget widget-user-1">
 										<div class="widget-user-header">
-											<h3 class="widget-user-username">{{ contacto }}</h3>
+											<h3 class="widget-user-username">
+											{{ contacto }}
+											{% if perms.escuela.change_esccontacto %}
+												<a href="{% url 'escuela_contacto_edit' id_escuela=escuela.id pk=contacto.id%}" class="btn btn-info btn-xs">
+													<i class="fa fa-pencil-square-o" aria-hidden="true"></i>
+												</a>
+											{% endif %}
+											</h3>
 											<h5 class="widget-user-desc">{{ contacto.rol }}</h5>
 										</div>
 										<div class="box-footer no-padding">
