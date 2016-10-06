@@ -1,11 +1,11 @@
 {% extends "base/base.html" %}
-
+{% load telefonica %}
 {% block content %}
 <section class="content-header">
 	<h1>Perfil de escuela</h1>
 </section>
 <section class="content">
-	<div class="container">
+	<div class="container-fluid">
 		<div class="row">
 			<div class="col-md-12">
 				<div class="box box-primary">
@@ -19,8 +19,6 @@
 		</div>
 		<div class="row">
 			<div class="col-md-3">
-				
-
 				<div class="box box-primary">
 					<div class="box-header with-border">
 						<h3 class="box-title">
@@ -58,26 +56,57 @@
 				</div>
 			</div>
 			<div class="col-md-9">
-				<div class="nav-tabs-custom">
-					<ul class="nav nav-tabs nav-justified">
-						<li class="active"><a href="#capacitacion" data-toggle="tab">Capacitación</a></li>
-						<li><a href="#monitoreo" data-toggle="tab">Monitoreo</a></li>
-						<li><a href="#equipamiento" data-toggle="tab">Equipamiento</a></li>
-						<li><a href="#contactos" data-toggle="tab">Contactos</a></li>
-					</ul>
-					<div class="tab-content">
-						<div class="tab-pane active" id="capacitacion">
+				<div class="row">
+					<div class="col-md-12">
+						<div class="nav-tabs-custom">
+							<ul class="nav nav-tabs nav-justified">
+								<li class="active"><a href="#capacitacion" data-toggle="tab">Capacitación</a></li>
+								<li><a href="#monitoreo" data-toggle="tab">Monitoreo</a></li>
+								<li><a href="#equipamiento" data-toggle="tab">Equipamiento</a></li>
+								<li><a href="#contactos" data-toggle="tab">Contactos</a></li>
+							</ul>
+							<div class="tab-content">
+								<div class="tab-pane active" id="capacitacion">
+								</div>
+								<div class="tab-pane" id="monitoreo">
 
-						</div>
-						<!-- /.tab-pane -->
-						<div class="tab-pane" id="monitoreo">
+								</div>
+								<div class="tab-pane" id="equipamiento">
 
-						</div>
-						<div class="tab-pane" id="equipamiento">
-
-						</div>
-						<div class="tab-pane" id="contactos">
-
+								</div>
+								<div class="tab-pane" id="contactos">
+									{% for contacto in escuela.contacto.all %}
+									<div class="box box-widget widget-user-1">
+										<div class="widget-user-header">
+											<h3 class="widget-user-username">{{ contacto }}</h3>
+											<h5 class="widget-user-desc">{{ contacto.rol }}</h5>
+										</div>
+										<div class="box-footer no-padding">
+											<table class="table table-hover">
+												<tr>
+													<td>Teléfono</td>
+													<td>
+														{% for telefono in contacto.telefono.all %}
+														<a href="tel:{{telefono}}"><span class="pull-right badge bg-{{telefono.empresa|telefonica}}">{{ telefono }}</span></a>
+														{% endfor %}
+													</td>
+												</tr>
+												<tr>
+													<td>Correo</td>
+													<td>
+														{% for mail in contacto.mail.all %}
+														<a href="mailto:{{mail}}">
+															<span class="pull-right badge">{{ mail }}</span>
+														</a>
+														{% endfor %}
+													</td>
+												</tr>
+											</table>
+										</div>
+									</div>
+									{% endfor %}
+								</div>
+							</div>
 						</div>
 					</div>
 				</div>
