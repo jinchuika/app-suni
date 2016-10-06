@@ -134,9 +134,9 @@ class EscContactoRol(models.Model):
 		return self.rol
 
 class EscContacto(models.Model):
+	escuela = models.ForeignKey(Escuela, related_name="contacto")
 	nombre = models.CharField(max_length=100)
 	apellido = models.CharField(max_length=100)
-	nombre = models.CharField(max_length=100)
 	rol = models.ForeignKey(EscContactoRol, on_delete=models.PROTECT)
 
 	class Meta:
@@ -155,7 +155,7 @@ class EscContactoTelefono(models.Model):
 	empresa = property(get_empresa)
 
 	def __str__(self):
-		return str(self.telefono) + " " + str(self.empresa)
+		return str(self.telefono)
 
 class EscContactoMail(models.Model):
 	"""
