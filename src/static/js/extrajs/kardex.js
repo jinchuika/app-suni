@@ -45,7 +45,7 @@ function salida(id_equipo, equipo){
                           texto += "<tr>";
                             texto += "<th>id de entrada</th>";
                             texto += "<th>Fecha </th>";
-                            texto += "<th>Cantidad Ingresado</th>";
+                            texto += "<th>Cantidad Egresados</th>";
                             texto += "<th>observación</th>";
                             texto += "<th>Usuario</th>";
                           texto += "</tr>";

@@ -31,9 +31,9 @@ function related(id_empresa, equipo){
   }
 
 
-function contacto(id_tag, tag){
+function get_contacto(classs, id, name){
     $.ajax({
-      url: 'empresa/'+id_tag+'/',
+      url: classs+'/'+id+'/',
       dataType: "json",
 
       success: function(respuesta){
@@ -47,13 +47,13 @@ function contacto(id_tag, tag){
                             texto += "<th>Correo</th>";
                           texto += "</tr>";
                         texto += "</thead>";
-        $.each(respuesta.contacto, function(index, item){
+        $.each(respuesta.contact, function(index, item){
           texto += "<tr><td>" + item.nombre + "</td><td>"+ item.empresa + "</td><td>" + item.puesto + "</td><td>" + item.telefono + "</td><td>" + item.correo + "</td></tr>";
           
         })
         
           bootbox.alert({
-            title: "Id del tag: " + id_tag + "<br><br> Etiqueta:  " + tag,
+            title: "<h1> "+classs+":  "+name+"</h1>",
             message: texto +  "</table>",
             size : 'large',
             backdrop: true

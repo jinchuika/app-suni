@@ -41,10 +41,6 @@ class FormularioEntrada(forms.ModelForm):
 			raise forms.ValidationError("Este campo es requerido ")
 
 		return precio
-
-
-
-
 	
 
 
@@ -53,7 +49,7 @@ class FormularioSalida(forms.ModelForm):
 		model = Salida
 		fields = '__all__'
 		widgets= {
-		'equipo':forms.Select(attrs={'class':' form-control select2'}),
+		'equipo':forms.Select(attrs={'class':'form-control select2'}),
 		'fecha':forms.TextInput(attrs={'class':'datepicker form-control', 'placeholder': 'Fecha'}),
 		'cantidad':forms.NumberInput(attrs={'class':' form-control','placeholder': 'Cantidad'}),
 		'no_entrada': forms.Select(attrs={'class':' form-control select2'}),

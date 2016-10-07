@@ -126,3 +126,6 @@ class Salida(models.Model):
 	#metodos
 	def __str__(self):
 		return str(self.id) + " " + str(self.equipo) + " (" + str(self.fecha) + ")"
+
+
+

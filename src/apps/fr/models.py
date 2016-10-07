@@ -66,13 +66,13 @@ class Contacto(models.Model):
 	nombre = models.CharField(max_length=70)
 	apellido = models.CharField(max_length=70)
 	direccion = models.CharField(max_length=150, null=True, blank=True)
-	etiquetas = models.ManyToManyField(Etiqueta)
-	evento = models.ManyToManyField(Evento)
+	etiquetas = models.ManyToManyField(Etiqueta, related_name='contacto')
+	evento = models.ManyToManyField(Evento, related_name='contact')
 	observacion = models.TextField(null=True, blank=True)
 	empresa = models.ForeignKey(Empresa)
 	puesto = models.CharField(max_length=75)
 	fecha_creacion = models.DateField(default = now)
-	fecha_creacion = models.DateField()
+	fecha_creacion = models.DateField(default= now())
 
 
 	def __str__(self):
