@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     'apps.escuela',
     'apps.kardex',
     'apps.fr',
+    'apps.cyd',
 ]
 
 SITE_ID = 1

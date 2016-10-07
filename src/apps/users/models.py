@@ -6,14 +6,8 @@ from .managers import *
 
 class PerfilQuerySet(models.QuerySet):
 	def capacitadores(self):
-		return self.filter(user__groups__in="Capacitación")
-
-class PerfilManager(models.Manager):
-	def get_queryset(self):
-		return PerfilQuerySet(self.model, using=self._db)
-
-	def capacitadores(self):
-		return self.get_queryset.capacitadores()
+		queryset = User.objects.filter(groups__in=(7,))
+		return self.filter(user__in=queryset)
 
 class Perfil(models.Model):
 	GENERO_CHOICES = (
@@ -33,8 +27,8 @@ class Perfil(models.Model):
         editable=True,
 		)
 	objects = models.Manager()
-	grupos = PerfilManager.from_queryset(PerfilQuerySet)()
-	
+	grupos = PerfilQuerySet.as_manager()
+
 	def get_nombre(self):
 		return self.user.first_name
 	nombre = property(get_nombre)
