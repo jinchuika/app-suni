@@ -5,6 +5,7 @@ from braces.views import LoginRequiredMixin, GroupRequiredMixin, PermissionRequi
 from .forms import FormEscuelaCrear, ContactoForm, ContactoTelefonoFormSet, ContactoMailFormSet
 from .models import Escuela, EscContacto
 from .mixins import ContactoContextMixin
+from apps.mye.forms import EscuelaCooperanteForm
 
 class EscuelaCrear(LoginRequiredMixin, GroupRequiredMixin, CreateView):
 	group_required = u"Administración"
@@ -16,6 +17,15 @@ class EscuelaCrear(LoginRequiredMixin, GroupRequiredMixin, CreateView):
 class EscuelaDetail(LoginRequiredMixin, DetailView):
 	template_name = 'escuela/detail.html'
 	model = Escuela
+
+	def get_context_data(self, **kwargs):
+		context = super(EscuelaDetail, self).get_context_data(**kwargs)
+		context['form_cooperante'] = EscuelaCooperanteForm(instance=self.object)
+		return context
+
+class EscuelaCooperanteUpdate(LoginRequiredMixin, UpdateView):
+	model = Escuela
+	form_class = EscuelaCooperanteForm
 
 class EscuelaEditar(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
 	permission_required = "escuela.change_escuela"

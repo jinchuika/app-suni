@@ -21,8 +21,6 @@
 				<table class="table table-striped">
 					{% csrf_token %}
 					{{ form.as_table }}
-				
-				
 					<tbody id="telefono_table">
 						{% for form_telefono in named_formsets.telefono.forms %}
 						<tr id="{{form_telefono.prefix}}-row" class="form-container-telefono">
@@ -35,7 +33,6 @@
 						</tr>
 						{% endfor %}
 					</tbody>
-				
 					<tbody id="mail_table">
 						{% for form_mail in named_formsets.mail.forms %}
 						<tr id="{{form_mail.prefix}}-row" class="form-container-mail">

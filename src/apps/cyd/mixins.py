@@ -9,9 +9,9 @@ class BaseFormsetMixin(ContextMixin):
 		return context
 
 	def get_named_formsets(self):
-		named_formsets = []
+		named_formsets = {}
 		for prefix, formset_class in self.formset_list.items():
-			named_formsets[prefix] = formset_class(self.request.POST or None, prefix=prefix, instance=self.object)
+			named_formsets.update({prefix:  formset_class(self.request.POST or None, prefix=prefix, instance=self.object)})
 		return named_formsets
 
 	def form_valid(self, form):
@@ -30,8 +30,8 @@ class BaseFormsetMixin(ContextMixin):
 
 class CursoMixin(BaseFormsetMixin):
 	formset_list = {
-			'telefono': CrHitoFormSet,
-			'mail': CrAsistenciaFormSet,
+			'hito': CrHitoFormSet,
+			'asistencia': CrAsistenciaFormSet,
 		}
 	def formset_hito_valid(self, formset):
 		hitos = formset.save(commit=False)

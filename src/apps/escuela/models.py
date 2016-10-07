@@ -2,6 +2,7 @@ from django.db import models
 from apps.main.models import Municipio
 from apps.main.utils import get_telefonica
 from django.urls import reverse
+from apps.mye.models import Cooperante, Proyecto, EscuelaCooperante
 
 class EscArea(models.Model):
 	area = models.CharField(max_length=20)
@@ -109,6 +110,10 @@ class Escuela(models.Model):
 	modalidad = models.ForeignKey(EscModalidad, on_delete=models.PROTECT)
 	jornada = models.ForeignKey(EscJornada, on_delete=models.PROTECT)
 	plan = models.ForeignKey(EscPlan, on_delete=models.PROTECT)
+
+	cooperante_asignado = models.ManyToManyField(
+		Cooperante,
+		through='mye.EscuelaCooperante',)
 
 	class Meta:
 		verbose_name = "Escuela"
