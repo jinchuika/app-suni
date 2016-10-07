@@ -1,5 +1,5 @@
 from django import forms
-from forms import ModelForm
+from django.forms import ModelForm
 from .models import Curso, CrAsistencia, CrHito
 from django.forms.models import inlineformset_factory
 
