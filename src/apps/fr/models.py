@@ -1,5 +1,5 @@
 from django.db import models
-from django.utils.timezone import now
+#from django.utils.timezone import now
 
 class Empresa(models.Model):
 	nombre = models.CharField(max_length=50)
@@ -71,8 +71,7 @@ class Contacto(models.Model):
 	observacion = models.TextField(null=True, blank=True)
 	empresa = models.ForeignKey(Empresa)
 	puesto = models.CharField(max_length=75)
-	fecha_creacion = models.DateField(default = now)
-	fecha_creacion = models.DateField(default= now())
+
 
 
 	def __str__(self):
