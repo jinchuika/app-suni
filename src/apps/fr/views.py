@@ -20,7 +20,20 @@ class ListMixin(ContextMixin):
 			#querylist = model.objects.filter(id__gt = 3)
 
 	    return context
-	
+
+class ContactListMixin(ContextMixin):
+	def get(self, request, **kwargs):
+		query = self.get_object()
+		contacto_list = query.contacto.all()
+		lista_vacia = []
+		for cont in contacto_list:
+			lista_vacia.append({'nombre':str(cont), 'empresa': str(cont.empresa), 'puesto': str(cont.puesto)})
+		return HttpResponse(
+				json.dumps({
+					"contact": lista_vacia,
+					})
+				)
+
 
 
 class CreateEmpresa(LoginRequiredMixin, ListMixin, CreateView):
@@ -49,31 +62,14 @@ class CreateContacto(LoginRequiredMixin, ListMixin, CreateView):
 	success_url= reverse_lazy('contacto_contactos')
 
 
-class ContactoEtiqueta(LoginRequiredMixin, DetailView):
+class ContactoEtiqueta(LoginRequiredMixin, ContactListMixin, DetailView):
 	model = Etiqueta
-	def get(self, request, **kwargs):
-		etiqueta = self.get_object()
-		contacto_list = etiqueta.contacto.all()
-		lista_vacia = []
-		for cont in contacto_list:
-			lista_vacia.append({'nombre':str(cont), 'empresa': str(cont.empresa), 'puesto': str(cont.puesto)})
-		return HttpResponse(
-				json.dumps({
-					"contact": lista_vacia,
-					})
-				)
+
+class EmpresaEtiqueta(LoginRequiredMixin, ContactListMixin, DetailView):
+	model = Etiqueta
+	
 	
 
-class ContactoEvento(LoginRequiredMixin, DetailView):
+class ContactoEvento(LoginRequiredMixin, ContactListMixin, DetailView):
 	model = Evento
-	def get(self, request, **kwargs):
-		evento = self.get_object()
-		contacto_list = evento.contact.all()
-		lista_vacia = []
-		for cont in contacto_list:
-			lista_vacia.append({'nombre':str(cont), 'empresa': str(cont.empresa), 'puesto': str(cont.puesto)})
-		return HttpResponse(
-				json.dumps({
-					"contact": lista_vacia,
-					})
-				)
+	
