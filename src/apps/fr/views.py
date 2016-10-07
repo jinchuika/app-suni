@@ -29,6 +29,10 @@ class CreateEmpresa(LoginRequiredMixin, ListMixin, CreateView):
 	template_name = "fr/empresa.html"
 	success_url= reverse_lazy('contacto_empresa')
 
+class EmpresaDetail(LoginRequiredMixin, DetailView):
+	template_name = "fr/empresadetail.html"
+	model = Empresa
+
 
 
 class CreateEvento(LoginRequiredMixin, ListMixin, CreateView):

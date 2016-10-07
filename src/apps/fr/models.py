@@ -69,7 +69,7 @@ class Contacto(models.Model):
 	etiquetas = models.ManyToManyField(Etiqueta, related_name='contacto')
 	evento = models.ManyToManyField(Evento, related_name='contact')
 	observacion = models.TextField(null=True, blank=True)
-	empresa = models.ForeignKey(Empresa)
+	empresa = models.ForeignKey(Empresa, related_name='contacto')
 	puesto = models.CharField(max_length=75)
 
 

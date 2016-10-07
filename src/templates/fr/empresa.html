@@ -53,7 +53,12 @@
 																	{% for i in lista %}
 																	<tr>
 																		<td width="5%">{{i.id}}</td> 
-																		<td width="20%">{{i}}</td>
+																		<td width="20%">
+																			<a href="{% url 'empresa_detail' pk=i.id%}">
+																				{{i}}
+																			</a>
+
+																		</td>
 																		<td width="25%">{{i.direccion}}</td>
 																		<td width="15%">{{i.telefono}}</td>
 																		<td width="35%">{{i.descripcion}}</td>
