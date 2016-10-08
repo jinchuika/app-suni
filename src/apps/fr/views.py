@@ -45,6 +45,8 @@ class CreateEmpresa(LoginRequiredMixin, ListMixin, CreateView):
 class EmpresaDetail(LoginRequiredMixin, DetailView):
 	template_name = "fr/empresadetail.html"
 	model = Empresa
+	pk_url_kwarg = 'empresa_pk'
+
 
 
 
@@ -64,12 +66,11 @@ class CreateContacto(LoginRequiredMixin, ListMixin, CreateView):
 
 class ContactoEtiqueta(LoginRequiredMixin, ContactListMixin, DetailView):
 	model = Etiqueta
-
-class EmpresaEtiqueta(LoginRequiredMixin, ContactListMixin, DetailView):
-	model = Etiqueta
-	
+	pk_url_kwarg = 'tag_pk'
 	
 
 class ContactoEvento(LoginRequiredMixin, ContactListMixin, DetailView):
 	model = Evento
+	pk_url_kwarg = 'tag_pk'
+
 	

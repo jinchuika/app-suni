@@ -1,7 +1,7 @@
 {% extends "base/base.html" %}
 {% load staticfiles %}
 {% block page_title %}
-<title>Empresa detail</title>	
+<title>{{empresa}}</title>	
 {% endblock page_title %}
 
 {% block content %}
@@ -49,7 +49,7 @@
 					<div class="box-body">
 						<h4>
 							<a class="btn btn-success" href="#">
-								<i class="fa fa-plus"></i>Nuevo
+								<i class="fa fa-plus"></i> Nuevo
 							</a>
 						</h4>
 						{% for contacto in empresa.contacto.all  %}
@@ -57,13 +57,16 @@
 							<div class="widget-user-header">
 								<h3 class="widget-user-username">
 									{{contacto}}
+									<a class="btn btn-info btn-xs">
+										<i class="fa fa-pencil-square-o"></i>
+									</a>
 								</h3>
 								<h5 class="widget-user-desc">{{contacto.puesto}}</h5>
 							</div>
 							<div class="box-footer no-padding">
 								<table class="table table-hover">
 									<tr>
-										<td>Dirección</td>
+										<td><strong>Dirección</strong></td>
 										<td>
 											<p class="text-muted pull-right">
 												{%if contacto.direccion%}
@@ -75,7 +78,7 @@
 										</td>
 									</tr>
 									<tr>
-										<td>Etiquetas</td>
+										<td><strong>Etiquetas</strong></td>
 										<td>
 											{% for tag in contacto.etiquetas.all %}
 											<a class="pull-right" href="#" onclick="get_contacto('etiqueta', {{tag.id}}, '{{tag}}')">
@@ -87,7 +90,33 @@
 
 											{% endfor %}
 										</td>
-									</tr>										
+									</tr>
+									<tr>
+										<td><strong>Eventos</strong></td>
+										<td>
+											{% for event in contacto.evento.all %}
+											<a class="pull-right" href="#" onclick="get_contacto('evento', {{event.id}}, '{{event}}')">
+												<span class="badge bg-{{event.color}}">
+													<i class="fa fa-calendar-check-o"></i>
+													{{event}}
+												</span>
+											</a>
+
+											{% endfor %}
+										</td>
+									</tr>
+									<tr>
+										<td><strong>Observación</strong></td>
+										<td>
+											<p class="pull-right">
+												{%if contacto.observacion %}
+												{{contacto.observacion}}
+												{%else%}
+												{{contacto}} no tiene observación
+												{%endif%}
+											</p>
+										</td>
+									</tr>											
 								</table>
 							</div>
 						</div>

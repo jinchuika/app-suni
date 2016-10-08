@@ -31,9 +31,9 @@ function related(id_empresa, equipo){
   }
 
 
-function get_contacto(classs, pk, name){
+function get_contacto(classs, tag_pk, name){
     $.ajax({
-      url: classs+'/'+pk+'/',
+      url: classs+'/'+tag_pk+'/',
       dataType: "json",
 
       success: function(respuesta){

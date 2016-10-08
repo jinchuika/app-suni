@@ -54,8 +54,9 @@
 																	<tr>
 																		<td width="5%">{{i.id}}</td> 
 																		<td width="20%">
-																			<a href="{% url 'empresa_detail' pk=i.id%}">
 																				{{i}}
+																			<a class="btn btn-info pull-right" href="{% url 'empresa_detail' empresa_pk=i.id%}">
+																			<i class="fa fa-external-link " aria-hidden="true"></i> Ver perfil
 																			</a>
 
 																		</td>
