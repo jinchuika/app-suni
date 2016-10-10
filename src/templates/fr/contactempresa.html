@@ -14,7 +14,11 @@
 
 {% block content %}
 <section class="content-header">
+	{% if form.instance.pk %}
+	<h1>Editar Contacto</h1>
+	{%else%}
 	<h1>Crear contacto</h1>
+	{%endif%}
 </section>
 <section class="content">
 	<div class="row-fluid">
