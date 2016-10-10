@@ -78,6 +78,20 @@
 										</td>
 									</tr>
 									<tr>
+										<td><strong>Teléfono</strong></td>
+										<td>
+											{% for tel in contacto.telefono.all %}
+											<a class="pull-right" href="#">
+												<span class="badge bg-primary">
+													<i class="fa fa-tel"></i>
+													{{tel}}
+												</span>
+											</a>
+
+											{% endfor %}
+										</td>
+									</tr>
+									<tr>
 										<td><strong>Etiquetas</strong></td>
 										<td>
 											{% for tag in contacto.etiquetas.all %}

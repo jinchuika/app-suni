@@ -80,14 +80,14 @@ class Contacto(models.Model):
 
 class ContactoMail(models.Model):
 	mail=models.EmailField(max_length=100)
-	contacto= models.ForeignKey(Contacto,related_name='mail')
+	contacto= models.ForeignKey(Contacto,related_name='mail', null=True)
 
 	def __str__(self):
 		return self.mail
 
 class ContactoTelefono(models.Model):
 	telefono = models.CharField(max_length=12)
-	contacto = models.ForeignKey(Contacto, related_name='telefono')
+	contacto = models.ForeignKey(Contacto, related_name='telefono', null=True)
 
 	def __str__(self):
 		return self.telefono
