@@ -4,7 +4,7 @@ from .views import *
 
 urlpatterns = [
 url(r'^empresa/$', CreateEmpresa.as_view(), name = 'contacto_empresa'),
-url(r'^empresa/perfil/(?P<empresa_pk>\d)/$', EmpresaDetail.as_view(), name = 'empresa_detail'),
+url(r'^empresa/(?P<empresa_pk>\d)/$', EmpresaDetail.as_view(), name = 'empresa_detail'),
 url(r'^empresa/editar/(?P<empresa_pk>\d)/$', EditEmpresa.as_view(), name = 'empresa_edit'),
 url(r'^empresa/(?P<empresa_pk>\d)/contacto/$', CreateContactIntoEmpresa.as_view(), name = 'empresa_contacto'),
 url(r'^empresa/(?P<empresa_pk>\d)/contacto/(?P<contact_pk>\d)/$', EditContacto.as_view(), name = 'empresa_contacto_edit'),
