@@ -1,5 +1,6 @@
 from django import forms 
 from django.forms import ModelForm, ModelChoiceField, formset_factory, modelformset_factory, widgets
+from django.forms.models import inlineformset_factory, BaseInlineFormSet
 from .models import *
 
 class FormEmpresa(forms.ModelForm):
@@ -18,8 +19,27 @@ class FormEvento(forms.ModelForm):
 class FormContacto(forms.ModelForm):
 	class Meta:
 		model = Contacto
-		fields = ['nombre', 'apellido', 'direccion', 'etiquetas', 'evento', 'empresa', 'puesto', 'observacion']
+		fields = '__all__'
 		widgets = {
 		'etiquetas': forms.SelectMultiple(attrs = {'class' : 'select2'}),
 		'evento': forms.SelectMultiple(attrs = {'class' : 'select2'}),
 		}
+
+class FormContactoEmpresa(forms.ModelForm):
+	class Meta:
+		model = Contacto
+		fields = '__all__'
+		widgets = {
+		'empresa' : forms.HiddenInput(),
+		'nombre': forms.TextInput(attrs = {'class' : 'form-control'}),
+		'apellido': forms.TextInput(attrs = {'class' : 'form-control'}),
+		'direccion': forms.TextInput(attrs = {'class' : 'form-control'}),
+		'etiquetas': forms.SelectMultiple(attrs = {'class' : 'select2'}),
+		'evento': forms.SelectMultiple(attrs = {'class' : 'select2'}),
+		'observacion': forms.Textarea(attrs = {'class' : 'form-control'}),
+		'puesto': forms.TextInput(attrs = {'class' : 'form-control'}),
+		}
+
+
+ContactoTelefonoFormSet = inlineformset_factory(Contacto, ContactoTelefono, fields='__all__',extra=1, can_delete=True)
+ContactoMailFormSet = inlineformset_factory(Contacto, ContactoMail, fields='__all__', extra=1,can_delete=True)

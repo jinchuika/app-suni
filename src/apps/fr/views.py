@@ -1,11 +1,12 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from apps.fr.models import *
 from apps.fr.forms import *
 from django.views.generic.base import ContextMixin
 from django.views.generic import DetailView
-from django.views.generic.edit import CreateView
+from django.views.generic.edit import CreateView, UpdateView
 from braces.views import LoginRequiredMixin
 from django.urls import reverse_lazy
+from .mixins import ContactoContextMixin
 from django.http import HttpResponse
 import json
 
@@ -46,9 +47,7 @@ class EmpresaDetail(LoginRequiredMixin, DetailView):
 	template_name = "fr/empresadetail.html"
 	model = Empresa
 	pk_url_kwarg = 'empresa_pk'
-
-
-
+	
 
 class CreateEvento(LoginRequiredMixin, ListMixin, CreateView):
 	model = Evento
@@ -73,4 +72,15 @@ class ContactoEvento(LoginRequiredMixin, ContactListMixin, DetailView):
 	model = Evento
 	pk_url_kwarg = 'tag_pk'
 
+
+class CreateContactIntoEmpresa(LoginRequiredMixin, ListMixin, ContactoContextMixin, CreateView):
+	model = Contacto
+	form_class = FormContactoEmpresa
+	pk_url_kwarg = 'contact_pk'
+	template_name = "fr/contactempresa.html"
+	success_url= reverse_lazy('contacto_empresa')
+	def get_initial(self):
+		empresa = get_object_or_404(Empresa, id=self.kwargs.get('empresa_pk'))
+		return { 'empresa': empresa }
 	
+

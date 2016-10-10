@@ -1,7 +1,7 @@
 {% extends "base/base.html" %}
 {% load staticfiles %}
 {% block page_title %}
-<title>{{empresa}}</title>	
+<title>{{empresa}} - Perfil</title>	
 {% endblock page_title %}
 
 {% block content %}
@@ -48,7 +48,7 @@
 					<div class="box-title"><h3 class="text-center">Contactos</h3></div>
 					<div class="box-body">
 						<h4>
-							<a class="btn btn-success" href="#">
+							<a class="btn btn-success" href="{% url 'empresa_contacto' empresa_pk=empresa.id %}">
 								<i class="fa fa-plus"></i> Nuevo
 							</a>
 						</h4>
