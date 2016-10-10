@@ -25,7 +25,13 @@
 		<div class="row">
 			<div class="col-md-3">
 				<div class="box box-primary">
-					<div class="box-title"><h3 class="text-center">Información</h3></div>
+					<div class="box-title">
+						<h3 class="text-center">Información
+							<a class="btn btn-info btn-xs" href="{% url 'empresa_edit' empresa_pk=empresa.id%}">
+								<i class="fa fa-pencil-square-o"></i>
+							</a>
+						</h3>
+					</div>
 					<div class="box-body">
 						<strong><i class="fa fa-map-marker margin-r-5"></i>Dirección</strong>
 						<p class="text-muted">{{empresa.direccion}}</p>
@@ -57,7 +63,7 @@
 							<div class="widget-user-header">
 								<h3 class="widget-user-username">
 									{{contacto}}
-									<a class="btn btn-info btn-xs">
+									<a class="btn btn-info btn-xs" href="{% url 'empresa_contacto_edit' empresa_pk=empresa.id contact_pk=contacto.id%}">
 										<i class="fa fa-pencil-square-o"></i>
 									</a>
 								</h3>

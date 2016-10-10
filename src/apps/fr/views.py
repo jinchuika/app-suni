@@ -43,11 +43,18 @@ class CreateEmpresa(LoginRequiredMixin, ListMixin, CreateView):
 	template_name = "fr/empresa.html"
 	success_url= reverse_lazy('contacto_empresa')
 
-class EmpresaDetail(LoginRequiredMixin, DetailView):
-	template_name = "fr/empresadetail.html"
+class EditEmpresa(LoginRequiredMixin, UpdateView):
 	model = Empresa
+	form_class = FormEmpresa
 	pk_url_kwarg = 'empresa_pk'
-	
+	template_name = "fr/empresaedit.html"
+	success_url= reverse_lazy('contacto_empresa')
+
+class EmpresaDetail(LoginRequiredMixin, DetailView):
+	model = Empresa
+	template_name = "fr/empresadetail.html"
+	pk_url_kwarg = 'empresa_pk'
+
 
 class CreateEvento(LoginRequiredMixin, ListMixin, CreateView):
 	model = Evento
@@ -83,4 +90,9 @@ class CreateContactIntoEmpresa(LoginRequiredMixin, ListMixin, ContactoContextMix
 		empresa = get_object_or_404(Empresa, id=self.kwargs.get('empresa_pk'))
 		return { 'empresa': empresa }
 	
-
+class EditContacto(LoginRequiredMixin, ListMixin, ContactoContextMixin, UpdateView):
+	model = Contacto
+	form_class = FormContactoEmpresa
+	pk_url_kwarg = 'contact_pk'
+	template_name = "fr/contactempresa.html"
+	success_url= reverse_lazy('contacto_empresa')

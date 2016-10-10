@@ -4,8 +4,8 @@
 
 {% block page_title %}
 <title>
-	{% if form.instance.contact_pk %}
-	{{form.instance.nombre}} {{form.instance.apellido}}
+	{% if form.instance.pk %}
+	Editar-{{form.instance.nombre}} {{form.instance.apellido}}
 	{%else%}
 	Crear contacto
 	{%endif%}
