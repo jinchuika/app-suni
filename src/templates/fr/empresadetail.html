@@ -78,13 +78,27 @@
 										</td>
 									</tr>
 									<tr>
-										<td><strong>Teléfono</strong></td>
+										<td><strong>Teléfono(s)</strong></td>
 										<td>
 											{% for tel in contacto.telefono.all %}
 											<a class="pull-right" href="#">
-												<span class="badge bg-primary">
+												<span class="badge bg-blue">
 													<i class="fa fa-tel"></i>
 													{{tel}}
+												</span>
+											</a>
+
+											{% endfor %}
+										</td>
+									</tr>
+									<tr>
+										<td><strong>Correo(s)</strong></td>
+										<td>
+											{% for mail in contacto.mail.all %}
+											<a class="pull-right" href="#">
+												<span class="badge bg-warning">
+													<i class="fa fa-mail"></i>
+													{{mail}}
 												</span>
 											</a>
 
