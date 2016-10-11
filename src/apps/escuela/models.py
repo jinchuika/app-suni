@@ -114,6 +114,9 @@ class Escuela(models.Model):
 	cooperante_asignado = models.ManyToManyField(
 		Cooperante,
 		through='mye.EscuelaCooperante',)
+	proyecto_asignado = models.ManyToManyField(
+		Proyecto,
+		through='mye.EscuelaProyecto',)
 
 	class Meta:
 		verbose_name = "Escuela"

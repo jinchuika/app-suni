@@ -27,8 +27,5 @@ class ContactoTelefonoForm(forms.ModelForm):
 		model = EscContactoTelefono
 		fields = '__all__'
 
-def get_contacto_telefono_formset(form, formset=BaseInlineFormSet, **kwargs):
-	return inlineformset_factory(EscContacto, EscContactoTelefono, form, formset, **kwargs)
-
 ContactoTelefonoFormSet = inlineformset_factory(EscContacto, EscContactoTelefono, fields='__all__',extra=1, can_delete=True)
 ContactoMailFormSet = inlineformset_factory(EscContacto, EscContactoMail, fields='__all__', extra=1,can_delete=True)

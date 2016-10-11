@@ -8,4 +8,7 @@ urlpatterns = [
     url(r'^(?P<pk>\d+)/editar$', EscuelaEditar.as_view(), name='escuela_update'),
     url(r'^(?P<id_escuela>\d+)/contacto/(?P<pk>\d+)/', EscContactoEditar.as_view(), name='escuela_contacto_edit'),
     url(r'^(?P<id_escuela>\d+)/contacto/$', EscContactoCrear.as_view(), name='escuela_contacto_add'),
+
+    url(r'^(?P<pk>\d+)/cooperante/$', EscuelaCooperanteUpdate.as_view(), name='escuela_cooperante_add'),
+    url(r'^(?P<pk>\d+)/proyecto/$', EscuelaProyectoUpdate.as_view(), name='escuela_proyecto_add'),
 ]

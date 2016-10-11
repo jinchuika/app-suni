@@ -1,3 +1,16 @@
+var GLOBALS = GLOBALS || (function(){
+    var _args = {}; // private
+
+    return {
+        init : function(Args) {
+            _args = Args;
+        },
+        get: function (key) {
+        	return _args[key];
+        }
+    };
+}());
+
 $(document).ready(function () {
 	$('.datepicker').datepicker({
 		format: 'yyyy-mm-dd'

@@ -82,11 +82,55 @@
 								<div class="tab-pane active" id="capacitacion">
 								</div>
 								<div class="tab-pane" id="monitoreo">
-									<form action="{{action}}" method="post">
-										{% csrf_token %}
-										{{ form_cooperante.as_p }}
-										<input type="submit" value="Guardar" class="btn btn-primary">
-									</form>
+									<h3>Cooperantes</h3>
+									<table class="table table-hover">
+										<thead>
+											<tr>
+												<th>Cooperante</th>
+												<th>Fecha en que se unió</th>
+											</tr>
+										</thead>
+										{% for asignacion in escuela.asignacion_cooperante.all|dictsort:"fecha_activacion" %}
+										{% if asignacion.activa %}
+										<tr>
+											<td>
+												<a href="{% url "cooperante_detail" pk=asignacion.cooperante.id %}">
+													{{ asignacion.cooperante}}
+												</a>
+											</td>
+											<td> {{asignacion.fecha_activacion}} </td>
+										</tr>
+										{% endif %}
+										{% endfor %}
+									</table>
+									{% if perms.mye_add_escuela_cooperante %}
+									<a href="{% url "escuela_cooperante_add" pk=escuela.id %}" class="btn btn-info">Editar cooperantes</a>
+									{% endif %}
+
+									<h3>Proyectos</h3>
+									<table class="table table-hover">
+										<thead>
+											<tr>
+												<th>Proyecto</th>
+												<th>Fecha en que se asignó</th>
+											</tr>
+										</thead>
+										{% for asignacion in escuela.asignacion_proyecto.all|dictsort:"fecha_activacion" %}
+										{% if asignacion.activa %}
+										<tr>
+											<td>
+												<a href="{% url "proyecto_detail" pk=asignacion.proyecto.id %}">
+													{{ asignacion.proyecto}}
+												</a>
+											</td>
+											<td> {{asignacion.fecha_activacion}} </td>
+										</tr>
+										{% endif %}
+										{% endfor %}
+									</table>
+									{% if perms.mye_add_escuela_proyecto %}
+									<a href="{% url "escuela_proyecto_add" pk=escuela.id %}" class="btn btn-info">Editar proyectos</a>
+									{% endif %}
 								</div>
 								<div class="tab-pane" id="equipamiento">
 
