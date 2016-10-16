@@ -1,5 +1,6 @@
 {% extends "base/base.html" %}
 {% load staticfiles%}
+{% load widget_tweaks %}
 {% block content %}
 
 
@@ -98,6 +99,34 @@
 			</div>
 			<div class="col-md-1"></div>
 		</div>
+
+		<!--other form-->
+		<div class="row">
+			<div class="col-md-2"></div>
+			<div class="col-md-8">
+				<table class="table table-hover table-striped table-bordered table-responsive" style="margin-top: 20px;" >
+					<h3>Generar informe</h3>
+					<tr>
+						<td>
+							<input type="text" class="form-control datepicker" id="ini" placeholder="Fecha de inicio">
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<input type="text" class="form-control datepicker" id="out" placeholder="Fecha final" >
+						</td>
+					</tr>
+					<tr>
+						<td><a href="javascript:void(0)" onclick="informe()" class="btn btn-primary">enviar formulario</a></td>
+					</tr>
+
+				</table>
+				
+				
+			</div>
+
+			<div class="col-md-2"></div>
+		</div>
 	</div>
 
   <!--<script>
@@ -121,6 +150,8 @@
 
 {% block extra_js %}
 <script src="{% static "js/extrajs/kardex.js" %}"></script>
+<script src="{% static "js/extrajs/spin.js" %}"></script>
+
 {% endblock extra_js %}
 
 

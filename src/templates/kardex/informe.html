@@ -1,0 +1,41 @@
+{% extends "base/base.html" %}
+{% block page_title %}
+<title>Informe</title>	
+{% endblock page_title %}
+{% block content %}
+<section class="content-header">
+	<h1>informe</h1>
+</section>
+<section class="content">
+	<div class="box">
+		<div class="box-body">
+			<table class="table table-bordered table-hover">
+				<thead>
+					<tr>
+						<th>Nombre</th>
+						<th>No. Entradas</th>
+						<th>No. Salidas</th>
+						<th>Cant. Ingresada</th>
+						<th>Cant. Egresada</th>
+						<th>Diferencia</th>
+						<th>Existencia Actual</th>
+					</tr>
+				</thead>
+				{% for detail in equipo_detail %}
+					<tr>
+						<td>{{detail.nombre}}</td>
+						<td>{{detail.cantidad_ingresos}}</td>
+						<td>{{detail.cantidad_egresos}}</td>
+						<td>{{detail.ingreso}}</td>
+						<td>{{detail.egreso}}</td>
+						<td>{{detail.diferencia}}</td>
+						<td>{{detail.existencia_actual}}</td>
+
+					</tr>
+				{% endfor %}
+			</table>
+		</div>
+	</div>
+</section>
+	
+{% endblock content %}

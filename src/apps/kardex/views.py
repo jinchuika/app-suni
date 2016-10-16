@@ -18,6 +18,20 @@ class Equipolog(LoginRequiredMixin, CreateView):
 	    context = super(Equipolog, self).get_context_data(**kwargs)
 	    context['lista'] = self.model.objects.all()
 	    return context
+	    
+def informe_general(request, ini, out):
+	equipo_list = Equipo.objects.all()
+	lista_vacia = []
+	for equipo in equipo_list:
+		if equipo.get_cant_entradas( ini, out) !=0:
+			lista_vacia.append({'nombre':equipo, 'cantidad_ingresos':equipo.get_cant_entradas( ini, out), 
+				'cantidad_egresos': equipo.get_cant_salidas( ini, out), 'ingreso':equipo.get_entradas( ini, out), 
+				'egreso': equipo.get_salidas( ini, out), 'diferencia' : equipo.get_entradas(ini, out)-equipo.get_salidas(ini, out), 
+				'existencia_actual': equipo.get_existencia()})
+	context = {
+		'equipo_detail': lista_vacia 
+	}
+	return render(request, 'kardex/informe.html', context)
 
 
 class EquipoEntrada(LoginRequiredMixin, DetailView):

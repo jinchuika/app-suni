@@ -29,7 +29,7 @@ class EscuelaCooperanteUpdate(LoginRequiredMixin, PermissionRequiredMixin, Updat
 
 	def get_form(self, *args, **kwargs):
 		eliminar = self.request.user.has_perm('mye.delete_escuela_cooperante')
-		form = self.form_class(**self.get_form_kwargs(), eliminar=eliminar)
+		form = self.form_class(self.get_form_kwargs(), eliminar=eliminar)
 		form.initial['cooperante_asignado'] = [c.cooperante for c in EscuelaCooperante.objects.filter(escuela=self.object, activa=True)]
 		return form
 
@@ -46,7 +46,7 @@ class EscuelaProyectoUpdate(LoginRequiredMixin, PermissionRequiredMixin, UpdateV
 
 	def get_form(self, *args, **kwargs):
 		eliminar = self.request.user.has_perm('mye.delete_escuela_proyecto')
-		form = self.form_class(**self.get_form_kwargs(), eliminar=eliminar)
+		form = self.form_class(self.get_form_kwargs(), eliminar=eliminar)
 		form.initial['proyecto_asignado'] = [c.proyecto for c in EscuelaProyecto.objects.filter(escuela=self.object, activa=True)]
 		return form
 
