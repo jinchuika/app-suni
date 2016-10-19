@@ -6,9 +6,6 @@
 {% endblock page_title %}
 
 {% block content %}
-<section class="content-header">
-	<h1>Perfil de escuela</h1>
-</section>
 <section class="content">
 	<div class="container-fluid">
 		<div class="row">
@@ -82,6 +79,9 @@
 								<div class="tab-pane active" id="capacitacion">
 								</div>
 								<div class="tab-pane" id="monitoreo">
+								</div>
+								<div class="tab-pane" id="equipamiento">
+
 									<h3>Cooperantes</h3>
 									<table class="table table-hover">
 										<thead>
@@ -131,9 +131,6 @@
 									{% if perms.mye_add_escuela_proyecto %}
 									<a href="{% url "escuela_proyecto_add" pk=escuela.id %}" class="btn btn-info">Editar proyectos</a>
 									{% endif %}
-								</div>
-								<div class="tab-pane" id="equipamiento">
-
 								</div>
 								<div class="tab-pane" id="contactos">
 									<h4>

@@ -2,6 +2,7 @@ from django.db import models
 from django.utils import timezone
 from django.urls import reverse, reverse_lazy
 
+
 class Cooperante(models.Model):
 	"""
 	Description: Cooperante para equipamiento
@@ -82,3 +83,34 @@ class SolicitudVersion(models.Model):
 
 	def __str__(self):
 		return self.nombre
+
+class Medio(models.Model):
+    """
+    Description: Medio de comunicación
+    """
+    medio = models.CharField(max_length=50)
+
+    def __str__(self):
+    	return self.medio
+
+class Solicitud(models.Model):
+	"""
+	Description: Solicitud de equipamiento
+	"""
+	version = models.ForeignKey(SolicitudVersion, on_delete=models.PROTECT)
+	escuela = models.ForeignKey('escuela.Escuela', on_delete=models.PROTECT)
+	fecha = models.DateField()
+	jornada = models.IntegerField()
+	edf = models.BooleanField(blank=True)
+	lab_actual = models.BooleanField(blank=True)
+	observacion = models.TextField(null=True, blank=True)
+
+	requisito = models.ManyToManyField(Requisito, blank=True)
+	medio = models.ManyToManyField(Medio, blank=True)
+
+	class Meta:
+		verbose_name = 'Solicitud'
+		verbose_name_plural = 'Solicitudes'
+
+	def __str__(self):
+		return str(self.id)

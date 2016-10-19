@@ -1,0 +1,73 @@
+{% extends "base/base.html" %}
+
+{% load widget_tweaks %}
+
+{% block page_title %}
+<title>Solicitud</title>
+{% endblock page_title %}
+
+{% block content %}
+<section class="content-header">
+	<h1>Solicitud</h1>
+</section>
+
+<section class="content">
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-md-12 box">
+				<form action="{{action}}" method="post">
+					{{ form.non_field_errors }}
+					{% csrf_token %}
+					<table class="table table-striped table-hover">
+						<tr>
+							<td>Versión</td>
+							<td>{{form.version|add_class:"form-control"}}</td>
+						</tr>
+						<tr>
+							<td>Escuela</td>
+							<td>
+								<input type="text" name="udi_escuela" id="udi_escuela" class="form-control">
+								{{ form.escuela }}
+							</td>
+						</tr>
+						<tr>
+							<td>Fecha</td>
+							<td>{{ form.fecha|add_class:"form-control datepicker"}}</td>
+						</tr>
+						<tr>
+							<td>Jornadas en la escuela</td>
+							<td>{{ form.jornada|add_class:"form-control"}}</td>
+						</tr>
+						<tr>
+							<td>La escuela fue EDF</td>
+							<td>{{ form.edf }}</td>
+						</tr>
+						<tr>
+							<td>Cuenta con laboratorio actualmente</td>
+							<td>{{ form.lab_actual }}</td>
+						</tr>
+						<tr>
+							<td>Observaciones</td>
+							<td>{{form.observacion}}</td>
+						</tr>
+						<tr>
+							<td>Requisitos</td>
+							<td>{{ form.requisito }}</td>
+						</tr>
+						<tr>
+							<td>Por qué medio se enteró de nosotros</td>
+							<td>{{ form.medio }}</td>
+						</tr>
+						<tr>
+							<td colspan="2" align="center">
+								<input type="submit" class="btn btn-primary" value="Guardar">
+							</td>
+						</tr>
+					</table>
+				</form>
+			</div>
+		</div>
+	</div>
+</section>
+
+{% endblock content %}

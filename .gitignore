@@ -96,3 +96,4 @@ media/
 # Rope project settings
 .ropeproject
 src/db.sqlite3
+nohup.out

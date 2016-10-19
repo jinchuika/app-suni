@@ -44,6 +44,8 @@ INSTALLED_APPS = [
     'dynamic_preferences',
     'widget_tweaks',
     'menu',
+    'dal',
+    'dal_select2',
 
     'allauth',
     'allauth.account',

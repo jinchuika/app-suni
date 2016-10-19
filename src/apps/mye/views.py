@@ -1,8 +1,8 @@
 from django.shortcuts import render
 from django.views.generic import DetailView, ListView
 from django.views.generic.edit import CreateView, UpdateView
-from .forms import CooperanteForm, EscuelaCooperanteForm, ProyectoForm, SolicitudVersionForm
-from .models import Cooperante, Proyecto, SolicitudVersion
+from .forms import CooperanteForm, EscuelaCooperanteForm, ProyectoForm, SolicitudVersionForm, SolicitudForm
+from .models import Cooperante, Proyecto, SolicitudVersion, Solicitud
 from apps.escuela.models import Escuela
 from braces.views import LoginRequiredMixin, PermissionRequiredMixin
 
@@ -53,3 +53,21 @@ class SolicitudVersionCrear(LoginRequiredMixin, PermissionRequiredMixin, CreateV
 class SolicitudVersionDetalle(LoginRequiredMixin, DetailView):
 	model = SolicitudVersion
 	template_name = 'mye/solicitud_version.html'
+
+class SolicitudCrear(LoginRequiredMixin, CreateView):
+	model = Solicitud
+	template_name = 'mye/solicitud_form.html'
+	form_class = SolicitudForm
+
+	def form_valid(self, form):
+		print("hola")
+		print(form)
+		if form.is_valid():
+			print("huwhuwhuw")
+		else:
+			print(":(")
+		return super(SolicitudCrear, self).form_valid(form)
+
+	def form_invalid(self, form):
+		print(form.errors)
+		return super(SolicitudCrear, self).form_invalid(form)

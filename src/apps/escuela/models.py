@@ -1,7 +1,8 @@
 from django.db import models
+from django.utils import timezone
+from django.urls import reverse
 from apps.main.models import Municipio
 from apps.main.utils import get_telefonica
-from django.urls import reverse
 from apps.mye.models import Cooperante, Proyecto, EscuelaCooperante
 
 class EscArea(models.Model):
@@ -174,3 +175,18 @@ class EscContactoMail(models.Model):
 
 	def __str__(self):
 		return self.mail
+
+class Poblacion(models.Model):
+	escuela = models.ForeignKey(Escuela, related_name='poblacion')
+	alumna = models.IntegerField()
+	alumno = models.IntegerField()
+	maestra = models.IntegerField()
+	maestro = models.IntegerField()
+
+	total_alumno = models.IntegerField(null=True, blank=True)
+	total_maestro = models.IntegerField(null=True, blank=True)
+	
+	fecha = models.DateField(default=timezone.now)
+
+	def __str__(self):
+		return str(self.escuela)
