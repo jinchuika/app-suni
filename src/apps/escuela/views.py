@@ -4,8 +4,8 @@ from django.views.generic.edit import CreateView, UpdateView, FormView
 from .forms import FormEscuelaCrear, ContactoForm, BuscarEscuelaForm
 from .models import Escuela, EscContacto
 from .mixins import ContactoContextMixin
-from apps.mye.forms import EscuelaCooperanteForm, EscuelaProyectoForm
-from apps.mye.models import EscuelaCooperante, EscuelaProyecto
+from apps.mye.forms import EscuelaCooperanteForm, EscuelaProyectoForm, SolicitudNuevaForm, SolicitudForm
+from apps.mye.models import EscuelaCooperante, EscuelaProyecto, Solicitud
 from apps.main.models import Municipio
 from braces.views import LoginRequiredMixin, GroupRequiredMixin, PermissionRequiredMixin
 from dal import autocomplete
@@ -22,6 +22,16 @@ class EscuelaCrear(LoginRequiredMixin, GroupRequiredMixin, CreateView):
 class EscuelaDetail(LoginRequiredMixin, DetailView):
     template_name = 'escuela/detail.html'
     model = Escuela
+
+    def get_context_data(self, **kwargs):
+        context = super(EscuelaDetail, self).get_context_data(**kwargs)
+        context['solicitud_nueva_form'] = SolicitudNuevaForm(initial={'escuela': self.object.pk})
+        if 'id_solicitud' in self.kwargs:
+            solicitud = Solicitud.objects.get(pk=self.kwargs['id_solicitud'])
+            if solicitud in self.object.solicitud.all():
+                context['solicitud_form'] = SolicitudForm(instance=solicitud)
+                context['solicitud_id'] = self.kwargs['id_solicitud']
+        return context
 
 
 class EscuelaCooperanteUpdate(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
@@ -114,17 +124,15 @@ class EscuelaBuscarBackend(autocomplete.Select2QuerySetView):
     def get_queryset(self):
         qs = Escuela.objects.all()
 
-        codigo = self.forwarded.get('codigo', None)
+        nombre = self.forwarded.get('nombre', None)
         direccion = self.forwarded.get('direccion', None)
         municipio = self.forwarded.get('municipio', None)
         departamento = self.forwarded.get('departamento', None)
         cooperante = self.forwarded.get('cooperante', None)
         proyecto = self.forwarded.get('proyecto', None)
 
-        if codigo:
-            qs = qs.filter(codigo=codigo)
-        if direccion:
-            qs = qs.filter(direccion__icontains=direccion)
+        if self.q:
+            qs = qs.filter(codigo=self.q)
         if departamento:
             qs = qs.filter(municipio__in=Municipio.objects.filter(departamento=departamento))
         if municipio:
@@ -133,7 +141,8 @@ class EscuelaBuscarBackend(autocomplete.Select2QuerySetView):
             qs = qs.filter(cooperante_asignado__in=cooperante).distinct()
         if proyecto:
             qs = qs.filter(proyecto_asignado__in=proyecto).distinct()
-
-        if self.q:
-            qs = qs.filter(nombre__icontains=self.q)
+        if nombre:
+            qs = qs.filter(nombre__icontains=nombre)
+        if direccion:
+            qs = qs.filter(direccion__icontains=direccion)
         return qs

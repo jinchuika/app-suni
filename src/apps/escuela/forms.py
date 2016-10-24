@@ -2,7 +2,7 @@ from django import forms
 from django.forms.models import inlineformset_factory
 from django.core.urlresolvers import reverse_lazy
 
-from apps.escuela.models import Escuela, EscContacto, EscContactoTelefono, EscContactoMail, Poblacion
+from apps.escuela.models import Escuela, EscContacto, EscContactoTelefono, EscContactoMail
 from apps.main.models import Departamento, Municipio
 from apps.mye.models import Cooperante, Proyecto
 
@@ -57,9 +57,3 @@ class ContactoForm(forms.ModelForm):
 
 ContactoTelefonoFormSet = inlineformset_factory(EscContacto, EscContactoTelefono, fields='__all__', extra=1, can_delete=True)
 ContactoMailFormSet = inlineformset_factory(EscContacto, EscContactoMail, fields='__all__', extra=1, can_delete=True)
-
-
-class PoblacionForm(forms.ModelForm):
-    class Meta:
-        model = Poblacion
-        fields = '__all__'

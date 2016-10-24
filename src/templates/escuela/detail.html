@@ -1,5 +1,7 @@
 {% extends "base/base.html" %}
+
 {% load telefonica %}
+{% load staticfiles %}
 
 {% block page_title %}
 <title>{{ escuela }}</title>
@@ -78,10 +80,129 @@
 							<div class="tab-content">
 								<div class="tab-pane active" id="capacitacion">
 								</div>
-								<div class="tab-pane" id="monitoreo">
-								</div>
-								<div class="tab-pane" id="equipamiento">
 
+								<div class="tab-pane" id="monitoreo">
+									{% if not solicitud_form %}
+									{% for solicitud in escuela.solicitud.all %}
+									<div class="box box-info box-solid collapsed-box">
+										
+										<div class="box-header with-border">
+											<h3 class="box-title">No {{solicitud.id}} - {{solicitud.fecha}}</h3>
+											<div class="box-tools pull-right">
+												<a href="{% url "escuela_solicitud_update" pk=escuela.id id_solicitud=solicitud.id %}"><i class="fa fa-pencil"></i></a>
+												<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+												</button>
+											</div>
+										</div>
+
+										<div class="box-body">
+											<table class="table">
+												<tr>
+													<th>Fecha:</th>
+													<td>{{ solicitud.fecha }}</td>
+												</tr>
+												<tr>
+													<th>Jornadas que funcionan en la escuela:</th>
+													<td>{{ solicitud.jornada }}</td>
+												</tr>
+												<tr>
+													<th>La escuela fue EDF:</th>
+													<td>
+														{% if solicitud.edf %}
+														Sí
+														{% else %}
+														No
+														{% endif %}
+													</td>
+												</tr>
+												<tr>
+													<th>Tiene laboratorio actualmente:</th>
+													<td>
+														{% if solicitud.lab_actual %}
+														Sí
+														{% else %}
+														No
+														{% endif %}
+													</td>
+												</tr>
+												<tr>
+													<th>Población estudiantil (Mujer / Hombre)</th>
+													<td>{{solicitud.alumna}} / {{solicitud.alumno}}</td>
+												</tr>
+												<tr>
+													<th>Población docente (Mujer / Hombre)</th>
+													<td>{{solicitud.maestra}} / {{solicitud.maestro}}</td>
+												</tr>
+												<tr>
+													<th>Observaciones</th>
+													<td>{{ solicitud.observacion }}</td>
+												</tr>
+												<tr>
+													<th>Requerimientos</th>
+													<td>
+														<ul class="todo-list">
+															{% for requisito in solicitud.listar_requisito %}
+															<li>
+																<input disabled="disabled" type="checkbox" {% if requisito.cumple %}checked {% endif %}>
+																<span class="text">{{ requisito.requisito }}</span>
+															</li>
+															{% endfor %}
+														</ul>
+													</td>
+												</tr>
+												<tr>
+													<th>Por qué medios se enteró de nosotros</th>
+													<td>
+														<ul>
+															{% for medio in solicitud.medio.all %}
+															<li>
+																{{medio}}
+															</li>
+															{% endfor %}
+														</ul>
+													</td>
+												</tr>
+											</table>
+										</div>
+									</div>
+									{% endfor %}
+									<input onclick="$('#form-nueva-solicitud').toggle();" type="submit" class="btn btn-primary" value="Nueva solicitud">
+									{% endif %}
+									<form method="post" role="form" action="{% url "solicitud_add" %}" id="form-nueva-solicitud">
+										{% csrf_token %}
+										{{ solicitud_nueva_form.as_p }}
+										<input type="submit" class="btn btn-success" value="Crear">
+									</form>
+
+									{% if solicitud_form %}
+									<div class="box box-info box-solid">
+										<div class="box-header with-border">
+											<h3 class="box-title">No. {{solicitud_form.instance.id}} - {{solicitud_form.instance.fecha}}</h3>
+											<div class="box-tools pull-right">
+												<a href="{% url "escuela_detail" pk=escuela.id %}">
+												<i class="fa fa-times"></i>
+												</a>
+											</div>
+										</div>
+										<div class="box-body">
+											<form action="{% url "solicitud_update" pk=solicitud_id %}" method="post" role="form">
+												{% csrf_token %}
+												<table class="table table-hover table-striped">
+													{{ solicitud_form.as_table }}
+													<tr>
+														<td>
+															<input type="submit" class="btn btn-success" value="Guardar">  
+															<a href="{% url "escuela_detail" pk=escuela.id %}" class="btn btn-danger">Cancelar</a>
+														</td>
+													</tr>
+												</table>
+											</form>
+										</div>
+									</div>
+									{% endif %}
+								</div>
+
+								<div class="tab-pane" id="equipamiento">
 									<h3>Cooperantes</h3>
 									<table class="table table-hover">
 										<thead>
@@ -132,6 +253,7 @@
 									<a href="{% url "escuela_proyecto_add" pk=escuela.id %}" class="btn btn-info">Editar proyectos</a>
 									{% endif %}
 								</div>
+
 								<div class="tab-pane" id="contactos">
 									<h4>
 										<a class="btn btn-success" href="{% url "escuela_contacto_add" id_escuela=escuela.id %}">
@@ -185,3 +307,14 @@
 	</div>
 </section>
 {% endblock content %}
+
+{% block extra_js %}
+<script src="{% static "js/extrajs/escuela.js" %}"></script>
+<script>
+	$(document).ready(function () {
+		{% if solicitud_form %}
+		activar_tab('monitoreo');
+		{% endif %}
+	});
+</script>
+{% endblock extra_js %}

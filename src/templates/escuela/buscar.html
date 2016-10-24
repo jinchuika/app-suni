@@ -1,6 +1,7 @@
 {% extends "base/base.html" %}
 
 {% load widget_tweaks %}
+{% load staticfiles %}
 
 {% block page_title %}
 <title>Buscar escuela</title>
@@ -53,5 +54,8 @@
 		</div>
 	</div>
 </section>
-
 {% endblock content %}
+
+{% block extra_js %}
+<script src="{% static "js/extrajs/escuela.js" %}"></script>
+{% endblock extra_js %}

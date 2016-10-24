@@ -15,5 +15,6 @@ urlpatterns = [
     url(r'^solicitud/version/(?P<pk>\d+)/$', SolicitudVersionDetalle.as_view(), name='solicitud_version_detail'),
     url(r'^solicitud/version/add/$', SolicitudVersionCrear.as_view(), name='solicitud_version_add'),
 
-    url(r'^solicitud/add/$', SolicitudCrear.as_view(), name='solicitud_add'),
+    url(r'^solicitud/add/$', SolicitudCrearView.as_view(), name='solicitud_add'),
+    url(r'^solicitud/(?P<pk>\d+)/$', SolicitudUpdate.as_view(), name='solicitud_update'),
 ]

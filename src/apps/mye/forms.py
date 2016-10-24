@@ -1,7 +1,8 @@
+from datetime import date
 from django import forms
 from django.forms import ModelForm
 from django.utils import timezone
-from .models import Cooperante, EscuelaCooperante, Proyecto, EscuelaProyecto, SolicitudVersion, Solicitud
+from .models import Cooperante, EscuelaCooperante, Proyecto, EscuelaProyecto, SolicitudVersion, Solicitud, Requisito
 from apps.escuela.models import Escuela
 
 
@@ -98,13 +99,56 @@ class SolicitudVersionForm(ModelForm):
         }
 
 
+class SolicitudNuevaForm(forms.ModelForm):
+
+    class Meta:
+        model = Solicitud
+        fields = ('escuela', 'version')
+        widgets = {
+            'escuela': forms.HiddenInput(),
+            'version': forms.Select(attrs={'class': 'form-control'})
+        }
+
+    def __init__(self, *args, **kwargs):
+        super(SolicitudNuevaForm, self).__init__(*args, **kwargs)
+        self.fields['version'].empty_label = None
+        self.fields['version'].label = 'Versión'
+
+    def save(self, commit=True):
+        print("asd")
+        instance = super(SolicitudNuevaForm, self).save(commit=False)
+        print("dsa")
+        instance.fecha = date.today()
+        instance.jornada = 1
+        instance.edf = False
+        instance.lab_actual = False
+        if commit:
+            instance.save()
+        return instance
+
+
 class SolicitudForm(ModelForm):
     class Meta:
         model = Solicitud
         fields = '__all__'
+        exclude = ('escuela',)
+        labels = {
+            'jornada': 'Cantidad de jornadas en la escuela',
+            'edf': 'La escuela fue EDF',
+            'lab_actual': 'Tiene laboratorio actualmente',
+            'observacion': 'Observaciones',
+            'requisito': 'Requerimientos',
+            'medio': 'Medios por los que escuchó de nosotros'
+        }
         widgets = {
-            'escuela': forms.HiddenInput(),
-            'jornada': forms.NumberInput(attrs={'min': 1}),
+            'version': forms.HiddenInput(),
+            'fecha': forms.TextInput(attrs={'class': 'form-control datepicker'}),
+            'jornada': forms.NumberInput(attrs={'min': 1, 'class': 'form-control'}),
             'requisito': forms.CheckboxSelectMultiple(),
             'medio': forms.CheckboxSelectMultiple()
         }
+
+    def __init__(self, *args, **kwargs):
+        super(SolicitudForm, self).__init__(*args, **kwargs)
+        version = SolicitudVersion.objects.get(id=self.initial['version'])
+        self.fields['requisito'].queryset = Requisito.objects.filter(id__in=version.requisito.all())

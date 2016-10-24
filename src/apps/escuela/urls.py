@@ -6,6 +6,7 @@ urlpatterns = [
     url(r'^buscar/$', EscuelaBuscar.as_view(), name='escuela_buscar'),
     url(r'^buscar/q/$', EscuelaBuscarBackend.as_view(), name='escuela_buscar_backend'),
 
+    url(r'^(?P<pk>\d+)/solicitud/(?P<id_solicitud>\d+)/$', EscuelaDetail.as_view(), name='escuela_solicitud_update'),
     url(r'^(?P<pk>\d+)/$', EscuelaDetail.as_view(), name='escuela_detail'),
     url(r'^(?P<pk>\d+)/editar$', EscuelaEditar.as_view(), name='escuela_update'),
 
