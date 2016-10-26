@@ -1,7 +1,6 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render
 from apps.kardex.models import *
 from apps.kardex.forms import *
-from django.views.generic.base import ContextMixin
 from django.views.generic import DetailView
 from django.views.generic.edit import CreateView
 from braces.views import LoginRequiredMixin

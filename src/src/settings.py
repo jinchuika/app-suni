@@ -31,6 +31,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'django.contrib.sites',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -38,7 +39,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    'django.contrib.sites',
     'braces',
     'easy_thumbnails',
     'dynamic_preferences',
@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'menu',
     'dal',
     'dal_select2',
+    'mixer',
 
     'allauth',
     'allauth.account',
@@ -53,8 +54,8 @@ INSTALLED_APPS = [
     'allauth.socialaccount.providers.google',
     'invitations',
 
-    'apps.main',
     'apps.users',
+    'apps.main',
     'apps.escuela',
     'apps.kardex',
     'apps.fr',

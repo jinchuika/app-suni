@@ -8,7 +8,9 @@
 <section class="content-header">
 	<h1>
 		Listado de cooperantes
+		{% if perms.mye_add_cooperante %}
 		<span class="pull-right"><a href="{% url "cooperante_add" %}" class="btn btn-success"><i class="fa fa-plus"></i> Nuevo</a></span>
+		{% endif %}
 	</h1>
 </section>
 

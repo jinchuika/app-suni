@@ -1,5 +1,6 @@
 from django.db import models
 
+
 class TelefonoManager(models.Manager):
 
     def add_telefono(self, request, perfil, telefono):

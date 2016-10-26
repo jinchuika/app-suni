@@ -1,5 +1,5 @@
 from django.conf.urls import url
-from .views import *
+from apps.escuela.views import *
 
 urlpatterns = [
     url(r'^add/', EscuelaCrear.as_view(), name='escuela_add'),

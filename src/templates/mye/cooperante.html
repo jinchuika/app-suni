@@ -7,7 +7,12 @@
 {% block content %}
 <section class="content-header">
 	<h1>
-		Perfil de {{cooperante}} <a href="{% url "cooperante_update" pk=cooperante.id %}">Editar</a>
+		Perfil de {{cooperante}}
+		{% if perms.mye_change_cooperante %}
+		<span class="pull-right">
+			<a href="{% url "cooperante_update" pk=cooperante.id %}" class="btn btn-info">Editar</a>
+		</span>
+		{% endif %}
 	</h1>
 </section>
 

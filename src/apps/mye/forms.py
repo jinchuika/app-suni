@@ -2,7 +2,7 @@ from datetime import date
 from django import forms
 from django.forms import ModelForm
 from django.utils import timezone
-from .models import Cooperante, EscuelaCooperante, Proyecto, EscuelaProyecto, SolicitudVersion, Solicitud, Requisito
+from apps.mye.models import Cooperante, EscuelaCooperante, Proyecto, EscuelaProyecto, SolicitudVersion, Solicitud, Requisito
 from apps.escuela.models import Escuela
 
 
@@ -122,6 +122,10 @@ class SolicitudNuevaForm(forms.ModelForm):
         instance.jornada = 1
         instance.edf = False
         instance.lab_actual = False
+        instance.alumna = 0
+        instance.alumno = 0
+        instance.maestra = 0
+        instance.maestro = 0
         if commit:
             instance.save()
         return instance
@@ -133,6 +137,12 @@ class SolicitudForm(ModelForm):
         fields = '__all__'
         exclude = ('escuela',)
         labels = {
+            'alumna': 'Cantidad de alumnas',
+            'alumno': 'Cantidad de alumnos',
+            'maestra': 'Cantidad de maestras',
+            'maestro': 'Cantidad de maestros',
+            'total_alumno': 'Cantidad total de estudiantes',
+            'total_maestro': 'Cantidad total de docentes',
             'jornada': 'Cantidad de jornadas en la escuela',
             'edf': 'La escuela fue EDF',
             'lab_actual': 'Tiene laboratorio actualmente',
@@ -144,7 +154,7 @@ class SolicitudForm(ModelForm):
             'version': forms.HiddenInput(),
             'fecha': forms.TextInput(attrs={'class': 'form-control datepicker'}),
             'jornada': forms.NumberInput(attrs={'min': 1, 'class': 'form-control'}),
-            'requisito': forms.CheckboxSelectMultiple(),
+            'requisito': forms.CheckboxSelectMultiple(attrs={'class': 'list-unstyled'}),
             'medio': forms.CheckboxSelectMultiple()
         }
 

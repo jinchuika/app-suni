@@ -1,9 +1,9 @@
 from django.shortcuts import get_object_or_404, reverse
 from django.views.generic import DetailView
 from django.views.generic.edit import CreateView, UpdateView, FormView
-from .forms import FormEscuelaCrear, ContactoForm, BuscarEscuelaForm
-from .models import Escuela, EscContacto
-from .mixins import ContactoContextMixin
+from apps.escuela.forms import FormEscuelaCrear, ContactoForm, BuscarEscuelaForm
+from apps.escuela.models import Escuela, EscContacto
+from apps.escuela.mixins import ContactoContextMixin
 from apps.mye.forms import EscuelaCooperanteForm, EscuelaProyectoForm, SolicitudNuevaForm, SolicitudForm
 from apps.mye.models import EscuelaCooperante, EscuelaProyecto, Solicitud
 from apps.main.models import Municipio
@@ -83,11 +83,13 @@ class EscContactoCrear(LoginRequiredMixin, ContactoContextMixin, CreateView):
     template_name = 'escuela/contacto.html'
     model = EscContacto
     form_class = ContactoForm
-    success_url = 'escuela_add'
 
     def get_initial(self):
         escuela = get_object_or_404(Escuela, id=self.kwargs.get('id_escuela'))
         return{'escuela': escuela}
+
+    def get_success_url(self):
+        return reverse('escuela_detail', kwargs={'pk': self.kwargs['id_escuela']})
 
 
 class EscContactoEditar(LoginRequiredMixin, ContactoContextMixin, UpdateView):
@@ -96,7 +98,7 @@ class EscContactoEditar(LoginRequiredMixin, ContactoContextMixin, UpdateView):
     form_class = ContactoForm
 
     def get_success_url(self):
-        return reverse('escuela_detail', kwargs={'pk': self.object.escuela})
+        return reverse('escuela_detail', kwargs={'pk': self.kwargs['id_escuela']})
 
 
 class EscuelaBuscar(LoginRequiredMixin, FormView):
