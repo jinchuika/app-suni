@@ -1,12 +1,47 @@
 {% extends "base/base.html" %}
+{% load widget_tweaks %}
+
+{% block page_title %}
+<title>Proveedores</title>
+{% endblock page_title %}
+
 {% block content %}
-	<form action="{{action}}" method="POST">
-		{% csrf_token %}
-	 	<table>
-	 		{{ form.as_table }}
-	 	<input type="submit" value="Guardar">
-	 	</table>
-		
-	</form>
-	
+
+<section class="content-header">
+	<h1>Crear Proveedor</h1>
+</section>
+
+<section class="content">
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-md-12">
+				<div class="box box-info">
+					<div class="box-title">
+						<h1>Nuevo proveedor</h1>
+					</div>
+					<div class="box-body">
+						<form action="{{action}}" method="POST">
+							{% csrf_token %}
+							<table class="table table-hover">
+								{% for field in form %}
+								<tr>
+									<td>{{ field.label }}</td>
+									<td>{{ field|add_class:"form-control"}}</td>
+								</tr>
+								{% endfor %}
+								<tr>
+									<td></td>
+									<td>
+										<input type="submit" class="btn btn-primary" value="Guardar">
+									</td>
+								</tr>
+							</table>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+
 {% endblock content %}

@@ -1,0 +1,46 @@
+{% extends "base/base.html" %}
+
+{% block page_title %}
+<title>Listado de cooperantes</title>
+{% endblock page_title %}
+
+{% block content %}
+<section class="content-header">
+	<h1>
+		Listado de cooperantes
+		{% if perms.mye_add_cooperante %}
+		<span class="pull-right"><a href="{% url "cooperante_add" %}" class="btn btn-success"><i class="fa fa-plus"></i> Nuevo</a></span>
+		{% endif %}
+	</h1>
+</section>
+
+<section class="content">
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-md-12">
+				<div class="box box-primary">
+					<div class="box-header">
+						<h3 class="box-title">Listado de cooperantes</h3>
+					</div>
+					<div class="box-body table-responsive no-padding">
+						<table class="table table-hover">
+						<thead>
+							<tr>
+								<th>Nombre</th>
+								<th>Participaciones</th>
+							</tr>
+						</thead>
+							{% for cooperante in cooperante_list %}
+								<tr>
+									<td><a href="{% url "cooperante_detail" pk=cooperante.id %}">{{ cooperante }}</a></td>
+									<td>{{ cooperante.escuela_asignada.all.count }}</td>
+								</tr>
+							{% endfor %}
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+{% endblock content %}

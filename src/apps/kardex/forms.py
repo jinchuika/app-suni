@@ -1,6 +1,7 @@
 from django import forms 
 from django.forms import ModelForm, ModelChoiceField, formset_factory, modelformset_factory, widgets
-from .models import *
+from apps.kardex.models import *
+from django.utils.translation import ugettext_lazy as _
 
 
 #class EquipoForm(forms.Form):
@@ -10,20 +11,34 @@ class FormularioEquipo(ModelForm):
 	class Meta:
 		model = Equipo
 		fields = ['nombre_equipo']
+		labels = {
+			'nombre_equipo' : _('Nombre del Equipo'),
+		}
 
 
 class FormularioEntrada(forms.ModelForm):	
 	class Meta:
 		model = Entrada
 		fields = '__all__'
+		labels = {
+            'equipo': _('Equipo'),
+            'estado': _('Estado del Equipo'),
+            'proveedor': _('Proveedor'),
+            'tipo_entrada': _('Tipo de Entrada'),
+            'cantidad': _('Cantidad ingresado'),
+            'fecha': _('Fecha de entrada'),
+            'precio': _('Precio del equipo'),
+            'factura': _('Factura de la compra'),
+            'observacion': _('Observación de la entrada'),
+
+        }
 		widgets= {
 		'equipo':forms.Select(attrs={'class':' form-control select2'}),
+		'proveedor':forms.Select(attrs={'class':' form-control select2'}),
 		'fecha':forms.TextInput(attrs={'class':'datepicker form-control', 'placeholder': 'Fecha'}),
 		'cantidad':forms.NumberInput(attrs={'class':' form-control','placeholder': 'Cantidad'}),
 		'precio': forms.NumberInput(attrs={'class':' form-control', 'placeholder' : 'Precio'}),
 		'factura': forms.NumberInput(attrs={'class':' form-control', 'placeholder' : 'Factura'}),
-			
-
 		}
 
 	def clean_cantidad(self):
@@ -41,10 +56,6 @@ class FormularioEntrada(forms.ModelForm):
 			raise forms.ValidationError("Este campo es requerido ")
 
 		return precio
-
-
-
-
 	
 
 
@@ -53,11 +64,21 @@ class FormularioSalida(forms.ModelForm):
 		model = Salida
 		fields = '__all__'
 		widgets= {
-		'equipo':forms.Select(attrs={'class':' form-control select2'}),
+		'equipo':forms.Select(attrs={'class':'form-control select2'}),
 		'fecha':forms.TextInput(attrs={'class':'datepicker form-control', 'placeholder': 'Fecha'}),
 		'cantidad':forms.NumberInput(attrs={'class':' form-control','placeholder': 'Cantidad'}),
 		'no_entrada': forms.Select(attrs={'class':' form-control select2'}),
 		}
+		labels = {
+            'equipo': _('Equipo'),
+            'estado': _('Estado del Equipo'),
+            'tecnico': _('Técnico'),
+            'tipo_salida': _('Tipo de Salida'),
+            'cantidad': _('Cantidad egresado'),
+            'fecha': _('Fecha de salida'),
+            'observacion': _('Observación de la salida'),
+
+        }
 
 	def clean_cantidad(self):
 		cantidad = self.cleaned_data.get('cantidad')
@@ -75,3 +96,4 @@ class FormularioProveedor(forms.ModelForm):
 	class Meta:
 		model = Proveedor
 		fields = '__all__'
+

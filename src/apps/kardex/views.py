@@ -1,52 +1,61 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render
 from apps.kardex.models import *
 from apps.kardex.forms import *
+from django.views.generic import DetailView
 from django.views.generic.edit import CreateView
 from braces.views import LoginRequiredMixin
 from django.urls import reverse_lazy
 from django.http import HttpResponse
 import json
 
-
-
-def index(request):
-	equipo = Equipo.objects.filter()
-	if request.method=='POST':
-		formequipo = FormularioEquipo(request.POST or None)
-		if formequipo.is_valid():
-			new_article = formequipo.save()
-		return redirect('kardex_equipo')
-	else:
-		formequipo = FormularioEquipo()
-
-	context={
-		"formequipo": formequipo,
-		"equipo_load" : equipo,
+class Equipolog(LoginRequiredMixin, CreateView):
+	model = Equipo
+	form_class = FormularioEquipo
+	template_name = "kardex/equipo.html"
+	success_url = reverse_lazy('kardex_equipo')
+	def get_context_data(self, **kwargs):
+	    context = super(Equipolog, self).get_context_data(**kwargs)
+	    context['lista'] = self.model.objects.all()
+	    return context
+	    
+def informe_general(request, ini, out):
+	equipo_list = Equipo.objects.all()
+	lista_vacia = []
+	for equipo in equipo_list:
+		if equipo.get_cant_entradas( ini, out) !=0:
+			lista_vacia.append({'nombre':equipo, 'cantidad_ingresos':equipo.get_cant_entradas( ini, out), 
+				'cantidad_egresos': equipo.get_cant_salidas( ini, out), 'ingreso':equipo.get_entradas( ini, out), 
+				'egreso': equipo.get_salidas( ini, out), 'diferencia' : equipo.get_entradas(ini, out)-equipo.get_salidas(ini, out), 
+				'existencia_actual': equipo.get_existencia()})
+	context = {
+		'equipo_detail': lista_vacia 
 	}
-	return render(request, 'kardex/index.html', context)
+	return render(request, 'kardex/informe.html', context)
 
 
-def equipo_entrada(request, id_equipo):
-	equipo =  Equipo.objects.get(id = id_equipo)
-	lista_entrada = Entrada.objects.filter(equipo = equipo)
-	lista_vacia = []
-	for ingreso in lista_entrada:
-		lista_vacia.append({'id':ingreso.id, 'fecha':str(ingreso.fecha), 'cantidad': ingreso.cantidad, 'observacion':ingreso.observacion})
-	return HttpResponse(
+class EquipoEntrada(LoginRequiredMixin, DetailView):
+	model = Equipo
+	def get(self, request, **kwargs):
+		lista_entrada = Entrada.objects.filter(equipo = self.get_object())
+		lista_vacia = []
+		for ingreso in lista_entrada:
+			lista_vacia.append({'id':ingreso.id, 'fecha':str(ingreso.fecha), 'cantidad': ingreso.cantidad, 'observacion':ingreso.observacion})
+		return HttpResponse(
+				json.dumps({
+					"tablainf": lista_vacia,
+					})
+				)
+
+class EquipoSalida(LoginRequiredMixin, DetailView):
+	model = Equipo
+	def get(self, request, **kwargs):
+		lista_salida = Salida.objects.filter(equipo = self.get_object())
+		lista_vacia = []
+		for egreso in lista_salida:
+			lista_vacia.append({'id':egreso.id, 'fecha':str(egreso.fecha), 'tecnico':str(egreso.tecnico), 'cantidad': egreso.cantidad, 'observacion':egreso.observacion}, )
+		return HttpResponse(
 			json.dumps({
-				"tablainf": lista_vacia,
-				})
-			)
-
-def equipo_salida(request, id_equipo):
-	equipo =  Equipo.objects.get(id = id_equipo)
-	lista_salida = Salida.objects.filter(equipo = equipo)
-	lista_vacia = []
-	for egreso in lista_salida:
-		lista_vacia.append({'id':egreso.id, 'fecha':str(egreso.fecha), 'tecnico':str(egreso.tecnico), 'cantidad': egreso.cantidad, 'observacion':egreso.observacion}, )
-	return HttpResponse(
-			json.dumps({
-				"tablainf": lista_vacia,
+				"tablainf" : lista_vacia,
 				})
 			)
 	
@@ -90,3 +99,4 @@ class ProveedorCreate(LoginRequiredMixin, CreateView):
 	model = Proveedor
 	form_class = FormularioProveedor
 	template_name = "kardex/proveedor.html"
+	success_url = reverse_lazy('kardex_proveedor')

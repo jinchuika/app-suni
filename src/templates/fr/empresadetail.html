@@ -1,0 +1,169 @@
+{% extends "base/base.html" %}
+{% load staticfiles %}
+{% block page_title %}
+<title>{{empresa}} - Perfil</title>	
+{% endblock page_title %}
+
+{% block content %}
+<section class="content-header">
+	<h1>Perfil de empresa</h1>
+</section>
+<section class="content">
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-md-12"> 
+				<div class="box box-primary">
+					<div class="box-body box-profile">
+						<h3 class="profile-username text-center">
+							<i class="fa fa-building-o margin-r-5"></i>
+							{{empresa}}
+						</h3>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-md-3">
+				<div class="box box-primary">
+					<div class="box-title">
+						<h3 class="text-center">Información
+							<a class="btn btn-info btn-xs" href="{% url 'empresa_edit' empresa_pk=empresa.id%}">
+								<i class="fa fa-pencil-square-o"></i>
+							</a>
+						</h3>
+					</div>
+					<div class="box-body">
+						<strong><i class="fa fa-map-marker margin-r-5"></i>Dirección</strong>
+						<p class="text-muted">{{empresa.direccion}}</p>
+
+						<strong><i class="fa fa-phone-square margin-r-5"></i>Teléfono</strong>
+						<p class="text-muted">{{empresa.telefono}}</p>
+						<strong><i class="fa fa-sticky-note-o margin-r-5"></i>Descripción</strong>
+						<p class="text-muted">
+							{% if empresa.descripcion %}
+							{{empresa.descripcion}}
+							{% else %}
+							{{empresa}} no tiene descripción
+							{% endif %}
+						</p>
+					</div>
+				</div>
+			</div>
+			<div class="col-md-9">
+				<div class="box box-primary">
+					<div class="box-title"><h3 class="text-center">Contactos</h3></div>
+					<div class="box-body">
+						<h4>
+							<a class="btn btn-success" href="{% url 'empresa_contacto' empresa_pk=empresa.id %}">
+								<i class="fa fa-plus"></i> Nuevo
+							</a>
+						</h4>
+						{% for contacto in empresa.contacto.all  %}
+						<div class="box box-widget witget-user-1">
+							<div class="widget-user-header">
+								<h3 class="widget-user-username">
+									{{contacto}}
+									<a class="btn btn-info btn-xs" href="{% url 'empresa_contacto_edit' empresa_pk=empresa.id contact_pk=contacto.id%}">
+										<i class="fa fa-pencil-square-o"></i>
+									</a>
+								</h3>
+								<h5 class="widget-user-desc">{{contacto.puesto}}</h5>
+							</div>
+							<div class="box-footer no-padding">
+								<table class="table table-hover">
+									<tr>
+										<td><strong>Dirección</strong></td>
+										<td>
+											<p class="text-muted pull-right">
+												{%if contacto.direccion%}
+												{{contacto.direccion}}
+												{%else%}
+												{{contacto.nombre}} no tiene direccion definida
+												{%endif%}
+											</p>
+										</td>
+									</tr>
+									<tr>
+										<td><strong>Teléfono(s)</strong></td>
+										<td>
+											{% for tel in contacto.telefono.all %}
+											<a class="pull-right" href="#">
+												<span class="badge bg-blue">
+													<i class="fa fa-tel"></i>
+													{{tel}}
+												</span>
+											</a>
+
+											{% endfor %}
+										</td>
+									</tr>
+									<tr>
+										<td><strong>Correo(s)</strong></td>
+										<td>
+											{% for mail in contacto.mail.all %}
+											<a class="pull-right" href="#">
+												<span class="badge bg-warning">
+													<i class="fa fa-mail"></i>
+													{{mail}}
+												</span>
+											</a>
+
+											{% endfor %}
+										</td>
+									</tr>
+									<tr>
+										<td><strong>Etiquetas</strong></td>
+										<td>
+											{% for tag in contacto.etiquetas.all %}
+											<a class="pull-right" href="#" onclick="get_contacto('etiqueta', {{tag.id}}, '{{tag}}')">
+												<span class="badge bg-{{tag.color}}">
+													<i class="fa fa-tag"></i>
+													{{tag}}
+												</span>
+											</a>
+
+											{% endfor %}
+										</td>
+									</tr>
+									<tr>
+										<td><strong>Eventos</strong></td>
+										<td>
+											{% for event in contacto.evento.all %}
+											<a class="pull-right" href="#" onclick="get_contacto('evento', {{event.id}}, '{{event}}')">
+												<span class="badge bg-{{event.color}}">
+													<i class="fa fa-calendar-check-o"></i>
+													{{event}}
+												</span>
+											</a>
+
+											{% endfor %}
+										</td>
+									</tr>
+									<tr>
+										<td><strong>Observación</strong></td>
+										<td>
+											<p class="pull-right">
+												{%if contacto.observacion %}
+												{{contacto.observacion}}
+												{%else%}
+												{{contacto}} no tiene observación
+												{%endif%}
+											</p>
+										</td>
+									</tr>											
+								</table>
+							</div>
+						</div>
+						{% endfor %}
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+
+{% endblock content %}
+
+{% block extra_js %}
+<script src="{% static "js/extrajs/fr.js" %}"></script>
+{% endblock extra_js %}

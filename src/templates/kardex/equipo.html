@@ -1,0 +1,157 @@
+{% extends "base/base.html" %}
+{% load staticfiles%}
+{% load widget_tweaks %}
+{% block content %}
+
+
+
+<section class="content-header">
+	<h1>Equipo</h1>
+</section>
+<section class="content">
+
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-md-1"></div>
+			<div class="col-md-10">
+				<div class="nav-tabs-custom">
+					<!--barra navegacion-->
+					<ul class="nav nav-tabs nav-justified">
+						<li class="active"><a href="#listar" data-toggle="tab"><i class="fa fa-list-ul"></i> Lista del Equipo</a></li>
+						<li><a href="#ingresar" data-toggle="tab"><i class="fa fa-sign-in"></i> Ingresar Equipo</a></li>
+					</ul>
+					<!--/barra navegacion-->
+					<div class="tab-content">
+
+						<div class="tab-pane active" id="listar">
+							<div class="row">
+								<div class="col-md-1"></div>
+								<div class="col-md-10">
+									<div class="box box-Navy" style="margin-top:15px; ">
+
+										<div class="box-header">
+											<div class="box-title">Tecnonogía para Educar</div>
+										</div>
+
+										<div class="box-body">
+											<div class="table-responsive">
+												<table id="tablelol" class="table table-datatables table-bordered table-hover" style="margin-top:10px;">
+													<thead>
+														<tr>
+															<th>Id</th>
+															<th>Nombre</th>
+															<th>Total Ingresadas</th>
+															<th>Total Egresadas</th>
+															<th>Existencia</th>
+														</tr>
+													</thead>
+													<tbody>
+														{% for i in lista %}
+														<tr>
+															<td width="25">{{i.id}}</td>
+															<td>{{i}}</td>
+															<td><a href="#" onclick="entrada({{ i.id }}, '{{ i }}');">{{i.total_ingreso}}</a></td>
+															<td><a href="#" onclick="salida({{ i.id }}, '{{ i }}');">{{i.total_egreso}}</a></td>
+															<td>{{ i.existencia }}</td>
+														</tr>
+														{% endfor %}
+													</tbody>
+													<tfoot>
+														<tr>
+															<th>Id</th>
+															<th>Nombre</th>
+															<th>Total Ingresadas</th>
+															<th>Total Egresadas</th>
+															<th>Existencia</th>
+														</tr>
+													</tfoot>
+												</table>
+											</div>
+
+										</div>
+									</div>
+								</div>
+								<div class="col-md-1"></div>
+							</div>
+						</div>
+
+						<div class="tab-pane" id="ingresar">
+							<div class="row">
+								<div class="col-md-3"></div>
+								<div class="col-md-6">
+									<table width="50%" class="table table-hover table-striped table-bordered table-responsive" style="margin-top: 20px;" >
+										<form method="POST" align="center" action="{{action}}">
+											{% csrf_token %}
+											{{ form.as_table}}
+											<tr>
+												<td></td>
+												<td><input type="submit" class="btn btn-primary" value="Guardar"></td>
+											</tr>
+										</form>
+									</table>
+								</div>
+
+								<div class="col-md-3"></div>
+							</div>
+						</div>	
+					</div>
+				</div>
+			</div>
+			<div class="col-md-1"></div>
+		</div>
+
+		<!--other form-->
+		<div class="row">
+			<div class="col-md-2"></div>
+			<div class="col-md-8">
+				<table class="table table-hover table-striped table-bordered table-responsive" style="margin-top: 20px;" >
+					<h3>Generar informe</h3>
+					<tr>
+						<td>
+							<input type="text" class="form-control datepicker" id="ini" placeholder="Fecha de inicio">
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<input type="text" class="form-control datepicker" id="out" placeholder="Fecha final" >
+						</td>
+					</tr>
+					<tr>
+						<td><a href="javascript:void(0)" onclick="informe()" class="btn btn-primary">enviar formulario</a></td>
+					</tr>
+
+				</table>
+				
+				
+			</div>
+
+			<div class="col-md-2"></div>
+		</div>
+	</div>
+
+  <!--<script>
+    $(function () {
+      $('#tablalol').DataTable({
+        "paging": true,
+        "lengthChange": false,
+        "searching": false,
+        "ordering": true,
+        "info": true,
+        "autoWidth": false
+      });
+    });
+</script>-->
+</section>
+{% endblock content %}
+
+{% block extra_css %}
+<link rel="stylesheet" type="text/css" href="{% static "css/kardex.css" %}">
+{% endblock extra_css %}
+
+{% block extra_js %}
+<script src="{% static "js/extrajs/kardex.js" %}"></script>
+<script src="{% static "js/extrajs/spin.js" %}"></script>
+
+{% endblock extra_js %}
+
+

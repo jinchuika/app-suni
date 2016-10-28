@@ -1,0 +1,91 @@
+{% extends "base/base.html" %}
+
+{% load staticfiles %}
+
+{% block page_title %}
+<title>Nuevo curso</title>
+{% endblock page_title %}
+
+{% block content %}
+<section class="content-header">
+	<h1>Nuevo curso</h1>
+</section>
+<section class="content">
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-md-12">
+				<table class="table table-striped box box-primary">
+					<form action="{{action}}" method="post">
+						{% csrf_token %}
+						{{ form.as_table }}
+						<tr>
+							<td align="center" colspan="2" class="lead">Asistencias</td>
+						</tr>
+						<tbody id="asistencia_table">
+							{% for form_asistencia in named_formsets.asistencia.forms %}
+							<tr id="{{form_asistencia.prefix}}-row" class="form-container-asistencia">
+								<td>
+									{{form_asistencia.id}}
+									{{form_asistencia.modulo_num}}
+								</td>
+								<td>
+									{% if form_asistencia.instance.pk %}{{ form_asistencia.DELETE }}{% endif %}
+									{{form_asistencia.punteo_max}}
+								</td>
+							</tr>
+							{% endfor %}
+						</tbody>
+						<tr>
+							<th colspan="2" align="center">Ejercicios</th>
+						</tr>
+						<tr>
+							<th>Descripción</th>
+							<th>Punteo máximo</th>
+						</tr>
+						{{ named_formsets.asistencia.management_form }}
+						<tbody id="hito_table">
+							{% for form_hito in named_formsets.hito.forms %}
+							{{form_hito.errors}}
+							<tr id="{{form_hito.prefix}}-row" class="form-container-hito">
+								<td>
+									{{ form_hito.id }}
+									{{ form_hito.nombre }}
+								</td>
+								<td>
+									{{form_hito.punteo_max}}
+									{% if form_hito.instance.pk %}{{ form_hito.DELETE }}{% endif %}
+								</td>
+							</tr>
+							{% endfor %}
+						</tbody>
+						<tr>
+							<td colspan="2" align="center"><input type="submit" value="Crear" class="btn btn-primary"></td>
+						</tr>
+						{{ named_formsets.hito.management_form }}
+					</form>
+				</table>
+			</div>
+		</div>
+	</div>
+</section>
+{% endblock content %}
+
+{% block extra_js %}
+<script src="{% static "js/jquery.formset.js" %}"></script>
+<script type="text/javascript">
+	$(function() {
+		$('#asistencia_table  tr').formset({
+			prefix: "{{ named_formsets.asistencia.prefix }}"
+		});
+		$('#hito_table  tr').formset({
+			prefix: "{{ named_formsets.hito.prefix }}"
+		});
+		$('table.form-container-asistencia').formset({
+			prefix: "{{ named_formsets.asistencia.prefix }}",
+		});
+		$('table.form-container-hito').formset({
+			prefix: "{{ named_formsets.hito.prefix }}",
+		});
+	});
+</script>
+{% endblock extra_js %}

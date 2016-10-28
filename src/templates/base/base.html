@@ -52,11 +52,15 @@
 <script src="{% static "js/bootstrap.min.js" %}"></script>
 <script src="{% static "js/bs-datepicker.js" %}"></script>
 <script src="{% static "js/app.min.js" %}"></script>
-<script src="{% static "js/dataTables.bootstrap.min.js" %}"> </script>
+
 <script src="{% static "js/jquery.dataTables.min.js" %}"> </script>
 <script src="{% static "js/bootbox.min.js" %}"></script>
 <script src="{% static "js/select2.full.min.js" %}"></script>
-<script src="{% static "js/main.js" %}"></script>
+<script src="{% static "js/main.js" %}">
+</script>
+<script>
+	GLOBALS.init(["{{ request.get_host }}"])
+</script>
 {% block extra_js %}
 
 {% endblock extra_js %}

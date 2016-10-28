@@ -1,0 +1,46 @@
+{% extends "base/base.html" %}
+
+{% block page_title %}
+<title>Listado de proyectos</title>
+{% endblock page_title %}
+
+{% block content %}
+<section class="content-header">
+	<h1>
+		Listado de proyectos
+		{% if perms.mye_add_proyecto %}
+		<span class="pull-right"><a href="{% url "proyecto_add" %}" class="btn btn-success"><i class="fa fa-plus"></i> Nuevo</a></span>
+		{% endif %}
+	</h1>
+</section>
+
+<section class="content">
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-md-12">
+				<div class="box box-primary">
+					<div class="box-header">
+						<h3 class="box-title">Listado de proyectos</h3>
+					</div>
+					<div class="box-body table-responsive no-padding">
+						<table class="table table-hover">
+						<thead>
+							<tr>
+								<th>Nombre</th>
+								<th>Participaciones</th>
+							</tr>
+						</thead>
+							{% for proyecto in proyecto_list %}
+								<tr>
+									<td><a href="{% url "proyecto_detail" pk=proyecto.id %}">{{ proyecto }}</a></td>
+									<td>{{ proyecto.escuela_asignada.all.count }}</td>
+								</tr>
+							{% endfor %}
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+{% endblock content %}

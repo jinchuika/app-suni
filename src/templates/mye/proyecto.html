@@ -1,0 +1,28 @@
+{% extends "base/base.html" %}
+
+{% block page_title %}
+<title>{{ proyecto }} - Proyecto</title>
+{% endblock page_title %}
+
+{% block content %}
+<section class="content-header">
+	<h1>
+		Perfil de {{proyecto}}
+		{% if perms.mye_change_proyecto %}
+		<span class="pull-right">
+			<a href="{% url "proyecto_update" pk=proyecto.id %}">Editar</a>
+		</span>
+		{% endif %}
+	</h1>
+</section>
+
+<section class="content">
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-md-12">
+				
+			</div>
+		</div>
+	</div>
+</section>
+{% endblock content %}
