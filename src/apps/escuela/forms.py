@@ -18,6 +18,10 @@ class FormEscuelaCrear(forms.ModelForm):
 
 
 class BuscarEscuelaForm(forms.ModelForm):
+    ESTADO_CHOICES = (
+        (None, 'No importa'),
+        (2, 'Sí'),
+        (1, 'No'),)
     departamento = forms.ModelChoiceField(
         queryset=Departamento.objects.all(),
         required=False)
@@ -30,11 +34,13 @@ class BuscarEscuelaForm(forms.ModelForm):
         widget=forms.SelectMultiple(attrs={'class': 'select2'}),
         required=False)
     codigo = forms.CharField(
+        label='Código',
         required=False)
     nombre = forms.CharField(
         widget=forms.TextInput(attrs={'data-ajax--url': reverse_lazy('escuela_buscar_backend')}),
         required=False)
     direccion = forms.CharField(
+        label='Dirección',
         widget=forms.TextInput(),
         required=False)
     municipio = forms.ModelChoiceField(
@@ -49,6 +55,9 @@ class BuscarEscuelaForm(forms.ModelForm):
     poblacion_max = forms.IntegerField(
         label='Población máxima',
         required=False)
+    solicitud = forms.ChoiceField(
+        required=False,
+        choices=ESTADO_CHOICES)
 
     class Meta:
         model = Escuela

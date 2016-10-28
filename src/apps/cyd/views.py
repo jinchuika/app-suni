@@ -9,4 +9,4 @@ class CursoCrear(LoginRequiredMixin, CursoMixin, CreateView):
     model = Curso
     template_name = 'cyd/curso_add.html'
     form_class = CursoForm
-    success_url = 'escuela_add'
+    success_url = 'curso_add'
