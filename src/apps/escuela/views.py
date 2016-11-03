@@ -164,8 +164,8 @@ class EscuelaBuscarBackend(autocomplete.Select2QuerySetView):
             qs = qs.filter(solicitud__in=solicitud_list).distinct()
         if solicitud:
             solicitud_list = Solicitud.objects.all()
-            if solicitud == "1":
-                qs = qs.filter(solicitud__in=solicitud_list).distinct()
             if solicitud == "2":
-                qs = qs.filter(~Q(solicitud__in=solicitud_list)).distinct()
+                qs = qs.filter(solicitud__in=solicitud_list).distinct()
+            if solicitud == "1":
+                qs = qs.exclude(solicitud__in=solicitud_list).distinct()
         return qs
