@@ -20,7 +20,7 @@ Menu.add_item(
     "user",
     ViewMenuItem(
         "Escuelas",
-        '#',
+        reverse_lazy('escuela_crear'),
         weight=10,
         icon="fa-building-o",
         children=escuela_children))

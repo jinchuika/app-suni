@@ -7,7 +7,9 @@ from django.views.generic.edit import CreateView
 from braces.views import LoginRequiredMixin
 from django.urls import reverse_lazy
 from django.http import HttpResponse
+from .mixins import SalidaContextMixin
 import json
+
 
 class Equipolog(LoginRequiredMixin, CreateView):
 	model = Equipo
@@ -50,10 +52,12 @@ class EquipoEntrada(LoginRequiredMixin, DetailView):
 class EquipoSalida(LoginRequiredMixin, DetailView):
 	model = Equipo
 	def get(self, request, **kwargs):
-		lista_salida = Salida.objects.filter(equipo = self.get_object())
+		lista_salida = Salida.objects.filter()
+
+		lista2 = SalidaEquipo.objects.filter(equipo = self.get_object())
 		lista_vacia = []
-		for egreso in lista_salida:
-			lista_vacia.append({'id':egreso.id, 'fecha':str(egreso.fecha), 'tecnico':str(egreso.tecnico), 'cantidad': egreso.cantidad, 'observacion':egreso.observacion}, )
+		for egreso in lista2:
+			lista_vacia.append({'id':egreso.id, 'salida':str(egreso.salida), 'cantidad': egreso.cantidad})
 		return HttpResponse(
 			json.dumps({
 				"tablainf" : lista_vacia,
@@ -79,21 +83,13 @@ class EntradaCreate(LoginRequiredMixin, CreateView):
 
 
 #Salida del equipo
-class SalidaCreate(LoginRequiredMixin, CreateView):
+class SalidaCreate(LoginRequiredMixin, SalidaContextMixin, CreateView):
 	model = Salida
 	form_class = FormularioSalida
 	template_name = "kardex/salida.html"
 	success_url = reverse_lazy('kardex_equipo')
 
-	def form_valid(self, form):
-		self.object = form.save(commit = False)
-		if self.object.cantidad >  self.object.equipo.existencia:
-			return self.form_invalid(form)
-		else:
-			self.object.save()
-			return super(SalidaCreate, self).form_valid(form)
-
-
+	
 
 
 class ProveedorCreate(LoginRequiredMixin, CreateView):

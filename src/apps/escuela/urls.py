@@ -2,6 +2,7 @@ from django.conf.urls import url
 from .views import *
 
 urlpatterns = [
+    url(r'^$', EscuelaCrear.as_view(), name='escuela_crear'),
     url(r'^add/', EscuelaCrear.as_view(), name='escuela_add'),
     url(r'^buscar/$', EscuelaBuscar.as_view(), name='escuela_buscar'),
     url(r'^buscar/q/$', EscuelaBuscarBackend.as_view(), name='escuela_buscar_backend'),

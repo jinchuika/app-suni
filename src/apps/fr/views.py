@@ -27,8 +27,19 @@ class ContactListMixin(ContextMixin):
 		query = self.get_object()
 		contacto_list = query.contacto.all()
 		lista_vacia = []
+
 		for cont in contacto_list:
-			lista_vacia.append({'nombre':str(cont), 'empresa': str(cont.empresa), 'puesto': str(cont.puesto)})
+			telefono_list=[]
+			for telefono in cont.telefono.all():
+				telefono_list.append(str(telefono))
+
+			mail_list=[]
+			for correo in cont.mail.all():
+				mail_list.append(str(correo))
+
+
+			lista_vacia.append({'nombre':str(cont), 'empresa': str(cont.empresa), 'puesto': str(cont.puesto) , 'telefono': telefono_list,
+			'mail' : mail_list})
 		return HttpResponse(
 				json.dumps({
 					"contact": lista_vacia,
