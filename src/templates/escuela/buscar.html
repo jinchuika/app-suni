@@ -9,33 +9,36 @@
 
 {% block content %}
 <section class="content-header">
-	<h1>Cooperantes</h1>
+	<h1>Buscar escuelas</h1>
 </section>
 
 <section class="content">
 	<div class="container-fluid">
 		<div class="row">
 			<div class="col-md-3">
-				<form action="{{action}}" method="post" id="form_buscar_escuela" class="box">
-					{% csrf_token %}
-					<table class="table table-striped table-hover">
-						{% for field in form %}
-						<tr>
-							<th>{{ field.label }}</th>
-							<td>{{ field|add_class:"form-control"}}</td>
-						</tr>
-						{% endfor %}
-						
-						<tr>
-							<td><button>Buscar</button></td>
-						</tr>
-					</table>
-				</form>
-				<table id="tabla_resultado"></table>
+				<div class="box">
+					<form action="{{action}}" method="post" id="form_buscar_escuela">
+						<div class="box-footer">
+							<input type="submit" class="btn btn-primary" value="Buscar">
+							<div class="pull-right">
+								<span id="encontradas"></span>
+							</div>
+						</div>
+						<div class="box-body">
+							{% csrf_token %}
+							{% for field in form %}
+							<div class="form-group">
+								{{ field.label_tag }}
+								{{ field|add_class:"form-control"}}
+							</div>
+							{% endfor %}
+						</div>
+					</form>
+				</div>
 			</div>
 			<div class="col-md-9">
 				<div class="table-responsive box">
-					<table class="table table-striped table-hover table-bordered">
+					<table class="table table-striped table-condensed table-hover table-bordered">
 						<thead>
 							<tr>
 								<th>UDI</th>
@@ -43,6 +46,8 @@
 								<th>Dirección</th>
 								<th>Municipio</th>
 								<th>Departamento</th>
+								<th>Nivel</th>
+								<th>Población</th>
 							</tr>
 						</thead>
 						<tbody id="tbody-escuela">

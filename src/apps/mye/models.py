@@ -119,10 +119,10 @@ class Solicitud(models.Model):
     total_alumno = models.IntegerField(null=True, blank=True)
     total_maestro = models.IntegerField(null=True, blank=True)
 
-    observacion = models.TextField(null=True, blank=True)
-
     requisito = models.ManyToManyField(Requisito, blank=True)
     medio = models.ManyToManyField(Medio, blank=True)
+
+    observacion = models.TextField(null=True, blank=True)
 
     class Meta:
         verbose_name = 'Solicitud'
@@ -132,11 +132,14 @@ class Solicitud(models.Model):
         return str(self.id)
 
     def save(self, *args, **kwargs):
-        if self.total_alumno is None:
+        if self.total_alumno is None or self.total_alumno == 0:
             self.total_alumno = self.alumna + self.alumno
-        if self.total_maestro is None:
+        if self.total_maestro is None or self.total_maestro == 0:
             self.total_maestro = self.maestra + self.maestro
         super(Solicitud, self).save(*args, **kwargs)
+
+    def get_absolute_url(self):
+        return reverse_lazy('escuela_solicitud_detail', kwargs={'pk': self.escuela.id, 'id_solicitud': self.id})
 
     def listar_requisito(self):
         queryset_requisito = self.version.requisito.all()

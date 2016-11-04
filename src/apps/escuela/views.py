@@ -1,9 +1,10 @@
+from django.db.models import Q
 from django.shortcuts import get_object_or_404, reverse
 from django.views.generic import DetailView
 from django.views.generic.edit import CreateView, UpdateView, FormView
-from .forms import FormEscuelaCrear, ContactoForm, BuscarEscuelaForm
-from .models import Escuela, EscContacto
-from .mixins import ContactoContextMixin
+from apps.escuela.forms import FormEscuelaCrear, ContactoForm, BuscarEscuelaForm
+from apps.escuela.models import Escuela, EscContacto
+from apps.escuela.mixins import ContactoContextMixin
 from apps.mye.forms import EscuelaCooperanteForm, EscuelaProyectoForm, SolicitudNuevaForm, SolicitudForm
 from apps.mye.models import EscuelaCooperante, EscuelaProyecto, Solicitud
 from apps.main.models import Municipio
@@ -83,11 +84,13 @@ class EscContactoCrear(LoginRequiredMixin, ContactoContextMixin, CreateView):
     template_name = 'escuela/contacto.html'
     model = EscContacto
     form_class = ContactoForm
-    success_url = 'escuela_add'
 
     def get_initial(self):
         escuela = get_object_or_404(Escuela, id=self.kwargs.get('id_escuela'))
         return{'escuela': escuela}
+
+    def get_success_url(self):
+        return reverse('escuela_detail', kwargs={'pk': self.kwargs['id_escuela']})
 
 
 class EscContactoEditar(LoginRequiredMixin, ContactoContextMixin, UpdateView):
@@ -96,7 +99,7 @@ class EscContactoEditar(LoginRequiredMixin, ContactoContextMixin, UpdateView):
     form_class = ContactoForm
 
     def get_success_url(self):
-        return reverse('escuela_detail', kwargs={'pk': self.object.escuela})
+        return reverse('escuela_detail', kwargs={'pk': self.kwargs['id_escuela']})
 
 
 class EscuelaBuscar(LoginRequiredMixin, FormView):
@@ -119,6 +122,8 @@ class EscuelaBuscarBackend(autocomplete.Select2QuerySetView):
             'direccion': result.direccion,
             'municipio': result.municipio.nombre,
             'departamento': result.municipio.departamento.nombre,
+            'nivel': result.nivel.nivel,
+            'poblacion': result.poblacion_actual,
         }
 
     def get_queryset(self):
@@ -130,11 +135,15 @@ class EscuelaBuscarBackend(autocomplete.Select2QuerySetView):
         departamento = self.forwarded.get('departamento', None)
         cooperante = self.forwarded.get('cooperante', None)
         proyecto = self.forwarded.get('proyecto', None)
+        nivel = self.forwarded.get('nivel', None)
+        poblacion_min = self.forwarded.get('poblacion_min', None)
+        poblacion_max = self.forwarded.get('poblacion_max', None)
+        solicitud = self.forwarded.get('solicitud', None)
 
         if self.q:
             qs = qs.filter(codigo=self.q)
         if departamento:
-            qs = qs.filter(municipio__in=Municipio.objects.filter(departamento=departamento))
+            qs = qs.filter(municipio__in=Municipio.objects.filter(departamento=departamento)).distinct()
         if municipio:
             qs = qs.filter(municipio=municipio)
         if cooperante:
@@ -145,4 +154,18 @@ class EscuelaBuscarBackend(autocomplete.Select2QuerySetView):
             qs = qs.filter(nombre__icontains=nombre)
         if direccion:
             qs = qs.filter(direccion__icontains=direccion)
+        if nivel:
+            qs = qs.filter(nivel=nivel)
+        if poblacion_min:
+            solicitud_list = Solicitud.objects.filter(total_alumno__gte=poblacion_min)
+            qs = qs.filter(solicitud__in=solicitud_list).distinct()
+        if poblacion_max:
+            solicitud_list = Solicitud.objects.filter(total_alumno__lte=poblacion_max)
+            qs = qs.filter(solicitud__in=solicitud_list).distinct()
+        if solicitud:
+            solicitud_list = Solicitud.objects.all()
+            if solicitud == "1":
+                qs = qs.filter(solicitud__in=solicitud_list).distinct()
+            if solicitud == "2":
+                qs = qs.filter(~Q(solicitud__in=solicitud_list)).distinct()
         return qs

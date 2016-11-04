@@ -2,6 +2,7 @@ from django import forms
 from django.forms import ModelForm, ModelChoiceField, formset_factory, modelformset_factory, widgets
 from django.forms.models import inlineformset_factory, BaseInlineFormSet
 from .models import *
+from apps.kardex.models import *
 from django.utils.translation import ugettext_lazy as _
 
 

@@ -1,8 +1,9 @@
+from operator import itemgetter
 from django.db import models
 from django.urls import reverse
 from apps.main.models import Municipio
 from apps.main.utils import get_telefonica
-from apps.mye.models import Cooperante, Proyecto
+from apps.mye.models import Cooperante, Proyecto, Solicitud
 
 
 class EscArea(models.Model):
@@ -120,10 +121,12 @@ class Escuela(models.Model):
 
     cooperante_asignado = models.ManyToManyField(
         Cooperante,
-        through='mye.EscuelaCooperante',)
+        through='mye.EscuelaCooperante',
+        blank=True)
     proyecto_asignado = models.ManyToManyField(
         Proyecto,
-        through='mye.EscuelaProyecto',)
+        through='mye.EscuelaProyecto',
+        blank=True)
 
     class Meta:
         verbose_name = "Escuela"
@@ -134,6 +137,27 @@ class Escuela(models.Model):
 
     def get_absolute_url(self):
         return reverse('escuela_detail', kwargs={'pk': self.id})
+
+    def get_poblacion(self):
+        poblacion_list = []
+        for solicitud in Solicitud.objects.filter(escuela=self):
+            poblacion_list.append({
+                'fecha': solicitud.fecha,
+                'alumnos': solicitud.total_alumno,
+                'maestros': solicitud.total_maestro})
+        return sorted(poblacion_list, key=itemgetter('fecha'))
+    poblacion = property(get_poblacion)
+
+    def get_poblacion_actual(self):
+        poblacion_list = self.get_poblacion()
+        if len(poblacion_list) > 0:
+            return poblacion_list[0]['alumnos']
+        else:
+            return None
+    poblacion_actual = property(get_poblacion_actual)
+
+    def tiene_solicitud(self):
+        return Solicitud.objects.filter(escuela=self).count() > 0
 
 
 class EscContactoRol(models.Model):

@@ -7,7 +7,12 @@
 {% block content %}
 <section class="content-header">
 	<h1>
-		Perfil de {{cooperante}} <a href="{% url "cooperante_update" pk=cooperante.id %}">Editar</a>
+		Perfil de {{cooperante}}
+		{% if perms.mye_change_cooperante %}
+		<span class="pull-right">
+			<a href="{% url "cooperante_update" pk=cooperante.id %}" class="btn btn-info">Editar</a>
+		</span>
+		{% endif %}
 	</h1>
 </section>
 
@@ -15,7 +20,24 @@
 	<div class="container-fluid">
 		<div class="row">
 			<div class="col-md-12">
-				
+				<div class="box box-success">
+					<table class="table table-bordered">
+						<thead>
+							<tr>
+								<th>Escuela</th>
+								<th>Fecha de asignación</th>
+								<th>Fecha de anulación</th>
+							</tr>
+						</thead>
+						{% for asignacion in cooperante.escuela_asignada.all %}
+						<tr>
+							<td>{{asignacion.escuela}}</td>
+							<td>{{asignacion.fecha_activacion}}</td>
+							<td>{{asignacion.fecha_anulacion}}</td>
+						</tr>
+						{% endfor %}
+					</table>
+				</div>
 			</div>
 		</div>
 	</div>

@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import get_object_or_404
 from apps.fr.models import *
 from apps.fr.forms import *
 from django.views.generic.base import ContextMixin
@@ -6,7 +6,7 @@ from django.views.generic import DetailView
 from django.views.generic.edit import CreateView, UpdateView
 from braces.views import LoginRequiredMixin
 from django.urls import reverse_lazy
-from .mixins import ContactoContextMixin
+from apps.fr.mixins import ContactoContextMixin
 from django.http import HttpResponse
 import json
 

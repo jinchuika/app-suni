@@ -12,11 +12,13 @@ function buscar_escuela(params) {
 }
 
 function get_fila_buscador_text(escuela) {
-	var text = '<td><a href="'+escuela.url+'">'+escuela.nombre+'</a></td>';
-	text += '<td>'+escuela.codigo+'</td>';
+	var text = '<td>'+escuela.codigo+'</td>';
+	text += '<td><a href="'+escuela.url+'">'+escuela.nombre+'</a></td>';
 	text += '<td>'+escuela.direccion+'</td>';
 	text += '<td>'+escuela.municipio+'</td>';
 	text += '<td>'+escuela.departamento+'</td>';
+	text += '<td>'+escuela.nivel+'</td>';
+	text += '<td>'+escuela.poblacion+'</td>';
 	return '<tr>'+text+'</tr>';
 }
 
@@ -36,6 +38,10 @@ $(document).ready(function () {
 				nombre: $('#id_nombre').val(),
 				proyecto: $('#id_proyecto').val(),
 				direccion: $('#id_direccion').val(),
+				nivel: $('#id_nivel').val(),
+				poblacion_max: $('#id_poblacion_max').val(),
+				poblacion_min: $('#id_poblacion_min').val(),
+				solicitud: $('#id_solicitud').val(),
 			})
 		}
 		buscar_escuela({
@@ -43,6 +49,7 @@ $(document).ready(function () {
 			data: queryParameters,
 			callback: function (respuesta) {
 				$('#tbody-escuela').html('');
+				$('#encontradas').html(respuesta.results.length + " escuelas encontradas");
 				$.each(respuesta.results, function (index, escuela) {
 					$('#tbody-escuela').append(get_fila_buscador_text(escuela.text));
 				});

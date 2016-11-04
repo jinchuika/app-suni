@@ -2,8 +2,8 @@ from django.http import JsonResponse
 from django.shortcuts import reverse
 from django.views.generic import DetailView, ListView
 from django.views.generic.edit import CreateView, UpdateView
-from .forms import CooperanteForm, ProyectoForm, SolicitudVersionForm, SolicitudForm, SolicitudNuevaForm
-from .models import Cooperante, Proyecto, SolicitudVersion, Solicitud
+from apps.mye.forms import CooperanteForm, ProyectoForm, SolicitudVersionForm, SolicitudForm, SolicitudNuevaForm
+from apps.mye.models import Cooperante, Proyecto, SolicitudVersion, Solicitud
 from braces.views import LoginRequiredMixin, PermissionRequiredMixin
 
 

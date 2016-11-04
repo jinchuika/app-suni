@@ -1,7 +1,7 @@
 from django.shortcuts import redirect
 from django.views.generic.base import ContextMixin
 from django.views.generic.detail import SingleObjectMixin
-from .forms import ContactoTelefonoFormSet, ContactoMailFormSet
+from apps.fr.forms import ContactoTelefonoFormSet, ContactoMailFormSet
 
 class ContactoContextMixin(ContextMixin):
 	def get_context_data(self, **kwargs):

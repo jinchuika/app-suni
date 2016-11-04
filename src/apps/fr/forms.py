@@ -1,7 +1,7 @@
 from django import forms 
 from django.forms import ModelForm, ModelChoiceField, formset_factory, modelformset_factory, widgets
 from django.forms.models import inlineformset_factory, BaseInlineFormSet
-from .models import *
+from apps.fr.models import *
 
 class FormEmpresa(forms.ModelForm):
 	class Meta:

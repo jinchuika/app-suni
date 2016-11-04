@@ -1,5 +1,5 @@
 from django.conf.urls import url
-from .views import *
+from apps.mye.views import *
 
 urlpatterns = [
     url(r'^$', CooperanteList.as_view(), name='list_c'),
