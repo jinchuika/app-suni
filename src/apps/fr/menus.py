@@ -25,6 +25,6 @@ Menu.add_item(
     ViewMenuItem(
         "Directorio",
         reverse_lazy('contacto_contactos'),
-        weight=20,
+        weight=40,
         icon="fa-users",
         children=contacto_children))

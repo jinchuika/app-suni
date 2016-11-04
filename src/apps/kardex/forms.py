@@ -1,5 +1,7 @@
 from django import forms 
 from django.forms import ModelForm, ModelChoiceField, formset_factory, modelformset_factory, widgets
+from django.forms.models import inlineformset_factory, BaseInlineFormSet
+from .models import *
 from apps.kardex.models import *
 from django.utils.translation import ugettext_lazy as _
 
@@ -80,15 +82,7 @@ class FormularioSalida(forms.ModelForm):
 
         }
 
-	def clean_cantidad(self):
-		cantidad = self.cleaned_data.get('cantidad')
-		if cantidad <= 0:
-			raise forms.ValidationError("Este campo tiene que ser mayor a 0")
-
-		existente = self.cleaned_data.get('equipo').existencia
-		if cantidad > existente:
-			raise forms.ValidationError("El campo tiene que ser menor o igual a la existente (" + str(existente) + ")" )	
-		return cantidad	
+	
 
 	
 
@@ -97,3 +91,5 @@ class FormularioProveedor(forms.ModelForm):
 		model = Proveedor
 		fields = '__all__'
 
+
+SalidaEquipoFormSet = inlineformset_factory(Salida, SalidaEquipo, fields='__all__',extra=1, can_delete=True)
