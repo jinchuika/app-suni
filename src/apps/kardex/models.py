@@ -161,7 +161,6 @@ class Salida(models.Model):
 class SalidaEquipo(models.Model):
 	salida = models.ForeignKey(Salida, related_name='salida', null=True)
 	equipo = models.ForeignKey(Equipo, on_delete= models.PROTECT, related_name='equipo')
-	estado = models.ForeignKey(EstadoEquipo, on_delete = models.PROTECT)
 	cantidad = models.IntegerField()
 
 	def __str__(self):

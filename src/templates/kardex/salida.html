@@ -9,43 +9,56 @@
 	
 	<div class="container">
 		<div class="row-main">
-		
-				<div class="box box-primary">
 
-					<form  method="POST" align="center" action="{{action}}" >
-						<table class="table table-hover table-bordered">
-							{% csrf_token %}
-							{{ form.as_table }}
-							<tbody id="salida_table">
-								{% for form_salida in named_formsets.salida.forms %}
-								<tr id="{{form_salida.prefix}}-row" class="form-container-salida">
-									<td>Salida</td>
-									{{ form_salida.id}}
-									<td>
-										{% if form_salida.instance.pk %}{{ form_salida.DELETE }}{% endif %}
-										<label class="pull-left">Equipo</label>
-										{{form_salida.equipo|add_class:"form-control"}}
-										<label class="pull-left">Estado</label>
-										{{form_salida.estado|add_class:"form-control"}}
-										<label class="pull-left">Cantidad</label>
-										{{form_salida.cantidad|add_class:"form-control"}}
-									</td>
-								</tr>
-								{% endfor %}
-							</tbody>
+			<div class="box box-primary">
+
+				<form  method="POST" align="center" action="{{action}}" >
+					<table class="table table-hover table-bordered">
+						{% csrf_token %}
+						{% for field in form %}
+						<tr>
+							<td>
+								{{field.label}}
+							</td>
+							<td colspan="3">
+								{{field|add_class:"form-control"}}
+							</td>
+						</tr>
+						{% endfor %}
+
+						<tbody id="salida_table">
+							{% for form_salida in named_formsets.salida.forms %}
+							<tr id="{{form_salida.prefix}}-row" class="form-container-salida">
+								<td>Producto</td>
+								{{ form_salida.id}}
+								<td>
+									<label class="pull-left">Equipo</label>
+									{{form_salida.equipo|add_class:"form-control"}}
+								</td>
+								<td>
+									<label class="pull-left">Cantidad</label>
+									{{form_salida.cantidad|add_class:"form-control"}}
+								</td>
+								<td>
+
+									{% if form_salida.instance.pk %}{{ form_salida.DELETE }}{% endif %}
+								</td>
+							</tr>
+							{% endfor %}
+						</tbody>
 
 
 
 
 
 
-							<tr><td></td><td>
-								<input type="submit" class="btn btn-primary" value="Guardar">
-							</td></tr>
-						</table>
-						{{ named_formsets.salida.management_form }}
-					</form>
-				</div>
+						<tr><td></td><td>
+							<input type="submit" class="btn btn-primary" value="Guardar">
+						</td></tr>
+					</table>
+					{{ named_formsets.salida.management_form }}
+				</form>
+			</div>
 			
 		</div>
 	</div>
