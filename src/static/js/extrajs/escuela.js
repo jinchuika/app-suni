@@ -81,5 +81,6 @@ $(document).ready(function () {
 	 */
 
 	$('#form-nueva-solicitud').hide();
+	$('#form-nuevo-equipamiento').hide();
 	
 })

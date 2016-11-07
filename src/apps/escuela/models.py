@@ -106,7 +106,7 @@ class Escuela(models.Model):
     Description: Escuela
     """
     codigo = models.CharField(max_length=15, unique=True)
-    distrito = models.CharField(max_length=10)
+    distrito = models.CharField(max_length=10, null=True, blank=True)
     municipio = models.ForeignKey(Municipio, on_delete=models.PROTECT)
     nombre = models.CharField(max_length=250)
     direccion = models.TextField()

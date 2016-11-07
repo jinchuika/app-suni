@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
 
     'braces',
     'easy_thumbnails',
@@ -61,6 +62,7 @@ INSTALLED_APPS = [
     'apps.fr',
     'apps.cyd',
     'apps.mye',
+    'apps.tpe',
 ]
 
 SITE_ID = 1
