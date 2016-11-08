@@ -6,14 +6,15 @@ from apps.escuela.forms import FormEscuelaCrear, ContactoForm, BuscarEscuelaForm
 from apps.escuela.models import Escuela, EscContacto
 from apps.escuela.mixins import ContactoContextMixin
 from apps.mye.forms import EscuelaCooperanteForm, EscuelaProyectoForm, SolicitudNuevaForm, SolicitudForm
+from apps.tpe.forms import EquipamientoForm, EquipamientoNuevoForm
+from apps.tpe.models import Equipamiento
 from apps.mye.models import EscuelaCooperante, EscuelaProyecto, Solicitud
 from apps.main.models import Municipio
 from braces.views import LoginRequiredMixin, GroupRequiredMixin, PermissionRequiredMixin
 from dal import autocomplete
 
 
-class EscuelaCrear(LoginRequiredMixin, GroupRequiredMixin, CreateView):
-    group_required = u"Administración"
+class EscuelaCrear(LoginRequiredMixin, CreateView):
     template_name = 'escuela/add.html'
     raise_exception = True
     redirect_unauthenticated_users = True
@@ -27,11 +28,17 @@ class EscuelaDetail(LoginRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super(EscuelaDetail, self).get_context_data(**kwargs)
         context['solicitud_nueva_form'] = SolicitudNuevaForm(initial={'escuela': self.object.pk})
+        context['equipamiento_nuevo_form'] = EquipamientoNuevoForm(initial={'escuela': self.object.pk})
         if 'id_solicitud' in self.kwargs:
             solicitud = Solicitud.objects.get(pk=self.kwargs['id_solicitud'])
             if solicitud in self.object.solicitud.all():
                 context['solicitud_form'] = SolicitudForm(instance=solicitud)
                 context['solicitud_id'] = self.kwargs['id_solicitud']
+        if 'id_equipamiento' in self.kwargs:
+            equipamiento = Equipamiento.objects.get(pk=self.kwargs['id_equipamiento'])
+            if equipamiento in self.object.equipamiento.all():
+                context['equipamiento_form'] = EquipamientoForm(instance=equipamiento)
+                context['equipamiento_id'] = self.kwargs['id_equipamiento']
         return context
 
 
@@ -164,8 +171,8 @@ class EscuelaBuscarBackend(autocomplete.Select2QuerySetView):
             qs = qs.filter(solicitud__in=solicitud_list).distinct()
         if solicitud:
             solicitud_list = Solicitud.objects.all()
-            if solicitud == "1":
-                qs = qs.filter(solicitud__in=solicitud_list).distinct()
             if solicitud == "2":
-                qs = qs.filter(~Q(solicitud__in=solicitud_list)).distinct()
+                qs = qs.filter(solicitud__in=solicitud_list).distinct()
+            if solicitud == "1":
+                qs = qs.exclude(solicitud__in=solicitud_list).distinct()
         return qs

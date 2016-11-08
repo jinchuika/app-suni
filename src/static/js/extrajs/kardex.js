@@ -43,15 +43,13 @@ function salida(id_equipo, equipo){
       var texto = "<table class='table table-datatables'>";
       texto += "<thead>";
       texto += "<tr>";
-      texto += "<th>id de entrada</th>";
-      texto += "<th>Fecha </th>";
+      texto += "<th>id de la salida</th>";
+      texto += "<th>Encabezado</th>";
       texto += "<th>Cantidad Egresados</th>";
-      texto += "<th>observación</th>";
-      texto += "<th>Usuario</th>";
       texto += "</tr>";
       texto += "</thead>";
       $.each(respuesta.tablainf, function(index, item){
-        texto += "<tr><td>" + item.id + "</td><td>"+ item.fecha + "</td><td>" + item.cantidad + "</td><td>" + item.observacion + "</td><td>" + item.tecnico + "</td></tr>";
+        texto += "<tr><td>" + item.id + "</td><td>"+ item.salida + "</td><td>" + item.cantidad + "</td></tr>";
 
       })
 

@@ -15,7 +15,22 @@ function get_contacto(classs, tag_pk, name){
                           texto += "</tr>";
                         texto += "</thead>";
         $.each(respuesta.contact, function(index, item){
-          texto += "<tr><td>" + item.nombre + "</td><td>"+ item.empresa + "</td><td>" + item.puesto + "</td><td>" + item.telefono + "</td><td>" + item.correo + "</td></tr>";
+          texto += "<tr><td>" + item.nombre + "</td><td>"+ item.empresa + "</td><td>" + item.puesto + "</td><td>" ;
+          texto += "<table>"
+
+          $.each(item.telefono, function(index, ittem){
+            texto += "<tr><td>"+ittem+"</td><tr/>";   
+          })
+          texto += "</table>"
+          texto += "</td><td>";
+          texto += "<table>"
+
+          
+          $.each(item.mail, function(index, ittem){
+            texto += "<tr><td>"+ittem+"</td><tr/>";
+          })
+          texto += "</table>"
+          texto += "</td></tr>";
           
         })
         

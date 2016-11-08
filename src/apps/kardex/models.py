@@ -27,16 +27,18 @@ class Equipo(models.Model):
 
 	def get_cant_salidas(self, ini="2000-01-01", out=datetime.date.today()):
 		cantidad_egresos = 0
-		salida_list = Salida.objects.filter(equipo = self, fecha__range=(ini, out))
-		for salida in salida_list:
+		salida_query = Salida.objects.filter(fecha__range=(ini, out))
+		salidaequipo_query = SalidaEquipo.objects.filter(salida__in=salida_query, equipo = self)
+		for salida in salidaequipo_query:
 			cantidad_egresos += 1
 		return cantidad_egresos
 
 	def get_salidas(self, ini="2000-01-01", out=datetime.date.today()):
 		cantidad_egresada = 0
-		salida_list = Salida.objects.filter(equipo = self, fecha__range=(ini, out))
-		for entrada in salida_list:
-			cantidad_egresada += entrada.cantidad
+		salida_query = Salida.objects.filter(fecha__range = (ini, out))
+		salidaequipo_query = SalidaEquipo.objects.filter(salida__in=salida_query, equipo = self)
+		for salida in salidaequipo_query:
+			cantidad_egresada += salida.cantidad
 
 		return cantidad_egresada
 	
@@ -144,19 +146,22 @@ class Entrada(models.Model):
 #salida
 class Salida(models.Model):
 	#atributos
-	equipo = models.ForeignKey(Equipo, on_delete= models.PROTECT, related_name='salidas')
-	estado = models.ForeignKey(EstadoEquipo, on_delete = models.PROTECT)
-	cantidad = models.IntegerField()
 	tecnico= models.ForeignKey(Perfil, on_delete = models.PROTECT)
-	tipo_salida = models.ForeignKey(TipoSalida, on_delete = models.PROTECT)
 	fecha= models.DateField()
+	tipo_salida = models.ForeignKey(TipoSalida, on_delete = models.PROTECT)
 	observacion = models.TextField(null = True, blank = True)
 	class Meta:
 		verbose_name='Salida'
 		verbose_name_plural='Salidas'
 	#metodos
 	def __str__(self):
-		return str(self.id) + " " + str(self.equipo) + " (" + str(self.fecha) + ")"
+		return "id: " + str(self.id) + " - Técnico: " + str(self.tecnico) + " - Fecha: " + str(self.fecha) 
 
 
+class SalidaEquipo(models.Model):
+	salida = models.ForeignKey(Salida, related_name='salida', null=True)
+	equipo = models.ForeignKey(Equipo, on_delete= models.PROTECT, related_name='equipo')
+	cantidad = models.IntegerField()
 
+	def __str__(self):
+		return str(self.equipo) + " " + str(self.cantidad)

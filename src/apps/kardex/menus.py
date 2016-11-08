@@ -23,13 +23,13 @@ kardex_children = (
         "Proveedores",
         reverse_lazy("kardex_proveedor"),
         weight=40,
-        icon="fa-truck"))
+        icon="fa-truck"),)
 
 Menu.add_item(
     "user",
     ViewMenuItem(
         "Kardex",
         reverse_lazy('kardex_equipo'),
-        weight=20,
+        weight=40,
         icon="fa-cog",
         children=kardex_children))

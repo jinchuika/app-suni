@@ -16,10 +16,11 @@ mye_children = (
         icon="fa-object-group"),)
 
 Menu.add_item(
-    "user",
-    ViewMenuItem(
-        "Monitoreo",
-        '#',
-        weight=10,
-        icon="fa-search",
-        children=mye_children))
+	"user",
+	ViewMenuItem(
+		"Monitoreo",
+		reverse_lazy('list_c'),
+		weight=10,
+		icon="fa-search",
+		children=mye_children))
+   
