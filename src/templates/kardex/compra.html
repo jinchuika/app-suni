@@ -1,0 +1,59 @@
+{% extends "base/base.html" %}
+{% load staticfiles %}
+{% block page_title %}
+<title>Informe de Compras</title>
+{% endblock page_title %}
+{% block content %}
+<section class="content-header">
+	<h1>Informe de compras </h1>
+</section>
+<section class="content">
+	<div class="box box-primary">
+		<div class="box-header"></div>
+		<div class="box-body">
+			<div class="table-responsive">
+				<table class="table table-datatables table-hover table-bordered ">
+					<thead>
+						<tr>
+							<th>Número de entrada</th>
+							<th>Equipo</th>
+							<th>Fecha</th>
+							<th>Cantidad</th> 
+							<th>Precio</th>
+							<th>Factura</th>
+						</tr>
+					</thead>
+					<tbody>
+						{% for i in lista %}
+						<tr>
+							<td> {{i.id}} </td>
+							<td> {{i.equipo}} </td>
+							<td> {{i.fecha}} </td>
+							<td>  {{i.cantidad}} </td>
+							<td>  {{i.precio}} </td>
+							<td> {{i.factura}} </td>
+						</tr>
+							
+						{% endfor %}
+					</tbody>
+					<tfoot>
+						<tr>
+							<th>Número de entrada</th>
+							<th>Equipo</th>
+							<th>Fecha</th>
+							<th>Cantidad</th> 
+							<th>Precio</th>
+							<th>Factura</th>
+						</tr>
+					</tfoot>
+
+				</table>
+			</div>		
+		</div>
+	</div>
+</section>
+
+{% endblock content %}
+{% block extra_css %}
+<link rel="stylesheet" type="text/css" href="{% static "css/kardex.css" %}">
+{% endblock extra_css %}

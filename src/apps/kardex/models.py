@@ -28,7 +28,7 @@ class Equipo(models.Model):
 	def get_cant_salidas(self, ini="2000-01-01", out=datetime.date.today()):
 		cantidad_egresos = 0
 		salida_query = Salida.objects.filter(fecha__range=(ini, out))
-		salidaequipo_query = SalidaEquipo.objects.filter(salida__in=salida_query, equipo = self)
+		salidaequipo_query = SalidaEquipo.objects.filter(salida__fecha__range=(ini, out), equipo = self)
 		for salida in salidaequipo_query:
 			cantidad_egresos += 1
 		return cantidad_egresos
@@ -104,7 +104,7 @@ class TipoEntrada(models.Model):
 
 	#metodos
 	def __str__(self):
-		return self.tipo_de_entrada
+		return str(self.tipo_de_entrada)
 
 
 #Proveedor

@@ -3,6 +3,7 @@ from apps.kardex.models import *
 from apps.kardex.forms import *
 from django.views.generic import DetailView
 from django.views.generic.edit import CreateView
+from django.views.generic.list import ListView
 from braces.views import LoginRequiredMixin
 from django.urls import reverse_lazy
 from django.http import HttpResponse
@@ -71,6 +72,11 @@ class EntradaCreate(LoginRequiredMixin, CreateView):
 	form_class = FormularioEntrada
 	template_name = "kardex/entrada.html"
 	success_url = reverse_lazy('kardex_equipo')
+	
+	def get_context_data(self, **kwargs):
+		context = super(EntradaCreate, self).get_context_data(**kwargs)
+		context['formulario'] = FormularioEntradaInforme
+		return context
 
 	def form_valid(self, form):
 		self.object = form.save(commit = False)
@@ -80,6 +86,31 @@ class EntradaCreate(LoginRequiredMixin, CreateView):
 			self.object.save()
 			return super(EntradaCreate, self).form_valid(form)
 
+class InformeCompras(LoginRequiredMixin, ListView):
+	model= Entrada
+	template_name = "kardex/compra.html"
+
+	def get_context_data(self, **kwargs):
+		context = super(InformeCompras, self).get_context_data(**kwargs)
+		context['lista'] = Entrada.objects.filter(tipo_entrada__tipo_de_entrada = "Compra")
+		return context
+
+
+def get_informe_entradas(request, tipo, ini, out):
+	lista_entrada = Entrada.objects.filter(tipo_entrada__id = tipo, fecha__range=(ini, out))
+	lista_vacia = []
+	if tipo == "2":
+		for ingreso in lista_entrada:
+			lista_vacia.append({'id':ingreso.id, 'equipo':str(ingreso.equipo), 'fecha':str(ingreso.fecha), 'cantidad': ingreso.cantidad, 'precio':str(ingreso.precio), 'factura':str(ingreso.factura)})
+	else:
+		for ingreso in lista_entrada:
+			lista_vacia.append({'id':ingreso.id, 'equipo':str(ingreso.equipo), 'fecha':str(ingreso.fecha), 'cantidad': ingreso.cantidad})
+
+	return HttpResponse(
+			json.dumps({
+				"tablainf": lista_vacia,
+				})
+			)
 
 #Salida del equipo
 class SalidaCreate(LoginRequiredMixin, SalidaContextMixin, CreateView):
