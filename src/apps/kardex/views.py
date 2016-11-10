@@ -86,18 +86,11 @@ class EntradaCreate(LoginRequiredMixin, CreateView):
 			self.object.save()
 			return super(EntradaCreate, self).form_valid(form)
 
-class InformeCompras(LoginRequiredMixin, ListView):
-	model= Entrada
-	template_name = "kardex/compra.html"
-
-	def get_context_data(self, **kwargs):
-		context = super(InformeCompras, self).get_context_data(**kwargs)
-		context['lista'] = Entrada.objects.filter(tipo_entrada__tipo_de_entrada = "Compra")
-		return context
-
-
 def get_informe_entradas(request, tipo, ini, out):
-	lista_entrada = Entrada.objects.filter(tipo_entrada__id = tipo, fecha__range=(ini, out))
+	if tipo == "all":
+		lista_entrada = Entrada.objects.filter(fecha__range=(ini, out))
+	else:
+		lista_entrada = Entrada.objects.filter(tipo_entrada__id = tipo, fecha__range=(ini, out))	
 	lista_vacia = []
 	if tipo == "2":
 		for ingreso in lista_entrada:
@@ -118,6 +111,26 @@ class SalidaCreate(LoginRequiredMixin, SalidaContextMixin, CreateView):
 	form_class = FormularioSalida
 	template_name = "kardex/salida.html"
 	success_url = reverse_lazy('kardex_equipo')
+	def get_context_data(self, **kwargs):
+	    context = super(SalidaCreate, self).get_context_data(**kwargs)
+	    context['formulario'] = FormularioSalidaInforme
+	    return context
+
+def get_informe_salidas(request, tecnico, ini, out):
+	if tecnico == "all":
+		lista_entrada = SalidaEquipo.objects.filter(salida__fecha__range=(ini, out))
+	else:	
+		lista_entrada = SalidaEquipo.objects.filter(salida__tecnico__id = tecnico, salida__fecha__range=(ini, out))
+	
+	lista_vacia = []
+	for salida in lista_entrada:
+		lista_vacia.append({'id':salida.id, 'encabezado':str(salida.salida), 'equipo':str(salida.equipo), 'cantidad': salida.cantidad})
+	
+	return HttpResponse(
+			json.dumps({
+				"tablainf": lista_vacia, 
+				})
+			)
 
 	
 

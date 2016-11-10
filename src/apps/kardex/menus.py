@@ -15,11 +15,6 @@ kardex_children = (
         weight=20,
         icon='fa-arrow-up'),
     ViewMenuItem(
-        "Informe de Compras",
-        reverse_lazy("kardex_compras"),
-        weight = 30,
-        icon = 'fa-book'),
-    ViewMenuItem(
         "Salidas",
         reverse_lazy("kardex_salida"),
         weight=40,

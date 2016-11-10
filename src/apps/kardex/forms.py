@@ -66,6 +66,15 @@ class FormularioEntrada(forms.ModelForm):
 			raise forms.ValidationError("Este campo es requerido ")
 
 		return precio
+
+class FormularioSalidaInforme(forms.ModelForm):
+	class Meta:
+		model = Salida
+		fields = ['tecnico']
+		labels = {'tecnico': _('Técnico')}
+		widgets= {
+			'tecnico':forms.Select(attrs={'class':'select2 form-control'}),
+			}
 	
 
 
