@@ -1,33 +1,70 @@
 {% extends "base/base.html" %}
 {% load staticfiles%}
 {% block content %}
-	
+
 <section class="content-header">
 	<h1>Entrada del Kardex</h1>
 </section>
 
 <section class="content">
-	<div class="container">
-		<div class="row-main">
-			<div class="col-sm-2"></div>
-			<div class="col-sm-8">
-				<div class="box">
-					<table id="in-form" class="table table-hover">
+	<div class="container-fluid">
+		<div class="nav-tabs-custom">
+			<ul class="nav nav-tabs nav-justified">
+				<li class="active"><a href="#ingreso" data-toggle="tab"><i class="fa fa-sign-in"></i> Crear Ingreso</a></li>
+				<li><a href="#listado" data-toggle="tab"><i class="fa fa-list"></i> Listar Ingresos</a></li>
+			</ul>
+			<div class="tab-content">
+				<div class="tab-pane active" id="ingreso">
+					<table id="in-form" class="table table-hover table-bordered table-striped">
 						<form  method="POST" align="center" action="{{action}}" >
 							{% csrf_token %}
-						 	{{ form.as_table}}
-						 	<tr><td></td>
-						 	<td colspan="2">
-								<input type="submit" class="btn btn-primary" value="Guardar">
-						 	</td><td></td></tr>
+							{{ form.as_table}}
+							<tr>	
+								<td></td>
+								<td colspan="2">
+									<input type="submit" class="btn btn-primary" value="Guardar">
+								</td>
+								<td></td>
+							</tr>
 						</form>
 					</table>
 				</div>
+
+				<div class="tab-pane" id="listado">
+					<table class="table table-hover table-striped">
+						{% for field in formulario %}
+						<tr> 
+							<td>	
+								<strong> {{field.label}} </strong> 
+							</td>
+							<td id="tipo">
+								{{field}}
+							</td>
+						</tr>
+						{% endfor %}
+						<tr>
+							<td><strong>Fecha Inicio</strong></td>
+							<td>
+								<input type="text" placeholder="Fecha de inicio" id="ini" class="datepicker form-control">		
+							</td>
+						</tr>
+						<tr>
+							<td><strong>Fecha Fin</strong></td>
+							<td>
+								<input type="text" placeholder="Fecha final" id="out" class="datepicker form-control">
+							</td>
+						</tr>
+						<tr>
+							<td></td>
+							<td><a href="javascript:void(0)" onclick="get_informe_entradas()" class="btn btn-success">Generar informe</a></td>
+						</tr>
+					</table>
+					<div id="here"></div>
+
+				</div>
 			</div>
-			<div class="col-sm-2"></div>
 		</div>
 	</div>
-
 	<!--<div class="form-group has-error">
     	<label class="control-label" for="inputError"><i class="fa fa-times-circle-o"></i> Input with
         	error</label>
@@ -38,11 +75,13 @@
 
 </section>
 
-	
+
 
 {% endblock content %}
-	
-{% block extra_css %}
-	<link rel="stylesheet" type="text/css" href="{% static "css/kardex.css" %}">
-{% endblock extra_css %}
 
+{% block extra_css %}
+<link rel="stylesheet" type="text/css" href="{% static "css/kardex.css" %}">
+{% endblock extra_css %}
+{% block extra_js %}
+<script src="{% static "js/extrajs/kardex.js" %}"></script>
+{% endblock extra_js %}

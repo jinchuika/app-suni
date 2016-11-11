@@ -1,66 +1,100 @@
 {% extends "base/base.html" %}
 {% load staticfiles %}
 {% load widget_tweaks %}
+{% block page_title %}
+<title>Crear Salida</title>
+{% endblock page_title %}
 {% block content %}
 <section class="content-header">
 	<h1>Salida del Kardex</h1>
 </section>
 <section class="content">
 	
-	<div class="container">
-		<div class="row-main">
+	<div class="container-fluid">
+		<div class="nav-tabs-custom">
+			<ul class="nav nav-tabs nav-justified">
+				<li class="active"><a href="#egreso" data-toggle="tab"><i class="fa fa-sign-in"></i> Crear Salida</a></li>
+				<li><a href="#listado" data-toggle="tab"><i class="fa fa-list"></i> Listar Egresos</a></li>
+			</ul>
+			<div class="tab-content">
+				<div class="tab-pane active" id="egreso">
+					<div class="box">
 
-			<div class="box box-primary">
+						<form  method="POST" align="center" action="{{action}}" >
+							<table class="table table-hover table-bordered">
+								{% csrf_token %}
+								{% for field in form %}
+								<tr>
+									<td>
+										{{field.label}}
+									</td>
+									<td colspan="3">
+										{{field|add_class:"form-control"}}
+									</td>
+								</tr>
+								{% endfor %}
 
-				<form  method="POST" align="center" action="{{action}}" >
-					<table class="table table-hover table-bordered">
-						{% csrf_token %}
-						{% for field in form %}
+								<tbody id="salida_table">
+									{% for form_salida in named_formsets.salida.forms %}
+									<tr id="{{form_salida.prefix}}-row" class="form-container-salida">
+										<td>Producto</td>
+										{{ form_salida.id}}
+										<td>
+											<label class="pull-left">Equipo</label>
+											{{form_salida.equipo|add_class:"form-control"}}
+										</td>
+										<td>
+											<label class="pull-left">Cantidad</label>
+											{{form_salida.cantidad|add_class:"form-control"}}
+										</td>
+										<td>
+
+											{% if form_salida.instance.pk %}{{ form_salida.DELETE }}{% endif %}
+										</td>
+									</tr>
+									{% endfor %}
+								</tbody>
+
+
+
+
+
+
+								<tr><td></td><td>
+									<input type="submit" class="btn btn-primary" value="Guardar">
+								</td></tr>
+							</table>
+							{{ named_formsets.salida.management_form }}
+						</form>
+					</div>
+				</div>
+				<div class="tab-pane" id="listado">
+					<table class="table">
+						{% for field in formulario %}
 						<tr>
-							<td>
-								{{field.label}}
-							</td>
-							<td colspan="3">
-								{{field|add_class:"form-control"}}
-							</td>
+							<td><strong>{{field.label}}</strong></td>
+							<td id="tecnico"> {{field}} </td>
 						</tr>
 						{% endfor %}
-
-						<tbody id="salida_table">
-							{% for form_salida in named_formsets.salida.forms %}
-							<tr id="{{form_salida.prefix}}-row" class="form-container-salida">
-								<td>Producto</td>
-								{{ form_salida.id}}
-								<td>
-									<label class="pull-left">Equipo</label>
-									{{form_salida.equipo|add_class:"form-control"}}
-								</td>
-								<td>
-									<label class="pull-left">Cantidad</label>
-									{{form_salida.cantidad|add_class:"form-control"}}
-								</td>
-								<td>
-
-									{% if form_salida.instance.pk %}{{ form_salida.DELETE }}{% endif %}
-								</td>
-							</tr>
-							{% endfor %}
-						</tbody>
-
-
-
-
-
-
-						<tr><td></td><td>
-							<input type="submit" class="btn btn-primary" value="Guardar">
-						</td></tr>
+						<tr>
+							<td><strong>Fecha de Inicio</strong></td>
+							<td> <input type="text" placeholder="Fecha de Inicio" class="datepicker form-control" id="ini"> </td>
+						</tr>
+						<tr>
+							<td><strong>Fecha Final</strong></td>
+							<td> <input type="text" placeholder="Fecha Final" class="datepicker form-control" id="out"> </td>
+						</tr>
+						<tr>
+							<td></td>
+							<td><a class="btn btn-primary" href="javascript:void(0)" onclick="get_salidas()">Crear Informe</a></td>
+						</tr>
 					</table>
-					{{ named_formsets.salida.management_form }}
-				</form>
+					<div id="informe"></div>
+
+				</div>
 			</div>
-			
 		</div>
+
 	</div>
 </section>
 {% endblock content %}
@@ -69,6 +103,7 @@
 {% endblock extra_css %}
 
 {% block extra_js %}
+<script src="{% static "js/extrajs/kardex.js" %}"></script>
 <script src="{% static "js/jquery.formset.js" %}"></script>
 <script type="text/javascript">
 	$(function() {

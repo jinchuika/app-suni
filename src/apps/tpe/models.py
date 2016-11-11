@@ -19,6 +19,7 @@ class Equipamiento(models.Model):
     fecha = models.DateField(default=timezone.now)
     observacion = models.TextField(null=True, blank=True)
     renovacion = models.BooleanField(blank=True, default=False)
+    servidor_khan = models.BooleanField(blank=True, default=False)
 
     cooperante = models.ManyToManyField('mye.Cooperante', blank=True)
     proyecto = models.ManyToManyField('mye.Proyecto', blank=True)

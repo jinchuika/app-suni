@@ -97,3 +97,6 @@ media/
 .ropeproject
 src/db.sqlite3
 nohup.out
+src/apps/*/script.py
+src/esc_contacto.json
+src/entregas.json

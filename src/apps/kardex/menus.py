@@ -17,12 +17,12 @@ kardex_children = (
     ViewMenuItem(
         "Salidas",
         reverse_lazy("kardex_salida"),
-        weight=30,
+        weight=40,
         icon="fa-arrow-down"),
     ViewMenuItem(
         "Proveedores",
         reverse_lazy("kardex_proveedor"),
-        weight=40,
+        weight=50,
         icon="fa-truck"),)
 
 Menu.add_item(

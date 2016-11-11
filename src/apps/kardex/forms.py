@@ -17,6 +17,14 @@ class FormularioEquipo(ModelForm):
 			'nombre_equipo' : _('Nombre del Equipo'),
 		}
 
+class FormularioEntradaInforme(forms.ModelForm):
+	class Meta:
+		model = Entrada
+		fields = ['tipo_entrada']
+		labels = {'tipo_entrada': _('Tipo de Entrada')}
+		widgets= {
+			'tipo_entrada':forms.Select(attrs={'class':' form-control'}),
+			}
 
 class FormularioEntrada(forms.ModelForm):	
 	class Meta:
@@ -58,6 +66,15 @@ class FormularioEntrada(forms.ModelForm):
 			raise forms.ValidationError("Este campo es requerido ")
 
 		return precio
+
+class FormularioSalidaInforme(forms.ModelForm):
+	class Meta:
+		model = Salida
+		fields = ['tecnico']
+		labels = {'tecnico': _('Técnico')}
+		widgets= {
+			'tecnico':forms.Select(attrs={'class':'select2 form-control'}),
+			}
 	
 
 
