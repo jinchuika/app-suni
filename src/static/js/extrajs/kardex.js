@@ -43,13 +43,14 @@ function salida(id_equipo, equipo){
       var texto = "<table class='table table-datatables'>";
       texto += "<thead>";
       texto += "<tr>";
-      texto += "<th>id de la salida</th>";
-      texto += "<th>Encabezado</th>";
+      texto += "<th>No. de salida</th>";
+      texto += "<th>Técnico</th>";
+      texto += "<th>Fecha</th>";
       texto += "<th>Cantidad Egresados</th>";
       texto += "</tr>";
       texto += "</thead>";
       $.each(respuesta.tablainf, function(index, item){
-        texto += "<tr><td>" + item.id + "</td><td>"+ item.salida + "</td><td>" + item.cantidad + "</td></tr>";
+        texto += "<tr><td>" + item.id + "</td><td>"+ item.tecnico + "</td><td>" +item.fecha + "</td><td>" + item.cantidad + "</td></tr>";
 
       })
 
@@ -67,9 +68,42 @@ function salida(id_equipo, equipo){
 
 //para informe
 function informe(){
- var ini = $('#ini').val();
- var out = $('#out').val();
- $(location).attr('href', 'informe/'+ini+"/"+out+"/");
+  var ini = $('#ini').val();
+  var out = $('#out').val();
+  if (ini == "" || out == "") {
+    ini = "all";
+    out = "all";
+  };
+  $.ajax({
+    url: "informe/"+ ini + "/" + out + "/",
+    dataType: "json",
+    success: function(respuesta){
+      var texto = "";
+      if (respuesta.properties.length == 0){
+        texto += "<div class='box box-danger'><div class='box-body'>";
+        texto += "<h4 align='center'>No se encontraron resultados</h4></div></div>";
+      } else{
+        texto += "<div class='box box-success'><table class='table table-hover table-striped table-bordered'>";
+        texto += "<thead>";
+        texto += "<tr>";
+        texto += "<th>Nombre</th>";
+        texto += "<th>No. Entradas</th>";
+        texto += "<th>No. Salidas</th>";
+        texto += "<th>Cant. Ingresada</th>";
+        texto += "<th>Cant. Egresadas</th>";
+        texto += "<th>Diferencia</th>";
+        texto += "<th>Existencia actual</th>";
+        texto += "</tr>";
+        texto += "</thead>";
+        $.each(respuesta.properties, function(index, item){
+          texto += "<tr><td>"+item.nombre+"</td><td>"+item.cantidad_ingresos+"</td><td>"+item.cantidad_egresos+"</td><td>";
+          texto += item.ingreso+"</td><td>"+item.egreso+"</td><td>"+item.diferencia+"</td><td>"+item.existencia_actual+"</td></tr>";
+        })
+        texto += "</table></div>"
+      };
+      document.getElementById('info').innerHTML = texto;
+    }
+  });
 }
 
 
@@ -78,22 +112,28 @@ function get_informe_entradas(){
   var ini = $('#ini').val();
   var out = $('#out').val();
   var tipo = $('#tipo select').val();
-  if (tipo < 1) {
+  
+  if (tipo < 1 ) {
     tipo = "all";
   };
+  if (ini == "" || out == "") {
+    ini = "all";
+    out = "all";
+  };
   $.ajax({
-    url: tipo+"/"+ini+'/'+out+"/",
+    url: tipo+"/"+ini+"/"+out+"/",
     dataType: "json",
     success: function(respuesta){
       var texto = "";
       if (respuesta.tablainf.length == 0 ) {
-        texto += "<div class='box box-danger'><dib class='box-body'>";
+        texto += "<div class='box box-danger'><div class='box-body'>";
         texto += "<h4 align='center'> No se encontraron resultados </h4></div></div>";
       } else{
         texto = "<div class='box box-success'><table class='table table-hover table-striped'>";
         texto += "<thead>";
         texto += "<tr>";
         texto += "<th>No. Entrada</th>";
+        texto += "<th>Tipo</th>"
         texto += "<th>Equipo</th>";
         texto += "<th>Fecha</th>";
         texto += "<th>Cantidad</th>";
@@ -105,19 +145,17 @@ function get_informe_entradas(){
         texto += "</thead>";
         if (tipo == 2) {
           $.each(respuesta.tablainf, function(index, itemm){
-            texto += "<tr><td>" + itemm.id + "</td><td>"+ itemm.equipo + "</td><td>" + itemm.fecha +"</td><td>" + itemm.cantidad + "</td><td>" + itemm.precio +"</td><td>" + itemm.factura+"</td></tr>";
+            texto += "<tr><td>" + itemm.id + "</td><td>" + itemm.tipo + "</td><td>"+ itemm.equipo + "</td><td>" + itemm.fecha +"</td><td>" + itemm.cantidad + "</td><td>Q " + itemm.precio +"</td><td>" + itemm.factura+"</td></tr>";
           })
         } else{
           $.each(respuesta.tablainf, function(index, item){
-            texto += "<tr><td>" + item.id + "</td><td>"+ item.equipo + "</td><td>" + item.fecha +"</td><td>" + item.cantidad +"</td></tr>";
+            texto += "<tr><td>" + item.id + "</td><td>"+ item.tipo +"</td><td>"+ item.equipo + "</td><td>" + item.fecha +"</td><td>" + item.cantidad +"</td></tr>";
           })
           texto += "</table></div>";
         };
         
       };
       document.getElementById('here').innerHTML = texto;
-      
-
     }
   });
 }
@@ -142,13 +180,14 @@ function get_salidas(){
         texto += "<thead>";
         texto += "<tr>";
         texto += "<th>No. Salida</th>";
-        texto += "<th>Encabezado</th>";
+        texto += "<th>Técnico</th>";
+        texto += "<th>Fecha</th>";
         texto += "<th>Equipo</th>";
         texto += "<th>Cantidad</th>";
         texto += "</tr>";
         texto += "</thead>";
         $.each(respuesta.tablainf, function(index, item){
-          texto += "<tr><td>" + item.id + "</td><td>"+ item.encabezado + "</td><td>" + item.equipo +"</td><td>" + item.cantidad +"</td></tr>";
+          texto += "<tr><td>" + item.id + "</td><td>"+ item.tecnico + "</td><td>"+ item.fecha + "</td><td>" + item.equipo +"</td><td>" + item.cantidad +"</td></tr>";
         })
         texto += "</table></div>";
       };
