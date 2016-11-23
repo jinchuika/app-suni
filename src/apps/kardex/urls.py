@@ -9,6 +9,6 @@ urlpatterns = [
 	url(r'^out/$', SalidaCreate.as_view(), name='kardex_salida'),
 	url(r'^out/(?P<tecnico>[\w-]+)/(?P<ini>[\w-]+)/(?P<out>[\w-]+)/$', get_informe_salidas, name='kardex_salida_informe'),
 	url(r'^in/$', EntradaCreate.as_view(), name='kardex_entrada'),
-	url(r'^in/(?P<tipo>[\w-]+)/(?P<ini>[\w-]+)/(?P<out>[\w-]+)/$', get_informe_entradas, name='kardex_entrada_informe'),
+	url(r'^in/(?P<proveedor>[\w-]+)/(?P<tipo>[\w-]+)/(?P<ini>[\w-]+)/(?P<out>[\w-]+)/$', get_informe_entradas, name='kardex_entrada_informe'),
 	url(r'^proveedor/', ProveedorCreate.as_view(), name='kardex_proveedor')
 ]

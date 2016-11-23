@@ -70,8 +70,10 @@ function salida(id_equipo, equipo){
 function informe(){
   var ini = $('#ini').val();
   var out = $('#out').val();
-  if (ini == "" || out == "") {
+  if (ini == "") {
     ini = "all";
+  };
+  if (out == "") {
     out = "all";
   };
   $.ajax({
@@ -111,17 +113,22 @@ function informe(){
 function get_informe_entradas(){
   var ini = $('#ini').val();
   var out = $('#out').val();
-  var tipo = $('#tipo select').val();
-  
+  var proveedor = $('#field #id_proveedor').val();
+  var tipo = $('#field #id_tipo_entrada').val();
+  if (proveedor < 1) {
+    proveedor = "all";
+  };
   if (tipo < 1 ) {
     tipo = "all";
   };
-  if (ini == "" || out == "") {
+  if (ini == "") {
     ini = "all";
+  };
+  if (out == "") {
     out = "all";
   };
   $.ajax({
-    url: tipo+"/"+ini+"/"+out+"/",
+    url: proveedor+"/"+tipo+"/"+ini+"/"+out+"/",
     dataType: "json",
     success: function(respuesta){
       var texto = "";
@@ -134,6 +141,7 @@ function get_informe_entradas(){
         texto += "<tr>";
         texto += "<th>No. Entrada</th>";
         texto += "<th>Tipo</th>"
+        texto += "<th>Proveedor</th>"
         texto += "<th>Equipo</th>";
         texto += "<th>Fecha</th>";
         texto += "<th>Cantidad</th>";
@@ -145,15 +153,14 @@ function get_informe_entradas(){
         texto += "</thead>";
         if (tipo == 2) {
           $.each(respuesta.tablainf, function(index, itemm){
-            texto += "<tr><td>" + itemm.id + "</td><td>" + itemm.tipo + "</td><td>"+ itemm.equipo + "</td><td>" + itemm.fecha +"</td><td>" + itemm.cantidad + "</td><td>Q " + itemm.precio +"</td><td>" + itemm.factura+"</td></tr>";
+            texto += "<tr><td>" + itemm.id + "</td><td>" + itemm.tipo + "</td><td>"+ itemm.prov +"</td><td>"+ itemm.equipo + "</td><td>" + itemm.fecha +"</td><td>" + itemm.cantidad + "</td><td>Q " + itemm.precio +"</td><td>" + itemm.factura+"</td></tr>";
           })
         } else{
           $.each(respuesta.tablainf, function(index, item){
-            texto += "<tr><td>" + item.id + "</td><td>"+ item.tipo +"</td><td>"+ item.equipo + "</td><td>" + item.fecha +"</td><td>" + item.cantidad +"</td></tr>";
+            texto += "<tr><td>" + item.id + "</td><td>"+ item.tipo +"</td><td>"+ item.prov +"</td><td>"+ item.equipo + "</td><td>" + item.fecha +"</td><td>" + item.cantidad +"</td></tr>";
           })
           texto += "</table></div>";
         };
-        
       };
       document.getElementById('here').innerHTML = texto;
     }
@@ -167,6 +174,12 @@ function get_salidas(){
   var tecnico = $('#tecnico select').val();
   if (tecnico < 1) {
     tecnico = "all"
+  };
+  if (ini == "") {
+    ini = "all";
+  };
+  if (out =="") {
+    out = "all";
   };
   $.ajax({
     url: tecnico+"/"+ini+'/'+out+"/",

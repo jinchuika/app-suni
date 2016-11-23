@@ -20,7 +20,7 @@ class FormularioEquipo(ModelForm):
 class FormularioEntradaInforme(forms.ModelForm):
 	class Meta:
 		model = Entrada
-		fields = ['tipo_entrada']
+		fields = ['tipo_entrada', 'proveedor']
 		labels = {'tipo_entrada': _('Tipo de Entrada')}
 		widgets= {
 			'tipo_entrada':forms.Select(attrs={'class':' form-control'}),
