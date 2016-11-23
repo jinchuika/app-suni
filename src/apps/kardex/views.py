@@ -23,8 +23,9 @@ class Equipolog(LoginRequiredMixin, CreateView):
 	    return context
 	    
 def informe_general(request, ini, out):
-	if ini == "all" or out =="all":
-		ini = "2014-01-01"
+	if ini == "all":
+		ini = "2000-01-01"
+	if out == "all":
 		out = date.today()
 	equipo_list = Equipo.objects.all()
 	lista_vacia = []
@@ -88,24 +89,37 @@ class EntradaCreate(LoginRequiredMixin, CreateView):
 			self.object.save()
 			return super(EntradaCreate, self).form_valid(form)
 
-def get_informe_entradas(request, tipo, ini, out):
-	if ini == "all" and out == "all" and tipo == "all":
-		lista_entrada = Entrada.objects.filter()
+def get_informe_entradas(request, proveedor, tipo, ini, out):
+	#este se quedó
+	if ini == "all":
+		inicio = "2000-01-01"
+	else:
+		inicio = ini
+	
+	if out == "all":
+		fin = date.today()	
+	else:
+		fin = out	
+
+	if tipo == "all" and proveedor == "all" :
+		lista_entrada = Entrada.objects.filter(fecha__range=(inicio, fin))
 	else:
 		if tipo == "all":
-			lista_entrada = Entrada.objects.filter(fecha__range=(ini, out))
+			if proveedor != "all":
+				lista_entrada = Entrada.objects.filter(fecha__range=(inicio, fin), proveedor__id = proveedor)
 		else:
-			if ini == "all" and out == "all":
-				lista_entrada = Entrada.objects.filter(tipo_entrada__id = tipo)	
+			if proveedor != "all":
+				lista_entrada = Entrada.objects.filter(fecha__range=(inicio, fin), proveedor__id=proveedor, tipo_entrada__id=tipo)
 			else:
-				lista_entrada = Entrada.objects.filter(tipo_entrada__id = tipo, fecha__range=(ini, out))	
+				lista_entrada = Entrada.objects.filter(fecha__range=(inicio, fin), tipo_entrada__id=tipo)
+
 	lista_vacia = []
 	if tipo == "2":
 		for ingreso in lista_entrada:
-			lista_vacia.append({'id':ingreso.id, 'equipo':str(ingreso.equipo), 'tipo':str(ingreso.tipo_entrada), 'fecha':str(ingreso.fecha), 'cantidad': ingreso.cantidad, 'precio':str(ingreso.precio), 'factura':str(ingreso.factura)})
+			lista_vacia.append({'id':ingreso.id, 'equipo':str(ingreso.equipo), 'tipo':str(ingreso.tipo_entrada), 'prov': str(ingreso.proveedor), 'fecha':str(ingreso.fecha), 'cantidad': ingreso.cantidad, 'precio':str(ingreso.precio), 'factura':str(ingreso.factura)})
 	else:
 		for ingreso in lista_entrada:
-			lista_vacia.append({'id':ingreso.id, 'equipo':str(ingreso.equipo), 'tipo':str(ingreso.tipo_entrada), 'fecha':str(ingreso.fecha), 'cantidad': ingreso.cantidad})
+			lista_vacia.append({'id':ingreso.id, 'equipo':str(ingreso.equipo), 'tipo':str(ingreso.tipo_entrada), 'prov': str(ingreso.proveedor), 'fecha':str(ingreso.fecha), 'cantidad': ingreso.cantidad})
 
 	return HttpResponse(
 			json.dumps({
@@ -125,10 +139,19 @@ class SalidaCreate(LoginRequiredMixin, SalidaContextMixin, CreateView):
 	    return context
 
 def get_informe_salidas(request, tecnico, ini, out):
+	if ini == "all":
+		inicio = "2000-01-01"
+	else:
+		inicio = ini
+	if out == "all":
+		fin = date.today()
+	else:
+		fin = out
+
 	if tecnico == "all":
-		lista_entrada = SalidaEquipo.objects.filter(salida__fecha__range=(ini, out))
-	else:	
-		lista_entrada = SalidaEquipo.objects.filter(salida__tecnico__id = tecnico, salida__fecha__range=(ini, out))
+		lista_entrada = SalidaEquipo.objects.filter( salida__fecha__range=(inicio, fin))
+	else:
+		lista_entrada = SalidaEquipo.objects.filter(salida__tecnico__id=tecnico, salida__fecha__range=(inicio, fin))
 	
 	lista_vacia = []
 	for salida in lista_entrada:
@@ -148,3 +171,7 @@ class ProveedorCreate(LoginRequiredMixin, CreateView):
 	form_class = FormularioProveedor
 	template_name = "kardex/proveedor.html"
 	success_url = reverse_lazy('kardex_proveedor')
+	def get_context_data(self, **kwargs):
+	    context = super(ProveedorCreate, self).get_context_data(**kwargs)
+	    context['lista'] = Proveedor.objects.all()
+	    return context

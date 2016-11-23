@@ -44,6 +44,7 @@
 					</div>
 				</div>
 			</div>
+			<!--lista de proveedores-->
 			<div class="tab-pane" id="listado">
 				<div class="box box-info">
 					<div class="box-header">
@@ -63,13 +64,13 @@
 								</thead>
 								<tbody>
 									{% for att in lista %}
-										<tr>
-											<td> {{att.id}} </td>
-											<td> {{att.nombre}} </td>
-											<td> {{att.tipo_de_proveedor}} </td>
-											<td> {{att.direccion}} </td>
-											<td> {{att.telefono}} </td>
-										</tr>
+									<tr>
+										<td> {{att.id}} </td>
+										<td> {{att.nombre}} </td>
+										<td> {{att.tipo_de_proveedor}} </td>
+										<td> {{att.direccion}} </td>
+										<td> {{att.telefono}} </td>
+									</tr>
 									{% endfor %}
 								</tbody>
 								<tfoot>
@@ -90,5 +91,4 @@
 		</div>
 	</div>
 </section>
-
 {% endblock content %}
