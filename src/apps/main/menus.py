@@ -8,15 +8,21 @@ class ViewMenuItem(MenuItem):
         if 'perm' in kwargs:
             self.perm = kwargs.pop('perm')
 
-            def check(self, request):
-                """Revisa los permisos"""
-                is_visible = True
-                if hasattr(self, 'perm'):
-                    if request.user.has_perm(self.perm):
-                        is_visible = True
-                    else:
-                        is_visible = False
-                        self.visible = is_visible
+    def check(self, request):
+        """ Revisa los permisos """
+        if hasattr(self, 'perm'):
+            if request.user.has_perm(self.perm):
+                self.visible = True
+                return True
+            else:
+                self.visible = False
+        """ Revisa por grupo """
+        if hasattr(self, 'group'):
+            if request.user.has_perm(self.perm):
+                self.visible = True
+                return True
+            else:
+                self.visible = False
 
 
 # Administración
@@ -25,7 +31,8 @@ admin_children = (
         "Lista de perfiles",
         reverse_lazy("perfil_list"),
         weight=10,
-        icon="fa-users"),)
+        icon="fa-users",
+        perm='users.add_user'),)
 
 Menu.add_item(
     "user",
@@ -34,4 +41,5 @@ Menu.add_item(
         reverse_lazy("perfil_list"),
         weight=10,
         icon="fa-key",
-        children=admin_children))
+        children=admin_children,
+        perm='users.add_user'))

@@ -16,8 +16,8 @@ class Perfil(models.Model):
         ('M', 'Masculino'),
         ('F', 'Femenino'),)
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    dpi = models.CharField(max_length=20, unique=True)
-    public = models.BooleanField(default=True)
+    dpi = models.CharField(max_length=20, unique=True, null=True)
+    public = models.BooleanField(default=True, blank=True)
     genero = models.CharField(max_length=1, choices=GENERO_CHOICES, default='M')
     fecha_nacimiento = models.DateField(null=True, blank=True)
     direccion = models.CharField(max_length=150, null=True, blank=True)

@@ -6,14 +6,11 @@
 </a>
 <!-- Header Navbar -->
 <nav class="navbar navbar-static-top" role="navigation">
-	<!-- Sidebar toggle button-->
 	<a href="#" class="sidebar-toggle" data-toggle="offcanvas" role="button">
 	<span class="sr-only">Cambiar navegación</span>
 	</a>
-	<!-- Navbar Right Menu -->
 	<div class="navbar-custom-menu">
 		<ul class="nav navbar-nav">
-			<!-- Perfil Menu -->
 			<li class="dropdown user user-menu">
 				<a href="#" class="dropdown-toggle" data-toggle="dropdown">
 					<img src="{{ user.perfil.foto|thumbnail_url:'avatar' }}" class="user-image" alt="Imagen de perfil">
@@ -28,7 +25,7 @@
 					</li>
 					<li class="user-footer">
 						<div class="pull-left">
-							<a href="{% url "profile" %}" class="btn btn-default btn-flat">Perfil</a>
+							<a href="{{user.perfil.get_absolute_url}}" class="btn btn-default btn-flat">Perfil</a>
 						</div>
 						<div class="pull-right">
 							<a href="{% url "account_logout" %}" class="btn btn-default btn-flat">Cerrar sesión</a>
