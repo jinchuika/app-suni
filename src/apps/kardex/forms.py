@@ -4,7 +4,7 @@ from django.forms.models import inlineformset_factory, BaseInlineFormSet
 from .models import *
 from apps.kardex.models import *
 from django.utils.translation import ugettext_lazy as _
-
+from datetime import date
 
 #class EquipoForm(forms.Form):
 #	equipo = forms.CharField(max_length=100)
@@ -20,7 +20,7 @@ class FormularioEquipo(ModelForm):
 class FormularioEntradaInforme(forms.ModelForm):
 	class Meta:
 		model = Entrada
-		fields = ['tipo_entrada']
+		fields = ['tipo_entrada', 'proveedor']
 		labels = {'tipo_entrada': _('Tipo de Entrada')}
 		widgets= {
 			'tipo_entrada':forms.Select(attrs={'class':' form-control'}),
@@ -50,18 +50,23 @@ class FormularioEntrada(forms.ModelForm):
 		'precio': forms.NumberInput(attrs={'class':' form-control', 'placeholder' : 'Precio'}),
 		'factura': forms.NumberInput(attrs={'class':' form-control', 'placeholder' : 'Factura'}),
 		}
-
+	def clean_fecha(self):
+		fecha = self.cleaned_data.get('fecha')
+		if fecha > date.today():
+			raise forms.ValidationError("Este campo tiene que ser menor o igual a la fecha actual (" + str(date.today()) + ")")
+		return fecha
+		
 	def clean_cantidad(self):
 		cantidad = self.cleaned_data.get('cantidad')
 		if cantidad <= 0:
-			raise forms.ValidationError("Este campo tiene que ser mayor a 0")
+			raise forms.ValidationError("Este campo debe ser mayor a 0")
 		return cantidad	
 
 	def clean_precio(self):
 		precio = self.cleaned_data.get('precio')
+		tipo = self.cleaned_data.get('tipo_entrada')
 		if precio is not None and precio <= 0:
-			raise forms.ValidationError("Este campo tiene que ser mayor a 0")
-		tipo= self.cleaned_data.get('tipo_entrada')
+			raise forms.ValidationError("Este campo debe ser mayor a 0")
 		if tipo == "Compra" and precio <=0 :
 			raise forms.ValidationError("Este campo es requerido ")
 
@@ -96,8 +101,12 @@ class FormularioSalida(forms.ModelForm):
             'cantidad': _('Cantidad egresado'),
             'fecha': _('Fecha de salida'),
             'observacion': _('Observación de la salida'),
-
         }
+	def clean_fecha(self):
+		fecha = self.cleaned_data.get('fecha')
+		if fecha > date.today():
+			raise forms.ValidationError("Este campo debe ser menor o igual a la fecha actual (" + str(date.today()) + ")")
+		return fecha
 
 	
 

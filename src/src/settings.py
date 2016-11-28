@@ -53,7 +53,7 @@ INSTALLED_APPS = [
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
-    'invitations',
+    'allauth.socialaccount.providers.facebook',
 
     'apps.users',
     'apps.main',
@@ -183,7 +183,7 @@ LOGIN_REDIRECT_URL = '/users/profile/'
 # account settings
 ACCOUNT_EMAIL_REQUIRED = True
 SOCIALACCOUNT_AUTO_SIGNUP = False
-ACCOUNT_ADAPTER = 'invitations.models.InvitationsAdapter'
+ACCOUNT_ADAPTER = 'allauth.account.adapter.DefaultAccountAdapter'
 ACCOUNT_SIGNUP_FORM_CLASS = 'apps.users.forms.CustomSignupForm'
 ACCOUNT_SIGNUP_PASSWORD_VERIFICATION = False
 
@@ -213,3 +213,11 @@ DYNAMIC_PREFERENCES = {
     # Use this to disable checking preferences names. This can be useful to debug things
     'VALIDATE_NAMES': True,
 }
+
+EMAIL_HOST = "smtp.gmail.com"
+EMAIL_PORT = 587
+EMAIL_HOST_USER = "lcontreras@funsepa.org"
+EMAIL_HOST_PASSWORD = "Funsepa253"
+EMAIL_USE_TLS = True
+EMAIL_FROM = "lcontreras@funsepa.org"
+EMAIL_REPLY_TO = EMAIL_FROM

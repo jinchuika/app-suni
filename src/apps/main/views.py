@@ -1,5 +1,6 @@
-from django.shortcuts import render
-from django.http import HttpResponse
+from django.views.generic import TemplateView
+from braces.views import LoginRequiredMixin
 
-def index(request):
-	return HttpResponse('hola')
+
+class IndexView(LoginRequiredMixin, TemplateView):
+    template_name = 'base/base.html'

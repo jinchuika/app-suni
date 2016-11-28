@@ -16,6 +16,5 @@ urlpatterns = [
     url(r'^contactos/', include('apps.fr.urls')),
     url(r'^kardex/', include('apps.kardex.urls')),
     url(r'^tpe/', include('apps.tpe.urls')),
-    url(r'^invitations/', include('invitations.urls', namespace='invitations')),
     url(r'^$', include('apps.main.urls')),
 ]

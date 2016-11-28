@@ -1,10 +1,10 @@
 {% extends "base/base.html" %}
 {% load staticfiles%}
 {% load widget_tweaks %}
+{% block page_title %}
+<title>Equipo</title>
+{% endblock page_title %}
 {% block content %}
-
-
-
 <section class="content-header">
 	<h1>Equipo</h1>
 </section>
@@ -19,6 +19,7 @@
 					<ul class="nav nav-tabs nav-justified">
 						<li class="active"><a href="#listar" data-toggle="tab"><i class="fa fa-list-ul"></i> Lista del Equipo</a></li>
 						<li><a href="#ingresar" data-toggle="tab"><i class="fa fa-sign-in"></i> Ingresar Equipo</a></li>
+						<li><a href="#informe" data-toggle="tab"><i class="fa fa-book"></i> Crear Informe</a></li>
 					</ul>
 					<!--/barra navegacion-->
 					<div class="tab-content">
@@ -94,38 +95,35 @@
 								<div class="col-md-3"></div>
 							</div>
 						</div>	
+						<div class="tab-pane" id="informe">
+							<div class="box box-info">
+								<div class="box-header">
+									<div class="box-title">Informe General</div>
+								</div>
+								<div class="box-body">	
+									<table class="table table-hover table-striped table-bordered table-responsive" style="margin-top: 20px;" >
+										<tr>
+											<td>
+												<input type="text" class="form-control datepicker" id="ini" placeholder="Fecha de inicio">
+											</td>
+										</tr>
+										<tr>
+											<td>
+												<input type="text" class="form-control datepicker" id="out" placeholder="Fecha final" >
+											</td>
+										</tr>
+										<tr>
+											<td><a href="javascript:void(0)" onclick="informe()" class="btn bg-purple">Crear Informe</a></td>
+										</tr>
+									</table>
+								</div>
+								<div id="info"></div>
+							</div>			
+						</div>
 					</div>
 				</div>
 			</div>
 			<div class="col-md-1"></div>
-		</div>
-
-		<!--other form-->
-		<div class="row">
-			<div class="col-md-2"></div>
-			<div class="col-md-8">
-				<table class="table table-hover table-striped table-bordered table-responsive" style="margin-top: 20px;" >
-					<h3>Generar informe</h3>
-					<tr>
-						<td>
-							<input type="text" class="form-control datepicker" id="ini" placeholder="Fecha de inicio">
-						</td>
-					</tr>
-					<tr>
-						<td>
-							<input type="text" class="form-control datepicker" id="out" placeholder="Fecha final" >
-						</td>
-					</tr>
-					<tr>
-						<td><a href="javascript:void(0)" onclick="informe()" class="btn btn-primary">enviar formulario</a></td>
-					</tr>
-
-				</table>
-				
-				
-			</div>
-
-			<div class="col-md-2"></div>
 		</div>
 	</div>
 
