@@ -32,4 +32,4 @@ class PerfilPreferenciasUpdate(UserPreferenceFormView):
     success_url = reverse_lazy('profile')
 
     def get(self, request, *args, **kwargs):
-        return redirect('profile')
+        return redirect('perfil_detail')

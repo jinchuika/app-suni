@@ -1,4 +1,3 @@
-from django.db.models import Q
 from django.shortcuts import get_object_or_404, reverse
 from django.views.generic import DetailView
 from django.views.generic.edit import CreateView, UpdateView, FormView
@@ -10,7 +9,7 @@ from apps.tpe.forms import EquipamientoForm, EquipamientoNuevoForm
 from apps.tpe.models import Equipamiento
 from apps.mye.models import EscuelaCooperante, EscuelaProyecto, Solicitud
 from apps.main.models import Municipio
-from braces.views import LoginRequiredMixin, GroupRequiredMixin, PermissionRequiredMixin
+from braces.views import LoginRequiredMixin, PermissionRequiredMixin
 from dal import autocomplete
 
 

@@ -11,8 +11,14 @@ class ContactoContextMixin(ContextMixin):
 
     def get_named_formsets(self):
         return {
-            'telefono': ContactoTelefonoFormSet(self.request.POST or None, prefix='telefono', instance=self.object),
-            'mail': ContactoMailFormSet(self.request.POST or None, prefix='mail', instance=self.object),
+            'telefono': ContactoTelefonoFormSet(
+                self.request.POST or None,
+                prefix='telefono',
+                instance=self.object),
+            'mail': ContactoMailFormSet(
+                self.request.POST or None,
+                prefix='mail',
+                instance=self.object),
         }
 
     def form_valid(self, form):
@@ -23,11 +29,8 @@ class ContactoContextMixin(ContextMixin):
             self.object = form.save()
 
         for name, formset in named_formsets.items():
-            formset_save_func = getattr(self, 'formset_{0}_valid'.format(name), None)
-            if formset_save_func is not None:
-                formset_save_func(formset)
-            else:
-                formset.save()
+            formset.save()
+
         return redirect(self.get_success_url())
 
     def formset_telefono_valid(self, formset):

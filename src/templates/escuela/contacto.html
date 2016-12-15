@@ -17,37 +17,41 @@
 <section class="content">
 	<div class="row-fluid">
 		<div class="col-md-12">
-		<form action="{{ action }}" class="box" method="post">
+			<form action="{{ action }}" class="box" method="post">
 				<table class="table table-striped">
 					{% csrf_token %}
 					{{ form.as_table }}
 					<tbody id="telefono_table">
 						{% for form_telefono in named_formsets.telefono.forms %}
-						<tr id="{{form_telefono.prefix}}-row" class="form-container-telefono">
-							<td>Teléfono</td>
-							{{ form_telefono.id }}
+						<tr>
+							<th>Teléfono</th>
+								{{form_telefono.id}}
+							<td>{{form_telefono.telefono}}</td>
 							<td>
-								{% if form_telefono.instance.pk %}{{ form_telefono.DELETE }}{% endif %}
-								{{form_telefono.telefono}}
+								{% if form_telefono.instance.pk %}
+								{{ form_telefono.DELETE }}
+								{% endif %}
 							</td>
 						</tr>
 						{% endfor %}
 					</tbody>
 					<tbody id="mail_table">
 						{% for form_mail in named_formsets.mail.forms %}
-						<tr id="{{form_mail.prefix}}-row" class="form-container-mail">
-							<td>Correo electrónico</td>
-							{{ form_mail.id }}
+						<tr>
+							{{form_mail.id}}
+							<th>Correo electrónico</th>
+							<td>{{form_mail.mail}}</td>
 							<td>
-								{% if form_mail.instance.pk %}{{ form_mail.DELETE }}{% endif %}
-								{{form_mail.mail}}
+								{% if form_mail.instance.pk %}
+								{{ form_mail.DELETE }}
+								{% endif %}
 							</td>
 						</tr>
 						{% endfor %}
 					</tbody>
-				<tr>
-					<td class="pull-right"><input type="submit" class="btn btn-primary" value="Guardar"></td>
-				</tr>
+					<tr>
+						<td class="pull-right"><input type="submit" class="btn btn-primary" value="Guardar"></td>
+					</tr>
 				</table>
 				{{ named_formsets.telefono.management_form }}
 				{{ named_formsets.mail.management_form }}
@@ -59,23 +63,5 @@
 {% endblock content %}
 
 {% block extra_js %}
-<script src="{% static "js/jquery.formset.js" %}"></script>
-<script type="text/javascript">
-	$(function() {
-		$('#telefono_table  tr').formset({
-			prefix: "{{ named_formsets.telefono.prefix }}"
-		});
-		$('#mail_table  tr').formset({
-			prefix: "{{ named_formsets.mail.prefix }}"
-		});
-		$('table.form-container-telefono').formset({
-			prefix: "{{ named_formsets.telefono.prefix }}",
 
-		});
-		$('table.form-container-mail').formset({
-			prefix: "{{ named_formsets.mail.prefix }}",
-
-		});
-	});
-</script>
 {% endblock extra_js %}

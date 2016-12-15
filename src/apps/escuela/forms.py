@@ -73,5 +73,15 @@ class ContactoForm(forms.ModelForm):
         }
 
 
-ContactoTelefonoFormSet = inlineformset_factory(EscContacto, EscContactoTelefono, fields='__all__', extra=1, can_delete=True)
-ContactoMailFormSet = inlineformset_factory(EscContacto, EscContactoMail, fields='__all__', extra=1, can_delete=True)
+ContactoTelefonoFormSet = inlineformset_factory(
+    EscContacto,
+    EscContactoTelefono,
+    fields='__all__',
+    extra=2,
+    can_delete=True)
+ContactoMailFormSet = inlineformset_factory(
+    EscContacto,
+    EscContactoMail,
+    fields='__all__',
+    extra=2,
+    can_delete=True)
