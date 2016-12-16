@@ -23,13 +23,15 @@
 					{{ form.as_table }}
 					<tbody id="telefono_table">
 						{% for form_telefono in named_formsets.telefono.forms %}
+						{{form_telefono.non_field_errors}}
 						<tr>
 							<th>Teléfono</th>
 								{{form_telefono.id}}
-							<td>{{form_telefono.telefono}}</td>
 							<td>
+								{{form_telefono.telefono.errors}}
+								{{form_telefono.telefono}}
 								{% if form_telefono.instance.pk %}
-								{{ form_telefono.DELETE }}
+									{{ form_telefono.DELETE }} ¿Eliminar?
 								{% endif %}
 							</td>
 						</tr>
@@ -40,10 +42,11 @@
 						<tr>
 							{{form_mail.id}}
 							<th>Correo electrónico</th>
-							<td>{{form_mail.mail}}</td>
 							<td>
+								{{form_mail.mail.errors}}
+								{{form_mail.mail}}
 								{% if form_mail.instance.pk %}
-								{{ form_mail.DELETE }}
+									{{ form_mail.DELETE }} ¿Eliminar?
 								{% endif %}
 							</td>
 						</tr>
