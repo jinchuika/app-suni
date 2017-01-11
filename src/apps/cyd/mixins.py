@@ -20,7 +20,7 @@ class BaseFormsetMixin(ContextMixin):
     def form_valid(self, form):
         named_formsets = self.get_named_formsets()
         super(BaseFormsetMixin, self).form_valid(form)
-        if not all((x.is_valid() for x in named_formsets.values())):
+        if len(named_formsets) < 1 and not all((x.is_valid() for x in named_formsets.values())):
             return self.render_to_response(self.get_context_data(form=form))
         else:
             self.object = form.save()
@@ -44,5 +44,3 @@ class CursoMixin(BaseFormsetMixin):
     formset_list = {
         'hito': CrHitoFormSet,
         'asistencia': CrAsistenciaFormSet}
-
-    
