@@ -31,7 +31,9 @@
 								{{form_telefono.telefono.errors}}
 								{{form_telefono.telefono}}
 								{% if form_telefono.instance.pk %}
-									{{ form_telefono.DELETE }} ¿Eliminar?
+									{{ form_telefono.DELETE }}<label for="{{form_telefono.DELETE.id_for_label}}">
+										¿Eliminar?
+									</label>
 								{% endif %}
 							</td>
 						</tr>

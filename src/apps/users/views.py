@@ -1,5 +1,5 @@
 from django.shortcuts import redirect
-from django.views.generic import UpdateView, ListView
+from django.views.generic import UpdateView, ListView, RedirectView
 from django.core.urlresolvers import reverse_lazy
 from apps.users.forms import *
 from apps.users.mixins import PublicPerfilMixin
@@ -17,6 +17,13 @@ class PerfilList(LoginRequiredMixin, PublicPerfilMixin, ListView):
     template_name = 'users/list.html'
 
 
+class CurrentPerfilDetail(LoginRequiredMixin, RedirectView):
+    pattern_name = 'perfil_detail'
+
+    def get_redirect_url(self, *args, **kwargs):
+        return reverse_lazy('perfil_detail', kwargs={'pk': self.request.user.perfil.id})
+
+
 class PerfilUpdate(LoginRequiredMixin, UpdateView):
     template_name = 'users/perfil.html'
     form_class = PerfilForm
@@ -29,7 +36,7 @@ class PerfilUpdate(LoginRequiredMixin, UpdateView):
 
 
 class PerfilPreferenciasUpdate(UserPreferenceFormView):
-    success_url = reverse_lazy('profile')
+    success_url = reverse_lazy('perfil')
 
     def get(self, request, *args, **kwargs):
-        return redirect('perfil_detail')
+        return redirect('perfil')

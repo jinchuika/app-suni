@@ -2,7 +2,7 @@ from django import forms
 from django.forms.models import inlineformset_factory
 from django.core.urlresolvers import reverse_lazy
 
-from apps.escuela.models import Escuela, EscContacto, EscContactoTelefono, EscContactoMail, EscNivel
+from apps.escuela.models import Escuela, EscContacto, EscContactoTelefono, EscContactoMail, EscNivel, EscSector
 from apps.main.models import Departamento, Municipio
 from apps.mye.models import Cooperante, Proyecto
 
@@ -48,6 +48,9 @@ class BuscarEscuelaForm(forms.ModelForm):
         required=False)
     nivel = forms.ModelChoiceField(
         queryset=EscNivel.objects.all(),
+        required=False)
+    sector = forms.ModelChoiceField(
+        queryset=EscSector.objects.all(),
         required=False)
     poblacion_min = forms.IntegerField(
         label='Población mínima',

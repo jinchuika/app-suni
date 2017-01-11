@@ -142,6 +142,7 @@ class EscuelaBuscarBackend(autocomplete.Select2QuerySetView):
         cooperante = self.forwarded.get('cooperante', None)
         proyecto = self.forwarded.get('proyecto', None)
         nivel = self.forwarded.get('nivel', None)
+        sector = self.forwarded.get('sector', None)
         poblacion_min = self.forwarded.get('poblacion_min', None)
         poblacion_max = self.forwarded.get('poblacion_max', None)
         solicitud = self.forwarded.get('solicitud', None)
@@ -162,6 +163,8 @@ class EscuelaBuscarBackend(autocomplete.Select2QuerySetView):
             qs = qs.filter(direccion__icontains=direccion)
         if nivel:
             qs = qs.filter(nivel=nivel)
+        if sector:
+            qs = qs.filter(sector=sector)
         if poblacion_min:
             solicitud_list = Solicitud.objects.filter(total_alumno__gte=poblacion_min)
             qs = qs.filter(solicitud__in=solicitud_list).distinct()
