@@ -1,0 +1,25 @@
+{% extends "base/base.html" %}
+
+{% block content %}
+<section class="content">
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-md-3">
+			</div>
+			<div class="col-md-6">
+				<form method="post" action="{{action}}">
+				<table class="table table-striped box box-primary">
+					{% csrf_token %}
+					{{form.as_table}}
+					<tr>
+						<td colspan="2">
+						<input type="submit" value="Crear" class="btn btn-primary">
+						</td>
+					</tr>
+					</table>
+				</form>
+			</div>
+		</div>
+	</div>
+</section>
+{% endblock content %}

@@ -1,18 +1,20 @@
 from django.http import HttpResponseRedirect
-from django.core.urlresolvers import reverse_lazy
+from django.views.generic import DetailView, ListView
 from django.views.generic.edit import CreateView
 
-from braces.views import LoginRequiredMixin
+from braces.views import LoginRequiredMixin, GroupRequiredMixin
 
 from apps.cyd.forms import CursoForm, CrHitoFormSet, CrAsistenciaFormSet
 from apps.cyd.models import Curso
 
 
-class CursoCrear(LoginRequiredMixin, CreateView):
+class CursoCrear(LoginRequiredMixin, GroupRequiredMixin, CreateView):
+    group_required = [u"cyd_admin", ]
+    redirect_unauthenticated_users = True
+    raise_exception = True
     model = Curso
     template_name = 'cyd/curso_add.html'
     form_class = CursoForm
-    success_url = reverse_lazy('curso_add')
 
     def get(self, request, *args, **kwargs):
         self.object = None
@@ -50,3 +52,13 @@ class CursoCrear(LoginRequiredMixin, CreateView):
                 form=form,
                 hito_formset=kwargs['formset_list'][0],
                 asistencia_formset=kwargs['formset_list'][1]))
+
+
+class CursoDetalle(LoginRequiredMixin, DetailView):
+    model = Curso
+    template_name = 'cyd/curso_detail.html'
+
+
+class CursoLista(LoginRequiredMixin, ListView):
+    model = Curso
+    template_name = 'cyd/curso_list.html'
