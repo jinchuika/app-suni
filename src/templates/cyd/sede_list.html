@@ -1,0 +1,84 @@
+{% extends "base/base.html" %}
+
+{% load staticfiles %}
+
+{% block page_title %}
+	<title>Listado de sedes</title>
+{% endblock page_title %}
+
+{% block content %}
+<section class="content">
+	<div class="container-fluid">
+		<div class="row" id="buscador">
+			<div class="col-md-3">
+				<div class="box">
+					<div class="box-header with-border">
+						<h3 class="box-title">Filtros</h3>
+					</div>
+					<div class="box-body">
+						<div class="form-group">
+							<label for="nombre-sede">Nombre</label>
+							<input type="text" class="form-control search" data-table-id="sede-list" id="nombre-sede">
+						</div>
+						<div class="form-group">
+							<label for="id_capacitador">Capacitador</label>
+							<select id="id_capacitador" class="form-control">
+								<option value=""></option>
+								{% for capacitador in capacitador_list %}
+									<option value="{{ capacitador.id }}">
+										{{ capacitador.perfil }}
+									</option>
+								{% endfor %}
+							</select>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="col-md-8">
+				<div class="box box-primary">
+					<div class="box-header with-border">
+						<h3 class="box-title">Listado</h3>
+						<div class="box-tools pull-right">
+							{% if perms.cyd.sede_add %}
+								<a href="{% url 'sede_add' %}" class="btn btn-primary">
+									Crear nueva
+								</a>
+							{% endif %}
+						</div>
+					</div>
+					<table class="table table-striped box-body" id="sede-list">
+						<thead>
+							<tr>
+								<th>Nombre</th>
+								<th>Capacitador</th>
+							</tr>
+						</thead>
+						<tbody class="list">
+							{% for sede in sede_list reversed %}
+								<tr class="tr-sede" data-capacitador-id="{{ sede.capacitador.id }}">
+									<td class="sede">
+										<a href="{{sede.get_absolute_url}}">{{sede}}</a>
+									</td>
+									<td class="capacitador">
+										<a href="{{ sede.capacitador.perfil.get_absolute_url }}">
+											{{ sede.capacitador.perfil }}
+										</a>
+									</td>
+								</tr>
+							{% endfor %}
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+{% endblock content %}
+
+{% block extra_js %}
+<script src="{% static "js/list.min.js" %}"></script>
+<script src="{% static "js/extrajs/cyd.js" %}"></script>
+<script>
+BuscadorSede.init();
+</script>
+{% endblock extra_js %}

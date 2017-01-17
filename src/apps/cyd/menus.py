@@ -8,13 +8,18 @@ cyd_children = (
         "Cursos",
         reverse_lazy("curso_list"),
         weight=10,
-        icon="fa-users"),)
+        icon="fa-book"),
+    ViewMenuItem(
+        "Sedes",
+        reverse_lazy("sede_list"),
+        weight=10,
+        icon="fa-map"),)
 
 Menu.add_item(
     "user",
     ViewMenuItem(
         "Capacitación",
-        '',
+        '#',
         weight=10,
-        icon="fa-book",
+        icon="fa-graduation-cap",
         children=cyd_children))

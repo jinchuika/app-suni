@@ -1,0 +1,95 @@
+{% extends "base/base.html" %}
+
+{% load staticfiles %}
+
+{% block page_title %}
+<title>{{ sede }}</title>
+{% endblock page_title %}
+
+{% block content %}
+<section class="content">
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-md-12">
+				<div class="box box-primary">
+					<div class="box-body box-profile">
+						<h3 class="profile-username text-center">{{ sede }}</h3>
+						<h4 class="text-center">{{ sede.codigo }}</h4>
+						<h6 class="text-center"><i class="fa fa-map-marker margin-r-5"></i> {{ sede.direccion }}</h6>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-md-3">
+				<div class="box box-primary">
+					<div class="box-header with-border">
+						<h3 class="box-title">
+							{% if perms.sede.change_sede %}
+							<a href="{% url 'sede_update' pk=sede.id %}" class="btn btn-info btn-xs">
+								<i class="fa fa-pencil-square-o" aria-hidden="true"></i>
+							</a>
+							{% endif %}
+							Información
+						</h3>
+					</div>
+					<div class="box-body">
+						<strong><i class="fa fa-user margin-r-5"></i> Capacitador</strong>
+						<p class="text-muted">{{ sede.capacitador.perfil }}</p>
+
+						<strong><i class="fa fa-map-marker margin-r-5"></i> Dirección</strong>
+						<p class="text-muted">{{ sede.direccion }},</p>
+						<p class="text-muted">{{ sede.municipio.nombre }},</p>
+						<p class="text-muted">{{ sede.municipio.departamento }}</p>
+
+						<strong><i class="fa fa-pencil margin-r-5"></i> Observaciones</strong>
+						<p class="text-muted">{{ sede.observacion }}</p>
+
+						<strong><i class="fa fa-map margin-r-5"></i> Coordenadas</strong>
+						<p class="text-muted"><b>Latitud: </b>{{ sede.mapa.lat }}</p>
+						<p class="text-muted"><b>Longitud: </b>{{ sede.mapa.lng }}</p>
+					</div>
+				</div>
+			</div>
+			<div class="col-md-9">
+				<div class="row">
+					<div class="col-md-12">
+						<div class="nav-tabs-custom">
+							<ul class="nav nav-tabs nav-justified">
+								<li class="active">
+									<a href="#participantes" data-toggle="tab"><i class="fa fa-graduation-cap" aria-hidden="true"></i> Participantes</a>
+								</li>
+								<li>
+									<a href="#grupos" data-toggle="tab"><i class="fa fa-search" aria-hidden="true"></i> Grupos</a>
+								</li>
+								<li>
+									<a href="#equipamiento" data-toggle="tab"><i class="fa fa-television" aria-hidden="true"></i> Equipamiento</a>
+								</li>
+								<li>
+									<a href="#contactos" data-toggle="tab"><i class="fa fa-user" aria-hidden="true"></i> Contactos</a>
+								</li>
+							</ul>
+							<div class="tab-content">
+								<div class="tab-pane active" id="participantes">
+								</div>
+
+								<div class="tab-pane" id="grupos">
+									
+								</div>
+
+								<div class="tab-pane" id="equipamiento">
+									
+								</div>
+
+								<div class="tab-pane" id="contactos">
+									
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+{% endblock content %}

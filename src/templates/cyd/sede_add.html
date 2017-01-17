@@ -1,0 +1,38 @@
+{% extends "base/base.html" %}
+
+{% load widget_tweaks %}
+
+{% block page_title %}
+<title>Sede</title>
+{% endblock page_title %}
+
+{% block content %}
+<section class="content-header">
+	<h1>Nueva sede</h1>
+</section>
+
+<section class="content">
+	<div class="container-fluid">
+		<div class="row-fluid">
+			<div class="col-md-6 col-md-offset-3">
+				<form action="{{action}}" method="post">
+					<table class="table table-striped box box-primary">
+						{% csrf_token %}
+						{% for field in form %}
+							<tr>
+								<td>{{ field.label_tag }}</td>
+								<td>{{ field|add_class:"form-control" }}</td>
+							</tr>
+						{% endfor %}
+						<tr>
+							<td colspan="2" align="center">
+								<input type="submit" value="Crear" class="btn btn-primary">
+							</td>
+						</tr>
+					</table>
+				</form>
+			</div>
+		</div>
+	</div>
+</section>
+{% endblock content %}

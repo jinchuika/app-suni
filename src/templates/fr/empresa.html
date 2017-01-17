@@ -47,19 +47,17 @@
 																	</tr>
 																</thead>
 																<tbody>
-																	{% for i in lista %}
+																	{% for empresa in lista %}
 																	<tr>
-																		<td width="5%">{{i.id}}</td> 
+																		<td width="5%">{{empresa.id}}</td>
 																		<td width="20%">
-																				{{i}}
-																			<a class="btn btn-info pull-right" href="{% url 'empresa_detail' empresa_pk=i.id%}">
-																			<i class="fa fa-external-link " aria-hidden="true"></i> Ver perfil
+																			<a href="{{ empresa.get_absolute_url }}">
+																				{{ empresa }}
 																			</a>
-
 																		</td>
-																		<td width="25%">{{i.direccion}}</td>
-																		<td width="15%">{{i.telefono}}</td>
-																		<td width="35%">{{i.descripcion}}</td>
+																		<td width="25%">{{empresa.direccion}}</td>
+																		<td width="15%">{{empresa.telefono}}</td>
+																		<td width="35%">{{empresa.descripcion}}</td>
 																	</tr>
 																	{% endfor %}
 																</tbody>
