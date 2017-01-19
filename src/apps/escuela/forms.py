@@ -61,6 +61,15 @@ class BuscarEscuelaForm(forms.ModelForm):
     solicitud = forms.ChoiceField(
         required=False,
         choices=ESTADO_CHOICES)
+    solicitud_id = forms.IntegerField(
+        label='Número de solicitud',
+        required=False)
+    equipamiento = forms.ChoiceField(
+        required=False,
+        choices=ESTADO_CHOICES)
+    equipamiento_id = forms.IntegerField(
+        label='Número de entrega',
+        required=False)
 
     class Meta:
         model = Escuela

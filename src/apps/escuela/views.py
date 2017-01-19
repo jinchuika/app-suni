@@ -1,6 +1,10 @@
 from django.shortcuts import get_object_or_404, reverse
 from django.views.generic import DetailView
 from django.views.generic.edit import CreateView, UpdateView, FormView
+
+from braces.views import LoginRequiredMixin, PermissionRequiredMixin
+from dal import autocomplete
+
 from apps.escuela.forms import FormEscuelaCrear, ContactoForm, BuscarEscuelaForm
 from apps.escuela.models import Escuela, EscContacto
 from apps.escuela.mixins import ContactoContextMixin
@@ -9,8 +13,6 @@ from apps.tpe.forms import EquipamientoForm, EquipamientoNuevoForm
 from apps.tpe.models import Equipamiento
 from apps.mye.models import EscuelaCooperante, EscuelaProyecto, Solicitud
 from apps.main.models import Municipio
-from braces.views import LoginRequiredMixin, PermissionRequiredMixin
-from dal import autocomplete
 
 
 class EscuelaCrear(LoginRequiredMixin, CreateView):
@@ -146,6 +148,9 @@ class EscuelaBuscarBackend(autocomplete.Select2QuerySetView):
         poblacion_min = self.forwarded.get('poblacion_min', None)
         poblacion_max = self.forwarded.get('poblacion_max', None)
         solicitud = self.forwarded.get('solicitud', None)
+        solicitud_id = self.forwarded.get('solicitud_id', None)
+        equipamiento = self.forwarded.get('equipamiento', None)
+        equipamiento_id = self.forwarded.get('equipamiento_id', None)
 
         if self.q:
             qs = qs.filter(codigo=self.q)
@@ -177,4 +182,16 @@ class EscuelaBuscarBackend(autocomplete.Select2QuerySetView):
                 qs = qs.filter(solicitud__in=solicitud_list).distinct()
             if solicitud == "1":
                 qs = qs.exclude(solicitud__in=solicitud_list).distinct()
+        if solicitud_id:
+            solicitud_list = Solicitud.objects.filter(id=solicitud_id)
+            qs = qs.filter(solicitud__in=solicitud_list).distinct()
+        if equipamiento_id:
+            equipamiento_list = Equipamiento.objects.filter(id=equipamiento_id)
+            qs = qs.filter(equipamiento__in=equipamiento_list).distinct()
+        if equipamiento:
+            equipamiento_list = Equipamiento.objects.all()
+            if equipamiento == "2":
+                qs = qs.filter(equipamiento__in=equipamiento_list).distinct()
+            if equipamiento == "1":
+                qs = qs.exclude(equipamiento__in=equipamiento_list).distinct()
         return qs
