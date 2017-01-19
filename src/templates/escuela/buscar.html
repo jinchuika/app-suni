@@ -91,6 +91,28 @@
 								{{ form.solicitud.label_tag }}
 								{{ form.solicitud|add_class:"form-control"}}
 							</div>
+							<div class="form-group">
+								{{ form.solicitud_id.label_tag }}
+								{{ form.solicitud_id|add_class:"form-control"}}
+							</div>
+						</div>
+					</div>
+					<div class="box box-default collapsed-box">
+						<div class="box-header with-border">
+							<h5 class="box-title">Equipamiento</h5>
+							<div class="box-tools pull-right">
+								<button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i></button>
+							</div>
+						</div>
+						<div class="box-body">
+							<div class="form-group">
+								{{ form.equipamiento.label_tag }}
+								{{ form.equipamiento|add_class:"form-control"}}
+							</div>
+							<div class="form-group">
+								{{ form.equipamiento_id.label_tag }}
+								{{ form.equipamiento_id|add_class:"form-control"}}
+							</div>
 						</div>
 					</div>
 					{% csrf_token %}

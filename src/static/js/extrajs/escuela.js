@@ -16,6 +16,9 @@
 				poblacion_max: $('#id_poblacion_max').val(),
 				poblacion_min: $('#id_poblacion_min').val(),
 				solicitud: $('#id_solicitud').val(),
+				solicitud_id: $('#id_solicitud_id').val(),
+				equipamiento: $('#id_equipamiento').val(),
+				equipamiento_id: $('#id_equipamiento_id').val(),
 			})
 		}
 	};

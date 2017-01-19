@@ -20,3 +20,15 @@ class Municipio(models.Model):
 
     def __str__(self):
         return self.nombre + " (" + str(self.departamento) + ")"
+
+
+class Coordenada(models.Model):
+    lat = models.CharField(max_length=25)
+    lng = models.CharField(max_length=25)
+    descripcion = models.CharField(max_length=70, null=True, blank=True)
+
+    def __str__(self):
+        if self.descripcion:
+            return self.descripcion
+        else:
+            return self.lat + ", " + self.lng

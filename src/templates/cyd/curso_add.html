@@ -12,14 +12,16 @@
 </section>
 <section class="content">
 	<div class="container-fluid">
-		<div class="row">
-			<div class="col-md-4">
-				<form action="{{action}}" method="post">
+		<div class="row-fluid">
+			<form action="{{action}}" method="post">
+				<div class="col-md-4">
 					<table class="table table-striped box box-primary">
 						{% csrf_token %}
 						{{ form.as_table }}
 						<tr>
-							<td colspan="2" align="center"><input type="submit" value="Crear" class="btn btn-primary"></td>
+							<td colspan="2" align="center">
+								<input type="submit" value="Crear" class="btn btn-primary">
+							</td>
 						</tr>
 					</table>
 				</div>
@@ -81,8 +83,8 @@
 						</tbody>
 						{{ hito_formset.management_form }}
 					</table>
-				</form>
-			</div>
+				</div>
+			</form>
 		</div>
 	</div>
 </section>
@@ -90,7 +92,4 @@
 
 {% block extra_js %}
 <script src="{% static "js/jquery.formset.js" %}"></script>
-<script type="text/javascript">
-	
-</script>
 {% endblock extra_js %}
