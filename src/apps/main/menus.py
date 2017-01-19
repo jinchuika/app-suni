@@ -9,15 +9,15 @@ class ViewMenuItem(MenuItem):
             self.perm = kwargs.pop('perm')
 
     def check(self, request):
-        """ Revisa los permisos """
-        if hasattr(self, 'perm'):
-            if request.user.has_perm(self.perm):
+        """ Revisa por grupo """
+        if hasattr(self, 'group'):
+            if request.user.groups.filter(name=self.group).exists():
                 self.visible = True
                 return True
             else:
                 self.visible = False
-        """ Revisa por grupo """
-        if hasattr(self, 'group'):
+        """ Revisa los permisos """
+        if hasattr(self, 'perm'):
             if request.user.has_perm(self.perm):
                 self.visible = True
                 return True
@@ -42,4 +42,4 @@ Menu.add_item(
         weight=10,
         icon="fa-key",
         children=admin_children,
-        perm='users.add_user'))
+        group='admin'))

@@ -22,4 +22,5 @@ Menu.add_item(
         '#',
         weight=10,
         icon="fa-graduation-cap",
+        group="cyd",
         children=cyd_children))
