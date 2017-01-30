@@ -105,6 +105,7 @@ class Solicitud(models.Model):
     Description: Solicitud de equipamiento
     """
     version = models.ForeignKey(SolicitudVersion, on_delete=models.PROTECT, related_name='solicitud')
+    formulario = models.BooleanField(default=False, blank=True)
     escuela = models.ForeignKey('escuela.Escuela', on_delete=models.PROTECT, related_name='solicitud')
     fecha = models.DateField()
     jornada = models.IntegerField()
