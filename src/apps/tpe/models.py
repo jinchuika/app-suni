@@ -9,6 +9,13 @@ class EquipamientoEstado(models.Model):
         return self.estado
 
 
+class EquipamientoTipoRed(models.Model):
+    tipo = models.CharField(max_length=50)
+
+    def __str__(self):
+        return self.tipo
+
+
 class Equipamiento(models.Model):
     id = models.IntegerField(primary_key=True)
     estado = models.ForeignKey(
@@ -20,6 +27,13 @@ class Equipamiento(models.Model):
     observacion = models.TextField(null=True, blank=True)
     renovacion = models.BooleanField(blank=True, default=False)
     servidor_khan = models.BooleanField(blank=True, default=False)
+    cantidad_equipo = models.IntegerField(default=0)
+    red = models.BooleanField(blank=True, default=False)
+    tipo_red = models.ForeignKey(EquipamientoTipoRed, null=True, blank=True)
+    fotos = models.BooleanField(default=False, blank=True)
+    manual = models.BooleanField(default=False, blank=True)
+    edulibre = models.BooleanField(default=False, blank=True)
+    carta = models.BooleanField(default=False, blank=True)
 
     cooperante = models.ManyToManyField('mye.Cooperante', blank=True)
     proyecto = models.ManyToManyField('mye.Proyecto', blank=True)

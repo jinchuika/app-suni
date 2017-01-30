@@ -50,7 +50,7 @@
     BuscadorEscuela.init = function () {
 		$('#form_buscar_escuela').submit(function (e) {
 			e.preventDefault();
-
+			$('#encontradas').html("Buscando...");
 			buscar_escuela({
 				url: $('#id_nombre').data('ajax--url'),
 				data: get_form(),

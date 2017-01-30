@@ -154,6 +154,24 @@ class EscuelaBuscarBackend(autocomplete.Select2QuerySetView):
 
         if self.q:
             qs = qs.filter(codigo=self.q)
+        if solicitud:
+            solicitud_list = Solicitud.objects.all()
+            if solicitud == "2":
+                qs = qs.filter(solicitud__in=solicitud_list).distinct()
+            if solicitud == "1":
+                qs = qs.exclude(solicitud__in=solicitud_list).distinct()
+        if solicitud_id:
+            solicitud_list = Solicitud.objects.filter(id=solicitud_id)
+            qs = qs.filter(solicitud__in=solicitud_list).distinct()
+        if equipamiento_id:
+            equipamiento_list = Equipamiento.objects.filter(id=equipamiento_id)
+            qs = qs.filter(equipamiento__in=equipamiento_list).distinct()
+        if equipamiento:
+            equipamiento_list = Equipamiento.objects.all()
+            if equipamiento == "2":
+                qs = qs.filter(equipamiento__in=equipamiento_list).distinct()
+            if equipamiento == "1":
+                qs = qs.exclude(equipamiento__in=equipamiento_list).distinct()
         if departamento:
             qs = qs.filter(municipio__in=Municipio.objects.filter(departamento=departamento)).distinct()
         if municipio:
@@ -176,22 +194,4 @@ class EscuelaBuscarBackend(autocomplete.Select2QuerySetView):
         if poblacion_max:
             solicitud_list = Solicitud.objects.filter(total_alumno__lte=poblacion_max)
             qs = qs.filter(solicitud__in=solicitud_list).distinct()
-        if solicitud:
-            solicitud_list = Solicitud.objects.all()
-            if solicitud == "2":
-                qs = qs.filter(solicitud__in=solicitud_list).distinct()
-            if solicitud == "1":
-                qs = qs.exclude(solicitud__in=solicitud_list).distinct()
-        if solicitud_id:
-            solicitud_list = Solicitud.objects.filter(id=solicitud_id)
-            qs = qs.filter(solicitud__in=solicitud_list).distinct()
-        if equipamiento_id:
-            equipamiento_list = Equipamiento.objects.filter(id=equipamiento_id)
-            qs = qs.filter(equipamiento__in=equipamiento_list).distinct()
-        if equipamiento:
-            equipamiento_list = Equipamiento.objects.all()
-            if equipamiento == "2":
-                qs = qs.filter(equipamiento__in=equipamiento_list).distinct()
-            if equipamiento == "1":
-                qs = qs.exclude(equipamiento__in=equipamiento_list).distinct()
         return qs
