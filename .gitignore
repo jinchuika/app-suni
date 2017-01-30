@@ -100,3 +100,4 @@ nohup.out
 src/apps/*/script.py
 src/esc_contacto.json
 src/entregas.json
+*.sqlite3

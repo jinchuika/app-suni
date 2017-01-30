@@ -1,5 +1,4 @@
-from django.core.urlresolvers import reverse_lazy
-from menu import Menu, MenuItem
+from menu import MenuItem
 
 
 class ViewMenuItem(MenuItem):
@@ -23,23 +22,3 @@ class ViewMenuItem(MenuItem):
                 return True
             else:
                 self.visible = False
-
-
-# Administración
-admin_children = (
-    ViewMenuItem(
-        "Lista de perfiles",
-        reverse_lazy("perfil_list"),
-        weight=10,
-        icon="fa-users",
-        perm='users.add_user'),)
-
-Menu.add_item(
-    "user",
-    ViewMenuItem(
-        "Administración",
-        reverse_lazy("perfil_list"),
-        weight=10,
-        icon="fa-key",
-        children=admin_children,
-        group='admin'))

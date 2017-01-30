@@ -63,12 +63,14 @@ class BuscarEscuelaForm(forms.ModelForm):
         choices=ESTADO_CHOICES)
     solicitud_id = forms.IntegerField(
         label='Número de solicitud',
+        min_value=1,
         required=False)
     equipamiento = forms.ChoiceField(
         required=False,
         choices=ESTADO_CHOICES)
     equipamiento_id = forms.IntegerField(
         label='Número de entrega',
+        min_value=1,
         required=False)
 
     class Meta:
