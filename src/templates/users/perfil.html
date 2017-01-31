@@ -35,15 +35,14 @@
 					<hr>
 				</div>
 			</div>
-
 		</div>
 
 		{% if perfil.id is request.user.perfil.id %}
 		<div class="col-md-9">
 			<div class="nav-tabs-custom">
 				<ul class="nav nav-tabs nav-justified">
-					<li class="active"><a href="#edicion" data-toggle="tab">Edición</a></li>
-					<li><a href="#cuentas" data-toggle="tab">Enlazar cuentas</a></li>
+					<li class="active"><a href="#edicion" data-toggle="tab">Mis datos</a></li>
+					<li><a href="#cuentas" data-toggle="tab">Cuentas enlazadas</a></li>
 					<li><a href="#preferencias" data-toggle="tab">Ajustes</a></li>
 				</ul>
 				<div class="tab-content">
@@ -63,8 +62,8 @@
 								</div>
 								{% endfor %}
 							</div>
-
 							<button type="submit" class="btn btn-primary">Guardar</button>
+							<a href="{% url 'password_change' %}" class="btn btn-info">Cambiar contraseña</a>
 						</form>
 					</div>
 					<!-- /.tab-pane -->

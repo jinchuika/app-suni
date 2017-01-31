@@ -23,27 +23,6 @@ class LoginForm(forms.Form):
         return user
 
 
-class SignupForm(forms.Form):
-    first_name = forms.CharField(max_length=30, label='Nombre')
-    last_name = forms.CharField(max_length=30, label='Apellido')
-    groups = forms.ModelMultipleChoiceField(
-        widget=forms.CheckboxSelectMultiple,
-        queryset=Group.objects.all())
-    public = forms.BooleanField()
-    foto = forms.ImageField(required=False, widget=forms.FileInput(), label='Foto')
-
-    def signup(self, request, user):
-        new_user = Perfil(
-            user=user,
-            public=self.cleaned_data['public'],
-            foto=self.cleaned_data['foto'],
-        )
-        for g in self.cleaned_data['groups']:
-            user.groups.add(g)
-        user.save()
-        new_user.save()
-
-
 class CustomSignupForm(forms.Form):
     first_name = forms.CharField(max_length=30, label='Nombre')
     last_name = forms.CharField(max_length=30, label='Apellido')
