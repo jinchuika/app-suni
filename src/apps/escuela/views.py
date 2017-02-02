@@ -141,8 +141,8 @@ class EscuelaBuscarBackend(autocomplete.Select2QuerySetView):
         direccion = self.forwarded.get('direccion', None)
         municipio = self.forwarded.get('municipio', None)
         departamento = self.forwarded.get('departamento', None)
-        cooperante = self.forwarded.get('cooperante', None)
-        proyecto = self.forwarded.get('proyecto', None)
+        cooperante_mye = self.forwarded.get('cooperante_mye', None)
+        proyecto_mye = self.forwarded.get('proyecto_mye', None)
         nivel = self.forwarded.get('nivel', None)
         sector = self.forwarded.get('sector', None)
         poblacion_min = self.forwarded.get('poblacion_min', None)
@@ -151,6 +151,8 @@ class EscuelaBuscarBackend(autocomplete.Select2QuerySetView):
         solicitud_id = self.forwarded.get('solicitud_id', None)
         equipamiento = self.forwarded.get('equipamiento', None)
         equipamiento_id = self.forwarded.get('equipamiento_id', None)
+        cooperante_tpe = self.forwarded.get('cooperante_tpe', None)
+        proyecto_tpe = self.forwarded.get('proyecto_tpe', None)
 
         if self.q:
             qs = qs.filter(codigo=self.q)
@@ -176,10 +178,10 @@ class EscuelaBuscarBackend(autocomplete.Select2QuerySetView):
             qs = qs.filter(municipio__in=Municipio.objects.filter(departamento=departamento)).distinct()
         if municipio:
             qs = qs.filter(municipio=municipio)
-        if cooperante:
-            qs = qs.filter(cooperante_asignado__in=cooperante).distinct()
-        if proyecto:
-            qs = qs.filter(proyecto_asignado__in=proyecto).distinct()
+        if cooperante_mye:
+            qs = qs.filter(cooperante_asignado__in=cooperante_mye).distinct()
+        if proyecto_mye:
+            qs = qs.filter(proyecto_asignado__in=proyecto_mye).distinct()
         if nombre:
             qs = qs.filter(nombre__icontains=nombre)
         if direccion:
@@ -194,4 +196,7 @@ class EscuelaBuscarBackend(autocomplete.Select2QuerySetView):
         if poblacion_max:
             solicitud_list = Solicitud.objects.filter(total_alumno__lte=poblacion_max)
             qs = qs.filter(solicitud__in=solicitud_list).distinct()
+        if cooperante_tpe:
+            equipamiento_list = Equipamiento.objects.filter(cooperante__in=cooperante_tpe)
+            qs = qs.filter(equipamiento__in=equipamiento_list).distinct()
         return qs

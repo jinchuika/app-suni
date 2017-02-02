@@ -151,3 +151,62 @@ class Solicitud(models.Model):
             else:
                 requisito_list.append({'requisito': requisito, 'cumple': False})
         return requisito_list
+
+
+class ValidacionVersion(models.Model):
+    nombre = models.CharField(max_length=30)
+
+    class Meta:
+        verbose_name = "Versión de validación"
+        verbose_name_plural = "Versiones de validación"
+
+    def __str__(self):
+        return self.nombre
+
+
+class ValidacionTipo(models.Model):
+    nombre = models.CharField(max_length=30)
+
+    class Meta:
+        verbose_name = "Tipo de validación"
+        verbose_name_plural = "Tipos de validación"
+
+    def __str__(self):
+        return self.nombre
+
+
+class Validacion(models.Model):
+    version = models.ForeignKey(ValidacionVersion)
+    tipo = models.ForeignKey(ValidacionTipo)
+    escuela = models.ForeignKey('escuela.Escuela', on_delete=models.PROTECT, related_name='validacion')
+    fecha = models.DateField()
+    jornada = models.IntegerField(default=1)
+
+    alumna = models.IntegerField()
+    alumno = models.IntegerField()
+    maestra = models.IntegerField()
+    maestro = models.IntegerField()
+
+    total_alumno = models.IntegerField(null=True, blank=True)
+    total_maestro = models.IntegerField(null=True, blank=True)
+
+    requisito = models.ManyToManyField(Requisito, blank=True)
+
+    observacion = models.TextField(null=True, blank=True)
+
+    class Meta:
+        verbose_name = "Validacion"
+        verbose_name_plural = "Validaciones"
+
+    def __str__(self):
+        return str(self.id)
+
+    def listar_requisito(self):
+        queryset_requisito = self.version.requisito.all()
+        requisito_list = []
+        for requisito in queryset_requisito:
+            if requisito in self.requisito.all():
+                requisito_list.append({'requisito': requisito, 'cumple': True})
+            else:
+                requisito_list.append({'requisito': requisito, 'cumple': False})
+        return requisito_list

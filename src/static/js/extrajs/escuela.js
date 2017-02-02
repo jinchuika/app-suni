@@ -6,8 +6,8 @@
 			q: $('#id_codigo').val(),
 			forward: JSON.stringify({
 				municipio: $('#id_municipio').val(),
-				departamento: $('#id_departamento').val(),
-				cooperante: $('#id_cooperante').val(),
+				departamento_mye: $('#id_departamento_mye').val(),
+				cooperante_mye: $('#id_cooperante_mye').val(),
 				nombre: $('#id_nombre').val(),
 				proyecto: $('#id_proyecto').val(),
 				direccion: $('#id_direccion').val(),
@@ -19,6 +19,8 @@
 				solicitud_id: $('#id_solicitud_id').val(),
 				equipamiento: $('#id_equipamiento').val(),
 				equipamiento_id: $('#id_equipamiento_id').val(),
+				departamento_tpe: $('#id_departamento_tpe').val(),
+				cooperante_tpe: $('#id_cooperante_tpe').val(),
 			})
 		}
 	};
