@@ -8,10 +8,10 @@ from dal import autocomplete
 from apps.escuela.forms import FormEscuelaCrear, ContactoForm, BuscarEscuelaForm
 from apps.escuela.models import Escuela, EscContacto
 from apps.escuela.mixins import ContactoContextMixin
-from apps.mye.forms import EscuelaCooperanteForm, EscuelaProyectoForm, SolicitudNuevaForm, SolicitudForm
+from apps.mye.forms import EscuelaCooperanteForm, EscuelaProyectoForm, SolicitudNuevaForm, SolicitudForm, ValidacionNuevaForm, ValidacionForm
 from apps.tpe.forms import EquipamientoForm, EquipamientoNuevoForm
 from apps.tpe.models import Equipamiento
-from apps.mye.models import EscuelaCooperante, EscuelaProyecto, Solicitud
+from apps.mye.models import EscuelaCooperante, EscuelaProyecto, Solicitud, Validacion
 from apps.main.models import Municipio
 
 
@@ -30,11 +30,22 @@ class EscuelaDetail(LoginRequiredMixin, DetailView):
         context = super(EscuelaDetail, self).get_context_data(**kwargs)
         context['solicitud_nueva_form'] = SolicitudNuevaForm(initial={'escuela': self.object.pk})
         context['equipamiento_nuevo_form'] = EquipamientoNuevoForm(initial={'escuela': self.object.pk})
+        context['validacion_nueva_form'] = ValidacionNuevaForm(initial={'escuela': self.object.pk})
+
+        # Crea un formulario de solicitud si encuentra la ID
         if 'id_solicitud' in self.kwargs:
             solicitud = Solicitud.objects.get(pk=self.kwargs['id_solicitud'])
             if solicitud in self.object.solicitud.all():
                 context['solicitud_form'] = SolicitudForm(instance=solicitud)
                 context['solicitud_id'] = self.kwargs['id_solicitud']
+
+        if 'id_validacion' in self.kwargs:
+            validacion = Validacion.objects.get(pk=self.kwargs['id_validacion'])
+            if validacion in self.object.validacion.all():
+                context['validacion_form'] = ValidacionForm(instance=validacion)
+                context['validacion_id'] = self.kwargs['id_validacion']
+
+        # Crea un formulario de equipamiento si encuentra la ID
         if 'id_equipamiento' in self.kwargs:
             equipamiento = Equipamiento.objects.get(pk=self.kwargs['id_equipamiento'])
             if equipamiento in self.object.equipamiento.all():
@@ -198,5 +209,8 @@ class EscuelaBuscarBackend(autocomplete.Select2QuerySetView):
             qs = qs.filter(solicitud__in=solicitud_list).distinct()
         if cooperante_tpe:
             equipamiento_list = Equipamiento.objects.filter(cooperante__in=cooperante_tpe)
+            qs = qs.filter(equipamiento__in=equipamiento_list).distinct()
+        if proyecto_tpe:
+            equipamiento_list = Equipamiento.objects.filter(proyecto__in=proyecto_tpe)
             qs = qs.filter(equipamiento__in=equipamiento_list).distinct()
         return qs

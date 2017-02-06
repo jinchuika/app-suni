@@ -1,6 +1,7 @@
 from django.db import models
 from django.utils import timezone
 from django.urls import reverse_lazy
+from django.contrib.auth.models import User
 
 
 class Cooperante(models.Model):
@@ -155,6 +156,7 @@ class Solicitud(models.Model):
 
 class ValidacionVersion(models.Model):
     nombre = models.CharField(max_length=30)
+    requisito = models.ManyToManyField(Requisito)
 
     class Meta:
         verbose_name = "Versión de validación"
@@ -179,7 +181,7 @@ class Validacion(models.Model):
     version = models.ForeignKey(ValidacionVersion)
     tipo = models.ForeignKey(ValidacionTipo)
     escuela = models.ForeignKey('escuela.Escuela', on_delete=models.PROTECT, related_name='validacion')
-    fecha = models.DateField()
+    fecha = models.DateField(default=timezone.now)
     jornada = models.IntegerField(default=1)
 
     alumna = models.IntegerField()
@@ -201,6 +203,13 @@ class Validacion(models.Model):
     def __str__(self):
         return str(self.id)
 
+    def save(self, *args, **kwargs):
+        if self.total_alumno is None or self.total_alumno == 0:
+            self.total_alumno = self.alumna + self.alumno
+        if self.total_maestro is None or self.total_maestro == 0:
+            self.total_maestro = self.maestra + self.maestro
+        super(Validacion, self).save(*args, **kwargs)
+
     def listar_requisito(self):
         queryset_requisito = self.version.requisito.all()
         requisito_list = []
@@ -210,3 +219,17 @@ class Validacion(models.Model):
             else:
                 requisito_list.append({'requisito': requisito, 'cumple': False})
         return requisito_list
+
+
+class ValidacionComentario(models.Model):
+    validacion = models.ForeignKey(Validacion, related_name='comentarios')
+    comentario = models.TextField()
+    usuario = models.ForeignKey(User)
+    fecha = models.DateField(default=timezone.now)
+
+    class Meta:
+        verbose_name = "Comentario de validación"
+        verbose_name_plural = "Comentarios de validación"
+
+    def __str__(self):
+        return str(self.validacion) + self.comentario[:15] + '...'
