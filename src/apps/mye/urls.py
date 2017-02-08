@@ -18,4 +18,7 @@ urlpatterns = [
 
     url(r'^solicitud/add/$', SolicitudCrearView.as_view(), name='solicitud_add'),
     url(r'^solicitud/(?P<pk>\d+)/$', SolicitudUpdate.as_view(), name='solicitud_update'),
+
+    url(r'^validacion/add/$', ValidacionCrearView.as_view(), name='validacion_add'),
+    url(r'^validacion/(?P<pk>\d+)/$', ValidacionUpdate.as_view(), name='validacion_update'),
 ]

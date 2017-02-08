@@ -22,71 +22,19 @@
 			</div>
 		</div>
 		<div class="row">
-			<div class="col-md-3">
-				<div class="box box-primary">
-					<div class="box-header with-border">
-						<h3 class="box-title">
-							{% if perms.escuela.change_escuela %}
-							<a href="{% url 'escuela_update' pk=escuela.id%}" class="btn btn-info btn-xs">
-								<i class="fa fa-pencil-square-o" aria-hidden="true"></i>
-							</a>
-							{% endif %}
-							Información
-						</h3>
-					</div>
-					<div class="box-body">
-						<strong><i class="fa fa-user margin-r-5"></i> Población</strong>
-						<div class="table-responsive">
-							<table class="table table-striped table-condensed">
-								<tr>
-									<th>Alumnos</th>
-									<th>Docentes</th>
-									<th>Fecha</th>
-								</tr>
-								{% for poblacion in escuela.poblacion|dictsort:"fecha" %}
-								<tr>
-									<td>{{poblacion.alumnos}}</td>
-									<td>{{poblacion.maestros}}</td>
-									<td>{{poblacion.fecha|date:"d/m/Y"|lower}}</td>
-								</tr>
-								{% endfor %}
-							</table>
-						</div>
-						<strong><i class="fa fa-map-marker margin-r-5"></i> Departamento</strong>
-						<p class="text-muted">{{ escuela.municipio.departamento }}</p>
-						<strong><i class="fa fa-map-marker margin-r-5"></i> Municipio</strong>
-						<p class="text-muted">{{ escuela.municipio.nombre }}</p>
-						<strong><i class="fa fa-bars margin-r-5"></i> Nivel</strong>
-						<p class="text-muted">{{ escuela.nivel }}</p>
-						<strong><i class="fa fa-sun-o margin-r-5"></i> Área</strong>
-						<p class="text-muted">{{ escuela.area }}</p>
-						<strong><i class="fa fa-clock-o margin-r-5"></i> Jornada</strong>
-						<p class="text-muted">{{ escuela.jornada }}</p>
-						<strong><i class="fa fa-book margin-r-5"></i> Modalidad</strong>
-						<p class="text-muted">{{ escuela.modalidad }}</p>
-						<strong><i class="fa fa-calendar margin-r-5"></i> Plan</strong>
-						<p class="text-muted">{{ escuela.plan }}</p>
-						<strong><i class="fa fa-bookmark-o margin-r-5"></i> Sector</strong>
-						<p class="text-muted">{{ escuela.sector }}</p>
-						<strong><i class="fa fa-exclamation-circle margin-r-5"></i> Status</strong>
-						<p class="text-muted">{{ escuela.status }}</p>
-						<strong><i class="fa fa-phone-square margin-r-5"></i> Teléfono</strong>
-						<p class="text-muted">{{ escuela.telefono }}</p>
-
-						<hr>
-					</div>
-				</div>
-			</div>
-			<div class="col-md-9">
+			<div class="col-md-12">
 				<div class="row">
 					<div class="col-md-12">
 						<div class="nav-tabs-custom">
 							<ul class="nav nav-tabs nav-justified">
 								<li class="active">
+									<a href="#info" data-toggle="tab"><i class="fa fa-info" aria-hidden="true"></i> Información</a>
+								</li>
+								<li>
 									<a href="#capacitacion" data-toggle="tab"><i class="fa fa-graduation-cap" aria-hidden="true"></i> Capacitación</a>
 								</li>
 								<li>
-									<a href="#monitoreo" data-toggle="tab"><i class="fa fa-search" aria-hidden="true"></i> Monitoreo</a>
+									<a href="#monitoreo" data-toggle="tab"><i class="fa fa-search" aria-hidden="true"></i> Evaluación</a>
 								</li>
 								<li>
 									<a href="#equipamiento" data-toggle="tab"><i class="fa fa-television" aria-hidden="true"></i> Equipamiento</a>
@@ -96,236 +44,487 @@
 								</li>
 							</ul>
 							<div class="tab-content">
-								<div class="tab-pane active" id="capacitacion">
+								<div class="tab-pane active" id="info">
+									<div class="row">
+										<div class="col-md-6">
+											<table class="table table-striped table-hover table-condensed">
+												<tr>
+													<th><i class="fa fa-map-marker"></i> Departamento</th>
+													<td>{{ escuela.municipio.departamento }}</td>
+												</tr>
+												<tr>
+													<th><i class="fa fa-map-marker"></i> Municipio</th>
+													<td>{{ escuela.municipio.nombre }}</td>
+												</tr>
+												<tr>
+													<th><i class="fa fa-bars"></i> Nivel</th>
+													<td>{{ escuela.nivel }}</td>
+												</tr>
+												<tr>
+													<th><i class="fa fa-bookmark-o"></i> Sector</th>
+													<td>{{ escuela.sector }}</td>
+												</tr>
+												<tr>
+													<th><i class="fa fa-sun-o"></i> Área</th>
+													<td>{{ escuela.area }}</td>
+												</tr>
+												<tr>
+													<th><i class="fa fa-clock-o"></i> Jornada</th>
+													<td>{{ escuela.jornada }}</td>
+												</tr>
+												<tr>
+													<th><i class="fa fa-calendar"></i> Plan</th>
+													<td>{{ escuela.plan }}</td>
+												</tr>
+												<tr>
+													<th><i class="fa fa-exclamation-circle"></i> Status</th>
+													<td>{{ escuela.status }}</td>
+												</tr>
+												<tr>
+													<th><i class="fa fa-book"></i> Modalidad</th>
+													<td>{{ escuela.modalidad }}</td>
+												</tr>
+												<tr>
+													<th><i class="fa fa-phone-square"></i> Teléfono</th>
+													<td>{{ escuela.telefono }}</td>
+												</tr>
+												{% if perms.escuela.change_escuela %}
+												<tr>
+													<td colspan="2">
+														<a href="{% url 'escuela_update' pk=escuela.id%}" class="btn btn-info btn-xs">
+															<i class="fa fa-pencil-square-o" aria-hidden="true"></i> Editar
+														</a>
+													</td>
+												</tr>
+												{% endif %}
+											</table>
+										</div>
+										<div class="col-md-6">
+											<strong><i class="fa fa-user margin-r-5"></i> Población</strong>
+											<div class="table-responsive">
+												<table class="table table-striped table-condensed">
+													<tr>
+														<th>Alumnos</th>
+														<th>Docentes</th>
+														<th>Fecha</th>
+													</tr>
+													{% for poblacion in escuela.poblacion|dictsort:"fecha" %}
+													<tr>
+														<td>{{poblacion.alumnos}}</td>
+														<td>{{poblacion.maestros}}</td>
+														<td>{{poblacion.fecha|date:"d/m/Y"|lower}}</td>
+													</tr>
+													{% endfor %}
+												</table>
+											</div>
+										</div>
+									</div>
+								</div>
+								<div class="tab-pane" id="capacitacion">
 								</div>
 
 								<div class="tab-pane" id="monitoreo">
-									<ul class="timeline">
-										<li>
-											<i class="fa fa-envelope bg-blue"></i>
-											<div class="timeline-item">
-												<h3 class="timeline-header">Solicitudes</h3>
-												<div class="timeline-body">
-													<div class="box-body">
-														{% if not solicitud_form %}
-														{% for solicitud in escuela.solicitud.all %}
-														<div class="box box-info box-solid collapsed-box">
-
-															<div class="box-header with-border">
-																<h3 class="box-title">No. {{solicitud.id}}   •   {{solicitud.fecha|date:"d/M/Y"}}</h3>
-																<div class="box-tools pull-right">
-																	{% if perms.mye_change_solicitud %}
-																	<a href="{% url "escuela_solicitud_update" pk=escuela.id id_solicitud=solicitud.id %}" class="btn btn-box-tool"><i class="fa fa-pencil"></i> Editar</a>
-																	{% endif %}
-																	<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
-																	</button>
-																</div>
-															</div>
-
-															<div class="box-body">
-																<div class="table-responsive">
-																	<table class="table table-hover">
-																		<tr>
-																			<th>Fecha:</th>
-																			<td colspan="3">{{ solicitud.fecha }}</td>
-																		</tr>
-																		<tr>
-																			<th>Jornadas que funcionan en la escuela:</th>
-																			<td colspan="3">{{ solicitud.jornada }}</td>
-																		</tr>
-																		<tr>
-																			<th>La escuela fue EDF</th>
-																			<td colspan="3">
-																				{% if solicitud.edf %}
-																				Sí
-																				{% else %}
-																				No
-																				{% endif %}
-																			</td>
-																		</tr>
-																		<tr>
-																			<th>Tiene laboratorio actualmente:</th>
-																			<td colspan="3">
-																				{% if solicitud.lab_actual %}
-																				Sí
-																				{% else %}
-																				No
-																				{% endif %}
-																			</td>
-																		</tr>
-																		<tr>
-																			<th>Población estudiantil</th>
-																			<td><i class="fa fa-female"></i> {{solicitud.alumna}}</td>
-																			<td><i class="fa fa-male"></i> {{solicitud.alumno}}</td>
-																			<td><i class="fa fa-male"></i><i class="fa fa-female"></i> {{solicitud.total_alumno}}</td>
-																		</tr>
-																		<tr>
-																			<th>Población doncente</th>
-																			<td><i class="fa fa-female"></i> {{solicitud.maestra}}</td>
-																			<td><i class="fa fa-male"></i> {{solicitud.maestro}}</td>
-																			<td><i class="fa fa-male"></i><i class="fa fa-female"></i> {{solicitud.total_maestro}}</td>
-																		</tr>
-																		<tr>
-																			<th>Observaciones</th>
-																			<td colspan="3">{{ solicitud.observacion }}</td>
-																		</tr>
-																		<tr>
-																			<th colspan="4">Requerimientos</th>
-																		</tr>
-																		<tr>
-																			<td colspan="4">
-																				<ul class="list-unstyled">
-																					{% for requisito in solicitud.listar_requisito %}
-																					<li>
-																						{% if requisito.cumple %}
-																						<i class="fa fa-check"></i>
-																						{% else %}
-																						<i class="fa fa-close"></i>
-																						{% endif %}
-																						<span class="text">{{ requisito.requisito }}</span>
-																					</li>
-																					{% endfor %}
-																				</ul>
-																			</td>
-																		</tr>
-																		<tr>
-																			<th>Por qué medios se enteró de nosotros</th>
-																			<td colspan="3">
-																				<ul class="list-unstyled">
-																					{% for medio in solicitud.medio.all %}
-																					<li>
-																						<i class="fa fa-caret-right"></i> {{medio}}
-																					</li>
-																					{% endfor %}
-																				</ul>
-																			</td>
-																		</tr>
-																	</table>
-																</div>
-															</div>
-														</div>
-														{% endfor %}
-														{% if perms.mye_add_solicitud %}
-														<input onclick="$('#form-nueva-solicitud').toggle();" type="submit" class="btn btn-primary" value="Nueva solicitud">
-														{% endif %}
-														{% endif %}
-														<form method="post" role="form" action="{% url "solicitud_add" %}" id="form-nueva-solicitud">
-															{% csrf_token %}
-															{{ solicitud_nueva_form.as_p }}
-															<input type="submit" class="btn btn-success" value="Crear">
-														</form>
-
-														{% if solicitud_form %}
-														<div class="box box-info box-solid">
-															<div class="box-header with-border">
-																<h3 class="box-title">No. {{solicitud_form.instance.id}} - {{solicitud_form.instance.fecha}}</h3>
-																<div class="box-tools pull-right">
-																	<a href="{% url "escuela_detail" pk=escuela.id %}" class="btn btn-box-tool">
-																		<i class="fa fa-times"></i>
-																	</a>
-																</div>
-															</div>
-															<div class="box-body">
-																<form action="{% url "solicitud_update" pk=solicitud_id %}" method="post" role="form">
-																	{% csrf_token %}
-																	<table class="table table-hover table-striped">
-																		{{ solicitud_form.as_table }}
+									{% comment %}
+										PRE-SELECCIÓN
+									{% endcomment %}
+									<div class="row">
+										<div class="col-md-12">
+											<div class="box box-info collapsed-box">
+												<div class="box-header">
+													<h3 class="box-title">Pre-selección</h3>
+													<div class="box-tools pull-right">
+														<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i></button>
+													</div>
+												</div>
+												<div class="box-body">
+													<div class="row">
+														<div class="col-md-6">
+															<table class="table">
+																<thead>
+																	<tr>
+																		<th>
+																		Cooperantes
+																		{% if perms.mye.add_escuela_cooperante %}
+																			<a href="{% url "escuela_cooperante_add" pk=escuela.id %}" class="btn btn-box-tool"><i class="fa fa-pencil"></i> Editar</a>
+																		{% endif %}
+																		</th>
+																	</tr>
+																</thead>
+																<tbody>
+																	{% for asignacion in escuela.asignacion_cooperante.all|dictsort:"fecha_activacion" %}
+																		{% if asignacion.activa %}
 																		<tr>
 																			<td>
-																				<input type="submit" class="btn btn-success" value="Guardar">  
-																				<a href="{% url "escuela_detail" pk=escuela.id %}" class="btn btn-danger">Cancelar</a>
+																				<a href="{{asignacion.cooperante.get_absolute_url}}">
+																					{{ asignacion.cooperante}}
+																				</a>
 																			</td>
 																		</tr>
-																	</table>
-																</form>
+																		{% endif %}
+																	{% endfor %}
+																</tbody>
+															</table>
+														</div>
+														<div class="col-md-6">
+															<table class="table table-striped">
+																<thead>
+																	<tr>
+																		<th>
+																			Proyectos
+																			{% if perms.mye.add_escuela_proyecto %}
+																				<a href="{% url "escuela_proyecto_add" pk=escuela.id %}" class="btn btn-box-tool"><i class="fa fa-pencil"></i> Editar</a>
+																			{% endif %}
+																		</th>
+																	</tr>
+																</thead>
+																<tbody>
+																	{% for asignacion in escuela.asignacion_proyecto.all|dictsort:"fecha_activacion" %}
+																		{% if asignacion.activa %}
+																		<tr>
+																			<td>
+																				<a href="{% url "proyecto_detail" pk=asignacion.proyecto.id %}">
+																					{{ asignacion.proyecto}}
+																				</a>
+																			</td>
+																		</tr>
+																		{% endif %}
+																	{% endfor %}
+																</tbody>
+															</table>
+														</div>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+									<div class="row">
+										<div class="col-md-12">
+											<div class="box box-info">
+												<div class="box-header with-border">
+													<h3 class="box-title">Solicitudes</h3>
+													<div class="box-tools pull-right">
+														{% if perms.mye.add_solicitud %}
+															<a href="#" onclick="$('#form-nueva-solicitud').toggle();" class="btn btn-box-tool"><i class="fa fa-plus"></i> Nueva solicitud</a>
+														{% endif %}
+														<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+													</div>
+												</div>
+												<div class="box-body no-padding">
+													<div class="container-fluid">
+														<form method="post" role="form" action="{% url "solicitud_add" %}" id="form-nueva-solicitud">
+															<table class="table table-striped table-bordered">
+																{% csrf_token %}
+																{{ solicitud_nueva_form.as_table }}
+																<tr>
+																	<td colspan="2"><input type="submit" class="btn btn-success" value="Crear"></td>
+																</tr>
+															</table>
+														</form>
+														{% if not solicitud_form %}
+															
+															{% for solicitud in escuela.solicitud.all %}
+																<div class="row">
+																	<div class="col-md-12">
+																		<div class="box box-info box-solid collapsed-box">
+																			<div class="box-header with-border">
+																				<h3 class="box-title">No. {{solicitud.id}}   •   {{solicitud.fecha|date:"d/M/Y"}}</h3>
+																				<div class="box-tools pull-right">
+																					{% if perms.mye.change_solicitud %}
+																					<a href="{% url "escuela_solicitud_update" pk=escuela.id id_solicitud=solicitud.id %}" class="btn btn-box-tool"><i class="fa fa-pencil"></i> Editar</a>
+																					{% endif %}
+																					<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+																					</button>
+																				</div>
+																			</div>
+																			<div class="box-body">
+																				<div class="table-responsive">
+																					<table class="table table-hover table-condensed table-striped">
+																						<tr>
+																							<th>Fecha:</th>
+																							<td colspan="3">{{ solicitud.fecha }}</td>
+																						</tr>
+																						<tr>
+																							<th>Formulario físico:</th>
+																							<td colspan="3">
+																								{% if solicitud.formulario %}Sí{% else %}No{% endif %}
+																							</td>
+																						</tr>
+																						<tr>
+																							<th>Jornadas que funcionan en la escuela:</th>
+																							<td colspan="3">{{ solicitud.jornada }}</td>
+																						</tr>
+																						<tr>
+																							<th>La escuela fue EDF</th>
+																							<td colspan="3">
+																								{% if solicitud.edf %}
+																								Sí
+																								{% else %}
+																								No
+																								{% endif %}
+																							</td>
+																						</tr>
+																						<tr>
+																							<th>Tiene laboratorio actualmente:</th>
+																							<td colspan="3">
+																								{% if solicitud.lab_actual %}Sí{% else %}No{% endif %}
+																							</td>
+																						</tr>
+																						<tr>
+																							<th>Población estudiantil</th>
+																							<td><i class="fa fa-female"></i> {{solicitud.alumna}}</td>
+																							<td><i class="fa fa-male"></i> {{solicitud.alumno}}</td>
+																							<td><i class="fa fa-male"></i><i class="fa fa-female"></i> {{solicitud.total_alumno}}</td>
+																						</tr>
+																						<tr>
+																							<th>Población doncente</th>
+																							<td><i class="fa fa-female"></i> {{solicitud.maestra}}</td>
+																							<td><i class="fa fa-male"></i> {{solicitud.maestro}}</td>
+																							<td><i class="fa fa-male"></i><i class="fa fa-female"></i> {{solicitud.total_maestro}}</td>
+																						</tr>
+																						<tr>
+																							<th>Observaciones</th>
+																							<td colspan="3">{{ solicitud.observacion }}</td>
+																						</tr>
+																						<tr>
+																							<th colspan="4">Requerimientos</th>
+																						</tr>
+																						<tr>
+																							<td colspan="4">
+																								<ul class="list-unstyled">
+																									{% for requisito in solicitud.listar_requisito %}
+																									<li>
+																										{% if requisito.cumple %}
+																										<i class="fa fa-check"></i>
+																										{% else %}
+																										<i class="fa fa-close"></i>
+																										{% endif %}
+																										<span class="text">{{ requisito.requisito }}</span>
+																									</li>
+																									{% endfor %}
+																								</ul>
+																							</td>
+																						</tr>
+																						<tr>
+																							<th>Por qué medios se enteró de nosotros</th>
+																							<td colspan="3">
+																								<ul class="list-unstyled">
+																									{% for medio in solicitud.medio.all %}
+																									<li>
+																										<i class="fa fa-caret-right"></i> {{medio}}
+																									</li>
+																									{% endfor %}
+																								</ul>
+																							</td>
+																						</tr>
+																					</table>
+																				</div>
+																			</div>
+																		</div>
+																	</div>
+																</div>
+															{% endfor %}
+														{% endif %}
+													</div>
+													
+													{% if solicitud_form %}
+														<div class="row">
+															<div class="col-md-10 col-md-offset-1">
+																<div class="box box-info box-solid">
+																	<div class="box-header with-border">
+																		<h3 class="box-title">No. {{solicitud_form.instance.id}} - {{solicitud_form.instance.fecha}}</h3>
+																		<div class="box-tools pull-right">
+																			<a href="{% url "escuela_detail" pk=escuela.id %}" class="btn btn-box-tool">
+																				<i class="fa fa-times"></i>
+																			</a>
+																		</div>
+																	</div>
+																	<div class="box-body">
+																		<form action="{% url "solicitud_update" pk=solicitud_id %}" method="post" role="form">
+																			{% csrf_token %}
+																			<table class="table table-hover table-condensed table-striped">
+																				{{ solicitud_form.as_table }}
+																				<tr>
+																					<td>
+																						<input type="submit" class="btn btn-success" value="Guardar">  
+																						<a href="{% url "escuela_detail" pk=escuela.id %}" class="btn btn-danger">Cancelar</a>
+																					</td>
+																				</tr>
+																			</table>
+																		</form>
+																	</div>
+																</div>
 															</div>
 														</div>
+													{% endif %}
+												</div>
+											</div>
+										</div>
+									</div>
+									<div class="row">
+										<div class="col-md-12">
+											<div class="box box-warning">
+												<div class="box-header">
+													<h3 class="box-title">Validaciones</h3>
+													<div class="box-tools pull-right">
+														{% if perms.mye.add_validacion %}
+															<a href="#" onclick="$('#form-nueva-validacion').toggle();" class="btn btn-box-tool"><i class="fa fa-plus"></i> Nueva validación</a>
 														{% endif %}
 													</div>
 												</div>
-											</div>
-										</li>
-										<li>
-											<i class="fa fa-user bg-aqua"></i>
-											<div class="timeline-item">
-												<div class="timeline-body">
-													<div class="box box-info">
-														<div class="box-header with-border">
-															<h3 class="box-title">Cooperantes</h3>
-															<div class="box-tools pull-right">
-																{% if perms.mye_add_escuela_cooperante %}
-																<a href="{% url "escuela_cooperante_add" pk=escuela.id %}" class="btn btn-box-tool"><i class="fa fa-pencil"></i> Editar</a>
-																{% endif %}
-																<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+												<div class="box-body with-border">
+													<form method="post" role="form" action="{% url "validacion_add" %}" id="form-nueva-validacion">
+														<table class="table table-striped table-bordered">
+															{% csrf_token %}
+															{{ validacion_nueva_form.as_table }}
+															<tr>
+																<td colspan="2"><input type="submit" class="btn btn-success" value="Crear"></td>
+															</tr>
+														</table>
+													</form>
+													{% if not validacion_form %}
+														{% for validacion in escuela.validacion.all %}
+															<div class="row">
+																<div class="col-md-12">
+																	<div class="box box-warning box-solid collapsed-box">
+																		<div class="box-header">
+																			<h3 class="box-title">No. {{ validacion.id }} - {{ validacion.fecha }}</h3>
+																			<div class="box-tools pull-right">
+																				<a href="{% url 'escuela_validacion_update' pk=escuela.id id_validacion=validacion.id %}" class="btn btn-box-tool">
+																					<i class="fa fa-pencil"></i> Editar
+																				</a>
+																				<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+																			</div>
+																		</div>
+																		<div class="box-body">
+																			<div class="table-responsive">
+																				<table class="table table-hover table-condensed table-striped">
+																					<tbody id="validacion-{{ validacion.id }}">
+																						<tr>
+																							<th>Fecha</th>
+																							<td colspan="2">{{ validacion.fecha }}</td>
+																						</tr>
+																						<tr>
+																							<th>Tipo de validación</th>
+																							<td colspan="2">{{ validacion.tipo }}</td>
+																						</tr>
+																						<tr>
+																							<th>Jornadas que funcionan en la escuela</th>
+																							<td colspan="2">{{ validacion.jornada }}</td>
+																						</tr>
+																						<tr>
+																							<th>Población estudiantil</th>
+																							<td><i class="fa fa-female"></i> {{ validacion.alumna }}</td>
+																							<td><i class="fa fa-male"></i> {{ validacion.alumno }}</td>
+																							<td><i class="fa fa-male"></i><i class="fa fa-female"></i> {{ validacion.total_alumno }}</td>
+																						</tr>
+																						<tr>
+																							<th>Población doncente</th>
+																							<td><i class="fa fa-female"></i> {{ validacion.maestra }}</td>
+																							<td><i class="fa fa-male"></i> {{ validacion.maestro }}</td>
+																							<td><i class="fa fa-male"></i><i class="fa fa-female"></i> {{ validacion.total_maestro }}</td>
+																						</tr>
+																						<tr>
+																							<th colspan="4">Requerimientos</th>
+																						</tr>
+																						<tr>
+																							<td colspan="4">
+																								<ul class="list-unstyled">
+																									{% for requisito in validacion.listar_requisito %}
+																									<li>
+																										{% if requisito.cumple %}
+																										<i class="fa fa-check"></i>
+																										{% else %}
+																										<i class="fa fa-close"></i>
+																										{% endif %}
+																										<span class="text">{{ requisito.requisito }}</span>
+																									</li>
+																									{% endfor %}
+																								</ul>
+																							</td>
+																						</tr>
+																						<tr>
+																							<th>Observaciones</th>
+																							<td colspan="4">{{ validacion.observacion }}</td>
+																						</tr>
+																						<tr>
+																							<th colspan="4">Histórico</th>
+																						</tr>
+																						{% for comentario in validacion.comentarios.all %}
+																						<tr>
+																							<td colspan="4">
+																								{{ comentario.comentario }}
+																								<p>
+																									<small>{{ comentario.fecha|date:'d/m/Y' }}, {{ comentario.usuario.perfil }}</small>
+																								</p>
+																							</td>
+																						</tr>
+																						{% endfor %}
+																					</tbody>
+																				</table>
+																			</div>
+																		</div>
+																	</div>
+																</div>
+															</div>
+														{% endfor %}
+													{% endif %}
+													{% comment %}
+														Formulario de validación
+													{% endcomment %}
+													{% if validacion_form %}
+														<div class="row">
+															<div class="col-md-10 col-md-offset-1">
+																<div class="box box-warning box-solid">
+																	<div class="box-header with-border">
+																		<h3 class="box-title">No. {{ validacion_form.instance.id }} - {{validacion_form.instance.fecha}}</h3>
+																		<div class="box-tools pull-right">
+																			<a href="{% url "escuela_detail" pk=escuela.id %}" class="btn btn-box-tool">
+																				<i class="fa fa-times"></i>
+																			</a>
+																		</div>
+																	</div>
+																	<div class="box-body">
+																		<form action="{% url "validacion_update" pk=validacion_id %}" method="post" role="form">
+																			{% csrf_token %}
+																			<table class="table table-hover table-condensed table-striped">
+																				{{ validacion_form.as_table }}
+																				<tr>
+																					<th colspan="2">Histórico <a href="#" class="comentario-btn" data-id="{{ validacion_form.instance.id }}">+</a></th>
+																				</tr>
+																				{% for comentario in validacion_form.instance.comentarios.all %}
+																				<tr>
+																					<td colspan="2">
+																						{{ comentario.comentario }}
+																						<p>
+																							<small>{{ comentario.fecha|date:'d/m/Y' }}, {{ comentario.usuario.perfil }}</small>
+																						</p>
+																					</td>
+																				</tr>
+																				{% endfor %}
+																				<tr>
+																					<td colspan="2">
+																						<ul class="list-unstyled">
+																						</ul>
+																					</td>
+																				</tr>
+																				<tr>
+																					<td colspan="2" align="center">
+																						<input type="submit" class="btn btn-success" value="Guardar">  
+																						<a href="{% url "escuela_detail" pk=escuela.id %}" class="btn btn-danger">Cancelar</a>
+																					</td>
+																				</tr>
+																			</table>
+																		</form>
+																	</div>
+																</div>
 															</div>
 														</div>
-														<div class="box-body no-padding">
-															<table class="table table-hover">
-																<thead>
-																	<tr>
-																		<th>Nombre</th>
-																		<th>Fecha en que se unió</th>
-																	</tr>
-																</thead>
-																{% for asignacion in escuela.asignacion_cooperante.all|dictsort:"fecha_activacion" %}
-																{% if asignacion.activa %}
-																<tr>
-																	<td>
-																		<a href="{{asignacion.cooperante.get_absolute_url}}">
-																			{{ asignacion.cooperante}}
-																		</a>
-																	</td>
-																	<td> {{asignacion.fecha_activacion}} </td>
-																</tr>
-																{% endif %}
-																{% endfor %}
-															</table>
-														</div>
-													</div>
+													{% endif %}
 												</div>
 											</div>
-										</li>
-										<li>
-											<i class="fa fa-cogs bg-yellow"></i>
-											<div class="timeline-item">
-												<div class="timeline-body">
-													<div class="box box-info">
-														<div class="box-header with-border">
-															<h3 class="box-title">Proyectos</h3>
-															<div class="box-tools pull-right">
-																{% if perms.mye_add_escuela_proyecto %}
-																<a href="{% url "escuela_proyecto_add" pk=escuela.id %}" class="btn btn-box-tool"><i class="fa fa-pencil"></i> Editar</a>
-																{% endif %}
-																<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
-															</div>
-														</div>
-														<div class="box-body no-padding">
-															<table class="table table-hover">
-																<thead>
-																	<tr>
-																		<th>Proyecto</th>
-																		<th>Fecha en que se asignó</th>
-																	</tr>
-																</thead>
-																{% for asignacion in escuela.asignacion_proyecto.all|dictsort:"fecha_activacion" %}
-																{% if asignacion.activa %}
-																<tr>
-																	<td>
-																		<a href="{% url "proyecto_detail" pk=asignacion.proyecto.id %}">
-																			{{ asignacion.proyecto}}
-																		</a>
-																	</td>
-																	<td> {{asignacion.fecha_activacion}} </td>
-																</tr>
-																{% endif %}
-																{% endfor %}
-															</table>
-														</div>
-													</div>
-												</div>
-											</div>
-										</li>
-									</ul>
+										</div>
+									</div>
+									
 								</div>
 
 								<div class="tab-pane" id="equipamiento">
@@ -336,7 +535,7 @@
 										<div class="box-header with-border">
 											<h3 class="box-title">Entrega {{equipamiento.id}} • {{equipamiento.fecha|date:"d/M/Y"}}</h3>
 											<div class="box-tools pull-right">
-												{% if perms.mye_change_solicitud %}
+												{% if perms.tpe.change_equipamiento %}
 												<a href="{% url "escuela_equipamiento_update" pk=escuela.id id_equipamiento=equipamiento.id %}" class="btn btn-box-tool"><i class="fa fa-pencil"></i> Editar</a>
 												{% endif %}
 												<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
@@ -358,18 +557,58 @@
 													<td>{{equipamiento.fecha}}</td>
 												</tr>
 												<tr>
+													<th>Cantidad equipo</th>
+													<td>{{ equipamiento.cantidad_equipo }}</td>
+												</tr>
+												<tr>
 													<th>Es renovación</th>
 													<td>
-														{% if equipamiento.renovacion %}
-														Sí
+														{% if equipamiento.renovacion %}Sí{% else %}No{% endif %}
+													</td>
+												</tr>
+												<tr>
+													<th>Servidor Khan</th>
+													<td>
+														{% if equipamiento.servidor_khan %}Sí{% else %}No{% endif %}
+													</td>
+												</tr>
+												<tr>
+													<th>Tiene red</th>
+													<td>
+														{% if equipamiento.red %}
+														Sí - {{ equipamiento.tipo_red }}
 														{% else %}
 														No
 														{% endif %}
 													</td>
 												</tr>
 												<tr>
+													<th>Fotos</th>
+													<td>
+														{% if equipamiento.fotos %}Sí{% else %}No{% endif %}
+													</td>
+												</tr>
+												<tr>
+													<th>Manual de uso del laboratorio</th>
+													<td>
+														{% if equipamiento.manual %}Sí{% else %}No{% endif %}
+													</td>
+												</tr>
+												<tr>
+													<th>Sistema operativo Edulibre</th>
+													<td>
+														{% if equipamiento.edulibre %}Sí{% else %}No{% endif %}
+													</td>
+												</tr>
+												<tr>
+													<th>Carta enviada</th>
+													<td>
+														{% if equipamiento.carta %}Sí{% else %}No{% endif %}
+													</td>
+												</tr>
+												<tr>
 													<th>Observaciones</th>
-													<td>{{equipamiento.observacion}}</td>
+													<td>{{ equipamiento.observacion }}</td>
 												</tr>
 												<tr>
 													<th>Cooperantes</th>
@@ -396,7 +635,7 @@
 									</div>
 									{% endfor %}
 									{% endif %}
-									{% if perms.tpe_add_equipamiento %}
+									{% if perms.tpe.add_equipamiento %}
 									<input onclick="$('#form-nuevo-equipamiento').toggle();" type="submit" class="btn btn-primary" value="Nuevo equipamiento">
 									<form method="post" role="form" action="{% url "equipamiento_add" %}" id="form-nuevo-equipamiento">
 										{% csrf_token %}
@@ -440,7 +679,7 @@
 									</h4>
 									{% for contacto in escuela.contacto.all %}
 									<div class="box box-solid">
-										<div class="box-header bg-{{contacto.telefono.first.empresa|telefonica }} with-border">
+										<div class="box-header with-border">
 											<h3 class="box-title">{{ contacto }}</h3>
 											<div class="box-tools pull-right">
 												<a href="{% url 'escuela_contacto_edit' id_escuela=escuela.id pk=contacto.id%}" class="btn btn-box-tool">
@@ -492,11 +731,11 @@
 <script src="{% static "js/extrajs/escuela.js" %}"></script>
 <script>
 	$(document).ready(function () {
-		{% if solicitud_form %}
-		activar_tab('monitoreo');
+		{% if solicitud_form or validacion_form %}
+			activar_tab('monitoreo');
 		{% endif %}
 		{% if equipamiento_form %}
-		activar_tab('equipamiento');
+			activar_tab('equipamiento');
 		{% endif %}
 	});
 </script>
