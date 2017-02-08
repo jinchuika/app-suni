@@ -1,9 +1,12 @@
 from datetime import date
 from django import forms
+from django.core.urlresolvers import reverse_lazy
+
+from apps.escuela.models import Escuela, EscNivel, EscSector
+from apps.main.models import Departamento, Municipio
 from django.forms import ModelForm
 from django.utils import timezone
 from apps.mye.models import Cooperante, EscuelaCooperante, Proyecto, EscuelaProyecto, SolicitudVersion, Solicitud, Requisito, ValidacionVersion, Validacion
-from apps.escuela.models import Escuela
 
 
 class CooperanteForm(ModelForm):
@@ -220,3 +223,95 @@ class ValidacionForm(forms.ModelForm):
         super(ValidacionForm, self).__init__(*args, **kwargs)
         version = ValidacionVersion.objects.get(id=self.initial['version'])
         self.fields['requisito'].queryset = Requisito.objects.filter(id__in=version.requisito.all())
+
+
+class InformeMyeForm(forms.ModelForm):
+    CAMPO_CHOICES = (
+        ("departamento","Departamento"),
+        ("cooperante_mye","Cooperante en proceso"),
+        ("proyecto_mye","Proyecto en proceso"),
+        ("Direccion","Dirección"),
+        ("municipio","Municipio"),
+        ("nivel","Nivel"),
+        ("sector","Sector"),
+        ("poblacion_min","Población mínima"),
+        ("poblacion_max","Población máxima"),
+        ("solicitud","Solicitud"),
+        ("solicitud_id","Número de solicitud"),
+        ("equipamiento","Equipamiento"),
+        ("equipamiento_id","Número de entrega"),
+        ("cooperante_tpe","Cooperante de equipamiento"),
+        ("proyecto_tpe","Poyecto de equipamiento"),)
+    ESTADO_CHOICES = (
+        (None, 'No importa'),
+        (2, 'Sí'),
+        (1, 'No'),)
+    departamento = forms.ModelChoiceField(
+        queryset=Departamento.objects.all(),
+        required=False)
+    cooperante_mye = forms.ModelMultipleChoiceField(
+        label='Cooperante en proceso',
+        queryset=Cooperante.objects.all(),
+        widget=forms.SelectMultiple(attrs={'class': 'select2'}),
+        required=False)
+    proyecto_mye = forms.ModelMultipleChoiceField(
+        label='Proyecto en proceso',
+        queryset=Proyecto.objects.all(),
+        widget=forms.SelectMultiple(attrs={'class': 'select2'}),
+        required=False)
+    codigo = forms.CharField(
+        label='Código',
+        required=False)
+    nombre = forms.CharField(
+        widget=forms.TextInput(attrs={'data-ajax--url': reverse_lazy('escuela_buscar_backend')}),
+        required=False)
+    direccion = forms.CharField(
+        label='Dirección',
+        widget=forms.TextInput(),
+        required=False)
+    municipio = forms.ModelChoiceField(
+        queryset=Municipio.objects.all(),
+        required=False)
+    nivel = forms.ModelChoiceField(
+        queryset=EscNivel.objects.all(),
+        required=False)
+    sector = forms.ModelChoiceField(
+        queryset=EscSector.objects.all(),
+        required=False)
+    poblacion_min = forms.IntegerField(
+        label='Población mínima',
+        required=False)
+    poblacion_max = forms.IntegerField(
+        label='Población máxima',
+        required=False)
+    solicitud = forms.ChoiceField(
+        required=False,
+        choices=ESTADO_CHOICES)
+    solicitud_id = forms.IntegerField(
+        label='Número de solicitud',
+        min_value=1,
+        required=False)
+    equipamiento = forms.ChoiceField(
+        required=False,
+        choices=ESTADO_CHOICES)
+    equipamiento_id = forms.IntegerField(
+        label='Número de entrega',
+        min_value=1,
+        required=False)
+    cooperante_tpe = forms.ModelMultipleChoiceField(
+        label='Cooperante de equipamiento',
+        queryset=Cooperante.objects.all(),
+        widget=forms.SelectMultiple(attrs={'class': 'select2'}),
+        required=False)
+    proyecto_tpe = forms.ModelMultipleChoiceField(
+        label='Proyecto de equipamiento',
+        queryset=Proyecto.objects.all(),
+        widget=forms.SelectMultiple(attrs={'class': 'select2'}),
+        required=False)
+    campos = forms.MultipleChoiceField(
+        required=False,
+        choices=ESTADO_CHOICES)
+
+    class Meta:
+        model = Escuela
+        fields = ['codigo', 'nombre', 'municipio']

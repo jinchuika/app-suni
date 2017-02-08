@@ -1,0 +1,160 @@
+{% extends "base/base.html" %}
+
+{% load widget_tweaks %}
+{% load staticfiles %}
+
+{% block page_title %}
+<title>Buscar escuela</title>
+{% endblock page_title %}
+
+{% block content %}
+<section class="content-header">
+	<h1>Buscar escuelas</h1>
+</section>
+
+<section class="content">
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-md-3">
+				<form action="{{action}}" method="post" id="form_buscar_escuela">
+					<div class="box">
+						<div class="box-footer">
+							<input type="submit" class="btn btn-primary" value="Buscar">
+							<br>
+							<div class="pull-right">
+								<div id="encontradas"></div>
+							</div>
+						</div>
+					</div>
+					<div class="box box-default collapsed-box">
+						<div class="box-header with-border">
+							<h5 class="box-title">Escuela</h5>
+							<div class="box-tools pull-right">
+								<button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i></button>
+							</div>
+						</div>
+						<div class="box-body">
+							<div class="form-group">
+								{{ form.codigo.label_tag }}
+								{{ form.codigo|add_class:"form-control"}}
+							</div>
+							<div class="form-group">
+								{{ form.nombre.label_tag }}
+								{{ form.nombre|add_class:"form-control"}}
+							</div>
+							<div class="form-group">
+								{{ form.departamento.label_tag }}
+								{{ form.departamento|add_class:"form-control"}}
+							</div>
+							<div class="form-group">
+								{{ form.municipio.label_tag }}
+								{{ form.municipio|add_class:"form-control"}}
+							</div>
+							<div class="form-group">
+								{{ form.direccion.label_tag }}
+								{{ form.direccion|add_class:"form-control"}}
+							</div>
+							<div class="form-group">
+								{{ form.nivel.label_tag }}
+								{{ form.nivel|add_class:"form-control"}}
+							</div>
+							<div class="form-group">
+								{{ form.sector.label_tag }}
+								{{ form.sector|add_class:"form-control"}}
+							</div>
+							<div class="form-group">
+								{{ form.poblacion_min.label_tag }}
+								{{ form.poblacion_min|add_class:"form-control"}}
+							</div>
+							<div class="form-group">
+								{{ form.poblacion_max.label_tag }}
+								{{ form.poblacion_max|add_class:"form-control"}}
+							</div>
+						</div>
+					</div>
+					<div class="box box-default collapsed-box">
+						<div class="box-header with-border">
+							<h5 class="box-title">Monitoreo</h5>
+							<div class="box-tools pull-right">
+								<button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i></button>
+							</div>
+						</div>
+						<div class="box-body">
+							<div class="form-group">
+								{{ form.cooperante_mye.label_tag }}
+								{{ form.cooperante_mye|add_class:"form-control"}}
+							</div>
+							<div class="form-group">
+								{{ form.proyecto_mye.label_tag }}
+								{{ form.proyecto_mye|add_class:"form-control"}}
+							</div>
+							<div class="form-group">
+								{{ form.solicitud.label_tag }}
+								{{ form.solicitud|add_class:"form-control"}}
+							</div>
+							<div class="form-group">
+								{{ form.solicitud_id.label_tag }}
+								{{ form.solicitud_id|add_class:"form-control"}}
+							</div>
+						</div>
+					</div>
+					<div class="box box-default collapsed-box">
+						<div class="box-header with-border">
+							<h5 class="box-title">Equipamiento</h5>
+							<div class="box-tools pull-right">
+								<button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i></button>
+							</div>
+						</div>
+						<div class="box-body">
+							<div class="form-group">
+								{{ form.equipamiento.label_tag }}
+								{{ form.equipamiento|add_class:"form-control"}}
+							</div>
+							<div class="form-group">
+								{{ form.equipamiento_id.label_tag }}
+								{{ form.equipamiento_id|add_class:"form-control"}}
+							</div>
+							<div class="form-group">
+								{{ form.cooperante_tpe.label_tag }}
+								{{ form.cooperante_tpe|add_class:"form-control"}}
+							</div>
+							<div class="form-group">
+								{{ form.proyecto_tpe.label_tag }}
+								{{ form.proyecto_tpe|add_class:"form-control"}}
+							</div>
+						</div>
+					</div>
+					{% csrf_token %}
+				</form>
+			</div>
+			<div class="col-md-9">
+				<div class="table-responsive box">
+					<table class="table table-striped table-condensed table-hover table-bordered">
+						<thead>
+							<tr>
+								<th>UDI</th>
+								<th>Nombre</th>
+								<th>Dirección</th>
+								<th>Municipio</th>
+								<th>Departamento</th>
+								<th>Nivel</th>
+								<th>Población</th>
+							</tr>
+						</thead>
+						<tbody id="tbody-escuela">
+							
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+{% endblock content %}
+
+{% block extra_js %}
+<script src="{% static "js/extrajs/escuela.js" %}"></script>
+<script>
+	BuscadorEscuela.init();
+</script>
+{% endblock extra_js %}

@@ -13,7 +13,13 @@ mye_children = (
         "Proyectos",
         reverse_lazy("proyecto_list"),
         weight=10,
-        icon="fa-object-group"),)
+        icon="fa-object-group"),
+    ViewMenuItem(
+        "Informe",
+        reverse_lazy("informe_mye"),
+        weight=10,
+        icon="fa-book"),
+    )
 
 Menu.add_item(
     "user",

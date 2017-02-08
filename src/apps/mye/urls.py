@@ -21,4 +21,9 @@ urlpatterns = [
 
     url(r'^validacion/add/$', ValidacionCrearView.as_view(), name='validacion_add'),
     url(r'^validacion/(?P<pk>\d+)/$', ValidacionUpdate.as_view(), name='validacion_update'),
+
+
+    url(r'^informe/$', InformeMyeView.as_view(), name='informe_mye'),
+    url(r'^informe/q/$', InformeMyeBackend.as_view(), name='informe_mye_backend'),
 ]
+
