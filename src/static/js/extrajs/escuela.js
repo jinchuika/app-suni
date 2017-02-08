@@ -68,30 +68,35 @@
 }( window.BuscadorEscuela = window.BuscadorEscuela || {}, jQuery ));
 
 (function( PerfilEscuela, $, undefined ) {
-    
+    var crear_comentario = function (url, id_validacion, comentario) {
+        var data = {
+            "id_validacion": id_validacion,
+            "comentario": comentario
+        }
+        $.post(url, JSON.stringify(data)).then(function (response) {
+            var fecha = new Date(response.fecha);
+            var td_data = $('<td></td>').text(fecha.getDate()+"/"+(fecha.getMonth()+1)+"/"+fecha.getFullYear() + ", " + response.usuario);
+            var td = $('<td></td>').text(response.comentario);
+            var tr = $('<tr></tr>').append(td).append(td_data);
+            $('#body-validacion-' + id_validacion).append(tr);
+        }, function (response) {
+            alert("Error al crear datos");
+        });
+    }
 
     // Public
     PerfilEscuela.init = function () {
         $('.comentario-btn').click(function () {
+            var id_validacion = $(this).data('id');
+            var url = $(this).data('url');
             bootbox.prompt({
-                title: "",
+                title: "Nuevo registro",
                 inputType: 'textarea',
                 callback: function (result) {
-                    console.log(result + $(this).data('id_validacion'));
-                }
-            });
-        });
-        $('.comentario-btn').submit(function (e) {
-            e.preventDefault();
-            $('#encontradas').html("Buscando...");
-            buscar_escuela({
-                url: $('#id_nombre').data('ajax--url'),
-                data: get_form(),
-                callback: function (respuesta) {
-                    $('#encontradas').html(respuesta.results.length + " escuelas encontradas");
-                    $.each(respuesta.results, function (index, escuela) {
-                        $('#tbody-escuela').append(get_fila_text(escuela.text));
-                    });
+                    if (result) {
+                        crear_comentario(url, id_validacion, result);
+                    }
+                    console.log(result + id_validacion);
                 }
             });
         });

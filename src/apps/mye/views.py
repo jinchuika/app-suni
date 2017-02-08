@@ -1,4 +1,5 @@
 from django.shortcuts import reverse
+
 from django.views.generic import DetailView, ListView
 from django.views.generic.edit import CreateView, UpdateView, FormView
 
@@ -10,6 +11,13 @@ from apps.mye.forms import InformeMyeForm, CooperanteForm, ProyectoForm, Solicit
 from apps.mye.models import Cooperante, Proyecto, SolicitudVersion, Solicitud, Validacion
 from apps.tpe.models import Equipamiento
 from apps.main.models import Municipio
+
+from django.views.generic import View, DetailView, ListView
+from django.views.generic.edit import CreateView, UpdateView
+from apps.mye.forms import CooperanteForm, ProyectoForm, SolicitudVersionForm, SolicitudForm, SolicitudNuevaForm, ValidacionNuevaForm, ValidacionForm
+from apps.mye.models import Cooperante, Proyecto, SolicitudVersion, Solicitud, Validacion, ValidacionComentario
+from braces.views import LoginRequiredMixin, PermissionRequiredMixin, CsrfExemptMixin, JsonRequestResponseMixin
+
 
 
 class CooperanteCrear(LoginRequiredMixin, CreateView):
@@ -137,6 +145,7 @@ class ValidacionUpdate(LoginRequiredMixin, UpdateView):
     def get_success_url(self):
         return reverse('escuela_detail', kwargs={'pk': self.object.escuela.id})
 
+
 class InformeMyeView(LoginRequiredMixin, FormView):
     form_class = InformeMyeForm
     template_name = 'mye/informe_form.html'
@@ -229,3 +238,25 @@ class InformeMyeBackend(autocomplete.Select2QuerySetView):
             equipamiento_list = Equipamiento.objects.filter(proyecto__in=proyecto_tpe)
             qs = qs.filter(equipamiento__in=equipamiento_list).distinct()
         return qs
+
+
+class ValidacionComentarioCrear(CsrfExemptMixin, JsonRequestResponseMixin, View):
+    require_json = True
+
+    def post(self, request, *args, **kwargs):
+        try:
+            id_validacion = self.request_json["id_validacion"]
+            validacion = Validacion.objects.filter(id=id_validacion)
+            comentario = self.request_json["comentario"]
+            if not len(comentario) or len(validacion) == 0:
+                raise KeyError
+        except KeyError:
+            error_dict = {u"message": u"Sin comentario"}
+            return self.render_bad_request_response(error_dict)
+        comentario_validacion = ValidacionComentario(validacion=validacion[0], usuario=self.request.user, comentario=comentario)
+        comentario_validacion.save()
+        return self.render_json_response({
+            "comentario": comentario_validacion.comentario,
+            "fecha": str(comentario_validacion.fecha),
+            "usuario": str(comentario_validacion.usuario.perfil)
+            })

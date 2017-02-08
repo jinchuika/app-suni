@@ -195,6 +195,7 @@ class Validacion(models.Model):
     requisito = models.ManyToManyField(Requisito, blank=True)
 
     observacion = models.TextField(null=True, blank=True)
+    completada = models.BooleanField(default=False, blank=True)
 
     class Meta:
         verbose_name = "Validacion"
@@ -225,7 +226,7 @@ class ValidacionComentario(models.Model):
     validacion = models.ForeignKey(Validacion, related_name='comentarios')
     comentario = models.TextField()
     usuario = models.ForeignKey(User)
-    fecha = models.DateField(default=timezone.now)
+    fecha = models.DateTimeField(default=timezone.now)
 
     class Meta:
         verbose_name = "Comentario de validación"
