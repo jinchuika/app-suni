@@ -2,7 +2,7 @@ from django import forms
 from django.forms.models import inlineformset_factory
 from django.core.urlresolvers import reverse_lazy
 
-from apps.escuela.models import Escuela, EscContacto, EscContactoTelefono, EscContactoMail, EscNivel
+from apps.escuela.models import Escuela, EscContacto, EscContactoTelefono, EscContactoMail, EscNivel, EscSector
 from apps.main.models import Departamento, Municipio
 from apps.mye.models import Cooperante, Proyecto
 
@@ -25,11 +25,13 @@ class BuscarEscuelaForm(forms.ModelForm):
     departamento = forms.ModelChoiceField(
         queryset=Departamento.objects.all(),
         required=False)
-    cooperante = forms.ModelMultipleChoiceField(
+    cooperante_mye = forms.ModelMultipleChoiceField(
+        label='Cooperante en proceso',
         queryset=Cooperante.objects.all(),
         widget=forms.SelectMultiple(attrs={'class': 'select2'}),
         required=False)
-    proyecto = forms.ModelMultipleChoiceField(
+    proyecto_mye = forms.ModelMultipleChoiceField(
+        label='Proyecto en proceso',
         queryset=Proyecto.objects.all(),
         widget=forms.SelectMultiple(attrs={'class': 'select2'}),
         required=False)
@@ -49,6 +51,9 @@ class BuscarEscuelaForm(forms.ModelForm):
     nivel = forms.ModelChoiceField(
         queryset=EscNivel.objects.all(),
         required=False)
+    sector = forms.ModelChoiceField(
+        queryset=EscSector.objects.all(),
+        required=False)
     poblacion_min = forms.IntegerField(
         label='Población mínima',
         required=False)
@@ -58,6 +63,27 @@ class BuscarEscuelaForm(forms.ModelForm):
     solicitud = forms.ChoiceField(
         required=False,
         choices=ESTADO_CHOICES)
+    solicitud_id = forms.IntegerField(
+        label='Número de solicitud',
+        min_value=1,
+        required=False)
+    equipamiento = forms.ChoiceField(
+        required=False,
+        choices=ESTADO_CHOICES)
+    equipamiento_id = forms.IntegerField(
+        label='Número de entrega',
+        min_value=1,
+        required=False)
+    cooperante_tpe = forms.ModelMultipleChoiceField(
+        label='Cooperante de equipamiento',
+        queryset=Cooperante.objects.all(),
+        widget=forms.SelectMultiple(attrs={'class': 'select2'}),
+        required=False)
+    proyecto_tpe = forms.ModelMultipleChoiceField(
+        label='Proyecto de equipamiento',
+        queryset=Proyecto.objects.all(),
+        widget=forms.SelectMultiple(attrs={'class': 'select2'}),
+        required=False)
 
     class Meta:
         model = Escuela

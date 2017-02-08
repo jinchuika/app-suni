@@ -22,4 +22,5 @@ Menu.add_item(
         reverse_lazy('list_c'),
         weight=10,
         icon="fa-search",
+        group="mye",
         children=mye_children))

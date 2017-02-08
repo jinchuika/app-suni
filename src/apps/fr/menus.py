@@ -27,4 +27,5 @@ Menu.add_item(
         reverse_lazy('contacto_contactos'),
         weight=40,
         icon="fa-users",
+        group="fr",
         children=contacto_children))

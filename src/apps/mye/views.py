@@ -2,8 +2,8 @@ from django.http import JsonResponse
 from django.shortcuts import reverse
 from django.views.generic import DetailView, ListView
 from django.views.generic.edit import CreateView, UpdateView
-from apps.mye.forms import CooperanteForm, ProyectoForm, SolicitudVersionForm, SolicitudForm, SolicitudNuevaForm
-from apps.mye.models import Cooperante, Proyecto, SolicitudVersion, Solicitud
+from apps.mye.forms import CooperanteForm, ProyectoForm, SolicitudVersionForm, SolicitudForm, SolicitudNuevaForm, ValidacionNuevaForm, ValidacionForm
+from apps.mye.models import Cooperante, Proyecto, SolicitudVersion, Solicitud, Validacion
 from braces.views import LoginRequiredMixin, PermissionRequiredMixin
 
 
@@ -93,6 +93,40 @@ class SolicitudCrearView(LoginRequiredMixin, CreateView):
 class SolicitudUpdate(LoginRequiredMixin, UpdateView):
     model = Solicitud
     form_class = SolicitudForm
+    template_name = 'mye/solicitud_form.html'
+
+    def get_success_url(self):
+        return reverse('escuela_detail', kwargs={'pk': self.object.escuela.id})
+
+
+class ValidacionCrearView(LoginRequiredMixin, CreateView):
+    model = Validacion
+    form_class = ValidacionNuevaForm
+
+    def form_valid(self, form):
+        response = super(ValidacionCrearView, self).form_valid(form)
+        if self.request.is_ajax():
+            data = {
+                'pk': self.object.pk,
+            }
+            return JsonResponse(data)
+        else:
+            return response
+
+    def form_invalid(self, form):
+        response = super(ValidacionCrearView, self).form_valid(form)
+        if self.request.is_ajax():
+            return JsonResponse(form.errors, status=400)
+        else:
+            return response
+
+    def get_success_url(self):
+        return reverse('escuela_validacion_update', kwargs={'pk': self.object.escuela.id, 'id_validacion': self.object.id})
+
+
+class ValidacionUpdate(LoginRequiredMixin, UpdateView):
+    model = Validacion
+    form_class = ValidacionForm
     template_name = 'mye/solicitud_form.html'
 
     def get_success_url(self):

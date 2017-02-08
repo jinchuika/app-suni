@@ -1,31 +1,26 @@
 {% extends "base/base.html" %}
+
+{% load staticfiles %}
+
+{% block page_title %}
+	<title>Listado de cursos</title>
+{% endblock page_title %}
+
 {% block content %}
 <section class="content">
 	<div class="container-fluid">
 		<div class="row">
 			<div class="col-md-3">
+			{% if perms.cyd.curso_add %}
+				<a href="{% url 'curso_add' %}" class="btn btn-primary">Crear nuevo</a>
+			{% endif %}
 			</div>
 			<div class="col-md-6">
 				<table class="table table-striped box box-primary">
-					<thead>
-						<tr>
-							<th>Nombre</th>
-							<th>Usuario</th>
-							<th>Grupos</th>
-						</tr>
-					</thead>
-					{% for perfil in perfil_list %}
+					{% for curso in curso_list %}
 						<tr>
 							<td>
-								<a href="{{perfil.get_absolute_url}}">{{perfil}}</a>
-							</td>
-							<td>
-								{{perfil.user}}
-							</td>
-							<td>
-								{% for grupo in perfil.user.groups.all %}
-									{{grupo}}, 
-								{% endfor %}
+								<a href="{{curso.get_absolute_url}}">{{curso}}</a>
 							</td>
 						</tr>
 					{% endfor %}

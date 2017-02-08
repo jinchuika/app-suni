@@ -2,7 +2,7 @@ from datetime import date
 from django import forms
 from django.forms import ModelForm
 from django.utils import timezone
-from apps.mye.models import Cooperante, EscuelaCooperante, Proyecto, EscuelaProyecto, SolicitudVersion, Solicitud, Requisito
+from apps.mye.models import Cooperante, EscuelaCooperante, Proyecto, EscuelaProyecto, SolicitudVersion, Solicitud, Requisito, ValidacionVersion, Validacion
 from apps.escuela.models import Escuela
 
 
@@ -115,9 +115,7 @@ class SolicitudNuevaForm(forms.ModelForm):
         self.fields['version'].label = 'Versión'
 
     def save(self, commit=True):
-        print("asd")
         instance = super(SolicitudNuevaForm, self).save(commit=False)
-        print("dsa")
         instance.fecha = date.today()
         instance.jornada = 1
         instance.edf = False
@@ -161,4 +159,64 @@ class SolicitudForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super(SolicitudForm, self).__init__(*args, **kwargs)
         version = SolicitudVersion.objects.get(id=self.initial['version'])
+        self.fields['requisito'].queryset = Requisito.objects.filter(id__in=version.requisito.all())
+
+
+class ValidacionNuevaForm(forms.ModelForm):
+    class Meta:
+        model = Validacion
+        fields = ('escuela', 'version', 'tipo')
+        widgets = {
+            'escuela': forms.HiddenInput(),
+            'version': forms.Select(attrs={'class': 'form-control'}),
+            'tipo': forms.Select(attrs={'class': 'form-control'})
+        }
+
+    def __init__(self, *args, **kwargs):
+        super(ValidacionNuevaForm, self).__init__(*args, **kwargs)
+        self.fields['version'].label = 'Versión'
+
+    def save(self, commit=True):
+        instance = super(ValidacionNuevaForm, self).save(commit=False)
+        instance.jornada = 1
+        instance.edf = False
+        instance.alumna = 0
+        instance.alumno = 0
+        instance.maestra = 0
+        instance.maestro = 0
+        if commit:
+            instance.save()
+        return instance
+
+
+class ValidacionForm(forms.ModelForm):
+    class Meta:
+        model = Validacion
+        fields = '__all__'
+        exclude = ('escuela',)
+
+        labels = {
+            'alumna': 'Cantidad de alumnas',
+            'alumno': 'Cantidad de alumnos',
+            'maestra': 'Cantidad de maestras',
+            'maestro': 'Cantidad de maestros',
+            'total_alumno': 'Cantidad total de estudiantes',
+            'total_maestro': 'Cantidad total de docentes',
+            'jornada': 'Cantidad de jornadas en la escuela',
+            'edf': 'La escuela fue EDF',
+            'observacion': 'Observaciones',
+            'requisito': 'Requerimientos',
+        }
+
+        widgets = {
+            'tipo': forms.Select(attrs={'class': 'form-control'}),
+            'version': forms.HiddenInput(),
+            'fecha': forms.TextInput(attrs={'class': 'form-control datepicker'}),
+            'jornada': forms.NumberInput(attrs={'min': 1, 'class': 'form-control'}),
+            'requisito': forms.CheckboxSelectMultiple(attrs={'class': 'list-unstyled'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super(ValidacionForm, self).__init__(*args, **kwargs)
+        version = ValidacionVersion.objects.get(id=self.initial['version'])
         self.fields['requisito'].queryset = Requisito.objects.filter(id__in=version.requisito.all())

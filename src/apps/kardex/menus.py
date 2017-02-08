@@ -32,4 +32,5 @@ Menu.add_item(
         reverse_lazy('kardex_equipo'),
         weight=40,
         icon="fa-cog",
+        group="kardex",
         children=kardex_children))

@@ -5,16 +5,16 @@ from apps.main.menus import ViewMenuItem
 # Escuelas
 escuela_children = (
     ViewMenuItem(
-        "Crear escuela",
-        reverse_lazy("escuela_add"),
-        weight=10,
-        icon="fa-plus-square-o",
-        perm='escuela.add_escuela'),
-    ViewMenuItem(
         "Buscar escuela",
         reverse_lazy("escuela_buscar"),
-        weight=10,
-        icon="fa-search"),)
+        weight=11,
+        icon="fa-search"),
+    ViewMenuItem(
+        "Crear escuela",
+        reverse_lazy("escuela_add"),
+        weight=12,
+        icon="fa-plus-square-o",
+        perm='escuela.add_escuela'),)
 
 Menu.add_item(
     "user",

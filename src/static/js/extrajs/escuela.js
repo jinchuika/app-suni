@@ -1,86 +1,109 @@
+(function( BuscadorEscuela, $, undefined ) {
+    //Private Property
+    var get_form = function () {
+        $('#tbody-escuela').html('');
+        return {
+            q: $('#id_codigo').val(),
+            forward: JSON.stringify({
+                municipio: $('#id_municipio').val(),
+                departamento_mye: $('#id_departamento_mye').val(),
+                cooperante_mye: $('#id_cooperante_mye').val(),
+                nombre: $('#id_nombre').val(),
+                proyecto: $('#id_proyecto').val(),
+                direccion: $('#id_direccion').val(),
+                nivel: $('#id_nivel').val(),
+                sector: $('#id_sector').val(),
+                poblacion_max: $('#id_poblacion_max').val(),
+                poblacion_min: $('#id_poblacion_min').val(),
+                solicitud: $('#id_solicitud').val(),
+                solicitud_id: $('#id_solicitud_id').val(),
+                equipamiento: $('#id_equipamiento').val(),
+                equipamiento_id: $('#id_equipamiento_id').val(),
+                departamento_tpe: $('#id_departamento_tpe').val(),
+                cooperante_tpe: $('#id_cooperante_tpe').val(),
+            })
+        }
+    };
 
-function buscar_escuela(params) {
-	$.ajax({
-		xhr: function () {
-			var xhr = new window.XMLHttpRequest();
-			xhr.upload.addEventListener("progress", function(evt){
-				if (evt.lengthComputable) {
-					var percentComplete = evt.loaded / evt.total;
-					console.log(percentComplete);
-				}
-			}, false);
-			xhr.addEventListener("progress", function(evt){
-				console.log(evt);
-				if (evt.lengthComputable) {
-					console.log("total: "+evt.total);
-					var percentComplete = evt.loaded / evt.total;
+    var buscar_escuela = function (params) {
+        $.ajax({
+            type: 'get',
+            url: params.url,
+            dataType: 'json',
+            data: params.data,
+            success: function (respuesta) {
+                params.callback(respuesta);
+            }
+        });
+    };
 
-					console.log(percentComplete);
-				}
-			});
-			return xhr;
-		},
-		type: 'get',
-		url: params.url,
-		dataType: 'json',
-		data: params.data,
-		success: function (respuesta) {
-			params.callback(respuesta);
-		}
-	});
-}
+    var get_fila_text = function (escuela) {
+        var text = '<td>'+escuela.codigo+'</td>';
+        text += '<td><a href="'+escuela.url+'">'+escuela.nombre+'</a></td>';
+        text += '<td>'+escuela.direccion+'</td>';
+        text += '<td>'+escuela.municipio+'</td>';
+        text += '<td>'+escuela.departamento+'</td>';
+        text += '<td>'+escuela.nivel+'</td>';
+        text += '<td>'+escuela.poblacion+'</td>';
+        return '<tr>'+text+'</tr>';
+    };
 
-function get_fila_buscador_text(escuela) {
-	var text = '<td>'+escuela.codigo+'</td>';
-	text += '<td><a href="'+escuela.url+'">'+escuela.nombre+'</a></td>';
-	text += '<td>'+escuela.direccion+'</td>';
-	text += '<td>'+escuela.municipio+'</td>';
-	text += '<td>'+escuela.departamento+'</td>';
-	text += '<td>'+escuela.nivel+'</td>';
-	text += '<td>'+escuela.poblacion+'</td>';
-	return '<tr>'+text+'</tr>';
-}
+    // Public
+    BuscadorEscuela.init = function () {
+        $('#form_buscar_escuela').submit(function (e) {
+            e.preventDefault();
+            $('#encontradas').html("Buscando...");
+            buscar_escuela({
+                url: $('#id_nombre').data('ajax--url'),
+                data: get_form(),
+                callback: function (respuesta) {
+                    $('#encontradas').html(respuesta.results.length + " escuelas encontradas");
+                    $.each(respuesta.results, function (index, escuela) {
+                        $('#tbody-escuela').append(get_fila_text(escuela.text));
+                    });
+                }
+            });
+        });
+    }   
+}( window.BuscadorEscuela = window.BuscadorEscuela || {}, jQuery ));
 
+(function( PerfilEscuela, $, undefined ) {
+    
+
+    // Public
+    PerfilEscuela.init = function () {
+        $('.comentario-btn').click(function () {
+            bootbox.prompt({
+                title: "",
+                inputType: 'textarea',
+                callback: function (result) {
+                    console.log(result + $(this).data('id_validacion'));
+                }
+            });
+        });
+        $('.comentario-btn').submit(function (e) {
+            e.preventDefault();
+            $('#encontradas').html("Buscando...");
+            buscar_escuela({
+                url: $('#id_nombre').data('ajax--url'),
+                data: get_form(),
+                callback: function (respuesta) {
+                    $('#encontradas').html(respuesta.results.length + " escuelas encontradas");
+                    $.each(respuesta.results, function (index, escuela) {
+                        $('#tbody-escuela').append(get_fila_text(escuela.text));
+                    });
+                }
+            });
+        });
+    }   
+}( window.PerfilEscuela = window.PerfilEscuela || {}, jQuery ));
 $(document).ready(function () {
-	/**
-	 * BUSCADOR DE ESCUELAS
-	 */
+    /**
+     * PERFIL DE ESCUELAS
+     */
 
-	$('#form_buscar_escuela').submit(function (e) {
-		e.preventDefault();
-		$('#tbody-escuela').html('');
-		var queryParameters = {
-			q: $('#id_codigo').val(),
-			forward: JSON.stringify({
-				municipio: $('#id_municipio').val(),
-				departamento: $('#id_departamento').val(),
-				cooperante: $('#id_cooperante').val(),
-				nombre: $('#id_nombre').val(),
-				proyecto: $('#id_proyecto').val(),
-				direccion: $('#id_direccion').val(),
-				nivel: $('#id_nivel').val(),
-				poblacion_max: $('#id_poblacion_max').val(),
-				poblacion_min: $('#id_poblacion_min').val(),
-				solicitud: $('#id_solicitud').val(),
-			})
-		}
-		buscar_escuela({
-			url: $('#id_nombre').data('ajax--url'),
-			data: queryParameters,
-			callback: function (respuesta) {
-				$('#encontradas').html(respuesta.results.length + " escuelas encontradas");
-				$.each(respuesta.results, function (index, escuela) {
-					$('#tbody-escuela').append(get_fila_buscador_text(escuela.text));
-				});
-			}
-		});
-	});
-
-	/**
-	 * PERFIL DE ESCUELAS
-	 */
-
-	$('#form-nueva-solicitud').hide();
-	$('#form-nuevo-equipamiento').hide();
-	
+    $('#form-nueva-solicitud').hide();
+    $('#form-nuevo-equipamiento').hide();
+    $('#form-nueva-validacion').hide();
+    
 })
