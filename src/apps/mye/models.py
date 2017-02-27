@@ -181,8 +181,10 @@ class Validacion(models.Model):
     version = models.ForeignKey(ValidacionVersion)
     tipo = models.ForeignKey(ValidacionTipo)
     escuela = models.ForeignKey('escuela.Escuela', on_delete=models.PROTECT, related_name='validacion')
-    fecha = models.DateField(default=timezone.now)
+    fecha_inicio = models.DateField(default=timezone.now)
+    fecha_final = models.DateField(null=True, blank=True)
     jornada = models.IntegerField(default=1)
+    fecha_equipamiento = models.DateField(null=True, blank=True)
 
     alumna = models.IntegerField()
     alumno = models.IntegerField()

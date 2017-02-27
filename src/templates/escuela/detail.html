@@ -40,6 +40,9 @@
 									<a href="#equipamiento" data-toggle="tab"><i class="fa fa-television" aria-hidden="true"></i> Equipamiento</a>
 								</li>
 								<li>
+									<a href="#renovacion" data-toggle="tab"><i class="fa fa-undo" aria-hidden="true"></i> Renovacion</a>
+								</li>
+								<li>
 									<a href="#contactos" data-toggle="tab"><i class="fa fa-user" aria-hidden="true"></i> Contactos</a>
 								</li>
 							</ul>
@@ -389,9 +392,11 @@
 																		<div class="box-header">
 																			<h3 class="box-title">No. {{ validacion.id }} - {{ validacion.fecha }}</h3>
 																			<div class="box-tools pull-right">
-																				<a href="{% url 'escuela_validacion_update' pk=escuela.id id_validacion=validacion.id %}" class="btn btn-box-tool">
-																					<i class="fa fa-pencil"></i> Editar
-																				</a>
+																				{% if not validacion.completada %}
+																					<a href="{% url 'escuela_validacion_update' pk=escuela.id id_validacion=validacion.id %}" class="btn btn-box-tool">
+																						<i class="fa fa-pencil"></i> Editar
+																					</a>
+																				{% endif %}
 																				<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
 																			</div>
 																		</div>
@@ -489,7 +494,10 @@
 																			<table class="table table-hover table-condensed table-striped">
 																				{{ validacion_form.as_table }}
 																				<tr>
-																					<th colspan="2">Histórico <a href="javascript:void" class="comentario-btn" data-url="{% url 'validacion_comentario_add' %}" data-id="{{ validacion_form.instance.id }}">+</a></th>
+																					<th colspan="2">
+																						Histórico
+																						<a href="javascript:void" class=" btn btn-primary btn-mini comentario-btn" data-url="{% url 'validacion_comentario_add' %}" data-id="{{ validacion_form.instance.id }}">+</a>
+																					</th>
 																				</tr>
 																				<tbody id="body-validacion-{{ validacion_form.instance.id }}">
 																					{% for comentario in validacion_form.instance.comentarios.all %}
@@ -669,6 +677,10 @@
 										</div>
 									</div>
 									{% endif %}
+								</div>
+
+								<div class="tab-pane" id="renovacion">
+									
 								</div>
 
 								<div class="tab-pane" id="contactos">

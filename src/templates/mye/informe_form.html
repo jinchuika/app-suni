@@ -96,6 +96,14 @@
 								{{ form.solicitud_id.label_tag }}
 								{{ form.solicitud_id|add_class:"form-control"}}
 							</div>
+							<div class="form-group">
+								{{ form.validada.label_tag }}
+								{{ form.validada|add_class:"form-control"}}
+							</div>
+							<div class="form-group">
+								{{ form.validacion_id.label_tag }}
+								{{ form.validacion_id|add_class:"form-control"}}
+							</div>
 						</div>
 					</div>
 					<div class="box box-default collapsed-box">
@@ -124,6 +132,20 @@
 							</div>
 						</div>
 					</div>
+					<div class="box box-default collapsed-box">
+						<div class="box-header with-border">
+							<h5 class="box-title">Campos extra</h5>
+							<div class="box-tools pull-right">
+								<button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i></button>
+							</div>
+						</div>
+						<div class="box-body">
+							<div class="form-group">
+								{{ form.campos.label_tag }}
+								{{ form.campos}}
+							</div>
+						</div>
+					</div>
 					{% csrf_token %}
 				</form>
 			</div>
@@ -134,11 +156,9 @@
 							<tr>
 								<th>UDI</th>
 								<th>Nombre</th>
-								<th>Dirección</th>
 								<th>Municipio</th>
 								<th>Departamento</th>
 								<th>Nivel</th>
-								<th>Población</th>
 							</tr>
 						</thead>
 						<tbody id="tbody-escuela">
@@ -153,8 +173,8 @@
 {% endblock content %}
 
 {% block extra_js %}
-<script src="{% static "js/extrajs/escuela.js" %}"></script>
+<script src="{% static "js/extrajs/mye.js" %}"></script>
 <script>
-	BuscadorEscuela.init();
+	InformeMye.init();
 </script>
 {% endblock extra_js %}

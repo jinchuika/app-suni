@@ -176,8 +176,10 @@ class ValidacionNuevaForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
+        tipo_queryset = kwargs.pop('tipo_queryset')
         super(ValidacionNuevaForm, self).__init__(*args, **kwargs)
         self.fields['version'].label = 'Versión'
+        self.fields['tipo'].queryset = tipo_queryset
 
     def save(self, commit=True):
         instance = super(ValidacionNuevaForm, self).save(commit=False)
@@ -227,21 +229,18 @@ class ValidacionForm(forms.ModelForm):
 
 class InformeMyeForm(forms.ModelForm):
     CAMPO_CHOICES = (
-        ("departamento","Departamento"),
-        ("cooperante_mye","Cooperante en proceso"),
-        ("proyecto_mye","Proyecto en proceso"),
-        ("Direccion","Dirección"),
-        ("municipio","Municipio"),
-        ("nivel","Nivel"),
-        ("sector","Sector"),
-        ("poblacion_min","Población mínima"),
-        ("poblacion_max","Población máxima"),
-        ("solicitud","Solicitud"),
-        ("solicitud_id","Número de solicitud"),
-        ("equipamiento","Equipamiento"),
-        ("equipamiento_id","Número de entrega"),
-        ("cooperante_tpe","Cooperante de equipamiento"),
-        ("proyecto_tpe","Poyecto de equipamiento"),)
+        ("direccion", "Dirección"),
+        ("sector", "Sector"),
+        ("cooperante_mye", "Cooperante en proceso"),
+        ("proyecto_mye", "Proyecto en proceso"),
+        ("solicitud", "Solicitud"),
+        ("validada", "Validada"),
+        ("equipada", "Equipada"),
+        ("equipamiento_id", "Número de entrega"),
+        ("equipamiento_fecha", "Fecha de equipamiento"),
+        ("cooperante_tpe", "Cooperante de equipamiento"),
+        ("proyecto_tpe", "Poyecto de equipamiento"),
+        ("hist_validacion", "Historial de validación"),)
     ESTADO_CHOICES = (
         (None, 'No importa'),
         (2, 'Sí'),
@@ -263,7 +262,7 @@ class InformeMyeForm(forms.ModelForm):
         label='Código',
         required=False)
     nombre = forms.CharField(
-        widget=forms.TextInput(attrs={'data-ajax--url': reverse_lazy('escuela_buscar_backend')}),
+        widget=forms.TextInput(attrs={'data-ajax--url': reverse_lazy('informe_mye_backend')}),
         required=False)
     direccion = forms.CharField(
         label='Dirección',
@@ -291,6 +290,13 @@ class InformeMyeForm(forms.ModelForm):
         label='Número de solicitud',
         min_value=1,
         required=False)
+    validada = forms.ChoiceField(
+        required=False,
+        choices=ESTADO_CHOICES)
+    validacion_id = forms.IntegerField(
+        label='Número de validación',
+        min_value=1,
+        required=False)
     equipamiento = forms.ChoiceField(
         required=False,
         choices=ESTADO_CHOICES)
@@ -310,7 +316,8 @@ class InformeMyeForm(forms.ModelForm):
         required=False)
     campos = forms.MultipleChoiceField(
         required=False,
-        choices=ESTADO_CHOICES)
+        choices=CAMPO_CHOICES,
+        widget=forms.CheckboxSelectMultiple())
 
     class Meta:
         model = Escuela

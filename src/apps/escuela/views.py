@@ -11,7 +11,7 @@ from apps.escuela.mixins import ContactoContextMixin
 from apps.mye.forms import EscuelaCooperanteForm, EscuelaProyectoForm, SolicitudNuevaForm, SolicitudForm, ValidacionNuevaForm, ValidacionForm
 from apps.tpe.forms import EquipamientoForm, EquipamientoNuevoForm
 from apps.tpe.models import Equipamiento
-from apps.mye.models import EscuelaCooperante, EscuelaProyecto, Solicitud, Validacion
+from apps.mye.models import EscuelaCooperante, EscuelaProyecto, Solicitud, Validacion, ValidacionTipo
 from apps.main.models import Municipio
 
 
@@ -30,7 +30,11 @@ class EscuelaDetail(LoginRequiredMixin, DetailView):
         context = super(EscuelaDetail, self).get_context_data(**kwargs)
         context['solicitud_nueva_form'] = SolicitudNuevaForm(initial={'escuela': self.object.pk})
         context['equipamiento_nuevo_form'] = EquipamientoNuevoForm(initial={'escuela': self.object.pk})
-        context['validacion_nueva_form'] = ValidacionNuevaForm(initial={'escuela': self.object.pk})
+        if self.request.user.groups.filter(name='mye_validacion_nula').count() > 0:
+            tipo_queryset = ValidacionTipo.objects.all()
+        else:
+            tipo_queryset = ValidacionTipo.objects.exclude(id=3)
+        context['validacion_nueva_form'] = ValidacionNuevaForm(initial={'escuela': self.object.pk}, tipo_queryset=tipo_queryset)
 
         # Crea un formulario de solicitud si encuentra la ID
         if 'id_solicitud' in self.kwargs:

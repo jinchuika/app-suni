@@ -1,0 +1,1 @@
+[{"model": "mye.validaciontipo", "pk": 1, "fields": {"nombre": "Visita"}}, {"model": "mye.validaciontipo", "pk": 2, "fields": {"nombre": "Remota"}}, {"model": "mye.validaciontipo", "pk": 3, "fields": {"nombre": "N/A"}}]

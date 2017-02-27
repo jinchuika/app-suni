@@ -1,0 +1,36 @@
+{% extends "base/base.html" %}
+
+{% load staticfiles %}
+
+{% block page_title %}
+<title>Listado de garantías</title>
+{% endblock page_title %}
+
+{% block content %}
+<section class="content-header">
+	<h1>Listado de garantías</h1>
+</section>
+<section class="content">
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-md-12">
+				<div class="box box-primary">
+					<div class="box-body">
+						<table class="table table-datatables">
+							<thead>
+								<tr>
+									<th>Entrega</th>
+									<th>Garantía</th>
+									<th>Fecha de inicio</th>
+									<th>Fecha de vencimiento</th>
+									<th>Estado actual</th>
+								</tr>
+							</thead>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+{% endblock content %}
