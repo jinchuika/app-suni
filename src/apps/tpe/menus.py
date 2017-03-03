@@ -6,7 +6,7 @@ from apps.main.menus import ViewMenuItem
 tpe_children = (
     ViewMenuItem(
         "Garantías",
-        reverse_lazy("cooperante_list"),
+        reverse_lazy("garantia_list"),
         weight=10,
         icon="fa-gavel"),)
 

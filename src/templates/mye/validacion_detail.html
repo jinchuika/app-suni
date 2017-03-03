@@ -1,0 +1,85 @@
+<div class="row">
+	<div class="col-md-12">
+		<div class="box box-warning box-solid collapsed-box">
+			<div class="box-header">
+				<h3 class="box-title">No. {{ validacion.id }} - {{ validacion.fecha }}</h3>
+				<div class="box-tools pull-right">
+					{% if not validacion.completada %}
+						<a href="{% url 'escuela_validacion_update' pk=validacion.escuela.id id_validacion=validacion.id %}" class="btn btn-box-tool">
+							<i class="fa fa-pencil"></i> Editar
+						</a>
+					{% endif %}
+					<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+				</div>
+			</div>
+			<div class="box-body">
+				<div class="table-responsive">
+					<table class="table table-hover table-condensed table-striped">
+						<tbody id="validacion-{{ validacion.id }}">
+							<tr>
+								<th>Fecha</th>
+								<td colspan="2">{{ validacion.fecha }}</td>
+							</tr>
+							<tr>
+								<th>Tipo de validación</th>
+								<td colspan="2">{{ validacion.tipo }}</td>
+							</tr>
+							<tr>
+								<th>Jornadas que funcionan en la escuela</th>
+								<td colspan="2">{{ validacion.jornada }}</td>
+							</tr>
+							<tr>
+								<th>Población estudiantil</th>
+								<td><i class="fa fa-female"></i> {{ validacion.alumna }}</td>
+								<td><i class="fa fa-male"></i> {{ validacion.alumno }}</td>
+								<td><i class="fa fa-male"></i><i class="fa fa-female"></i> {{ validacion.total_alumno }}</td>
+							</tr>
+							<tr>
+								<th>Población doncente</th>
+								<td><i class="fa fa-female"></i> {{ validacion.maestra }}</td>
+								<td><i class="fa fa-male"></i> {{ validacion.maestro }}</td>
+								<td><i class="fa fa-male"></i><i class="fa fa-female"></i> {{ validacion.total_maestro }}</td>
+							</tr>
+							<tr>
+								<th colspan="4">Requerimientos</th>
+							</tr>
+							<tr>
+								<td colspan="4">
+									<ul class="list-unstyled">
+										{% for requisito in validacion.listar_requisito %}
+										<li>
+											{% if requisito.cumple %}
+											<i class="fa fa-check"></i>
+											{% else %}
+											<i class="fa fa-close"></i>
+											{% endif %}
+											<span class="text">{{ requisito.requisito }}</span>
+										</li>
+										{% endfor %}
+									</ul>
+								</td>
+							</tr>
+							<tr>
+								<th>Observaciones</th>
+								<td colspan="4">{{ validacion.observacion }}</td>
+							</tr>
+							<tr>
+								<th colspan="4">Histórico</th>
+							</tr>
+							{% for comentario in validacion.comentarios.all %}
+							<tr>
+								<td>
+									{{ comentario.comentario }}
+								</td>
+								<td>
+									<small>{{ comentario.fecha|date:'d/m/Y' }}, {{ comentario.usuario.perfil }}</small>
+								</td>
+							</tr>
+							{% endfor %}
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

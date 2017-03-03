@@ -1,0 +1,102 @@
+<div class="box box-success box-solid collapsed-box">
+	<div class="box-header with-border">
+		<h3 class="box-title">Entrega {{ equipamiento.id }} • {{ equipamiento.fecha|date:"d/M/Y" }}</h3>
+		<div class="box-tools pull-right">
+			{% if perms.tpe.change_equipamiento %}
+				<a href="{% url "escuela_equipamiento_update" pk=equipamiento.escuela.id id_equipamiento=equipamiento.id %}" class="btn btn-box-tool"><i class="fa fa-pencil"></i> Editar</a>
+			{% endif %}
+			<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+			</button>
+		</div>
+	</div>
+	<div class="box-body">
+		<table class="table table-hover table-striped">
+			<tr>
+				<th>Número de entrega</th>
+				<td>{{equipamiento.id}}</td>
+			</tr>
+			<tr>
+				<th>Estado</th>
+				<td>{{equipamiento.estado}}</td>
+			</tr>
+			<tr>
+				<th>Fecha</th>
+				<td>{{equipamiento.fecha}}</td>
+			</tr>
+			<tr>
+				<th>Cantidad equipo</th>
+				<td>{{ equipamiento.cantidad_equipo }}</td>
+			</tr>
+			<tr>
+				<th>Es renovación</th>
+				<td>
+					{% if equipamiento.renovacion %}Sí{% else %}No{% endif %}
+				</td>
+			</tr>
+			<tr>
+				<th>Servidor Khan</th>
+				<td>
+					{% if equipamiento.servidor_khan %}Sí{% else %}No{% endif %}
+				</td>
+			</tr>
+			<tr>
+				<th>Tiene red</th>
+				<td>
+					{% if equipamiento.red %}
+					Sí - {{ equipamiento.tipo_red }}
+					{% else %}
+					No
+					{% endif %}
+				</td>
+			</tr>
+			<tr>
+				<th>Fotos</th>
+				<td>
+					{% if equipamiento.fotos %}Sí{% else %}No{% endif %}
+				</td>
+			</tr>
+			<tr>
+				<th>Manual de uso del laboratorio</th>
+				<td>
+					{% if equipamiento.manual %}Sí{% else %}No{% endif %}
+				</td>
+			</tr>
+			<tr>
+				<th>Sistema operativo Edulibre</th>
+				<td>
+					{% if equipamiento.edulibre %}Sí{% else %}No{% endif %}
+				</td>
+			</tr>
+			<tr>
+				<th>Carta enviada</th>
+				<td>
+					{% if equipamiento.carta %}Sí{% else %}No{% endif %}
+				</td>
+			</tr>
+			<tr>
+				<th>Observaciones</th>
+				<td>{{ equipamiento.observacion }}</td>
+			</tr>
+			<tr>
+				<th>Cooperantes</th>
+				<td>
+					<ul class="list-unstyled">
+						{% for cooperante in equipamiento.cooperante.all %}
+						<li><a href="{{cooperante.get_absolute_url}}">{{cooperante}}</a></li>
+						{% endfor %}
+					</ul>
+				</td>
+			</tr>
+			<tr>
+				<th>Proyectos</th>
+				<td>
+					<ul class="list-unstyled">
+						{% for proyecto in equipamiento.proyecto.all %}
+						<li><a href="{{proyecto.get_absolute_url}}">{{proyecto}}</a></li>
+						{% endfor %}
+					</ul>
+				</td>
+			</tr>
+		</table>
+	</div>
+</div>
