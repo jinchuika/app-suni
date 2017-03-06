@@ -125,3 +125,17 @@ class TicketRegistro(models.Model):
 
     def get_absolute_url(self):
         return reverse_lazy('ticket_detail', kwargs={'pk': self.ticket.garantia.id, 'ticket_id': self.ticket.id})
+
+
+class Monitoreo(models.Model):
+    equipamiento = models.ForeignKey(Equipamiento, related_name='monitoreos')
+    creado_por = models.ForeignKey(User)
+    fecha = models.DateField(default=timezone.now)
+    comentario = models.TextField()
+
+    class Meta:
+        verbose_name = "Monitoreo"
+        verbose_name_plural = "Registro de monitoreo"
+
+    def __str__(self):
+        return self.comentario[:15] + '...'

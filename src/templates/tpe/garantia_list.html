@@ -26,6 +26,23 @@
 									<th>Estado actual</th>
 								</tr>
 							</thead>
+							<tbody>
+								{% for garantia in garantia_list %}
+									<tr>
+										<td>{{ garantia.equipamiento }}</td>
+										<td>{{ garantia.id }}</td>
+										<td>{{ garantia.equipamiento.fecha|date:"Y-m-d" }}</td>
+										<td>{{ garantia.fecha_vencimiento|date:"Y-m-d" }}</td>
+										<td>
+											{% if garantia.get_vigente %}
+												Vigente
+											{% else %}
+												Vencida
+											{% endif %}
+										</td>
+									</tr>
+								{% endfor %}
+							</tbody>
 						</table>
 					</div>
 				</div>
