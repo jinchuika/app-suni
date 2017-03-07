@@ -44,6 +44,9 @@ class Equipamiento(models.Model):
     def __str__(self):
         return str(self.id)
 
+    def get_absolute_url(self):
+        return reverse_lazy('escuela_equipamiento_detail', kwargs={'pk': self.escuela.id, 'id_equipamiento': self.id})
+
 
 class EquipamientoSeguimiento(models.Model):
     equipamiento = models.ForeignKey(Equipamiento)

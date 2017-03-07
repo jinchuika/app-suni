@@ -30,7 +30,7 @@
 
 </head>
 
-<body class="hold-transition {{ request.user.preferences.ui__skin }} sidebar-mini {% if user.preferences.ui__fixed is True %}fixed {% endif %}">
+<body class="hold-transition sidebar-collapse {{ request.user.preferences.ui__skin }} sidebar-mini {% if user.preferences.ui__fixed is True %}fixed {% endif %}">
 	<div class="wrapper">
 		{% if user.is_authenticated %}
 			<header class="main-header">
@@ -54,6 +54,7 @@
 <script src="{% static "js/app.min.js" %}"></script>
 
 <script src="{% static "js/jquery.dataTables.min.js" %}"> </script>
+<script src="{% static "js/dataTables.bootstrap.min.js" %}"> </script>
 <script src="{% static "js/bootbox.min.js" %}"></script>
 <script src="{% static "js/select2.full.min.js" %}"></script>
 <script src="{% static "js/main.js" %}">

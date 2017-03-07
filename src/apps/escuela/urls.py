@@ -1,5 +1,6 @@
 from django.conf.urls import url
 from apps.escuela.views import *
+from apps.tpe.views import EquipamientoDetailView
 
 urlpatterns = [
     url(r'^$', EscuelaCrear.as_view(), name='escuela_crear'),
@@ -8,7 +9,8 @@ urlpatterns = [
     url(r'^buscar/q/$', EscuelaBuscarBackend.as_view(), name='escuela_buscar_backend'),
 
     url(r'^(?P<pk>\d+)/solicitud/(?P<id_solicitud>\d+)/$', EscuelaDetail.as_view(), name='escuela_solicitud_update'),
-    url(r'^(?P<pk>\d+)/equipamiento/(?P<id_equipamiento>\d+)/$', EscuelaDetail.as_view(), name='escuela_equipamiento_update'),
+    url(r'^(?P<pk>\d+)/equipamiento/(?P<id_equipamiento>\d+)/edit$', EscuelaDetail.as_view(), name='escuela_equipamiento_update'),
+    url(r'^(?P<pk>\d+)/equipamiento/(?P<id_equipamiento>\d+)/$', EquipamientoDetailView.as_view(), name='escuela_equipamiento_detail'),
     url(r'^(?P<pk>\d+)/validacion/(?P<id_validacion>\d+)/$', EscuelaDetail.as_view(), name='escuela_validacion_update'),
     url(r'^(?P<pk>\d+)/$', EscuelaDetail.as_view(), name='escuela_detail'),
     url(r'^(?P<pk>\d+)/editar$', EscuelaEditar.as_view(), name='escuela_update'),

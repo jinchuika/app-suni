@@ -1,7 +1,10 @@
 from django import forms
 from django.forms import ModelForm
 from django.db.models import Count
+from django.core.urlresolvers import reverse_lazy
+
 from apps.tpe.models import Equipamiento, Garantia, TicketSoporte, TicketRegistro
+from apps.escuela.forms import BuscarEscuelaForm
 
 
 class EquipamientoNuevoForm(forms.ModelForm):
@@ -72,3 +75,28 @@ class TicketRegistroForm(forms.ModelForm):
             'costo_reparacion': forms.NumberInput(attrs={'class': 'form-control'}),
             'costo_envio': forms.NumberInput(attrs={'class': 'form-control'}),
         }
+
+
+class EquipamientoListForm(BuscarEscuelaForm):
+    nombre = forms.CharField(
+        widget=forms.TextInput(attrs={'data-ajax--url': reverse_lazy('equipamiento_list_backend')}),
+        required=False)
+    fecha_min = forms.CharField(
+        label='Fecha mínima',
+        widget=forms.TextInput(attrs={'class': 'datepicker'}),
+        required=False)
+    fecha_max = forms.CharField(
+        label='Fecha máxima',
+        widget=forms.TextInput(attrs={'class': 'datepicker'}),
+        required=False)
+
+    def __init__(self, *args, **kwargs):
+        super(EquipamientoListForm, self).__init__(*args, **kwargs)
+        self.fields.pop('nombre')
+        self.fields.pop('cooperante_mye')
+        self.fields.pop('proyecto_mye')
+        self.fields.pop('poblacion_min')
+        self.fields.pop('poblacion_max')
+        self.fields.pop('solicitud')
+        self.fields.pop('solicitud_id')
+        self.fields.pop('equipamiento')

@@ -1,11 +1,13 @@
+from django.http import JsonResponse
 from django.utils.timezone import datetime
 from django.shortcuts import reverse
-from django.views.generic import DetailView, ListView
-from django.views.generic.edit import CreateView, UpdateView
-from braces.views import LoginRequiredMixin, PermissionRequiredMixin, GroupRequiredMixin
+from django.views.generic import DetailView, ListView, View
+from django.views.generic.edit import CreateView, UpdateView, FormView
+from braces.views import LoginRequiredMixin, PermissionRequiredMixin, GroupRequiredMixin, CsrfExemptMixin, JsonRequestResponseMixin
 
+from apps.escuela.views import EscuelaDetail
 from apps.tpe.models import Equipamiento, Garantia, TicketSoporte, TicketRegistro
-from apps.tpe.forms import EquipamientoNuevoForm, EquipamientoForm, GarantiaForm, TicketSoporteForm, TicketCierreForm, TicketRegistroForm
+from apps.tpe.forms import EquipamientoNuevoForm, EquipamientoForm, GarantiaForm, TicketSoporteForm, TicketCierreForm, TicketRegistroForm, EquipamientoListForm
 
 
 class EquipamientoCrearView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
@@ -30,9 +32,40 @@ class EquipamientoUpdateView(LoginRequiredMixin, PermissionRequiredMixin, Update
         return reverse('escuela_detail', kwargs={'pk': self.object.escuela.id})
 
 
-class EquipamientoListView(LoginRequiredMixin, ListView):
-    model = Equipamiento
+class EquipamientoDetailView(EscuelaDetail):
+
+    def get_context_data(self, **kwargs):
+        id_equipamiento = self.kwargs.pop('id_equipamiento')
+        context = super(EquipamientoDetailView, self).get_context_data(**kwargs)
+        context['equipamiento_detail'] = id_equipamiento
+        return context
+
+
+class EquipamientoListView(CsrfExemptMixin, LoginRequiredMixin, FormView):
+    form_class = EquipamientoListForm
     template_name = 'tpe/equipamiento_list.html'
+
+    def get_queryset(self, filtros):
+        queryset = Equipamiento.objects.all()
+        if filtros.get('codigo', False):
+            queryset = queryset.filter(escuela__codigo=filtros.get('codigo'))
+        if filtros.get('municipio', False):
+            queryset = queryset.annotate(municipio='escuela__municipio').filter(municipio=filtros.get('municipio'))
+        return {'hola': 1}
+
+    def post(self, request, *args, **kwargs):
+        queryset = self.get_queryset(self.request.POST)
+        return JsonResponse(queryset)
+
+
+class EquipamientoListBackView(LoginRequiredMixin, JsonRequestResponseMixin, View):
+    def get_queryset(self, filtros):
+        if filtros.get('codigo', False):
+            print("hola")
+
+    def post(self, request, *args, **kwargs):
+        queryset = self.get_queryset(self.request_json)
+        return self.get_response(queryset)
 
 
 class GarantiaListView(LoginRequiredMixin, GroupRequiredMixin, ListView):

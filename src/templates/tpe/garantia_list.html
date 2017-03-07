@@ -15,12 +15,20 @@
 		<div class="row">
 			<div class="col-md-12">
 				<div class="box box-primary">
+					<div class="box-header pull-right">
+						{% if perms.tpe.add_garantia %}
+							<a href="{% url 'garantia_add' %}" class="btn btn-success">
+								<i class="fa fa-plus"></i> Nueva garantía
+							</a>
+						{% endif %}
+					</div>
 					<div class="box-body">
-						<table class="table table-datatables">
+						<table class="table table-datatables table-striped table-hover table-bordered">
 							<thead>
 								<tr>
-									<th>Entrega</th>
 									<th>Garantía</th>
+									<th>Escuela</th>
+									<th>Entrega</th>
 									<th>Fecha de inicio</th>
 									<th>Fecha de vencimiento</th>
 									<th>Estado actual</th>
@@ -29,8 +37,17 @@
 							<tbody>
 								{% for garantia in garantia_list %}
 									<tr>
-										<td>{{ garantia.equipamiento }}</td>
-										<td>{{ garantia.id }}</td>
+										<td>
+											<a href="{{ garantia.get_absolute_url }}">{{ garantia.id }}</a>
+										</td>
+										<td>
+											<a href="{{ garantia.equipamiento.escuela.get_absolute_url }}">
+												{{ garantia.equipamiento.escuela }}
+											</a>
+										</td>
+										<td>
+											<a href="{{ garantia.equipamiento.get_absolute_url }}">{{ garantia.equipamiento }}</a>
+										</td>
 										<td>{{ garantia.equipamiento.fecha|date:"Y-m-d" }}</td>
 										<td>{{ garantia.fecha_vencimiento|date:"Y-m-d" }}</td>
 										<td>

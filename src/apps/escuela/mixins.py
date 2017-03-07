@@ -21,10 +21,7 @@ class ContactoContextMixin(ContextMixin):
 
     def form_valid(self, form):
         named_formsets = self.get_named_formsets()
-        # print(form.save(commit=True))
-        print("hola")
         instance = form.save()
-        print(instance)
         for nombre, formset in named_formsets.items():
             if formset.is_valid():
                 for form in formset.forms:

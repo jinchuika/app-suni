@@ -22,9 +22,6 @@ class BuscarEscuelaForm(forms.ModelForm):
         (None, 'No importa'),
         (2, 'Sí'),
         (1, 'No'),)
-    departamento = forms.ModelChoiceField(
-        queryset=Departamento.objects.all(),
-        required=False)
     cooperante_mye = forms.ModelMultipleChoiceField(
         label='Cooperante en proceso',
         queryset=Cooperante.objects.all(),
@@ -44,6 +41,9 @@ class BuscarEscuelaForm(forms.ModelForm):
     direccion = forms.CharField(
         label='Dirección',
         widget=forms.TextInput(),
+        required=False)
+    departamento = forms.ModelChoiceField(
+        queryset=Departamento.objects.all(),
         required=False)
     municipio = forms.ModelChoiceField(
         queryset=Municipio.objects.all(),

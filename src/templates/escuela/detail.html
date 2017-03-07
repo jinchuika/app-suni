@@ -277,7 +277,7 @@
 								<div class="tab-pane" id="equipamiento">
 									{% if not equipamiento_form %}
 										{% for equipamiento in escuela.equipamiento.all %}
-											{% include "tpe/equipamiento_detail.html" with equipamiento=equipamiento %}
+											{% include "tpe/equipamiento_detail.html" with equipamiento=equipamiento equipamiento_detail=equipamiento_detail %}
 										{% endfor %}
 										{% if perms.tpe.add_equipamiento %}
 											<input onclick="$('#form-nuevo-equipamiento').toggle();" type="submit" class="btn btn-primary" value="Nuevo equipamiento">
@@ -356,7 +356,7 @@
 		{% if solicitud_form or validacion_form %}
 			activar_tab('monitoreo');
 		{% endif %}
-		{% if equipamiento_form %}
+		{% if equipamiento_form or equipamiento_detail %}
 			activar_tab('equipamiento');
 		{% endif %}
 	});
