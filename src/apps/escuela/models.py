@@ -156,6 +156,10 @@ class Escuela(models.Model):
             return None
     poblacion_actual = property(get_poblacion_actual)
 
+    def get_departamento(self):
+        return self.municipio.departamento
+    departamento = property(get_departamento)
+
     def tiene_solicitud(self):
         return Solicitud.objects.filter(escuela=self).count() > 0
 

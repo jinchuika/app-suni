@@ -1,5 +1,6 @@
 from django.http import JsonResponse
 from django.utils.timezone import datetime
+from django.utils.dateparse import parse_date
 from django.shortcuts import reverse
 from django.views.generic import DetailView, ListView, View
 from django.views.generic.edit import CreateView, UpdateView, FormView
@@ -49,23 +50,47 @@ class EquipamientoListView(CsrfExemptMixin, LoginRequiredMixin, FormView):
         queryset = Equipamiento.objects.all()
         if filtros.get('codigo', False):
             queryset = queryset.filter(escuela__codigo=filtros.get('codigo'))
+        if filtros.get('nombre', False):
+            queryset = queryset.filter(escuela__nombre__contains=filtros.get('nombre'))
+        if filtros.get('direccion', False):
+            queryset = queryset.filter(escuela__direccion__contains=filtros.get('direccion'))
         if filtros.get('municipio', False):
-            queryset = queryset.annotate(municipio='escuela__municipio').filter(municipio=filtros.get('municipio'))
-        return {'hola': 1}
+            queryset = queryset.filter(escuela__municipio=filtros.get('municipio'))
+        if filtros.get('departamento', False):
+            queryset = queryset.filter(escuela__municipio__departamento=filtros.get('departamento'))
+        if filtros.get('nivel', False):
+            queryset = queryset.filter(escuela__nivel=filtros.get('nivel'))
+        if filtros.get('equipamiento_id', False):
+            queryset = queryset.filter(id=filtros.get('equipamiento_id'))
+        if filtros.get('cooperante_tpe', False):
+            queryset = queryset.filter(cooperante__in=filtros.get('cooperante_tpe'))
+        if filtros.get('fecha_min', False):
+            print('fecha_min')
+            queryset = queryset.filter(fecha__gte=parse_date(filtros.get('fecha_min')))
+        if filtros.get('fecha_max', False):
+            print('fecha_max')
+            queryset = queryset.filter(fecha__lte=parse_date(filtros.get('fecha_max')))
+        return queryset
+
+    def create_response(self, queryset):
+        var = [
+            {
+                'entrega': equipamiento.id,
+                'entrega_url': equipamiento.get_absolute_url(),
+                'escuela': str(equipamiento.escuela),
+                'escuela_url': equipamiento.escuela.get_absolute_url(),
+                'fecha': str(equipamiento.fecha),
+                'renovacion': 'Sí' if equipamiento.renovacion else 'No',
+                'khan': 'Sí' if equipamiento.servidor_khan else 'No',
+                'cantidad_equipo': equipamiento.cantidad_equipo,
+                'tipo_red': str(equipamiento.tipo_red) if equipamiento.red else 'No'
+            } for equipamiento in queryset
+        ]
+        return var
 
     def post(self, request, *args, **kwargs):
-        queryset = self.get_queryset(self.request.POST)
-        return JsonResponse(queryset)
-
-
-class EquipamientoListBackView(LoginRequiredMixin, JsonRequestResponseMixin, View):
-    def get_queryset(self, filtros):
-        if filtros.get('codigo', False):
-            print("hola")
-
-    def post(self, request, *args, **kwargs):
-        queryset = self.get_queryset(self.request_json)
-        return self.get_response(queryset)
+        equipamiento_list = self.get_queryset(self.request.POST)
+        return JsonResponse(self.create_response(equipamiento_list), safe=False)
 
 
 class GarantiaListView(LoginRequiredMixin, GroupRequiredMixin, ListView):

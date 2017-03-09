@@ -16,16 +16,26 @@ function activar_tab(tab){
   $('.nav-tabs a[href="#' + tab + '"]').tab('show');
 };
 
-$(document).ready(function () {
-	$('.datepicker').datepicker({
-		format: 'yyyy-mm-dd',
-		autoclose: true,
-		language: 'es'
-	});
+$.fn.serializeObject = function()
+{
+    var o = {};
+    var a = this.serializeArray();
+    $.each(a, function() {
+        if (o[this.name]) {
+            if (!o[this.name].push) {
+                o[this.name] = [o[this.name]];
+            }
+            o[this.name].push(this.value || '');
+        } else {
+            o[this.name] = this.value || '';
+        }
+    });
+    return o;
+};
 
-
-
-	$('.table-datatables').DataTable({
+function activar_datatable(tabla) {
+	$(tabla).DataTable({
+		"iDisplayLength": 50,
 		"language":{
 			"sProcessing":     "Procesando...",
 			"sLengthMenu":     "Mostrar _MENU_ registros",
@@ -55,5 +65,17 @@ $(document).ready(function () {
 
 	$(".select2").select2({
 		width : '100%'
+	});
+}
+
+$(document).ready(function () {
+	$('.datepicker').datepicker({
+		format: 'yyyy-mm-dd',
+		autoclose: true,
+		language: 'es'
+	});
+
+	$.each($('.table-datatables'), function (index, tabla) {
+		activar_datatable(tabla);
 	});
 });

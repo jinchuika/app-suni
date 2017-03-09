@@ -8,7 +8,12 @@ tpe_children = (
         "Garantías",
         reverse_lazy("garantia_list"),
         weight=10,
-        icon="fa-gavel"),)
+        icon="fa-gavel"),
+    ViewMenuItem(
+        "Lista de entregas",
+        reverse_lazy("equipamiento_list"),
+        weight=80,
+        icon="fa-list"),)
 
 Menu.add_item(
     "user",

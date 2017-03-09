@@ -3,7 +3,6 @@ from apps.tpe.views import *
 
 urlpatterns = [
     url(r'^equipamiento/list/$', EquipamientoListView.as_view(), name='equipamiento_list'),
-    url(r'^equipamiento/list/q/$', EquipamientoListBackView.as_view(), name='equipamiento_list_backend'),
     url(r'^equipamiento/add/$', EquipamientoCrearView.as_view(), name='equipamiento_add'),
     url(r'^equipamiento/(?P<pk>\d+)/$', EquipamientoUpdateView.as_view(), name='equipamiento_update'),
 

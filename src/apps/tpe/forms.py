@@ -4,6 +4,7 @@ from django.db.models import Count
 from django.core.urlresolvers import reverse_lazy
 
 from apps.tpe.models import Equipamiento, Garantia, TicketSoporte, TicketRegistro
+from apps.mye.models import Cooperante, Proyecto
 from apps.escuela.forms import BuscarEscuelaForm
 
 
@@ -79,7 +80,7 @@ class TicketRegistroForm(forms.ModelForm):
 
 class EquipamientoListForm(BuscarEscuelaForm):
     nombre = forms.CharField(
-        widget=forms.TextInput(attrs={'data-ajax--url': reverse_lazy('equipamiento_list_backend')}),
+        widget=forms.TextInput(),
         required=False)
     fecha_min = forms.CharField(
         label='Fecha mínima',
@@ -89,10 +90,20 @@ class EquipamientoListForm(BuscarEscuelaForm):
         label='Fecha máxima',
         widget=forms.TextInput(attrs={'class': 'datepicker'}),
         required=False)
+    cooperante_tpe = forms.ModelChoiceField(
+        label='Cooperante de equipamiento',
+        queryset=Cooperante.objects.all(),
+        widget=forms.Select(attrs={'class': 'select2'}),
+        required=False)
+    proyecto_tpe = forms.ModelChoiceField(
+        label='Proyecto de equipamiento',
+        queryset=Proyecto.objects.all(),
+        widget=forms.Select(attrs={'class': 'select2'}),
+        required=False)
 
     def __init__(self, *args, **kwargs):
         super(EquipamientoListForm, self).__init__(*args, **kwargs)
-        self.fields.pop('nombre')
+        self.fields.pop('sector')
         self.fields.pop('cooperante_mye')
         self.fields.pop('proyecto_mye')
         self.fields.pop('poblacion_min')
