@@ -1,9 +1,8 @@
 from django import forms
 from django.forms import ModelForm
 from django.db.models import Count
-from django.core.urlresolvers import reverse_lazy
 
-from apps.tpe.models import Equipamiento, Garantia, TicketSoporte, TicketRegistro
+from apps.tpe.models import Equipamiento, Garantia, TicketSoporte, TicketRegistro, Monitoreo
 from apps.mye.models import Cooperante, Proyecto
 from apps.escuela.forms import BuscarEscuelaForm
 

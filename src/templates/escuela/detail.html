@@ -34,10 +34,13 @@
 									<a href="#capacitacion" data-toggle="tab"><i class="fa fa-graduation-cap" aria-hidden="true"></i> Capacitación</a>
 								</li>
 								<li>
-									<a href="#monitoreo" data-toggle="tab"><i class="fa fa-search" aria-hidden="true"></i> Evaluación</a>
+									<a href="#evaluacion" data-toggle="tab"><i class="fa fa-search" aria-hidden="true"></i> Evaluación</a>
 								</li>
 								<li>
 									<a href="#equipamiento" data-toggle="tab"><i class="fa fa-television" aria-hidden="true"></i> Equipamiento</a>
+								</li>
+								<li>
+									<a href="#monitoreo" data-toggle="tab"><i class="fa fa-phone" aria-hidden="true"></i> Monitoreo</a>
 								</li>
 								<li>
 									<a href="#contactos" data-toggle="tab"><i class="fa fa-user" aria-hidden="true"></i> Contactos</a>
@@ -123,7 +126,7 @@
 								<div class="tab-pane" id="capacitacion">
 								</div>
 
-								<div class="tab-pane" id="monitoreo">
+								<div class="tab-pane" id="evaluacion">
 									{% comment %}
 										PRE-SELECCIÓN
 									{% endcomment %}
@@ -291,6 +294,12 @@
 									{% if equipamiento_form %}
 										{% include "tpe/equipamiento_form.html" with equipamiento_form=equipamiento_form %}
 									{% endif %}
+								</div>
+
+								<div class="tab-pane" id="monitoreo">
+									{% for monitoreo in escuela.equipamiento.all|dictsort:"id" %}
+										{% include "mye/monitoreo_detail.html" with monitoreo=monitoreo %}
+									{% endfor %}
 								</div>
 
 								<div class="tab-pane" id="contactos">

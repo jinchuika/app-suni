@@ -61,11 +61,6 @@ function activar_datatable(tabla) {
 			}
 		}
 	});
-
-
-	$(".select2").select2({
-		width : '100%'
-	});
 }
 
 $(document).ready(function () {
@@ -77,5 +72,8 @@ $(document).ready(function () {
 
 	$.each($('.table-datatables'), function (index, tabla) {
 		activar_datatable(tabla);
+	});
+	$(".select2").select2({
+		width : '100%'
 	});
 });

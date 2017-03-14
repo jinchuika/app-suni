@@ -7,7 +7,7 @@ from django.views.generic.edit import CreateView, UpdateView, FormView
 from braces.views import LoginRequiredMixin, PermissionRequiredMixin, GroupRequiredMixin, CsrfExemptMixin, JsonRequestResponseMixin
 
 from apps.escuela.views import EscuelaDetail
-from apps.tpe.models import Equipamiento, Garantia, TicketSoporte, TicketRegistro
+from apps.tpe.models import Equipamiento, Garantia, TicketSoporte, TicketRegistro, Monitoreo
 from apps.tpe.forms import EquipamientoNuevoForm, EquipamientoForm, GarantiaForm, TicketSoporteForm, TicketCierreForm, TicketRegistroForm, EquipamientoListForm
 
 
@@ -83,7 +83,13 @@ class EquipamientoListView(CsrfExemptMixin, LoginRequiredMixin, FormView):
                 'renovacion': 'Sí' if equipamiento.renovacion else 'No',
                 'khan': 'Sí' if equipamiento.servidor_khan else 'No',
                 'cantidad_equipo': equipamiento.cantidad_equipo,
-                'tipo_red': str(equipamiento.tipo_red) if equipamiento.red else 'No'
+                'tipo_red': str(equipamiento.tipo_red) if equipamiento.red else 'No',
+                'cooperante': [
+                    {'nombre': cooperante.nombre, 'url': cooperante.get_absolute_url()}
+                    for cooperante in equipamiento.cooperante.all()],
+                'proyecto': [
+                    {'nombre': proyecto.nombre, 'url': proyecto.get_absolute_url()}
+                    for proyecto in equipamiento.proyecto.all()]
             } for equipamiento in queryset
         ]
         return var
@@ -156,3 +162,26 @@ class TicketRegistroCreateView(LoginRequiredMixin, CreateView):
         form.instance.fecha = datetime.today()
         form.instance.usuario = self.request.user
         return super(TicketRegistroCreateView, self).form_valid(form)
+
+
+class MonitoreoCreateView(CsrfExemptMixin, JsonRequestResponseMixin, View):
+    require_json = True
+
+    def post(self, request, *args, **kwargs):
+        try:
+            equipamiento_id = self.kwargs["equipamiento_id"]
+            equipamiento = Equipamiento.objects.filter(id=equipamiento_id)
+            comentario = self.request_json["comentario"]
+            if not len(comentario) or len(equipamiento) == 0:
+                raise KeyError
+        except KeyError:
+            error_dict = {u"message": u"Sin comentario"}
+            return self.render_bad_request_response(error_dict)
+        monitoreo = Monitoreo(equipamiento=equipamiento[0], creado_por=self.request.user, comentario=comentario)
+        monitoreo.save()
+        return self.render_json_response({
+            "equipamiento_id": monitoreo.equipamiento.id,
+            "comentario": monitoreo.comentario,
+            "fecha": str(monitoreo.fecha),
+            "usuario": str(monitoreo.creado_por.perfil)
+        })

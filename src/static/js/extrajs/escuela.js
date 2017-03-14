@@ -84,6 +84,20 @@
         });
     }
 
+    var crear_monitoreo = function (url, comentario) {
+        var data = {
+            "comentario": comentario
+        }
+        $.post(url, JSON.stringify(data)).then(function (respuesta) {
+            var fecha = new Date(respuesta.fecha);
+            var td_fecha = $('<td></td>').text(fecha.getFullYear() + "-" + (fecha.getMonth()+1) + "-" + fecha.getDate());
+            var td_usuario = $('<td></td>').text(respuesta.usuario);
+            var td = $('<td></td>').text(respuesta.comentario);
+            var tr = $('<tr></tr>').append(td).append(td_usuario). append(td_fecha);
+            $('#body-monitoreo-' + respuesta.equipamiento_id).append(tr);
+        });
+    }
+
     // Public
     PerfilEscuela.init = function () {
         $('.comentario-btn').click(function () {
@@ -100,6 +114,20 @@
                 }
             });
         });
+
+        $('.monitoreo-form').submit(function (e) {
+            e.preventDefault();
+            var url = $(this).prop('action');
+            bootbox.prompt({
+                title: "Nuevo registro de monitoreo",
+                inputType: 'textarea',
+                callback: function (comentario) {
+                    if (comentario) {
+                        crear_monitoreo(url, comentario);
+                    }
+                }
+            });
+        })
     }   
 }( window.PerfilEscuela = window.PerfilEscuela || {}, jQuery ));
 $(document).ready(function () {

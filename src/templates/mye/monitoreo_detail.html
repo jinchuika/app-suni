@@ -1,0 +1,51 @@
+<div class="box box-primary box-solid">
+	<div class="box-header with-border">
+		<h3 class="box-title">
+			{% if monitoreo.renovacion %}
+				Renovación
+			{% else %}
+				Equipamiento
+			{% endif %}
+			 • {{ monitoreo.fecha|date:"Y" }}
+		</h3>
+		<div class="box-tools pull-right">
+			<button type="button" class="btn btn-box-tool" data-widget="collapse">
+				<i class="fa fa-plus"></i>
+			</button>
+		</div>
+	</div>
+	<div class="box-body">
+		{% if perms.tpe.add_monitoreo %}
+			<form class="monitoreo-form" action="{% url 'monitoreo_add' equipamiento_id=monitoreo.id %}">
+				<button class="btn btn-warning">
+					Nuevo registro <i class="fa fa-plus" aria-hidden="true"></i>
+				</button>
+			</form>
+		{% endif %}
+		
+		{% for garantia in monitoreo.garantias.all %}
+			<a href="{{ garantia.get_absolute_url }}" class="btn btn-primary">
+				Garantía <i class="fa fa-external-link" aria-hidden="true"></i>
+			</a><br>
+		{% endfor %}
+		<h4>Entrega {{ monitoreo.id }}</h4>
+		<table class="table table-striped table-hover">
+			<thead>
+				<tr>
+					<th>Registro</th>
+					<th>Por</th>
+					<th>Fecha</th>
+				</tr>
+			</thead>
+			<tbody id="body-monitoreo-{{ monitoreo.id }}">
+				{% for monitoreo in monitoreo.monitoreos.all %}
+					<tr>
+						<td>{{ monitoreo.comentario }}</td>
+						<td>{{ monitoreo.creado_por.perfil }}</td>
+						<td>{{ monitoreo.fecha|date:"Y-m-d" }}</td>
+					</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+	</div>
+</div>

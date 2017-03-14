@@ -27,13 +27,13 @@
 						<thead>
 							<tr>
 								<th>Nombre</th>
-								<th>Participaciones</th>
+								<th>Escuelas equipadas</th>
 							</tr>
 						</thead>
 							{% for cooperante in cooperante_list %}
 								<tr>
 									<td><a href="{% url "cooperante_detail" pk=cooperante.id %}">{{ cooperante }}</a></td>
-									<td>{{ cooperante.escuela_asignada.all.count }}</td>
+									<td>{{ cooperante.equipamiento.all.count }}</td>
 								</tr>
 							{% endfor %}
 						</table>

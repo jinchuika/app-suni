@@ -24,12 +24,20 @@
     		fila += '<td>' + equipamiento.khan +'</td>';
     		fila += '<td>' + equipamiento.cantidad_equipo +'</td>';
     		fila += '<td>' + equipamiento.tipo_red +'</td>';
+    		fila += '<td>' + unir_campo(equipamiento.cooperante) + '</td>';
+    		fila += '<td>' + unir_campo(equipamiento.proyecto) + '</td>';
     		fila += '</tr>';
     		filas += fila;
     	});
     	$('#equipamiento-table').DataTable().destroy();
     	$('#equipamiento-table-body').html(filas);
     	activar_datatable($('#equipamiento-table'));
+    }
+
+    var unir_campo = function (listado) {
+    	return listado.map(function (item) {
+    		return '<a href="'+item.url+'">'+item.nombre+'</a>';
+		}).join("<br />")
     }
 
     // Public

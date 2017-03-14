@@ -38,8 +38,8 @@ class Equipamiento(models.Model):
     edulibre = models.BooleanField(default=False, blank=True)
     carta = models.BooleanField(default=False, blank=True)
 
-    cooperante = models.ManyToManyField('mye.Cooperante', blank=True)
-    proyecto = models.ManyToManyField('mye.Proyecto', blank=True)
+    cooperante = models.ManyToManyField('mye.Cooperante', blank=True, related_name='equipamientos')
+    proyecto = models.ManyToManyField('mye.Proyecto', blank=True, related_name='equipamientos')
 
     def __str__(self):
         return str(self.id)
