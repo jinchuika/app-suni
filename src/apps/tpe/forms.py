@@ -2,6 +2,7 @@ from django import forms
 from django.forms import ModelForm
 from django.db.models import Count
 
+from apps.users.models import Perfil
 from apps.tpe.models import Equipamiento, Garantia, TicketSoporte, TicketRegistro, Monitoreo
 from apps.mye.models import Cooperante, Proyecto
 from apps.escuela.forms import BuscarEscuelaForm
@@ -110,3 +111,18 @@ class EquipamientoListForm(BuscarEscuelaForm):
         self.fields.pop('solicitud')
         self.fields.pop('solicitud_id')
         self.fields.pop('equipamiento')
+
+
+class MonitoreoListForm(forms.Form):
+    usuario = forms.ModelChoiceField(
+        label='Usuario',
+        required=False,
+        queryset=Perfil.objects.filter(user__in=Monitoreo.objects.values('creado_por').distinct()))
+    fecha_min = forms.CharField(
+        label='Fecha mínima',
+        widget=forms.TextInput(attrs={'class': 'datepicker'}),
+        required=False)
+    fecha_max = forms.CharField(
+        label='Fecha máxima',
+        widget=forms.TextInput(attrs={'class': 'datepicker'}),
+        required=False)

@@ -1,5 +1,5 @@
 (function( DetalleGarantia, $, undefined ) {
-    
+
     // Public
     DetalleGarantia.init = function () {
     	$('#form-nuevo-ticket').hide();
@@ -37,7 +37,7 @@
     var unir_campo = function (listado) {
     	return listado.map(function (item) {
     		return '<a href="'+item.url+'">'+item.nombre+'</a>';
-		}).join("<br />")
+      }).join("<br />")
     }
 
     // Public
@@ -45,15 +45,54 @@
     	$('#equipamiento-list-form').on('submit', function (e) {
     		e.preventDefault();
     		$.ajax({
-	            type: 'post',
-	            url: $(this).attr('action'),
-	            dataType: 'json',
-	            data: $(this).serialize(),
-	            success: function (respuesta) {
-	                armar_tabla(respuesta);
-	            }
-	        });
+               type: 'post',
+               url: $(this).attr('action'),
+               dataType: 'json',
+               data: $(this).serialize(),
+               success: function (respuesta) {
+                   armar_tabla(respuesta);
+               }
+           });
     	});
 
     }   
 }( window.EquipamientoList = window.EquipamientoList || {}, jQuery ));
+
+(function( MonitoreoList, $, undefined ) {
+    var tabla = $('#monitoreo-table').DataTable({
+        "paging":   false,
+        rowsGroup: [
+        3, 2, 0, 1
+        ],
+    });
+    var armar_tabla = function (monitoreo_list) {
+        $.each(monitoreo_list, function (index, equipamiento) {
+            tabla.row.add([
+                equipamiento.departamento,
+                equipamiento.municipio,
+                equipamiento.escuela,
+                equipamiento.entrega,
+                equipamiento.fecha,
+                equipamiento.comentario
+                ]).draw(false);
+        });
+    }
+
+    // Public
+    MonitoreoList.init = function () {
+        $('#monitoreo-list-form').submit(function (e) {
+            e.preventDefault();
+            tabla.clear();
+            $.ajax({
+                type: 'post',
+                url: $(this).attr('action'),
+                dataType: 'json',
+                data: $(this).serialize(),
+                success: function (respuesta) {
+                    armar_tabla(respuesta);
+                }
+            });
+        });
+
+    }   
+}( window.MonitoreoList = window.MonitoreoList || {}, jQuery ));

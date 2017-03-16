@@ -16,4 +16,5 @@ urlpatterns = [
     url(r'^ticketregistro/add/(?P<ticket_id>\d+)/$', TicketRegistroCreateView.as_view(), name='ticket_registro_add'),
 
     url(r'^monitoreo/add/(?P<equipamiento_id>\d+)/$', MonitoreoCreateView.as_view(), name='monitoreo_add'),
+    url(r'^monitoreo/list/$', MonitoreoListView.as_view(), name='monitoreo_list'),
 ]

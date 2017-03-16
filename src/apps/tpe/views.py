@@ -6,9 +6,10 @@ from django.views.generic import DetailView, ListView, View
 from django.views.generic.edit import CreateView, UpdateView, FormView
 from braces.views import LoginRequiredMixin, PermissionRequiredMixin, GroupRequiredMixin, CsrfExemptMixin, JsonRequestResponseMixin
 
+from apps.tpe.mixins import InformeMixin
 from apps.escuela.views import EscuelaDetail
 from apps.tpe.models import Equipamiento, Garantia, TicketSoporte, TicketRegistro, Monitoreo
-from apps.tpe.forms import EquipamientoNuevoForm, EquipamientoForm, GarantiaForm, TicketSoporteForm, TicketCierreForm, TicketRegistroForm, EquipamientoListForm
+from apps.tpe.forms import EquipamientoNuevoForm, EquipamientoForm, GarantiaForm, TicketSoporteForm, TicketCierreForm, TicketRegistroForm, EquipamientoListForm, MonitoreoListForm
 
 
 class EquipamientoCrearView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
@@ -42,7 +43,7 @@ class EquipamientoDetailView(EscuelaDetail):
         return context
 
 
-class EquipamientoListView(CsrfExemptMixin, LoginRequiredMixin, FormView):
+class EquipamientoListView(InformeMixin):
     form_class = EquipamientoListForm
     template_name = 'tpe/equipamiento_list.html'
 
@@ -65,10 +66,8 @@ class EquipamientoListView(CsrfExemptMixin, LoginRequiredMixin, FormView):
         if filtros.get('cooperante_tpe', False):
             queryset = queryset.filter(cooperante__in=filtros.get('cooperante_tpe'))
         if filtros.get('fecha_min', False):
-            print('fecha_min')
             queryset = queryset.filter(fecha__gte=parse_date(filtros.get('fecha_min')))
         if filtros.get('fecha_max', False):
-            print('fecha_max')
             queryset = queryset.filter(fecha__lte=parse_date(filtros.get('fecha_max')))
         return queryset
 
@@ -93,10 +92,6 @@ class EquipamientoListView(CsrfExemptMixin, LoginRequiredMixin, FormView):
             } for equipamiento in queryset
         ]
         return var
-
-    def post(self, request, *args, **kwargs):
-        equipamiento_list = self.get_queryset(self.request.POST)
-        return JsonResponse(self.create_response(equipamiento_list), safe=False)
 
 
 class GarantiaListView(LoginRequiredMixin, GroupRequiredMixin, ListView):
@@ -185,3 +180,34 @@ class MonitoreoCreateView(CsrfExemptMixin, JsonRequestResponseMixin, View):
             "fecha": str(monitoreo.fecha),
             "usuario": str(monitoreo.creado_por.perfil)
         })
+
+
+class MonitoreoListView(InformeMixin):
+    form_class = MonitoreoListForm
+    template_name = 'tpe/monitoreo_list.html'
+
+    def get_queryset(self, filtros):
+        queryset = Monitoreo.objects.all().order_by('equipamiento', 'fecha')
+        if filtros.get('fecha_min', False):
+            queryset = queryset.filter(fecha__gte=filtros.get('fecha_min'))
+        if filtros.get('fecha_max', False):
+            queryset = queryset.filter(fecha__lte=filtros.get('fecha_max'))
+        if filtros.get('usuario', False):
+            queryset = queryset.filter(usuario__perfil__id=filtros.get('usuario'))
+        return queryset
+
+    def create_response(self, queryset):
+        var = [
+            {
+                'entrega': monitoreo.equipamiento.id,
+                'entrega_url': monitoreo.equipamiento.get_absolute_url(),
+                'escuela': str(monitoreo.equipamiento.escuela),
+                'escuela_url': monitoreo.equipamiento.escuela.get_absolute_url(),
+                'departamento': str(monitoreo.equipamiento.escuela.departamento),
+                'municipio': str(monitoreo.equipamiento.escuela.municipio.nombre),
+                'comentario': monitoreo.comentario,
+                'fecha': monitoreo.fecha,
+                'usuario': str(monitoreo.creado_por.perfil),
+            } for monitoreo in queryset
+        ]
+        return var

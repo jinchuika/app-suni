@@ -13,7 +13,12 @@ tpe_children = (
         "Lista de entregas",
         reverse_lazy("equipamiento_list"),
         weight=80,
-        icon="fa-list"),)
+        icon="fa-list"),
+    ViewMenuItem(
+        "Informe de monitoreo",
+        reverse_lazy("monitoreo_list"),
+        weight=70,
+        icon="fa-phone"),)
 
 Menu.add_item(
     "user",
