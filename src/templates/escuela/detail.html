@@ -204,7 +204,7 @@
 										<div class="col-md-12">
 											<div class="box box-info">
 												<div class="box-header with-border">
-													<h3 class="box-title">Solicitudes</h3>
+													<h3 class="box-title"><i class="fa fa-folder-open-o" aria-hidden="true"></i> Solicitudes</h3>
 													<div class="box-tools pull-right">
 														{% if perms.mye.add_solicitud %}
 															<a href="#" onclick="$('#form-nueva-solicitud').toggle();" class="btn btn-box-tool">
@@ -241,7 +241,7 @@
 										<div class="col-md-12">
 											<div class="box box-warning">
 												<div class="box-header">
-													<h3 class="box-title">Validaciones</h3>
+													<h3 class="box-title"><i class="fa fa-check-square-o" aria-hidden="true"></i> Validaciones</h3>
 													<div class="box-tools pull-right">
 														{% if perms.mye.add_validacion %}
 															<a href="#" onclick="$('#form-nueva-validacion').toggle();" class="btn btn-box-tool"><i class="fa fa-plus"></i> Nueva validación</a>
@@ -362,8 +362,8 @@
 <script src="{% static "js/extrajs/escuela.js" %}"></script>
 <script>
 	$(document).ready(function () {
-		{% if solicitud_form or validacion_form %}
-			activar_tab('monitoreo');
+		{% if solicitud_form or validacion_form or validacion_detail %}
+			activar_tab('evaluacion');
 		{% endif %}
 		{% if equipamiento_form or equipamiento_detail %}
 			activar_tab('equipamiento');

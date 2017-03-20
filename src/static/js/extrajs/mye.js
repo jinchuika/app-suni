@@ -75,3 +75,92 @@
         });
     }   
 }( window.InformeMye = window.InformeMye || {}, jQuery ));
+
+
+(function( SolicitudList, $, undefined ) {
+    var tabla = $('#solicitud-table').DataTable({
+        "paging":   false,
+    });
+    
+    var armar_tabla = function (solicitud_list) {
+        $.each(solicitud_list, function (index, solicitud) {
+            tabla.row.add([
+                solicitud.departamento,
+                solicitud.municipio,
+                '<a href="'+solicitud.escuela_url+'">' + solicitud.escuela + '</a>',
+                solicitud.alumnos,
+                solicitud.maestros,
+                join_requisito(solicitud.requisitos),
+                ]).draw(false);
+        });
+    }
+
+    var join_requisito = function (requisito_list) {
+        return requisito_list.map(function (item) {
+            return (item.cumple ? '✔ ' : '✖ ') + item.req;
+        }).join("<br />")
+    }
+
+    // Public
+    SolicitudList.init = function () {
+        $('#solicitud-list-form').submit(function (e) {
+            e.preventDefault();
+            tabla.clear().draw();
+            $.ajax({
+                type: 'post',
+                url: $(this).attr('action'),
+                dataType: 'json',
+                data: $(this).serialize(),
+                success: function (respuesta) {
+                    armar_tabla(respuesta);
+                }
+            });
+        });
+
+    }   
+}( window.SolicitudList = window.SolicitudList || {}, jQuery ));
+
+
+(function( ValidacionList, $, undefined ) {
+    var tabla = $('#validacion-table').DataTable({
+        "paging":   false,
+    });
+    var armar_tabla = function (validacion_list) {
+        $.each(validacion_list, function (index, validacion) {
+            tabla.row.add([
+                validacion.departamento,
+                validacion.municipio,
+                '<a href="'+validacion.escuela_url+'">' + validacion.escuela + '</a>',
+                '<a href="'+validacion.validacion_url+'">' + validacion.estado + '</a>',
+                join_requisito(validacion.requisitos),
+                validacion.historial.map(function (item) {
+                    return '- ' + item.comentario;
+                }).join('<br />')
+                ]).draw(false);
+        });
+    }
+
+    var join_requisito = function (requisito_list) {
+        return requisito_list.map(function (item) {
+            return (item.cumple ? '✔ ' : '✖ ') + item.req;
+        }).join("<br />")
+    }
+
+    // Public
+    ValidacionList.init = function () {
+        $('#validacion-list-form').submit(function (e) {
+            e.preventDefault();
+            tabla.clear().draw();
+            $.ajax({
+                type: 'post',
+                url: $(this).attr('action'),
+                dataType: 'json',
+                data: $(this).serialize(),
+                success: function (respuesta) {
+                    armar_tabla(respuesta);
+                }
+            });
+        });
+
+    }   
+}( window.ValidacionList = window.ValidacionList || {}, jQuery ));

@@ -82,7 +82,7 @@
     MonitoreoList.init = function () {
         $('#monitoreo-list-form').submit(function (e) {
             e.preventDefault();
-            tabla.clear();
+            tabla.clear().draw();
             $.ajax({
                 type: 'post',
                 url: $(this).attr('action'),

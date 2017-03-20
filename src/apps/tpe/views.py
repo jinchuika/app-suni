@@ -1,12 +1,10 @@
-from django.http import JsonResponse
 from django.utils.timezone import datetime
-from django.utils.dateparse import parse_date
 from django.shortcuts import reverse
 from django.views.generic import DetailView, ListView, View
-from django.views.generic.edit import CreateView, UpdateView, FormView
+from django.views.generic.edit import CreateView, UpdateView
 from braces.views import LoginRequiredMixin, PermissionRequiredMixin, GroupRequiredMixin, CsrfExemptMixin, JsonRequestResponseMixin
 
-from apps.tpe.mixins import InformeMixin
+from apps.main.mixins import InformeMixin
 from apps.escuela.views import EscuelaDetail
 from apps.tpe.models import Equipamiento, Garantia, TicketSoporte, TicketRegistro, Monitoreo
 from apps.tpe.forms import EquipamientoNuevoForm, EquipamientoForm, GarantiaForm, TicketSoporteForm, TicketCierreForm, TicketRegistroForm, EquipamientoListForm, MonitoreoListForm
@@ -46,30 +44,19 @@ class EquipamientoDetailView(EscuelaDetail):
 class EquipamientoListView(InformeMixin):
     form_class = EquipamientoListForm
     template_name = 'tpe/equipamiento_list.html'
-
-    def get_queryset(self, filtros):
-        queryset = Equipamiento.objects.all()
-        if filtros.get('codigo', False):
-            queryset = queryset.filter(escuela__codigo=filtros.get('codigo'))
-        if filtros.get('nombre', False):
-            queryset = queryset.filter(escuela__nombre__contains=filtros.get('nombre'))
-        if filtros.get('direccion', False):
-            queryset = queryset.filter(escuela__direccion__contains=filtros.get('direccion'))
-        if filtros.get('municipio', False):
-            queryset = queryset.filter(escuela__municipio=filtros.get('municipio'))
-        if filtros.get('departamento', False):
-            queryset = queryset.filter(escuela__municipio__departamento=filtros.get('departamento'))
-        if filtros.get('nivel', False):
-            queryset = queryset.filter(escuela__nivel=filtros.get('nivel'))
-        if filtros.get('equipamiento_id', False):
-            queryset = queryset.filter(id=filtros.get('equipamiento_id'))
-        if filtros.get('cooperante_tpe', False):
-            queryset = queryset.filter(cooperante__in=filtros.get('cooperante_tpe'))
-        if filtros.get('fecha_min', False):
-            queryset = queryset.filter(fecha__gte=parse_date(filtros.get('fecha_min')))
-        if filtros.get('fecha_max', False):
-            queryset = queryset.filter(fecha__lte=parse_date(filtros.get('fecha_max')))
-        return queryset
+    filter_list = {
+        'codigo': 'escuela__codigo',
+        'nombre': 'escuela__nombre__contains',
+        'direccion': 'escuela__direccion__contains',
+        'municipio': 'escuela__municipio',
+        'departamento': 'escuela__municipio__departamento',
+        'nivel': 'escuela__nivel',
+        'equipamiento_id': 'id',
+        'cooperante_tpe': 'cooperante__in',
+        'fecha_min': 'fecha__gte',
+        'fecha_max': 'fecha__lte'
+    }
+    queryset = Equipamiento.objects.all()
 
     def create_response(self, queryset):
         var = [
@@ -185,16 +172,12 @@ class MonitoreoCreateView(CsrfExemptMixin, JsonRequestResponseMixin, View):
 class MonitoreoListView(InformeMixin):
     form_class = MonitoreoListForm
     template_name = 'tpe/monitoreo_list.html'
-
-    def get_queryset(self, filtros):
-        queryset = Monitoreo.objects.all().order_by('equipamiento', 'fecha')
-        if filtros.get('fecha_min', False):
-            queryset = queryset.filter(fecha__gte=filtros.get('fecha_min'))
-        if filtros.get('fecha_max', False):
-            queryset = queryset.filter(fecha__lte=filtros.get('fecha_max'))
-        if filtros.get('usuario', False):
-            queryset = queryset.filter(usuario__perfil__id=filtros.get('usuario'))
-        return queryset
+    queryset = Monitoreo.objects.all().order_by('equipamiento', 'fecha')
+    filter_list = {
+        'fecha_min': 'fecha__gte',
+        'fecha_max': 'fecha__lte',
+        'usuario': 'creado_por__perfil__id'
+    }
 
     def create_response(self, queryset):
         var = [

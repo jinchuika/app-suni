@@ -1,11 +1,12 @@
 from datetime import date
 from django import forms
-from django.core.urlresolvers import reverse_lazy
-
-from apps.escuela.models import Escuela, EscNivel, EscSector
-from apps.main.models import Departamento, Municipio
 from django.forms import ModelForm
 from django.utils import timezone
+from django.core.urlresolvers import reverse_lazy
+
+from apps.tpe.forms import EquipamientoListForm
+from apps.escuela.models import Escuela, EscNivel, EscSector
+from apps.main.models import Departamento, Municipio
 from apps.mye.models import Cooperante, EscuelaCooperante, Proyecto, EscuelaProyecto, SolicitudVersion, Solicitud, Requisito, ValidacionVersion, Validacion
 
 
@@ -165,6 +166,50 @@ class SolicitudForm(ModelForm):
         self.fields['requisito'].queryset = Requisito.objects.filter(id__in=version.requisito.all())
 
 
+class SolicitudListForm(forms.Form):
+    departamento = forms.ModelChoiceField(
+        queryset=Departamento.objects.all(),
+        required=False)
+    municipio = forms.ModelChoiceField(
+        queryset=Municipio.objects.all(),
+        required=False)
+    codigo = forms.CharField(
+        label='Código',
+        required=False)
+    nombre = forms.CharField(
+        required=False)
+    direccion = forms.CharField(
+        label='Dirección',
+        widget=forms.TextInput(),
+        required=False)
+    cooperante_mye = forms.ModelChoiceField(
+        label='Cooperante en proceso',
+        queryset=Cooperante.objects.all(),
+        widget=forms.Select(attrs={'class': 'select2'}),
+        required=False)
+    proyecto_mye = forms.ModelChoiceField(
+        label='Proyecto en proceso',
+        queryset=Proyecto.objects.all(),
+        widget=forms.Select(attrs={'class': 'select2'}),
+        required=False)
+    fecha_min = forms.CharField(
+        label='Fecha mínima',
+        widget=forms.TextInput(attrs={'class': 'datepicker'}),
+        required=False)
+    fecha_max = forms.CharField(
+        label='Fecha máxima',
+        widget=forms.TextInput(attrs={'class': 'datepicker'}),
+        required=False)
+    alumnos_min = forms.CharField(
+        label='Población mínima',
+        widget=forms.NumberInput(attrs={'min': '0'}),
+        required=False)
+    alumnos_max = forms.CharField(
+        label='Población máxima',
+        widget=forms.NumberInput(attrs={'min': '1'}),
+        required=False)
+
+
 class ValidacionNuevaForm(forms.ModelForm):
     class Meta:
         model = Validacion
@@ -176,10 +221,8 @@ class ValidacionNuevaForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
-        tipo_queryset = kwargs.pop('tipo_queryset')
         super(ValidacionNuevaForm, self).__init__(*args, **kwargs)
         self.fields['version'].label = 'Versión'
-        self.fields['tipo'].queryset = tipo_queryset
 
     def save(self, commit=True):
         instance = super(ValidacionNuevaForm, self).save(commit=False)
@@ -322,3 +365,14 @@ class InformeMyeForm(forms.ModelForm):
     class Meta:
         model = Escuela
         fields = ['codigo', 'nombre', 'municipio']
+
+
+class ValidacionListForm(SolicitudListForm):
+    ESTADO_CHOICES = (
+        (None, 'No importa'),
+        (True, 'Sí'),
+        (False, 'No'),)
+    estado = forms.ChoiceField(
+        label='Completada',
+        required=False,
+        choices=ESTADO_CHOICES)

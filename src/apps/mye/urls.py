@@ -18,11 +18,13 @@ urlpatterns = [
 
     url(r'^solicitud/add/$', SolicitudCrearView.as_view(), name='solicitud_add'),
     url(r'^solicitud/(?P<pk>\d+)/$', SolicitudUpdate.as_view(), name='solicitud_update'),
+    url(r'^solicitud/list/$', SolicitudListView.as_view(), name='solicitud_list'),
 
     url(r'^validacion/add/$', ValidacionCrearView.as_view(), name='validacion_add'),
     url(r'^validacion/(?P<pk>\d+)/$', ValidacionUpdate.as_view(), name='validacion_update'),
+    url(r'^validacion_comentario/add/$', ValidacionComentarioCrear.as_view(), name='validacion_comentario_add'),
+    url(r'^validacion/list/$', ValidacionListView.as_view(), name='validacion_list'),
 
     url(r'^informe/$', InformeMyeView.as_view(), name='informe_mye'),
     url(r'^informe/q/$', InformeMyeBk.as_view(), name='informe_mye_backend'),
-    url(r'^validacion_comentario/add/$', ValidacionComentarioCrear.as_view(), name='validacion_comentario_add'),
 ]

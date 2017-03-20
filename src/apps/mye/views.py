@@ -6,13 +6,20 @@ from django.views.generic.edit import CreateView, UpdateView, FormView
 
 from django.http import JsonResponse
 from braces.views import LoginRequiredMixin, PermissionRequiredMixin, CsrfExemptMixin, JsonRequestResponseMixin
-from dal import autocomplete
 
-from apps.mye.forms import InformeMyeForm, CooperanteForm, ProyectoForm, SolicitudVersionForm, SolicitudForm, SolicitudNuevaForm, ValidacionNuevaForm, ValidacionForm
-from apps.mye.models import Cooperante, Proyecto, SolicitudVersion, Solicitud, Validacion, ValidacionComentario
+from apps.main.mixins import InformeMixin
+from apps.mye.forms import (
+    InformeMyeForm, CooperanteForm, ProyectoForm,
+    SolicitudVersionForm, SolicitudForm, SolicitudNuevaForm,
+    ValidacionNuevaForm, ValidacionForm, ValidacionListForm,
+    SolicitudListForm)
+from apps.mye.models import (
+    Cooperante, Proyecto, SolicitudVersion,
+    Solicitud, Validacion, ValidacionComentario)
 from apps.tpe.models import Equipamiento
 from apps.main.models import Municipio
 from apps.escuela.models import Escuela
+from apps.escuela.views import EscuelaDetail
 
 
 class CooperanteCrear(LoginRequiredMixin, CreateView):
@@ -168,6 +175,15 @@ class ValidacionComentarioCrear(CsrfExemptMixin, JsonRequestResponseMixin, View)
         })
 
 
+class ValidacionDetailView(EscuelaDetail):
+
+    def get_context_data(self, **kwargs):
+        id_validacion = self.kwargs.pop('id_validacion')
+        context = super(ValidacionDetailView, self).get_context_data(**kwargs)
+        context['validacion_detail'] = id_validacion
+        return context
+
+
 class InformeMyeBk(CsrfExemptMixin, JsonRequestResponseMixin, View):
     def armar_query(self, filtros):
         qs = Escuela.objects.all()
@@ -306,91 +322,70 @@ class InformeMyeBk(CsrfExemptMixin, JsonRequestResponseMixin, View):
         return self.render_json_response(self.armar_lista(qs, self.request_json['extras']))
 
 
-class InformeMyeBackend(autocomplete.Select2QuerySetView):
-    def get_paginate_by(self, queryset):
-        return None
+class SolicitudListView(InformeMixin):
+    form_class = SolicitudListForm
+    template_name = 'mye/solicitud_list.html'
+    queryset = Solicitud.objects.all()
+    filter_list = {
+        'codigo': 'escuela__codigo',
+        'nombre': 'escuela__nombre__contains',
+        'direccion': 'escuela__direccion__contains',
+        'municipio': 'escuela__municipio',
+        'departamento': 'escuela__municipio__departamento',
+        'cooperante_mye': 'escuela__asignacion_cooperante__in',
+        'proyecto_mye': 'escuela__asignacion_proyecto__in',
+        'fecha_min': 'fecha__gte',
+        'fecha_max': 'fecha__lte',
+        'alumnos_min': 'total_alumno__gte',
+        'alumnos_max': 'total_alumno__lte',
+    }
 
-    def has_more(self, context):
-        return False
+    def create_response(self, queryset):
+        return [
+            {
+                'departamento': str(solicitud.escuela.municipio.departamento),
+                'municipio': solicitud.escuela.municipio.nombre,
+                'escuela': str(solicitud.escuela),
+                'escuela_url': solicitud.escuela.get_absolute_url(),
+                'requisitos': [
+                    {
+                        'req': str(r['requisito'])[:10],
+                        'cumple': r['cumple']
+                    } for r in solicitud.listar_requisito()
+                ],
+                'alumnos': solicitud.total_alumno,
+                'maestros': solicitud.total_maestro
+            } for solicitud in queryset
+        ]
 
-    def get_result_label(self, result):
-        return {
-            'url': result.get_absolute_url(),
-            'codigo': result.codigo,
-            'nombre': result.nombre,
-            'direccion': result.direccion,
-            'municipio': result.municipio.nombre,
-            'departamento': result.municipio.departamento.nombre,
-            'nivel': result.nivel.nivel,
-            'poblacion': result.poblacion_actual,
-        }
 
-    def get_queryset(self):
-        qs = Escuela.objects.all()
+class ValidacionListView(SolicitudListView):
+    form_class = ValidacionListForm
+    template_name = 'mye/validacion_list.html'
+    queryset = Validacion.objects.all()
 
-        nombre = self.forwarded.get('nombre', None)
-        direccion = self.forwarded.get('direccion', None)
-        municipio = self.forwarded.get('municipio', None)
-        departamento = self.forwarded.get('departamento', None)
-        cooperante_mye = self.forwarded.get('cooperante_mye', None)
-        proyecto_mye = self.forwarded.get('proyecto_mye', None)
-        nivel = self.forwarded.get('nivel', None)
-        sector = self.forwarded.get('sector', None)
-        poblacion_min = self.forwarded.get('poblacion_min', None)
-        poblacion_max = self.forwarded.get('poblacion_max', None)
-        solicitud = self.forwarded.get('solicitud', None)
-        solicitud_id = self.forwarded.get('solicitud_id', None)
-        equipamiento = self.forwarded.get('equipamiento', None)
-        equipamiento_id = self.forwarded.get('equipamiento_id', None)
-        cooperante_tpe = self.forwarded.get('cooperante_tpe', None)
-        proyecto_tpe = self.forwarded.get('proyecto_tpe', None)
+    def create_response(self, queryset):
+        return [
+            {
+                'departamento': str(validacion.escuela.municipio.departamento),
+                'municipio': validacion.escuela.municipio.nombre,
+                'escuela': str(validacion.escuela),
+                'escuela_url': validacion.escuela.get_absolute_url(),
+                'estado': 'Completa' if validacion.completada is True else 'Pendiente',
+                'validacion_url': validacion.get_absolute_url(),
+                'requisitos': [
+                    {
+                        'req': str(r['requisito'])[:10],
+                        'cumple': r['cumple']
+                    } for r in validacion.listar_requisito()
+                ],
+                'historial': [{
+                    'fecha': com.fecha,
+                    'comentario': com.comentario
+                } for com in validacion.comentarios.all().order_by('fecha')]
+            } for validacion in queryset
+        ]
 
-        if self.q:
-            qs = qs.filter(codigo=self.q)
-        if solicitud:
-            solicitud_list = Solicitud.objects.all()
-            if solicitud == "2":
-                qs = qs.filter(solicitud__in=solicitud_list).distinct()
-            if solicitud == "1":
-                qs = qs.exclude(solicitud__in=solicitud_list).distinct()
-        if solicitud_id:
-            solicitud_list = Solicitud.objects.filter(id=solicitud_id)
-            qs = qs.filter(solicitud__in=solicitud_list).distinct()
-        if equipamiento_id:
-            equipamiento_list = Equipamiento.objects.filter(id=equipamiento_id)
-            qs = qs.filter(equipamiento__in=equipamiento_list).distinct()
-        if equipamiento:
-            equipamiento_list = Equipamiento.objects.all()
-            if equipamiento == "2":
-                qs = qs.filter(equipamiento__in=equipamiento_list).distinct()
-            if equipamiento == "1":
-                qs = qs.exclude(equipamiento__in=equipamiento_list).distinct()
-        if departamento:
-            qs = qs.filter(municipio__in=Municipio.objects.filter(departamento=departamento)).distinct()
-        if municipio:
-            qs = qs.filter(municipio=municipio)
-        if cooperante_mye:
-            qs = qs.filter(cooperante_asignado__in=cooperante_mye).distinct()
-        if proyecto_mye:
-            qs = qs.filter(proyecto_asignado__in=proyecto_mye).distinct()
-        if nombre:
-            qs = qs.filter(nombre__icontains=nombre)
-        if direccion:
-            qs = qs.filter(direccion__icontains=direccion)
-        if nivel:
-            qs = qs.filter(nivel=nivel)
-        if sector:
-            qs = qs.filter(sector=sector)
-        if poblacion_min:
-            solicitud_list = Solicitud.objects.filter(total_alumno__gte=poblacion_min)
-            qs = qs.filter(solicitud__in=solicitud_list).distinct()
-        if poblacion_max:
-            solicitud_list = Solicitud.objects.filter(total_alumno__lte=poblacion_max)
-            qs = qs.filter(solicitud__in=solicitud_list).distinct()
-        if cooperante_tpe:
-            equipamiento_list = Equipamiento.objects.filter(cooperante__in=cooperante_tpe)
-            qs = qs.filter(equipamiento__in=equipamiento_list).distinct()
-        if proyecto_tpe:
-            equipamiento_list = Equipamiento.objects.filter(proyecto__in=proyecto_tpe)
-            qs = qs.filter(equipamiento__in=equipamiento_list).distinct()
-        return qs
+    def __init__(self, *args, **kwargs):
+        super(ValidacionListView, self).__init__(*args, **kwargs)
+        self.filter_list['estado'] = 'completada'

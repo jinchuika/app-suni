@@ -81,7 +81,7 @@ class SolicitudVersion(models.Model):
     Description: Versión de solicitud de equipamiento
     """
     nombre = models.CharField(max_length=50)
-    requisito = models.ManyToManyField(Requisito)
+    requisito = models.ManyToManyField(Requisito, blank=True)
 
     class Meta:
         verbose_name = 'Versión de solicitud'
@@ -156,7 +156,7 @@ class Solicitud(models.Model):
 
 class ValidacionVersion(models.Model):
     nombre = models.CharField(max_length=30)
-    requisito = models.ManyToManyField(Requisito)
+    requisito = models.ManyToManyField(Requisito, blank=True)
 
     class Meta:
         verbose_name = "Versión de validación"
@@ -212,6 +212,9 @@ class Validacion(models.Model):
         if self.total_maestro is None or self.total_maestro == 0:
             self.total_maestro = self.maestra + self.maestro
         super(Validacion, self).save(*args, **kwargs)
+
+    def get_absolute_url(self):
+        return reverse_lazy('escuela_validacion_detail', kwargs={'pk': self.escuela.id, 'id_validacion': self.id})
 
     def listar_requisito(self):
         queryset_requisito = self.version.requisito.all()

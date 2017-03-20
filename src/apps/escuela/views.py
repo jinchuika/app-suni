@@ -30,11 +30,11 @@ class EscuelaDetail(LoginRequiredMixin, DetailView):
         context = super(EscuelaDetail, self).get_context_data(**kwargs)
         context['solicitud_nueva_form'] = SolicitudNuevaForm(initial={'escuela': self.object.pk})
         context['equipamiento_nuevo_form'] = EquipamientoNuevoForm(initial={'escuela': self.object.pk})
+        context['validacion_nueva_form'] = ValidacionNuevaForm(initial={'escuela': self.object.pk})
         if self.request.user.groups.filter(name='mye_validacion_nula').count() > 0:
-            tipo_queryset = ValidacionTipo.objects.all()
+            context['validacion_nueva_form'].fields['tipo'].queryset = ValidacionTipo.objects.all()
         else:
-            tipo_queryset = ValidacionTipo.objects.exclude(id=3)
-        context['validacion_nueva_form'] = ValidacionNuevaForm(initial={'escuela': self.object.pk}, tipo_queryset=tipo_queryset)
+            context['validacion_nueva_form'].fields['tipo'].queryset = ValidacionTipo.objects.exclude(id=3)
 
         # Crea un formulario de solicitud si encuentra la ID
         if 'id_solicitud' in self.kwargs:
