@@ -27,13 +27,17 @@
 						<thead>
 							<tr>
 								<th>Nombre</th>
-								<th>Participaciones</th>
+								<th>Escuelas equipadas</th>
 							</tr>
 						</thead>
 							{% for proyecto in proyecto_list %}
 								<tr>
-									<td><a href="{% url "proyecto_detail" pk=proyecto.id %}">{{ proyecto }}</a></td>
-									<td>{{ proyecto.escuela_asignada.all.count }}</td>
+									<td>
+										<a href="{{ proyecto.get_absolute_url }}">
+											{{ proyecto }}
+										</a>
+									</td>
+									<td>{{ proyecto.equipamientos.count }}</td>
 								</tr>
 							{% endfor %}
 						</table>

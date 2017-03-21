@@ -113,6 +113,8 @@ class Solicitud(models.Model):
     edf = models.BooleanField(blank=True)
     lab_actual = models.BooleanField(blank=True)
 
+    poblacion = models.ForeignKey('escuela.EscPoblacion', on_delete=models.PROTECT, related_name='solicitudes', null=True)
+
     alumna = models.IntegerField()
     alumno = models.IntegerField()
     maestra = models.IntegerField()
@@ -186,13 +188,7 @@ class Validacion(models.Model):
     jornada = models.IntegerField(default=1)
     fecha_equipamiento = models.DateField(null=True, blank=True)
 
-    alumna = models.IntegerField()
-    alumno = models.IntegerField()
-    maestra = models.IntegerField()
-    maestro = models.IntegerField()
-
-    total_alumno = models.IntegerField(null=True, blank=True)
-    total_maestro = models.IntegerField(null=True, blank=True)
+    poblacion = models.ForeignKey('escuela.EscPoblacion', on_delete=models.PROTECT, related_name='validaciones', null=True)
 
     requisito = models.ManyToManyField(Requisito, blank=True)
 

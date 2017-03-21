@@ -1,6 +1,7 @@
 from operator import itemgetter
 from django.db import models
 from django.urls import reverse
+from django.utils import timezone
 from apps.main.models import Municipio
 from apps.main.utils import get_telefonica
 from apps.mye.models import Cooperante, Proyecto, Solicitud
@@ -213,3 +214,30 @@ class EscContactoMail(models.Model):
 
     def __str__(self):
         return self.mail
+
+
+class EscPoblacion(models.Model):
+    escuela = models.ForeignKey(Escuela, related_name="poblaciones")
+    fecha = models.DateField(default=timezone.now)
+
+    alumna = models.IntegerField()
+    alumno = models.IntegerField()
+    maestra = models.IntegerField()
+    maestro = models.IntegerField()
+
+    total_alumno = models.IntegerField(null=True, blank=True)
+    total_maestro = models.IntegerField(null=True, blank=True)
+
+    class Meta:
+        verbose_name = "Población de escuela"
+        verbose_name_plural = "Poblaciones de escuela"
+
+    def __str__(self):
+        return str(self.escuela)[:15] + " - " + str(self.fecha)
+
+    def save(self, *args, **kwargs):
+        if self.total_alumno is None or self.total_alumno == 0:
+            self.total_alumno = self.alumna + self.alumno
+        if self.total_maestro is None or self.total_maestro == 0:
+            self.total_maestro = self.maestra + self.maestro
+        super(EscPoblacion, self).save(*args, **kwargs)

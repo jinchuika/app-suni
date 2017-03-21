@@ -32,8 +32,10 @@
 						</thead>
 							{% for cooperante in cooperante_list %}
 								<tr>
-									<td><a href="{% url "cooperante_detail" pk=cooperante.id %}">{{ cooperante }}</a></td>
-									<td>{{ cooperante.equipamiento.all.count }}</td>
+									<td>
+										<a href="{{ cooperante.get_absolute_url }}">{{ cooperante }}</a>
+									</td>
+									<td>{{ cooperante.equipamientos.count }}</td>
 								</tr>
 							{% endfor %}
 						</table>
