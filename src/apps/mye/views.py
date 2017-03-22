@@ -336,8 +336,8 @@ class SolicitudListView(InformeMixin):
         'proyecto_mye': 'escuela__asignacion_proyecto__in',
         'fecha_min': 'fecha__gte',
         'fecha_max': 'fecha__lte',
-        'alumnos_min': 'total_alumno__gte',
-        'alumnos_max': 'total_alumno__lte',
+        'alumnos_min': 'poblacion__total_alumno__gte',
+        'alumnos_max': 'poblacion__total_alumno__lte',
     }
 
     def create_response(self, queryset):
@@ -345,7 +345,7 @@ class SolicitudListView(InformeMixin):
             {
                 'departamento': str(solicitud.escuela.municipio.departamento),
                 'municipio': solicitud.escuela.municipio.nombre,
-                'escuela': str(solicitud.escuela),
+                'escuela': '{} ({})'.format(solicitud.escuela.nombre, solicitud.escuela.codigo),
                 'escuela_url': solicitud.escuela.get_absolute_url(),
                 'requisitos': [
                     {
@@ -353,8 +353,9 @@ class SolicitudListView(InformeMixin):
                         'cumple': r['cumple']
                     } for r in solicitud.listar_requisito()
                 ],
-                'alumnos': solicitud.total_alumno,
-                'maestros': solicitud.total_maestro
+                'alumnos': solicitud.poblacion.total_alumno,
+                'maestros': solicitud.poblacion.total_maestro,
+                'fecha': solicitud.fecha
             } for solicitud in queryset
         ]
 
@@ -369,7 +370,7 @@ class ValidacionListView(SolicitudListView):
             {
                 'departamento': str(validacion.escuela.municipio.departamento),
                 'municipio': validacion.escuela.municipio.nombre,
-                'escuela': str(validacion.escuela),
+                'escuela': '{} ({})'.format(validacion.escuela.nombre, validacion.escuela.codigo),
                 'escuela_url': validacion.escuela.get_absolute_url(),
                 'estado': 'Completa' if validacion.completada is True else 'Pendiente',
                 'validacion_url': validacion.get_absolute_url(),

@@ -111,10 +111,10 @@
 														<th>Docentes</th>
 														<th>Fecha</th>
 													</tr>
-													{% for poblacion in escuela.poblacion|dictsort:"fecha" %}
+													{% for poblacion in escuela.poblaciones.all|dictsort:"fecha" %}
 													<tr>
-														<td>{{poblacion.alumnos}}</td>
-														<td>{{poblacion.maestros}}</td>
+														<td>{{poblacion.total_alumno}}</td>
+														<td>{{poblacion.total_maestro}}</td>
 														<td>{{poblacion.fecha|date:"d/m/Y"|lower}}</td>
 													</tr>
 													{% endfor %}

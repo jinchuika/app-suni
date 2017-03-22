@@ -5,9 +5,14 @@ from django.utils import timezone
 from django.core.urlresolvers import reverse_lazy
 
 from apps.tpe.forms import EquipamientoListForm
-from apps.escuela.models import Escuela, EscNivel, EscSector
+from apps.escuela.models import (
+    Escuela, EscNivel, EscSector,
+    EscPoblacion)
 from apps.main.models import Departamento, Municipio
-from apps.mye.models import Cooperante, EscuelaCooperante, Proyecto, EscuelaProyecto, SolicitudVersion, Solicitud, Requisito, ValidacionVersion, Validacion
+from apps.mye.models import (
+    Cooperante, EscuelaCooperante, Proyecto,
+    EscuelaProyecto, SolicitudVersion, Solicitud,
+    Requisito, ValidacionVersion, Validacion)
 
 
 class CooperanteForm(ModelForm):
@@ -124,27 +129,44 @@ class SolicitudNuevaForm(forms.ModelForm):
         instance.jornada = 1
         instance.edf = False
         instance.lab_actual = False
-        instance.alumna = 0
-        instance.alumno = 0
-        instance.maestra = 0
-        instance.maestro = 0
         if commit:
+            poblacion = EscPoblacion(fecha=instance.fecha, escuela=instance.escuela)
+            poblacion.save()
+            instance.poblacion = poblacion
             instance.save()
         return instance
 
 
 class SolicitudForm(ModelForm):
+    alumna = forms.IntegerField(
+        label='Cantidad de niñas',
+        widget=forms.NumberInput(attrs={'min': 0, 'class': 'form-control'}))
+    alumno = forms.IntegerField(
+        label='Cantidad de niños',
+        widget=forms.NumberInput(attrs={'min': 0, 'class': 'form-control'}))
+    total_alumno = forms.IntegerField(
+        required=False, label='Total de estudiantes',
+        widget=forms.NumberInput(attrs={'min': 0, 'class': 'form-control'}))
+    maestra = forms.IntegerField(
+        label='Cantidad de maestras',
+        widget=forms.NumberInput(attrs={'min': 0, 'class': 'form-control'}))
+    maestro = forms.IntegerField(
+        label='Cantidad de maestros',
+        widget=forms.NumberInput(attrs={'min': 0, 'class': 'form-control'}))
+    total_maestro = forms.IntegerField(
+        required=False, label='Total de maestros',
+        widget=forms.NumberInput(attrs={'min': 0, 'class': 'form-control'}))
+
     class Meta:
         model = Solicitud
-        fields = '__all__'
-        exclude = ('escuela',)
+        fields = [
+            'fecha', 'formulario', 'version', 'jornada', 'edf', 'lab_actual',
+            'alumna', 'alumno', 'total_alumno', 'maestra', 'maestro', 'total_maestro',
+            'requisito', 'medio', 'observacion',
+        ]
+        exclude = ('escuela', ' poblacion')
         labels = {
-            'alumna': 'Cantidad de alumnas',
-            'alumno': 'Cantidad de alumnos',
-            'maestra': 'Cantidad de maestras',
-            'maestro': 'Cantidad de maestros',
-            'total_alumno': 'Cantidad total de estudiantes',
-            'total_maestro': 'Cantidad total de docentes',
+            'formulario': 'Formulario físico',
             'jornada': 'Cantidad de jornadas en la escuela',
             'edf': 'La escuela fue EDF',
             'lab_actual': 'Tiene laboratorio actualmente',
@@ -164,6 +186,31 @@ class SolicitudForm(ModelForm):
         super(SolicitudForm, self).__init__(*args, **kwargs)
         version = SolicitudVersion.objects.get(id=self.initial['version'])
         self.fields['requisito'].queryset = Requisito.objects.filter(id__in=version.requisito.all())
+        if self.instance.poblacion:
+            self.fields['alumna'].initial = self.instance.poblacion.alumna
+            self.fields['alumno'].initial = self.instance.poblacion.alumno
+            self.fields['total_alumno'].initial = self.instance.poblacion.total_alumno
+            self.fields['maestra'].initial = self.instance.poblacion.maestra
+            self.fields['maestro'].initial = self.instance.poblacion.maestro
+            self.fields['total_maestro'].initial = self.instance.poblacion.total_maestro
+
+    def save(self, commit=True):
+        instance = super(SolicitudForm, self).save(commit=False)
+        if commit:
+            if not instance.poblacion:
+                instance.poblacion = EscPoblacion(fecha=instance.fecha, escuela=instance.escuela)
+            instance.poblacion.fecha = instance.fecha
+            instance.poblacion.escuela = instance.escuela
+            instance.poblacion.alumna = self.cleaned_data['alumna']
+            instance.poblacion.alumno = self.cleaned_data['alumno']
+            instance.poblacion.total_alumno = self.cleaned_data['total_alumno']
+            instance.poblacion.maestra = self.cleaned_data['maestra']
+            instance.poblacion.maestro = self.cleaned_data['maestro']
+            instance.poblacion.total_maestro = self.cleaned_data['total_maestro']
+            instance.poblacion.save()
+            instance.save()
+            self.save_m2m()
+        return instance
 
 
 class SolicitudListForm(forms.Form):
@@ -228,38 +275,51 @@ class ValidacionNuevaForm(forms.ModelForm):
         instance = super(ValidacionNuevaForm, self).save(commit=False)
         instance.jornada = 1
         instance.edf = False
-        instance.alumna = 0
-        instance.alumno = 0
-        instance.maestra = 0
-        instance.maestro = 0
         if commit:
+            poblacion = EscPoblacion(fecha=instance.fecha_inicio, escuela=instance.escuela)
+            poblacion.save()
+            instance.poblacion = poblacion
             instance.save()
         return instance
 
 
 class ValidacionForm(forms.ModelForm):
+    alumna = forms.IntegerField(
+        label='Cantidad de niñas',
+        widget=forms.NumberInput(attrs={'min': 0, 'class': 'form-control'}))
+    alumno = forms.IntegerField(
+        label='Cantidad de niños',
+        widget=forms.NumberInput(attrs={'min': 0, 'class': 'form-control'}))
+    total_alumno = forms.IntegerField(
+        required=False, label='Total de estudiantes',
+        widget=forms.NumberInput(attrs={'min': 0, 'class': 'form-control'}))
+    maestra = forms.IntegerField(
+        label='Cantidad de maestras',
+        widget=forms.NumberInput(attrs={'min': 0, 'class': 'form-control'}))
+    maestro = forms.IntegerField(
+        label='Cantidad de maestros',
+        widget=forms.NumberInput(attrs={'min': 0, 'class': 'form-control'}))
+    total_maestro = forms.IntegerField(
+        required=False, label='Total de maestros',
+        widget=forms.NumberInput(attrs={'min': 0, 'class': 'form-control'}))
+
     class Meta:
         model = Validacion
-        fields = '__all__'
+        fields = [
+            'version', 'tipo', 'jornada',
+            'alumna', 'alumno', 'total_alumno', 'maestra', 'maestro', 'total_maestro',
+            'requisito', 'observacion', 'completada'
+        ]
         exclude = ('escuela',)
-
         labels = {
-            'alumna': 'Cantidad de alumnas',
-            'alumno': 'Cantidad de alumnos',
-            'maestra': 'Cantidad de maestras',
-            'maestro': 'Cantidad de maestros',
-            'total_alumno': 'Cantidad total de estudiantes',
-            'total_maestro': 'Cantidad total de docentes',
             'jornada': 'Cantidad de jornadas en la escuela',
             'edf': 'La escuela fue EDF',
             'observacion': 'Observaciones',
             'requisito': 'Requerimientos',
         }
-
         widgets = {
             'tipo': forms.Select(attrs={'class': 'form-control'}),
             'version': forms.HiddenInput(),
-            'fecha': forms.TextInput(attrs={'class': 'form-control datepicker'}),
             'jornada': forms.NumberInput(attrs={'min': 1, 'class': 'form-control'}),
             'requisito': forms.CheckboxSelectMultiple(attrs={'class': 'list-unstyled'}),
         }
@@ -268,6 +328,33 @@ class ValidacionForm(forms.ModelForm):
         super(ValidacionForm, self).__init__(*args, **kwargs)
         version = ValidacionVersion.objects.get(id=self.initial['version'])
         self.fields['requisito'].queryset = Requisito.objects.filter(id__in=version.requisito.all())
+        if self.instance.poblacion:
+            self.fields['alumna'].initial = self.instance.poblacion.alumna
+            self.fields['alumno'].initial = self.instance.poblacion.alumno
+            self.fields['total_alumno'].initial = self.instance.poblacion.total_alumno
+            self.fields['maestra'].initial = self.instance.poblacion.maestra
+            self.fields['maestro'].initial = self.instance.poblacion.maestro
+            self.fields['total_maestro'].initial = self.instance.poblacion.total_maestro
+
+    def save(self, commit=True):
+        instance = super(ValidacionForm, self).save(commit=False)
+        if commit:
+            if not instance.poblacion:
+                instance.poblacion = EscPoblacion(fecha=instance.fecha_inicio, escuela=instance.escuela)
+            instance.poblacion.fecha = instance.fecha_inicio
+            instance.poblacion.escuela = instance.escuela
+            instance.poblacion.alumna = self.cleaned_data['alumna']
+            instance.poblacion.alumno = self.cleaned_data['alumno']
+            instance.poblacion.total_alumno = self.cleaned_data['total_alumno']
+            instance.poblacion.maestra = self.cleaned_data['maestra']
+            instance.poblacion.maestro = self.cleaned_data['maestro']
+            instance.poblacion.total_maestro = self.cleaned_data['total_maestro']
+            instance.poblacion.save()
+            if self.cleaned_data['completada']:
+                instance.fecha_final = date.today()
+            instance.save()
+            self.save_m2m()
+        return instance
 
 
 class InformeMyeForm(forms.ModelForm):

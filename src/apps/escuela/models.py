@@ -140,26 +140,15 @@ class Escuela(models.Model):
         return reverse('escuela_detail', kwargs={'pk': self.id})
 
     def get_poblacion(self):
-        poblacion_list = []
-        for solicitud in Solicitud.objects.filter(escuela=self):
-            poblacion_list.append({
-                'fecha': solicitud.fecha,
-                'alumnos': solicitud.total_alumno,
-                'maestros': solicitud.total_maestro})
-        return sorted(poblacion_list, key=itemgetter('fecha'))
-    poblacion = property(get_poblacion)
-
-    def get_poblacion_actual(self):
-        poblacion_list = self.get_poblacion()
-        if len(poblacion_list) > 0:
-            return poblacion_list[0]['alumnos']
+        if self.poblaciones.count() > 0:
+            return self.poblaciones.latest('fecha').total_alumno
         else:
             return None
-    poblacion_actual = property(get_poblacion_actual)
+    poblacion = property(get_poblacion)
 
-    def get_departamento(self):
-        return self.municipio.departamento
-    departamento = property(get_departamento)
+    def es_equipada(self):
+        return True if self.equipamiento.count() > 0 else False
+    equipada = property(es_equipada)
 
     def tiene_solicitud(self):
         return Solicitud.objects.filter(escuela=self).count() > 0
@@ -220,10 +209,10 @@ class EscPoblacion(models.Model):
     escuela = models.ForeignKey(Escuela, related_name="poblaciones")
     fecha = models.DateField(default=timezone.now)
 
-    alumna = models.IntegerField()
-    alumno = models.IntegerField()
-    maestra = models.IntegerField()
-    maestro = models.IntegerField()
+    alumna = models.IntegerField(default=0)
+    alumno = models.IntegerField(default=0)
+    maestra = models.IntegerField(default=0)
+    maestro = models.IntegerField(default=0)
 
     total_alumno = models.IntegerField(null=True, blank=True)
     total_maestro = models.IntegerField(null=True, blank=True)

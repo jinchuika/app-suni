@@ -90,6 +90,7 @@
                 '<a href="'+solicitud.escuela_url+'">' + solicitud.escuela + '</a>',
                 solicitud.alumnos,
                 solicitud.maestros,
+                solicitud.fecha,
                 join_requisito(solicitud.requisitos),
                 ]).draw(false);
         });
@@ -97,7 +98,7 @@
 
     var join_requisito = function (requisito_list) {
         return requisito_list.map(function (item) {
-            return (item.cumple ? '✔ ' : '✖ ') + item.req;
+            return (item.cumple ? '✔ ' : '✖ ') + item.req + '...';
         }).join("<br />")
     }
 

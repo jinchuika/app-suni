@@ -24,28 +24,32 @@
 					<table class="table table-hover table-condensed table-striped">
 						<tbody id="validacion-{{ validacion.id }}">
 							<tr>
-								<th>Fecha</th>
-								<td colspan="2">{{ validacion.fecha }}</td>
+								<th>Fecha de inicio</th>
+								<td colspan="4">{{ validacion.fecha_inicio }}</td>
+							</tr>
+							<tr>
+								<th>Fecha de inicio</th>
+								<td colspan="4">{{ validacion.fecha_final|default_if_none:"Pendiente" }}</td>
 							</tr>
 							<tr>
 								<th>Tipo de validación</th>
-								<td colspan="2">{{ validacion.tipo }}</td>
+								<td colspan="4">{{ validacion.tipo }}</td>
 							</tr>
 							<tr>
 								<th>Jornadas que funcionan en la escuela</th>
-								<td colspan="2">{{ validacion.jornada }}</td>
+								<td colspan="4">{{ validacion.jornada }}</td>
 							</tr>
 							<tr>
 								<th>Población estudiantil</th>
-								<td><i class="fa fa-female"></i> {{ validacion.alumna }}</td>
-								<td><i class="fa fa-male"></i> {{ validacion.alumno }}</td>
-								<td><i class="fa fa-male"></i><i class="fa fa-female"></i> {{ validacion.total_alumno }}</td>
+								<td><i class="fa fa-female"></i> {{ validacion.poblacion.alumna }}</td>
+								<td><i class="fa fa-male"></i> {{ validacion.poblacion.alumno }}</td>
+								<td><i class="fa fa-male"></i><i class="fa fa-female"></i> {{ validacion.poblacion.total_alumno }}</td>
 							</tr>
 							<tr>
 								<th>Población doncente</th>
-								<td><i class="fa fa-female"></i> {{ validacion.maestra }}</td>
-								<td><i class="fa fa-male"></i> {{ validacion.maestro }}</td>
-								<td><i class="fa fa-male"></i><i class="fa fa-female"></i> {{ validacion.total_maestro }}</td>
+								<td><i class="fa fa-female"></i> {{ validacion.poblacion.maestra }}</td>
+								<td><i class="fa fa-male"></i> {{ validacion.poblacion.maestro }}</td>
+								<td><i class="fa fa-male"></i><i class="fa fa-female"></i> {{ validacion.poblacion.total_maestro }}</td>
 							</tr>
 							<tr>
 								<th colspan="4">Requerimientos</th>

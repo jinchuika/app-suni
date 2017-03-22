@@ -45,8 +45,6 @@ THIRD_PARTY_APPS = (
     'dynamic_preferences',
     'widget_tweaks',
     'menu',
-    'dal',
-    'dal_select2',
     'mixer',
 
     'allauth',

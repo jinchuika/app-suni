@@ -115,14 +115,6 @@ class Solicitud(models.Model):
 
     poblacion = models.ForeignKey('escuela.EscPoblacion', on_delete=models.PROTECT, related_name='solicitudes', null=True)
 
-    alumna = models.IntegerField()
-    alumno = models.IntegerField()
-    maestra = models.IntegerField()
-    maestro = models.IntegerField()
-
-    total_alumno = models.IntegerField(null=True, blank=True)
-    total_maestro = models.IntegerField(null=True, blank=True)
-
     requisito = models.ManyToManyField(Requisito, blank=True)
     medio = models.ManyToManyField(Medio, blank=True)
 
@@ -134,13 +126,6 @@ class Solicitud(models.Model):
 
     def __str__(self):
         return str(self.id)
-
-    def save(self, *args, **kwargs):
-        if self.total_alumno is None or self.total_alumno == 0:
-            self.total_alumno = self.alumna + self.alumno
-        if self.total_maestro is None or self.total_maestro == 0:
-            self.total_maestro = self.maestra + self.maestro
-        super(Solicitud, self).save(*args, **kwargs)
 
     def get_absolute_url(self):
         return reverse_lazy('escuela_solicitud_detail', kwargs={'pk': self.escuela.id, 'id_solicitud': self.id})
@@ -201,13 +186,6 @@ class Validacion(models.Model):
 
     def __str__(self):
         return str(self.id)
-
-    def save(self, *args, **kwargs):
-        if self.total_alumno is None or self.total_alumno == 0:
-            self.total_alumno = self.alumna + self.alumno
-        if self.total_maestro is None or self.total_maestro == 0:
-            self.total_maestro = self.maestra + self.maestro
-        super(Validacion, self).save(*args, **kwargs)
 
     def get_absolute_url(self):
         return reverse_lazy('escuela_validacion_detail', kwargs={'pk': self.escuela.id, 'id_validacion': self.id})

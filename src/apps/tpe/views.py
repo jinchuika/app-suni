@@ -180,17 +180,16 @@ class MonitoreoListView(InformeMixin):
     }
 
     def create_response(self, queryset):
-        var = [
+        return [
             {
                 'entrega': monitoreo.equipamiento.id,
                 'entrega_url': monitoreo.equipamiento.get_absolute_url(),
                 'escuela': str(monitoreo.equipamiento.escuela),
                 'escuela_url': monitoreo.equipamiento.escuela.get_absolute_url(),
-                'departamento': str(monitoreo.equipamiento.escuela.departamento),
+                'departamento': str(monitoreo.equipamiento.escuela.municipio.departamento),
                 'municipio': str(monitoreo.equipamiento.escuela.municipio.nombre),
                 'comentario': monitoreo.comentario,
                 'fecha': monitoreo.fecha,
                 'usuario': str(monitoreo.creado_por.perfil),
             } for monitoreo in queryset
         ]
-        return var
