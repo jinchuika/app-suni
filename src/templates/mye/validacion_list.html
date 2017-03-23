@@ -8,7 +8,7 @@
 
 {% block content %}
 <section class="content-header">
-	<h1>Informe de Validación</h1>
+	<h1>Informe de Validación <i id="spinner" class="fa fa-spinner fa-spin fa-fw"></i></h1>
 </section>
 <section class="content">
 	<div class="container-fluid">
@@ -18,6 +18,7 @@
 					<form action="{{ action }}" id="validacion-list-form">
 						<div class="box-header">
 							<input type="submit" class="btn btn-primary col-md-12" value="Generar informe"><br>
+							<hr>
 							<h3 class="box-title">Filtros</h3>
 						</div>
 						<div class="box-body">

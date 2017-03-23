@@ -94,6 +94,7 @@
                 join_requisito(solicitud.requisitos),
                 ]).draw(false);
         });
+        $('#spinner').hide();
     }
 
     var join_requisito = function (requisito_list) {
@@ -104,9 +105,11 @@
 
     // Public
     SolicitudList.init = function () {
+        $('#spinner').hide();
         $('#solicitud-list-form').submit(function (e) {
             e.preventDefault();
             tabla.clear().draw();
+            $('#spinner').show();
             $.ajax({
                 type: 'post',
                 url: $(this).attr('action'),
@@ -139,6 +142,7 @@
                 }).join('<br />')
                 ]).draw(false);
         });
+        $('#spinner').hide();
     }
 
     var join_requisito = function (requisito_list) {
@@ -149,9 +153,11 @@
 
     // Public
     ValidacionList.init = function () {
+        $('#spinner').hide();
         $('#validacion-list-form').submit(function (e) {
             e.preventDefault();
             tabla.clear().draw();
+            $('#spinner').show();
             $.ajax({
                 type: 'post',
                 url: $(this).attr('action'),

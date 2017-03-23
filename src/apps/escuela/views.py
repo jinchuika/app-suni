@@ -1,23 +1,29 @@
+"""Vistas para la gestión de escuelas
+"""
 from django.shortcuts import get_object_or_404, reverse
 from django.views.generic import DetailView
-from django.views.generic.edit import CreateView, UpdateView, FormView
+from django.views.generic.edit import CreateView, UpdateView
 
 from braces.views import LoginRequiredMixin, PermissionRequiredMixin
 
-from apps.escuela.forms import (
-    FormEscuelaCrear, ContactoForm, BuscarEscuelaForm,
-    EscuelaBuscarForm)
+from apps.mye.models import (
+    EscuelaCooperante, EscuelaProyecto,
+    Solicitud, Validacion, ValidacionTipo)
+from apps.mye.forms import (
+    EscuelaCooperanteForm, EscuelaProyectoForm, SolicitudNuevaForm,
+    SolicitudForm, ValidacionNuevaForm, ValidacionForm)
+from apps.tpe.models import Equipamiento
+from apps.tpe.forms import EquipamientoForm, EquipamientoNuevoForm
+
+from apps.escuela.forms import FormEscuelaCrear, ContactoForm, EscuelaBuscarForm
 from apps.escuela.models import Escuela, EscContacto
 from apps.escuela.mixins import ContactoContextMixin
 from apps.main.mixins import InformeMixin
-from apps.mye.forms import EscuelaCooperanteForm, EscuelaProyectoForm, SolicitudNuevaForm, SolicitudForm, ValidacionNuevaForm, ValidacionForm
-from apps.tpe.forms import EquipamientoForm, EquipamientoNuevoForm
-from apps.tpe.models import Equipamiento
-from apps.mye.models import EscuelaCooperante, EscuelaProyecto, Solicitud, Validacion, ValidacionTipo
-from apps.main.models import Municipio
 
 
 class EscuelaCrear(LoginRequiredMixin, CreateView):
+    """Vista para crear una escuela
+    """
     template_name = 'escuela/add.html'
     raise_exception = True
     redirect_unauthenticated_users = True
@@ -25,10 +31,20 @@ class EscuelaCrear(LoginRequiredMixin, CreateView):
 
 
 class EscuelaDetail(LoginRequiredMixin, DetailView):
+    """Vista para el perfil de la escuela
+    """
     template_name = 'escuela/detail.html'
     model = Escuela
 
     def get_context_data(self, **kwargs):
+        """Obtiene las variables de contexto para enviar al template
+
+        Args:
+            **kwargs: Puede contener el id para solicitud, validacion o equipamiento
+
+        Returns:
+            list: Variables de contexto para el template
+        """
         context = super(EscuelaDetail, self).get_context_data(**kwargs)
         context['solicitud_nueva_form'] = SolicitudNuevaForm(initial={'escuela': self.object.pk})
         context['equipamiento_nuevo_form'] = EquipamientoNuevoForm(initial={'escuela': self.object.pk})
@@ -61,6 +77,8 @@ class EscuelaDetail(LoginRequiredMixin, DetailView):
 
 
 class EscuelaCooperanteUpdate(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
+    """Actualiza los cooperantes asignados a una escuela
+    """
     model = Escuela
     form_class = EscuelaCooperanteForm
     template_name = 'mye/cooperante_asignacion_escuela.html'
@@ -69,16 +87,32 @@ class EscuelaCooperanteUpdate(LoginRequiredMixin, PermissionRequiredMixin, Updat
     raise_exception = True
 
     def get_form(self, *args, **kwargs):
+        """Crea el formulario para el template
+
+        Args:
+            *args: Description
+            **kwargs: Description
+
+        Returns:
+            Form: Formulario para cooperantes
+        """
         eliminar = self.request.user.has_perm('mye.delete_escuela_cooperante')
         form = self.form_class(eliminar=eliminar, **self.get_form_kwargs())
         form.initial['cooperante_asignado'] = [c.cooperante for c in EscuelaCooperante.objects.filter(escuela=self.object, activa=True)]
         return form
 
     def get_success_url(self):
+        """Obtiene la url de la escuela tras actualizar el cooperante
+
+        Returns:
+            string: url de la escuela
+        """
         return reverse('escuela_detail', kwargs={'pk': self.kwargs['pk']})
 
 
 class EscuelaProyectoUpdate(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
+    """Actualiza los proyectos asignados a la escuela
+    """
     model = Escuela
     form_class = EscuelaProyectoForm
     template_name = 'mye/proyecto_asignacion_escuela.html'
@@ -87,16 +121,33 @@ class EscuelaProyectoUpdate(LoginRequiredMixin, PermissionRequiredMixin, UpdateV
     raise_exception = True
 
     def get_form(self, *args, **kwargs):
+        """Crea el formulario para los proyectos
+
+        Args:
+            *args: Description
+            **kwargs: Description
+
+        Returns:
+            Form: Formulario de proyectos
+        """
         eliminar = self.request.user.has_perm('mye.delete_escuela_proyecto')
         form = self.form_class(eliminar=eliminar, **self.get_form_kwargs())
         form.initial['proyecto_asignado'] = [c.proyecto for c in EscuelaProyecto.objects.filter(escuela=self.object, activa=True)]
         return form
 
     def get_success_url(self):
+        """Obtiene la url de la escuela del proyecto
+
+        Returns:
+            string: url de la escuela
+        """
         return reverse('escuela_detail', kwargs={'pk': self.kwargs['pk']})
 
 
 class EscuelaEditar(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
+    """Edita una objeto de escuela.
+    Requiere el permiso `escuela.change_escuela`
+    """
     permission_required = "escuela.change_escuela"
     model = Escuela
     template_name = 'escuela/add.html'
@@ -106,28 +157,49 @@ class EscuelaEditar(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
 
 
 class EscContactoCrear(LoginRequiredMixin, ContactoContextMixin, CreateView):
+    """Crea un nuevo contacto para escuelas
+    """
     template_name = 'escuela/contacto.html'
     model = EscContacto
     form_class = ContactoForm
 
     def get_initial(self):
+        """Obtiene los datos iniciales del contacto
+
+        Returns:
+            dict: La escuela para llenar en el campo `escuela` del formulario
+        """
         escuela = get_object_or_404(Escuela, id=self.kwargs.get('id_escuela'))
-        return{'escuela': escuela}
+        return {'escuela': escuela}
 
     def get_success_url(self):
+        """Obtiene la url de la escuela después de crear el contacto
+
+        Returns:
+            string: url de la escuela
+        """
         return reverse('escuela_detail', kwargs={'pk': self.kwargs['id_escuela']})
 
 
 class EscContactoEditar(LoginRequiredMixin, ContactoContextMixin, UpdateView):
+    """Edición de contacto de escuela
+    """
     template_name = 'escuela/contacto.html'
     model = EscContacto
     form_class = ContactoForm
 
     def get_success_url(self):
+        """Obitne la url de la escuela del contacto
+
+        Returns:
+            string: url de la escuela del contacto
+        """
         return reverse('escuela_detail', kwargs={'pk': self.kwargs['id_escuela']})
 
 
 class EscuelaBuscar(InformeMixin):
+    """Buscador de escuelas
+    """
     form_class = EscuelaBuscarForm
     template_name = 'escuela/escuela_buscar.html'
     queryset = Escuela.objects.distinct()
@@ -153,7 +225,16 @@ class EscuelaBuscar(InformeMixin):
     }
 
     def get_queryset(self, filtros):
-        queryset = super(EscuelaBuscar2, self).get_queryset(filtros)
+        """Arma el filtro de escuelas.
+        Se modifica en base a `InformeMixin` para parsear los valores `True`/`False`.
+
+        Args:
+            filtros (dict): Filtros para aplicar al queryset
+
+        Returns:
+            QuerySet: Queryset de escuelas filtradas
+        """
+        queryset = super(EscuelaBuscar, self).get_queryset(filtros)
         if filtros.get('solicitud', None):
             queryset = queryset.filter(solicitud__isnull=eval(filtros.get('solicitud')))
         if filtros.get('validacion', None):
@@ -163,6 +244,14 @@ class EscuelaBuscar(InformeMixin):
         return queryset
 
     def create_response(self, queryset):
+        """Summary
+
+        Args:
+            queryset (QuerySet): Queryset de escuelas encontradas por los filtros
+
+        Returns:
+            list: Lista de escuelas para formatear con JSON
+        """
         return [
             {
                 'codigo': escuela.codigo,

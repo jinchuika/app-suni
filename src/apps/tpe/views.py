@@ -1,13 +1,17 @@
-from django.utils.timezone import datetime
 from django.shortcuts import reverse
+from django.utils.timezone import datetime
 from django.views.generic import DetailView, ListView, View
 from django.views.generic.edit import CreateView, UpdateView
-from braces.views import LoginRequiredMixin, PermissionRequiredMixin, GroupRequiredMixin, CsrfExemptMixin, JsonRequestResponseMixin
+from braces.views import (
+    LoginRequiredMixin, PermissionRequiredMixin, GroupRequiredMixin,
+    CsrfExemptMixin, JsonRequestResponseMixin)
 
 from apps.main.mixins import InformeMixin
 from apps.escuela.views import EscuelaDetail
 from apps.tpe.models import Equipamiento, Garantia, TicketSoporte, TicketRegistro, Monitoreo
-from apps.tpe.forms import EquipamientoNuevoForm, EquipamientoForm, GarantiaForm, TicketSoporteForm, TicketCierreForm, TicketRegistroForm, EquipamientoListForm, MonitoreoListForm
+from apps.tpe.forms import (
+    EquipamientoNuevoForm, EquipamientoForm, GarantiaForm, TicketSoporteForm,
+    TicketCierreForm, TicketRegistroForm, EquipamientoListForm, MonitoreoListForm)
 
 
 class EquipamientoCrearView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
