@@ -130,6 +130,9 @@ class Solicitud(models.Model):
     def get_absolute_url(self):
         return reverse_lazy('escuela_solicitud_detail', kwargs={'pk': self.escuela.id, 'id_solicitud': self.id})
 
+    def porcentaje_requisitos(self):
+        return self.requisito.count() / self.version.requisito.count() * 100
+
     def listar_requisito(self):
         queryset_requisito = self.version.requisito.all()
         requisito_list = []
@@ -189,6 +192,9 @@ class Validacion(models.Model):
 
     def get_absolute_url(self):
         return reverse_lazy('escuela_validacion_detail', kwargs={'pk': self.escuela.id, 'id_validacion': self.id})
+
+    def porcentaje_requisitos(self):
+        return self.requisito.count() / self.version.requisito.count() * 100
 
     def listar_requisito(self):
         queryset_requisito = self.version.requisito.all()

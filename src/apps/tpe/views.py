@@ -67,19 +67,25 @@ class EquipamientoListView(InformeMixin):
             {
                 'entrega': equipamiento.id,
                 'entrega_url': equipamiento.get_absolute_url(),
-                'escuela': str(equipamiento.escuela),
-                'escuela_url': equipamiento.escuela.get_absolute_url(),
+                'escuela': '<a href="{}">{} <br />({})</a>'.format(
+                    equipamiento.escuela.get_absolute_url(),
+                    equipamiento.escuela.nombre,
+                    equipamiento.escuela.codigo),
                 'fecha': str(equipamiento.fecha),
                 'renovacion': 'Sí' if equipamiento.renovacion else 'No',
                 'khan': 'Sí' if equipamiento.servidor_khan else 'No',
-                'cantidad_equipo': equipamiento.cantidad_equipo,
+                'cantidad': equipamiento.cantidad_equipo,
                 'tipo_red': str(equipamiento.tipo_red) if equipamiento.red else 'No',
-                'cooperante': [
-                    {'nombre': cooperante.nombre, 'url': cooperante.get_absolute_url()}
+                'cooperante': [{
+                    'cooperante': '<a href="{}">{}</a>'.format(
+                        cooperante.get_absolute_url(),
+                        cooperante.nombre)}
                     for cooperante in equipamiento.cooperante.all()],
-                'proyecto': [
-                    {'nombre': proyecto.nombre, 'url': proyecto.get_absolute_url()}
-                    for proyecto in equipamiento.proyecto.all()]
+                'proyecto': [{
+                    'proyecto': '<a href="{}">{}</a>'.format(
+                        proyecto.get_absolute_url(),
+                        proyecto.nombre)}
+                    for proyecto in equipamiento.proyecto.all()],
             } for equipamiento in queryset
         ]
         return var

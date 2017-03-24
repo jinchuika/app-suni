@@ -79,46 +79,43 @@
 
 (function( SolicitudList, $, undefined ) {
     var tabla = $('#solicitud-table').DataTable({
-        "paging":   false,
-    });
-    
-    var armar_tabla = function (solicitud_list) {
-        $.each(solicitud_list, function (index, solicitud) {
-            tabla.row.add([
-                solicitud.departamento,
-                solicitud.municipio,
-                '<a href="'+solicitud.escuela_url+'">' + solicitud.escuela + '</a>',
-                solicitud.alumnos,
-                solicitud.maestros,
-                solicitud.fecha,
-                join_requisito(solicitud.requisitos),
-                ]).draw(false);
+        dom: 'lfrtipB',
+        buttons: ['excel','pdf'],
+        processing: true,
+        ajax: {
+            url: "",
+            type: "POST",
+            deferRender: true,
+            dataSrc: '',
+            data: function () {
+                return $('#solicitud-list-form').serializeObject();
+            }
+        },
+        columns: [
+        { "data": "departamento", "className": "nowrap" },
+        { "data": "municipio", "className": "nowrap" },
+        { "data": "escuela" },
+        { "data": "alumnos" },
+        { "data": "maestros" },
+        { "data": "fecha", "className": "nowrap" },
+        { "data": "requisitos" }
+        ]
+    })
+    .on('xhr.dt', function (e, settings, json, xhr) {
+        $('#solicitud-table tbody tr').each(function(index, item){
+            $(item).find('td:eq(5)').attr('nowrap', 'nowrap');
         });
-        $('#spinner').hide();
-    }
-
-    var join_requisito = function (requisito_list) {
-        return requisito_list.map(function (item) {
-            return (item.cumple ? '✔ ' : '✖ ') + item.req + '...';
-        }).join("<br />")
-    }
+         $('#spinner').hide();
+    });
 
     // Public
     SolicitudList.init = function () {
         $('#spinner').hide();
         $('#solicitud-list-form').submit(function (e) {
             e.preventDefault();
-            tabla.clear().draw();
             $('#spinner').show();
-            $.ajax({
-                type: 'post',
-                url: $(this).attr('action'),
-                dataType: 'json',
-                data: $(this).serialize(),
-                success: function (respuesta) {
-                    armar_tabla(respuesta);
-                }
-            });
+            tabla.clear().draw();
+            tabla.ajax.reload();
         });
 
     }   
@@ -127,29 +124,34 @@
 
 (function( ValidacionList, $, undefined ) {
     var tabla = $('#validacion-table').DataTable({
-        "paging":   false,
-    });
-    var armar_tabla = function (validacion_list) {
-        $.each(validacion_list, function (index, validacion) {
-            tabla.row.add([
-                validacion.departamento,
-                validacion.municipio,
-                '<a href="'+validacion.escuela_url+'">' + validacion.escuela + '</a>',
-                '<a href="'+validacion.validacion_url+'">' + validacion.estado + '</a>',
-                join_requisito(validacion.requisitos),
-                validacion.historial.map(function (item) {
-                    return '- ' + item.comentario;
-                }).join('<br />')
-                ]).draw(false);
-        });
-        $('#spinner').hide();
-    }
-
-    var join_requisito = function (requisito_list) {
-        return requisito_list.map(function (item) {
-            return (item.cumple ? '✔ ' : '✖ ') + item.req;
-        }).join("<br />")
-    }
+        dom: 'lfrtipB',
+        buttons: ['excel','pdf'],
+        processing: true,
+        ajax: {
+            url: "",
+            type: "POST",
+            deferRender: true,
+            dataSrc: '',
+            data: function () {
+                return $('#validacion-list-form').serializeObject();
+            }
+        },
+        columns: [
+        { data: "departamento", className: "nowrap" },
+        { data: "municipio", className: "nowrap" },
+        { data: "escuela" },
+        {
+            data: "estado",
+            render: function (data) {
+                return '<a href="'+data.url+'">'+data.estado+'</a>';
+            }
+        },
+        { data: "requisitos",},
+        { data: "comentarios", render: "[<br />].comentario" }
+        ]
+    }).on('xhr.dt', function () {
+         $('#spinner').hide();
+    });;
 
     // Public
     ValidacionList.init = function () {
@@ -158,15 +160,7 @@
             e.preventDefault();
             tabla.clear().draw();
             $('#spinner').show();
-            $.ajax({
-                type: 'post',
-                url: $(this).attr('action'),
-                dataType: 'json',
-                data: $(this).serialize(),
-                success: function (respuesta) {
-                    armar_tabla(respuesta);
-                }
-            });
+            tabla.ajax.reload();
         });
 
     }   

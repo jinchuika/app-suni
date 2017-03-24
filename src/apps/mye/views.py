@@ -345,14 +345,11 @@ class SolicitudListView(InformeMixin):
             {
                 'departamento': str(solicitud.escuela.municipio.departamento),
                 'municipio': solicitud.escuela.municipio.nombre,
-                'escuela': '{} ({})'.format(solicitud.escuela.nombre, solicitud.escuela.codigo),
-                'escuela_url': solicitud.escuela.get_absolute_url(),
-                'requisitos': [
-                    {
-                        'req': str(r['requisito'])[:10],
-                        'cumple': r['cumple']
-                    } for r in solicitud.listar_requisito()
-                ],
+                'escuela': '<a href="{}">{} <br />({})</a>'.format(
+                    solicitud.escuela.get_absolute_url(),
+                    solicitud.escuela.nombre,
+                    solicitud.escuela.codigo),
+                'requisitos': str(solicitud.porcentaje_requisitos())[:4] + "%",
                 'alumnos': solicitud.poblacion.total_alumno,
                 'maestros': solicitud.poblacion.total_maestro,
                 'fecha': solicitud.fecha
@@ -370,19 +367,16 @@ class ValidacionListView(SolicitudListView):
             {
                 'departamento': str(validacion.escuela.municipio.departamento),
                 'municipio': validacion.escuela.municipio.nombre,
-                'escuela': '{} ({})'.format(validacion.escuela.nombre, validacion.escuela.codigo),
-                'escuela_url': validacion.escuela.get_absolute_url(),
-                'estado': 'Completa' if validacion.completada is True else 'Pendiente',
-                'validacion_url': validacion.get_absolute_url(),
-                'requisitos': [
-                    {
-                        'req': str(r['requisito'])[:10],
-                        'cumple': r['cumple']
-                    } for r in validacion.listar_requisito()
-                ],
-                'historial': [{
-                    'fecha': com.fecha,
-                    'comentario': com.comentario
+                'escuela': '<a href="{}">{} <br />({})</a>'.format(
+                    validacion.escuela.get_absolute_url(),
+                    validacion.escuela.nombre,
+                    validacion.escuela.codigo),
+                'estado': {
+                    'estado': 'Completa' if validacion.completada is True else 'Pendiente',
+                    'url': validacion.get_absolute_url()},
+                'requisitos': str(validacion.porcentaje_requisitos())[:4] + "%",
+                'comentarios': [{
+                    'comentario': '- ' + com.comentario
                 } for com in validacion.comentarios.all().order_by('fecha')]
             } for validacion in queryset
         ]
