@@ -1,3 +1,4 @@
+from math import floor
 from django.shortcuts import reverse
 from django.db.models import Count
 from django.utils.timezone import datetime
@@ -104,7 +105,12 @@ class EquipamientoMapView(CsrfExemptMixin, JsonRequestResponseMixin, TemplateVie
         return context
 
     def post(self, request, *args, **kwargs):
-        equipamiento_list = Equipamiento.objects.all()
+        page = 30
+        pages = int(floor(Equipamiento.objects.all().count() / page)) + 1
+        current_page = int(self.request.POST.get('page', 1))
+        desde = (current_page - 1) * page
+        hasta = current_page * page
+        equipamiento_list = Equipamiento.objects.all()[desde:hasta]
         response_list = [{
             'info': '{}<br>{}<br>{}'.format(
                 str(equipamiento.escuela),
@@ -114,7 +120,10 @@ class EquipamientoMapView(CsrfExemptMixin, JsonRequestResponseMixin, TemplateVie
             'lng': equipamiento.escuela.mapa.lng}
             for equipamiento in equipamiento_list
             if equipamiento.escuela.mapa]
-        return self.render_json_response(response_list)
+        return self.render_json_response({
+            'next': current_page != pages,
+            'page': current_page + 1,
+            'data': response_list})
 
 
 class GarantiaListView(LoginRequiredMixin, GroupRequiredMixin, ListView):

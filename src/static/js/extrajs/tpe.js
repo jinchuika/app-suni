@@ -94,32 +94,44 @@
 
 (function( EquipamientoMapa, $, undefined ) {
     var map;
-    var marcadores = [];
-    var infos = [];
     var icono =  'http://funsepa.net/suni/media/ico3.png';
-    var cont = 0;
-    function nuevo_marcador(lat,lng,info) {
-        marker = new google.maps.Marker({
+    
+    var nuevo_marcador = function(lat, lng, info_text) {
+        var marker = new google.maps.Marker({
             position: new google.maps.LatLng(lat,lng),
             map: map,
             icon: icono,
             animation: google.maps.Animation.DROP
         });
-        infos.push(new google.maps.InfoWindow({content: info}));
-        marcadores.push(marker);
-        cont = cont + 1;
+        var info_window = new google.maps.InfoWindow({content: info_text});
+        google.maps.event.addListener(marker, 'mouseover', function() {info_window.open(map, marker);});
+        google.maps.event.addListener(marker, 'mouseout', function() {info_window.close();});
     }
 
-    function mostrar_marcadores (mapa) {
-        for (var i = 0; i < marcadores.length; i++) {
-            marcadores[i].setMap(mapa);
-        }
+    var buscar_equipamiento = function(page) {
+        page = (typeof page !== 'undefined') ?  page : 1;
+        $.ajax({
+            url: '',
+            data: {
+                page: page
+            },
+            method: 'post',
+            dataType: 'json',
+            success: function (response) {
+                $.each(response.data, function(i, entry){
+                    nuevo_marcador(entry.lat,entry.lng,entry.info);
+                });
+                if (response.next) {
+                    buscar_equipamiento(response.page);
+                }
+            }
+        });
     }
 
-    function crear_mapa() {
-        var country = "Guatemala";
+    // Public
+    EquipamientoMapa.init = function () {
         var geocoder = new google.maps.Geocoder();
-        geocoder.geocode( {'address' : country}, function(results, status) {
+        geocoder.geocode( {'address' : 'Guatemala'}, function(results, status) {
             if (status == google.maps.GeocoderStatus.OK) {
                 map.setCenter(results[0].geometry.location);
             }
@@ -157,57 +169,6 @@
 
         map = new google.maps.Map(document.getElementById("map"), mapOptions);
         map.setOptions({styles: styles});
-        mapa_temp = new Array();
-        
-        $.post("", function (json) {
-            $.each(json, function(i, entry){
-                nuevo_marcador(entry.lat,entry.lng,entry.info);
-                mapa_temp.push(new google.maps.LatLng(entry.lat,entry.lng));
-            });
-            $.each(infos, function (i, info) {
-                google.maps.event.addListener(marcadores[i], 'mouseover', function() {info.open(map,marcadores[i]);});
-                google.maps.event.addListener(marcadores[i], 'mouseout', function() {info.close();});
-            });
-            document.getElementById('cantidad').innerHTML = json.length+ ' Equipamientos';
-        });
-
-        var pointArray = new google.maps.MVCArray(mapa_temp);
-        heatmap = new google.maps.visualization.HeatmapLayer({
-            data: pointArray,
-            radius: 25
-        });
-
-        var gradient = [
-        'rgba(0, 255, 255, 0)',
-        'rgba(0, 255, 255, 1)',
-        'rgba(0, 191, 255, 1)',
-        'rgba(0, 127, 255, 1)',
-        'rgba(0, 63, 255, 1)',
-        'rgba(0, 0, 255, 1)',
-        'rgba(0, 0, 223, 1)',
-        'rgba(0, 0, 191, 1)',
-        'rgba(0, 0, 159, 1)',
-        'rgba(0, 0, 127, 1)',
-        'rgba(63, 0, 91, 1)',
-        'rgba(127, 0, 63, 1)',
-        'rgba(191, 0, 31, 1)',
-        'rgba(255, 0, 0, 1)'
-        ]
-        heatmap.set('gradient', heatmap.get('gradient') ? null : gradient);
-        heatmap.setMap(map);
-        heatmap.setMap(heatmap.getMap() ? null : map);
-
-        var control_tendencia_div = document.createElement('div');
-        var controlTendencia = new control_tendencia(control_tendencia_div, map);
-
-        control_tendencia_div.index = 1;
-        map.controls[google.maps.ControlPosition.TOP_RIGHT].push(control_tendencia_div);
-    }
-
-    // Public
-    EquipamientoMapa.init = function () {
-        $(document).ready(function () {
-            crear_mapa();
-        })
+        buscar_equipamiento();
     }   
 }( window.EquipamientoMapa = window.EquipamientoMapa || {}, jQuery ));
