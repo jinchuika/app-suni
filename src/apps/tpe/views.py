@@ -1,6 +1,7 @@
 from django.shortcuts import reverse
+from django.db.models import Count
 from django.utils.timezone import datetime
-from django.views.generic import DetailView, ListView, View
+from django.views.generic import DetailView, ListView, View, TemplateView
 from django.views.generic.edit import CreateView, UpdateView
 from braces.views import (
     LoginRequiredMixin, PermissionRequiredMixin, GroupRequiredMixin,
@@ -8,6 +9,7 @@ from braces.views import (
 
 from apps.main.mixins import InformeMixin
 from apps.escuela.views import EscuelaDetail
+from apps.escuela.models import Escuela
 from apps.tpe.models import Equipamiento, Garantia, TicketSoporte, TicketRegistro, Monitoreo
 from apps.tpe.forms import (
     EquipamientoNuevoForm, EquipamientoForm, GarantiaForm, TicketSoporteForm,
@@ -90,6 +92,29 @@ class EquipamientoListView(InformeMixin):
             } for equipamiento in queryset
         ]
         return var
+
+
+class EquipamientoMapView(CsrfExemptMixin, JsonRequestResponseMixin, TemplateView):
+    template_name = 'tpe/map.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(EquipamientoMapView, self).get_context_data(**kwargs)
+        context['equipamientos'] = Equipamiento.objects.count()
+        context['escuelas'] = Escuela.objects.annotate(num_equipamiento=Count('equipamiento')).filter(num_equipamiento__gt=0).count()
+        return context
+
+    def post(self, request, *args, **kwargs):
+        equipamiento_list = Equipamiento.objects.all()
+        response_list = [{
+            'info': '{}<br>{}<br>{}'.format(
+                str(equipamiento.escuela),
+                str(equipamiento.escuela.municipio),
+                str(equipamiento.fecha)),
+            'lat': equipamiento.escuela.mapa.lat,
+            'lng': equipamiento.escuela.mapa.lng}
+            for equipamiento in equipamiento_list
+            if equipamiento.escuela.mapa]
+        return self.render_json_response(response_list)
 
 
 class GarantiaListView(LoginRequiredMixin, GroupRequiredMixin, ListView):

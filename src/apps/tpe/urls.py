@@ -5,6 +5,7 @@ urlpatterns = [
     url(r'^equipamiento/list/$', EquipamientoListView.as_view(), name='equipamiento_list'),
     url(r'^equipamiento/add/$', EquipamientoCrearView.as_view(), name='equipamiento_add'),
     url(r'^equipamiento/(?P<pk>\d+)/$', EquipamientoUpdateView.as_view(), name='equipamiento_update'),
+    url(r'^equipamiento/mapa/$', EquipamientoMapView.as_view(), name='equipamiento_map'),
 
     url(r'^garantia/list/$', GarantiaListView.as_view(), name='garantia_list'),
     url(r'^garantia/add/$', GarantiaCreateView.as_view(), name='garantia_add'),

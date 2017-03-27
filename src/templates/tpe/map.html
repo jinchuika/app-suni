@@ -1,0 +1,56 @@
+{% extends "base/base-account.html" %}
+
+{% load staticfiles widget_tweaks %}
+
+{% block page_title %}
+<title>Mapa de equipamientos</title>
+{% endblock page_title %}
+
+{% block extra_css %}
+<style>
+	#map {
+		height: 800px;
+		width: 100%;
+	}
+</style>
+{% endblock extra_css %}
+
+{% block content %}
+<div class="row">
+	<div class="col-md-12">
+		<div class="box box-success">
+			<div class="box-header with-border">
+				<h3 class="box-title">Escuelas equipadas</h3>
+			</div>
+			<div class="box-body no-padding">
+				<div class="row">
+					<div class="col-md-10">
+							<div id="map"></div>
+					</div>
+					<div class="col-md-2">
+						<div class="pad box-pane-right bg-green">
+							<div class="description-block margin-bottom">
+								<h5 class="description-header">{{ escuelas }}</h5>
+								<span class="description-text">Escuelas equipadas</span>
+							</div>
+							<div class="description-block margin-bottom">
+								<h5 class="description-header">{{ equipamientos }}</h5>
+								<span class="description-text">Equipamientos</span>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	{% endblock content %}
+
+	{% block extra_js %}
+	<script
+	src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBBhrtqBwUbkByJdxAF3S_jpXXWOaegiIE">
+</script>
+<script src="{% static "js/extrajs/tpe.js" %}"></script>
+<script>
+	EquipamientoMapa.init();
+</script>
+{% endblock extra_js %}

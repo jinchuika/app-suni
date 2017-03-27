@@ -1,8 +1,10 @@
 from django import forms
 from django.forms.models import inlineformset_factory
-from django.core.urlresolvers import reverse_lazy
+from django.forms.formsets import BaseFormSet, formset_factory
 
-from apps.escuela.models import Escuela, EscContacto, EscContactoTelefono, EscContactoMail, EscNivel, EscSector
+from apps.escuela.models import (
+    Escuela, EscContacto, EscContactoTelefono,
+    EscContactoMail, EscNivel, EscSector)
 from apps.main.models import Departamento, Municipio
 from apps.mye.models import Cooperante, Proyecto
 
@@ -98,6 +100,27 @@ class ContactoForm(forms.ModelForm):
         }
 
 
+class EscContactoTelefonoForm(forms.ModelForm):
+    class Meta:
+        model = EscContactoTelefono
+        fields = '__all__'
+        exclude = ['contacto']
+
+
+class EscContactoTelefonoFormset(BaseFormSet):
+    def clean(self):
+        telefonos = []
+        if any(self.errors):
+            return
+
+        for form in self.forms:
+            if form.cleaned_data:
+                telefono = form.cleaned_data['telefono']
+                if telefono in telefonos:
+                    raise forms.ValidationError('Los números no pueden repetirse')
+                telefonos.append(telefono)
+
+
 ContactoTelefonoFormSet = inlineformset_factory(
     EscContacto,
     EscContactoTelefono,
@@ -110,3 +133,5 @@ ContactoMailFormSet = inlineformset_factory(
     fields='__all__',
     extra=2,
     can_delete=True)
+
+MailFormSet = formset_factory(EscContactoTelefonoFormset, formset=EscContactoTelefonoFormset)
