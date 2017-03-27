@@ -56,7 +56,8 @@ class EquipamientoListView(InformeMixin):
         'departamento': 'escuela__municipio__departamento',
         'nivel': 'escuela__nivel',
         'equipamiento_id': 'id',
-        'cooperante_tpe': 'cooperante__in',
+        'cooperante_tpe': 'cooperante',
+        'proyecto_tpe': 'proyecto',
         'fecha_min': 'fecha__gte',
         'fecha_max': 'fecha__lte'
     }

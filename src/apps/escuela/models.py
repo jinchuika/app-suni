@@ -1,8 +1,7 @@
-from operator import itemgetter
 from django.db import models
 from django.urls import reverse
 from django.utils import timezone
-from apps.main.models import Municipio
+from apps.main.models import Municipio, Coordenada
 from apps.main.utils import get_telefonica
 from apps.mye.models import Cooperante, Proyecto, Solicitud
 
@@ -119,6 +118,7 @@ class Escuela(models.Model):
     modalidad = models.ForeignKey(EscModalidad, on_delete=models.PROTECT)
     jornada = models.ForeignKey(EscJornada, on_delete=models.PROTECT)
     plan = models.ForeignKey(EscPlan, on_delete=models.PROTECT)
+    mapa = models.ForeignKey(Coordenada, null=True, blank=True)
 
     cooperante_asignado = models.ManyToManyField(
         Cooperante,

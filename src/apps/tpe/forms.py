@@ -5,7 +5,7 @@ from django.db.models import Count
 from apps.users.models import Perfil
 from apps.tpe.models import Equipamiento, Garantia, TicketSoporte, TicketRegistro, Monitoreo
 from apps.mye.models import Cooperante, Proyecto
-from apps.escuela.forms import BuscarEscuelaForm
+from apps.escuela.forms import EscuelaBuscarForm
 
 
 class EquipamientoNuevoForm(forms.ModelForm):
@@ -78,7 +78,7 @@ class TicketRegistroForm(forms.ModelForm):
         }
 
 
-class EquipamientoListForm(BuscarEscuelaForm):
+class EquipamientoListForm(EscuelaBuscarForm):
     nombre = forms.CharField(
         widget=forms.TextInput(),
         required=False)
@@ -93,12 +93,10 @@ class EquipamientoListForm(BuscarEscuelaForm):
     cooperante_tpe = forms.ModelChoiceField(
         label='Cooperante de equipamiento',
         queryset=Cooperante.objects.all(),
-        widget=forms.Select(attrs={'class': 'select2'}),
         required=False)
     proyecto_tpe = forms.ModelChoiceField(
         label='Proyecto de equipamiento',
         queryset=Proyecto.objects.all(),
-        widget=forms.Select(attrs={'class': 'select2'}),
         required=False)
 
     def __init__(self, *args, **kwargs):
