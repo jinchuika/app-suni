@@ -26,9 +26,10 @@ class ContactoContextMixin(ContextMixin):
             if formset.is_valid():
                 for form in formset.forms:
                     item = form.save(commit=False)
-                    print(item)
-                    item.contacto = instance
-                    item.save()
+                    if item:
+                        item.contacto = instance
+                        print(item.contacto.id)
+                        item.save()
             else:
                 return self.render_to_response(self.get_context_data(form=form))
         return redirect(self.get_success_url())

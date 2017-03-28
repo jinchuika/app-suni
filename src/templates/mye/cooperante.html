@@ -8,7 +8,7 @@
 <section class="content-header">
 	<h1>
 		Perfil de {{cooperante}}
-		{% if perms.mye_change_cooperante %}
+		{% if perms.mye.change_cooperante %}
 		<span class="pull-right">
 			<a href="{% url "cooperante_update" pk=cooperante.id %}" class="btn btn-info">Editar</a>
 		</span>

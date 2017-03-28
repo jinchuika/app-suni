@@ -8,7 +8,7 @@
 <section class="content-header">
 	<h1>
 		Perfil de {{proyecto}}
-		{% if perms.mye_change_proyecto %}
+		{% if perms.mye.change_proyecto %}
 		<span class="pull-right">
 			<a href="{% url "proyecto_update" pk=proyecto.id %}" class="btn btn-info">Editar</a>
 		</span>

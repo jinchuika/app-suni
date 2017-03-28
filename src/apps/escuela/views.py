@@ -16,7 +16,7 @@ from apps.tpe.models import Equipamiento
 from apps.tpe.forms import EquipamientoForm, EquipamientoNuevoForm
 
 from apps.escuela.forms import FormEscuelaCrear, ContactoForm, EscuelaBuscarForm
-from apps.escuela.models import Escuela, EscContacto
+from apps.escuela.models import Escuela, EscContacto, EscContactoTelefono, EscContactoMail
 from apps.escuela.mixins import ContactoContextMixin
 from apps.main.mixins import InformeMixin
 
@@ -164,12 +164,22 @@ class EscuelaEditar(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
     redirect_unauthenticated_users = True
 
 
-class EscContactoCrear(LoginRequiredMixin, ContactoContextMixin, CreateView):
+class EscContactoCrear(LoginRequiredMixin, CreateView):
     """Crea un nuevo contacto para escuelas
     """
     template_name = 'escuela/contacto.html'
     model = EscContacto
     form_class = ContactoForm
+
+    def form_valid(self, form):
+        response = super(EscContactoCrear, self).form_valid(form)
+        if form.cleaned_data['telefono']:
+            telefono = EscContactoTelefono(contacto=self.object, telefono=form.cleaned_data['telefono'])
+            telefono.save()
+        if form.cleaned_data['mail']:
+            mail = EscContactoMail(contacto=self.object, mail=form.cleaned_data['mail'])
+            mail.save()
+        return response
 
     def get_initial(self):
         """Obtiene los datos iniciales del contacto
@@ -189,12 +199,43 @@ class EscContactoCrear(LoginRequiredMixin, ContactoContextMixin, CreateView):
         return reverse('escuela_detail', kwargs={'pk': self.kwargs['id_escuela']})
 
 
-class EscContactoEditar(LoginRequiredMixin, ContactoContextMixin, UpdateView):
+class EscContactoEditar(LoginRequiredMixin, UpdateView):
     """Edición de contacto de escuela
     """
     template_name = 'escuela/contacto.html'
     model = EscContacto
     form_class = ContactoForm
+
+    def get_initial(self):
+        """Obtiene los datos para el formulario
+
+        Returns:
+            dict: Lista de valores para los campos
+        """
+        initial = super(EscContactoEditar, self).get_initial()
+        initial['telefono'] = self.object.telefono.first()
+        initial['mail'] = self.object.mail.first()
+        return initial
+
+    def form_valid(self, form):
+        response = super(EscContactoEditar, self).form_valid(form)
+        if form.cleaned_data['telefono']:
+            if self.object.telefono.count() == 0:
+                telefono = EscContactoTelefono(contacto=self.object, telefono=form.cleaned_data['telefono'])
+                telefono.save()
+            else:
+                telefono = self.object.telefono.all().first()
+                telefono.telefono = form.cleaned_data['telefono']
+                telefono.save()
+        if form.cleaned_data['mail']:
+            if self.object.mail.count() == 0:
+                mail = EscContactoMail(contacto=self.object, mail=form.cleaned_data['mail'])
+                mail.save()
+            else:
+                mail = self.object.mail.all().first()
+                mail.mail = form.cleaned_data['mail']
+                mail.save()
+        return response
 
     def get_success_url(self):
         """Obitne la url de la escuela del contacto

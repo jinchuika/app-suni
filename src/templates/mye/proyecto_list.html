@@ -8,7 +8,7 @@
 <section class="content-header">
 	<h1>
 		Listado de proyectos
-		{% if perms.mye_add_proyecto %}
+		{% if perms.mye.add_proyecto %}
 		<span class="pull-right"><a href="{% url "proyecto_add" %}" class="btn btn-success"><i class="fa fa-plus"></i> Nuevo</a></span>
 		{% endif %}
 	</h1>

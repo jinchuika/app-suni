@@ -1,0 +1,44 @@
+{% load telefonica %}
+<div class="table-responsive">
+	<table class="table table-striped table-hover">
+		<thead>
+			<tr>
+				<th>Nombre</th>
+				<th>Rol</th>
+				<th>Teléfono</th>
+				<th>Correo</th>
+			</tr>
+		</thead>
+		<tbody>
+			{% for contacto in contacto_list %}
+			<tr>
+				<td>{{ contacto }}</td>
+				<td>{{ contacto.rol }}</td>
+				<td>
+					{% for telefono in contacto.telefono.all %}
+						<a href="tel:{{telefono}}">
+							<span class="badge bg-{{telefono.empresa|telefonica}}">
+								{{ telefono }}
+							</span>
+						</a>
+						<br />
+					{% endfor %}
+				</td>
+				<td>
+					{% for mail in contacto.mail.all %}
+						<a href="mailto:{{mail}}">
+							{{ mail }}
+						</a>
+						<br />
+					{% endfor %}
+				</td>
+				<td>
+					<a href="{% url 'escuela_contacto_edit' id_escuela=contacto.escuela.id pk=contacto.id%}" class="badge">
+						<i class="fa fa-pencil"></i>
+					</a>
+				</td>
+			</tr>
+			{% endfor %}
+		</tbody>
+	</table>
+</div>

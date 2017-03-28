@@ -308,45 +308,11 @@
 											<i class="fa fa-plus" aria-hidden="true"></i> Nuevo
 										</a>
 									</h4>
-									{% for contacto in escuela.contacto.all %}
-									<div class="box box-solid">
-										<div class="box-header with-border">
-											<h3 class="box-title">{{ contacto }}</h3>
-											<div class="box-tools pull-right">
-												<a href="{% url 'escuela_contacto_edit' id_escuela=escuela.id pk=contacto.id%}" class="btn btn-box-tool">
-													<i class="fa fa-pencil"></i>
-												</a>
-											</div>
-										</div>
-										<!-- /.box-header -->
-										<div class="box-body">
-											<table class="table table-hover">
-												<tr>
-													<th>Rol</th>
-													<td>{{contacto.rol}}</td>
-												</tr>
-												<tr>
-													<th>Teléfono</th>
-													<td>
-														{% for telefono in contacto.telefono.all %}
-														<a href="tel:{{telefono}}"><span class="pull-right badge bg-{{telefono.empresa|telefonica}}">{{ telefono }}</span></a>
-														{% endfor %}
-													</td>
-												</tr>
-												<tr>
-													<th>Correo</th>
-													<td>
-														{% for mail in contacto.mail.all %}
-														<a href="mailto:{{mail}}">
-															<span class="pull-right badge">{{ mail }}</span>
-														</a>
-														{% endfor %}
-													</td>
-												</tr>
-											</table>
+									<div class="row">
+										<div class="col-md-12">
+											{% include "escuela/contacto_list.html" with contacto_list=escuela.contacto.all %}
 										</div>
 									</div>
-									{% endfor %}
 								</div>
 							</div>
 						</div>

@@ -92,6 +92,13 @@ class EscuelaBuscarForm(forms.Form):
 
 
 class ContactoForm(forms.ModelForm):
+    telefono = forms.CharField(
+        required=False,
+        widget=forms.NumberInput(attrs={'class': 'form-control', 'min': 0}))
+    mail = forms.EmailField(
+        required=False,
+        widget=forms.EmailInput(attrs={'class': 'form-control'}))
+
     class Meta:
         model = EscContacto
         fields = '__all__'
@@ -125,13 +132,13 @@ ContactoTelefonoFormSet = inlineformset_factory(
     EscContacto,
     EscContactoTelefono,
     fields='__all__',
-    extra=2,
+    extra=1,
     can_delete=True)
 ContactoMailFormSet = inlineformset_factory(
     EscContacto,
     EscContactoMail,
     fields='__all__',
-    extra=2,
+    extra=1,
     can_delete=True)
 
 MailFormSet = formset_factory(EscContactoTelefonoFormset, formset=EscContactoTelefonoFormset)
