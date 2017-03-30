@@ -86,6 +86,7 @@
             url: "",
             type: "POST",
             deferRender: true,
+            cache: false,
             dataSrc: '',
             data: function () {
                 return $('#solicitud-list-form').serializeObject();
@@ -132,6 +133,7 @@
             type: "POST",
             deferRender: true,
             dataSrc: '',
+            cache: false,
             data: function () {
                 return $('#validacion-list-form').serializeObject();
             }

@@ -10,6 +10,15 @@ from apps.mye.models import Cooperante, Proyecto
 
 
 class FormEscuelaCrear(forms.ModelForm):
+    lat = forms.CharField(
+        required=False,
+        label='Latitud',
+        widget=forms.NumberInput(attrs={'step': 'any'}))
+    lng = forms.CharField(
+        required=False,
+        label='Longitud',
+        widget=forms.NumberInput(attrs={'step': 'any'}))
+
     class Meta:
         model = Escuela
         fields = '__all__'

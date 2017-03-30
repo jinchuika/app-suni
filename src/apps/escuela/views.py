@@ -6,6 +6,7 @@ from django.views.generic.edit import CreateView, UpdateView
 
 from braces.views import LoginRequiredMixin, PermissionRequiredMixin
 
+from apps.main.models import Coordenada
 from apps.mye.models import (
     EscuelaCooperante, EscuelaProyecto,
     Solicitud, Validacion, ValidacionTipo)
@@ -17,7 +18,6 @@ from apps.tpe.forms import EquipamientoForm, EquipamientoNuevoForm
 
 from apps.escuela.forms import FormEscuelaCrear, ContactoForm, EscuelaBuscarForm
 from apps.escuela.models import Escuela, EscContacto, EscContactoTelefono, EscContactoMail
-from apps.escuela.mixins import ContactoContextMixin
 from apps.main.mixins import InformeMixin
 
 
@@ -28,6 +28,15 @@ class EscuelaCrear(LoginRequiredMixin, CreateView):
     raise_exception = True
     redirect_unauthenticated_users = True
     form_class = FormEscuelaCrear
+
+    def form_valid(self, form):
+        response = super(EscuelaCrear, self).form_valid(form)
+        if form.cleaned_data['lat'] and form.cleaned_data['lng']:
+            mapa = Coordenada(lat=form.cleaned_data['lat'], lng=form.cleaned_data['lng'])
+            mapa.save()
+            self.object.mapa = mapa
+            self.object.save()
+        return response
 
 
 class EscuelaDetail(LoginRequiredMixin, DetailView):
@@ -162,6 +171,26 @@ class EscuelaEditar(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
     form_class = FormEscuelaCrear
     raise_exception = True
     redirect_unauthenticated_users = True
+
+    def get_initial(self):
+        initial = super(EscuelaEditar, self).get_initial()
+        initial['lat'] = self.object.mapa.lat
+        initial['lng'] = self.object.mapa.lng
+        return initial
+
+    def form_valid(self, form):
+        response = super(EscuelaEditar, self).form_valid(form)
+        if form.cleaned_data['lat'] and form.cleaned_data['lng']:
+            if self.object.mapa:
+                self.object.mapa.lat = form.cleaned_data['lat']
+                self.object.mapa.lng = form.cleaned_data['lng']
+                self.object.mapa.save()
+            else:
+                mapa = Coordenada(lat=form.cleaned_data['lat'], lng=form.cleaned_data['lng'])
+                mapa.save()
+                self.object.mapa = mapa
+                self.object.save()
+        return response
 
 
 class EscContactoCrear(LoginRequiredMixin, CreateView):
