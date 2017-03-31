@@ -174,8 +174,9 @@ class EscuelaEditar(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
 
     def get_initial(self):
         initial = super(EscuelaEditar, self).get_initial()
-        initial['lat'] = self.object.mapa.lat
-        initial['lng'] = self.object.mapa.lng
+        if self.object.mapa:
+            initial['lat'] = self.object.mapa.lat
+            initial['lng'] = self.object.mapa.lng
         return initial
 
     def form_valid(self, form):
