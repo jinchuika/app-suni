@@ -19,15 +19,7 @@
 					{{ form.non_field_errors }}
 					<table class="table table-striped box box-primary">
 						{% csrf_token %}
-						{% for field in form %}
-							<tr>
-								<td>{{ field.label_tag }}</td>
-								<td>
-									{{ field.errors }}
-									{{ field|add_class:"form-control" }}
-								</td>
-							</tr>
-						{% endfor %}
+						{{ form.as_table }}
 						<tr>
 							<td colspan="2" align="center">
 								<input type="submit" value="Crear" class="btn btn-primary">

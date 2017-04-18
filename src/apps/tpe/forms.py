@@ -3,7 +3,7 @@ from django.forms import ModelForm
 from django.db.models import Count
 
 from apps.users.models import Perfil
-from apps.tpe.models import Equipamiento, Garantia, TicketSoporte, TicketRegistro, Monitoreo
+from apps.tpe.models import Equipamiento, Garantia, TicketSoporte, TicketRegistro, Monitoreo, TicketReparacion
 from apps.mye.models import Cooperante, Proyecto
 from apps.escuela.forms import EscuelaBuscarForm
 
@@ -38,8 +38,8 @@ class GarantiaForm(forms.ModelForm):
         model = Garantia
         fields = '__all__'
         widgets = {
-            'equipamiento': forms.Select(attrs={'class': 'select2'}),
-            'fecha_vencimiento': forms.TextInput(attrs={'class': 'datepicker'})
+            'equipamiento': forms.Select(attrs={'class': 'form-control select2'}),
+            'fecha_vencimiento': forms.TextInput(attrs={'class': 'form-control datepicker'})
         }
 
     def __init__(self, *args, **kwargs):
@@ -69,12 +69,40 @@ class TicketCierreForm(forms.ModelForm):
 class TicketRegistroForm(forms.ModelForm):
     class Meta:
         model = TicketRegistro
-        fields = ('tipo', 'descripcion', 'costo_reparacion', 'costo_envio')
+        fields = ('tipo', 'descripcion', 'foto')
         widgets = {
             'tipo': forms.Select(attrs={'class': 'form-control'}),
             'descripcion': forms.Textarea(attrs={'class': 'form-control'}),
-            'costo_reparacion': forms.NumberInput(attrs={'class': 'form-control'}),
-            'costo_envio': forms.NumberInput(attrs={'class': 'form-control'}),
+            'foto': forms.URLInput(attrs={'class': 'form-control'}),
+        }
+
+
+class TicketReparacionForm(forms.ModelForm):
+    class Meta:
+        model = TicketReparacion
+        fields = ('triage', 'tipo_dispositivo', 'falla_reportada', 'tecnico_asignado')
+
+
+class TicketReparacionListForm(forms.ModelForm):
+    class Meta:
+        model = TicketReparacion
+        fields = ('estado', 'tecnico_asignado')
+
+    def __init__(self, *args, **kwargs):
+        super(TicketReparacionListForm, self).__init__(*args, **kwargs)
+        self.fields['estado'].required = False
+        self.fields['tecnico_asignado'].queryset = Perfil.objects.filter(user__in=TicketReparacion.objects.values('tecnico_asignado').distinct())
+        self.fields['tecnico_asignado'].required = False
+
+
+class TicketReparacionUpdateForm(forms.ModelForm):
+    class Meta:
+        model = TicketReparacion
+        fields = ('falla_encontrada', 'solucion_tipo', 'solucion_detalle')
+        widgets = {
+            'falla_encontrada': forms.Textarea(attrs={'class': 'form-control'}),
+            'solucion_tipo': forms.Select(attrs={'class': 'form-control'}),
+            'solucion_detalle': forms.Textarea(attrs={'class': 'form-control'}),
         }
 
 

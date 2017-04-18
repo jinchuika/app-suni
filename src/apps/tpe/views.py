@@ -11,10 +11,13 @@ from braces.views import (
 from apps.main.mixins import InformeMixin
 from apps.escuela.views import EscuelaDetail
 from apps.escuela.models import Escuela
-from apps.tpe.models import Equipamiento, Garantia, TicketSoporte, TicketRegistro, Monitoreo
+from apps.tpe.models import (
+    Equipamiento, Garantia, TicketSoporte, TicketRegistro,
+    Monitoreo, TicketReparacionEstado, TicketReparacion)
 from apps.tpe.forms import (
     EquipamientoNuevoForm, EquipamientoForm, GarantiaForm, TicketSoporteForm,
-    TicketCierreForm, TicketRegistroForm, EquipamientoListForm, MonitoreoListForm)
+    TicketCierreForm, TicketRegistroForm, EquipamientoListForm, MonitoreoListForm,
+    TicketReparacionForm, TicketReparacionListForm, TicketReparacionUpdateForm)
 
 
 class EquipamientoCrearView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
@@ -153,9 +156,10 @@ class GarantiaDetailView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
         context['ticket_form'] = TicketSoporteForm(initial={'garantia': self.object})
         context['ticket_cerrado_form'] = TicketCierreForm(initial={'cerrado': True})
         context['ticket_registro_form'] = TicketRegistroForm()
+        context['ticket_reparacion_form'] = TicketReparacionForm()
 
         if 'ticket_id' in self.kwargs:
-            context['ticket_detail'] = TicketRegistro.objects.get(id=self.kwargs['ticket_id'])
+            context['ticket_detail'] = self.kwargs['ticket_id']
         return context
 
 
@@ -167,6 +171,7 @@ class TicketCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
 
     def form_valid(self, form):
         form.instance.abierto_por = self.request.user
+        form.instance.fecha_abierto = datetime.today()
         return super(TicketCreateView, self).form_valid(form)
 
 
@@ -187,8 +192,52 @@ class TicketRegistroCreateView(LoginRequiredMixin, CreateView):
     def form_valid(self, form):
         form.instance.ticket = TicketSoporte.objects.get(id=self.kwargs['ticket_id'])
         form.instance.fecha = datetime.today()
-        form.instance.usuario = self.request.user
+        form.instance.creado_por = self.request.user
         return super(TicketRegistroCreateView, self).form_valid(form)
+
+
+class TicketReparacionCreateView(LoginRequiredMixin, CreateView):
+    model = TicketReparacion
+    form_class = TicketReparacionForm
+
+    def form_valid(self, form):
+        form.instance.ticket = TicketSoporte.objects.get(id=self.kwargs['ticket_id'])
+        form.instance.fecha_inicio = datetime.today()
+        form.instance.tecnico_asignado = self.request.user
+        form.instance.estado = TicketReparacionEstado.objects.first()
+        return super(TicketReparacionCreateView, self).form_valid(form)
+
+
+class ReparacionListView(InformeMixin):
+    form_class = TicketReparacionListForm
+    template_name = 'tpe/reparacion_list.html'
+    filter_list = {
+        'estado': 'estado',
+    }
+    queryset = TicketReparacion.objects.all()
+
+    def create_response(self, queryset):
+        var = [
+            {
+                'ticket': '<a href="{}">{}</a>'.format(
+                    reparacion.ticket.get_absolute_url(),
+                    reparacion.ticket),
+                'triage': reparacion.triage,
+                'dispositivo': str(reparacion.tipo_dispositivo),
+                'fecha_inicio': str(reparacion.fecha_inicio),
+                'falla_reportada': reparacion.falla_reportada,
+                'escuela': '<a href="{}">{}</a>'.format(
+                    reparacion.ticket.garantia.equipamiento.escuela.get_absolute_url(),
+                    reparacion.ticket.garantia.equipamiento.escuela)
+            } for reparacion in queryset
+        ]
+        return var
+
+
+class ReparacionUpdateView(UpdateView):
+    model = TicketReparacion
+    form_class = TicketReparacionUpdateForm
+    template_name = 'tpe/reparacion_update.html'
 
 
 class MonitoreoCreateView(CsrfExemptMixin, JsonRequestResponseMixin, View):

@@ -35,7 +35,7 @@ class PerfilUpdate(LoginRequiredMixin, UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super(PerfilUpdate, self).get_context_data(**kwargs)
-        context['preferencias_form'] = user_preference_form_builder(instance=self.object.user)
+        context['preferencias_form'] = user_preference_form_builder(instance=self.object.user, section='ui')
         return context
 
 

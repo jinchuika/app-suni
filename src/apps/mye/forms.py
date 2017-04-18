@@ -4,7 +4,6 @@ from django.forms import ModelForm
 from django.utils import timezone
 from django.core.urlresolvers import reverse_lazy
 
-from apps.tpe.forms import EquipamientoListForm
 from apps.escuela.models import (
     Escuela, EscNivel, EscSector,
     EscPoblacion)

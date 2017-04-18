@@ -11,6 +11,15 @@
     }   
 }( window.DetalleGarantia = window.DetalleGarantia || {}, jQuery ));
 
+(function( ReparacionDetalle, $, undefined ) {
+
+    // Public
+    ReparacionDetalle.init = function () {
+        $('.form-nueva-reparacion').hide();
+
+    }   
+}( window.ReparacionDetalle = window.ReparacionDetalle || {}, jQuery ));
+
 (function( EquipamientoList, $, undefined ) {
     var tabla = $('#equipamiento-table').DataTable({
         dom: 'lfrtipB',
@@ -172,3 +181,44 @@
         buscar_equipamiento();
     }   
 }( window.EquipamientoMapa = window.EquipamientoMapa || {}, jQuery ));
+
+(function( ReparacionList, $, undefined ) {
+    var tabla;
+
+    // Public
+    ReparacionList.init = function () {
+        tabla = $('#reparacion-table').DataTable({
+            dom: 'lfrtipB',
+            buttons: ['excel','pdf'],
+            processing: true,
+            ajax: {
+                url: "",
+                type: "POST",
+                deferRender: true,
+                dataSrc: '',
+                data: function () {
+                    return $('#reparacion-list-form').serializeObject();
+                }
+            },
+            columns: [
+            { "data": "ticket"},
+            { "data": "triage"},
+            { "data": "dispositivo" },
+            { "data": "fecha_inicio", "className": "nowrap" },
+            { "data": "falla_reportada" },
+            { "data": "escuela" },
+            ]
+        }).on('xhr.dt', function (e, settings, json, xhr) {
+            $('#spinner').hide();
+        });
+
+        $('#spinner').hide();
+        $('#reparacion-list-form').submit(function (e) {
+            e.preventDefault();
+            $('#spinner').show();
+            tabla.clear().draw();
+            tabla.ajax.reload();
+        });
+        
+    } 
+}( window.ReparacionList = window.ReparacionList || {}, jQuery ));

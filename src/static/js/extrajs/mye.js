@@ -148,6 +148,7 @@
                 return '<a href="'+data.url+'">'+data.estado+'</a>';
             }
         },
+        { data: "fecha", className: "nowrap"},
         { data: "requisitos",},
         { data: "comentarios", render: "[<br />].comentario" }
         ]

@@ -374,6 +374,7 @@ class ValidacionListView(SolicitudListView):
                 'estado': {
                     'estado': 'Completa' if validacion.completada is True else 'Pendiente',
                     'url': validacion.get_absolute_url()},
+                'fecha': '{}'.format(validacion.fecha_inicio),
                 'requisitos': str(validacion.porcentaje_requisitos())[:4] + "%",
                 'comentarios': [{
                     'comentario': '- ' + com.comentario
@@ -383,4 +384,6 @@ class ValidacionListView(SolicitudListView):
 
     def __init__(self, *args, **kwargs):
         super(ValidacionListView, self).__init__(*args, **kwargs)
+        self.filter_list['fecha_min'] = 'fecha_inicio__gte'
+        self.filter_list['fecha_max'] = 'fecha_inicio__lte'
         self.filter_list['estado'] = 'completada'

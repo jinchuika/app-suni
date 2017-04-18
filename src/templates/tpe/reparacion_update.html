@@ -1,0 +1,97 @@
+{% extends "base/base.html" %}
+
+{% load staticfiles %}
+
+{% block page_title %}
+<title>Reparación</title>
+{% endblock page_title %}
+
+{% block content %}
+<section class="content">
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-md-5">
+				<div class="box box-warning">
+					<div class="box-header">
+						<h3 class="box-title">Información previa</h3>
+					</div>
+					<div class="box-body">
+						<table class="table table-hover table-striped">
+							<tr>
+								<th>Escuela</th>
+								<td>
+									<a href="{{ form.instance.ticket.garantia.equipamiento.escuela.get_absolute_url }}">
+										{{ form.instance.ticket.garantia.equipamiento.escuela }}
+									</a>
+								</td>
+							</tr>
+							<tr>
+								<th>Entrega</th>
+								<td>
+									{{ form.instance.ticket.garantia.equipamiento }}
+								</td>
+							</tr>
+							<tr>
+								<th>Ticket</th>
+								<td>
+									<a href="{{ form.instance.ticket.get_absolute_url }}">
+										{{ form.instance.ticket }}
+									</a>
+								</td>
+							</tr>
+							<tr>
+								<th>Triage</th>
+								<td>{{ form.instance.triage }}</td>
+							</tr>
+							<tr>
+								<th>Dispositivo</th>
+								<td>{{ form.instance.tipo_dispositivo }}</td>
+							</tr>
+							<tr>
+								<th>Falla reportada</th>
+								<td>
+									{{ form.instance.falla_reportada }}
+								</td>
+							</tr>
+							<tr>
+								<th>Técnico asignado</th>
+								<td>{{ form.instance.tecnico_asignado.perfil }}</td>
+							</tr>
+							<tr>
+								<th>Fecha de inicio</th>
+								<td>{{ form.instance.fecha_inicio|date:"Y-m-d" }}</td>
+							</tr>
+						</table>
+					</div>
+				</div>
+			</div>
+			<div class="col-md-7">
+				<div class="box box-primary">
+					<div class="box-header">
+						<h3 class="box-title">Actualización de datos</h3>
+					</div>
+					<div class="box-body">
+						{% for field in form %}
+							<div class="form-group">
+								{{ field.label_tag }}
+								{{ field }}
+							</div>
+						{% endfor %}
+						<input type="submit" value="Guardar">
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+
+
+{% endblock content %}
+
+{% block extra_js %}
+<script src="{% static "js/extrajs/tpe.js" %}"></script>
+<script>
+	DetalleGarantia.init();
+	ReparacionDetalle.init();
+</script>
+{% endblock extra_js %}
