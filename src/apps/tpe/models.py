@@ -19,6 +19,13 @@ class EquipamientoTipoRed(models.Model):
         return self.tipo
 
 
+class EquipamientoOs(models.Model):
+    sistema_operativo = models.CharField(max_length=50)
+
+    def __str__(self):
+        return self.sistema_operativo
+
+
 class Equipamiento(models.Model):
     id = models.IntegerField(primary_key=True)
     estado = models.ForeignKey(
@@ -30,13 +37,17 @@ class Equipamiento(models.Model):
     observacion = models.TextField(null=True, blank=True)
     renovacion = models.BooleanField(blank=True, default=False)
     servidor_khan = models.BooleanField(blank=True, default=False)
+    servidor_os = models.ForeignKey(EquipamientoOs, null=True, blank=True, related_name='servidores')
     cantidad_equipo = models.IntegerField(default=0)
+    equipo_os = models.ForeignKey(EquipamientoOs, null=True, blank=True)
     red = models.BooleanField(blank=True, default=False)
     tipo_red = models.ForeignKey(EquipamientoTipoRed, null=True, blank=True)
     fotos = models.BooleanField(default=False, blank=True)
+    fotos_link = models.URLField(null=True, blank=True)
     manual = models.BooleanField(default=False, blank=True)
     edulibre = models.BooleanField(default=False, blank=True)
     carta = models.BooleanField(default=False, blank=True)
+    poblacion = models.ForeignKey('escuela.EscPoblacion', null=True, blank=True)
 
     cooperante = models.ManyToManyField('mye.Cooperante', blank=True, related_name='equipamientos')
     proyecto = models.ManyToManyField('mye.Proyecto', blank=True, related_name='equipamientos')
@@ -208,14 +219,19 @@ class TicketReparacion(models.Model):
     def __str__(self):
         return 'G{}-{}'.format(self.ticket.garantia, self.tipo_dispositivo)
 
+    def get_absolute_url(self):
+        return reverse_lazy('reparacion_update', kwargs={'pk': self.id})
+
 
 class TicketReparacionRepuesto(models.Model):
     reparacion = models.ForeignKey(TicketReparacion, related_name="repuestos")
     tipo_dispositivo = models.ForeignKey(DispositivoTipo)
     costo = models.DecimalField(max_digits=7, decimal_places=2, default=Decimal('0.00'))
-    autorizado = models.BooleanField(blank=True)
-    autorizado_por = models.ForeignKey(User, null=True, blank=True)
     justificacion = models.TextField(null=True, blank=True)
+    fecha_solicitud = models.DateField(default=timezone.now)
+    autorizado = models.BooleanField(default=False, blank=True)
+    autorizado_por = models.ForeignKey(User, null=True, blank=True)
+    fecha_autorizado = models.DateField(null=True, blank=True)
 
     class Meta:
         verbose_name = "Repuesto para reparación"
@@ -223,6 +239,9 @@ class TicketReparacionRepuesto(models.Model):
 
     def __str__(self):
         return '{} para {}'.format(self.tipo_dispositivo, self.reparacion)
+
+    def get_absolute_url(self):
+        return reverse_lazy('reparacion_update', kwargs={'pk': self.reparacion.id})
 
 
 class Monitoreo(models.Model):

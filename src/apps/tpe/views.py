@@ -13,11 +13,12 @@ from apps.escuela.views import EscuelaDetail
 from apps.escuela.models import Escuela
 from apps.tpe.models import (
     Equipamiento, Garantia, TicketSoporte, TicketRegistro,
-    Monitoreo, TicketReparacionEstado, TicketReparacion)
+    Monitoreo, TicketReparacionEstado, TicketReparacion, TicketReparacionRepuesto)
 from apps.tpe.forms import (
     EquipamientoNuevoForm, EquipamientoForm, GarantiaForm, TicketSoporteForm,
     TicketCierreForm, TicketRegistroForm, EquipamientoListForm, MonitoreoListForm,
-    TicketReparacionForm, TicketReparacionListForm, TicketReparacionUpdateForm)
+    TicketReparacionForm, TicketReparacionListForm, TicketReparacionUpdateForm,
+    TicketReparacionRepuestoForm, TicketReparacionRepuestoAuthForm)
 
 
 class EquipamientoCrearView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
@@ -234,10 +235,45 @@ class ReparacionListView(InformeMixin):
         return var
 
 
-class ReparacionUpdateView(UpdateView):
+class ReparacionUpdateView(LoginRequiredMixin, UpdateView):
     model = TicketReparacion
     form_class = TicketReparacionUpdateForm
     template_name = 'tpe/reparacion_update.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(ReparacionUpdateView, self).get_context_data(**kwargs)
+        context['repuesto_form'] = TicketReparacionRepuestoForm(initial={'reparacion': self.object})
+        if self.request.user.groups.filter(name='tpe_admin').exists():
+            context['repuesto_auth_form'] = TicketReparacionRepuestoAuthForm(initial={'autorizado': True})
+        return context
+
+    def form_valid(self, form):
+        if form.cleaned_data['solucion_tipo'] is not None:
+            form.instance.fecha_fin = datetime.today()
+        return super(ReparacionUpdateView, self).form_valid(form)
+
+
+class ReparacionRepuestoCreateView(CreateView):
+    model = TicketReparacionRepuesto
+    form_class = TicketReparacionRepuestoForm
+
+    def get_success_url(self):
+        return reverse('reparacion_update', kwargs={'pk': self.object.reparacion.id})
+
+
+class ReparacionRepuestoUpdateView(GroupRequiredMixin, UpdateView):
+    model = TicketReparacionRepuesto
+    form_class = TicketReparacionRepuestoAuthForm
+    group_required = [u"tpe_admin", ]
+    raise_exception = True
+
+    def form_valid(self, form):
+        form.instance.autorizado_por = self.request.user
+        form.instance.fecha_autorizado = datetime.today()
+        return super(ReparacionRepuestoUpdateView, self).form_valid(form)
+
+    def get_success_url(self):
+        return reverse('reparacion_update', kwargs={'pk': self.object.reparacion.id})
 
 
 class MonitoreoCreateView(CsrfExemptMixin, JsonRequestResponseMixin, View):

@@ -16,7 +16,10 @@
     // Public
     ReparacionDetalle.init = function () {
         $('.form-nueva-reparacion').hide();
-
+        $('#repuesto-nuevo-form').hide();
+        $('#repuesto-nuevo-button').on('click', function () {
+            $('#repuesto-nuevo-form').toggle();
+        })
     }   
 }( window.ReparacionDetalle = window.ReparacionDetalle || {}, jQuery ));
 
@@ -37,6 +40,9 @@
         columns: [
         { "data": "entrega"},
         { "data": "escuela"},
+        { "data": "departamento"},
+        { "data": "municipio"},
+        { "data": "direccion"},
         { "data": "fecha", "className": "nowrap"  },
         { "data": "renovacion" },
         { "data": "khan" },

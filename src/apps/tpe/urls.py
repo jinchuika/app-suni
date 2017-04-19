@@ -19,7 +19,9 @@ urlpatterns = [
     url(r'^ticketreparacion/add/(?P<ticket_id>\d+)/$', TicketReparacionCreateView.as_view(), name='ticket_reparacion_add'),
 
     url(r'^reparacion/list/$', cache_page(5)(ReparacionListView.as_view()), name='reparacion_list'),
-    url(r'^reparacion/(?P<pk>\d+)/edit/$', cache_page(5)(ReparacionUpdateView.as_view()), name='reparacion_update'),
+    url(r'^reparacion/(?P<pk>\d+)/edit/$', cache_page(0)(ReparacionUpdateView.as_view()), name='reparacion_update'),
+    url(r'^reparacion/repuesto/add/$', ReparacionRepuestoCreateView.as_view(), name='reparacion_repuesto_add'),
+    url(r'^reparacion/repuesto/autorizar/(?P<pk>\d+)/$', ReparacionRepuestoUpdateView.as_view(), name='reparacion_repuesto_autorizar'),
 
     url(r'^monitoreo/add/(?P<equipamiento_id>\d+)/$', MonitoreoCreateView.as_view(), name='monitoreo_add'),
     url(r'^monitoreo/list/$', cache_page(5)(MonitoreoListView.as_view()), name='monitoreo_list'),

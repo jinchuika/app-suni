@@ -54,8 +54,8 @@ THIRD_PARTY_APPS = (
     'allauth.socialaccount.providers.facebook',)
 
 LOCAL_APPS = (
-    'apps.users',
     'apps.main',
+    'apps.users',
     'apps.escuela',
     'apps.kardex',
     'apps.fr',

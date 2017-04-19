@@ -3,7 +3,9 @@ from django.forms import ModelForm
 from django.db.models import Count
 
 from apps.users.models import Perfil
-from apps.tpe.models import Equipamiento, Garantia, TicketSoporte, TicketRegistro, Monitoreo, TicketReparacion
+from apps.tpe.models import (
+    Equipamiento, Garantia, TicketSoporte, TicketRegistro,
+    Monitoreo, TicketReparacion, TicketReparacionRepuesto)
 from apps.mye.models import Cooperante, Proyecto
 from apps.escuela.forms import EscuelaBuscarForm
 
@@ -103,6 +105,27 @@ class TicketReparacionUpdateForm(forms.ModelForm):
             'falla_encontrada': forms.Textarea(attrs={'class': 'form-control'}),
             'solucion_tipo': forms.Select(attrs={'class': 'form-control'}),
             'solucion_detalle': forms.Textarea(attrs={'class': 'form-control'}),
+        }
+
+
+class TicketReparacionRepuestoForm(forms.ModelForm):
+    class Meta:
+        model = TicketReparacionRepuesto
+        fields = ('reparacion', 'tipo_dispositivo', 'costo', 'justificacion')
+        widgets = {
+            'reparacion': forms.HiddenInput(),
+            'tipo_dispositivo': forms.Select(attrs={'class': 'form-control select2'}),
+            'costo': forms.NumberInput(attrs={'class': 'form-control'}),
+            'justificacion': forms.Textarea(attrs={'class': 'form-control'})
+        }
+
+
+class TicketReparacionRepuestoAuthForm(forms.ModelForm):
+    class Meta:
+        model = TicketReparacionRepuesto
+        fields = ('autorizado',)
+        widgets = {
+            'autorizado': forms.HiddenInput(),
         }
 
 
