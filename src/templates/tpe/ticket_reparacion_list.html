@@ -1,0 +1,42 @@
+{% load widget_tweaks staticfiles %}
+
+{% block content %}	
+	<h3 class="box-title">
+		Reparaciones
+		{% if ticket.cerrado != True %}
+			<button onclick="$('#reparacion-{{ ticket.id }}').toggle();" class="btn btn-info btn-flat"><i class="fa fa-plus"></i></button>
+		{% endif %}
+	</h3>
+	<div class="attachment-block form-nueva-reparacion" id="reparacion-{{ ticket.id }}">
+		<form action="{% url 'ticket_reparacion_add' ticket_id=ticket.id %}" class="box-body" method="post">
+			{% csrf_token %}
+			{% for field in ticket_reparacion_form %}
+				{{ field.label_tag }}
+				{{ field|add_class:"form-control" }}
+			{% endfor %}
+			<input type="submit" value="Crear" class="btn btn-success">
+		</form>
+	</div>
+
+	{% for reparacion in ticketreparacion_list|dictsortreversed:"fecha_inicio" %}
+		<div class="box box-solid box-warning">
+			<div class="box-body">
+				<h4>
+					{{ reparacion.tipo_dispositivo }} - {{ reparacion.triage }}
+					<span class="pull-right"><button>Editar</button></span>
+				</h4>
+				<ul class="list-unstyled">
+					<li><strong>Estado:</strong>{{ reparacion.estado }}</li>
+					<li><strong>Reportada:</strong> {{ reparacion.fecha_inicio|date:"Y-m-d" }}</li>
+					<li><strong>Falla reportada:</strong> {{ reparacion.falla_reportada }}</li>
+					<li><strong>Técnico asignado:</strong> {{ reparacion.tecnico_asignado }}</li>
+				</ul>
+				{% if reparacion.foto %}
+					<p><a href="reparacion.foto">Fotos</a></p>
+				{% endif %}
+				<small>{{ reparacion.creado_por.perfil }}</small>
+			</div>
+		</div>
+	{% endfor %}
+{% endblock content %}
+

@@ -8,7 +8,7 @@
 <section class="content-header">
 	<h1>
 		Listado de proyectos
-		{% if perms.mye_add_proyecto %}
+		{% if perms.mye.add_proyecto %}
 		<span class="pull-right"><a href="{% url "proyecto_add" %}" class="btn btn-success"><i class="fa fa-plus"></i> Nuevo</a></span>
 		{% endif %}
 	</h1>
@@ -22,18 +22,22 @@
 					<div class="box-header">
 						<h3 class="box-title">Listado de proyectos</h3>
 					</div>
-					<div class="box-body table-responsive no-padding">
-						<table class="table table-hover">
+					<div class="box-body">
+						<table class="table table-hover table-datatables">
 						<thead>
 							<tr>
 								<th>Nombre</th>
-								<th>Participaciones</th>
+								<th>Escuelas equipadas</th>
 							</tr>
 						</thead>
 							{% for proyecto in proyecto_list %}
 								<tr>
-									<td><a href="{% url "proyecto_detail" pk=proyecto.id %}">{{ proyecto }}</a></td>
-									<td>{{ proyecto.escuela_asignada.all.count }}</td>
+									<td>
+										<a href="{{ proyecto.get_absolute_url }}">
+											{{ proyecto }}
+										</a>
+									</td>
+									<td>{{ proyecto.equipamientos.count }}</td>
 								</tr>
 							{% endfor %}
 						</table>

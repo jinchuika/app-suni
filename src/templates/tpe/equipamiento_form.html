@@ -1,0 +1,24 @@
+<div class="box box-success box-solid">
+	<div class="box-header with-border">
+		<h3 class="box-title">Entrega {{ equipamiento_form.instance.id }} - {{ equipamiento_form.instance.fecha }}</h3>
+		<div class="box-tools pull-right">
+			<a href="{% url "escuela_detail" pk=equipamiento_form.instance.escuela.id %}" class="btn btn-box-tool">
+				<i class="fa fa-times"></i>
+			</a>
+		</div>
+	</div>
+	<div class="box-body">
+		<form action="{% url "equipamiento_update" pk=equipamiento_form.instance.id %}" method="post" role="form">
+			{% csrf_token %}
+			<table class="table table-hover table-striped">
+				{{ equipamiento_form.as_table }}
+				<tr>
+					<td>
+						<input type="submit" class="btn btn-success" value="Guardar">  
+						<a href="{% url "escuela_detail" pk=equipamiento_form.instance.escuela.id %}" class="btn btn-danger">Cancelar</a>
+					</td>
+				</tr>
+			</table>
+		</form>
+	</div>
+</div>

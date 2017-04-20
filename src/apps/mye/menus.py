@@ -12,13 +12,28 @@ mye_children = (
     ViewMenuItem(
         "Proyectos",
         reverse_lazy("proyecto_list"),
-        weight=10,
-        icon="fa-object-group"),)
+        weight=20,
+        icon="fa-object-group"),
+    ViewMenuItem(
+        "Listado de solicitudes",
+        reverse_lazy("solicitud_list"),
+        weight=40,
+        icon="fa-folder-open-o"),
+    ViewMenuItem(
+        "Listado de validaciones",
+        reverse_lazy("validacion_list"),
+        weight=50,
+        icon="fa-check-square-o"),
+    ViewMenuItem(
+        "Informe",
+        reverse_lazy("informe_mye"),
+        weight=60,
+        icon="fa-book"),)
 
 Menu.add_item(
     "user",
     ViewMenuItem(
-        "Monitoreo",
+        "Evaluación",
         reverse_lazy('list_c'),
         weight=10,
         icon="fa-search",

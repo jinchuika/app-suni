@@ -1,0 +1,90 @@
+{% extends "base/base.html" %}
+
+{% load staticfiles %}
+
+{% block page_title %}
+<title>Garantía - {{ garantia.id }}</title>
+{% endblock page_title %}
+
+{% block content %}
+<section class="content">
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-md-9">
+				<div class="box">
+					<div class="box-header">
+						<h3 class="box-title">Garantía No. {{ garantia.id }}</h3>
+					</div>
+					<div class="box-body">
+						<table class="table table-condensed">
+							<tr>
+								<th>Escuela</th>
+								<td>
+									<a href="{{ garantia.equipamiento.escuela.get_absolute_url }}">{{ garantia.equipamiento.escuela }}</a>
+								</td>
+							</tr>
+							<tr>
+								<th>Entrega</th>
+								<td>{{ garantia.equipamiento }}</td>
+							</tr>
+							<tr>
+								<th>Fecha de entrega</th>
+								<td>{{ garantia.equipamiento.fecha }}</td>
+							</tr>
+							<tr>
+								<th>Fecha de vencimiento</th>
+								<td>{{ garantia.fecha_vencimiento }}</td>
+							</tr>
+							<tr>
+								<th>Estado</th>
+								<td>
+									{% if garantia.get_vigente %}
+										Vigente
+									{% else %}
+										Vencida
+									{% endif %}
+								</td>
+							</tr>
+						</table>
+					</div>
+				</div>
+			</div>
+			<div class="col-md-3">
+				<div class="info-box">
+					<span class="info-box-icon bg-green"><i class="fa fa-tv"></i></span>
+					<div class="info-box-content">
+						<span class="info-box-text">Computadoras</span>
+						<span class="info-box-number">{{ garantia.equipamiento.cantidad_equipo }}</span>
+					</div>
+				</div>
+				<div class="info-box">
+				{% if garantia.get_vigente %}
+					<span class="info-box-icon bg-green"><i class="fa fa fa-tag"></i></span>
+				{% else %}
+					<span class="info-box-icon bg-red"><i class="fa fa fa-tag"></i></span>
+				{% endif %}
+					<div class="info-box-content">
+						{% if garantia.get_vigente %}
+							<span class="info-box-text">Vigente</span>
+						{% else %}
+							<span class="info-box-text">Vencida</span>
+						{% endif %}
+						<span class="info-box-number">{{ garantia.fecha_vencimiento|date:"Y-m-d" }}</span>
+					</div>
+				</div>
+			</div>
+		</div>
+		{% include "tpe/ticket_list.html" with ticket_list=garantia.tickets.all %}
+	</div>
+</section>
+
+
+{% endblock content %}
+
+{% block extra_js %}
+<script src="{% static "js/extrajs/tpe.js" %}"></script>
+<script>
+	DetalleGarantia.init();
+	ReparacionDetalle.init();
+</script>
+{% endblock extra_js %}

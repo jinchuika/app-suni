@@ -1,0 +1,35 @@
+{% load telefonica %}
+
+<div class="col-md-4">
+	<div class="box box-info box-solid widget-user-2">
+		<div class="widget-user-header">
+			<h3 class="widget-user-username">{{ contacto }}</h3>
+			<h5 class="widget-user-desc">{{ contacto.rol }}</h5>
+			<h6>
+				<a href="{% url 'escuela_contacto_edit' id_escuela=contacto.escuela.id pk=contacto.id%}" class="btn btn-box-tool">
+				<i class="fa fa-pencil"></i>
+				</a>
+			</h6>
+		</div>
+		<div class="box-footer no-padding">
+			<ul class="nav nav-stacked">
+				{% for telefono in contacto.telefono.all %}
+				<li>
+					<a href="tel:{{telefono}}">
+						Teléfono
+						<span class="pull-right badge bg-{{telefono.empresa|telefonica}}">{{ telefono }}</span>
+					</a>
+				</li>
+				{% endfor %}
+				{% for mail in contacto.mail.all %}
+					<li>
+						<a href="mailto:{{mail}}">
+							Correo electrónico
+							<span class="pull-right badge">{{ mail }}</span>
+						</a>
+					</li>
+				{% endfor %}
+			</ul>
+		</div>
+	</div>
+</div>

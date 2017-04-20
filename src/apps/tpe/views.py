@@ -1,20 +1,325 @@
+from math import floor
 from django.shortcuts import reverse
+from django.db.models import Count
+from django.utils.timezone import datetime
+from django.views.generic import DetailView, ListView, View, TemplateView
 from django.views.generic.edit import CreateView, UpdateView
-from apps.tpe.models import Equipamiento
-from apps.tpe.forms import EquipamientoNuevoForm, EquipamientoForm
+from braces.views import (
+    LoginRequiredMixin, PermissionRequiredMixin, GroupRequiredMixin,
+    CsrfExemptMixin, JsonRequestResponseMixin)
+
+from apps.main.mixins import InformeMixin
+from apps.escuela.views import EscuelaDetail
+from apps.escuela.models import Escuela
+from apps.tpe.models import (
+    Equipamiento, Garantia, TicketSoporte, TicketRegistro,
+    Monitoreo, TicketReparacionEstado, TicketReparacion, TicketReparacionRepuesto)
+from apps.tpe.forms import (
+    EquipamientoNuevoForm, EquipamientoForm, GarantiaForm, TicketSoporteForm,
+    TicketCierreForm, TicketRegistroForm, EquipamientoListForm, MonitoreoListForm,
+    TicketReparacionForm, TicketReparacionListForm, TicketReparacionUpdateForm,
+    TicketReparacionRepuestoForm, TicketReparacionRepuestoAuthForm)
 
 
-class EquipamientoCrearView(CreateView):
+class EquipamientoCrearView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     model = Equipamiento
     form_class = EquipamientoNuevoForm
+    permission_required = 'tpe.add_equipamiento'
+    redirect_unauthenticated_users = True
+    raise_exception = True
 
     def get_success_url(self):
         return reverse('escuela_equipamiento_update', kwargs={'pk': self.object.escuela.id, 'id_equipamiento': self.object.id})
 
 
-class EquipamientoUpdateView(UpdateView):
+class EquipamientoUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
     model = Equipamiento
     form_class = EquipamientoForm
+    permission_required = 'tpe.change_equipamiento'
+    redirect_unauthenticated_users = False
+    raise_exception = True
 
     def get_success_url(self):
         return reverse('escuela_detail', kwargs={'pk': self.object.escuela.id})
+
+
+class EquipamientoDetailView(EscuelaDetail):
+
+    def get_context_data(self, **kwargs):
+        id_equipamiento = self.kwargs.pop('id_equipamiento')
+        context = super(EquipamientoDetailView, self).get_context_data(**kwargs)
+        context['equipamiento_detail'] = id_equipamiento
+        return context
+
+
+class EquipamientoListView(InformeMixin):
+    form_class = EquipamientoListForm
+    template_name = 'tpe/equipamiento_list.html'
+    filter_list = {
+        'codigo': 'escuela__codigo',
+        'nombre': 'escuela__nombre__contains',
+        'direccion': 'escuela__direccion__contains',
+        'municipio': 'escuela__municipio',
+        'departamento': 'escuela__municipio__departamento',
+        'nivel': 'escuela__nivel',
+        'equipamiento_id': 'id',
+        'cooperante_tpe': 'cooperante',
+        'proyecto_tpe': 'proyecto',
+        'fecha_min': 'fecha__gte',
+        'fecha_max': 'fecha__lte'
+    }
+    queryset = Equipamiento.objects.all()
+
+    def create_response(self, queryset):
+        var = [
+            {
+                'entrega': equipamiento.id,
+                'entrega_url': equipamiento.get_absolute_url(),
+                'escuela': '<a href="{}">{} <br />({})</a>'.format(
+                    equipamiento.escuela.get_absolute_url(),
+                    equipamiento.escuela.nombre,
+                    equipamiento.escuela.codigo),
+                'fecha': str(equipamiento.fecha),
+                'renovacion': 'Sí' if equipamiento.renovacion else 'No',
+                'khan': 'Sí' if equipamiento.servidor_khan else 'No',
+                'cantidad': equipamiento.cantidad_equipo,
+                'tipo_red': str(equipamiento.tipo_red) if equipamiento.red else 'No',
+                'cooperante': [{
+                    'cooperante': '<a href="{}">{}</a>'.format(
+                        cooperante.get_absolute_url(),
+                        cooperante.nombre)}
+                    for cooperante in equipamiento.cooperante.all()],
+                'proyecto': [{
+                    'proyecto': '<a href="{}">{}</a>'.format(
+                        proyecto.get_absolute_url(),
+                        proyecto.nombre)}
+                    for proyecto in equipamiento.proyecto.all()],
+            } for equipamiento in queryset
+        ]
+        return var
+
+
+class EquipamientoMapView(CsrfExemptMixin, JsonRequestResponseMixin, TemplateView):
+    template_name = 'tpe/map.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(EquipamientoMapView, self).get_context_data(**kwargs)
+        context['equipamientos'] = Equipamiento.objects.count()
+        context['escuelas'] = Escuela.objects.annotate(num_equipamiento=Count('equipamiento')).filter(num_equipamiento__gt=0).count()
+        return context
+
+    def post(self, request, *args, **kwargs):
+        page = 30
+        pages = int(floor(Equipamiento.objects.all().count() / page)) + 1
+        current_page = int(self.request.POST.get('page', 1))
+        desde = (current_page - 1) * page
+        hasta = current_page * page
+        equipamiento_list = Equipamiento.objects.all()[desde:hasta]
+        response_list = [{
+            'info': '{}<br>{}<br>{}'.format(
+                str(equipamiento.escuela),
+                str(equipamiento.escuela.municipio),
+                str(equipamiento.fecha)),
+            'lat': equipamiento.escuela.mapa.lat,
+            'lng': equipamiento.escuela.mapa.lng}
+            for equipamiento in equipamiento_list
+            if equipamiento.escuela.mapa]
+        return self.render_json_response({
+            'next': current_page != pages,
+            'page': current_page + 1,
+            'data': response_list})
+
+
+class GarantiaListView(LoginRequiredMixin, GroupRequiredMixin, ListView):
+    model = Garantia
+    template_name = 'tpe/garantia_list.html'
+    group_required = [u"garantia", u"tpe_admin"]
+    raise_exception = True
+
+
+class GarantiaCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
+    model = Garantia
+    form_class = GarantiaForm
+    template_name = 'tpe/garantia_add.html'
+    permission_required = 'tpe.add_garantia'
+    redirect_unauthenticated_users = False
+    raise_exception = True
+
+
+class GarantiaDetailView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
+    model = Garantia
+    template_name = 'tpe/garantia_detail.html'
+    group_required = [u"garantia", u"tpe_admin"]
+    raise_exception = True
+
+    def get_context_data(self, **kwargs):
+        context = super(GarantiaDetailView, self).get_context_data(**kwargs)
+        context['ticket_form'] = TicketSoporteForm(initial={'garantia': self.object})
+        context['ticket_cerrado_form'] = TicketCierreForm(initial={'cerrado': True})
+        context['ticket_registro_form'] = TicketRegistroForm()
+        context['ticket_reparacion_form'] = TicketReparacionForm()
+
+        if 'ticket_id' in self.kwargs:
+            context['ticket_detail'] = self.kwargs['ticket_id']
+        return context
+
+
+class TicketCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
+    model = TicketSoporte
+    form_class = TicketSoporteForm
+    permission_required = 'tpe.add_ticketsoporte'
+    raise_exception = True
+
+    def form_valid(self, form):
+        form.instance.abierto_por = self.request.user
+        form.instance.fecha_abierto = datetime.today()
+        return super(TicketCreateView, self).form_valid(form)
+
+
+class TicketCierreView(LoginRequiredMixin, UpdateView):
+    model = TicketSoporte
+    form_class = TicketCierreForm
+
+    def form_valid(self, form):
+        form.instance.cerrado_por = self.request.user
+        form.instance.fecha_cierre = datetime.today()
+        return super(TicketCierreView, self).form_valid(form)
+
+
+class TicketRegistroCreateView(LoginRequiredMixin, CreateView):
+    model = TicketRegistro
+    form_class = TicketRegistroForm
+
+    def form_valid(self, form):
+        form.instance.ticket = TicketSoporte.objects.get(id=self.kwargs['ticket_id'])
+        form.instance.fecha = datetime.today()
+        form.instance.creado_por = self.request.user
+        return super(TicketRegistroCreateView, self).form_valid(form)
+
+
+class TicketReparacionCreateView(LoginRequiredMixin, CreateView):
+    model = TicketReparacion
+    form_class = TicketReparacionForm
+
+    def form_valid(self, form):
+        form.instance.ticket = TicketSoporte.objects.get(id=self.kwargs['ticket_id'])
+        form.instance.fecha_inicio = datetime.today()
+        form.instance.tecnico_asignado = self.request.user
+        form.instance.estado = TicketReparacionEstado.objects.first()
+        return super(TicketReparacionCreateView, self).form_valid(form)
+
+
+class ReparacionListView(InformeMixin):
+    form_class = TicketReparacionListForm
+    template_name = 'tpe/reparacion_list.html'
+    filter_list = {
+        'estado': 'estado',
+    }
+    queryset = TicketReparacion.objects.all()
+
+    def create_response(self, queryset):
+        var = [
+            {
+                'ticket': '<a href="{}">{}</a>'.format(
+                    reparacion.ticket.get_absolute_url(),
+                    reparacion.ticket),
+                'triage': reparacion.triage,
+                'dispositivo': str(reparacion.tipo_dispositivo),
+                'fecha_inicio': str(reparacion.fecha_inicio),
+                'falla_reportada': reparacion.falla_reportada,
+                'escuela': '<a href="{}">{}</a>'.format(
+                    reparacion.ticket.garantia.equipamiento.escuela.get_absolute_url(),
+                    reparacion.ticket.garantia.equipamiento.escuela)
+            } for reparacion in queryset
+        ]
+        return var
+
+
+class ReparacionUpdateView(LoginRequiredMixin, UpdateView):
+    model = TicketReparacion
+    form_class = TicketReparacionUpdateForm
+    template_name = 'tpe/reparacion_update.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(ReparacionUpdateView, self).get_context_data(**kwargs)
+        context['repuesto_form'] = TicketReparacionRepuestoForm(initial={'reparacion': self.object})
+        if self.request.user.groups.filter(name='tpe_admin').exists():
+            context['repuesto_auth_form'] = TicketReparacionRepuestoAuthForm(initial={'autorizado': True})
+        return context
+
+    def form_valid(self, form):
+        if form.cleaned_data['solucion_tipo'] is not None:
+            form.instance.fecha_fin = datetime.today()
+        return super(ReparacionUpdateView, self).form_valid(form)
+
+
+class ReparacionRepuestoCreateView(CreateView):
+    model = TicketReparacionRepuesto
+    form_class = TicketReparacionRepuestoForm
+
+    def get_success_url(self):
+        return reverse('reparacion_update', kwargs={'pk': self.object.reparacion.id})
+
+
+class ReparacionRepuestoUpdateView(GroupRequiredMixin, UpdateView):
+    model = TicketReparacionRepuesto
+    form_class = TicketReparacionRepuestoAuthForm
+    group_required = [u"tpe_admin", ]
+    raise_exception = True
+
+    def form_valid(self, form):
+        form.instance.autorizado_por = self.request.user
+        form.instance.fecha_autorizado = datetime.today()
+        return super(ReparacionRepuestoUpdateView, self).form_valid(form)
+
+    def get_success_url(self):
+        return reverse('reparacion_update', kwargs={'pk': self.object.reparacion.id})
+
+
+class MonitoreoCreateView(CsrfExemptMixin, JsonRequestResponseMixin, View):
+    require_json = True
+
+    def post(self, request, *args, **kwargs):
+        try:
+            equipamiento_id = self.kwargs["equipamiento_id"]
+            equipamiento = Equipamiento.objects.filter(id=equipamiento_id)
+            comentario = self.request_json["comentario"]
+            if not len(comentario) or len(equipamiento) == 0:
+                raise KeyError
+        except KeyError:
+            error_dict = {u"message": u"Sin comentario"}
+            return self.render_bad_request_response(error_dict)
+        monitoreo = Monitoreo(equipamiento=equipamiento[0], creado_por=self.request.user, comentario=comentario)
+        monitoreo.save()
+        return self.render_json_response({
+            "equipamiento_id": monitoreo.equipamiento.id,
+            "comentario": monitoreo.comentario,
+            "fecha": str(monitoreo.fecha),
+            "usuario": str(monitoreo.creado_por.perfil)
+        })
+
+
+class MonitoreoListView(InformeMixin):
+    form_class = MonitoreoListForm
+    template_name = 'tpe/monitoreo_list.html'
+    queryset = Monitoreo.objects.all().order_by('equipamiento', 'fecha')
+    filter_list = {
+        'fecha_min': 'fecha__gte',
+        'fecha_max': 'fecha__lte',
+        'usuario': 'creado_por__perfil__id'
+    }
+
+    def create_response(self, queryset):
+        return [
+            {
+                'entrega': monitoreo.equipamiento.id,
+                'entrega_url': monitoreo.equipamiento.get_absolute_url(),
+                'escuela': str(monitoreo.equipamiento.escuela),
+                'escuela_url': monitoreo.equipamiento.escuela.get_absolute_url(),
+                'departamento': str(monitoreo.equipamiento.escuela.municipio.departamento),
+                'municipio': str(monitoreo.equipamiento.escuela.municipio.nombre),
+                'comentario': monitoreo.comentario,
+                'fecha': monitoreo.fecha,
+                'usuario': str(monitoreo.creado_por.perfil),
+            } for monitoreo in queryset
+        ]

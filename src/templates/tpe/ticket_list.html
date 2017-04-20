@@ -1,0 +1,42 @@
+<div class="row">
+	<div class="col-md-1 col-sm-1">
+		<div class="box box-primary">
+			<div class="box-header with-border">
+				<h3 class="box-title">Tickets</h3>
+			</div>
+			<div class="box-body no-padding">
+				<ul class="nav nav-pills nav-stacked" role="tablist">
+					{% for ticket in ticket_list %}
+					{% if forloop.first and not ticket_detail or ticket_detail == ticket.id|stringformat:"s" %}
+						<li role="presentation" class="active">
+					{% else %}
+						<li role="presentation">
+					{% endif %}
+							<a href="#ticket-{{ ticket.id }}" aria-controls="ticket-{{ ticket.id }}" role="pill" data-toggle="pill">
+								{% if ticket.cerrado %}
+								<i class="fa fa-circle-o text-green"></i> 
+								{% else %}
+								<i class="fa fa-circle-o text-red"></i> 
+								{% endif %}
+								{{ ticket.id }}
+							</a>
+						</li>
+					{% endfor %}
+				</ul>
+			</div>
+		</div>
+	</div>
+	<div class="col-md-11 col-sm-11">
+		<div class="tab-content">
+			{% for ticket in ticket_list %}
+				{% if forloop.first and not ticket_detail or ticket_detail == ticket.id|stringformat:"s" %}
+				<div role="tabpanel" class="tab-pane active" id="ticket-{{ ticket.id }}">
+				{% else %}
+				<div role="tabpanel" class="tab-pane" id="ticket-{{ ticket.id }}">
+				{% endif %}
+					{% include "tpe/ticket_detail.html" with ticket=ticket %}
+				</div>
+			{% endfor %}
+		</div>
+	</div>
+</div>

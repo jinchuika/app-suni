@@ -81,7 +81,7 @@ class SolicitudVersion(models.Model):
     Description: Versión de solicitud de equipamiento
     """
     nombre = models.CharField(max_length=50)
-    requisito = models.ManyToManyField(Requisito)
+    requisito = models.ManyToManyField(Requisito, blank=True)
 
     class Meta:
         verbose_name = 'Versión de solicitud'
@@ -113,13 +113,7 @@ class Solicitud(models.Model):
     edf = models.BooleanField(blank=True)
     lab_actual = models.BooleanField(blank=True)
 
-    alumna = models.IntegerField()
-    alumno = models.IntegerField()
-    maestra = models.IntegerField()
-    maestro = models.IntegerField()
-
-    total_alumno = models.IntegerField(null=True, blank=True)
-    total_maestro = models.IntegerField(null=True, blank=True)
+    poblacion = models.ForeignKey('escuela.EscPoblacion', on_delete=models.PROTECT, related_name='solicitudes', null=True)
 
     requisito = models.ManyToManyField(Requisito, blank=True)
     medio = models.ManyToManyField(Medio, blank=True)
@@ -133,15 +127,11 @@ class Solicitud(models.Model):
     def __str__(self):
         return str(self.id)
 
-    def save(self, *args, **kwargs):
-        if self.total_alumno is None or self.total_alumno == 0:
-            self.total_alumno = self.alumna + self.alumno
-        if self.total_maestro is None or self.total_maestro == 0:
-            self.total_maestro = self.maestra + self.maestro
-        super(Solicitud, self).save(*args, **kwargs)
-
     def get_absolute_url(self):
         return reverse_lazy('escuela_solicitud_detail', kwargs={'pk': self.escuela.id, 'id_solicitud': self.id})
+
+    def porcentaje_requisitos(self):
+        return self.requisito.count() / self.version.requisito.count() * 100
 
     def listar_requisito(self):
         queryset_requisito = self.version.requisito.all()
@@ -156,7 +146,7 @@ class Solicitud(models.Model):
 
 class ValidacionVersion(models.Model):
     nombre = models.CharField(max_length=30)
-    requisito = models.ManyToManyField(Requisito)
+    requisito = models.ManyToManyField(Requisito, blank=True)
 
     class Meta:
         verbose_name = "Versión de validación"
@@ -181,20 +171,17 @@ class Validacion(models.Model):
     version = models.ForeignKey(ValidacionVersion)
     tipo = models.ForeignKey(ValidacionTipo)
     escuela = models.ForeignKey('escuela.Escuela', on_delete=models.PROTECT, related_name='validacion')
-    fecha = models.DateField(default=timezone.now)
+    fecha_inicio = models.DateField(default=timezone.now)
+    fecha_final = models.DateField(null=True, blank=True)
     jornada = models.IntegerField(default=1)
+    fecha_equipamiento = models.DateField(null=True, blank=True)
 
-    alumna = models.IntegerField()
-    alumno = models.IntegerField()
-    maestra = models.IntegerField()
-    maestro = models.IntegerField()
-
-    total_alumno = models.IntegerField(null=True, blank=True)
-    total_maestro = models.IntegerField(null=True, blank=True)
+    poblacion = models.ForeignKey('escuela.EscPoblacion', on_delete=models.PROTECT, related_name='validaciones', null=True)
 
     requisito = models.ManyToManyField(Requisito, blank=True)
 
     observacion = models.TextField(null=True, blank=True)
+    completada = models.BooleanField(default=False, blank=True)
 
     class Meta:
         verbose_name = "Validacion"
@@ -203,12 +190,11 @@ class Validacion(models.Model):
     def __str__(self):
         return str(self.id)
 
-    def save(self, *args, **kwargs):
-        if self.total_alumno is None or self.total_alumno == 0:
-            self.total_alumno = self.alumna + self.alumno
-        if self.total_maestro is None or self.total_maestro == 0:
-            self.total_maestro = self.maestra + self.maestro
-        super(Validacion, self).save(*args, **kwargs)
+    def get_absolute_url(self):
+        return reverse_lazy('escuela_validacion_detail', kwargs={'pk': self.escuela.id, 'id_validacion': self.id})
+
+    def porcentaje_requisitos(self):
+        return self.requisito.count() / self.version.requisito.count() * 100
 
     def listar_requisito(self):
         queryset_requisito = self.version.requisito.all()
@@ -225,7 +211,7 @@ class ValidacionComentario(models.Model):
     validacion = models.ForeignKey(Validacion, related_name='comentarios')
     comentario = models.TextField()
     usuario = models.ForeignKey(User)
-    fecha = models.DateField(default=timezone.now)
+    fecha = models.DateTimeField(default=timezone.now)
 
     class Meta:
         verbose_name = "Comentario de validación"

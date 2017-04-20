@@ -1,36 +1,67 @@
+"""Vistas para la gestión de escuelas
+"""
 from django.shortcuts import get_object_or_404, reverse
 from django.views.generic import DetailView
-from django.views.generic.edit import CreateView, UpdateView, FormView
+from django.views.generic.edit import CreateView, UpdateView
 
 from braces.views import LoginRequiredMixin, PermissionRequiredMixin
-from dal import autocomplete
 
-from apps.escuela.forms import FormEscuelaCrear, ContactoForm, BuscarEscuelaForm
-from apps.escuela.models import Escuela, EscContacto
-from apps.escuela.mixins import ContactoContextMixin
-from apps.mye.forms import EscuelaCooperanteForm, EscuelaProyectoForm, SolicitudNuevaForm, SolicitudForm, ValidacionNuevaForm, ValidacionForm
-from apps.tpe.forms import EquipamientoForm, EquipamientoNuevoForm
+from apps.main.models import Coordenada
+from apps.mye.models import (
+    EscuelaCooperante, EscuelaProyecto,
+    Solicitud, Validacion, ValidacionTipo)
+from apps.mye.forms import (
+    EscuelaCooperanteForm, EscuelaProyectoForm, SolicitudNuevaForm,
+    SolicitudForm, ValidacionNuevaForm, ValidacionForm)
 from apps.tpe.models import Equipamiento
-from apps.mye.models import EscuelaCooperante, EscuelaProyecto, Solicitud, Validacion
-from apps.main.models import Municipio
+from apps.tpe.forms import EquipamientoForm, EquipamientoNuevoForm
+
+from apps.escuela.forms import FormEscuelaCrear, ContactoForm, EscuelaBuscarForm
+from apps.escuela.models import Escuela, EscContacto, EscContactoTelefono, EscContactoMail
+from apps.main.mixins import InformeMixin
 
 
 class EscuelaCrear(LoginRequiredMixin, CreateView):
+    """Vista para crear una escuela
+    """
     template_name = 'escuela/add.html'
     raise_exception = True
     redirect_unauthenticated_users = True
     form_class = FormEscuelaCrear
 
+    def form_valid(self, form):
+        response = super(EscuelaCrear, self).form_valid(form)
+        if form.cleaned_data['lat'] and form.cleaned_data['lng']:
+            mapa = Coordenada(lat=form.cleaned_data['lat'], lng=form.cleaned_data['lng'])
+            mapa.save()
+            self.object.mapa = mapa
+            self.object.save()
+        return response
+
 
 class EscuelaDetail(LoginRequiredMixin, DetailView):
+    """Vista para el perfil de la escuela
+    """
     template_name = 'escuela/detail.html'
     model = Escuela
 
     def get_context_data(self, **kwargs):
+        """Obtiene las variables de contexto para enviar al template
+
+        Args:
+            **kwargs: Puede contener el id para solicitud, validacion o equipamiento
+
+        Returns:
+            list: Variables de contexto para el template
+        """
         context = super(EscuelaDetail, self).get_context_data(**kwargs)
         context['solicitud_nueva_form'] = SolicitudNuevaForm(initial={'escuela': self.object.pk})
         context['equipamiento_nuevo_form'] = EquipamientoNuevoForm(initial={'escuela': self.object.pk})
         context['validacion_nueva_form'] = ValidacionNuevaForm(initial={'escuela': self.object.pk})
+        if self.request.user.groups.filter(name='mye_validacion_nula').count() > 0:
+            context['validacion_nueva_form'].fields['tipo'].queryset = ValidacionTipo.objects.all()
+        else:
+            context['validacion_nueva_form'].fields['tipo'].queryset = ValidacionTipo.objects.exclude(id=3)
 
         # Crea un formulario de solicitud si encuentra la ID
         if 'id_solicitud' in self.kwargs:
@@ -51,10 +82,20 @@ class EscuelaDetail(LoginRequiredMixin, DetailView):
             if equipamiento in self.object.equipamiento.all():
                 context['equipamiento_form'] = EquipamientoForm(instance=equipamiento)
                 context['equipamiento_id'] = self.kwargs['id_equipamiento']
+
+        # # formulario para contactos
+        # if 'id_contacto' in self.kwargs:
+        #     contacto = ContactoForm(initial={'escuela': self.object.pk})
+        #     if contacto in self.object.contacto.all():
+        #         context['equipamiento_form'] = EquipamientoForm(instance=equipamiento)
+        #         context['equipamiento_id'] = self.kwargs['id_equipamiento']
+
         return context
 
 
 class EscuelaCooperanteUpdate(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
+    """Actualiza los cooperantes asignados a una escuela
+    """
     model = Escuela
     form_class = EscuelaCooperanteForm
     template_name = 'mye/cooperante_asignacion_escuela.html'
@@ -63,16 +104,32 @@ class EscuelaCooperanteUpdate(LoginRequiredMixin, PermissionRequiredMixin, Updat
     raise_exception = True
 
     def get_form(self, *args, **kwargs):
+        """Crea el formulario para el template
+
+        Args:
+            *args: Description
+            **kwargs: Description
+
+        Returns:
+            Form: Formulario para cooperantes
+        """
         eliminar = self.request.user.has_perm('mye.delete_escuela_cooperante')
         form = self.form_class(eliminar=eliminar, **self.get_form_kwargs())
         form.initial['cooperante_asignado'] = [c.cooperante for c in EscuelaCooperante.objects.filter(escuela=self.object, activa=True)]
         return form
 
     def get_success_url(self):
+        """Obtiene la url de la escuela tras actualizar el cooperante
+
+        Returns:
+            string: url de la escuela
+        """
         return reverse('escuela_detail', kwargs={'pk': self.kwargs['pk']})
 
 
 class EscuelaProyectoUpdate(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
+    """Actualiza los proyectos asignados a la escuela
+    """
     model = Escuela
     form_class = EscuelaProyectoForm
     template_name = 'mye/proyecto_asignacion_escuela.html'
@@ -81,16 +138,33 @@ class EscuelaProyectoUpdate(LoginRequiredMixin, PermissionRequiredMixin, UpdateV
     raise_exception = True
 
     def get_form(self, *args, **kwargs):
+        """Crea el formulario para los proyectos
+
+        Args:
+            *args: Description
+            **kwargs: Description
+
+        Returns:
+            Form: Formulario de proyectos
+        """
         eliminar = self.request.user.has_perm('mye.delete_escuela_proyecto')
         form = self.form_class(eliminar=eliminar, **self.get_form_kwargs())
         form.initial['proyecto_asignado'] = [c.proyecto for c in EscuelaProyecto.objects.filter(escuela=self.object, activa=True)]
         return form
 
     def get_success_url(self):
+        """Obtiene la url de la escuela del proyecto
+
+        Returns:
+            string: url de la escuela
+        """
         return reverse('escuela_detail', kwargs={'pk': self.kwargs['pk']})
 
 
 class EscuelaEditar(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
+    """Edita una objeto de escuela.
+    Requiere el permiso `escuela.change_escuela`
+    """
     permission_required = "escuela.change_escuela"
     model = Escuela
     template_name = 'escuela/add.html'
@@ -98,119 +172,176 @@ class EscuelaEditar(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
     raise_exception = True
     redirect_unauthenticated_users = True
 
+    def get_initial(self):
+        initial = super(EscuelaEditar, self).get_initial()
+        if self.object.mapa:
+            initial['lat'] = self.object.mapa.lat
+            initial['lng'] = self.object.mapa.lng
+        return initial
 
-class EscContactoCrear(LoginRequiredMixin, ContactoContextMixin, CreateView):
+    def form_valid(self, form):
+        response = super(EscuelaEditar, self).form_valid(form)
+        if form.cleaned_data['lat'] and form.cleaned_data['lng']:
+            if self.object.mapa:
+                self.object.mapa.lat = form.cleaned_data['lat']
+                self.object.mapa.lng = form.cleaned_data['lng']
+                self.object.mapa.save()
+            else:
+                mapa = Coordenada(lat=form.cleaned_data['lat'], lng=form.cleaned_data['lng'])
+                mapa.save()
+                self.object.mapa = mapa
+                self.object.save()
+        return response
+
+
+class EscContactoCrear(LoginRequiredMixin, CreateView):
+    """Crea un nuevo contacto para escuelas
+    """
+    template_name = 'escuela/contacto.html'
+    model = EscContacto
+    form_class = ContactoForm
+
+    def form_valid(self, form):
+        response = super(EscContactoCrear, self).form_valid(form)
+        if form.cleaned_data['telefono']:
+            telefono = EscContactoTelefono(contacto=self.object, telefono=form.cleaned_data['telefono'])
+            telefono.save()
+        if form.cleaned_data['mail']:
+            mail = EscContactoMail(contacto=self.object, mail=form.cleaned_data['mail'])
+            mail.save()
+        return response
+
+    def get_initial(self):
+        """Obtiene los datos iniciales del contacto
+
+        Returns:
+            dict: La escuela para llenar en el campo `escuela` del formulario
+        """
+        escuela = get_object_or_404(Escuela, id=self.kwargs.get('id_escuela'))
+        return {'escuela': escuela}
+
+    def get_success_url(self):
+        """Obtiene la url de la escuela después de crear el contacto
+
+        Returns:
+            string: url de la escuela
+        """
+        return reverse('escuela_detail', kwargs={'pk': self.kwargs['id_escuela']})
+
+
+class EscContactoEditar(LoginRequiredMixin, UpdateView):
+    """Edición de contacto de escuela
+    """
     template_name = 'escuela/contacto.html'
     model = EscContacto
     form_class = ContactoForm
 
     def get_initial(self):
-        escuela = get_object_or_404(Escuela, id=self.kwargs.get('id_escuela'))
-        return{'escuela': escuela}
+        """Obtiene los datos para el formulario
+
+        Returns:
+            dict: Lista de valores para los campos
+        """
+        initial = super(EscContactoEditar, self).get_initial()
+        initial['telefono'] = self.object.telefono.first()
+        initial['mail'] = self.object.mail.first()
+        return initial
+
+    def form_valid(self, form):
+        response = super(EscContactoEditar, self).form_valid(form)
+        if form.cleaned_data['telefono']:
+            if self.object.telefono.count() == 0:
+                telefono = EscContactoTelefono(contacto=self.object, telefono=form.cleaned_data['telefono'])
+                telefono.save()
+            else:
+                telefono = self.object.telefono.all().first()
+                telefono.telefono = form.cleaned_data['telefono']
+                telefono.save()
+        if form.cleaned_data['mail']:
+            if self.object.mail.count() == 0:
+                mail = EscContactoMail(contacto=self.object, mail=form.cleaned_data['mail'])
+                mail.save()
+            else:
+                mail = self.object.mail.all().first()
+                mail.mail = form.cleaned_data['mail']
+                mail.save()
+        return response
 
     def get_success_url(self):
+        """Obitne la url de la escuela del contacto
+
+        Returns:
+            string: url de la escuela del contacto
+        """
         return reverse('escuela_detail', kwargs={'pk': self.kwargs['id_escuela']})
 
 
-class EscContactoEditar(LoginRequiredMixin, ContactoContextMixin, UpdateView):
-    template_name = 'escuela/contacto.html'
-    model = EscContacto
-    form_class = ContactoForm
+class EscuelaBuscar(InformeMixin):
+    """Buscador de escuelas
+    """
+    form_class = EscuelaBuscarForm
+    template_name = 'escuela/escuela_buscar.html'
+    queryset = Escuela.objects.distinct()
+    filter_list = {
+        'codigo': 'codigo',
+        'nombre': 'nombre__contains',
+        'direccion': 'direccion__contains',
+        'municipio': 'municipio',
+        'departamento': 'municipio__departamento',
+        'nivel': 'nivel',
+        'sector': 'sector',
+        'cooperante_mye': 'asignacion_cooperante__in',
+        'proyecto_mye': 'asignacion_proyecto__in',
+        'fecha_min': 'fecha__gte',
+        'fecha_max': 'fecha__lte',
+        'poblacion_min': 'poblaciones__total_alumno__gte',
+        'poblacion_max': 'poblaciones__total_alumno__lte',
+        'solicitud_id': 'solicitud__id',
+        'validacion_id': 'validacion__id',
+        'equipamiento_id': 'equipamiento__id',
+        'cooperante_tpe': 'equipamiento__cooperante',
+        'proyecto_tpe': 'equipamiento__proyecto',
+    }
 
-    def get_success_url(self):
-        return reverse('escuela_detail', kwargs={'pk': self.kwargs['id_escuela']})
+    def get_queryset(self, filtros):
+        """Arma el filtro de escuelas.
+        Se modifica en base a `InformeMixin` para parsear los valores `True`/`False`.
 
+        Args:
+            filtros (dict): Filtros para aplicar al queryset
 
-class EscuelaBuscar(LoginRequiredMixin, FormView):
-    form_class = BuscarEscuelaForm
-    template_name = 'escuela/buscar.html'
+        Returns:
+            QuerySet: Queryset de escuelas filtradas
+        """
+        queryset = super(EscuelaBuscar, self).get_queryset(filtros)
+        if filtros.get('solicitud', None):
+            queryset = queryset.filter(solicitud__isnull=eval(filtros.get('solicitud')))
+        if filtros.get('validacion', None):
+            queryset = queryset.filter(validacion__isnull=eval(filtros.get('validacion')))
+        if filtros.get('equipamiento', None):
+            queryset = queryset.filter(equipamiento__isnull=eval(filtros.get('equipamiento')))
+        return queryset
 
+    def create_response(self, queryset):
+        """Summary
 
-class EscuelaBuscarBackend(autocomplete.Select2QuerySetView):
-    def get_paginate_by(self, queryset):
-        return None
+        Args:
+            queryset (QuerySet): Queryset de escuelas encontradas por los filtros
 
-    def has_more(self, context):
-        return False
-
-    def get_result_label(self, result):
-        return {
-            'url': result.get_absolute_url(),
-            'codigo': result.codigo,
-            'nombre': result.nombre,
-            'direccion': result.direccion,
-            'municipio': result.municipio.nombre,
-            'departamento': result.municipio.departamento.nombre,
-            'nivel': result.nivel.nivel,
-            'poblacion': result.poblacion_actual,
-        }
-
-    def get_queryset(self):
-        qs = Escuela.objects.all()
-
-        nombre = self.forwarded.get('nombre', None)
-        direccion = self.forwarded.get('direccion', None)
-        municipio = self.forwarded.get('municipio', None)
-        departamento = self.forwarded.get('departamento', None)
-        cooperante_mye = self.forwarded.get('cooperante_mye', None)
-        proyecto_mye = self.forwarded.get('proyecto_mye', None)
-        nivel = self.forwarded.get('nivel', None)
-        sector = self.forwarded.get('sector', None)
-        poblacion_min = self.forwarded.get('poblacion_min', None)
-        poblacion_max = self.forwarded.get('poblacion_max', None)
-        solicitud = self.forwarded.get('solicitud', None)
-        solicitud_id = self.forwarded.get('solicitud_id', None)
-        equipamiento = self.forwarded.get('equipamiento', None)
-        equipamiento_id = self.forwarded.get('equipamiento_id', None)
-        cooperante_tpe = self.forwarded.get('cooperante_tpe', None)
-        proyecto_tpe = self.forwarded.get('proyecto_tpe', None)
-
-        if self.q:
-            qs = qs.filter(codigo=self.q)
-        if solicitud:
-            solicitud_list = Solicitud.objects.all()
-            if solicitud == "2":
-                qs = qs.filter(solicitud__in=solicitud_list).distinct()
-            if solicitud == "1":
-                qs = qs.exclude(solicitud__in=solicitud_list).distinct()
-        if solicitud_id:
-            solicitud_list = Solicitud.objects.filter(id=solicitud_id)
-            qs = qs.filter(solicitud__in=solicitud_list).distinct()
-        if equipamiento_id:
-            equipamiento_list = Equipamiento.objects.filter(id=equipamiento_id)
-            qs = qs.filter(equipamiento__in=equipamiento_list).distinct()
-        if equipamiento:
-            equipamiento_list = Equipamiento.objects.all()
-            if equipamiento == "2":
-                qs = qs.filter(equipamiento__in=equipamiento_list).distinct()
-            if equipamiento == "1":
-                qs = qs.exclude(equipamiento__in=equipamiento_list).distinct()
-        if departamento:
-            qs = qs.filter(municipio__in=Municipio.objects.filter(departamento=departamento)).distinct()
-        if municipio:
-            qs = qs.filter(municipio=municipio)
-        if cooperante_mye:
-            qs = qs.filter(cooperante_asignado__in=cooperante_mye).distinct()
-        if proyecto_mye:
-            qs = qs.filter(proyecto_asignado__in=proyecto_mye).distinct()
-        if nombre:
-            qs = qs.filter(nombre__icontains=nombre)
-        if direccion:
-            qs = qs.filter(direccion__icontains=direccion)
-        if nivel:
-            qs = qs.filter(nivel=nivel)
-        if sector:
-            qs = qs.filter(sector=sector)
-        if poblacion_min:
-            solicitud_list = Solicitud.objects.filter(total_alumno__gte=poblacion_min)
-            qs = qs.filter(solicitud__in=solicitud_list).distinct()
-        if poblacion_max:
-            solicitud_list = Solicitud.objects.filter(total_alumno__lte=poblacion_max)
-            qs = qs.filter(solicitud__in=solicitud_list).distinct()
-        if cooperante_tpe:
-            equipamiento_list = Equipamiento.objects.filter(cooperante__in=cooperante_tpe)
-            qs = qs.filter(equipamiento__in=equipamiento_list).distinct()
-        if proyecto_tpe:
-            equipamiento_list = Equipamiento.objects.filter(proyecto__in=proyecto_tpe)
-            qs = qs.filter(equipamiento__in=equipamiento_list).distinct()
-        return qs
+        Returns:
+            list: Lista de escuelas para formatear con JSON
+        """
+        return [
+            {
+                'codigo': escuela.codigo,
+                'direccion': escuela.direccion,
+                'departamento': escuela.municipio.departamento.nombre,
+                'municipio': escuela.municipio.nombre,
+                'nombre': escuela.nombre,
+                'escuela_url': escuela.get_absolute_url(),
+                'sector': str(escuela.sector),
+                'nivel': str(escuela.nivel),
+                'poblacion': escuela.poblacion,
+                'equipada': escuela.equipada
+            } for escuela in queryset
+        ]

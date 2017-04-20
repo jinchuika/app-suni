@@ -8,9 +8,9 @@
 <section class="content-header">
 	<h1>
 		Perfil de {{proyecto}}
-		{% if perms.mye_change_proyecto %}
+		{% if perms.mye.change_proyecto %}
 		<span class="pull-right">
-			<a href="{% url "proyecto_update" pk=proyecto.id %}">Editar</a>
+			<a href="{% url "proyecto_update" pk=proyecto.id %}" class="btn btn-info">Editar</a>
 		</span>
 		{% endif %}
 	</h1>
@@ -19,8 +19,56 @@
 <section class="content">
 	<div class="container-fluid">
 		<div class="row">
-			<div class="col-md-12">
-				
+			<div class="col-md-7">
+				<div class="box box-success">
+					<div class="box-header">
+						<h3 class="box-title">Escuelas equipadas</h3>
+					</div>
+					<div class="box-body">
+						<table class="table table-striped table-hover table-datatables">
+							<thead>
+								<tr>
+									<th>Entrega</th>
+									<th>Escuela</th>
+									<th>Fecha</th>
+								</tr>
+							</thead>
+							<tbody>
+								{% for equipamiento in proyecto.equipamientos.all %}
+									<tr>
+										<td><a href="{{ equipamiento.get_absolute_url }}">{{ equipamiento }}</a></td>
+										<td><a href="{{ equipamiento.escuela.get_absolute_url }}">{{ equipamiento.escuela }}</a></td>
+										<td>{{ equipamiento.fecha|date:"Y-m-d"}}</td>
+									</tr>
+								{% endfor %}
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+
+			<div class="col-md-5">
+				<div class="box box-info">
+					<div class="box-header">
+						<h3 class="box-title">Escuelas en proceso</h3>
+					</div>
+					<div class="box-body">
+						<table class="table table-hover table-striped">
+							<thead>
+								<tr>
+									<th>Escuela</th>
+									<th>Fecha de asignación</th>
+								</tr>
+							</thead>
+							{% for asignacion in proyecto.escuela_asignada.all %}
+							<tr>
+								<td>{{ asignacion.escuela }}</td>
+								<td>{{ asignacion.fecha_activacion }}</td>
+							</tr>
+							{% endfor %}
+						</table>
+					</div>
+				</div>
 			</div>
 		</div>
 	</div>

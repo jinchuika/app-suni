@@ -1,0 +1,99 @@
+<div class="row">
+	<div class="col-md-12">
+		<div class="box box-info box-solid collapsed-box">
+			<div class="box-header with-border">
+				<h3 class="box-title">No. {{solicitud.id}}   •   {{solicitud.fecha|date:"d/M/Y"}}</h3>
+				<div class="box-tools pull-right">
+					{% if perms.mye.change_solicitud %}
+					<a href="{% url "escuela_solicitud_update" pk=solicitud.escuela.id id_solicitud=solicitud.id %}" class="btn btn-box-tool"><i class="fa fa-pencil"></i> Editar</a>
+					{% endif %}
+					<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+					</button>
+				</div>
+			</div>
+			<div class="box-body">
+				<div class="table-responsive">
+					<table class="table table-hover table-condensed table-striped">
+						<tr>
+							<th>Fecha:</th>
+							<td colspan="3">{{ solicitud.fecha }}</td>
+						</tr>
+						<tr>
+							<th>Formulario físico:</th>
+							<td colspan="3">
+								{% if solicitud.formulario %}Sí{% else %}No{% endif %}
+							</td>
+						</tr>
+						<tr>
+							<th>Jornadas que funcionan en la escuela:</th>
+							<td colspan="3">{{ solicitud.jornada }}</td>
+						</tr>
+						<tr>
+							<th>La escuela fue EDF</th>
+							<td colspan="3">
+								{% if solicitud.edf %}
+								Sí
+								{% else %}
+								No
+								{% endif %}
+							</td>
+						</tr>
+						<tr>
+							<th>Tiene laboratorio actualmente:</th>
+							<td colspan="3">
+								{% if solicitud.lab_actual %}Sí{% else %}No{% endif %}
+							</td>
+						</tr>
+						<tr>
+							<th>Población estudiantil</th>
+							<td><i class="fa fa-female"></i> {{solicitud.poblacion.alumna}}</td>
+							<td><i class="fa fa-male"></i> {{solicitud.poblacion.alumno}}</td>
+							<td><i class="fa fa-male"></i><i class="fa fa-female"></i> {{solicitud.poblacion.total_alumno}}</td>
+						</tr>
+						<tr>
+							<th>Población doncente</th>
+							<td><i class="fa fa-female"></i> {{solicitud.poblacion.maestra}}</td>
+							<td><i class="fa fa-male"></i> {{solicitud.poblacion.maestro}}</td>
+							<td><i class="fa fa-male"></i><i class="fa fa-female"></i> {{solicitud.poblacion.total_maestro}}</td>
+						</tr>
+						<tr>
+							<th>Observaciones</th>
+							<td colspan="3">{{ solicitud.observacion }}</td>
+						</tr>
+						<tr>
+							<th colspan="4">Requerimientos</th>
+						</tr>
+						<tr>
+							<td colspan="4">
+								<ul class="list-unstyled">
+									{% for requisito in solicitud.listar_requisito %}
+									<li>
+										{% if requisito.cumple %}
+										<i class="fa fa-check"></i>
+										{% else %}
+										<i class="fa fa-close"></i>
+										{% endif %}
+										<span class="text">{{ requisito.requisito }}</span>
+									</li>
+									{% endfor %}
+								</ul>
+							</td>
+						</tr>
+						<tr>
+							<th>Por qué medios se enteró de nosotros</th>
+							<td colspan="3">
+								<ul class="list-unstyled">
+									{% for medio in solicitud.medio.all %}
+									<li>
+										<i class="fa fa-caret-right"></i> {{medio}}
+									</li>
+									{% endfor %}
+								</ul>
+							</td>
+						</tr>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

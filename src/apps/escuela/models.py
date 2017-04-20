@@ -1,7 +1,7 @@
-from operator import itemgetter
 from django.db import models
 from django.urls import reverse
-from apps.main.models import Municipio
+from django.utils import timezone
+from apps.main.models import Municipio, Coordenada
 from apps.main.utils import get_telefonica
 from apps.mye.models import Cooperante, Proyecto, Solicitud
 
@@ -118,6 +118,7 @@ class Escuela(models.Model):
     modalidad = models.ForeignKey(EscModalidad, on_delete=models.PROTECT)
     jornada = models.ForeignKey(EscJornada, on_delete=models.PROTECT)
     plan = models.ForeignKey(EscPlan, on_delete=models.PROTECT)
+    mapa = models.ForeignKey(Coordenada, null=True, blank=True)
 
     cooperante_asignado = models.ManyToManyField(
         Cooperante,
@@ -139,22 +140,15 @@ class Escuela(models.Model):
         return reverse('escuela_detail', kwargs={'pk': self.id})
 
     def get_poblacion(self):
-        poblacion_list = []
-        for solicitud in Solicitud.objects.filter(escuela=self):
-            poblacion_list.append({
-                'fecha': solicitud.fecha,
-                'alumnos': solicitud.total_alumno,
-                'maestros': solicitud.total_maestro})
-        return sorted(poblacion_list, key=itemgetter('fecha'))
-    poblacion = property(get_poblacion)
-
-    def get_poblacion_actual(self):
-        poblacion_list = self.get_poblacion()
-        if len(poblacion_list) > 0:
-            return poblacion_list[0]['alumnos']
+        if self.poblaciones.count() > 0:
+            return self.poblaciones.latest('fecha').total_alumno
         else:
             return None
-    poblacion_actual = property(get_poblacion_actual)
+    poblacion = property(get_poblacion)
+
+    def es_equipada(self):
+        return True if self.equipamiento.count() > 0 else False
+    equipada = property(es_equipada)
 
     def tiene_solicitud(self):
         return Solicitud.objects.filter(escuela=self).count() > 0
@@ -209,3 +203,30 @@ class EscContactoMail(models.Model):
 
     def __str__(self):
         return self.mail
+
+
+class EscPoblacion(models.Model):
+    escuela = models.ForeignKey(Escuela, related_name="poblaciones")
+    fecha = models.DateField(default=timezone.now)
+
+    alumna = models.IntegerField(default=0)
+    alumno = models.IntegerField(default=0)
+    maestra = models.IntegerField(default=0)
+    maestro = models.IntegerField(default=0)
+
+    total_alumno = models.IntegerField(null=True, blank=True)
+    total_maestro = models.IntegerField(null=True, blank=True)
+
+    class Meta:
+        verbose_name = "Población de escuela"
+        verbose_name_plural = "Poblaciones de escuela"
+
+    def __str__(self):
+        return str(self.escuela)[:15] + " - " + str(self.fecha)
+
+    def save(self, *args, **kwargs):
+        if self.total_alumno is None or self.total_alumno == 0:
+            self.total_alumno = self.alumna + self.alumno
+        if self.total_maestro is None or self.total_maestro == 0:
+            self.total_maestro = self.maestra + self.maestro
+        super(EscPoblacion, self).save(*args, **kwargs)

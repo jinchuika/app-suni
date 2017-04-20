@@ -1,0 +1,45 @@
+<div class="box box-primary box-solid">
+	<div class="box-header with-border">
+		<h3 class="box-title">Ticket {{ ticket.id }}</h3> {% if ticket.cerrado != True %} (Pendiente){% endif %}
+		<div class="box-tools pull-right">
+			<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+			</button>
+		</div>
+	</div>
+	<div class="box-body">
+		<div class="row row invoice-info">
+			<div class="col-md-3 col-sm-3 invoice-col">
+				<address>
+					<strong><i class="fa fa-info margin-r-5"></i> Descripción</strong>
+					<br>{{ ticket.descripcion }}
+				</address>
+			</div>
+			<div class="col-md-3 col-sm-3 invoice-col">
+				<address>
+					<strong><i class="fa fa-hourglass-start margin-r-5"></i> Creación</strong>
+					<br>{{ ticket.fecha_abierto|date:"Y-m-d" }}, {{ ticket.abierto_por.perfil }}
+				</address>
+			</div>
+			<div class="col-md-3 col-sm-3 invoice-col">
+				<address>
+					<strong><i class="fa fa-user margin-r-5"></i> Contacto</strong>
+					<br>{{ ticket.contacto_reporta }}
+				</address>
+			</div>
+			<div class="col-md-3 col-sm-3 invoice-col">
+				<address>
+					<strong><i class="fa fa-hourglass-end margin-r-5"></i> Cierre</strong>
+					<br>{{ ticket.fecha_cierre|date:"Y-m-d" }}, {{ ticket.cerrado_por.perfil }}
+				</address>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-md-4">
+				{% include "tpe/ticket_registro_list.html" with ticketregistro_list=ticket.registros.all%}
+			</div>
+			<div class="col-md-4">
+				{% include "tpe/ticket_reparacion_list.html" with ticketreparacion_list=ticket.reparaciones.all %}
+			</div>
+		</div>
+	</div>
+</div>

@@ -29,8 +29,7 @@ ALLOWED_HOSTS = []
 
 
 # Application definition
-
-INSTALLED_APPS = [
+DJANGO_APPS = (
     'django.contrib.sites',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -38,32 +37,33 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'rest_framework',
+    'rest_framework',)
 
+THIRD_PARTY_APPS = (
     'braces',
     'easy_thumbnails',
     'dynamic_preferences',
     'widget_tweaks',
     'menu',
-    'dal',
-    'dal_select2',
     'mixer',
 
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
-    'allauth.socialaccount.providers.facebook',
+    'allauth.socialaccount.providers.facebook',)
 
-    'apps.users',
+LOCAL_APPS = (
     'apps.main',
+    'apps.users',
     'apps.escuela',
     'apps.kardex',
     'apps.fr',
     'apps.cyd',
     'apps.mye',
-    'apps.tpe',
-]
+    'apps.tpe',)
+
+INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 
 SITE_ID = 1
 
@@ -113,12 +113,8 @@ WSGI_APPLICATION = 'src.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'suni',
-        'USER': 'chuik',
-        'PASSWORD': 'passw2',
-        'HOST': 'localhost',
-        'PORT': '3306',
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
 

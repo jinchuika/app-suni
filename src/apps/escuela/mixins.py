@@ -21,19 +21,15 @@ class ContactoContextMixin(ContextMixin):
 
     def form_valid(self, form):
         named_formsets = self.get_named_formsets()
-        for name, f in named_formsets.items():
-            if f.is_valid():
-                f.save()
+        instance = form.save()
+        for nombre, formset in named_formsets.items():
+            if formset.is_valid():
+                for form in formset.forms:
+                    item = form.save(commit=False)
+                    if item:
+                        item.contacto = instance
+                        print(item.contacto.id)
+                        item.save()
             else:
                 return self.render_to_response(self.get_context_data(form=form))
-        return redirect(self.get_success_url())
-
-        if not all((x.is_valid() for x in named_formsets.values())):
-            print("error")
-            print(form.errors)
-            return self.render_to_response(self.get_context_data(form=form))
-        else:
-            self.object = form.save()
-        for name, formset in named_formsets.items():
-            formset.save()
         return redirect(self.get_success_url())
