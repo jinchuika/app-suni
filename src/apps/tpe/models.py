@@ -87,6 +87,12 @@ class Garantia(models.Model):
         else:
             return True
 
+    def get_costo(self):
+        return sum(t.get_costo_total() for t in self.tickets.all())
+
+    def get_ultimo_monitoreo(self):
+        return self.equipamiento.monitoreos.all().order_by('fecha').last()
+
 
 class TicketSoporte(models.Model):
     garantia = models.ForeignKey(Garantia, related_name='tickets')
@@ -107,6 +113,15 @@ class TicketSoporte(models.Model):
 
     def get_absolute_url(self):
         return reverse_lazy('ticket_detail', kwargs={'pk': self.garantia.id, 'ticket_id': self.id})
+
+    def get_costo_reparacion(self):
+        return sum(r.get_costo() for r in self.reparaciones.all())
+
+    def get_costo_transporte(self):
+        return sum(t.costo for t in self.transportes.all())
+
+    def get_costo_total(self):
+        return self.get_costo_reparacion() + self.get_costo_transporte()
 
 
 class TicketRegistroTipo(models.Model):
@@ -152,7 +167,7 @@ class TicketTransporteTipo(models.Model):
 
 class TicketTransporte(models.Model):
     tipo = models.ForeignKey(TicketTransporteTipo)
-    ticket = models.ForeignKey(TicketSoporte)
+    ticket = models.ForeignKey(TicketSoporte, related_name='transportes')
     costo = models.DecimalField(max_digits=7, decimal_places=2, default=Decimal('0.00'))
     fecha = models.DateField(default=timezone.now)
     usuario = models.ForeignKey(User, null=True, blank=True)
@@ -164,6 +179,9 @@ class TicketTransporte(models.Model):
 
     def __str__(self):
         return 'G{} - {}'.format(self.ticket.garantia, self.tipo)
+
+    def get_absolute_url(self):
+        return reverse_lazy('ticket_detail', kwargs={'pk': self.ticket.garantia.id, 'ticket_id': self.ticket.id})
 
 
 class DispositivoTipo(models.Model):
@@ -222,6 +240,9 @@ class TicketReparacion(models.Model):
     def get_absolute_url(self):
         return reverse_lazy('reparacion_update', kwargs={'pk': self.id})
 
+    def get_costo(self):
+        return sum(r.costo for r in self.repuestos.all() if r.autorizado)
+
 
 class TicketReparacionRepuesto(models.Model):
     reparacion = models.ForeignKey(TicketReparacion, related_name="repuestos")
@@ -229,6 +250,7 @@ class TicketReparacionRepuesto(models.Model):
     costo = models.DecimalField(max_digits=7, decimal_places=2, default=Decimal('0.00'))
     justificacion = models.TextField(null=True, blank=True)
     fecha_solicitud = models.DateField(default=timezone.now)
+    rechazado = models.BooleanField(default=False, blank=True)
     autorizado = models.BooleanField(default=False, blank=True)
     autorizado_por = models.ForeignKey(User, null=True, blank=True)
     fecha_autorizado = models.DateField(null=True, blank=True)

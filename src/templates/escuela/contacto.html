@@ -68,5 +68,8 @@
 {% endblock content %}
 
 {% block extra_js %}
-
+<script src="{% static "js/extrajs/escuela.js" %}"></script>
+<script>
+	EscuelaContacto.init();
+</script>
 {% endblock extra_js %}

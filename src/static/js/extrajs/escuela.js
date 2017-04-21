@@ -31,6 +31,9 @@
 
     // Public
     PerfilEscuela.init = function () {
+        $('#form-nueva-solicitud').hide();
+        $('#form-nuevo-equipamiento').hide();
+        $('#form-nueva-validacion').hide();
         $('.comentario-btn').click(function () {
             var id_validacion = $(this).data('id');
             var url = $(this).data('url');
@@ -136,8 +139,13 @@ $(document).ready(function () {
      * PERFIL DE ESCUELAS
      */
 
-    $('#form-nueva-solicitud').hide();
-    $('#form-nuevo-equipamiento').hide();
-    $('#form-nueva-validacion').hide();
     
-})
+    
+});
+
+(function( EscuelaContacto, $, undefined ) {
+    // Public
+    EscuelaContacto.init = function () {
+        
+    }   
+}( window.EscuelaContacto = window.EscuelaContacto || {}, jQuery ));

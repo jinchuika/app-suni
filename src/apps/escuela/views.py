@@ -83,13 +83,6 @@ class EscuelaDetail(LoginRequiredMixin, DetailView):
                 context['equipamiento_form'] = EquipamientoForm(instance=equipamiento)
                 context['equipamiento_id'] = self.kwargs['id_equipamiento']
 
-        # # formulario para contactos
-        # if 'id_contacto' in self.kwargs:
-        #     contacto = ContactoForm(initial={'escuela': self.object.pk})
-        #     if contacto in self.object.contacto.all():
-        #         context['equipamiento_form'] = EquipamientoForm(instance=equipamiento)
-        #         context['equipamiento_id'] = self.kwargs['id_equipamiento']
-
         return context
 
 

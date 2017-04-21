@@ -64,4 +64,19 @@ $(document).ready(function () {
 	$(".select2").select2({
 		width : '100%'
 	});
+
+	$('.datatable-simple'). DataTable({
+		searching: false,
+		lengthChange: false,
+		info: false,
+		pagingType: "simple",
+		ordering: false,
+		responsive: true,
+		"language": {
+			"oPaginate": {
+				"sNext":     ">",
+				"sPrevious": "<"
+			},
+		}
+	});
 });

@@ -1,0 +1,30 @@
+<h3 class="box-title">
+	Transporte
+	{% if ticket.cerrado != True %}
+		<button onclick="$('#transporte-{{ ticket.id }}').toggle();" class="btn btn-info btn-flat"><i class="fa fa-plus"></i></button>
+	{% endif %}
+</h3>
+
+<h5 class="box-title"><strong>Costo total:</strong> {{ ticket.get_costo_transporte }}</h5>
+
+<div class="attachment-block form-nuevo-transporte" id="transporte-{{ ticket.id }}">
+	<form action="{% url 'ticket_transporte_add' ticket_id=ticket.id %}" class="box-body" method="post">
+		{% csrf_token %}
+		{{ ticket_transporte_form.as_p }}
+		<input type="submit" value="Crear" class="btn btn-success">
+	</form>
+</div>
+
+{% for transporte in tickettransporte_list|dictsortreversed:"fecha" %}
+	<div class="attachment-block clearfix">
+		<h4 class="attachment-heading">
+			{{ transporte.tipo }}
+			<small class="time pull-right">
+				<i class="fa fa-calendar"></i> {{ transporte.fecha }}
+			</small>
+		</h4>
+		<p>{{ transporte.comentario }}</p>
+		<p><strong>Costo: </strong>Q. {{ transporte.costo }}</p>
+		<small>{{ transporte.usuario.perfil }}</small>
+	</div>
+{% endfor %}

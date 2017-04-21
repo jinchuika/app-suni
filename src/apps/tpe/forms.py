@@ -2,11 +2,14 @@ from django import forms
 from django.forms import ModelForm
 from django.db.models import Count
 
+from django.contrib.auth.models import User
 from apps.users.models import Perfil
 from apps.tpe.models import (
     Equipamiento, Garantia, TicketSoporte, TicketRegistro,
-    Monitoreo, TicketReparacion, TicketReparacionRepuesto)
+    Monitoreo, TicketReparacion, TicketReparacionRepuesto,
+    TicketTransporte)
 from apps.mye.models import Cooperante, Proyecto
+from apps.escuela.models import EscContacto
 from apps.escuela.forms import EscuelaBuscarForm
 
 
@@ -52,11 +55,17 @@ class GarantiaForm(forms.ModelForm):
 class TicketSoporteForm(forms.ModelForm):
     class Meta:
         model = TicketSoporte
-        fields = ('garantia', 'descripcion',)
+        fields = ('garantia', 'descripcion', 'contacto_reporta')
         widgets = {
             'garantia': forms.HiddenInput(),
-            'descripcion': forms.Textarea(attrs={'class': 'form-control'})
+            'descripcion': forms.Textarea(attrs={'class': 'form-control'}),
         }
+
+    def __init__(self, *args, **kwargs):
+        super(TicketSoporteForm, self).__init__(*args, **kwargs)
+        if 'garantia' in self.initial:
+            self.fields['contacto_reporta'].queryset = EscContacto.objects.filter(escuela=self.initial['garantia'].equipamiento.escuela)
+        self.fields['contacto_reporta'].label_from_instance = lambda obj: "%s (%s)" % (str(obj), obj.telefono.first())
 
 
 class TicketCierreForm(forms.ModelForm):
@@ -83,6 +92,11 @@ class TicketReparacionForm(forms.ModelForm):
     class Meta:
         model = TicketReparacion
         fields = ('triage', 'tipo_dispositivo', 'falla_reportada', 'tecnico_asignado')
+
+    def __init__(self, *args, **kwargs):
+        super(TicketReparacionForm, self).__init__(*args, **kwargs)
+        self.fields['tecnico_asignado'].queryset = User.objects.filter(groups__name='tpe_tecnico')
+        self.fields['tecnico_asignado'].label_from_instance = lambda obj: "%s" % obj.get_full_name()
 
 
 class TicketReparacionListForm(forms.ModelForm):
@@ -123,10 +137,28 @@ class TicketReparacionRepuestoForm(forms.ModelForm):
 class TicketReparacionRepuestoAuthForm(forms.ModelForm):
     class Meta:
         model = TicketReparacionRepuesto
-        fields = ('autorizado',)
+        fields = ('autorizado', 'rechazado')
         widgets = {
             'autorizado': forms.HiddenInput(),
+            'rechazado': forms.HiddenInput(),
         }
+
+
+class TicketTransporteForm(forms.ModelForm):
+    class Meta:
+        model = TicketTransporte
+        fields = '__all__'
+        exclude = ('ticket', 'fecha')
+        widgets = {
+            'tipo': forms.Select(attrs={'class': 'form-control'}),
+            'costo': forms.NumberInput(attrs={'class': 'form-control', 'min': '0.0'}),
+            'usuario': forms.Select(attrs={'class': 'form-control'}),
+            'comentario': forms.Textarea(attrs={'class': 'form-control'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super(TicketTransporteForm, self).__init__(*args, **kwargs)
+        self.fields['usuario'].label_from_instance = lambda obj: "%s" % obj.get_full_name()
 
 
 class EquipamientoListForm(EscuelaBuscarForm):

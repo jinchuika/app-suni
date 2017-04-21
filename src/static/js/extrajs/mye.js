@@ -149,6 +149,7 @@
             }
         },
         { data: "fecha", className: "nowrap"},
+        { data: "fecha_equipamiento", className: "nowrap"},
         { data: "requisitos",},
         { data: "comentarios", render: "[<br />].comentario" }
         ]

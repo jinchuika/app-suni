@@ -25,11 +25,17 @@
 						<tbody id="validacion-{{ validacion.id }}">
 							<tr>
 								<th>Fecha de inicio</th>
-								<td colspan="4">{{ validacion.fecha_inicio }}</td>
+								<td colspan="4">{{ validacion.fecha_inicio|date:"Y-m-d" }}</td>
 							</tr>
 							<tr>
 								<th>Fecha de fin</th>
 								<td colspan="4">{{ validacion.fecha_final|default_if_none:"Pendiente" }}</td>
+							</tr>
+							<tr>
+								<th>Fecha prevista de equipamiento</th>
+								<td colspan="4">
+									{{ validacion.fecha_equipamiento|date:"Y-m-d" }}
+								</td>
 							</tr>
 							<tr>
 								<th>Tipo de validación</th>

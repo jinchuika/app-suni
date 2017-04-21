@@ -161,6 +161,7 @@ STATICFILES_DIRS = [
 ]
 MEDIA_ROOT = 'etc/media/'
 MEDIA_URL = '/media/'
+ADMIN_MEDIA_PREFIX = '/static/'
 
 THUMBNAIL_ALIASES = {
     '': {

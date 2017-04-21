@@ -18,7 +18,12 @@ tpe_children = (
         "Informe de monitoreo",
         reverse_lazy("monitoreo_list"),
         weight=70,
-        icon="fa-phone"),)
+        icon="fa-phone"),
+    ViewMenuItem(
+        "Mapa de escuelas",
+        reverse_lazy("equipamiento_map"),
+        weight=80,
+        icon="fa-map-o"),)
 
 Menu.add_item(
     "user",

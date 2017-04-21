@@ -17,6 +17,7 @@ urlpatterns = [
     url(r'^ticket/(?P<pk>\d+)/edit/$', TicketCierreView.as_view(), name='ticket_soporte_update'),
     url(r'^ticketregistro/add/(?P<ticket_id>\d+)/$', TicketRegistroCreateView.as_view(), name='ticket_registro_add'),
     url(r'^ticketreparacion/add/(?P<ticket_id>\d+)/$', TicketReparacionCreateView.as_view(), name='ticket_reparacion_add'),
+    url(r'^tickettransporte/add/(?P<ticket_id>\d+)/$', TicketTransporteCreateView.as_view(), name='ticket_transporte_add'),
 
     url(r'^reparacion/list/$', cache_page(5)(ReparacionListView.as_view()), name='reparacion_list'),
     url(r'^reparacion/(?P<pk>\d+)/edit/$', cache_page(0)(ReparacionUpdateView.as_view()), name='reparacion_update'),
