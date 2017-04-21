@@ -1,0 +1,1 @@
+[{"model": "tpe.ticketreparaciontipo", "pk": 1, "fields": {"tipo": "Cancelada"}}, {"model": "tpe.ticketreparaciontipo", "pk": 2, "fields": {"tipo": "Reparada por t\u00e9cnico"}}, {"model": "tpe.ticketreparaciontipo", "pk": 3, "fields": {"tipo": "Reparaci\u00f3n remota"}}]

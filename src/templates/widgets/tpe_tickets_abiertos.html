@@ -1,0 +1,41 @@
+<div class="box">
+	<div class="box-header">
+		<h3 class="box-title">
+			Tickets abiertos
+		</h3>
+		<div class="box-tools pull-right">
+            <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+            </button>
+        </div>
+	</div>
+	<div class="box-body table-responsive">
+		<table class="table table-condensed datatable-simple">
+			<thead>
+				<tr>
+					<th>Escuela</th>
+					<th>Fecha de inicio</th>
+					<th>Número de ticket</th>
+				</tr>
+			</thead>
+			<tbody>
+			{% for ticket in queryset %}
+				<tr>
+					<td>
+						<a href="{{ ticket.garantia.equipamiento.get_absolute_url }}">
+							{{ ticket.garantia.equipamiento.escuela }}
+						</a>
+					</td>
+					<td>
+						{{ ticket.fecha_abierto|date:"Y-m-d" }}
+					</td>
+					<td>
+						<a href="{{ ticket.get_absolute_url }}" class="btn btn-sm btn-warning">
+							{{ ticket }} <i class="fa fa-external-link"></i>
+						</a>
+					</td>
+				</tr>
+			{% endfor %}
+			</tbody>
+		</table>
+	</div>
+</div>

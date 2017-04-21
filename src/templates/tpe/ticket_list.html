@@ -23,10 +23,23 @@
 						</li>
 					{% endfor %}
 				</ul>
+				<button class="btn btn-primary col-md-12" id="button-nuevo-ticket">Nuevo</button>
 			</div>
 		</div>
 	</div>
 	<div class="col-md-11 col-sm-11">
+		<div class="box box-primary" id="form-nuevo-ticket">
+			<div class="box-header">
+				<h3 class="box-title">Nuevo ticket</h3>
+			</div>
+			<div class="box-body">
+				<form action="{% url 'ticket_soporte_add' %}" method="post">
+					{% csrf_token %}
+					{{ ticket_form.as_p }}
+					<input type="submit" value="Guardar" class="btn btn-primary">
+				</form>
+			</div>
+		</div>
 		<div class="tab-content">
 			{% for ticket in ticket_list %}
 				{% if forloop.first and not ticket_detail or ticket_detail == ticket.id|stringformat:"s" %}

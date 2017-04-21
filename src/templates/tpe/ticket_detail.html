@@ -12,6 +12,8 @@
 				<address>
 					<strong><i class="fa fa-info margin-r-5"></i> Descripción</strong>
 					<br>{{ ticket.descripcion }}
+					<strong>Costo total</strong>
+					<br>Q. {{ ticket.get_costo_total }}
 				</address>
 			</div>
 			<div class="col-md-3 col-sm-3 invoice-col">
@@ -23,13 +25,21 @@
 			<div class="col-md-3 col-sm-3 invoice-col">
 				<address>
 					<strong><i class="fa fa-user margin-r-5"></i> Contacto</strong>
-					<br>{{ ticket.contacto_reporta }}
+					<br>{{ ticket.contacto_reporta|default_if_none:"" }}
 				</address>
 			</div>
 			<div class="col-md-3 col-sm-3 invoice-col">
 				<address>
 					<strong><i class="fa fa-hourglass-end margin-r-5"></i> Cierre</strong>
-					<br>{{ ticket.fecha_cierre|date:"Y-m-d" }}, {{ ticket.cerrado_por.perfil }}
+					{% if ticket.cerrado %}
+						<br>{{ ticket.fecha_cierre|date:"Y-m-d" }}, {{ ticket.cerrado_por.perfil }}
+					{% else %}
+						<form action="{% url 'ticket_soporte_update' pk=ticket.id %}" method="post">
+							{% csrf_token %}
+							{{ ticket_cerrado_form.as_p }}
+							<input type="submit" value="Cerrar" class="btn btn-danger">
+						</form>
+					{% endif %}
 				</address>
 			</div>
 		</div>
@@ -39,6 +49,9 @@
 			</div>
 			<div class="col-md-4">
 				{% include "tpe/ticket_reparacion_list.html" with ticketreparacion_list=ticket.reparaciones.all %}
+			</div>
+			<div class="col-md-4">
+				{% include "tpe/ticket_transporte_list.html" with tickettransporte_list=ticket.transportes.all %}
 			</div>
 		</div>
 	</div>

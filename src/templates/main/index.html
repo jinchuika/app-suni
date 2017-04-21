@@ -1,1 +1,19 @@
 {% extends "base/base.html" %}
+
+{% block content %}
+<section class="content">
+	<div class="container-fluid">
+		<div class="row">
+			{% for widget in widgets %}
+				<div class="col-md-{{ widget.col|default:'6' }}">
+				{% include widget.template_name with queryset=widget.queryset %}
+				</div>
+			{% if widget.col == '12' or forloop.counter|divisibleby:2 %}
+			</div>
+			<div class="row">
+			{% endif %}
+			{% endfor %}
+		</div>
+	</div>
+</section>
+{% endblock content %}

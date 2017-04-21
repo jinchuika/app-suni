@@ -305,7 +305,7 @@ class ValidacionForm(forms.ModelForm):
     class Meta:
         model = Validacion
         fields = [
-            'version', 'tipo', 'jornada',
+            'version', 'tipo', 'jornada', 'fecha_equipamiento',
             'alumna', 'alumno', 'total_alumno', 'maestra', 'maestro', 'total_maestro',
             'requisito', 'observacion', 'completada'
         ]
@@ -319,6 +319,7 @@ class ValidacionForm(forms.ModelForm):
         widgets = {
             'tipo': forms.Select(attrs={'class': 'form-control'}),
             'version': forms.HiddenInput(),
+            'fecha_equipamiento': forms.TextInput(attrs={'class': 'form-control datepicker'}),
             'jornada': forms.NumberInput(attrs={'min': 1, 'class': 'form-control'}),
             'requisito': forms.CheckboxSelectMultiple(attrs={'class': 'list-unstyled'}),
         }
@@ -462,3 +463,11 @@ class ValidacionListForm(SolicitudListForm):
         label='Completada',
         required=False,
         choices=ESTADO_CHOICES)
+    fecha_tpe_min = forms.CharField(
+        label='Fecha de equipamiento (mín)',
+        widget=forms.TextInput(attrs={'class': 'datepicker'}),
+        required=False)
+    fecha_tpe_max = forms.CharField(
+        label='Fecha de equipamiento (máx)',
+        widget=forms.TextInput(attrs={'class': 'datepicker'}),
+        required=False)

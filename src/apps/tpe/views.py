@@ -13,12 +13,13 @@ from apps.escuela.views import EscuelaDetail
 from apps.escuela.models import Escuela
 from apps.tpe.models import (
     Equipamiento, Garantia, TicketSoporte, TicketRegistro,
-    Monitoreo, TicketReparacionEstado, TicketReparacion, TicketReparacionRepuesto)
+    Monitoreo, TicketReparacionEstado, TicketReparacion, TicketReparacionRepuesto,
+    TicketTransporte)
 from apps.tpe.forms import (
     EquipamientoNuevoForm, EquipamientoForm, GarantiaForm, TicketSoporteForm,
     TicketCierreForm, TicketRegistroForm, EquipamientoListForm, MonitoreoListForm,
     TicketReparacionForm, TicketReparacionListForm, TicketReparacionUpdateForm,
-    TicketReparacionRepuestoForm, TicketReparacionRepuestoAuthForm)
+    TicketReparacionRepuestoForm, TicketReparacionRepuestoAuthForm, TicketTransporteForm)
 
 
 class EquipamientoCrearView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
@@ -158,6 +159,7 @@ class GarantiaDetailView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
         context['ticket_cerrado_form'] = TicketCierreForm(initial={'cerrado': True})
         context['ticket_registro_form'] = TicketRegistroForm()
         context['ticket_reparacion_form'] = TicketReparacionForm()
+        context['ticket_transporte_form'] = TicketTransporteForm()
 
         if 'ticket_id' in self.kwargs:
             context['ticket_detail'] = self.kwargs['ticket_id']
@@ -204,7 +206,6 @@ class TicketReparacionCreateView(LoginRequiredMixin, CreateView):
     def form_valid(self, form):
         form.instance.ticket = TicketSoporte.objects.get(id=self.kwargs['ticket_id'])
         form.instance.fecha_inicio = datetime.today()
-        form.instance.tecnico_asignado = self.request.user
         form.instance.estado = TicketReparacionEstado.objects.first()
         return super(TicketReparacionCreateView, self).form_valid(form)
 
@@ -244,12 +245,18 @@ class ReparacionUpdateView(LoginRequiredMixin, UpdateView):
         context = super(ReparacionUpdateView, self).get_context_data(**kwargs)
         context['repuesto_form'] = TicketReparacionRepuestoForm(initial={'reparacion': self.object})
         if self.request.user.groups.filter(name='tpe_admin').exists():
-            context['repuesto_auth_form'] = TicketReparacionRepuestoAuthForm(initial={'autorizado': True})
+            context['repuesto_auth_form'] = TicketReparacionRepuestoAuthForm(initial={'autorizado': True, 'rechazado': False})
+            context['repuesto_reject_form'] = TicketReparacionRepuestoAuthForm(initial={'autorizado': False, 'rechazado': True})
         return context
 
     def form_valid(self, form):
-        if form.cleaned_data['solucion_tipo'] is not None:
+        solucion_tipo = form.cleaned_data['solucion_tipo']
+        if solucion_tipo is not None:
             form.instance.fecha_fin = datetime.today()
+        if solucion_tipo is not None and solucion_tipo.id != 1:
+            form.instance.estado = TicketReparacionEstado.objects.get(id=2)
+        else:
+            form.instance.estado = TicketReparacionEstado.objects.get(id=3)
         return super(ReparacionUpdateView, self).form_valid(form)
 
 
@@ -274,6 +281,15 @@ class ReparacionRepuestoUpdateView(GroupRequiredMixin, UpdateView):
 
     def get_success_url(self):
         return reverse('reparacion_update', kwargs={'pk': self.object.reparacion.id})
+
+
+class TicketTransporteCreateView(LoginRequiredMixin, CreateView):
+    model = TicketTransporte
+    form_class = TicketTransporteForm
+
+    def form_valid(self, form):
+        form.instance.ticket = TicketSoporte.objects.get(id=self.kwargs['ticket_id'])
+        return super(TicketTransporteCreateView, self).form_valid(form)
 
 
 class MonitoreoCreateView(CsrfExemptMixin, JsonRequestResponseMixin, View):

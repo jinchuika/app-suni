@@ -1,0 +1,29 @@
+<div class="box box-info">
+    <div class="box-header with-border">
+        <h3 class="box-title">Reparaciones pendientes</h3>
+        <div class="box-tools pull-right">
+            <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+            </button>
+        </div>
+    </div>
+    <div class="box-body">
+        <div class="">
+            <table class="table table-condensed no-margin datatable-simple">
+                <thead>
+                    <tr>
+                        <th>Dispositivo</th>
+                        <th>Garantía</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for reparacion in queryset %}
+                        <tr>
+                            <td>{{ reparacion }}</td>
+                            <td>{{ reparacion.fecha_inicio|date:"Y-m-d" }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

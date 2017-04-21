@@ -4,10 +4,10 @@
     DetalleGarantia.init = function () {
     	$('#form-nuevo-ticket').hide();
     	$('.form-nuevo-registro').hide();
+        $('.form-nuevo-transporte').hide();
     	$('#button-nuevo-ticket').on('click', function () {
     		$('#form-nuevo-ticket').toggle();
     	});
-
     }   
 }( window.DetalleGarantia = window.DetalleGarantia || {}, jQuery ));
 

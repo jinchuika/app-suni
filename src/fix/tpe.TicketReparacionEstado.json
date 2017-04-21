@@ -1,0 +1,1 @@
+[{"model": "tpe.ticketreparacionestado", "pk": 1, "fields": {"estado": "Pendiente"}}, {"model": "tpe.ticketreparacionestado", "pk": 2, "fields": {"estado": "Completa"}}, {"model": "tpe.ticketreparacionestado", "pk": 3, "fields": {"estado": "Cancelada"}}]
