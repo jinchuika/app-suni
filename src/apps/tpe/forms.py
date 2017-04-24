@@ -42,6 +42,7 @@ class GarantiaForm(forms.ModelForm):
     class Meta:
         model = Garantia
         fields = '__all__'
+        exclude = ('id', )
         widgets = {
             'equipamiento': forms.Select(attrs={'class': 'form-control select2'}),
             'fecha_vencimiento': forms.TextInput(attrs={'class': 'form-control datepicker'})

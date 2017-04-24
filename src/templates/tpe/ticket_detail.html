@@ -12,6 +12,7 @@
 				<address>
 					<strong><i class="fa fa-info margin-r-5"></i> Descripción</strong>
 					<br>{{ ticket.descripcion }}
+					<br>
 					<strong>Costo total</strong>
 					<br>Q. {{ ticket.get_costo_total }}
 				</address>
@@ -41,6 +42,16 @@
 						</form>
 					{% endif %}
 				</address>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-md-12">
+				<button class="btn btn-xs btn-success btn-print-ticket" data-url="{% url 'ticket_print_detalle' %}" data-ticket="{{ ticket.id }}">
+					<i class="fa fa-print"></i> Detalle
+				</button>
+				<button class="btn btn-xs btn-success btn-print-registro" data-url="{% url 'ticket_registro_print_detalle' %}" data-ticket="{{ ticket.id }}">
+					<i class="fa fa-print"></i> Visita
+				</button>
 			</div>
 		</div>
 		<div class="row">
