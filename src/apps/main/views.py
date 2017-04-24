@@ -25,6 +25,7 @@ class IndexView(LoginRequiredMixin, TemplateView):
             widgets.append({
                 'queryset': TicketReparacion.objects.filter(
                     tecnico_asignado=self.request.user,
+                    ticket__cerrado=False,
                     solucion_tipo=None),
                 'template_name': 'widgets/tpe_reparacion_list.html'
             })

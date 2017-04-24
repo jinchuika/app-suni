@@ -146,6 +146,10 @@ class GarantiaCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView
     redirect_unauthenticated_users = False
     raise_exception = True
 
+    def form_valid(self, form):
+        form.instance.id = form.cleaned_data['equipamiento'].id
+        return super(GarantiaCreateView, self).form_valid(form)
+
 
 class GarantiaDetailView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
     model = Garantia
@@ -164,6 +168,39 @@ class GarantiaDetailView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
         if 'ticket_id' in self.kwargs:
             context['ticket_detail'] = self.kwargs['ticket_id']
         return context
+
+
+class GarantiaPrintDetalle(CsrfExemptMixin, JsonRequestResponseMixin, View):
+    def post(self, request, *args, **kwargs):
+        ticket = TicketSoporte.objects.get(id=self.request.POST.get('ticket_id'))
+        return self.render_json_response({
+            'escuela': str(ticket.garantia.equipamiento.escuela),
+            'garantia': ticket.garantia.id,
+            'ticket': ticket.id,
+            'registros': [{
+                'tipo': str(registro.tipo),
+                'fecha': registro.fecha,
+                'usuario': registro.creado_por.get_full_name()
+            } for registro in ticket.registros.all()],
+            'reparaciones': [{
+                'triage': reparacion.triage,
+                'dispositivo': str(reparacion.tipo_dispositivo),
+                'falla_reportada': reparacion.falla_reportada,
+                'falla_encontrada': reparacion.falla_encontrada if reparacion.falla_encontrada else ""
+            } for reparacion in ticket.reparaciones.all()],
+            'descripcion': ticket.descripcion
+        })
+
+
+class TicketVisitaPrintDetalle(CsrfExemptMixin, JsonRequestResponseMixin, View):
+    def post(self, request, *args, **kwargs):
+        ticket = TicketSoporte.objects.get(id=self.request.POST.get('ticket_id'))
+        return self.render_json_response({
+            'escuela': str(ticket.garantia.equipamiento.escuela),
+            'garantia': ticket.garantia.id,
+            'ticket': ticket.id,
+            'descripcion': ticket.descripcion
+        })
 
 
 class TicketCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):

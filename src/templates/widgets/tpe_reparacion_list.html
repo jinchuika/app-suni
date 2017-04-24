@@ -12,13 +12,15 @@
                 <thead>
                     <tr>
                         <th>Dispositivo</th>
-                        <th>Garantía</th>
+                        <th>Fecha de inicio</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for reparacion in queryset %}
                         <tr>
-                            <td>{{ reparacion }}</td>
+                            <td>
+                                <a href="{{ reparacion.get_absolute_url }}">{{ reparacion }}</a>
+                            </td>
                             <td>{{ reparacion.fecha_inicio|date:"Y-m-d" }}</td>
                         </tr>
                     {% endfor %}

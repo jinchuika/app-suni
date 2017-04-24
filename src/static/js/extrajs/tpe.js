@@ -1,16 +1,3 @@
-(function( DetalleGarantia, $, undefined ) {
-
-    // Public
-    DetalleGarantia.init = function () {
-    	$('#form-nuevo-ticket').hide();
-    	$('.form-nuevo-registro').hide();
-        $('.form-nuevo-transporte').hide();
-    	$('#button-nuevo-ticket').on('click', function () {
-    		$('#form-nuevo-ticket').toggle();
-    	});
-    }   
-}( window.DetalleGarantia = window.DetalleGarantia || {}, jQuery ));
-
 (function( ReparacionDetalle, $, undefined ) {
 
     // Public
@@ -20,7 +7,7 @@
         $('#repuesto-nuevo-button').on('click', function () {
             $('#repuesto-nuevo-form').toggle();
         })
-    }   
+    }
 }( window.ReparacionDetalle = window.ReparacionDetalle || {}, jQuery ));
 
 (function( EquipamientoList, $, undefined ) {
@@ -52,8 +39,8 @@
         { "data": "proyecto", 'render': '[, <br>].proyecto' },
         ]
     }).on('xhr.dt', function (e, settings, json, xhr) {
-       $('#spinner').hide();
-   });
+     $('#spinner').hide();
+ });
 
     // Public
     EquipamientoList.init = function () {
@@ -187,6 +174,208 @@
         buscar_equipamiento();
     }   
 }( window.EquipamientoMapa = window.EquipamientoMapa || {}, jQuery ));
+
+(function( DetalleGarantia, $, undefined ) {
+    var form_footer = [{
+        style: 'tableExample',
+        table: {
+            widths: ['auto', 200, 'auto'],
+            body: [
+            [{text: 'Entrega', bold: true}, {text: '____________________________', alignment: 'center'},''],
+            ['', {text: 'Nombre y firma', alignment:'center'}, {text: '',}],
+            ['', '', {text: 'Sellos',}],
+            [{text: 'Recibe', bold: true},{text: '____________________________', alignment: 'center'}, ''],
+            ['', {text: 'Nombre y firma', alignment:'center'}, '']
+            ]
+        },
+        layout: 'noBorders'
+    },
+    {text: '', margin: [0, 20]},
+    {text: '14 Av. 19-50 Complejo Ofibodega San Sebastián No. 36, Condado El Naranjo Zona 4 de Mixco. Guatemala, C.A.', alignment: 'center', fontSize: 9},
+    {text: '2435-2739 / 2435-9639', alignment: 'center', fontSize: 9},
+    {text: 'info@funsepa.org   -    www.funsepa.org', alignment: 'center', fontSize: 9}
+    ];
+
+    var imprimir_detalle = function (url, ticket_id) {
+        $.post(
+            url,
+            {ticket_id: ticket_id},
+            function (data) {
+                var reparacion_table = [[{text: 'Triage', style: 'tableHeader'}, {text: 'Dispositivo', style: 'tableHeader'}, {text: 'Problema reportado', style: 'tableHeader'}, {text: 'Problema encontrado', style: 'tableHeader'}]];
+                for (var i = 0; i < data.reparaciones.length; i++) {
+                    reparacion_table.push([
+                        data.reparaciones[i].triage,
+                        data.reparaciones[i].dispositivo,
+                        data.reparaciones[i].falla_reportada,
+                        data.reparaciones[i].falla_encontrada]);
+                }
+                var registro_table = [[{text: 'Registro', style: 'tableHeader'}, {text: 'Fecha', style: 'tableHeader'}, {text: 'Técnico a cargo', style: 'tableHeader'}]];
+                for (var i = 0; i < data.registros.length; i++) {
+                    registro_table.push([
+                        data.registros[i].tipo,
+                        data.registros[i].fecha,
+                        data.registros[i].usuario]);
+                }
+                var dd = {
+                    content: [
+                    {text: 'Detalle de garantía', style: 'header', alignment: 'center'},
+                    {
+                        style: 'tableExample',
+                        table: {
+                            headerRows: 1,
+                            body: [
+                            [
+                            {text: 'Escuela', bold: true}, data.escuela,
+                            {text: 'Garantía', bold: true}, data.garantia,
+                            {text: 'Ticket', bold:true}, data.ticket
+                            ],
+                            ]
+                        },
+                        layout: 'lightHorizontalLines'
+                    },
+                    {
+                        style: 'tableExample',
+                        table: {
+                            headerRows: 1,
+                            body: registro_table
+                        },
+                        layout: 'headerLineOnly'
+                    },
+                    {
+                        style: 'tableExample',
+                        table: {
+                            headerRows: 1,
+                            body: reparacion_table
+                        },
+                        layout: 'lightHorizontalLines',
+                        alignment: 'justify'
+                    },
+                    {
+                        style: 'tableExample',
+                        table: {
+                            body: [[{text: 'Descripción', bold: true}, data.descripcion],]
+                        },
+                        layout: 'lightHorizontalLines',
+                    },
+                    form_footer
+                    ],
+                    styles: {
+                        header: {
+                            fontSize: 18,
+                            bold: true,
+                            margin: [0, 0, 0, 10]
+                        },
+                        tableExample: {
+                            margin: [0, 5, 0, 15],
+                            fontSize: 10
+                        },
+                        tableHeader: {
+                            bold: true,
+                            fontSize: 11,
+                            color: 'black'
+                        }
+                    }
+                }
+                pdfMake.createPdf(dd).download();
+            });
+}
+
+    
+    var imprimir_registro = function (url, ticket_id) {
+        $.post(
+            url,
+            {ticket_id: ticket_id},
+            function (data) {
+                var dd = {
+                    content: [
+                    {text: 'Formulario de visita técnica', style: 'header', alignment: 'center'},
+                    {
+                        style: 'tableExample',
+                        table: {
+                            headerRows: 1,
+                            body: [
+                            [
+                            {text: 'Escuela', bold: true}, data.escuela,
+                            {text: 'Garantía', bold: true}, data.garantia,
+                            {text: 'Ticket', bold:true}, data.ticket
+                            ],
+                            ]
+                        },
+                        layout: 'lightHorizontalLines'
+                    },
+                    {
+                        style: 'tableExample',
+                        table: {
+                            widths: ['auto', 50, 50, 300, 'auto'],
+                            headerRows: 1,
+                            body: [
+                            ['No.', 'Tipo', 'Triage', 'Problema que presenta y solucion', 'Resuelto'],
+                            ['\n1', '', '', '', ''],
+                            ['\n2', '', '', '', ''],
+                            ['\n3', '', '', '', ''],
+                            ['\n4', '', '', '', ''],
+                            ['\n5', '', '', '', ''],
+                            ['\n6', '', '', '', ''],
+                            ['\n7', '', '', '', ''],
+                            ['\n8', '', '', '', ''],
+                            ['\n9', '', '', '', ''],
+                            ['\n10', '', '', '', ''],
+                            ]
+                        },
+                    },
+                    {
+                        style: 'tableExample',
+                        table: {
+                            body: [
+                            [{text: 'Descripción', bold: true}, data.descripcion],
+                            [{text: 'Observaciones', bold: true}, ''],
+                            ]
+                        },
+                        layout: 'lightHorizontalLines',
+                    },
+                    form_footer
+                    ],
+                    styles: {
+                        header: {
+                            fontSize: 18,
+                            bold: true,
+                            margin: [0, 0, 0, 10]
+                        },
+                        tableExample: {
+                            margin: [0, 5, 0, 15],
+                            fontSize: 10
+                        },
+                        tableHeader: {
+                            bold: true,
+                            fontSize: 11,
+                            color: 'black'
+                        }
+                    }
+                }
+                pdfMake.createPdf(dd).download();
+            }
+            );
+    }
+
+    // Public
+    DetalleGarantia.init = function () {
+        $('#form-nuevo-ticket').hide();
+        $('.form-nuevo-registro').hide();
+        $('.form-nuevo-transporte').hide();
+        $('#button-nuevo-ticket').on('click', function () {
+          $('#form-nuevo-ticket').toggle();
+      });
+
+        $('.btn-print-ticket').on('click', function () {
+            imprimir_detalle($(this).data('url'), $(this).data('ticket'));
+        });
+
+        $('.btn-print-registro').on('click', function () {
+            imprimir_registro($(this).data('url'), $(this).data('ticket'));
+        })
+    }   
+}( window.DetalleGarantia = window.DetalleGarantia || {}, jQuery ));
+
 
 (function( ReparacionList, $, undefined ) {
     var tabla;

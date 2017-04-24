@@ -67,6 +67,7 @@ class EquipamientoSeguimiento(models.Model):
 
 
 class Garantia(models.Model):
+    id = models.IntegerField(primary_key=True)
     equipamiento = models.ForeignKey(Equipamiento, related_name='garantias')
     fecha_vencimiento = models.DateField(null=True, blank=True)
     por_funsepa = models.BooleanField(blank=True)
@@ -82,10 +83,12 @@ class Garantia(models.Model):
         return str(self.id)
 
     def get_vigente(self):
-        if timezone.now().date() > self.fecha_vencimiento:
-            return False
-        else:
-            return True
+        if self.fecha_vencimiento:
+            if timezone.now().date() > self.fecha_vencimiento:
+                return False
+            else:
+                return True
+        return False
 
     def get_costo(self):
         return sum(t.get_costo_total() for t in self.tickets.all())
