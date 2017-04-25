@@ -22,45 +22,55 @@
 							</a>
 						{% endif %}
 					</div>
-					<div class="box-body table-responsive">
-						<table class="table table-datatables table-striped table-hover table-bordered">
-							<thead>
-								<tr>
-									<th>Garantía</th>
-									<th>Escuela</th>
-									<th>Entrega</th>
-									<th>Fecha de inicio</th>
-									<th>Fecha de vencimiento</th>
-									<th>Estado actual</th>
-								</tr>
-							</thead>
-							<tbody>
-								{% for garantia in garantia_list %}
+					<div class="box-body">
+						<div class="col-md-12 table-responsive">
+							<table class="table table-datatables table-striped table-hover table-bordered">
+								<thead>
 									<tr>
-										<td>
-											<a href="{{ garantia.get_absolute_url }}">{{ garantia.id }}</a>
-										</td>
-										<td>
-											<a href="{{ garantia.equipamiento.escuela.get_absolute_url }}">
-												{{ garantia.equipamiento.escuela }}
-											</a>
-										</td>
-										<td>
-											<a href="{{ garantia.equipamiento.get_absolute_url }}">{{ garantia.equipamiento }}</a>
-										</td>
-										<td>{{ garantia.equipamiento.fecha|date:"Y-m-d" }}</td>
-										<td>{{ garantia.fecha_vencimiento|date:"Y-m-d" }}</td>
-										<td>
-											{% if garantia.get_vigente %}
-												Vigente
-											{% else %}
-												Vencida
-											{% endif %}
-										</td>
+										<th>Garantía</th>
+										<th>Escuela</th>
+										<th>Fecha de equipamiento</th>
+										<th>Fecha de vencimiento</th>
+										<th>Costo de repuestos</th>
+										<th>Costo de transporte</th>
+										<th>Costo de total</th>
 									</tr>
-								{% endfor %}
-							</tbody>
-						</table>
+								</thead>
+								<tbody>
+									{% for garantia in garantia_list %}
+										<tr>
+											<td>
+												<a href="{{ garantia.get_absolute_url }}">{{ garantia.id }}</a>
+											</td>
+											<td>
+												<a href="{{ garantia.equipamiento.escuela.get_absolute_url }}">
+													{{ garantia.equipamiento.escuela }}
+													<p>({{ garantia.equipamiento.escuela.codigo }})</p>
+												</a>
+											</td>
+											<td>{{ garantia.equipamiento.fecha|date:"Y-m-d" }}</td>
+											<td>
+												{{ garantia.fecha_vencimiento|date:"Y-m-d" }}
+												{% if garantia.get_vigente %}
+													<p class="text-green">Vigente</p>
+												{% else %}
+													<p class="text-red">Vencida</p>
+												{% endif %}
+											</td>
+											<td>
+												Q. {{ garantia.get_costo_reparacion }}
+											</td>
+											<td>
+												Q. {{ garantia.get_costo_transporte }}
+											</td>
+											<td>
+												Q. {{ garantia.get_costo }}
+											</td>
+										</tr>
+									{% endfor %}
+								</tbody>
+							</table>
+						</div>
 					</div>
 				</div>
 			</div>

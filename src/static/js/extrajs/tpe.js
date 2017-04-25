@@ -27,9 +27,6 @@
         columns: [
         { "data": "entrega"},
         { "data": "escuela"},
-        { "data": "departamento"},
-        { "data": "municipio"},
-        { "data": "direccion"},
         { "data": "fecha", "className": "nowrap"  },
         { "data": "renovacion" },
         { "data": "khan" },
@@ -39,8 +36,8 @@
         { "data": "proyecto", 'render': '[, <br>].proyecto' },
         ]
     }).on('xhr.dt', function (e, settings, json, xhr) {
-     $('#spinner').hide();
- });
+        $('#spinner').hide();
+    });
 
     // Public
     EquipamientoList.init = function () {

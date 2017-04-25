@@ -131,7 +131,7 @@
 														<form action="{% url 'reparacion_repuesto_autorizar' pk=repuesto.id %}" method="post">
 															{% csrf_token %}
 															{{ repuesto_reject_form.as_p }}
-															<input type="submit" class="btn btn-xs btn-danger" value="Cancelar">
+															<input type="submit" class="btn btn-xs btn-danger" value="Rechazar">
 														</form>
 													{% endif %}
 												</td>

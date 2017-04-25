@@ -1,7 +1,10 @@
 from datetime import datetime, timedelta
 from django.views.generic import TemplateView
 from braces.views import LoginRequiredMixin
-from apps.tpe.models import Garantia, TicketReparacion, TicketSoporte
+from apps.tpe.models import (
+    Equipamiento, Garantia, TicketReparacion,
+    TicketSoporte, TicketReparacionRepuesto)
+from apps.tpe.forms import TicketReparacionRepuestoAuthForm
 
 
 class IndexView(LoginRequiredMixin, TemplateView):
@@ -9,6 +12,7 @@ class IndexView(LoginRequiredMixin, TemplateView):
 
     def get_widgets(self):
         widgets = []
+        
         if self.request.user.groups.filter(name='garantia').exists():
             widgets.append({
                 'queryset': Garantia.objects.filter(
@@ -28,6 +32,19 @@ class IndexView(LoginRequiredMixin, TemplateView):
                     ticket__cerrado=False,
                     solucion_tipo=None),
                 'template_name': 'widgets/tpe_reparacion_list.html'
+            })
+
+        if self.request.user.groups.filter(name='tpe_admin').exists():
+            widgets.append({
+                'queryset': TicketReparacionRepuesto.objects.filter(
+                    reparacion__ticket__cerrado=False,
+                    autorizado=False,
+                    rechazado=False,),
+                'template_name': 'widgets/tpe_repuestos_pendientes.html',
+                'extra': {
+                    'repuesto_auth_form': TicketReparacionRepuestoAuthForm(initial={'autorizado': True, 'rechazado': False}),
+                    'repuesto_reject_form': TicketReparacionRepuestoAuthForm(initial={'autorizado': False, 'rechazado': True})
+                }
             })
         return widgets
 
