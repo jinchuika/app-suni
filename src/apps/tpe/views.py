@@ -174,7 +174,10 @@ class GarantiaPrintDetalle(CsrfExemptMixin, JsonRequestResponseMixin, View):
     def post(self, request, *args, **kwargs):
         ticket = TicketSoporte.objects.get(id=self.request.POST.get('ticket_id'))
         return self.render_json_response({
-            'escuela': str(ticket.garantia.equipamiento.escuela),
+            'escuela': "{}, {}, ({})".format(
+                ticket.garantia.equipamiento.escuela,
+                ticket.garantia.equipamiento.escuela.direccion,
+                ticket.garantia.equipamiento.escuela.codigo),
             'garantia': ticket.garantia.id,
             'ticket': ticket.id,
             'registros': [{
@@ -196,7 +199,10 @@ class TicketVisitaPrintDetalle(CsrfExemptMixin, JsonRequestResponseMixin, View):
     def post(self, request, *args, **kwargs):
         ticket = TicketSoporte.objects.get(id=self.request.POST.get('ticket_id'))
         return self.render_json_response({
-            'escuela': str(ticket.garantia.equipamiento.escuela),
+            'escuela': "{}, {}, ({})".format(
+                ticket.garantia.equipamiento.escuela,
+                ticket.garantia.equipamiento.escuela.direccion,
+                ticket.garantia.equipamiento.escuela.codigo),
             'garantia': ticket.garantia.id,
             'ticket': ticket.id,
             'descripcion': ticket.descripcion

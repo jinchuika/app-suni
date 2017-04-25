@@ -1,0 +1,50 @@
+<div class="box box-info">
+    <div class="box-header with-border">
+        <h3 class="box-title">Repuestos solicitados</h3>
+        <div class="box-tools pull-right">
+            <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+            </button>
+        </div>
+    </div>
+    <div class="box-body">
+        <div class="">
+            <table class="table table-condensed no-margin datatable-simple">
+                <thead>
+                    <tr>
+                        <th>Dispositivo</th>
+                        <th>Costo</th>
+                        <th>Justificación</th>
+                        <th>Técnico</th>
+                        <th>Acción</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for repuesto in queryset %}
+                        <tr>
+                            <td>
+                                <a href="{{ repuesto.reparacion.get_absolute_url }}">
+                                    {{ repuesto.tipo_dispositivo }}
+                                </a>
+                            </td>
+                            <td>Q. {{ repuesto.costo }}</td>
+                            <td>{{ repuesto.justificacion }}</td>
+                            <td>{{ repuesto.reparacion.tecnico_asignado.get_full_name }}</td>
+                            <td>
+                                <form action="{% url 'reparacion_repuesto_autorizar' pk=repuesto.id %}" method="post">
+                                    {% csrf_token %}
+                                    {{ extra.repuesto_auth_form.as_p }}
+                                    <input type="submit" class="btn btn-xs btn-success" value="Aprobar">
+                                </form>
+                                <form action="{% url 'reparacion_repuesto_autorizar' pk=repuesto.id %}" method="post">
+                                    {% csrf_token %}
+                                    {{ extra.repuesto_reject_form.as_p }}
+                                    <input type="submit" class="btn btn-xs btn-danger" value="Rechazar">
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

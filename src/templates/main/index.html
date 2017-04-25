@@ -1,12 +1,14 @@
 {% extends "base/base.html" %}
 
+{% load staticfiles %}
+
 {% block content %}
 <section class="content">
 	<div class="container-fluid">
 		<div class="row">
 			{% for widget in widgets %}
 				<div class="col-md-{{ widget.col|default:'6' }}">
-				{% include widget.template_name with queryset=widget.queryset %}
+				{% include widget.template_name with queryset=widget.queryset extra=widget.extra %}
 				</div>
 			{% if widget.col == '12' or forloop.counter|divisibleby:2 %}
 			</div>
@@ -17,3 +19,16 @@
 	</div>
 </section>
 {% endblock content %}
+
+{% block extra_js %}
+<script src="{% static "js/extrajs/index.js" %}"></script>
+{% for widget in widgets %}
+	{% for static_js in widget.media %}
+		<script src="{% static static_js %}"></script>
+	{% endfor %}
+{% endfor %}
+
+<script>
+	HomePage.init();
+</script>
+{% endblock extra_js %}

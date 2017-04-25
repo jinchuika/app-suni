@@ -90,6 +90,12 @@ class Garantia(models.Model):
                 return True
         return False
 
+    def get_costo_reparacion(self):
+        return sum(t.get_costo_reparacion() for t in self.tickets.all())
+
+    def get_costo_transporte(self):
+        return sum(t.get_costo_transporte() for t in self.tickets.all())
+
     def get_costo(self):
         return sum(t.get_costo_total() for t in self.tickets.all())
 

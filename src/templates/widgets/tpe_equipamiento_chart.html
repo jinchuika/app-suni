@@ -1,7 +1,18 @@
 {% load staticfiles %}
 
+<div class="box box-success">
+	<div class="box-header with-border">
+		<h3 class="box-title">Bar Chart</h3>
 
-
-{% block extra_js %}
-<script src="{% static "js/distributed/Chart.min.js" %}"></script>
-{% endblock extra_js %}
+		<div class="box-tools pull-right">
+			<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+			</button>
+		</div>
+	</div>
+	<div class="box-body">
+		<div class="chart">
+			<canvas id="equipamiento_chart" style="height: 230px; width: 485px;" height="230" width="485"></canvas>
+		</div>
+	</div>
+	<!-- /.box-body -->
+</div>
