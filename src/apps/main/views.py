@@ -1,6 +1,8 @@
 from datetime import datetime, timedelta
-from django.views.generic import TemplateView
+from django.urls import reverse_lazy
 from braces.views import LoginRequiredMixin
+from django.views.generic import TemplateView
+
 from apps.tpe.models import (
     Equipamiento, Garantia, TicketReparacion,
     TicketSoporte, TicketReparacionRepuesto)
@@ -12,7 +14,16 @@ class IndexView(LoginRequiredMixin, TemplateView):
 
     def get_widgets(self):
         widgets = []
-        
+        widgets.append({
+            'queryset': Equipamiento.objects.all(),
+            'template_name': 'widgets/tpe_equipamiento_chart.html',
+            'media': {
+                'js/distributed/Chart.min.js'
+            },
+            'extra': {
+                'url': reverse_lazy('equipamiento_list_home')
+            }
+        })
         if self.request.user.groups.filter(name='garantia').exists():
             widgets.append({
                 'queryset': Garantia.objects.filter(

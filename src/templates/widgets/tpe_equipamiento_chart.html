@@ -2,7 +2,7 @@
 
 <div class="box box-success">
 	<div class="box-header with-border">
-		<h3 class="box-title">Bar Chart</h3>
+		<h3 class="box-title">Equipamientos este año</h3>
 
 		<div class="box-tools pull-right">
 			<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
@@ -11,7 +11,7 @@
 	</div>
 	<div class="box-body">
 		<div class="chart">
-			<canvas id="equipamiento_chart" style="height: 230px; width: 485px;" height="230" width="485"></canvas>
+			<canvas id="equipamiento_chart" style="height: 230px; width: 485px;" height="230" width="485" data-url="{% url 'equipamiento_list_home' %}"></canvas>
 		</div>
 	</div>
 	<!-- /.box-body -->
