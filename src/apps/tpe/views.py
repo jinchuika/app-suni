@@ -100,6 +100,15 @@ class EquipamientoListView(InformeMixin):
         return var
 
 
+class EquipamientoListHomeView(CsrfExemptMixin, JsonRequestResponseMixin, View):
+    def post(self, request, *args, **kwargs):
+        today = datetime.now()
+        equipamiento_list = []
+        for i in range(1, 13):
+            equipamiento_list.append(Equipamiento.objects.filter(fecha__year=today.year, fecha__month=i).count())
+        return self.render_json_response(equipamiento_list)
+
+
 class EquipamientoMapView(CsrfExemptMixin, JsonRequestResponseMixin, TemplateView):
     template_name = 'tpe/map.html'
 

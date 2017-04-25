@@ -9,7 +9,7 @@ from apps.tpe.models import (
     Monitoreo, TicketReparacion, TicketReparacionRepuesto,
     TicketTransporte)
 from apps.mye.models import Cooperante, Proyecto
-from apps.escuela.models import EscContacto
+from apps.escuela.models import EscContacto, EscPoblacion
 from apps.escuela.forms import EscuelaBuscarForm
 
 
@@ -36,6 +36,12 @@ class EquipamientoForm(ModelForm):
             'observacion': forms.Textarea(attrs={'class': 'form-control'}),
             'cooperante': forms.SelectMultiple(attrs={'class': 'form-control select2'}),
             'proyecto': forms.SelectMultiple(attrs={'class': 'form-control select2'})}
+
+    def __init__(self, *args, **kwargs):
+        super(EquipamientoForm, self).__init__(*args, **kwargs)
+        if 'poblacion' in self.initial:
+            self.fields['poblacion'].queryset = EscPoblacion.objects.filter(escuela=self.initial['escuela'])
+        self.fields['poblacion'].label_from_instance = lambda obj: "%s (%s)" % (obj.fecha, obj.total_alumno)
 
 
 class GarantiaForm(forms.ModelForm):
