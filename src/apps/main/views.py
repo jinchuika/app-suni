@@ -4,7 +4,7 @@ from braces.views import LoginRequiredMixin
 from django.views.generic import TemplateView
 
 from apps.tpe.models import (
-    Equipamiento, Garantia, TicketReparacion,
+    Garantia, TicketReparacion,
     TicketSoporte, TicketReparacionRepuesto)
 from apps.tpe.forms import TicketReparacionRepuestoAuthForm
 
@@ -14,16 +14,35 @@ class IndexView(LoginRequiredMixin, TemplateView):
 
     def get_widgets(self):
         widgets = []
-        widgets.append({
-            'queryset': Equipamiento.objects.all(),
-            'template_name': 'widgets/tpe_equipamiento_chart.html',
-            'media': {
-                'js/distributed/Chart.min.js'
-            },
-            'extra': {
-                'url': reverse_lazy('equipamiento_list_home')
-            }
-        })
+
+        if self.request.user.groups.filter(name='tpe').exists():
+            widgets.append({
+                'queryset': '',
+                'template_name': 'widgets/tpe_equipamiento_chart.html',
+                'media_js': {
+                    'js/distributed/Chart.min.js'
+                },
+                'extra': {
+                    'url': reverse_lazy('equipamiento_list_home')
+                }
+            })
+            widgets.append({
+                'queryset': '',
+                'template_name': 'widgets/tpe_equipamiento_calendario.html',
+                'media_css': [
+                    'css/fullcalendar.min.css',
+                ],
+                'media_js': [
+                    'js/distributed/moment.min.js',
+                    'js/distributed/fullcalendar.min.js',
+                    'js/distributed/fullcalendar.es.js',
+                ],
+                'extra': {
+                    'url_validacion': reverse_lazy('validacion_list_home'),
+                    'url_equipamiento': reverse_lazy('equipamiento_calendario_home'),
+                }
+            })
+
         if self.request.user.groups.filter(name='garantia').exists():
             widgets.append({
                 'queryset': Garantia.objects.filter(

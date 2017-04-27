@@ -25,9 +25,37 @@
 			});	
 		});
 	}
+
+	var crear_equipamiento_calendario = function () {
+		$('#equipamiento-calendario').fullCalendar({
+			header: {
+				left: 'prev,next today',
+				center: '',
+				right: 'title'
+			},
+
+			navLinks: true, 
+			eventSources: [
+			{
+				url: $('#equipamiento-calendario').data('url-validacion'),
+				type: 'GET',
+				color: 'orange',
+			},
+			{
+				url: $('#equipamiento-calendario').data('url-equipamiento'),
+				type: 'GET',
+				color: 'green',
+			}
+			]
+		});
+	}
+
 	HomePage.init = function () {
 		if ($('#equipamiento_chart').length) {
 			crear_equipamiento_chart();
+		}
+		if ($('#equipamiento-calendario').length) {
+			crear_equipamiento_calendario();
 		}
 	}
 }( window.HomePage = window.HomePage || {}, jQuery ));

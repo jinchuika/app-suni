@@ -217,6 +217,4 @@ DYNAMIC_PREFERENCES = {
 DBBACKUP_STORAGE = ''
 DBBACKUP_STORAGE_OPTIONS = {}
 
-CRONJOBS = [
-    ('*/60 * * * *', 'apps.main.cron.backup_cron')
-]
+CRONJOBS = []
