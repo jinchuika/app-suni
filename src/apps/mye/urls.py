@@ -25,6 +25,7 @@ urlpatterns = [
     url(r'^validacion/(?P<pk>\d+)/$', ValidacionUpdate.as_view(), name='validacion_update'),
     url(r'^validacion_comentario/add/$', ValidacionComentarioCrear.as_view(), name='validacion_comentario_add'),
     url(r'^validacion/list/$', cache_page(15)(ValidacionListView.as_view()), name='validacion_list'),
+    url(r'^validacion/list/home/$', cache_page(15)(ValidacionListHomeView.as_view()), name='validacion_list_home'),
 
     url(r'^informe/$', InformeMyeView.as_view(), name='informe_mye'),
     url(r'^informe/q/$', InformeMyeBk.as_view(), name='informe_mye_backend'),

@@ -5,6 +5,7 @@ from django.views.decorators.cache import cache_page
 urlpatterns = [
     url(r'^equipamiento/list/$', cache_page(5)(EquipamientoListView.as_view()), name='equipamiento_list'),
     url(r'^equipamiento/list/home$', cache_page(5)(EquipamientoListHomeView.as_view()), name='equipamiento_list_home'),
+    url(r'^equipamiento/calendario/home$', cache_page(5)(EquipamientoCalendarHomeView.as_view()), name='equipamiento_calendario_home'),
     url(r'^equipamiento/add/$', EquipamientoCrearView.as_view(), name='equipamiento_add'),
     url(r'^equipamiento/(?P<pk>\d+)/$', EquipamientoUpdateView.as_view(), name='equipamiento_update'),
     url(r'^equipamiento/mapa/$', EquipamientoMapView.as_view(), name='equipamiento_map'),

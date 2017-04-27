@@ -1,3 +1,4 @@
+from datetime import datetime
 from django.shortcuts import reverse
 from django.db import models
 
@@ -390,3 +391,19 @@ class ValidacionListView(SolicitudListView):
         self.filter_list['fecha_tpe_min'] = 'fecha_equipamiento__gte'
         self.filter_list['fecha_tpe_max'] = 'fecha_equipamiento__lte'
         self.filter_list['estado'] = 'completada'
+
+
+class ValidacionListHomeView(CsrfExemptMixin, JsonRequestResponseMixin, View):
+    def get(self, request, *args, **kwargs):
+        response = []
+        inicio = datetime.strptime(self.request.GET.get('start'), '%Y-%m-%d')
+        fin = datetime.strptime(self.request.GET.get('end'), '%Y-%m-%d')
+        validacion_list = Validacion.objects.filter(
+            fecha_equipamiento__gte=inicio,
+            fecha_equipamiento__lte=fin)
+        for validacion in validacion_list:
+            response.append({
+                'title': str(validacion.escuela),
+                'start': str(validacion.fecha_equipamiento),
+                'url': validacion.get_absolute_url()})
+        return self.render_json_response(response)

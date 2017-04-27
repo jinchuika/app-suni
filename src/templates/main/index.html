@@ -20,15 +20,25 @@
 </section>
 {% endblock content %}
 
-{% block extra_js %}
-<script src="{% static "js/extrajs/index.js" %}"></script>
-{% for widget in widgets %}
-	{% for static_js in widget.media %}
-		<script src="{% static static_js %}"></script>
-	{% endfor %}
-{% endfor %}
 
-<script>
-	HomePage.init();
-</script>
+{% block extra_css %}
+	{% for widget in widgets %}
+		{% for static_css in widget.media_css %}
+			<link rel="stylesheet" type="text/css" href="{% static static_css %}">
+		{% endfor %}
+	{% endfor %}
+{% endblock extra_css %}
+
+
+{% block extra_js %}
+	<script src="{% static "js/extrajs/index.js" %}"></script>
+	{% for widget in widgets %}
+		{% for static_js in widget.media_js %}
+			<script src="{% static static_js %}"></script>
+		{% endfor %}
+	{% endfor %}
+
+	<script>
+		HomePage.init();
+	</script>
 {% endblock extra_js %}
