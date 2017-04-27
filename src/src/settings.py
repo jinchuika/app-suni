@@ -46,6 +46,8 @@ THIRD_PARTY_APPS = (
     'widget_tweaks',
     'menu',
     'mixer',
+    'dbbackup',
+    'django_crontab',
 
     'allauth',
     'allauth.account',
@@ -211,10 +213,10 @@ DYNAMIC_PREFERENCES = {
     'VALIDATE_NAMES': True,
 }
 
-EMAIL_HOST = "smtp.gmail.com"
-EMAIL_PORT = 587
-EMAIL_HOST_USER = "lcontreras@funsepa.org"
-EMAIL_HOST_PASSWORD = "Funsepa253"
-EMAIL_USE_TLS = True
-EMAIL_FROM = "lcontreras@funsepa.org"
-EMAIL_REPLY_TO = EMAIL_FROM
+
+DBBACKUP_STORAGE = ''
+DBBACKUP_STORAGE_OPTIONS = {}
+
+CRONJOBS = [
+    ('*/60 * * * *', 'apps.main.cron.backup_cron')
+]
