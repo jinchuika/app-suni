@@ -5,7 +5,7 @@
 			var equipamiento_chart = new Chart(ctx, {
 				type: 'bar',
 				data: {
-					labels: ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"],
+					labels: ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"],
 					datasets: [{
 						label: 'Equipamientos',
 						data: data,
