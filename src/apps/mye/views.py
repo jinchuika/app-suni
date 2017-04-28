@@ -400,7 +400,8 @@ class ValidacionListHomeView(CsrfExemptMixin, JsonRequestResponseMixin, View):
         fin = datetime.strptime(self.request.GET.get('end'), '%Y-%m-%d')
         validacion_list = Validacion.objects.filter(
             fecha_equipamiento__gte=inicio,
-            fecha_equipamiento__lte=fin)
+            fecha_equipamiento__lte=fin,
+            completada=False)
         for validacion in validacion_list:
             response.append({
                 'title': str(validacion.escuela),

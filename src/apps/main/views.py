@@ -4,7 +4,7 @@ from braces.views import LoginRequiredMixin
 from django.views.generic import TemplateView
 
 from apps.tpe.models import (
-    Garantia, TicketReparacion,
+    Equipamiento, Garantia, TicketReparacion,
     TicketSoporte, TicketReparacionRepuesto)
 from apps.tpe.forms import TicketReparacionRepuestoAuthForm
 
@@ -16,6 +16,8 @@ class IndexView(LoginRequiredMixin, TemplateView):
         widgets = []
 
         if self.request.user.groups.filter(name='tpe').exists():
+            today = datetime.now()
+            equipamiento_list = Equipamiento.objects.filter(fecha__year=today.year)
             widgets.append({
                 'queryset': '',
                 'template_name': 'widgets/tpe_equipamiento_chart.html',
@@ -23,7 +25,9 @@ class IndexView(LoginRequiredMixin, TemplateView):
                     'js/distributed/Chart.min.js'
                 },
                 'extra': {
-                    'url': reverse_lazy('equipamiento_list_home')
+                    'url': reverse_lazy('equipamiento_list_home'),
+                    'equipamiento_total': equipamiento_list.count(),
+                    'alumnos_total': sum(e.poblacion.total_alumno for e in equipamiento_list if e.poblacion)
                 }
             })
             widgets.append({
