@@ -14,23 +14,19 @@
 					<canvas id="equipamiento_chart" style="height: 230px; width: 485px;" height="230" width="485" data-url="{% url 'equipamiento_list_home' %}"></canvas>
 				</div>
 			</div>
-			<!-- /.box-body -->
 		</div>
 
 		<div class="row">
 			<div class="col-md-6 col-sm-6 col-xs-12">
 				<div class="info-box">
-					<span class="info-box-icon bg-green"><i class="fa fa-television"></i></span>
+					<span class="info-box-icon bg-green"><i class="fa fa-truck"></i></span>
 
 					<div class="info-box-content">
 						<span class="info-box-text">Equipamientos</span>
 						<span class="info-box-number">{{ extra.equipamiento_total }}</span>
 					</div>
-					<!-- /.info-box-content -->
 				</div>
-				<!-- /.info-box -->
 			</div>
-			<!-- /.col -->
 			<div class="col-md-6 col-sm-6 col-xs-12">
 				<div class="info-box">
 					<span class="info-box-icon bg-aqua"><i class="fa fa-child" aria-hidden="true"></i></span>
@@ -39,11 +35,31 @@
 						<span class="info-box-text">Niños<br>beneficiados</span>
 						<span class="info-box-number">{{ extra.alumnos_total }}</span>
 					</div>
-					<!-- /.info-box-content -->
 				</div>
-				<!-- /.info-box -->
 			</div>
-			<!-- /.col -->
+		</div>
+
+		<div class="row">
+			<div class="col-md-6 col-sm-6 col-xs-12">
+				<div class="info-box">
+					<span class="info-box-icon bg-teal"><i class="fa fa-laptop"></i></span>
+
+					<div class="info-box-content">
+						<span class="info-box-text">Computadoras<br>entregadas</span>
+						<span class="info-box-number">{{ extra.computadoras_total }}</span>
+					</div>
+				</div>
+			</div>
+			<div class="col-md-6 col-sm-6 col-xs-12">
+				<div class="info-box">
+					<span class="info-box-icon bg-red"><i class="fa fa-user" aria-hidden="true"></i></span>
+
+					<div class="info-box-content">
+						<span class="info-box-text">Maestros<br>beneficiados</span>
+						<span class="info-box-number">{{ extra.maestros_total }}</span>
+					</div>
+				</div>
+			</div>
 		</div>
 	</div>
 </div>

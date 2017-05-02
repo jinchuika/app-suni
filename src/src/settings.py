@@ -217,4 +217,8 @@ DYNAMIC_PREFERENCES = {
 DBBACKUP_STORAGE = ''
 DBBACKUP_STORAGE_OPTIONS = {}
 
-CRONJOBS = []
+CRONTAB_DJANGO_PROJECT_NAME = 'src'
+
+CRONJOBS = [
+    ('*/59 * * * *', 'apps.main.cron.backup_cron', '>> ~/cronjob.log')
+]

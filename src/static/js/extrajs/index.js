@@ -40,11 +40,13 @@
 				url: $('#equipamiento-calendario').data('url-validacion'),
 				type: 'GET',
 				color: 'orange',
+				cache: true,
 			},
 			{
 				url: $('#equipamiento-calendario').data('url-equipamiento'),
 				type: 'GET',
 				color: 'green',
+				cache: true,
 			}
 			]
 		});

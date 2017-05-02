@@ -153,6 +153,9 @@ class Escuela(models.Model):
     def tiene_solicitud(self):
         return Solicitud.objects.filter(escuela=self).count() > 0
 
+    def get_ficha_escolar(self):
+        return 'https://public.tableau.com/views/1-FichaEscolarDatosGenerales/DatosGenerales?CODUDI={}'.format(self.codigo)
+
 
 class EscContactoRol(models.Model):
     """
