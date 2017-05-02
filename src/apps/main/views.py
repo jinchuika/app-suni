@@ -27,7 +27,9 @@ class IndexView(LoginRequiredMixin, TemplateView):
                 'extra': {
                     'url': reverse_lazy('equipamiento_list_home'),
                     'equipamiento_total': equipamiento_list.count(),
-                    'alumnos_total': sum(e.poblacion.total_alumno for e in equipamiento_list if e.poblacion)
+                    'computadoras_total': sum(e.cantidad_equipo for e in equipamiento_list),
+                    'alumnos_total': sum(e.poblacion.total_alumno for e in equipamiento_list if e.poblacion),
+                    'maestros_total': sum(e.poblacion.total_maestro for e in equipamiento_list if e.poblacion)
                 }
             })
             widgets.append({
@@ -51,7 +53,7 @@ class IndexView(LoginRequiredMixin, TemplateView):
             widgets.append({
                 'queryset': Garantia.objects.filter(
                     fecha_vencimiento__gte=datetime.now(),
-                    fecha_vencimiento__lte=(datetime.now() + timedelta(days=15))),
+                    fecha_vencimiento__lte=(datetime.now() + timedelta(days=21))),
                 'template_name': 'widgets/tpe_garantia_pendiente.html'
             })
             widgets.append({

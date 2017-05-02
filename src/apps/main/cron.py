@@ -1,5 +1,7 @@
 from django.core import management
+from django.conf import settings
 
 
 def backup_cron():
-    management.call_command('dbbackup')
+    if settings.DBBACKUP_STORAGE is not '':
+        management.call_command('dbbackup')

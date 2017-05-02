@@ -133,6 +133,14 @@
 													<th><i class="fa fa-map"></i> Coordenadas</th>
 													<td>{{ escuela.mapa.lat }}, {{ escuela.mapa.lng }}</td>
 												</tr>
+												<tr>
+													<th><i class="fa fa-info" aria-hidden="true"></i> Ficha escolar</th>
+													<td>
+														<a href="{{ escuela.get_ficha_escolar }}" class="btn btn-primary btn-xs" target="_blank">
+															Ficha escolar <i class="fa fa-external-link" aria-hidden="true"></i>
+														</a>
+													</td>
+												</tr>
 												{% if perms.escuela.change_escuela %}
 												<tr>
 													<td colspan="2">
