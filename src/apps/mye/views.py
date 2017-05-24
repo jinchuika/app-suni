@@ -391,6 +391,7 @@ class ValidacionListView(SolicitudListView):
         self.filter_list['fecha_tpe_min'] = 'fecha_equipamiento__gte'
         self.filter_list['fecha_tpe_max'] = 'fecha_equipamiento__lte'
         self.filter_list['estado'] = 'completada'
+        self.filter_list['version'] = 'version'
 
 
 class ValidacionListHomeView(CsrfExemptMixin, JsonRequestResponseMixin, View):

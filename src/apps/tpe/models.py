@@ -25,6 +25,10 @@ class EquipamientoOs(models.Model):
     def __str__(self):
         return self.sistema_operativo
 
+    class Meta:
+        verbose_name = "Software para equipo"
+        verbose_name_plural = "Software para equipo"
+
 
 class Equipamiento(models.Model):
     id = models.IntegerField(primary_key=True)
@@ -34,7 +38,7 @@ class Equipamiento(models.Model):
         on_delete=models.PROTECT)
     escuela = models.ForeignKey('escuela.Escuela', related_name='equipamiento')
     fecha = models.DateField(default=timezone.now)
-    observacion = models.TextField(null=True, blank=True)
+    observacion = models.TextField(null=True, blank=True, verbose_name='Observaciones')
     renovacion = models.BooleanField(blank=True, default=False)
     servidor_khan = models.BooleanField(blank=True, default=False)
     servidor_os = models.ForeignKey(EquipamientoOs, null=True, blank=True, related_name='servidores', verbose_name='SO del servidor')
