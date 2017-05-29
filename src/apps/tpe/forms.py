@@ -169,6 +169,10 @@ class TicketTransporteForm(forms.ModelForm):
 
 
 class EquipamientoListForm(EscuelaBuscarForm):
+    ESTADO_CHOICES = (
+        (None, 'No importa'),
+        (False, 'No'),
+        (True, 'Sí'),)
     nombre = forms.CharField(
         widget=forms.TextInput(),
         required=False)
@@ -188,6 +192,10 @@ class EquipamientoListForm(EscuelaBuscarForm):
         label='Proyecto de equipamiento',
         queryset=Proyecto.objects.all(),
         required=False)
+    renovacion = forms.ChoiceField(
+        label='Renovación',
+        required=False,
+        choices=ESTADO_CHOICES)
 
     def __init__(self, *args, **kwargs):
         super(EquipamientoListForm, self).__init__(*args, **kwargs)

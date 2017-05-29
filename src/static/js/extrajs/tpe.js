@@ -10,6 +10,7 @@
     }
 }( window.ReparacionDetalle = window.ReparacionDetalle || {}, jQuery ));
 
+
 (function( EquipamientoList, $, undefined ) {
     var tabla = $('#equipamiento-table').DataTable({
         dom: 'lfrtipB',
@@ -51,6 +52,58 @@
 
     } 
 }( window.EquipamientoList = window.EquipamientoList || {}, jQuery ));
+
+(function( EquipamientoInforme, $, undefined ) {
+    var tabla = $('#equipamiento-informe-table').DataTable({
+        dom: 'lfrtipB',
+        buttons: ['excel','pdf'],
+        processing: true,
+        ajax: {
+            url: "",
+            type: "POST",
+            deferRender: true,
+            dataSrc: '',
+            data: function () {
+                return $('#equipamiento-list-form').serializeObject();
+            }
+        },
+        columns: [
+        { "data": "entrega"},
+        { "data": "escuela"},
+        { "data": "codigo", "className": "nowrap"  },
+        { "data": "departamento"},
+        { "data": "municipio"},
+        { "data": "direccion" },
+        { "data": "fecha", "className": "nowrap" },
+        { "data": "renovacion"},
+        { "data": "khan"},
+        { "data": "cantidad"},
+        { "data": "tipo_red"},
+        { "data": "cooperante", 'render': '[, <br>].cooperante'},
+        { "data": "proyecto", 'render': '[, <br>].proyecto'},
+        { "data": "alumnas"},
+        { "data": "alumnos"},
+        { "data": "total_alumnos"},
+        { "data": "maestras"},
+        { "data": "maestros"},
+        { "data": "total_maestros"},
+        ]
+    }).on('xhr.dt', function (e, settings, json, xhr) {
+        $('#spinner').hide();
+    });
+
+    // Public
+    EquipamientoInforme.init = function () {
+        $('#spinner').hide();
+        $('#equipamiento-list-form').submit(function (e) {
+            e.preventDefault();
+            $('#spinner').show();
+            tabla.clear().draw();
+            tabla.ajax.reload();
+        });
+
+    } 
+}( window.EquipamientoInforme = window.EquipamientoInforme || {}, jQuery ));
 
 (function( MonitoreoList, $, undefined ) {
     var tabla = $('#monitoreo-table').DataTable({

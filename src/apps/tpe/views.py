@@ -100,6 +100,46 @@ class EquipamientoListView(InformeMixin):
         return var
 
 
+class EquipamientoInformeView(EquipamientoListView):
+    template_name = 'tpe/equipamiento_informe.html'
+
+    def create_response(self, queryset):
+        var = [
+            {
+                'entrega': equipamiento.id,
+                'escuela': '<a href="{}">{} <br /></a>'.format(
+                    equipamiento.escuela.get_absolute_url(),
+                    equipamiento.escuela.nombre),
+                'codigo': equipamiento.escuela.codigo,
+                'departamento': str(equipamiento.escuela.municipio.departamento),
+                'municipio': str(equipamiento.escuela.municipio),
+                'direccion': str(equipamiento.escuela.direccion),
+                'fecha': str(equipamiento.fecha),
+                'renovacion': 'Sí' if equipamiento.renovacion else 'No',
+                'khan': 'Sí' if equipamiento.servidor_khan else 'No',
+                'cantidad': equipamiento.cantidad_equipo,
+                'tipo_red': str(equipamiento.tipo_red) if equipamiento.red else 'No',
+                'cooperante': [{
+                    'cooperante': '<a href="{}">{}</a>'.format(
+                        cooperante.get_absolute_url(),
+                        cooperante.nombre)}
+                    for cooperante in equipamiento.cooperante.all()],
+                'proyecto': [{
+                    'proyecto': '<a href="{}">{}</a>'.format(
+                        proyecto.get_absolute_url(),
+                        proyecto.nombre)}
+                    for proyecto in equipamiento.proyecto.all()],
+                'alumnas': equipamiento.poblacion.alumna if equipamiento.poblacion else "",
+                'alumnos': equipamiento.poblacion.alumno if equipamiento.poblacion else "",
+                'total_alumnos': equipamiento.poblacion.total_alumno if equipamiento.poblacion else "",
+                'maestras': equipamiento.poblacion.maestra if equipamiento.poblacion else "",
+                'maestros': equipamiento.poblacion.maestro if equipamiento.poblacion else "",
+                'total_maestros': equipamiento.poblacion.total_maestro if equipamiento.poblacion else "",
+            } for equipamiento in queryset
+        ]
+        return var
+
+
 class EquipamientoListHomeView(CsrfExemptMixin, JsonRequestResponseMixin, View):
     def post(self, request, *args, **kwargs):
         today = datetime.now()
