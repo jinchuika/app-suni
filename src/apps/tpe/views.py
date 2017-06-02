@@ -19,7 +19,8 @@ from apps.tpe.forms import (
     EquipamientoNuevoForm, EquipamientoForm, GarantiaForm, TicketSoporteForm,
     TicketCierreForm, TicketRegistroForm, EquipamientoListForm, MonitoreoListForm,
     TicketReparacionForm, TicketReparacionListForm, TicketReparacionUpdateForm,
-    TicketReparacionRepuestoForm, TicketReparacionRepuestoAuthForm, TicketTransporteForm)
+    TicketReparacionRepuestoForm, TicketReparacionRepuestoAuthForm, TicketTransporteForm,
+    TicketRegistroUpdateForm, TicketInformeForm)
 
 
 class EquipamientoCrearView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
@@ -104,7 +105,7 @@ class EquipamientoInformeView(EquipamientoListView):
     template_name = 'tpe/equipamiento_informe.html'
 
     def create_response(self, queryset):
-        var = [
+        return [
             {
                 'entrega': equipamiento.id,
                 'escuela': '<a href="{}">{} <br /></a>'.format(
@@ -137,7 +138,6 @@ class EquipamientoInformeView(EquipamientoListView):
                 'total_maestros': equipamiento.poblacion.total_maestro if equipamiento.poblacion else "",
             } for equipamiento in queryset
         ]
-        return var
 
 
 class EquipamientoListHomeView(CsrfExemptMixin, JsonRequestResponseMixin, View):
@@ -227,6 +227,7 @@ class GarantiaDetailView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
         context['ticket_form'] = TicketSoporteForm(initial={'garantia': self.object})
         context['ticket_cerrado_form'] = TicketCierreForm(initial={'cerrado': True})
         context['ticket_registro_form'] = TicketRegistroForm()
+        context['ticket_registro_update_form'] = TicketRegistroUpdateForm()
         context['ticket_reparacion_form'] = TicketReparacionForm()
         context['ticket_transporte_form'] = TicketTransporteForm()
 
@@ -305,6 +306,11 @@ class TicketRegistroCreateView(LoginRequiredMixin, CreateView):
         form.instance.fecha = datetime.today()
         form.instance.creado_por = self.request.user
         return super(TicketRegistroCreateView, self).form_valid(form)
+
+
+class TicketRegistroUpdateView(LoginRequiredMixin, UpdateView):
+    model = TicketRegistro
+    form_class = TicketRegistroUpdateForm
 
 
 class TicketReparacionCreateView(LoginRequiredMixin, CreateView):
@@ -447,3 +453,37 @@ class MonitoreoListView(InformeMixin):
                 'usuario': str(monitoreo.creado_por.perfil),
             } for monitoreo in queryset
         ]
+
+
+class TicketInformeView(InformeMixin):
+    form_class = TicketInformeForm
+    template_name = 'tpe/ticket_informe.html'
+    filter_list = {
+        'estado': 'cerrado',
+        'fecha_abierto_min': 'fecha_abierto__gte',
+        'fecha_abierto_max': 'fecha_abierto__lte',
+        'fecha_cierre_min': 'fecha_cierre__gte',
+        'fecha_cierre_max': 'fecha_cierre__lte'
+    }
+    queryset = TicketSoporte.objects.all()
+
+    def create_response(self, queryset):
+        var = [
+            {
+                'entrega': ticket.garantia.equipamiento.id,
+                'escuela': '<a href="{}">{} <br />({})</a>'.format(
+                    ticket.garantia.equipamiento.escuela.get_absolute_url(),
+                    ticket.garantia.equipamiento.escuela.nombre,
+                    ticket.garantia.equipamiento.escuela.codigo),
+                'no_ticket': '<a href="{}">{}<a/>'.format(
+                    ticket.get_absolute_url(),
+                    ticket.id),
+                'fecha_inicio': str(ticket.fecha_abierto),
+                'fecha_fin': str(ticket.fecha_cierre),
+                'estado': 'Cerrado' if ticket.cerrado else 'Abierto',
+                'costo_reparacion': ticket.get_costo_reparacion(),
+                'costo_transporte': ticket.get_costo_transporte(),
+                'costo_total': ticket.get_costo_total(),
+            } for ticket in queryset
+        ]
+        return var
