@@ -95,6 +95,15 @@ class TicketRegistroForm(forms.ModelForm):
         }
 
 
+class TicketRegistroUpdateForm(forms.ModelForm):
+    class Meta:
+        model = TicketRegistro
+        fields = ('foto', )
+        widgets = {
+            'foto': forms.URLInput(attrs={'class': 'form-control'}),
+        }
+
+
 class TicketReparacionForm(forms.ModelForm):
     class Meta:
         model = TicketReparacion
@@ -221,4 +230,31 @@ class MonitoreoListForm(forms.Form):
     fecha_max = forms.CharField(
         label='Fecha máxima',
         widget=forms.TextInput(attrs={'class': 'datepicker'}),
+        required=False)
+
+
+class TicketInformeForm(forms.Form):
+    ESTADO_CHOICES = (
+        (None, 'No importa'),
+        (False, 'Abierto'),
+        (True, 'Cerrado'),)
+    estado = forms.ChoiceField(
+        label='Estado',
+        required=False,
+        choices=ESTADO_CHOICES)
+    fecha_abierto_min = forms.CharField(
+        label='Fecha de inicio mínima',
+        widget=forms.TextInput(attrs={'class': 'datepicker', 'placeholder': 'Cuándo se abrió el ticket'}),
+        required=False)
+    fecha_abierto_max = forms.CharField(
+        label='Fecha de inicio máxima',
+        widget=forms.TextInput(attrs={'class': 'datepicker', 'placeholder': 'Cuándo se abrió el ticket'}),
+        required=False)
+    fecha_cierre_min = forms.CharField(
+        label='Fecha de cierre mínima',
+        widget=forms.TextInput(attrs={'class': 'datepicker', 'placeholder': 'Cuándo se cerró el ticket'}),
+        required=False)
+    fecha_cierre_max = forms.CharField(
+        label='Fecha de cierre máxima',
+        widget=forms.TextInput(attrs={'class': 'datepicker', 'placeholder': 'Cuándo se cerró el ticket'}),
         required=False)

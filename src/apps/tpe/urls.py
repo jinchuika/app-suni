@@ -17,9 +17,11 @@ urlpatterns = [
 
     url(r'^garantia/(?P<pk>\d+)/ticket/(?P<ticket_id>\d+)/$', GarantiaDetailView.as_view(), name='ticket_detail'),
     url(r'^ticket/add/$', TicketCreateView.as_view(), name='ticket_soporte_add'),
+    url(r'^ticket/informe/$', TicketInformeView.as_view(), name='ticket_informe'),
     url(r'^ticket/(?P<pk>\d+)/edit/$', TicketCierreView.as_view(), name='ticket_soporte_update'),
     url(r'^ticket/print_detalle/$', GarantiaPrintDetalle.as_view(), name='ticket_print_detalle'),
     url(r'^ticketregistro/add/(?P<ticket_id>\d+)/$', TicketRegistroCreateView.as_view(), name='ticket_registro_add'),
+    url(r'^ticketregistro/(?P<pk>\d+)/$', TicketRegistroUpdateView.as_view(), name='ticket_registro_update'),
     url(r'^ticketregistro/print_detalle/$', TicketVisitaPrintDetalle.as_view(), name='ticket_registro_print_detalle'),
     url(r'^ticketreparacion/add/(?P<ticket_id>\d+)/$', TicketReparacionCreateView.as_view(), name='ticket_reparacion_add'),
     url(r'^tickettransporte/add/(?P<ticket_id>\d+)/$', TicketTransporteCreateView.as_view(), name='ticket_transporte_add'),

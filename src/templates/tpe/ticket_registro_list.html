@@ -19,7 +19,13 @@
 		</h4>
 		<p>{{ registro.descripcion }}</p>
 		{% if registro.foto %}
-			<p><a href="registro.foto">Fotos</a></p>
+			<p><a href="{{ registro.foto }}" target="_blank">Fotos</a></p>
+		{% elif ticket.cerrado != True %}
+			<form action="{% url 'ticket_registro_update' pk=registro.id %}" method="post">
+				{% csrf_token %}
+				{{ ticket_registro_update_form.as_p }}
+				<input type="submit" value="Guardar" class="btn btn-success btn-xs">
+			</form>
 		{% endif %}
 		<small>{{ registro.creado_por.perfil }}</small>
 	</div>

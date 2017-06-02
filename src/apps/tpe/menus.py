@@ -2,17 +2,12 @@ from django.core.urlresolvers import reverse_lazy
 from menu import Menu
 from apps.main.menus import ViewMenuItem
 
-# Administración
+# Equipamiento
 tpe_children = (
-    ViewMenuItem(
-        "Garantías",
-        reverse_lazy("garantia_list"),
-        weight=10,
-        icon="fa-gavel"),
     ViewMenuItem(
         "Lista de entregas",
         reverse_lazy("equipamiento_list"),
-        weight=80,
+        weight=60,
         icon="fa-list"),
     ViewMenuItem(
         "Informe de monitoreo",
@@ -27,7 +22,7 @@ tpe_children = (
     ViewMenuItem(
         "Informe de entregas",
         reverse_lazy("equipamiento_informe"),
-        weight=80,
+        weight=90,
         icon="fa-list-alt"),)
 
 Menu.add_item(
@@ -39,3 +34,26 @@ Menu.add_item(
         icon="fa-desktop",
         group="tpe",
         children=tpe_children))
+
+# Garantías
+garantia_children = (
+    ViewMenuItem(
+        "Lista de Garantías",
+        reverse_lazy("garantia_list"),
+        weight=10,
+        icon="fa-gavel"),
+    ViewMenuItem(
+        "Tickets de soporte",
+        reverse_lazy("ticket_informe"),
+        weight=10,
+        icon="fa-ticket"),)
+
+Menu.add_item(
+    "user",
+    ViewMenuItem(
+        "Garantías",
+        reverse_lazy('list_c'),
+        weight=10,
+        icon="fa-wrench",
+        group="garantia",
+        children=garantia_children))

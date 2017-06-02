@@ -467,3 +467,47 @@
         
     } 
 }( window.ReparacionList = window.ReparacionList || {}, jQuery ));
+
+
+(function( TicketInforme, $, undefined ) {
+    var tabla = $('#ticket-informe-table').DataTable({
+        dom: 'lfrtipB',
+        buttons: ['excel','pdf'],
+        processing: true,
+        ajax: {
+            url: "",
+            type: "POST",
+            deferRender: true,
+            dataSrc: '',
+            data: function () {
+                return $('#ticket-list-form').serializeObject();
+            }
+        },
+        columns: [
+        { "data": "entrega"},
+        { "data": "escuela"},
+        { "data": "no_ticket"},
+        { "data": "fecha_inicio", "className": "nowrap"  },
+        { "data": "fecha_fin", "className": "nowrap"  },
+        { "data": "estado" },
+        { "data": "costo_reparacion" },
+        { "data": "costo_transporte" },
+        { "data": "costo_total" },
+        ]
+    }).on('xhr.dt', function (e, settings, json, xhr) {
+        $('#spinner').hide();
+    });
+
+    // Public
+    TicketInforme.init = function () {
+        console.log("hola");
+        $('#spinner').hide();
+        $('#ticket-list-form').submit(function (e) {
+            e.preventDefault();
+            $('#spinner').show();
+            tabla.clear().draw();
+            tabla.ajax.reload();
+        });
+
+    } 
+}( window.TicketInforme = window.TicketInforme || {}, jQuery ));
