@@ -14,23 +14,34 @@
 <section class="content">
 	<div class="container-fluid">
 		<div class="row-fluid">
-			<div class="col-md-6 col-md-offset-3">
-				<form action="{{action}}" method="post">
-					<table class="table table-striped box box-primary">
-						{% csrf_token %}
-						{% for field in form %}
-							<tr>
-								<td>{{ field.label_tag }}</td>
-								<td>{{ field|add_class:"form-control" }}</td>
-							</tr>
-						{% endfor %}
-						<tr>
-							<td colspan="2" align="center">
-								<input type="submit" value="Crear" class="btn btn-primary">
-							</td>
-						</tr>
-					</table>
-				</form>
+			<div class="col-md-4">
+				<div class="box box-primary">
+					<div class="box-body">
+						<form action="{{action}}" method="post">
+							{% csrf_token %}
+							{% for field in form %}
+							<div class="form-group">
+								{{ field.label_tag }}
+								{{ field|add_class:"form-control" }}
+							</div>
+							{% endfor %}
+							<input type="submit" value="Crear" class="btn btn-primary">
+						</form>
+					</div>
+				</div>
+			</div>
+
+			<div class="col-md-8">
+				<div class="box box-primary">
+					<div class="box-header">
+						<h3 class="box-title">Grupos en esta sede</h3>
+					</div>
+					<div class="box-body">
+						<table class="table table-hover">
+							
+						</table>
+					</div>
+				</div>
 			</div>
 		</div>
 	</div>
