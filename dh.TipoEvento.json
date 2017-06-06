@@ -1,0 +1,26 @@
+[
+{
+  "model": "dh.tipoevento",
+  "pk": 1,
+  "fields": {
+    "tipo_evento": "Actividad de voluntariado",
+    "color": "green"
+  }
+},
+{
+  "model": "dh.tipoevento",
+  "pk": 2,
+  "fields": {
+    "tipo_evento": "Visita a escuela",
+    "color": "teal"
+  }
+},
+{
+  "model": "dh.tipoevento",
+  "pk": 3,
+  "fields": {
+    "tipo_evento": "Reuni\u00f3n con cooperante",
+    "color": "blue"
+  }
+}
+]

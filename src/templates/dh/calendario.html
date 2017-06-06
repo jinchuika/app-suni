@@ -1,0 +1,51 @@
+{% extends "base/base.html" %}
+
+{% load staticfiles %}
+
+{% block page_title %}
+<title>Calendario Dejando Huella</title>
+{% endblock page_title %}
+
+{% block content %}
+<section class="content">
+	<div class="container-fluid">
+		<div class="row-fluid">
+			<div class="col-md-12">
+				<div class="box box-success">
+					<div class="box-header">
+						<h3 class="box-title">Calendario Dejando Huella</h3>
+						<div class="box-tools pull-right">
+							{% if perms.dh.add_eventodh %}
+								<a href="{% url 'evento_dh_add' %}" class="btn btn-success">
+									<i class="fa fa-plus"></i> Nuevo
+								</a>
+							{% endif %}
+						</div>
+					</div>
+					<div class="box-body no-padding">
+						<!-- THE CALENDAR -->
+						<div id="evento_dh-calendario" data-url-evento_dh="{% url 'evento_dh_calendario_home' %}"></div>
+					</div>
+					<!-- /.box-body -->
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+{% endblock content %}
+
+
+{% block extra_css %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/fullcalendar.min.css' %}">
+{% endblock extra_css %}
+
+
+{% block extra_js %}
+<script src="{% static 'js/distributed/moment.min.js' %}"></script>
+<script src="{% static 'js/distributed/fullcalendar.min.js' %}"></script>
+<script src="{% static 'js/distributed/fullcalendar.es.js' %}"></script>
+<script src="{% static 'js/extrajs/dh.js' %}"></script>
+<script>
+	CalendarioDH.init();
+</script>
+{% endblock extra_js %}

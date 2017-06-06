@@ -82,7 +82,7 @@ class Sede(models.Model):
 
 
 class Grupo(models.Model):
-    sede = models.ForeignKey(Sede)
+    sede = models.ForeignKey(Sede, related_name='grupos')
     numero = models.IntegerField(verbose_name='Número')
     curso = models.ForeignKey(Curso)
     comentario = models.TextField(null=True, blank=True)

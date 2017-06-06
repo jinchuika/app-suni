@@ -13,7 +13,12 @@ cyd_children = (
         "Sedes",
         reverse_lazy("sede_list"),
         weight=10,
-        icon="fa-map"),)
+        icon="fa-map"),
+    ViewMenuItem(
+        "Grupos",
+        reverse_lazy("grupo_list"),
+        weight=10,
+        icon="fa-users"),)
 
 Menu.add_item(
     "user",

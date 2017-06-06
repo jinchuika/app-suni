@@ -153,6 +153,13 @@ class Escuela(models.Model):
     def tiene_solicitud(self):
         return Solicitud.objects.filter(escuela=self).count() > 0
 
+    def es_reservada(self):
+        if self.asignacion_cooperante.filter(activa=True) or self.asignacion_proyecto.filter(activa=True):
+            return True
+        else:
+            return False
+    reservada = property(es_reservada)
+
     def get_ficha_escolar(self):
         return 'https://public.tableau.com/views/1-FichaEscolarDatosGenerales/DatosGenerales?CODUDI={}'.format(self.codigo)
 

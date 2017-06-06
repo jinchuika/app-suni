@@ -140,11 +140,6 @@ class SedeListView(LoginRequiredMixin, ListView):
         else:
             return Sede.objects.all()
 
-    def get_context_data(self, **kwargs):
-        context = super(SedeListView, self).get_context_data(**kwargs)
-        context['capacitador_list'] = User.objects.filter(groups__name='cyd_capacitador')
-        return context
-
 
 class GrupoCreateView(LoginRequiredMixin, GroupRequiredMixin, CreateView):
     group_required = [u"cyd", u"cyd_capacitador", u"cyd_admin", ]

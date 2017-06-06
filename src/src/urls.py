@@ -1,9 +1,7 @@
 from django.conf.urls import url, include
 from django.contrib import admin
 from . import settings
-from django.views import(
-    static
-    )
+from django.views import static
 
 urlpatterns = [
     url(r'^media/(?P<path>.*)$', static.serve, {'document_root': settings.MEDIA_ROOT}),
@@ -16,5 +14,6 @@ urlpatterns = [
     url(r'^contactos/', include('apps.fr.urls')),
     url(r'^kardex/', include('apps.kardex.urls')),
     url(r'^tpe/', include('apps.tpe.urls')),
+    url(r'^dh/', include('apps.dh.urls')),
     url(r'^$', include('apps.main.urls')),
 ]

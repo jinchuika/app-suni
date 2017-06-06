@@ -1,0 +1,16 @@
+{% load staticfiles %}
+
+{% block extra_css %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/fullcalendar.print.min.css' %}" media="print">
+{% endblock extra_css %}
+
+<div class="box box-success">
+	<div class="box-header">
+		<h3 class="box-title">Calendario Dejando Huella</h3>
+	</div>
+	<div class="box-body no-padding">
+		<!-- THE CALENDAR -->
+		<div id="evento_dh-calendario" data-url-evento_dh="{{ extra.url_evento_dh }}"></div>
+	</div>
+	<!-- /.box-body -->
+</div>

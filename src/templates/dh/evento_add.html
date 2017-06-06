@@ -3,21 +3,20 @@
 {% load widget_tweaks %}
 
 {% block page_title %}
-<title>Grupo</title>
+<title>Eventos Dejando Huella</title>
 {% endblock page_title %}
 
 {% block content %}
-<section class="content-header">
-	<h1>Nuevo grupo</h1>
-</section>
-
 <section class="content">
 	<div class="container-fluid">
 		<div class="row-fluid">
-			<div class="col-md-4">
+			<div class="col-md-6 col-md-offset-3">
 				<div class="box box-primary">
+					<div class="box-header">
+						<h3 class="box-title">Evento de Dejando Huella</h3>
+					</div>
 					<div class="box-body">
-						<form action="{{ action }}" method="post">
+						<form action="{{action}}" method="post">
 							{{ form.non_field_errors }}
 							{% csrf_token %}
 							{% for field in form %}
@@ -27,21 +26,8 @@
 								{{ field.errors }}
 							</div>
 							{% endfor %}
-							<input type="submit" value="Crear" class="btn btn-primary">
+							<input type="submit" value="Guardar" class="btn btn-primary">
 						</form>
-					</div>
-				</div>
-			</div>
-
-			<div class="col-md-8">
-				<div class="box box-primary">
-					<div class="box-header">
-						<h3 class="box-title">Grupos en esta sede</h3>
-					</div>
-					<div class="box-body">
-						<table class="table table-hover">
-							
-						</table>
 					</div>
 				</div>
 			</div>
@@ -49,3 +35,13 @@
 	</div>
 </section>
 {% endblock content %}
+
+
+{% block extra_css %}
+
+{% endblock extra_css %}
+
+
+{% block extra_js %}
+
+{% endblock extra_js %}
