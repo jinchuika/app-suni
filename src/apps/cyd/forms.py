@@ -39,8 +39,18 @@ class SedeForm(forms.ModelForm):
             'municipio': forms.Select(attrs={'class': 'select2'})
         }
 
+    def __init__(self, *args, **kwargs):
+        capacitador = kwargs.pop('capacitador', None)
+        super(SedeForm, self).__init__(*args, **kwargs)
+        if capacitador:
+            self.fields['capacitador'].queryset = self.fields['capacitador'].queryset.filter(id=capacitador.id)
+        self.fields['capacitador'].label_from_instance = lambda obj: "%s" % obj.get_full_name()
+
 
 class GrupoForm(forms.ModelForm):
     class Meta:
         model = Grupo
         fields = '__all__'
+        widgets = {
+            'sede': forms.Select(attrs={'class': 'select2'})
+        }

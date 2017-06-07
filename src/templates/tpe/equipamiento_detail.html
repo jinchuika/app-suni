@@ -53,7 +53,11 @@
 			<tr>
 				<th>Fotos</th>
 				<td>
-					{% if equipamiento.fotos %}Sí{% else %}No{% endif %}
+					{% if equipamiento.fotos or equipamiento.fotos_link %}Sí{% else %}No{% endif %}
+					{% if equipamiento.fotos_link %}
+						<br>
+						<a href="{{ equipamiento.fotos_link }}" target="_blank">Link</a>
+					{% endif %}
 				</td>
 			</tr>
 			<tr>

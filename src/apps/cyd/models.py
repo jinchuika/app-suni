@@ -33,12 +33,14 @@ class CrAsistencia(models.Model):
     """
     Description: Asistencia a curso
     """
-    curso = models.ForeignKey(Curso, related_name="asistencia")
+    curso = models.ForeignKey(Curso, related_name="asistencias")
     modulo_num = models.IntegerField()
     punteo_max = models.IntegerField()
 
     class Meta:
         unique_together = ('curso', 'modulo_num',)
+        verbose_name = "Asistencia de curso"
+        verbose_name_plural = "Asistencias de curso"
 
     def __str__(self):
         return str(self.modulo_num) + " de " + str(self.curso)
@@ -48,9 +50,13 @@ class CrHito(models.Model):
     """
     Description: Hito a curso
     """
-    curso = models.ForeignKey(Curso, related_name="hito")
+    curso = models.ForeignKey(Curso, related_name="hitos")
     nombre = models.CharField(max_length=40)
     punteo_max = models.IntegerField()
+
+    class Meta:
+        verbose_name = "Hito de curso"
+        verbose_name_plural = "Hitos de curso"
 
     def __str__(self):
         return str(self.nombre) + " de " + str(self.curso)
@@ -60,8 +66,8 @@ class Sede(models.Model):
     nombre = models.CharField(max_length=150)
     capacitador = models.ForeignKey(User)
     municipio = models.ForeignKey(Municipio)
-    direccion = models.CharField(max_length=150)
-    observacion = models.TextField(null=True, blank=True)
+    direccion = models.CharField(max_length=150, verbose_name='Dirección')
+    observacion = models.TextField(null=True, blank=True, verbose_name='Observaciones')
     mapa = models.ForeignKey(Coordenada, null=True, blank=True)
 
     class Meta:
@@ -76,30 +82,37 @@ class Sede(models.Model):
 
 
 class Grupo(models.Model):
-    sede = models.ForeignKey(Sede)
-    numero = models.IntegerField()
+    sede = models.ForeignKey(Sede, related_name='grupos')
+    numero = models.IntegerField(verbose_name='Número')
     curso = models.ForeignKey(Curso)
     comentario = models.TextField(null=True, blank=True)
 
     class Meta:
         verbose_name = "Grupo de capacitación"
         verbose_name_plural = "Grupos de capacitación"
+        unique_together = ("sede", "numero")
 
     def __str__(self):
         return str(self.numero) + " - " + str(self.curso)
 
+    def get_absolute_url(self):
+        return reverse('grupo_detail', kwargs={'pk': self.id})
+
 
 class Calendario(models.Model):
     cr_asistencia = models.ForeignKey(CrAsistencia)
-    grupo = models.ForeignKey(Grupo)
-    fecha = models.DateField()
-    hora_inicio = models.TimeField()
-    hora_fin = models.TimeField()
+    grupo = models.ForeignKey(Grupo, related_name='asistencias')
+    fecha = models.DateField(null=True, blank=True)
+    hora_inicio = models.TimeField(null=True, blank=True)
+    hora_fin = models.TimeField(null=True, blank=True)
     observacion = models.TextField(null=True, blank=True)
 
     class Meta:
         verbose_name = "Calendario de grupos"
         verbose_name_plural = "Calendarios de grupos"
+
+    def __str__(self):
+        return str(self.cr_asistencia.modulo_num) + " - Grupo " + str(self.grupo)
 
 
 class ParRol(models.Model):
@@ -141,16 +154,17 @@ class Participante(models.Model):
         (2, 'Mujer'),
     )
 
+    dpi = models.CharField(max_length=20, unique=True)
     nombre = models.CharField(max_length=100)
     apellido = models.CharField(max_length=100)
     genero = models.IntegerField(choices=GENDER_CHOICES)
     rol = models.ForeignKey(ParRol, on_delete=models.PROTECT)
     escuela = models.ForeignKey(Escuela, on_delete=models.PROTECT)
-    direccion = models.TextField(null=True, blank=True)
+    direccion = models.TextField(null=True, blank=True, verbose_name='Dirección')
     mail = models.EmailField(null=True, blank=True)
-    tel_casa = models.CharField(max_length=11, null=True, blank=True)
-    tel_movil = models.CharField(max_length=11, null=True, blank=True)
-    fecha_nac = models.DateField(null=True, blank=True)
+    tel_casa = models.CharField(max_length=11, null=True, blank=True, verbose_name='Teléfono de casa')
+    tel_movil = models.CharField(max_length=11, null=True, blank=True, verbose_name='Teléfono móvil')
+    fecha_nac = models.DateField(null=True, blank=True, verbose_name='Fecha de nacimiento')
     avatar = ThumbnailerImageField(
         upload_to="avatar_participante",
         null=True,
@@ -171,11 +185,11 @@ class Participante(models.Model):
 
 
 class Asignacion(models.Model):
-    participante = models.ForeignKey(Participante)
-    grupo = models.ForeignKey(Grupo)
+    participante = models.ForeignKey(Participante, related_name='asignaciones')
+    grupo = models.ForeignKey(Grupo, related_name='asignados')
 
     class Meta:
-        verbose_name = "Asignacion"
+        verbose_name = "Asignación"
         verbose_name_plural = "Asignaciones"
 
     def __str__(self):

@@ -185,10 +185,11 @@
 									{% endcomment %}
 									<div class="row">
 										<div class="col-md-12">
-											<div class="box box-info collapsed-box">
+											<div class="box box-info {% if not escuela.reservada %}collapsed-box{% endif %}">
 												<div class="box-header">
-													<h3 class="box-title">Pre-selección</h3>
+													<h3 class="box-title">Reservaciones</h3>
 													<div class="box-tools pull-right">
+														{% if escuela.reservada %}<span class="label label-success">Reservada</span>{% endif %}
 														<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i></button>
 													</div>
 												</div>

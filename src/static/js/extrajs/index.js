@@ -52,12 +52,34 @@
 		});
 	}
 
+	var crear_evento_dh_calendario = function () {
+		$('#evento_dh-calendario').fullCalendar({
+			header: {
+				left: 'prev,next today,month,listYear',
+				center: '',
+				right: 'title'
+			},
+
+			navLinks: true, 
+			eventSources: [
+			{
+				url: $('#evento_dh-calendario').data('url-evento_dh'),
+				type: 'GET',
+				cache: true,
+			}
+			]
+		});
+	}
+
 	HomePage.init = function () {
 		if ($('#equipamiento_chart').length) {
 			crear_equipamiento_chart();
 		}
 		if ($('#equipamiento-calendario').length) {
 			crear_equipamiento_calendario();
+		}
+		if ($('#evento_dh-calendario').length) {
+			crear_evento_dh_calendario();
 		}
 	}
 }( window.HomePage = window.HomePage || {}, jQuery ));

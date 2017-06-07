@@ -1,0 +1,87 @@
+{% extends "base/base.html" %}
+
+{% load embed_gdrive_folder %}
+
+{% block page_title %}
+<title>Eventos Dejando Huella</title>
+{% endblock page_title %}
+
+{% block content %}
+<section class="content">
+	<div class="container-fluid">
+		<div class="row-fluid">
+			<div class="col-md-4">
+				<div class="box box-primary">
+					<div class="box-header">
+						<h3 class="box-title">{{ eventodh.titulo }}</h3>
+						<div class="box-tools pull-right">
+							{% if perms.dh.change_eventodh %}
+								<a href="{% url 'evento_dh_update' pk=eventodh.id %}" class="btn btn-info">
+									<i class="fa fa-pencil"></i>
+								</a>
+							{% endif %}
+						</div>
+					</div>
+					<div class="box-body">
+						<ul class="list-group list-group-unbordered">
+							<li class="list-group-item">
+								<b><i class="fa fa-calendar"></i> Fecha</b>
+								<span class="pull-right">{{ eventodh.fecha|date:"Y-m-d" }}</span>
+							</li>
+							<li class="list-group-item">
+								<b><i class="fa fa-clock-o"></i> Hora</b>
+								<span class="pull-right">
+									{{ eventodh.hora_inicio|default_if_none:"" }} - {{ eventodh.hora_fin|default_if_none:"" }}
+								</span>
+							</li>
+							<li class="list-group-item">
+								<b><i class="fa fa-id-badge"></i> Asistentes</b>
+								{% for usuario in eventodh.asistentes.all %}									
+									<span class="pull-right">{{ usuario.get_full_name }}</span>
+								{% endfor %}
+							</li>
+							<li class="list-group-item">
+								<b><i class="fa fa-users"></i> Cooperantes</b>
+								{% for cooperante in eventodh.cooperantes.all %}									
+									<a href="{{ cooperante.get_absolute_url }}" class="pull-right">{{ cooperante }}</a>
+									<br>
+								{% endfor %}
+							</li>
+							<li class="list-group-item">
+								<b><i class="fa fa-camera"></i> Fotos</b>
+								{% if eventodh.fotos %}
+									<a href="{{ eventodh.fotos }}" class="pull-right" target="_blank">Link</a>
+								{% endif %}
+							</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+			<div class="col-md-8">
+				<div class="box box-primary">
+					<div class="box-header">
+						<h3 class="box-title">Fotos</h3>
+					</div>
+					<div class="box-body">
+						{% if eventodh.fotos %}
+							{{ eventodh.fotos|embed_gdrive_folder|safe }}
+						{% else %}
+							No hay fotos para mostrar
+						{% endif %}
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+{% endblock content %}
+
+
+{% block extra_css %}
+
+{% endblock extra_css %}
+
+
+{% block extra_js %}
+
+{% endblock extra_js %}

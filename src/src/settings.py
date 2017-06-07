@@ -63,7 +63,8 @@ LOCAL_APPS = (
     'apps.fr',
     'apps.cyd',
     'apps.mye',
-    'apps.tpe',)
+    'apps.tpe',
+    'apps.dh',)
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 

@@ -248,7 +248,7 @@ class TicketReparacion(models.Model):
         verbose_name_plural = "Reparaciones de garantías"
 
     def __str__(self):
-        return 'G{}-{}'.format(self.ticket.garantia, self.tipo_dispositivo)
+        return 'G{}-{}-{}'.format(self.ticket.garantia, self.tipo_dispositivo, self.triage)
 
     def get_absolute_url(self):
         return reverse_lazy('reparacion_update', kwargs={'pk': self.id})

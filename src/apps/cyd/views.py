@@ -10,7 +10,7 @@ from apps.cyd.models import Curso, Sede, Grupo
 from apps.main.models import Coordenada
 
 
-class CursoCrear(LoginRequiredMixin, GroupRequiredMixin, CreateView):
+class CursoCreateView(LoginRequiredMixin, GroupRequiredMixin, CreateView):
     group_required = [u"cyd_admin", ]
     redirect_unauthenticated_users = True
     raise_exception = True
@@ -56,17 +56,17 @@ class CursoCrear(LoginRequiredMixin, GroupRequiredMixin, CreateView):
                 asistencia_formset=kwargs['formset_list'][1]))
 
 
-class CursoDetalle(LoginRequiredMixin, DetailView):
+class CursoDetailView(LoginRequiredMixin, DetailView):
     model = Curso
     template_name = 'cyd/curso_detail.html'
 
 
-class CursoLista(LoginRequiredMixin, ListView):
+class CursoListView(LoginRequiredMixin, ListView):
     model = Curso
     template_name = 'cyd/curso_list.html'
 
 
-class SedeCrear(LoginRequiredMixin, GroupRequiredMixin, CreateView):
+class SedeCreateView(LoginRequiredMixin, GroupRequiredMixin, CreateView):
     group_required = [u"cyd_admin", u"cyd", u"cyd_capacitador", ]
     redirect_unauthenticated_users = True
     raise_exception = True
@@ -74,6 +74,12 @@ class SedeCrear(LoginRequiredMixin, GroupRequiredMixin, CreateView):
     model = Sede
     form_class = SedeForm
     template_name = 'cyd/sede_add.html'
+
+    def get_form(self, form_class=None):
+        form = super(SedeCreateView, self).get_form(form_class)
+        if self.request.user.groups.filter(name="cyd_capacitador").exists():
+            form.fields['capacitador'].queryset = form.fields['capacitador'].queryset.filter(id=self.request.user.id)
+        return form
 
     def form_valid(self, form):
         coordenada = Coordenada(
@@ -83,21 +89,27 @@ class SedeCrear(LoginRequiredMixin, GroupRequiredMixin, CreateView):
         coordenada.save()
         form.instance.mapa = coordenada
         form.instance.mapa.save()
-        return super(SedeCrear, self).form_valid(form)
+        return super(SedeCreateView, self).form_valid(form)
 
 
-class SedeDetalle(LoginRequiredMixin, DetailView):
+class SedeDetailView(LoginRequiredMixin, DetailView):
     model = Sede
     template_name = 'cyd/sede_detail.html'
 
 
-class SedeEditar(LoginRequiredMixin, UpdateView):
+class SedeUpdateView(LoginRequiredMixin, UpdateView):
     model = Sede
     template_name = 'cyd/sede_add.html'
     form_class = SedeForm
 
+    def get_form(self, form_class=None):
+        form = super(SedeUpdateView, self).get_form(form_class)
+        if self.request.user.groups.filter(name="cyd_capacitador").exists():
+            form.fields['capacitador'].queryset = form.fields['capacitador'].queryset.filter(id=self.request.user.id)
+        return form
+
     def get_initial(self):
-        initial = super(SedeEditar, self).get_initial()
+        initial = super(SedeUpdateView, self).get_initial()
         initial['lat'] = self.object.mapa.lat
         initial['lng'] = self.object.mapa.lng
         return initial
@@ -105,7 +117,6 @@ class SedeEditar(LoginRequiredMixin, UpdateView):
     def form_valid(self, form):
         respuesta = form.save(commit=False)
         if self.object.mapa is None:
-            print("no")
             coordenada = Coordenada(
                 lat=form.cleaned_data['lat'],
                 lng=form.cleaned_data['lng'],
@@ -116,10 +127,10 @@ class SedeEditar(LoginRequiredMixin, UpdateView):
             self.object.mapa.lat = form.cleaned_data['lat']
             self.object.mapa.lng = form.cleaned_data['lng']
             self.object.mapa.save()
-        return super(SedeEditar, self).form_valid(form)
+        return super(SedeUpdateView, self).form_valid(form)
 
 
-class SedeLista(LoginRequiredMixin, ListView):
+class SedeListView(LoginRequiredMixin, ListView):
     model = Sede
     template_name = 'cyd/sede_list.html'
 
@@ -129,13 +140,8 @@ class SedeLista(LoginRequiredMixin, ListView):
         else:
             return Sede.objects.all()
 
-    def get_context_data(self, **kwargs):
-        context = super(SedeLista, self).get_context_data(**kwargs)
-        context['capacitador_list'] = User.objects.filter(groups__name='cyd_capacitador')
-        return context
 
-
-class GrupoCrear(LoginRequiredMixin, GroupRequiredMixin, CreateView):
+class GrupoCreateView(LoginRequiredMixin, GroupRequiredMixin, CreateView):
     group_required = [u"cyd", u"cyd_capacitador", u"cyd_admin", ]
     redirect_unauthenticated_users = True
     raise_exception = True
@@ -144,8 +150,23 @@ class GrupoCrear(LoginRequiredMixin, GroupRequiredMixin, CreateView):
     form_class = GrupoForm
 
     def get_form(self, form_class=None):
-        form = super(GrupoCrear, self).get_form(form_class)
+        form = super(GrupoCreateView, self).get_form(form_class)
         if self.request.user.groups.filter(name="cyd_capacitador").exists():
             form.fields['sede'].queryset = Sede.objects.filter(capacitador=self.request.user)
         return form
 
+    def form_valid(self, form):
+        grupo = form.save()
+        for asistencia in grupo.curso.asistencias.all():
+            grupo.asistencias.create(cr_asistencia=asistencia)
+        return super(GrupoCreateView, self).form_valid(form)
+
+
+class GrupoDetailView(LoginRequiredMixin, DetailView):
+    model = Grupo
+    template_name = 'cyd/grupo_detail.html'
+
+
+class GrupoListView(LoginRequiredMixin, ListView):
+    model = Grupo
+    template_name = 'cyd/grupo_list.html'

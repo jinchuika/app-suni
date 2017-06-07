@@ -82,6 +82,22 @@ class IndexView(LoginRequiredMixin, TemplateView):
                     'repuesto_reject_form': TicketReparacionRepuestoAuthForm(initial={'autorizado': False, 'rechazado': True})
                 }
             })
+        if self.request.user.groups.filter(name='dejando_huella').exists():
+            widgets.append({
+                'queryset': '',
+                'template_name': 'widgets/dh_evento_calendario.html',
+                'media_css': [
+                    'css/fullcalendar.min.css',
+                ],
+                'media_js': [
+                    'js/distributed/moment.min.js',
+                    'js/distributed/fullcalendar.min.js',
+                    'js/distributed/fullcalendar.es.js',
+                ],
+                'extra': {
+                    'url_evento_dh': reverse_lazy('evento_dh_calendario_home'),
+                }
+            })
         return widgets
 
     def get_context_data(self, **kwargs):

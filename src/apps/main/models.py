@@ -23,9 +23,9 @@ class Municipio(models.Model):
 
 
 class Coordenada(models.Model):
-    lat = models.CharField(max_length=25)
-    lng = models.CharField(max_length=25)
-    descripcion = models.CharField(max_length=70, null=True, blank=True)
+    lat = models.CharField(max_length=25, verbose_name="Latitud")
+    lng = models.CharField(max_length=25, verbose_name="Longitud")
+    descripcion = models.CharField(max_length=70, null=True, blank=True, verbose_name="Descripción")
 
     def __str__(self):
         if self.descripcion:
