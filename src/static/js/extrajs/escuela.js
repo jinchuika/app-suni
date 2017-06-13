@@ -66,49 +66,55 @@
 }( window.PerfilEscuela = window.PerfilEscuela || {}, jQuery ));
 
 (function( EscuelaBuscar, $, undefined ) {
+    var tablaHabilitada = false;
     var tabla = $('#escuela-table').DataTable({
-        "paging":   false,
+        dom: 'lfrtipB',
+        buttons: ['excel','pdf'],
+        processing: true,
+        ajax: {
+            url: $('#escuela-list-form').attr('action'),
+            type: "POST",
+            deferRender: true,
+            dataSrc: '',
+            data: function () {
+                return $('#escuela-list-form').serializeObject();
+            }
+        },
+        preDrawCallback: function () {
+            return tablaHabilitada;
+        },
+        columns: [
+        {"data": "codigo"},
+        {
+            data: "nombre",
+            render: function ( data, type, full, meta ) {
+                return '<a href="' + full.escuela_url + '">' + data + '</a>';
+            }
+        },
+        {"data": "direccion"},
+        {"data": "municipio"},
+        {"data": "departamento"},
+        {"data": "sector"},
+        {"data": "nivel"},
+        {"data": "poblacion"},
+        {
+            data: "equipada",
+            render: function (data) {
+                return data ? 'Sí' : 'No';
+            }
+        },
+        ]
+    }).on('xhr.dt', function (e, settings, json, xhr) {
+        $('#spinner').hide();
     });
     var filtro_list = [];
-    var armar_tabla = function (escuela_list) {
-        $.each(escuela_list, function (index, escuela) {
-            tabla.row.add([
-                escuela.codigo,
-                '<a href="'+escuela.escuela_url+'">' + escuela.nombre + '</a>',
-                escuela.direccion,
-                escuela.departamento,
-                escuela.municipio,
-                escuela.sector,
-                escuela.nivel,
-                escuela.poblacion,
-                (escuela.equipada ? 'Sí' : 'No')
-                ]).draw(false);
-        });
-        $('#escuela-table tbody tr').each(function(){
-            $(this).find('td:eq(0)').attr('nowrap', 'nowrap');
-        });
-        $('#lista-filtros').append('<li>'+filtro_list.join('</li><li>')+'</li>')
-        $('#filtros-collapse').show();
-        $('#spinner').hide();
-    }
-
-    var buscar_escuela = function (form) {
-        $.ajax({
-            type: 'post',
-            url: $(form).attr('action'),
-            dataType: 'json',
-            data: $(form).serialize(),
-            success: function (respuesta) {
-                armar_tabla(respuesta);
-            }
-        });
-    }
 
     // Public
     EscuelaBuscar.init = function () {
         $('#spinner').hide();
         $('#escuela-list-form').submit(function (e) {
             e.preventDefault();
+
             filtro_list = [];
             tabla.clear().draw();
             $('#spinner').show();
@@ -121,27 +127,21 @@
             });
             
             if (filtro_list.length > 0) {
+                tablaHabilitada = true;
                 $('#filtros-collapse').hide();
-                buscar_escuela($(this));
+                $('#spinner').show();
+                tabla.clear().draw();
+                tabla.ajax.reload();
             }
             else{
+                tablaHabilitada = false;
                 $('#lista-filtros').append('<li>Seleccione al menos un filtro</li>');
                 $('#filtros-collapse').show();
                 $('#spinner').hide();
             }
         });
-
     }   
 }( window.EscuelaBuscar = window.EscuelaBuscar || {}, jQuery ));
-
-$(document).ready(function () {
-    /**
-     * PERFIL DE ESCUELAS
-     */
-
-    
-    
-});
 
 (function( EscuelaContacto, $, undefined ) {
     // Public

@@ -150,14 +150,14 @@ class ParEscolaridad(models.Model):
 
 class Participante(models.Model):
     GENDER_CHOICES = (
-        (1, 'Hombre'),
-        (2, 'Mujer'),
+        ("M", 'Hombre'),
+        ("F", 'Mujer'),
     )
 
     dpi = models.CharField(max_length=20, unique=True)
     nombre = models.CharField(max_length=100)
     apellido = models.CharField(max_length=100)
-    genero = models.IntegerField(choices=GENDER_CHOICES)
+    genero = models.CharField(choices=GENDER_CHOICES, max_length=1)
     rol = models.ForeignKey(ParRol, on_delete=models.PROTECT)
     escuela = models.ForeignKey(Escuela, on_delete=models.PROTECT)
     direccion = models.TextField(null=True, blank=True, verbose_name='Dirección')
@@ -178,7 +178,7 @@ class Participante(models.Model):
         verbose_name_plural = "Participantes"
 
     def __str__(self):
-        return self.nombre + " " + self.apellido
+        return '{} {}'.format(self.nombre, self.apellido)
 
     def get_absolute_url(self):
         return ('')
@@ -193,7 +193,7 @@ class Asignacion(models.Model):
         verbose_name_plural = "Asignaciones"
 
     def __str__(self):
-        return str(self.grupo) + " - " + str(self.participante)
+        return '{} - {}'.format(self.grupo, self.participante)
 
     def get_absolute_url(self):
         return ('')

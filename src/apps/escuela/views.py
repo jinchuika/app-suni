@@ -92,7 +92,7 @@ class EscuelaCooperanteUpdate(LoginRequiredMixin, PermissionRequiredMixin, Updat
     model = Escuela
     form_class = EscuelaCooperanteForm
     template_name = 'mye/cooperante_asignacion_escuela.html'
-    permission_required = 'mye.change_escuela_cooperante'
+    permission_required = 'mye.change_escuelacooperante'
     redirect_unauthenticated_users = True
     raise_exception = True
 
@@ -126,7 +126,7 @@ class EscuelaProyectoUpdate(LoginRequiredMixin, PermissionRequiredMixin, UpdateV
     model = Escuela
     form_class = EscuelaProyectoForm
     template_name = 'mye/proyecto_asignacion_escuela.html'
-    permission_required = 'mye.change_escuela_proyecto'
+    permission_required = 'mye.change_escuelaproyecto'
     redirect_unauthenticated_users = True
     raise_exception = True
 
@@ -277,8 +277,8 @@ class EscuelaBuscar(InformeMixin):
     queryset = Escuela.objects.distinct()
     filter_list = {
         'codigo': 'codigo',
-        'nombre': 'nombre__contains',
-        'direccion': 'direccion__contains',
+        'nombre': 'nombre__icontains',
+        'direccion': 'direccion__icontains',
         'municipio': 'municipio',
         'departamento': 'municipio__departamento',
         'nivel': 'nivel',

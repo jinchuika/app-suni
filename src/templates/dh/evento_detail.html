@@ -48,6 +48,12 @@
 								{% endfor %}
 							</li>
 							<li class="list-group-item">
+								<b><i class="fa fa-align-left"></i> Descripción</b>
+								<span class="pull-right">
+									{{ eventodh.descripcion }}
+								</span>
+							</li>
+							<li class="list-group-item">
 								<b><i class="fa fa-camera"></i> Fotos</b>
 								{% if eventodh.fotos %}
 									<a href="{{ eventodh.fotos }}" class="pull-right" target="_blank">Link</a>
