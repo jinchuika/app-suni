@@ -15,5 +15,6 @@ urlpatterns = [
     url(r'^kardex/', include('apps.kardex.urls')),
     url(r'^tpe/', include('apps.tpe.urls')),
     url(r'^dh/', include('apps.dh.urls')),
+    url(r'^naat/', include('apps.naat.urls')),
     url(r'^$', include('apps.main.urls')),
 ]

@@ -9,7 +9,12 @@ dh_children = (
         "Calendario",
         reverse_lazy("evento_dh_calendario"),
         weight=10,
-        icon="fa-calendar"),)
+        icon="fa-calendar"),
+    ViewMenuItem(
+        "Reservaciones",
+        reverse_lazy("dh_reservaciones"),
+        weight=20,
+        icon="fa-list-ul"),)
 
 Menu.add_item(
     "user",

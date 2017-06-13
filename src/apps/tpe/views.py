@@ -77,24 +77,21 @@ class EquipamientoListView(InformeMixin):
             {
                 'entrega': equipamiento.id,
                 'entrega_url': equipamiento.get_absolute_url(),
-                'escuela': '<a href="{}">{} <br />({})</a>'.format(
-                    equipamiento.escuela.get_absolute_url(),
-                    equipamiento.escuela.nombre,
-                    equipamiento.escuela.codigo),
+                'escuela': equipamiento.escuela.nombre,
+                'escuela_url': equipamiento.escuela.get_absolute_url(),
+                'escuela_codigo': equipamiento.escuela.codigo,
                 'fecha': str(equipamiento.fecha),
                 'renovacion': 'Sí' if equipamiento.renovacion else 'No',
                 'khan': 'Sí' if equipamiento.servidor_khan else 'No',
                 'cantidad': equipamiento.cantidad_equipo,
                 'tipo_red': str(equipamiento.tipo_red) if equipamiento.red else 'No',
                 'cooperante': [{
-                    'cooperante': '<a href="{}">{}</a>'.format(
-                        cooperante.get_absolute_url(),
-                        cooperante.nombre)}
+                    'nombre': cooperante.nombre,
+                    'url': cooperante.get_absolute_url()}
                     for cooperante in equipamiento.cooperante.all()],
                 'proyecto': [{
-                    'proyecto': '<a href="{}">{}</a>'.format(
-                        proyecto.get_absolute_url(),
-                        proyecto.nombre)}
+                    'nombre': proyecto.nombre,
+                    'url': proyecto.get_absolute_url()}
                     for proyecto in equipamiento.proyecto.all()],
             } for equipamiento in queryset
         ]
@@ -471,15 +468,16 @@ class TicketInformeView(InformeMixin):
         var = [
             {
                 'entrega': ticket.garantia.equipamiento.id,
-                'escuela': '<a href="{}">{} <br />({})</a>'.format(
-                    ticket.garantia.equipamiento.escuela.get_absolute_url(),
-                    ticket.garantia.equipamiento.escuela.nombre,
-                    ticket.garantia.equipamiento.escuela.codigo),
+                'escuela': {
+                    'nombre': ticket.garantia.equipamiento.escuela.nombre,
+                    'codigo': ticket.garantia.equipamiento.escuela.codigo,
+                    'url': ticket.garantia.equipamiento.escuela.get_absolute_url()
+                },
                 'no_ticket': '<a href="{}">{}<a/>'.format(
                     ticket.get_absolute_url(),
                     ticket.id),
                 'fecha_inicio': str(ticket.fecha_abierto),
-                'fecha_fin': str(ticket.fecha_cierre),
+                'fecha_fin': str(ticket.fecha_cierre) if ticket.fecha_cierre else "",
                 'estado': 'Cerrado' if ticket.cerrado else 'Abierto',
                 'costo_reparacion': ticket.get_costo_reparacion(),
                 'costo_transporte': ticket.get_costo_transporte(),

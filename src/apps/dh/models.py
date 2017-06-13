@@ -27,6 +27,7 @@ class EventoDH(models.Model):
     hora_fin = models.TimeField(null=True, blank=True, verbose_name="Hora de fin")
     ubicacion = models.TextField(null=True, blank=True, verbose_name="Ubicación")
     creado_por = models.ForeignKey(User, related_name="eventos_dh")
+    descripcion = models.TextField(null=True, blank=True, verbose_name='Descripción')
 
     asistentes = models.ManyToManyField(User, blank=True)
     cooperantes = models.ManyToManyField(Cooperante, blank=True)

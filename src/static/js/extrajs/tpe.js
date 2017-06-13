@@ -26,15 +26,45 @@
             }
         },
         columns: [
-        { "data": "entrega"},
-        { "data": "escuela"},
-        { "data": "fecha", "className": "nowrap"  },
-        { "data": "renovacion" },
-        { "data": "khan" },
-        { "data": "cantidad" },
-        { "data": "tipo_red" },
-        { "data": "cooperante", 'render': '[, <br>].cooperante' },
-        { "data": "proyecto", 'render': '[, <br>].proyecto' },
+        {"data": "entrega"},
+        {"data": "escuela"},
+        {"data": "fecha", "className": "nowrap"  },
+        {"data": "renovacion" },
+        {"data": "khan" },
+        {"data": "cantidad" },
+        {"data": "tipo_red" },
+        {
+            data: "cooperante",
+            render: function (data, type, full, meta) {
+                return data.map(function (cooperante) {
+                    return '<a href="' + cooperante.url + '">' + cooperante.nombre + '</a>';
+                }).join(', <br>');
+            }
+        },
+        {
+            data: "proyecto",
+            render: function (data, type, full, meta) {
+                return data.map(function (proyecto) {
+                    return '<a href="' + proyecto.url + '">' + proyecto.nombre + '</a>';
+                }).join(', <br>');
+            }
+        },
+        ],
+        "columnDefs": [
+        {
+            targets: 0,
+            data: "entrega",
+            render: function ( data, type, full, meta ) {
+                return '<a href="' + full.entrega_url + '">' + data + '</a>';
+            }
+        },
+        {
+            targets: 1,
+            data: "escuela",
+            render: function (data, type, full, meta) {
+                return '<a href="' + full.escuela_url + '">' + data + '<br>(' + full.escuela_codigo + ')</a>';
+            }
+        }
         ]
     }).on('xhr.dt', function (e, settings, json, xhr) {
         $('#spinner').hide();
@@ -484,15 +514,20 @@
             }
         },
         columns: [
-        { "data": "entrega"},
-        { "data": "escuela"},
-        { "data": "no_ticket"},
-        { "data": "fecha_inicio", "className": "nowrap"  },
-        { "data": "fecha_fin", "className": "nowrap"  },
-        { "data": "estado" },
-        { "data": "costo_reparacion" },
-        { "data": "costo_transporte" },
-        { "data": "costo_total" },
+        {data: "no_ticket"},
+        {data: "entrega"},
+        {
+            data: "escuela",
+            render: function (data) {
+                return '<a href="' + data.url + '">' + data.nombre + '<br>(' + data.codigo + ')</a>';
+            }
+        },
+        {data: "fecha_inicio", "className": "nowrap", type: "date"},
+        {data: "fecha_fin", "className": "nowrap"},
+        {data: "estado" },
+        {data: "costo_reparacion", type: "num"},
+        {data: "costo_transporte", type: "num"},
+        {data: "costo_total", type: "num"},
         ]
     }).on('xhr.dt', function (e, settings, json, xhr) {
         $('#spinner').hide();

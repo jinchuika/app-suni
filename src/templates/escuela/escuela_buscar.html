@@ -164,6 +164,7 @@
 {% endblock content %}
 
 {% block extra_js %}
+{% include "base/dataTables.html" %}
 <script src="{% static "js/extrajs/escuela.js" %}"></script>
 <script>
 	EscuelaBuscar.init();

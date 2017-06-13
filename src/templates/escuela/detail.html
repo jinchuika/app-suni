@@ -201,7 +201,7 @@
 																	<tr>
 																		<th>
 																		Cooperantes
-																		{% if perms.mye.add_escuela_cooperante %}
+																		{% if perms.mye.add_escuelacooperante %}
 																			<a href="{% url "escuela_cooperante_add" pk=escuela.id %}" class="btn btn-box-tool"><i class="fa fa-pencil"></i> Editar</a>
 																		{% endif %}
 																		</th>
@@ -228,7 +228,7 @@
 																	<tr>
 																		<th>
 																			Proyectos
-																			{% if perms.mye.add_escuela_proyecto %}
+																			{% if perms.mye.add_escuelaproyecto %}
 																				<a href="{% url "escuela_proyecto_add" pk=escuela.id %}" class="btn btn-box-tool"><i class="fa fa-pencil"></i> Editar</a>
 																			{% endif %}
 																		</th>

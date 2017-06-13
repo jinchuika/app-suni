@@ -1,5 +1,6 @@
 from rest_framework import serializers
-from apps.cyd.models import Grupo, Calendario
+from django.contrib.auth.models import User
+from apps.cyd.models import Grupo, Calendario, Participante
 
 
 class CalendarioSerializer(serializers.ModelSerializer):
@@ -15,3 +16,15 @@ class GrupoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Grupo
         fields = ('id', 'sede', 'numero', 'curso', 'asistencias')
+
+
+class ParticipanteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Participante
+        fields = '__all__'
+
+
+class CapacitadorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('username', 'first_name', 'last_name')
