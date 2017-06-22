@@ -79,4 +79,8 @@ $(document).ready(function () {
 			},
 		}
 	});
+
+	Noty.overrideDefaults({
+		theme    : 'metroui',
+	});
 });

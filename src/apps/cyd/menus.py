@@ -20,6 +20,13 @@ cyd_children = (
         weight=10,
         icon="fa-users"),)
 
+cyd_calendario_children = (
+    ViewMenuItem(
+        "Capacitación",
+        reverse_lazy("cyd_calendario"),
+        weight=10,
+        icon="fa-book"),)
+
 Menu.add_item(
     "user",
     ViewMenuItem(
@@ -28,4 +35,14 @@ Menu.add_item(
         weight=10,
         icon="fa-graduation-cap",
         group="cyd",
-        children=cyd_children))
+        children=cyd_children),)
+
+Menu.add_item(
+    "user",
+    ViewMenuItem(
+        "Calendario",
+        '#',
+        weight=20,
+        icon="fa-calendar",
+        group="cyd",
+        children=cyd_calendario_children),)

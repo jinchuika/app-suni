@@ -30,3 +30,21 @@ class InformeMixin(CsrfExemptMixin, LoginRequiredMixin, FormView):
     def post(self, request, *args, **kwargs):
         item_list = self.get_queryset(self.request.POST)
         return JsonResponse(self.create_response(item_list), safe=False)
+
+
+class APIFilterMixin():
+    queryset = None
+    filter_list = None
+
+    def filter_queryset(self, queryset):
+        filter_clauses = None
+        for key, filtro in self.filter_list.items():
+            if self.request.GET.get(key):
+                q = Q(**{"%s" % filtro: self.request.GET.get(key)})
+                if filter_clauses:
+                    filter_clauses = filter_clauses & q
+                else:
+                    filter_clauses = q
+        if filter_clauses:
+            queryset = queryset.filter(filter_clauses)
+        return queryset

@@ -1,7 +1,8 @@
 from django import forms
 from django.forms.models import inlineformset_factory
-
+from django.core.urlresolvers import reverse_lazy
 from django.contrib.auth.models import User
+
 from apps.cyd.models import Curso, CrAsistencia, CrHito, Sede, Grupo
 
 
@@ -54,3 +55,22 @@ class GrupoForm(forms.ModelForm):
         widgets = {
             'sede': forms.Select(attrs={'class': 'select2'})
         }
+
+
+class SedeFilterForm(forms.Form):
+    capacitador = forms.ModelChoiceField(
+        queryset=User.objects.filter(groups__name='cyd_capacitador'))
+    sede = forms.ModelChoiceField(
+        queryset=Sede.objects.all())
+
+    def __init__(self, *args, **kwargs):
+        super(SedeFilterForm, self).__init__(*args, **kwargs)
+        self.fields['capacitador'].label_from_instance = lambda obj: "%s" % obj.get_full_name()
+
+
+class CalendarioFilterForm(forms.Form):
+    sede = forms.ModelChoiceField(
+        queryset=Sede.objects.all(),
+        widget=forms.Select(attrs={'class': 'form-control select2', 'data-url': reverse_lazy('grupo_api_list')}))
+    grupo = forms.ChoiceField(
+        widget=forms.Select(attrs={'class': 'form-control select2', 'data-url': reverse_lazy('calendario_api_list')}))

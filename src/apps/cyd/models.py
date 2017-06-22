@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta
 from django.db import models
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
@@ -17,10 +18,10 @@ class Curso(models.Model):
     porcentaje = models.IntegerField()
 
     def get_total_asistencia(self):
-        return sum(x.punteo_max for x in self.asistencia.all())
+        return sum(x.punteo_max for x in self.asistencias.all())
 
     def get_total_hito(self):
-        return sum(x.punteo_max for x in self.hito.all())
+        return sum(x.punteo_max for x in self.hitos.all())
 
     def get_absolute_url(self):
         return reverse('curso_detail', kwargs={"pk": self.id})
@@ -64,7 +65,7 @@ class CrHito(models.Model):
 
 class Sede(models.Model):
     nombre = models.CharField(max_length=150)
-    capacitador = models.ForeignKey(User)
+    capacitador = models.ForeignKey(User, related_name='sedes')
     municipio = models.ForeignKey(Municipio)
     direccion = models.CharField(max_length=150, verbose_name='Dirección')
     observacion = models.TextField(null=True, blank=True, verbose_name='Observaciones')
@@ -113,6 +114,15 @@ class Calendario(models.Model):
 
     def __str__(self):
         return str(self.cr_asistencia.modulo_num) + " - Grupo " + str(self.grupo)
+
+    def save(self, *args, **kwargs):
+        if self.hora_inicio and not self.hora_fin:
+            fecha = self.fecha if self.fecha else datetime(2000, 1, 1)
+            self.hora_fin = (datetime.combine(fecha, self.hora_inicio) + timedelta(minutes=90)).time()
+        super(Calendario, self).save(*args, **kwargs)
+
+    def get_api_url(self):
+        return reverse('calendario_api_detail', kwargs={'pk': self.id})
 
 
 class ParRol(models.Model):

@@ -4,14 +4,21 @@ from apps.cyd.models import Grupo, Calendario, Participante
 
 
 class CalendarioSerializer(serializers.ModelSerializer):
+    cr_asistencia = serializers.SlugRelatedField(read_only=True, slug_field='modulo_num')
+    url = serializers.SerializerMethodField('get_api_url')
+
     class Meta:
         model = Calendario
         fields = '__all__'
 
+    def get_api_url(self, calendario):
+        return calendario.get_api_url()
+
 
 class GrupoSerializer(serializers.ModelSerializer):
     sede = serializers.StringRelatedField()
-    asistencias = CalendarioSerializer(many=True, read_only=True)
+    curso = serializers.StringRelatedField()
+    asistencias = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
 
     class Meta:
         model = Grupo

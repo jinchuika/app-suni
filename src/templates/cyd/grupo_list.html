@@ -33,6 +33,7 @@
 							</thead>
 							<tbody>
 								{% for grupo in grupo_list|dictsortreversed:"id" %}
+								<tr>
 									<td>
 										<a href="{{ grupo.sede.get_absolute_url }}">{{ grupo.sede }}</a>
 									</td>
@@ -44,6 +45,7 @@
 									<td>{{ grupo.curso }}</td>
 									<td>{{ grupo.asignados.count }}</td>
 									<td>{{ grupo.sede.capacitador.get_full_name }}</td>
+									</tr>
 								{% endfor %}
 							</tbody>
 						</table>

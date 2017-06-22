@@ -1,12 +1,17 @@
+from datetime import datetime
 from django.http import HttpResponseRedirect
-from django.views.generic import DetailView, ListView
+from django.views.generic import DetailView, ListView, View, TemplateView
 from django.views.generic.edit import CreateView, UpdateView
 from django.contrib.auth.models import User
+from django.core.urlresolvers import reverse
 
-from braces.views import LoginRequiredMixin, GroupRequiredMixin
+from braces.views import LoginRequiredMixin, GroupRequiredMixin, JsonRequestResponseMixin
 
-from apps.cyd.forms import CursoForm, CrHitoFormSet, CrAsistenciaFormSet, SedeForm, GrupoForm
-from apps.cyd.models import Curso, Sede, Grupo
+from apps.cyd.forms import (
+    CursoForm, CrHitoFormSet, CrAsistenciaFormSet,
+    SedeForm, GrupoForm, CalendarioFilterForm,
+    SedeFilterForm)
+from apps.cyd.models import Curso, Sede, Grupo, Calendario
 from apps.main.models import Coordenada
 
 
@@ -170,3 +175,42 @@ class GrupoDetailView(LoginRequiredMixin, DetailView):
 class GrupoListView(LoginRequiredMixin, ListView):
     model = Grupo
     template_name = 'cyd/grupo_list.html'
+
+    def get_queryset(self):
+        queryset = super(GrupoListView, self).get_queryset()
+        if self.request.user.groups.filter(name="cyd_capacitador").exists():
+            queryset = queryset.filter(sede__capacitador=self.request.user)
+        return queryset
+
+
+class CalendarioView(LoginRequiredMixin, TemplateView):
+    template_name = 'cyd/calendario.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(CalendarioView, self).get_context_data(**kwargs)
+        context['sede_form'] = SedeFilterForm()
+        context['nueva_form'] = CalendarioFilterForm()
+        if self.request.user.groups.filter(name="cyd_capacitador").exists():
+            context['nueva_form'].fields['sede'].queryset = self.request.user.sedes.all()
+        return context
+
+
+class CalendarioListView(JsonRequestResponseMixin, View):
+    def get(self, request, *args, **kwargs):
+        response = []
+        calendario_list = Calendario.objects.filter(
+            fecha__gte=datetime.strptime(self.request.GET.get('start'), '%Y-%m-%d'),
+            fecha__lte=datetime.strptime(self.request.GET.get('end'), '%Y-%m-%d'))
+        for calendario in calendario_list:
+            response.append({
+                'title': 'Grupo {}'.format(calendario.grupo.numero),
+                'start': '{} {}'.format(calendario.fecha, calendario.hora_inicio),
+                'end': '{} {}'.format(calendario.fecha, calendario.hora_fin),
+                'curso': '{}'.format(calendario.grupo.curso),
+                'description': 'Grupo {}, asistencia {} en la sede {}'.format(
+                    calendario.grupo.numero,
+                    calendario.cr_asistencia.modulo_num,
+                    calendario.grupo.sede),
+                '_id': '{}'.format(calendario.id),
+                '_url': reverse('calendario_api_detail', kwargs={'pk': calendario.id})})
+        return self.render_json_response(response)
