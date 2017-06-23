@@ -307,7 +307,7 @@ class ValidacionForm(forms.ModelForm):
         fields = [
             'version', 'tipo', 'jornada', 'fecha_equipamiento',
             'alumna', 'alumno', 'total_alumno', 'maestra', 'maestro', 'total_maestro',
-            'requisito', 'observacion', 'completada'
+            'requisito', 'observacion', 'fotos_link', 'completada'
         ]
         exclude = ('escuela',)
         labels = {
