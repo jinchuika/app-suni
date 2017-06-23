@@ -21,8 +21,23 @@ class ParticipanteNaatSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class ParticipanteAsignadoField(serializers.RelatedField):
+    def to_representation(self, value):
+        if isinstance(value, AsignacionNaat):
+            serializer = ParticipanteNaatSerializer(value.participante)
+            return serializer.data
+        else:
+            raise Exception('Error al obtener datos')
+
+
 class FacilitadorNaatSerializer(serializers.ModelSerializer):
-    asignados_naat = AsignacionNaatSerializer(many=True)
+    asignados_naat = serializers.SerializerMethodField('get_asignaciones_activas')
+
+    def get_asignaciones_activas(self, obj):
+        asignaciones_naat = AsignacionNaat.objects.filter(capacitador=obj, activa=True)
+        print(asignaciones_naat)
+        serializer = AsignacionNaatSerializer(asignaciones_naat, many=True)
+        return serializer.data
 
     class Meta:
         model = User

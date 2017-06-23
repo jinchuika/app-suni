@@ -2,13 +2,9 @@ from django.conf.urls import url, include
 from apps.cyd.views import *
 from apps.cyd import api_views
 
-from rest_framework.routers import DefaultRouter
-
-cyd_router = DefaultRouter()
-cyd_router.register(r'api/grupo', api_views.GrupoViewSet)
-cyd_router.register(r'api/calendario', api_views.CalendarioViewSet)
 
 urlpatterns = [
+    url(r'^', include('apps.cyd.api_urls')),
     url(r'^curso/add/$', CursoCreateView.as_view(), name='curso_add'),
     url(r'^curso/list/$', CursoListView.as_view(), name='curso_list'),
     url(r'^curso/(?P<pk>\d+)/$', CursoDetailView.as_view(), name='curso_detail'),
@@ -22,5 +18,6 @@ urlpatterns = [
     url(r'^grupo/list/$', GrupoListView.as_view(), name='grupo_list'),
     url(r'^grupo/(?P<pk>\d+)/$', GrupoDetailView.as_view(), name='grupo_detail'),
 
-    url(r'', include(cyd_router.urls)),
+    url(r'^calendario/$', CalendarioView.as_view(), name='cyd_calendario'),
+    url(r'^calendario/list/$', CalendarioListView.as_view(), name='cyd_calendario_list'),
 ]

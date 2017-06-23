@@ -40,3 +40,14 @@ class ParticipanteUpdateView(generics.UpdateAPIView):
     serializer_class = ParticipanteNaatSerializer
     queryset = Participante.objects.annotate(num_asignaciones_naat=Count('asignaciones_naat')).filter(num_asignaciones_naat__gt=0)
     lookup_field = 'dpi'
+
+
+class AsignacionNaatListView(generics.ListAPIView):
+    serializer_class = AsignacionNaatSerializer
+    queryset = AsignacionNaat.objects.all()
+
+
+class AsignacionNaatRetrieveView(generics.RetrieveAPIView):
+    serializer_class = AsignacionNaatSerializer
+    queryset = AsignacionNaat.objects.all()
+    lookup_field = 'dpi'

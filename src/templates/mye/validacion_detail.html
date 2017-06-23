@@ -1,3 +1,5 @@
+{% load embed_gdrive_folder %}
+
 <div class="row">
 	<div class="col-md-12">
 		<div class="box box-warning box-solid {% if validacion_detail != validacion.id|stringformat:"s" %}collapsed-box{% endif %}">
@@ -74,6 +76,17 @@
 										</li>
 										{% endfor %}
 									</ul>
+								</td>
+							</tr>
+							<tr>
+								<th>Fotos</th>
+								<td>
+									{% if validacion.fotos_link %}
+									<br>
+									{{ validacion.fotos_link|embed_gdrive_folder|safe }}
+									{% else %}
+									No
+									{% endif %}
 								</td>
 							</tr>
 							<tr>

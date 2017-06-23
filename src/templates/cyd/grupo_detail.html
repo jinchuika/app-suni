@@ -46,7 +46,7 @@
 								<th>Observaciones</th>
 								<td>
 									{% csrf_token %}
-									<a href="#" class="editable" data-name="comentario" data-type="text" data-pk="{{ grupo.id }}" data-url="{% url 'grupo-detail' pk=grupo.id %}">
+									<a href="#" class="editable" data-name="comentario" data-type="text" data-pk="{{ grupo.id }}" data-url="{% url 'grupo_api_detail' pk=grupo.id %}">
 										{{ grupo.comentario }}
 									</a>
 								</td>
@@ -75,17 +75,17 @@
 								<tr>
 									<td>{{ asistencia.cr_asistencia.modulo_num }}</td>
 									<td>
-										<a href="#" class="editable" data-name="fecha" data-type="text" data-pk="{{ asistencia.id }}" data-url="{% url 'calendario-detail' pk=asistencia.id %}" data-mode="inline" data-inputclass="datepicker">
+										<a href="#" class="editable" data-name="fecha" data-type="text" data-pk="{{ asistencia.id }}" data-url="{% url 'calendario_api_detail' pk=asistencia.id %}" data-mode="inline" data-inputclass="datepicker">
 											{{ asistencia.fecha|date:"Y-m-d" }}
 										</a>
 									</td>
 									<td>
-										<a href="#" class="editable" data-name="hora_inicio" data-type="text" data-pk="{{ asistencia.id }}" data-url="{% url 'calendario-detail' pk=asistencia.id %}">
+										<a href="#" class="editable" data-name="hora_inicio" data-type="text" data-pk="{{ asistencia.id }}" data-url="{% url 'calendario_api_detail' pk=asistencia.id %}">
 											{{ asistencia.hora_inicio|default_if_none:"" }}
 										</a>
 									</td>
 									<td>
-										<a href="#" class="editable" data-name="hora_fin" data-type="text" data-pk="{{ asistencia.id }}" data-url="{% url 'calendario-detail' pk=asistencia.id %}">
+										<a href="#" class="editable" data-name="hora_fin" data-type="text" data-pk="{{ asistencia.id }}" data-url="{% url 'calendario_api_detail' pk=asistencia.id %}">
 											{{ asistencia.hora_fin|default_if_none:"" }}
 										</a>
 									</td>

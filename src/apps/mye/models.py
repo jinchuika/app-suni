@@ -175,6 +175,7 @@ class Validacion(models.Model):
     fecha_final = models.DateField(null=True, blank=True)
     jornada = models.IntegerField(default=1)
     fecha_equipamiento = models.DateField(null=True, blank=True)
+    fotos_link = models.URLField(null=True, blank=True)
 
     poblacion = models.ForeignKey('escuela.EscPoblacion', on_delete=models.PROTECT, related_name='validaciones', null=True)
 

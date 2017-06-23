@@ -7,77 +7,83 @@
 {% endblock page_title %}
 
 {% block content %}
-<section class="content-header">
-	<h1>{{curso}}</h1>
-</section>
 <section class="content">
 	<div class="container-fluid">
-		<div class="row">
-			<div class="col-md-6 col-md-offset-3">
-				<table class="table table-striped box box-primary">
-					<tr>
-						<th>Nombre</th>
-						<td>{{curso.nombre}}</td>
-					</tr>
-					<tr>
-						<th>Nota de aprobación</th>
-						<td>{{curso.nota_aprobacion}}</td>
-					</tr>
-					<tr>
-						<th>Porcentaje de la capacitación</th>
-						<td>{{curso.porcentaje}}</td>
-					</tr>
-					<tr>
-						<th>Asistencias</th>
-						<td>{{curso.asistencia.count}}</td>
-					</tr>
-					<tr>
-						<th>Trabajos</th>
-						<td>{{curso.hito.count}}</td>
-					</tr>
-				</table>
-				<table class="table table-striped box box-primary">
-					<thead>
-						<tr>
-							<td colspan="2" class="lead">Asistencias</td>
-						</tr>
-						<tr>
-							<th>Número</th>
-							<th>Punteo</th>
-						</tr>
-					</thead>
-					{% for asistencia in curso.asistencia.all %}
-						<tr>
-							<td>{{asistencia.modulo_num}}</td>
-							<td>{{asistencia.punteo_max}}</td>
-						</tr>
-					{% endfor %}
-					<tr>
-						<th>Total</th>
-						<td><b>{{curso.get_total_asistencia}}</b></td>
-					</tr>
-				</table>
-				<table class="table table-striped box box-primary">
-					<thead>
-						<tr>
-							<td colspan="2" class="lead">Trabajos</td>
-						</tr>
-						<tr>
-							<th>Descripción</th>
-							<th>Punteo</th>
-						</tr>
-					</thead>
-					{% for hito in curso.hito.all %}
-						<tr>
-							<td>{{hito.nombre}}</td>
-							<td>{{hito.punteo_max}}</td>
-						</tr>
-					{% endfor %}
-					<tr>
-						<th>Total</th>
-						<td><b>{{curso.get_total_hito}}</b></td>
-					</tr>
-				</table>
+		<div class="row-fluid">
+			<div class="col-md-4">
+				<div class="box box-primary">
+					<div class="box-header">
+						<h3 class="box-title">{{ curso.nombre }}</h3>
+					</div>
+					<div class="box-body no-padding">
+						<table class="table table-striped">
+							<tr>
+								<th>Nombre</th>
+								<td>{{ curso.nombre }}</td>
+							</tr>
+							<tr>
+								<th>Nota de aprobación</th>
+								<td>{{ curso.nota_aprobacion }}</td>
+							</tr>
+							<tr>
+								<th>Porcentaje de la capacitación</th>
+								<td>{{ curso.porcentaje }}</td>
+							</tr>
+							<tr>
+								<th>Asistencias</th>
+								<td>{{ curso.asistencias.count}}</td>
+							</tr>
+							<tr>
+								<th>Trabajos</th>
+								<td>{{ curso.hitos.count}}</td>
+							</tr>
+						</table>
+					</div>
+				</div>
+			</div>
+
+			<div class="col-md-4">
+				<div class="box box-primary">
+					<div class="box-header">
+						<h3 class="box-title">Asistencias</h3>
+					</div>
+					<div class="box-body no-padding">
+						<table class="table table-striped">
+							{% for asistencia in curso.asistencias.all %}
+								<tr>
+									<td>{{ asistencia.modulo_num }}</td>
+									<td>{{ asistencia.punteo_max }}</td>
+								</tr>
+							{% endfor %}
+							<tr>
+								<th>Total</th>
+								<td>{{ curso.get_total_asistencia }}</td>
+							</tr>
+						</table>
+					</div>
+				</div>
+			</div>
+
+			<div class="col-md-4">
+				<div class="box box-primary">
+					<div class="box-header">
+						<h3 class="box-title">Hitos</h3>
+					</div>
+					<div class="box-body no-padding">
+						<table class="table table-striped">
+							{% for hito in curso.hitos.all %}
+								<tr>
+									<td>{{ hito.nombre }}</td>
+									<td>{{ hito.punteo_max }}</td>
+								</tr>
+							{% endfor %}
+							<tr>
+								<th>Total</th>
+								<td>{{ curso.get_total_hito }}</td>
+							</tr>
+						</table>
+					</div>
+				</div>
 			</div>
 		</div>
 	</div>
