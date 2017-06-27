@@ -1,6 +1,9 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
-from apps.cyd.models import Grupo, Calendario, Participante
+from apps.main.serializers import DynamicFieldsModelSerializer
+from apps.cyd.models import (
+    Sede, Grupo, Calendario, Participante,
+    NotaAsistencia, NotaHito, Asignacion)
 
 
 class CalendarioSerializer(serializers.ModelSerializer):
@@ -25,7 +28,13 @@ class GrupoSerializer(serializers.ModelSerializer):
         fields = ('id', 'sede', 'numero', 'curso', 'asistencias')
 
 
-class ParticipanteSerializer(serializers.ModelSerializer):
+class SedeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Sede
+        fields = '__all__'
+
+
+class ParticipanteSerializer(DynamicFieldsModelSerializer, serializers.ModelSerializer):
     class Meta:
         model = Participante
         fields = '__all__'
@@ -35,3 +44,24 @@ class CapacitadorSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('username', 'first_name', 'last_name')
+
+
+class NotaAsistenciaSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = NotaAsistencia
+        exclude = ('asignacion',)
+
+
+class NotaHitoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = NotaHito
+        exclude = ('asignacion',)
+
+
+class AsignacionSerializer(serializers.ModelSerializer):
+    notas_asistencias = NotaAsistenciaSerializer(many=True, read_only=True)
+    notas_hitos = NotaHitoSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Asignacion
+        fields = ('id', 'grupo', 'participante', 'notas_asistencias', 'notas_hitos')

@@ -126,6 +126,12 @@
                 url: $('#cyd-calendario').data('url-cyd'),
                 type: 'GET',
                 cache: true,
+                data: function () {
+                    var params = {};
+                    params['capacitador'] = $('#id_capacitador').val();
+                    params['sede'] = $('#sede_form #id_sede').val();
+                    return params;
+                }
             }
             ],
             firstDay: 0,
@@ -184,21 +190,36 @@
     CalendarioCyD.init = function () {
         ini_events($('#asistencia_list div.external-event'));
 
-        $('#id_sede').on('change', function () {
-            $('#id_grupo').html('');
+        $('#sede_form #id_capacitador').on('change', function () {
+            $.get($(this).data('url'), {capacitador: $(this).val()},
+                function (respuesta) {
+                    var options = '<option></option>';
+                    $.each(respuesta, function (index, sede) {
+                        options += '<option value="'+sede.id+'">'+sede.nombre+'</option>';
+                    });
+                    $('#sede_form #id_sede').html(options).trigger('change');
+                });
+        });
+
+        $('#sede_form #id_sede').on('change', function () {
+            $('#cyd-calendario').fullCalendar('refetchEvents');
+        })
+
+        $('#asistencia_form #id_sede').on('change', function () {
+            $('#asistencia_form #id_grupo').html('');
             $('#asistencia_list').html('');
-            if ($('#id_sede').val()) {
+            if ($(this).val()) {
                 $.get($(this).data('url'), {sede: $(this).val()},
                     function (respuesta) {
                         var options = '';
                         $.each(respuesta, function (index, grupo) {
                             options += '<option value="'+grupo.id+'">'+grupo.numero+' - '+grupo.curso+'</option>';
                         });
-                        $('#id_grupo').html(options).trigger('change');
+                        $('#asistencia_form #id_grupo').html(options).trigger('change');
                     });
             }
         });
-        $('#id_grupo').on('change', function () {
+        $('#asistencia_form #id_grupo').on('change', function () {
             $('#asistencia_list').html('');
             $.get($(this).data('url'), {grupo: $(this).val()},
                 function (respuesta) {
@@ -221,3 +242,46 @@
         }
     }
 }( window.CalendarioCyD = window.CalendarioCyD || {}, jQuery ));
+
+(function( ParticipanteCrear, $, undefined ) {
+    ParticipanteCrear.init = function () {
+        /*
+        Al cambiar la sede, genera el listado de grupos
+         */
+        $('#form_participante #id_sede').on('change', function () {
+            $('#form_participante #id_grupo').html('');
+            if ($(this).val()) {
+                $.get($(this).data('url'), {sede: $(this).val()},
+                    function (respuesta) {
+                        var options = '';
+                        $.each(respuesta, function (index, grupo) {
+                            options += '<option value="'+grupo.id+'">'+grupo.numero+' - '+grupo.curso+'</option>';
+                        });
+                        $('#form_participante #id_grupo').html(options).trigger('change');
+                    });
+            }
+        });
+
+        /*
+        Al cambiar el grupo, genera el listado de participantes
+         */
+        $('#form_participante #id_grupo').on('change', function () {
+            $('#tbody-listado').html('');
+            $.get(
+                $(this).data('url'),
+                {
+                    asignaciones__grupo: $(this).val(),
+                    fields: 'nombre,apellido,escuela'
+                },
+                function (respuesta) {
+                    var filas = [];
+                    $.each(respuesta, function (index, participante) {
+                        var fila = $('<tr />');
+                        fila.append('<td>'+participante.nombre+'</td>');
+                        filas.push(fila);
+                    });
+                    $('#tbody-listado').html(filas);
+                })
+        })
+    }
+}( window.ParticipanteCrear = window.ParticipanteCrear || {}, jQuery ));

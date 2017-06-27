@@ -20,4 +20,6 @@ urlpatterns = [
 
     url(r'^calendario/$', CalendarioView.as_view(), name='cyd_calendario'),
     url(r'^calendario/list/$', CalendarioListView.as_view(), name='cyd_calendario_list'),
+
+    url(r'^participante/add/$', ParticipanteCreateView.as_view(), name='participante_add'),
 ]

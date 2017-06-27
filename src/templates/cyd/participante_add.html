@@ -1,0 +1,60 @@
+{% extends "base/base.html" %}
+
+{% load staticfiles widget_tweaks %}
+
+{% block page_title %}
+<title>Crear participante</title>
+{% endblock page_title %}
+
+{% block content %}
+<section class="content">
+	<div class="row">
+		<div class="col-md-4">
+			<div class="box box-info">
+				<div class="box-header">
+					<h3 class="box-title">Otros participantes</h3>
+				</div>
+				<div class="box box-body no-padding">
+					<table class="table table-striped">
+						<thead>
+							<tr>
+								<td>Nombre</td>
+								<td>Apellido</td>
+							</tr>
+						</thead>
+						<tbody id="tbody-listado"></tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+
+		<div class="col-md-8">
+			<div class="box box-info">
+				<div class="box-header with-border">
+					<h3 class="box-title">Horizontal Form</h3>
+				</div>
+				<form class="form" id="form_participante">
+					<div class="box-body">
+						{% for field in form %}
+						<div class="form-group">
+							{{ field.label_tag }}
+							{{ field|add_class:"form-control" }}
+						</div>
+						{% endfor %}
+					</div>
+					<div class="box-footer">
+						<button type="submit" class="btn btn-success pull-right">Crear</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+</section>
+{% endblock content %}
+
+{% block extra_js %}
+<script src="{% static "js/extrajs/cyd.js" %}"></script>
+<script>
+	ParticipanteCrear.init();
+</script>
+{% endblock extra_js %}

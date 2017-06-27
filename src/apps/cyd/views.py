@@ -10,8 +10,8 @@ from braces.views import LoginRequiredMixin, GroupRequiredMixin, JsonRequestResp
 from apps.cyd.forms import (
     CursoForm, CrHitoFormSet, CrAsistenciaFormSet,
     SedeForm, GrupoForm, CalendarioFilterForm,
-    SedeFilterForm)
-from apps.cyd.models import Curso, Sede, Grupo, Calendario
+    SedeFilterForm, ParticipanteForm)
+from apps.cyd.models import Curso, Sede, Grupo, Calendario, Participante
 from apps.main.models import Coordenada
 
 
@@ -192,6 +192,9 @@ class CalendarioView(LoginRequiredMixin, TemplateView):
         context['nueva_form'] = CalendarioFilterForm()
         if self.request.user.groups.filter(name="cyd_capacitador").exists():
             context['nueva_form'].fields['sede'].queryset = self.request.user.sedes.all()
+            context['sede_form'].fields['capacitador'].empty_label = None
+            context['sede_form'].fields['capacitador'].queryset = context['sede_form'].fields['capacitador'].queryset.filter(id=self.request.user.id)
+            context['sede_form'].fields['sede'].queryset = self.request.user.sedes.all()
         return context
 
 
@@ -201,6 +204,12 @@ class CalendarioListView(JsonRequestResponseMixin, View):
         calendario_list = Calendario.objects.filter(
             fecha__gte=datetime.strptime(self.request.GET.get('start'), '%Y-%m-%d'),
             fecha__lte=datetime.strptime(self.request.GET.get('end'), '%Y-%m-%d'))
+        capacitador = self.request.GET.get('capacitador', False)
+        if capacitador:
+            calendario_list = calendario_list.filter(grupo__sede__capacitador__id=capacitador)
+        sede = self.request.GET.get('sede', False)
+        if sede:
+            calendario_list = calendario_list.filter(grupo__sede__id=sede)
         for calendario in calendario_list:
             response.append({
                 'title': 'Grupo {}'.format(calendario.grupo.numero),
@@ -214,3 +223,15 @@ class CalendarioListView(JsonRequestResponseMixin, View):
                 '_id': '{}'.format(calendario.id),
                 '_url': reverse('calendario_api_detail', kwargs={'pk': calendario.id})})
         return self.render_json_response(response)
+
+
+class ParticipanteCreateView(LoginRequiredMixin, CreateView):
+    model = Participante
+    template_name = 'cyd/participante_add.html'
+    form_class = ParticipanteForm
+
+    def get_form(self, form_class=None):
+        form = super(ParticipanteCreateView, self).get_form(form_class)
+        if self.request.user.groups.filter(name="cyd_capacitador").exists():
+            form.fields['sede'].queryset = self.request.user.sedes.all()
+        return form

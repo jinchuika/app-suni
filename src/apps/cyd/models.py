@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 from django.db import models
+from django.utils.text import slugify
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 
@@ -183,6 +184,8 @@ class Participante(models.Model):
     etnia = models.ForeignKey(ParEtnia, null=True, blank=True)
     escolaridad = models.ForeignKey(ParEscolaridad, null=True, blank=True)
 
+    slug = models.SlugField(max_length=20, unique=True, null=True, blank=True)
+
     class Meta:
         verbose_name = "Participante"
         verbose_name_plural = "Participantes"
@@ -193,6 +196,13 @@ class Participante(models.Model):
     def get_absolute_url(self):
         return ('')
 
+    def save(self, *args, **kwargs):
+        self.slug = slugify(self.dpi)
+        super(Participante, self).save(*args, **kwargs)
+
+    def asignar(self, grupo):
+        self.asignaciones.create(grupo=grupo)
+
 
 class Asignacion(models.Model):
     participante = models.ForeignKey(Participante, related_name='asignaciones')
@@ -201,9 +211,51 @@ class Asignacion(models.Model):
     class Meta:
         verbose_name = "Asignación"
         verbose_name_plural = "Asignaciones"
+        unique_together = ('participante', 'grupo',)
 
     def __str__(self):
         return '{} - {}'.format(self.grupo, self.participante)
 
     def get_absolute_url(self):
         return ('')
+
+    def asignar(self):
+        for calendario in self.grupo.asistencias.all():
+            self.notas_asistencias.create(gr_calendario=calendario)
+        for hito in self.grupo.curso.hitos.all():
+            self.notas_hitos.create(cr_hito=hito)
+
+    def save(self, *args, **kwargs):
+        if not self.pk:
+            super(Asignacion, self).save(*args, **kwargs)
+            self.asignar()
+        else:
+            super(Asignacion, self).save(*args, **kwargs)
+
+
+class NotaAsistencia(models.Model):
+    asignacion = models.ForeignKey(Asignacion, related_name='notas_asistencias')
+    gr_calendario = models.ForeignKey(Calendario)
+    nota = models.IntegerField(default=0)
+
+    class Meta:
+        verbose_name = "Nota de Asistencia"
+        verbose_name_plural = "Notas de Asistencia"
+        unique_together = ('asignacion', 'gr_calendario',)
+
+    def __str__(self):
+        return '{} - {}'.format(self.nota, self.gr_calendario)
+
+
+class NotaHito(models.Model):
+    asignacion = models.ForeignKey(Asignacion, related_name='notas_hitos')
+    cr_hito = models.ForeignKey(CrHito)
+    nota = models.IntegerField(default=0)
+
+    class Meta:
+        verbose_name = "Nota de Hito"
+        verbose_name_plural = "Notas de Hito"
+        unique_together = ('asignacion', 'cr_hito',)
+
+    def __str__(self):
+        return '{} - {}'.format(self.nota, self.cr_hito)

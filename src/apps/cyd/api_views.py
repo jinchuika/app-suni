@@ -4,8 +4,8 @@ from braces.views import CsrfExemptMixin
 from rest_framework import generics, viewsets
 
 from apps.main.mixins import APIFilterMixin
-from apps.cyd.serializers import GrupoSerializer, CalendarioSerializer
-from apps.cyd.models import Grupo, Calendario
+from apps.cyd.serializers import SedeSerializer, GrupoSerializer, CalendarioSerializer, AsignacionSerializer, ParticipanteSerializer
+from apps.cyd.models import Sede, Grupo, Calendario, Asignacion, Participante
 
 
 class GrupoViewSet(CsrfExemptMixin, viewsets.ModelViewSet):
@@ -20,13 +20,21 @@ class CalendarioViewSet(CsrfExemptMixin, viewsets.ModelViewSet):
     filter_fields = ('grupo',)
 
 
-class SaleItemFilter(filters.FilterSet):
-    start_date = DateFilter(name='fecha', lookup_expr=('gte'),)
-    end_date = DateFilter(name='fecha', lookup_expr=('lte'))
+class SedeViewSet(CsrfExemptMixin, viewsets.ModelViewSet):
+    serializer_class = SedeSerializer
+    queryset = Sede.objects.all()
+    filter_fields = ('capacitador',)
 
-    class Meta:
-        model = Calendario
-        fields = ['fecha', ]
+
+class AsignacionViewSet(CsrfExemptMixin, viewsets.ModelViewSet):
+    serializer_class = AsignacionSerializer
+    queryset = Asignacion.objects.all()
+
+
+class ParticipanteViewSet(CsrfExemptMixin, viewsets.ModelViewSet):
+    serializer_class = ParticipanteSerializer
+    queryset = Participante.objects.all()
+    filter_fields = ('escuela', 'asignaciones__grupo')
 
 
 class CalendarioListAPIView(APIFilterMixin, generics.ListAPIView):
