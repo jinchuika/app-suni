@@ -92,8 +92,8 @@
             }
         },
         {"data": "direccion"},
-        {"data": "municipio"},
         {"data": "departamento"},
+        {"data": "municipio"},
         {"data": "sector"},
         {"data": "nivel"},
         {"data": "poblacion"},

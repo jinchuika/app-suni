@@ -30,6 +30,8 @@ asignacion_api_detail = api_views.AsignacionViewSet.as_view({
 
 participante_api_list = api_views.ParticipanteViewSet.as_view({
     'get': 'list'})
+participante_api_detail = api_views.ParticipanteViewSet.as_view({
+    'get': 'retrieve'})
 
 urlpatterns = [
     url(r'^api/sede/list/$', sede_api_list, name='sede_api_list'),
@@ -44,4 +46,5 @@ urlpatterns = [
     url(r'^api/asignacion/(?P<pk>\d+)/$', asignacion_api_detail, name='asignacion_api_detail'),
 
     url(r'^api/participante/list/$', participante_api_list, name='participante_api_list'),
+    url(r'^api/participante/(?P<dpi>\w+)/$', participante_api_detail, name='participante_api_detail'),
 ]

@@ -8,6 +8,7 @@ urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^users/', include('apps.users.urls')),
     url(r'^escuela/', include('apps.escuela.urls')),
+    url(r'^escuela/', include('apps.escuela.api_urls')),
     url(r'^cyd/', include('apps.cyd.urls')),
     url(r'^cyd/', include('apps.cyd.api_urls')),
     url(r'^mye/', include('apps.mye.urls')),

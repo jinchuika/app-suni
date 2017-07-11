@@ -21,6 +21,10 @@ $.fn.serializeObject = function()
     return o;
 };
 
+function validar_udi(codigo) {
+	return /^\d{2}-\d{2}-\d{4}-\d{2}$/.test(codigo);
+}
+
 function activar_datatable(tabla) {
 	$(tabla).DataTable({
 		"iDisplayLength": 50,

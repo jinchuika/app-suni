@@ -117,6 +117,7 @@ class Calendario(models.Model):
         return str(self.cr_asistencia.modulo_num) + " - Grupo " + str(self.grupo)
 
     def save(self, *args, **kwargs):
+        # si el objeto no tiene hora de fin, asigna 90 minutos extras
         if self.hora_inicio and not self.hora_fin:
             fecha = self.fecha if self.fecha else datetime(2000, 1, 1)
             self.hora_fin = (datetime.combine(fecha, self.hora_inicio) + timedelta(minutes=90)).time()
@@ -165,7 +166,7 @@ class Participante(models.Model):
         ("F", 'Mujer'),
     )
 
-    dpi = models.CharField(max_length=20, unique=True)
+    dpi = models.CharField(max_length=21, unique=True, null=True, blank=True, db_index=True)
     nombre = models.CharField(max_length=100)
     apellido = models.CharField(max_length=100)
     genero = models.CharField(choices=GENDER_CHOICES, max_length=1)
@@ -184,7 +185,7 @@ class Participante(models.Model):
     etnia = models.ForeignKey(ParEtnia, null=True, blank=True)
     escolaridad = models.ForeignKey(ParEscolaridad, null=True, blank=True)
 
-    slug = models.SlugField(max_length=20, unique=True, null=True, blank=True)
+    slug = models.SlugField(max_length=20, null=True, blank=True)
 
     class Meta:
         verbose_name = "Participante"
@@ -197,14 +198,24 @@ class Participante(models.Model):
         return ('')
 
     def save(self, *args, **kwargs):
+        if not self.dpi:
+            temp_par = Participante.objects.values('id').last()
+            self.dpi = "funsepa-{}".format(temp_par['id'] + 1)
+            print(self.dpi)
+        # aseguramos de tener el dpi como slug para el participante
         self.slug = slugify(self.dpi)
         super(Participante, self).save(*args, **kwargs)
 
     def asignar(self, grupo):
+        # asigna el participante a un grupo.
+        # el método ``asignar_notas()`` de la asginación se ejecuta automáticamente
         self.asignaciones.create(grupo=grupo)
 
 
 class Asignacion(models.Model):
+    """
+    El método ``asignar()`` se encarga de crear las notas para el objeto actual
+    """
     participante = models.ForeignKey(Participante, related_name='asignaciones')
     grupo = models.ForeignKey(Grupo, related_name='asignados')
 
@@ -219,16 +230,18 @@ class Asignacion(models.Model):
     def get_absolute_url(self):
         return ('')
 
-    def asignar(self):
+    def crear_notas(self):
+        # crea las notas de asistencias y de hitos para el objeto actual
         for calendario in self.grupo.asistencias.all():
             self.notas_asistencias.create(gr_calendario=calendario)
         for hito in self.grupo.curso.hitos.all():
             self.notas_hitos.create(cr_hito=hito)
 
     def save(self, *args, **kwargs):
+        # si el objeto no tiene pk, significa que es nuevo. En ese caso, se asignan las notas
         if not self.pk:
             super(Asignacion, self).save(*args, **kwargs)
-            self.asignar()
+            self.crear_notas()
         else:
             super(Asignacion, self).save(*args, **kwargs)
 

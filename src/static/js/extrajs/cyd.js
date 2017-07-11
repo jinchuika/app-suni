@@ -1,3 +1,35 @@
+function listar_grupos_sede(sede_selector, grupo_selector) {
+    /*
+    Al cambiar la sede, genera el listado de grupos
+     */
+    $(grupo_selector).html('');
+    if ($(sede_selector).val()) {
+        $.get($(sede_selector).data('url'),
+        {
+            sede: $(sede_selector).val()
+        },
+        function (respuesta) {
+            var options = '';
+            $.each(respuesta, function (index, grupo) {
+                options += '<option value="'+grupo.id+'">'+grupo.numero+' - '+grupo.curso+'</option>';
+            });
+            $(grupo_selector).html(options).trigger('change');
+        });
+    }
+}
+
+function validar_udi_api(params) {
+    if(validar_udi(params.udi)){
+        $.get(params.url,
+        {
+            codigo: params.udi,
+            fields: 'nombre'
+        }, function (respuesta) {
+            params.callback(respuesta);
+        });
+    }
+}
+
 (function( BuscadorSede, $, undefined ) {
     BuscadorSede.init = function () {
         var options = {
@@ -249,17 +281,7 @@
         Al cambiar la sede, genera el listado de grupos
          */
         $('#form_participante #id_sede').on('change', function () {
-            $('#form_participante #id_grupo').html('');
-            if ($(this).val()) {
-                $.get($(this).data('url'), {sede: $(this).val()},
-                    function (respuesta) {
-                        var options = '';
-                        $.each(respuesta, function (index, grupo) {
-                            options += '<option value="'+grupo.id+'">'+grupo.numero+' - '+grupo.curso+'</option>';
-                        });
-                        $('#form_participante #id_grupo').html(options).trigger('change');
-                    });
-            }
+            listar_grupos_sede('#form_participante #id_sede', '#form_participante #id_grupo');
         });
 
         /*
@@ -267,21 +289,194 @@
          */
         $('#form_participante #id_grupo').on('change', function () {
             $('#tbody-listado').html('');
-            $.get(
-                $(this).data('url'),
-                {
-                    asignaciones__grupo: $(this).val(),
-                    fields: 'nombre,apellido,escuela'
+            $.get($(this).data('url'),
+            {
+                asignaciones__grupo: $(this).val(),
+                fields: 'nombre,apellido,escuela'
+            },
+            function (respuesta) {
+                var filas = [];
+                $.each(respuesta, function (index, participante) {
+                    var fila = $('<tr />');
+                    fila.append('<td>'+participante.nombre+'</td>');
+                    fila.append('<td>'+participante.apellido+'</td>');
+                    fila.append('<td><a href="'+participante.escuela.url+'">'+participante.escuela.nombre+'<br>'+participante.escuela.codigo+'</a></td>');
+                    filas.push(fila);
+                });
+                $('#tbody-listado').html(filas);
+            });
+        });
+
+        /*
+        Valida que el UDI ingresado sea real
+         */
+        $('#form_participante #id_udi').on('input', function () {
+            $('#escuela_label').html('Escuela no encontrada');
+            $('#btn-crear').prop('disabled', true);
+            validar_udi_api({
+                url: $(this).data('url'),
+                udi: $(this).val(),
+                callback: function (respuesta) {
+                    if (respuesta.length>0) {
+                        $('#escuela_label').html(respuesta[0].nombre);
+                        $('#btn-crear').prop('disabled', false);
+                    }
+                    else{
+                        $('#escuela_label').html('Escuela no encontrada');
+                        $('#btn-crear').prop('disabled', true);
+                    }
+                }
+            })
+        });
+
+        $('#form_participante').submit(function (e) {
+            e.preventDefault();
+            $.ajax({
+                beforeSend: function(xhr, settings) {
+                    xhr.setRequestHeader("X-CSRFToken", $("[name=csrfmiddlewaretoken]").val());
                 },
-                function (respuesta) {
-                    var filas = [];
-                    $.each(respuesta, function (index, participante) {
-                        var fila = $('<tr />');
-                        fila.append('<td>'+participante.nombre+'</td>');
-                        filas.push(fila);
-                    });
-                    $('#tbody-listado').html(filas);
-                })
+                data: JSON.stringify($(this).serializeObject()),
+                error: function (respuesta) {
+                    new Noty({
+                        text: 'Dato duplicado',
+                        type: 'error',
+                        timeout: 1500,
+                    }).show();
+                },
+                success: function (respuesta) {
+                    if(respuesta.status=="ok"){
+                        $('#form_participante #id_grupo').trigger('change');
+                        new Noty({
+                            text: 'Creado con éxito',
+                            type: 'success',
+                            timeout: 1000,
+                        }).show();
+                        $('.form-reset').reset();
+                    }
+                    else{
+                        bootbox.alert("Error desconocido.");
+                    }
+                },
+                dataType: 'json',
+                type: 'POST',
+                url: $(this).attr('action')
+            });
         })
     }
 }( window.ParticipanteCrear = window.ParticipanteCrear || {}, jQuery ));
+
+(function( ParticipanteImportar, $, undefined ) {
+    var tabla_importar;
+    var dpi_validator = function (dpi, callback) {
+        if (dpi) {
+            $.get(
+                participante_api_list_url,
+            {
+                dpi: dpi
+            },
+            function (respuesta) {
+                return respuesta.length > 0 ? callback(false) : callback(true);
+            });
+        }
+    }
+
+    var guardar_tabla = function () {
+        var udi = $('#id_udi').val();
+        var grupo = $('#id_grupo').val();
+        if (udi && grupo) {
+            $.each(tabla_importar.getData(), function (index, fila) {
+                if (fila[0] && fila[1] && fila[2] && fila[3] && fila[4]) {
+                    $.ajax({
+                        beforeSend: function(xhr, settings) {
+                            xhr.setRequestHeader("X-CSRFToken", $("[name=csrfmiddlewaretoken]").val());
+                        },
+                        data: JSON.stringify({
+                            grupo: grupo,
+                            udi: udi,
+                            dpi: fila[0],
+                            nombre: fila[1],
+                            apellido: fila[2],
+                            genero: fila[3],
+                            rol: fila[4],
+                            mail: fila[5],
+                            tel_movil: fila[6],
+                        }),
+                        error: function (respuesta) {
+                            new Noty({
+                                text: 'Error al crear a ' + fila[1] + ' ' + fila[2],
+                                type: 'error',
+                                timeout: 1500,
+                            }).show();
+                        },
+                        success: function (respuesta) {
+                            if(respuesta.status=="ok"){
+                                new Noty({
+                                    text: 'Creado con éxito',
+                                    type: 'success',
+                                    timeout: 1000,
+                                }).show();
+                            }
+                            else{
+                                bootbox.alert("Error desconocido.");
+                            }
+                        },
+                        dataType: 'json',
+                        type: 'POST',
+                        url: participante_add_ajax_url
+                    });
+                }
+            });
+        }
+        console.log(tabla_importar.getData());
+    }
+
+    ParticipanteImportar.init = function () {
+        $('#form_participante #id_sede').on('change', function () {
+            listar_grupos_sede('#form_participante #id_sede', '#form_participante #id_grupo');
+        });
+
+        var container = document.getElementById('tabla_importar');
+
+        tabla_importar = new Handsontable(container, {
+            colHeaders: ["DPI", "Nombre", "Apellido", "Género", "Rol", "Correo electrónico", "Teléfono"],
+            columns: [
+            {data: 'dpi', validator: dpi_validator},
+            {data: 'nombre'},
+            {data: 'apellido'},
+            {data: 'genero'},
+            {data: 'rol'},
+            {data: 'email'},
+            {data: 'tel_movil'},
+            ],
+            minSpareRows: 1,
+            startRows: 1,
+            rowHeaders: true,
+        });
+
+        /*
+        Valida que el UDI ingresado sea real
+         */
+        $('#form_participante #id_udi').on('input', function () {
+            $('#escuela_label').html('Escuela no encontrada');
+            $('#btn-crear').prop('disabled', true);
+            validar_udi_api({
+                url: $(this).data('url'),
+                udi: $(this).val(),
+                callback: function (respuesta) {
+                    if (respuesta.length>0) {
+                        $('#escuela_label').html(respuesta[0].nombre);
+                        $('#btn-crear').prop('disabled', false);
+                    }
+                    else{
+                        $('#escuela_label').html('Escuela no encontrada');
+                        $('#btn-crear').prop('disabled', true);
+                    }
+                }
+            })
+        });
+
+        $('#btn-crear').on('click', function () {
+            guardar_tabla();
+        });
+    }
+}( window.ParticipanteImportar = window.ParticipanteImportar || {}, jQuery ));

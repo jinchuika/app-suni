@@ -78,21 +78,39 @@ class CalendarioFilterForm(forms.Form):
         widget=forms.Select(attrs={'class': 'form-control', 'data-url': reverse_lazy('calendario_api_list')}))
 
 
-class ParticipanteForm(forms.ModelForm):
+class ParticipanteBaseForm(forms.Form):
+    """
+    Este formulario se usa para crear participantes por listado
+    Los campos tienen URL para que se consulte al API desde el template
+    """
     sede = forms.ModelChoiceField(
         queryset=Sede.objects.none(),
         widget=forms.Select(attrs={'class': 'select2', 'data-url': reverse_lazy('grupo_api_list')}))
     grupo = forms.ModelChoiceField(
         queryset=Grupo.objects.none(),
         widget=forms.Select(attrs={'data-url': reverse_lazy('participante_api_list')}))
-    udi = forms.CharField()
+    udi = forms.CharField(
+        help_text='escuela_label',
+        widget=forms.TextInput(attrs={'data-url': reverse_lazy('escuela_api_list')}))
 
+
+class ParticipanteForm(ParticipanteBaseForm, forms.ModelForm):
+    """
+    Extiende el ParticipanteBaseForm para usar los mismos campos con URL
+    """
     class Meta:
         model = Participante
         fields = [
-            'sede', 'grupo', 'udi', 'nombre', 'apellido', 'genero', 'rol',
-            'mail', 'tel_movil', 'fecha_nac']
+            'sede', 'grupo', 'udi', 'nombre', 'apellido', 'dpi', 'genero', 'rol',
+            'mail', 'tel_movil']
         exclude = ('slug',)
         widgets = {
-            'sede': forms.Select(attrs={'class': 'select2'})
+            'nombre': forms.TextInput(attrs={'class': 'form-reset'}),
+            'apellido': forms.TextInput(attrs={'class': 'form-reset'}),
+            'dpi': forms.TextInput(attrs={'class': 'form-reset', 'data-url': reverse_lazy('participante_api_list')}),
+            'mail': forms.TextInput(attrs={'class': 'form-reset'}),
+            'tel_movil': forms.TextInput(attrs={'class': 'form-reset'})
+        }
+        help_texts = {
+            'dpi': 'dpi_label'
         }

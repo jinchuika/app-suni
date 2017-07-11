@@ -1,8 +1,9 @@
 from datetime import datetime
+from django.db import IntegrityError
 from django.http import HttpResponseRedirect
 from django.views.generic import DetailView, ListView, View, TemplateView
-from django.views.generic.edit import CreateView, UpdateView
-from django.contrib.auth.models import User
+from django.views.generic.edit import CreateView, UpdateView, FormView
+
 from django.core.urlresolvers import reverse
 
 from braces.views import LoginRequiredMixin, GroupRequiredMixin, JsonRequestResponseMixin
@@ -10,8 +11,9 @@ from braces.views import LoginRequiredMixin, GroupRequiredMixin, JsonRequestResp
 from apps.cyd.forms import (
     CursoForm, CrHitoFormSet, CrAsistenciaFormSet,
     SedeForm, GrupoForm, CalendarioFilterForm,
-    SedeFilterForm, ParticipanteForm)
-from apps.cyd.models import Curso, Sede, Grupo, Calendario, Participante
+    SedeFilterForm, ParticipanteForm, ParticipanteBaseForm)
+from apps.cyd.models import Curso, Sede, Grupo, Calendario, Participante, ParRol
+from apps.escuela.models import Escuela
 from apps.main.models import Coordenada
 
 
@@ -172,7 +174,10 @@ class GrupoDetailView(LoginRequiredMixin, DetailView):
     template_name = 'cyd/grupo_detail.html'
 
 
-class GrupoListView(LoginRequiredMixin, ListView):
+class GrupoListView(LoginRequiredMixin, GroupRequiredMixin, ListView):
+    group_required = [u"cyd", u"cyd_capacitador", u"cyd_admin", ]
+    redirect_unauthenticated_users = True
+    raise_exception = True
     model = Grupo
     template_name = 'cyd/grupo_list.html'
 
@@ -183,7 +188,10 @@ class GrupoListView(LoginRequiredMixin, ListView):
         return queryset
 
 
-class CalendarioView(LoginRequiredMixin, TemplateView):
+class CalendarioView(LoginRequiredMixin, GroupRequiredMixin, TemplateView):
+    group_required = [u"cyd", u"cyd_capacitador", u"cyd_admin", ]
+    redirect_unauthenticated_users = True
+    raise_exception = True
     template_name = 'cyd/calendario.html'
 
     def get_context_data(self, **kwargs):
@@ -225,7 +233,10 @@ class CalendarioListView(JsonRequestResponseMixin, View):
         return self.render_json_response(response)
 
 
-class ParticipanteCreateView(LoginRequiredMixin, CreateView):
+class ParticipanteCreateView(LoginRequiredMixin, GroupRequiredMixin, CreateView):
+    group_required = [u"cyd", u"cyd_capacitador", u"cyd_admin", ]
+    redirect_unauthenticated_users = True
+    raise_exception = True
     model = Participante
     template_name = 'cyd/participante_add.html'
     form_class = ParticipanteForm
@@ -235,3 +246,45 @@ class ParticipanteCreateView(LoginRequiredMixin, CreateView):
         if self.request.user.groups.filter(name="cyd_capacitador").exists():
             form.fields['sede'].queryset = self.request.user.sedes.all()
         return form
+
+
+class ParticipanteCreateListView(LoginRequiredMixin, GroupRequiredMixin, FormView):
+    group_required = [u"cyd", u"cyd_capacitador", u"cyd_admin", ]
+    redirect_unauthenticated_users = True
+    raise_exception = True
+    model = Participante
+    template_name = 'cyd/participante_importar.html'
+    form_class = ParticipanteBaseForm
+
+    def get_form(self, form_class=None):
+        form = super(ParticipanteCreateListView, self).get_form(form_class)
+        if self.request.user.groups.filter(name="cyd_capacitador").exists():
+            form.fields['sede'].queryset = self.request.user.sedes.all()
+        return form
+
+
+class ParticipanteJsonCreateView(LoginRequiredMixin, JsonRequestResponseMixin, CreateView):
+    require_json = True
+    model = Participante
+    form_class = ParticipanteForm
+
+    def post(self, request, *args, **kwargs):
+        try:
+            escuela = Escuela.objects.get(codigo=self.request_json['udi'])
+            grupo = Grupo.objects.get(id=self.request_json['grupo'])
+            rol = ParRol.objects.get(id=self.request_json['rol'])
+            participante = Participante.objects.create(
+                dpi=self.request_json['dpi'],
+                nombre=self.request_json['nombre'],
+                apellido=self.request_json['apellido'],
+                genero=self.request_json['genero'],
+                rol=rol,
+                mail=self.request_json['mail'],
+                tel_movil=self.request_json['tel_movil'],
+                escuela=escuela,
+                slug=self.request_json['dpi'])
+            participante.asignar(grupo)
+        except IntegrityError:
+            error_dict = {u"message": u"Dato duplicado"}
+            return self.render_bad_request_response(error_dict)
+        return self.render_json_response({'status': 'ok'})

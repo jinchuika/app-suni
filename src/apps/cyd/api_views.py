@@ -1,5 +1,3 @@
-from django_filters import rest_framework as filters, DateFilter
-
 from braces.views import CsrfExemptMixin
 from rest_framework import generics, viewsets
 
@@ -34,7 +32,8 @@ class AsignacionViewSet(CsrfExemptMixin, viewsets.ModelViewSet):
 class ParticipanteViewSet(CsrfExemptMixin, viewsets.ModelViewSet):
     serializer_class = ParticipanteSerializer
     queryset = Participante.objects.all()
-    filter_fields = ('escuela', 'asignaciones__grupo')
+    filter_fields = ('escuela', 'asignaciones__grupo', 'dpi')
+    lookup_field = 'dpi'
 
 
 class CalendarioListAPIView(APIFilterMixin, generics.ListAPIView):
