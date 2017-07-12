@@ -9,7 +9,26 @@
 {% block content %}
 <section class="content">
 	<div class="row">
-		<div class="col-md-12">
+		<div class="col-md-3">
+			<div class="box box-info">
+				<div class="box-header">
+					<h3 class="box-title">Otros participantes</h3>
+				</div>
+				<div class="box-body no-padding">
+					<table class="table table-striped">
+						<thead>
+							<tr>
+								<th>Nombre</th>
+								<th>Apellido</th>
+								<th>Escuela</th>
+							</tr>
+						</thead>
+						<tbody id="tbody-listado"></tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+		<div class="col-md-9">
 			<div class="box box-primary">
 				<div class="box-header with-border">
 					<h3 class="box-title">Nuevo participante</h3>
@@ -54,6 +73,11 @@
 <script>
 	var participante_api_list_url = "{% url 'participante_api_list' %}";
 	var participante_add_ajax_url = "{% url 'participante_add_ajax' %}";
+	var rol_list = [
+	{% for rol in rol_list %}
+		{id: '{{ rol.id }}', rol: '{{ rol.nombre }}'},
+	{% endfor %}
+	];
 	ParticipanteImportar.init();
 </script>
 {% endblock extra_js %}

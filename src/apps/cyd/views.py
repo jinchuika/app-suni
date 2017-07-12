@@ -256,6 +256,11 @@ class ParticipanteCreateListView(LoginRequiredMixin, GroupRequiredMixin, FormVie
     template_name = 'cyd/participante_importar.html'
     form_class = ParticipanteBaseForm
 
+    def get_context_data(self, **kwargs):
+        context = super(ParticipanteCreateListView, self).get_context_data(**kwargs)
+        context['rol_list'] = ParRol.objects.all()
+        return context
+
     def get_form(self, form_class=None):
         form = super(ParticipanteCreateListView, self).get_form(form_class)
         if self.request.user.groups.filter(name="cyd_capacitador").exists():

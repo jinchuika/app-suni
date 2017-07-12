@@ -383,9 +383,10 @@ function validar_udi_api(params) {
     var guardar_tabla = function () {
         var udi = $('#id_udi').val();
         var grupo = $('#id_grupo').val();
+        var progress = 0;
         if (udi && grupo) {
             $.each(tabla_importar.getData(), function (index, fila) {
-                if (fila[0] && fila[1] && fila[2] && fila[3] && fila[4]) {
+                if (fila[1] && fila[2] && fila[3] && fila[4]) {
                     $.ajax({
                         beforeSend: function(xhr, settings) {
                             xhr.setRequestHeader("X-CSRFToken", $("[name=csrfmiddlewaretoken]").val());
@@ -410,11 +411,11 @@ function validar_udi_api(params) {
                         },
                         success: function (respuesta) {
                             if(respuesta.status=="ok"){
-                                new Noty({
-                                    text: 'Creado con éxito',
-                                    type: 'success',
-                                    timeout: 1000,
-                                }).show();
+                                console.log(index);
+                                progress += 1;
+                                dato_guardado(tabla_importar.countRows(), progress);
+                                console.log(progress);
+                                //tabla_importar.alter('remove_row', index);
                             }
                             else{
                                 bootbox.alert("Error desconocido.");
@@ -425,9 +426,22 @@ function validar_udi_api(params) {
                         url: participante_add_ajax_url
                     });
                 }
+                else{
+                    progress += 1;
+                }
             });
         }
         console.log(tabla_importar.getData());
+    }
+
+    function dato_guardado(length_all, progress) {
+        if (length_all == progress) {
+            new Noty({
+                text: 'Proceso terminado',
+                type: 'success',
+                timeout: 1000,
+            }).show();
+        }
     }
 
     ParticipanteImportar.init = function () {
@@ -440,17 +454,58 @@ function validar_udi_api(params) {
         tabla_importar = new Handsontable(container, {
             colHeaders: ["DPI", "Nombre", "Apellido", "Género", "Rol", "Correo electrónico", "Teléfono"],
             columns: [
-            {data: 'dpi', validator: dpi_validator},
+            {data: 'dpi', validator: dpi_validator, allowInvalid: true},
             {data: 'nombre'},
             {data: 'apellido'},
-            {data: 'genero'},
-            {data: 'rol'},
+            {
+                type: 'handsontable',
+                strict: true,
+                handsontable: {
+                    autoColumnSize: true,
+                    data: ['M', 'F']
+                }
+            },
+            {
+                type: 'handsontable',
+                strict: true,
+                handsontable: {
+                    autoColumnSize: true,
+                    data: rol_list,
+                    getValue: function () {
+                        var selection = this.getSelected();
+                        return this.getSourceDataAtRow(selection[0]).id;
+                    }
+                }
+            },
             {data: 'email'},
             {data: 'tel_movil'},
             ],
             minSpareRows: 1,
             startRows: 1,
             rowHeaders: true,
+        });
+
+        /*
+        Al cambiar el grupo, genera el listado de participantes
+         */
+        $('#form_participante #id_grupo').on('change', function () {
+            $('#tbody-listado').html('');
+            $.get($(this).data('url'),
+            {
+                asignaciones__grupo: $(this).val(),
+                fields: 'nombre,apellido,escuela'
+            },
+            function (respuesta) {
+                var filas = [];
+                $.each(respuesta, function (index, participante) {
+                    var fila = $('<tr />');
+                    fila.append('<td>'+participante.nombre+'</td>');
+                    fila.append('<td>'+participante.apellido+'</td>');
+                    fila.append('<td><a href="'+participante.escuela.url+'">'+participante.escuela.nombre+'<br>'+participante.escuela.codigo+'</a></td>');
+                    filas.push(fila);
+                });
+                $('#tbody-listado').html(filas);
+            });
         });
 
         /*

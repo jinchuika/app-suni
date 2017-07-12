@@ -1,3 +1,4 @@
+from random import randint
 from datetime import datetime, timedelta
 from django.db import models
 from django.utils.text import slugify
@@ -200,7 +201,7 @@ class Participante(models.Model):
     def save(self, *args, **kwargs):
         if not self.dpi:
             temp_par = Participante.objects.values('id').last()
-            self.dpi = "funsepa-{}".format(temp_par['id'] + 1)
+            self.dpi = "f-{}{}".format(temp_par['id'] + 1, randint(0, 999))
             print(self.dpi)
         # aseguramos de tener el dpi como slug para el participante
         self.slug = slugify(self.dpi)
