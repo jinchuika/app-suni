@@ -367,6 +367,7 @@ function validar_udi_api(params) {
 
 (function( ParticipanteImportar, $, undefined ) {
     var tabla_importar;
+    var filas_borrar = [];
     var dpi_validator = function (dpi, callback) {
         if (dpi) {
             $.get(
@@ -387,6 +388,7 @@ function validar_udi_api(params) {
         if (udi && grupo) {
             $.each(tabla_importar.getData(), function (index, fila) {
                 if (fila[1] && fila[2] && fila[3] && fila[4]) {
+                    try{
                     $.ajax({
                         beforeSend: function(xhr, settings) {
                             xhr.setRequestHeader("X-CSRFToken", $("[name=csrfmiddlewaretoken]").val());
@@ -402,45 +404,58 @@ function validar_udi_api(params) {
                             mail: fila[5],
                             tel_movil: fila[6],
                         }),
-                        error: function (respuesta) {
+                        error: function (xhr, status, errorThrown) {
                             new Noty({
                                 text: 'Error al crear a ' + fila[1] + ' ' + fila[2],
                                 type: 'error',
-                                timeout: 1500,
+                                timeout: 3500,
                             }).show();
+                            progress += 1;
+                            notificar_fin(tabla_importar.countRows(), progress);
                         },
                         success: function (respuesta) {
                             if(respuesta.status=="ok"){
-                                console.log(index);
                                 progress += 1;
-                                dato_guardado(tabla_importar.countRows(), progress);
-                                console.log(progress);
+                                filas_borrar.push(index + 1);
+                                notificar_fin(tabla_importar.countRows(), progress);
                                 //tabla_importar.alter('remove_row', index);
                             }
                             else{
                                 bootbox.alert("Error desconocido.");
                             }
                         },
+                        contentType: "application/json; charset=utf-8",
                         dataType: 'json',
                         type: 'POST',
                         url: participante_add_ajax_url
                     });
+                }
+                catch(err){
+                    console.log('asd');
+                }
                 }
                 else{
                     progress += 1;
                 }
             });
         }
-        console.log(tabla_importar.getData());
     }
 
-    function dato_guardado(length_all, progress) {
+    var notificar_fin = function(length_all, progress) {
         if (length_all == progress) {
             new Noty({
-                text: 'Proceso terminado',
+                text: 'Proceso terminado. Creados ' + filas_borrar.length + ' participantes.',
                 type: 'success',
                 timeout: 1000,
             }).show();
+            filas_borrar.sort(function(a, b){return b-a});
+            $('#btn-crear').prop('disabled', false);
+            filas_borrar = [];
+            $('#id_grupo').trigger('change');
+            Pace.stop();
+            tabla_importar.updateSettings({
+                data : []
+            });
         }
     }
 
@@ -531,7 +546,15 @@ function validar_udi_api(params) {
         });
 
         $('#btn-crear').on('click', function () {
+            $(this).prop('disabled', true);
+            Pace.start();
             guardar_tabla();
         });
+
+        $('#btn-clear').on('click', function () {
+            tabla_importar.updateSettings({
+                data : []
+            });
+        })
     }
 }( window.ParticipanteImportar = window.ParticipanteImportar || {}, jQuery ));
