@@ -2,6 +2,7 @@ from random import randint
 from datetime import datetime, timedelta
 from django.db import models
 from django.utils.text import slugify
+from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 
@@ -196,13 +197,12 @@ class Participante(models.Model):
         return '{} {}'.format(self.nombre, self.apellido)
 
     def get_absolute_url(self):
-        return ('')
+        return reverse('participante_detail', kwargs={'pk': self.id})
 
     def save(self, *args, **kwargs):
         if not self.dpi:
-            temp_par = Participante.objects.values('id').last()
-            self.dpi = "f-{}{}".format(temp_par['id'] + 1, randint(0, 999))
-            print(self.dpi)
+            temp_id = self.id if self.pk else (Participante.objects.values('id').last()['id'] + 1)
+            self.dpi = "f-{}-{}".format(temp_id, randint(100, 999))
         # aseguramos de tener el dpi como slug para el participante
         self.slug = slugify(self.dpi)
         super(Participante, self).save(*args, **kwargs)
@@ -246,6 +246,14 @@ class Asignacion(models.Model):
         else:
             super(Asignacion, self).save(*args, **kwargs)
 
+    def get_nota_final(self):
+        return sum(nota.nota for nota in self.notas_asistencias.all()) + sum(nota.nota for nota in self.notas_hitos.all())
+    nota_final = property(get_nota_final)
+
+    def get_aprobado(self):
+        return self.get_nota_final() >= self.grupo.curso.nota_aprobacion
+    aprobado = property(get_aprobado)
+
 
 class NotaAsistencia(models.Model):
     asignacion = models.ForeignKey(Asignacion, related_name='notas_asistencias')
@@ -259,6 +267,10 @@ class NotaAsistencia(models.Model):
 
     def __str__(self):
         return '{} - {}'.format(self.nota, self.gr_calendario)
+
+    def clean(self):
+        if self.nota > self.gr_calendario.cr_asistencia.punteo_max:
+            raise ValidationError({'nota': 'La nota no puede exceder el punteo máximo.'})
 
 
 class NotaHito(models.Model):

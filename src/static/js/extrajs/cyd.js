@@ -558,3 +558,32 @@ function validar_udi_api(params) {
         })
     }
 }( window.ParticipanteImportar = window.ParticipanteImportar || {}, jQuery ));
+
+(function( ParticipanteDetail, $, undefined ) {
+    ParticipanteDetail.init = function () {
+        $('.editable').editable({
+            ajaxOptions: {
+                contentType: 'application/json',
+                dataType: 'json',
+                type: "PATCH",
+                beforeSend: function(xhr, settings) {
+                    xhr.setRequestHeader("X-CSRFToken", $('input[name="csrfmiddlewaretoken"]').val());
+                }
+            },
+            error: function (response, newValue) {
+                var respuesta = JSON.parse(response.responseText);
+                var respuestaText = '';
+                $.each(respuesta, function (index, item) {
+                    respuestaText += item[0];
+                });
+                return respuestaText;
+            },
+            mode: 'inline',
+            params: function(params) {
+                var obj = {};
+                obj[params['name']] = params['value'];
+                return JSON.stringify(obj);
+            },
+        });
+    }
+}( window.ParticipanteDetail = window.ParticipanteDetail || {}, jQuery ));

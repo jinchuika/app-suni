@@ -12,7 +12,7 @@ from apps.cyd.forms import (
     CursoForm, CrHitoFormSet, CrAsistenciaFormSet,
     SedeForm, GrupoForm, CalendarioFilterForm,
     SedeFilterForm, ParticipanteForm, ParticipanteBaseForm)
-from apps.cyd.models import Curso, Sede, Grupo, Calendario, Participante, ParRol
+from apps.cyd.models import Curso, Sede, Grupo, Calendario, Participante, ParRol, ParEtnia
 from apps.escuela.models import Escuela
 from apps.main.models import Coordenada
 
@@ -293,3 +293,14 @@ class ParticipanteJsonCreateView(LoginRequiredMixin, JsonRequestResponseMixin, C
             error_dict = {u"message": u"Dato duplicado"}
             return self.render_bad_request_response(error_dict)
         return self.render_json_response({'status': 'ok'})
+
+
+class ParticipanteDetailView(LoginRequiredMixin, DetailView):
+    model = Participante
+    template_name = 'cyd/participante_detail.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(ParticipanteDetailView, self).get_context_data(**kwargs)
+        context['rol_list'] = ParRol.objects.all()
+        context['etnia_list'] = ParEtnia.objects.all()
+        return context

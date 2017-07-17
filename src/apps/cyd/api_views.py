@@ -2,8 +2,13 @@ from braces.views import CsrfExemptMixin
 from rest_framework import generics, viewsets
 
 from apps.main.mixins import APIFilterMixin
-from apps.cyd.serializers import SedeSerializer, GrupoSerializer, CalendarioSerializer, AsignacionSerializer, ParticipanteSerializer
-from apps.cyd.models import Sede, Grupo, Calendario, Asignacion, Participante
+from apps.cyd.serializers import (
+    SedeSerializer, GrupoSerializer, CalendarioSerializer,
+    AsignacionSerializer, ParticipanteSerializer,
+    NotaAsistenciaSerializer, NotaHitoSerializer)
+from apps.cyd.models import (
+    Sede, Grupo, Calendario, Asignacion, Participante,
+    NotaAsistencia, NotaHito)
 
 
 class GrupoViewSet(CsrfExemptMixin, viewsets.ModelViewSet):
@@ -36,6 +41,12 @@ class ParticipanteViewSet(CsrfExemptMixin, viewsets.ModelViewSet):
     lookup_field = 'dpi'
 
 
+class ParticipanteAPIViewSet(CsrfExemptMixin, viewsets.ModelViewSet):
+    serializer_class = ParticipanteSerializer
+    queryset = Participante.objects.all()
+    filter_fields = ('escuela', 'asignaciones__grupo', 'dpi')
+
+
 class CalendarioListAPIView(APIFilterMixin, generics.ListAPIView):
     serializer_class = CalendarioSerializer
     queryset = Calendario.objects.all()
@@ -48,3 +59,15 @@ class CalendarioListAPIView(APIFilterMixin, generics.ListAPIView):
     def get_queryset(self):
         queryset = super(CalendarioListAPIView, self).get_queryset()
         return self.filter_queryset(queryset)
+
+
+class NotaAsistenciaViewSet(viewsets.ModelViewSet):
+    serializer_class = NotaAsistenciaSerializer
+    queryset = NotaAsistencia.objects.all()
+    filter_fields = ('asignacion',)
+
+
+class NotaHitoViewSet(viewsets.ModelViewSet):
+    serializer_class = NotaHitoSerializer
+    queryset = NotaHito.objects.all()
+    filter_fields = ('asignacion',)

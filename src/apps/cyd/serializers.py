@@ -3,7 +3,8 @@ from django.contrib.auth.models import User
 from apps.main.serializers import DynamicFieldsModelSerializer
 from apps.cyd.models import (
     Sede, Grupo, Calendario, Participante,
-    NotaAsistencia, NotaHito, Asignacion)
+    NotaAsistencia, NotaHito, Asignacion,
+    ParRol)
 from apps.escuela.serializers import EscuelaSerializer
 
 
@@ -41,6 +42,7 @@ class ParticipanteSerializer(DynamicFieldsModelSerializer, serializers.ModelSeri
     class Meta:
         model = Participante
         fields = '__all__'
+        extra_kwargs = {'dpi': {'required': 'True'}}
 
 
 class CapacitadorSerializer(serializers.ModelSerializer):
@@ -50,9 +52,19 @@ class CapacitadorSerializer(serializers.ModelSerializer):
 
 
 class NotaAsistenciaSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = NotaAsistencia
         exclude = ('asignacion',)
+
+    def update(self, instance, validated_data):
+        if validated_data['nota'] <= instance.gr_calendario.cr_asistencia.punteo_max:
+            instance.save()
+        else:
+            raise serializers.ValidationError(
+                {'nota': ['La nota no puede exceder el punteo máximo ({}).'.format(
+                    instance.gr_calendario.cr_asistencia.punteo_max)]})
+        return super(NotaAsistenciaSerializer, self).update(instance, validated_data)
 
 
 class NotaHitoSerializer(serializers.ModelSerializer):
@@ -60,11 +72,27 @@ class NotaHitoSerializer(serializers.ModelSerializer):
         model = NotaHito
         exclude = ('asignacion',)
 
+    def update(self, instance, validated_data):
+        if validated_data['nota'] <= instance.cr_hito.punteo_max:
+            instance.save()
+        else:
+            print("No valido")
+            raise serializers.ValidationError(
+                {'nota': ['La nota no puede exceder el punteo máximo ({}).'.format(
+                    instance.cr_hito.punteo_max)]})
+        return super(NotaHitoSerializer, self).update(instance, validated_data)
 
-class AsignacionSerializer(serializers.ModelSerializer):
+
+class AsignacionSerializer(DynamicFieldsModelSerializer, serializers.ModelSerializer):
     notas_asistencias = NotaAsistenciaSerializer(many=True, read_only=True)
     notas_hitos = NotaHitoSerializer(many=True, read_only=True)
 
     class Meta:
         model = Asignacion
-        fields = ('id', 'grupo', 'participante', 'notas_asistencias', 'notas_hitos')
+        fields = ('id', 'grupo', 'participante', 'notas_asistencias', 'notas_hitos', 'nota_final', 'aprobado')
+
+
+class ParRolSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ParRol
+        fields = '__all__'

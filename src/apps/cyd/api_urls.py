@@ -32,6 +32,13 @@ participante_api_list = api_views.ParticipanteViewSet.as_view({
     'get': 'list'})
 participante_api_detail = api_views.ParticipanteViewSet.as_view({
     'get': 'retrieve'})
+participante_api_update = api_views.ParticipanteAPIViewSet.as_view({
+    'patch': 'partial_update'})
+
+nota_asistencia_api_update = api_views.NotaAsistenciaViewSet.as_view({
+    'patch': 'partial_update'})
+nota_hito_api_update = api_views.NotaHitoViewSet.as_view({
+    'patch': 'partial_update'})
 
 urlpatterns = [
     url(r'^api/sede/list/$', sede_api_list, name='sede_api_list'),
@@ -47,4 +54,8 @@ urlpatterns = [
 
     url(r'^api/participante/list/$', participante_api_list, name='participante_api_list'),
     url(r'^api/participante/(?P<dpi>\w+)/$', participante_api_detail, name='participante_api_detail'),
+    url(r'^api/participante/(?P<pk>\d+)/update/$', participante_api_update, name='participante_api_update'),
+
+    url(r'^api/nota_asistencia/(?P<pk>\d+)/update/$', nota_asistencia_api_update, name='nota_asistencia_api_update'),
+    url(r'^api/nota_hito/(?P<pk>\d+)/update/$', nota_hito_api_update, name='nota_hito_api_update'),
 ]
