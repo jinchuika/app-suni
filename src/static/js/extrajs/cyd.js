@@ -58,6 +58,38 @@ function validar_udi_api(params) {
 
 
 (function( GrupoDetail, $, undefined ) {
+    var crear_grafico = function (contenedor) {
+        var url = $(contenedor).data('url');
+        var grupo_id = $(contenedor).data('grupo_id');
+
+        $.get(url, {grupo: grupo_id, fields: 'cr_asistencia,asistentes'}, function (respuesta) {
+            console.log(respuesta.map(function (calendario) {return calendario.cr_asistencia}));
+            var asistencias_chart = new Chart(contenedor, {
+                type: 'line',
+                data: {
+                    labels: respuesta.map(function (calendario) {return calendario.cr_asistencia}),
+                    datasets: [{
+                        label: "Asistentes",
+                        data: respuesta.map(function (calendario) {return calendario.asistentes}),
+                        borderColor: "#3e95cd",
+                        fill: false
+                    }]
+                },
+                options: {
+                    scales: {
+                        yAxes: [{
+                            ticks: {
+                                min: 0,
+                                beginAtZero:true
+                            },
+                            scaleSteps : 10,
+                        }]
+                    }
+                }
+            });
+        })
+    }
+
     GrupoDetail.init = function () {
         $('.editable').on('shown', function(e, editable) {
             $('.datepicker').datepicker({
@@ -80,6 +112,7 @@ function validar_udi_api(params) {
                 return JSON.stringify(obj);
             }
         });
+        crear_grafico($("#grafico-asistencias"));
     }
 }( window.GrupoDetail = window.GrupoDetail || {}, jQuery ));
 

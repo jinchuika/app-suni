@@ -41,9 +41,6 @@ class EquipamientoUpdateView(LoginRequiredMixin, PermissionRequiredMixin, Update
     redirect_unauthenticated_users = False
     raise_exception = True
 
-    def get_success_url(self):
-        return reverse('escuela_detail', kwargs={'pk': self.object.escuela.id})
-
 
 class EquipamientoDetailView(EscuelaDetail):
 

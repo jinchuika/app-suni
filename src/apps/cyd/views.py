@@ -12,7 +12,9 @@ from apps.cyd.forms import (
     CursoForm, CrHitoFormSet, CrAsistenciaFormSet,
     SedeForm, GrupoForm, CalendarioFilterForm,
     SedeFilterForm, ParticipanteForm, ParticipanteBaseForm)
-from apps.cyd.models import Curso, Sede, Grupo, Calendario, Participante, ParRol, ParEtnia
+from apps.cyd.models import (
+    Curso, Sede, Grupo, Calendario, Participante, ParRol,
+    ParEtnia, ParEscolaridad, ParGenero)
 from apps.escuela.models import Escuela
 from apps.main.models import Coordenada
 
@@ -173,6 +175,11 @@ class GrupoDetailView(LoginRequiredMixin, DetailView):
     model = Grupo
     template_name = 'cyd/grupo_detail.html'
 
+    def get_context_data(self, **kwargs):
+        context = super(GrupoDetailView, self).get_context_data(**kwargs)
+        context['genero_list'] = ParGenero.objects.all()
+        return context
+
 
 class GrupoListView(LoginRequiredMixin, GroupRequiredMixin, ListView):
     group_required = [u"cyd", u"cyd_capacitador", u"cyd_admin", ]
@@ -303,4 +310,21 @@ class ParticipanteDetailView(LoginRequiredMixin, DetailView):
         context = super(ParticipanteDetailView, self).get_context_data(**kwargs)
         context['rol_list'] = ParRol.objects.all()
         context['etnia_list'] = ParEtnia.objects.all()
+        context['escolaridad_list'] = ParEscolaridad.objects.all()
+        context['genero_list'] = ParGenero.objects.all()
         return context
+
+
+class ParticipanteEscuelaUpdateView(LoginRequiredMixin, JsonRequestResponseMixin, View):
+    """Para modificar la escuela a la que pertenece un participante
+    """
+    def patch(self, request, *args, **kwargs):
+        try:
+            escuela = Escuela.objects.get(codigo=self.request_json['udi'])
+            participante = Participante.objects.get(id=self.kwargs['pk'])
+            participante.escuela = escuela
+            participante.save()
+        except Exception:
+            error_dict = {u"message": u"Error. Verifique que el UDI sea correcto."}
+            return self.render_bad_request_response(error_dict)
+        return self.render_json_response({'status': 'ok'})

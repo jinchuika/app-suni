@@ -8,8 +8,9 @@ from apps.cyd.models import (
 from apps.escuela.serializers import EscuelaSerializer
 
 
-class CalendarioSerializer(serializers.ModelSerializer):
+class CalendarioSerializer(DynamicFieldsModelSerializer, serializers.ModelSerializer):
     cr_asistencia = serializers.SlugRelatedField(read_only=True, slug_field='modulo_num')
+    asistentes = serializers.SerializerMethodField()
     url = serializers.SerializerMethodField('get_api_url')
 
     class Meta:
@@ -18,6 +19,9 @@ class CalendarioSerializer(serializers.ModelSerializer):
 
     def get_api_url(self, calendario):
         return calendario.get_api_url()
+
+    def get_asistentes(self, calendario):
+        return calendario.count_asistentes()
 
 
 class GrupoSerializer(serializers.ModelSerializer):

@@ -35,6 +35,8 @@ class AsignacionViewSet(CsrfExemptMixin, viewsets.ModelViewSet):
 
 
 class ParticipanteViewSet(CsrfExemptMixin, viewsets.ModelViewSet):
+    """La diferencia con ParticipanteViewSet es que este usa el DPI como primary key
+    """
     serializer_class = ParticipanteSerializer
     queryset = Participante.objects.all()
     filter_fields = ('escuela', 'asignaciones__grupo', 'dpi')
@@ -42,6 +44,8 @@ class ParticipanteViewSet(CsrfExemptMixin, viewsets.ModelViewSet):
 
 
 class ParticipanteAPIViewSet(CsrfExemptMixin, viewsets.ModelViewSet):
+    """La diferencia con ParticipanteViewSet es que este ViewSet se basa en el ID
+    """
     serializer_class = ParticipanteSerializer
     queryset = Participante.objects.all()
     filter_fields = ('escuela', 'asignaciones__grupo', 'dpi')

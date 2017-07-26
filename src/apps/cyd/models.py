@@ -102,6 +102,24 @@ class Grupo(models.Model):
     def get_absolute_url(self):
         return reverse('grupo_detail', kwargs={'pk': self.id})
 
+    def get_hombres(self):
+        return self.asignados.filter(participante__genero__id=1).count()
+
+    def get_mujeres(self):
+        return self.asignados.filter(participante__genero__id=2).count()
+
+    def count_aprobados(self):
+        cuenta = sum(1 for asignacion in self.asignados.all() if asignacion.aprobado)
+        return cuenta
+
+    def get_porcentaje_aprobados(self):
+        return self.count_aprobados() / self.asignados.all().count() * 100
+
+    def get_progreso_asistencias(self):
+        asistencias_pasadas = self.asistencias.filter(fecha__lt=datetime.now()).count()
+        porcentaje_actual = asistencias_pasadas / self.asistencias.all().count() * 100
+        return {'cantidad': asistencias_pasadas, 'porcentaje': porcentaje_actual}
+
 
 class Calendario(models.Model):
     cr_asistencia = models.ForeignKey(CrAsistencia)
@@ -127,6 +145,9 @@ class Calendario(models.Model):
 
     def get_api_url(self):
         return reverse('calendario_api_detail', kwargs={'pk': self.id})
+
+    def count_asistentes(self):
+        return self.notas_asociadas.filter(nota__gt=0).count()
 
 
 class ParRol(models.Model):
@@ -162,16 +183,22 @@ class ParEscolaridad(models.Model):
         return self.nombre
 
 
-class Participante(models.Model):
-    GENDER_CHOICES = (
-        ("M", 'Hombre'),
-        ("F", 'Mujer'),
-    )
+class ParGenero(models.Model):
+    genero = models.CharField(max_length=8)
 
+    class Meta:
+        verbose_name = "Género"
+        verbose_name_plural = "Géneros"
+
+    def __str__(self):
+        return self.genero
+
+
+class Participante(models.Model):
     dpi = models.CharField(max_length=21, unique=True, null=True, blank=True, db_index=True)
     nombre = models.CharField(max_length=100)
     apellido = models.CharField(max_length=100)
-    genero = models.CharField(choices=GENDER_CHOICES, max_length=1)
+    genero = models.ForeignKey(ParGenero, null=True)
     rol = models.ForeignKey(ParRol, on_delete=models.PROTECT)
     escuela = models.ForeignKey(Escuela, on_delete=models.PROTECT)
     direccion = models.TextField(null=True, blank=True, verbose_name='Dirección')
@@ -257,7 +284,7 @@ class Asignacion(models.Model):
 
 class NotaAsistencia(models.Model):
     asignacion = models.ForeignKey(Asignacion, related_name='notas_asistencias')
-    gr_calendario = models.ForeignKey(Calendario)
+    gr_calendario = models.ForeignKey(Calendario, related_name='notas_asociadas')
     nota = models.IntegerField(default=0)
 
     class Meta:
