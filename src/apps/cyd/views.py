@@ -316,7 +316,9 @@ class ParticipanteDetailView(LoginRequiredMixin, DetailView):
 
 
 class ParticipanteEscuelaUpdateView(LoginRequiredMixin, JsonRequestResponseMixin, View):
-    """Para modificar la escuela a la que pertenece un participante
+    """Para modificar la escuela a la que pertenece un participante.
+    Recibe el código UDI de la escuela y actualiza el ID en el registro del participante.
+    El único método admitido por esta vista es PATCH, para realizar una actualización parcial.
     """
     def patch(self, request, *args, **kwargs):
         try:
