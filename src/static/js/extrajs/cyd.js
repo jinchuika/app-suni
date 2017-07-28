@@ -1,3 +1,35 @@
+function listar_grupos_sede(sede_selector, grupo_selector) {
+    /*
+    Al cambiar la sede, genera el listado de grupos
+     */
+    $(grupo_selector).html('');
+    if ($(sede_selector).val()) {
+        $.get($(sede_selector).data('url'),
+        {
+            sede: $(sede_selector).val()
+        },
+        function (respuesta) {
+            var options = '';
+            $.each(respuesta, function (index, grupo) {
+                options += '<option value="'+grupo.id+'">'+grupo.numero+' - '+grupo.curso+'</option>';
+            });
+            $(grupo_selector).html(options).trigger('change');
+        });
+    }
+}
+
+function validar_udi_api(params) {
+    if(validar_udi(params.udi)){
+        $.get(params.url,
+        {
+            codigo: params.udi,
+            fields: 'nombre'
+        }, function (respuesta) {
+            params.callback(respuesta);
+        });
+    }
+}
+
 (function( BuscadorSede, $, undefined ) {
     BuscadorSede.init = function () {
         var options = {
@@ -26,6 +58,38 @@
 
 
 (function( GrupoDetail, $, undefined ) {
+    var crear_grafico = function (contenedor) {
+        var url = $(contenedor).data('url');
+        var grupo_id = $(contenedor).data('grupo_id');
+
+        $.get(url, {grupo: grupo_id, fields: 'cr_asistencia,asistentes'}, function (respuesta) {
+            console.log(respuesta.map(function (calendario) {return calendario.cr_asistencia}));
+            var asistencias_chart = new Chart(contenedor, {
+                type: 'line',
+                data: {
+                    labels: respuesta.map(function (calendario) {return calendario.cr_asistencia}),
+                    datasets: [{
+                        label: "Asistentes",
+                        data: respuesta.map(function (calendario) {return calendario.asistentes}),
+                        borderColor: "#3e95cd",
+                        fill: false
+                    }]
+                },
+                options: {
+                    scales: {
+                        yAxes: [{
+                            ticks: {
+                                min: 0,
+                                beginAtZero:true
+                            },
+                            scaleSteps : 10,
+                        }]
+                    }
+                }
+            });
+        })
+    }
+
     GrupoDetail.init = function () {
         $('.editable').on('shown', function(e, editable) {
             $('.datepicker').datepicker({
@@ -48,6 +112,7 @@
                 return JSON.stringify(obj);
             }
         });
+        crear_grafico($("#grafico-asistencias"));
     }
 }( window.GrupoDetail = window.GrupoDetail || {}, jQuery ));
 
@@ -126,6 +191,12 @@
                 url: $('#cyd-calendario').data('url-cyd'),
                 type: 'GET',
                 cache: true,
+                data: function () {
+                    var params = {};
+                    params['capacitador'] = $('#id_capacitador').val();
+                    params['sede'] = $('#sede_form #id_sede').val();
+                    return params;
+                }
             }
             ],
             firstDay: 0,
@@ -184,21 +255,36 @@
     CalendarioCyD.init = function () {
         ini_events($('#asistencia_list div.external-event'));
 
-        $('#id_sede').on('change', function () {
-            $('#id_grupo').html('');
+        $('#sede_form #id_capacitador').on('change', function () {
+            $.get($(this).data('url'), {capacitador: $(this).val()},
+                function (respuesta) {
+                    var options = '<option></option>';
+                    $.each(respuesta, function (index, sede) {
+                        options += '<option value="'+sede.id+'">'+sede.nombre+'</option>';
+                    });
+                    $('#sede_form #id_sede').html(options).trigger('change');
+                });
+        });
+
+        $('#sede_form #id_sede').on('change', function () {
+            $('#cyd-calendario').fullCalendar('refetchEvents');
+        })
+
+        $('#asistencia_form #id_sede').on('change', function () {
+            $('#asistencia_form #id_grupo').html('');
             $('#asistencia_list').html('');
-            if ($('#id_sede').val()) {
+            if ($(this).val()) {
                 $.get($(this).data('url'), {sede: $(this).val()},
                     function (respuesta) {
                         var options = '';
                         $.each(respuesta, function (index, grupo) {
                             options += '<option value="'+grupo.id+'">'+grupo.numero+' - '+grupo.curso+'</option>';
                         });
-                        $('#id_grupo').html(options).trigger('change');
+                        $('#asistencia_form #id_grupo').html(options).trigger('change');
                     });
             }
         });
-        $('#id_grupo').on('change', function () {
+        $('#asistencia_form #id_grupo').on('change', function () {
             $('#asistencia_list').html('');
             $.get($(this).data('url'), {grupo: $(this).val()},
                 function (respuesta) {
@@ -221,3 +307,316 @@
         }
     }
 }( window.CalendarioCyD = window.CalendarioCyD || {}, jQuery ));
+
+(function( ParticipanteCrear, $, undefined ) {
+    ParticipanteCrear.init = function () {
+        /*
+        Al cambiar la sede, genera el listado de grupos
+         */
+        $('#form_participante #id_sede').on('change', function () {
+            listar_grupos_sede('#form_participante #id_sede', '#form_participante #id_grupo');
+        });
+
+        /*
+        Al cambiar el grupo, genera el listado de participantes
+         */
+        $('#form_participante #id_grupo').on('change', function () {
+            $('#tbody-listado').html('');
+            $.get($(this).data('url'),
+            {
+                asignaciones__grupo: $(this).val(),
+                fields: 'nombre,apellido,escuela'
+            },
+            function (respuesta) {
+                var filas = [];
+                $.each(respuesta, function (index, participante) {
+                    var fila = $('<tr />');
+                    fila.append('<td>'+participante.nombre+'</td>');
+                    fila.append('<td>'+participante.apellido+'</td>');
+                    fila.append('<td><a href="'+participante.escuela.url+'">'+participante.escuela.nombre+'<br>'+participante.escuela.codigo+'</a></td>');
+                    filas.push(fila);
+                });
+                $('#tbody-listado').html(filas);
+            });
+        });
+
+        /*
+        Valida que el UDI ingresado sea real
+         */
+        $('#form_participante #id_udi').on('input', function () {
+            $('#escuela_label').html('Escuela no encontrada');
+            $('#btn-crear').prop('disabled', true);
+            validar_udi_api({
+                url: $(this).data('url'),
+                udi: $(this).val(),
+                callback: function (respuesta) {
+                    if (respuesta.length>0) {
+                        $('#escuela_label').html(respuesta[0].nombre);
+                        $('#btn-crear').prop('disabled', false);
+                    }
+                    else{
+                        $('#escuela_label').html('Escuela no encontrada');
+                        $('#btn-crear').prop('disabled', true);
+                    }
+                }
+            })
+        });
+
+        $('#form_participante').submit(function (e) {
+            e.preventDefault();
+            $.ajax({
+                beforeSend: function(xhr, settings) {
+                    xhr.setRequestHeader("X-CSRFToken", $("[name=csrfmiddlewaretoken]").val());
+                },
+                data: JSON.stringify($(this).serializeObject()),
+                error: function (respuesta) {
+                    new Noty({
+                        text: 'Dato duplicado',
+                        type: 'error',
+                        timeout: 1500,
+                    }).show();
+                },
+                success: function (respuesta) {
+                    if(respuesta.status=="ok"){
+                        $('#form_participante #id_grupo').trigger('change');
+                        new Noty({
+                            text: 'Creado con éxito',
+                            type: 'success',
+                            timeout: 1000,
+                        }).show();
+                        $('.form-reset').reset();
+                    }
+                    else{
+                        bootbox.alert("Error desconocido.");
+                    }
+                },
+                dataType: 'json',
+                type: 'POST',
+                url: $(this).attr('action')
+            });
+        })
+    }
+}( window.ParticipanteCrear = window.ParticipanteCrear || {}, jQuery ));
+
+(function( ParticipanteImportar, $, undefined ) {
+    var tabla_importar;
+    var filas_borrar = [];
+    var dpi_validator = function (dpi, callback) {
+        if (dpi) {
+            $.get(
+                participante_api_list_url,
+            {
+                dpi: dpi
+            },
+            function (respuesta) {
+                return respuesta.length > 0 ? callback(false) : callback(true);
+            });
+        }
+    }
+
+    var guardar_tabla = function () {
+        var udi = $('#id_udi').val();
+        var grupo = $('#id_grupo').val();
+        var progress = 0;
+        if (udi && grupo) {
+            $.each(tabla_importar.getData(), function (index, fila) {
+                if (fila[1] && fila[2] && fila[3] && fila[4]) {
+                    try{
+                    $.ajax({
+                        beforeSend: function(xhr, settings) {
+                            xhr.setRequestHeader("X-CSRFToken", $("[name=csrfmiddlewaretoken]").val());
+                        },
+                        data: JSON.stringify({
+                            grupo: grupo,
+                            udi: udi,
+                            dpi: fila[0],
+                            nombre: fila[1],
+                            apellido: fila[2],
+                            genero: fila[3],
+                            rol: fila[4],
+                            mail: fila[5],
+                            tel_movil: fila[6],
+                        }),
+                        error: function (xhr, status, errorThrown) {
+                            new Noty({
+                                text: 'Error al crear a ' + fila[1] + ' ' + fila[2],
+                                type: 'error',
+                                timeout: 3500,
+                            }).show();
+                            progress += 1;
+                            notificar_fin(tabla_importar.countRows(), progress);
+                        },
+                        success: function (respuesta) {
+                            if(respuesta.status=="ok"){
+                                progress += 1;
+                                filas_borrar.push(index + 1);
+                                notificar_fin(tabla_importar.countRows(), progress);
+                                //tabla_importar.alter('remove_row', index);
+                            }
+                            else{
+                                bootbox.alert("Error desconocido.");
+                            }
+                        },
+                        contentType: "application/json; charset=utf-8",
+                        dataType: 'json',
+                        type: 'POST',
+                        url: participante_add_ajax_url
+                    });
+                }
+                catch(err){
+                    console.log('asd');
+                }
+                }
+                else{
+                    progress += 1;
+                }
+            });
+        }
+    }
+
+    var notificar_fin = function(length_all, progress) {
+        if (length_all == progress) {
+            new Noty({
+                text: 'Proceso terminado. Creados ' + filas_borrar.length + ' participantes.',
+                type: 'success',
+                timeout: 1000,
+            }).show();
+            filas_borrar.sort(function(a, b){return b-a});
+            $('#btn-crear').prop('disabled', false);
+            filas_borrar = [];
+            $('#id_grupo').trigger('change');
+            Pace.stop();
+            tabla_importar.updateSettings({
+                data : []
+            });
+        }
+    }
+
+    ParticipanteImportar.init = function () {
+        $('#form_participante #id_sede').on('change', function () {
+            listar_grupos_sede('#form_participante #id_sede', '#form_participante #id_grupo');
+        });
+
+        var container = document.getElementById('tabla_importar');
+
+        tabla_importar = new Handsontable(container, {
+            colHeaders: ["DPI", "Nombre", "Apellido", "Género", "Rol", "Correo electrónico", "Teléfono"],
+            columns: [
+            {data: 'dpi', validator: dpi_validator, allowInvalid: true},
+            {data: 'nombre'},
+            {data: 'apellido'},
+            {
+                type: 'handsontable',
+                strict: true,
+                handsontable: {
+                    autoColumnSize: true,
+                    data: ['M', 'F']
+                }
+            },
+            {
+                type: 'handsontable',
+                strict: true,
+                handsontable: {
+                    autoColumnSize: true,
+                    data: rol_list,
+                    getValue: function () {
+                        var selection = this.getSelected();
+                        return this.getSourceDataAtRow(selection[0]).id;
+                    }
+                }
+            },
+            {data: 'email'},
+            {data: 'tel_movil'},
+            ],
+            minSpareRows: 1,
+            startRows: 1,
+            rowHeaders: true,
+        });
+
+        /*
+        Al cambiar el grupo, genera el listado de participantes
+         */
+        $('#form_participante #id_grupo').on('change', function () {
+            $('#tbody-listado').html('');
+            $.get($(this).data('url'),
+            {
+                asignaciones__grupo: $(this).val(),
+                fields: 'nombre,apellido,escuela'
+            },
+            function (respuesta) {
+                var filas = [];
+                $.each(respuesta, function (index, participante) {
+                    var fila = $('<tr />');
+                    fila.append('<td>'+participante.nombre+'</td>');
+                    fila.append('<td>'+participante.apellido+'</td>');
+                    fila.append('<td><a href="'+participante.escuela.url+'">'+participante.escuela.nombre+'<br>'+participante.escuela.codigo+'</a></td>');
+                    filas.push(fila);
+                });
+                $('#tbody-listado').html(filas);
+            });
+        });
+
+        /*
+        Valida que el UDI ingresado sea real
+         */
+        $('#form_participante #id_udi').on('input', function () {
+            $('#escuela_label').html('Escuela no encontrada');
+            $('#btn-crear').prop('disabled', true);
+            validar_udi_api({
+                url: $(this).data('url'),
+                udi: $(this).val(),
+                callback: function (respuesta) {
+                    if (respuesta.length>0) {
+                        $('#escuela_label').html(respuesta[0].nombre);
+                        $('#btn-crear').prop('disabled', false);
+                    }
+                    else{
+                        $('#escuela_label').html('Escuela no encontrada');
+                        $('#btn-crear').prop('disabled', true);
+                    }
+                }
+            })
+        });
+
+        $('#btn-crear').on('click', function () {
+            $(this).prop('disabled', true);
+            Pace.start();
+            guardar_tabla();
+        });
+
+        $('#btn-clear').on('click', function () {
+            tabla_importar.updateSettings({
+                data : []
+            });
+        })
+    }
+}( window.ParticipanteImportar = window.ParticipanteImportar || {}, jQuery ));
+
+(function( ParticipanteDetail, $, undefined ) {
+    ParticipanteDetail.init = function () {
+        $('.editable').editable({
+            ajaxOptions: {
+                contentType: 'application/json',
+                dataType: 'json',
+                type: "PATCH",
+                beforeSend: function(xhr, settings) {
+                    xhr.setRequestHeader("X-CSRFToken", $('input[name="csrfmiddlewaretoken"]').val());
+                }
+            },
+            error: function (response, newValue) {
+                var respuesta = JSON.parse(response.responseText);
+                var respuestaText = '';
+                $.each(respuesta, function (index, item) {
+                    respuestaText += item[0];
+                });
+                return respuestaText;
+            },
+            mode: 'inline',
+            params: function(params) {
+                var obj = {};
+                obj[params['name']] = params['value'];
+                return JSON.stringify(obj);
+            },
+        });
+    }
+}( window.ParticipanteDetail = window.ParticipanteDetail || {}, jQuery ));

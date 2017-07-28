@@ -1,0 +1,84 @@
+{% extends "base/base.html" %}
+
+{% load staticfiles widget_tweaks %}
+
+{% block page_title %}
+<title>Crear participante</title>
+{% endblock page_title %}
+
+{% block content %}
+<section class="content">
+	<div class="row">
+		<div class="col-md-3">
+			<div class="box box-info">
+				<div class="box-header">
+					<h3 class="box-title">Otros participantes</h3>
+				</div>
+				<div class="box-body no-padding">
+					<table class="table table-striped">
+						<thead>
+							<tr>
+								<th>Nombre</th>
+								<th>Apellido</th>
+								<th>Escuela</th>
+							</tr>
+						</thead>
+						<tbody id="tbody-listado"></tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+		<div class="col-md-9">
+			<div class="box box-primary">
+				<div class="box-header with-border">
+					<h3 class="box-title">Nuevo participante</h3>
+				</div>
+				<form class="form-horizontal" id="form_participante" action="{% url 'participante_add_ajax' %}">
+					{% csrf_token %}
+					<div class="box-body">
+						{% for field in form %}
+						<div class="form-group">
+							<label for="{{ field.id_for_label }}" class="col-sm-2 control-label">{{ field.label }}</label>
+							<div class="col-sm-10">
+								{{ field|add_class:"form-control" }}
+								<span class="help-block" id="{{ field.help_text }}"></span>
+							</div>
+						</div>
+						{% endfor %}
+						<div id="tabla_importar"></div>
+					</div>
+				</form>
+				<div class="box-footer">
+					<button class="btn btn-success" id="btn-crear"><i class="fa fa-check" aria-hidden="true"></i> Crear</button> 
+					<button class="btn btn-primary" id="btn-clear"><i class="fa fa-times" aria-hidden="true"></i> Reiniciar</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+{% endblock content %}
+
+{% block extra_css %}
+<link rel="stylesheet" media="screen" href="{% static "css/handsontable.min.css" %}">
+<style type="text/css">
+	.wtHolder {
+		width: auto !important;
+		height: auto !important;
+	}
+</style>
+{% endblock extra_css %}
+
+{% block extra_js %}
+<script src="{% static "js/distributed/handsontable.min.js" %}"></script>
+<script src="{% static "js/extrajs/cyd.js" %}"></script>
+<script>
+	var participante_api_list_url = "{% url 'participante_api_list' %}";
+	var participante_add_ajax_url = "{% url 'participante_add_ajax' %}";
+	var rol_list = [
+	{% for rol in rol_list %}
+		{id: '{{ rol.id }}', rol: '{{ rol.nombre }}'},
+	{% endfor %}
+	];
+	ParticipanteImportar.init();
+</script>
+{% endblock extra_js %}

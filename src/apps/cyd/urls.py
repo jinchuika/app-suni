@@ -1,6 +1,5 @@
 from django.conf.urls import url, include
 from apps.cyd.views import *
-from apps.cyd import api_views
 
 
 urlpatterns = [
@@ -20,4 +19,11 @@ urlpatterns = [
 
     url(r'^calendario/$', CalendarioView.as_view(), name='cyd_calendario'),
     url(r'^calendario/list/$', CalendarioListView.as_view(), name='cyd_calendario_list'),
+
+    url(r'^participante/add/$', ParticipanteCreateView.as_view(), name='participante_add'),
+    url(r'^participante/add/a/$', ParticipanteJsonCreateView.as_view(), name='participante_add_ajax'),
+    url(r'^participante/(?P<pk>\d+)/$', ParticipanteDetailView.as_view(), name='participante_detail'),
+    url(r'^participante/(?P<pk>\d+)/escuelaupdate/$', ParticipanteEscuelaUpdateView.as_view(), name='participante_escuela_update'),
+
+    url(r'^participante/importar/$', ParticipanteCreateListView.as_view(), name='participante_importar'),
 ]

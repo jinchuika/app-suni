@@ -31,19 +31,7 @@
 								<td>{{ grupo.numero }}</td>
 							</tr>
 							<tr>
-								<th>Curso</th>
-								<td>{{ grupo.curso }}</td>
-							</tr>
-							<tr>
-								<th>Sede</th>
-								<td>{{ grupo.sede }}</td>
-							</tr>
-							<tr>
-								<th>Capacitador</th>
-								<td>{{ grupo.sede.capacitador.get_full_name }}</td>
-							</tr>
-							<tr>
-								<th>Observaciones</th>
+								<th>Descripción</th>
 								<td>
 									{% csrf_token %}
 									<a href="#" class="editable" data-name="comentario" data-type="text" data-pk="{{ grupo.id }}" data-url="{% url 'grupo_api_detail' pk=grupo.id %}">
@@ -51,73 +39,192 @@
 									</a>
 								</td>
 							</tr>
+							<tr>
+								<th>Curso</th>
+								<td>{{ grupo.curso }}</td>
+							</tr>
+							<tr>
+								<th>Capacitador</th>
+								<td>{{ grupo.sede.capacitador.get_full_name }}</td>
+							</tr>
+							<tr>
+								<th>Sede</th>
+								<td>
+									<a href="{{ grupo.sede.get_absolute_url }}">{{ grupo.sede }}</a>
+								</td>
+							</tr>
+							<tr>
+								<th>Cantidad de hombres</th>
+								<td>{{ grupo.get_hombres }}</td>
+							</tr>
+							<tr>
+								<th>Cantidad de mujeres</th>
+								<td>{{ grupo.get_mujeres }}</td>
+							</tr>
+							<tr>
+								<th>Total de asignados</th>
+								<td>{{ grupo.asignados.count }}</td>
+							</tr>
 						</table>
 					</div>
 				</div>
 			</div>
+			<!-- Inicio sección de resumen -->
 			<div class="col-md-6">
-				<div class="box box-primary">
-					<div class="box-header">
-						<h3 class="box-title">Calendario</h3>
+				<div class="row">
+					<div class="col-sm-6">
+						<div class="info-box bg-green">
+							<span class="info-box-icon"><i class="fa fa-check"></i></span>
+							<div class="info-box-content">
+								<span class="info-box-text">Aprobados</span>
+								<span class="info-box-number">{{ grupo.count_aprobados }}</span>
+								<div class="progress">
+									<div class="progress-bar" style="width: {{ grupo.get_porcentaje_aprobados|floatformat:0 }}%"></div>
+								</div>
+								<span class="progress-description">
+									{{ grupo.get_porcentaje_aprobados|floatformat:2 }}% en total
+								</span>
+							</div>
+						</div>
 					</div>
-					<div class="box-body no-padding">
-						<table class="table table-striped">
-							<thead>
-								<tr>
-									<th>Asistenca</th>
-									<th>Fecha</th>
-									<th>Hora de inicio</th>
-									<th>Hora de fin</th>
-								</tr>
-							</thead>
-							<tbody>
-								{% for asistencia in grupo.asistencias.all %}
-								<tr>
-									<td>{{ asistencia.cr_asistencia.modulo_num }}</td>
-									<td>
-										<a href="#" class="editable" data-name="fecha" data-type="text" data-pk="{{ asistencia.id }}" data-url="{% url 'calendario_api_detail' pk=asistencia.id %}" data-mode="inline" data-inputclass="datepicker">
-											{{ asistencia.fecha|date:"Y-m-d" }}
-										</a>
-									</td>
-									<td>
-										<a href="#" class="editable" data-name="hora_inicio" data-type="text" data-pk="{{ asistencia.id }}" data-url="{% url 'calendario_api_detail' pk=asistencia.id %}">
-											{{ asistencia.hora_inicio|default_if_none:"" }}
-										</a>
-									</td>
-									<td>
-										<a href="#" class="editable" data-name="hora_fin" data-type="text" data-pk="{{ asistencia.id }}" data-url="{% url 'calendario_api_detail' pk=asistencia.id %}">
-											{{ asistencia.hora_fin|default_if_none:"" }}
-										</a>
-									</td>
-								</tr>
-								{% endfor %}
-							</tbody>
-						</table>
+
+					<div class="col-sm-6">
+						<div class="info-box bg-yellow">
+							<span class="info-box-icon"><i class="fa fa-calendar"></i></span>
+							<div class="info-box-content">
+								<span class="info-box-text">Progreso</span>
+								<span class="info-box-number">{{ grupo.get_progreso_asistencias.cantidad }} de {{ grupo.asistencias.count }}</span>
+								<div class="progress">
+									<div class="progress-bar" style="width: {{ grupo.get_progreso_asistencias.porcentaje|floatformat:0 }}%"></div>
+								</div>
+								<span class="progress-description">
+									{{ grupo.get_progreso_asistencias.porcentaje|floatformat:2 }}% asistencias
+								</span>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="row">
+					<div class="col-sm-12">
+						<div class="box">
+							<div class="box-body">
+								<canvas id="grafico-asistencias" data-url="{% url 'calendario_api_list' %}" data-grupo_id="{{ grupo.id }}" style="height:100px;width: content-box;"></canvas>
+							</div>
+						</div>
 					</div>
 				</div>
 			</div>
 		</div>
+
 		<div class="row">
 			<div class="col-md-12">
-				<div class="box">
-					<div class="box-header">
-						<h3 class="box-title">Participantes</h3>
-					</div>
-					<div class="box-body no-padding">
-						<table class="table table-striped table-condensed">
-							<thead>
-								<tr>
-									<th>No.</th>
-									<th>DPI</th>
-									<th>Nombre</th>
-									<th>Apellido</th>
-									<th>Género</th>
-									<th>Escuela</th>
-									<th>Nota</th>
-									<th>Resultado</th>
-								</tr>
-							</thead>
-						</table>
+				<div class="nav-tabs-custom">
+					<ul class="nav nav-tabs nav-justified">
+						<li class="active">
+							<a href="#participantes" data-toggle="tab"><i class="fa fa-users" aria-hidden="true"></i> Participantes</a>
+						</li>
+						<li>
+							<a href="#calendario" data-toggle="tab"><i class="fa fa-calendar" aria-hidden="true"></i> Calendario</a>
+						</li>
+					</ul>
+					<div class="tab-content">
+						<!-- Panel de participantes -->
+						<div class="tab-pane active" id="participantes">
+							<table class="table table-striped table-condensed">
+								<thead>
+									<tr>
+										<th>No.</th>
+										<th>DPI</th>
+										<th>Nombre</th>
+										<th>Apellido</th>
+										<th>Género</th>
+										<th>Escuela</th>
+										<th>Nota</th>
+										<th>Resultado</th>
+									</tr>
+								</thead>
+								<tbody>
+									{% for asignacion in grupo.asignados.all %}
+										<tr>
+											<td>
+												<a href="{{ asignacion.participante.get_absolute_url }}">{{ forloop.counter }}</a>
+											</td>
+											<td>
+												<a href="#" class="editable" data-name="dpi" data-type="text" data-pk="{{ asignacion.participante.id }}" data-url="{% url 'participante_api_update' pk=asignacion.participante.id %}">
+													{{ asignacion.participante.dpi }}
+												</a>
+											</td>
+											<td>
+												<a href="#" class="editable" data-name="nombre" data-type="text" data-pk="{{ asignacion.participante.id }}" data-url="{% url 'participante_api_update' pk=asignacion.participante.id %}">
+													{{ asignacion.participante.nombre }}
+												</a>
+											</td>
+											<td>
+												<a href="#" class="editable" data-name="apellido" data-type="text" data-pk="{{ asignacion.participante.id }}" data-url="{% url 'participante_api_update' pk=asignacion.participante.id %}">
+													{{ asignacion.participante.apellido }}
+												</a>
+											</td>
+											<td>
+												<a href="#" class="editable" data-name="genero" data-type="select" data-pk="{{ asignacion.participante.id }}" data-source="{ {% for genero in genero_list %}'{{ genero.id }}': '{{ genero.genero }}',{% endfor %} }" data-url="{% url 'participante_api_update' pk=asignacion.participante.id %}">
+													{{ asignacion.participante.genero }}
+												</a>
+											</td>
+											<td>
+												<a href="#" class="editable" data-name="udi" data-type="text" data-pk="{{ asignacion.participante.id }}" data-url="{% url 'participante_escuela_update' pk=asignacion.participante.id %}">
+													{{ asignacion.participante.escuela }}
+												</a>
+											</td>
+											<td>{{ asignacion.nota_final }}</td>
+											<td>
+												{% if asignacion.aprobado %}
+													<span class="badge bg-green">Aprobado</span>
+												{% else %}
+													<span class="badge bg-red">Reprobado</span>
+												{% endif %}
+											</td>
+										</tr>
+									{% endfor %}
+								</tbody>
+							</table>
+						</div>
+						<!-- Fin panel de participantes -->
+						<!-- Inicio panel de calendario -->
+						<div class="tab-pane" id="calendario">
+							<table class="table table-striped table-condensed">
+								<thead>
+									<tr>
+										<th>Asistenca</th>
+										<th>Fecha</th>
+										<th>Hora de inicio</th>
+										<th>Hora de fin</th>
+									</tr>
+								</thead>
+								<tbody>
+									{% for asistencia in grupo.asistencias.all %}
+									<tr>
+										<td>{{ asistencia.cr_asistencia.modulo_num }}</td>
+										<td>
+											<a href="#" class="editable" data-name="fecha" data-type="text" data-pk="{{ asistencia.id }}" data-url="{% url 'calendario_api_detail' pk=asistencia.id %}" data-mode="inline" data-inputclass="datepicker">
+												{{ asistencia.fecha|date:"Y-m-d" }}
+											</a>
+										</td>
+										<td>
+											<a href="#" class="editable" data-name="hora_inicio" data-type="text" data-pk="{{ asistencia.id }}" data-url="{% url 'calendario_api_detail' pk=asistencia.id %}">
+												{{ asistencia.hora_inicio|default_if_none:"" }}
+											</a>
+										</td>
+										<td>
+											<a href="#" class="editable" data-name="hora_fin" data-type="text" data-pk="{{ asistencia.id }}" data-url="{% url 'calendario_api_detail' pk=asistencia.id %}">
+												{{ asistencia.hora_fin|default_if_none:"" }}
+											</a>
+										</td>
+									</tr>
+									{% endfor %}
+								</tbody>
+							</table>
+						</div>
+						<!-- Fin panel de calendario -->
 					</div>
 				</div>
 			</div>
@@ -134,6 +241,7 @@
 
 {% block extra_js %}
 <script src="{% static 'js/bootstrap-editable.min.js' %}"></script>
+<script src="{% static 'js/distributed/Chart.min.js' %}"></script>
 <script src="{% static 'js/extrajs/cyd.js' %}"></script>
 <script>
 	GrupoDetail.init();

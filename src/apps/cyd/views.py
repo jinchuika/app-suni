@@ -1,8 +1,9 @@
 from datetime import datetime
+from django.db import IntegrityError
 from django.http import HttpResponseRedirect
 from django.views.generic import DetailView, ListView, View, TemplateView
-from django.views.generic.edit import CreateView, UpdateView
-from django.contrib.auth.models import User
+from django.views.generic.edit import CreateView, UpdateView, FormView
+
 from django.core.urlresolvers import reverse
 
 from braces.views import LoginRequiredMixin, GroupRequiredMixin, JsonRequestResponseMixin
@@ -10,8 +11,11 @@ from braces.views import LoginRequiredMixin, GroupRequiredMixin, JsonRequestResp
 from apps.cyd.forms import (
     CursoForm, CrHitoFormSet, CrAsistenciaFormSet,
     SedeForm, GrupoForm, CalendarioFilterForm,
-    SedeFilterForm)
-from apps.cyd.models import Curso, Sede, Grupo, Calendario
+    SedeFilterForm, ParticipanteForm, ParticipanteBaseForm)
+from apps.cyd.models import (
+    Curso, Sede, Grupo, Calendario, Participante, ParRol,
+    ParEtnia, ParEscolaridad, ParGenero)
+from apps.escuela.models import Escuela
 from apps.main.models import Coordenada
 
 
@@ -171,8 +175,16 @@ class GrupoDetailView(LoginRequiredMixin, DetailView):
     model = Grupo
     template_name = 'cyd/grupo_detail.html'
 
+    def get_context_data(self, **kwargs):
+        context = super(GrupoDetailView, self).get_context_data(**kwargs)
+        context['genero_list'] = ParGenero.objects.all()
+        return context
 
-class GrupoListView(LoginRequiredMixin, ListView):
+
+class GrupoListView(LoginRequiredMixin, GroupRequiredMixin, ListView):
+    group_required = [u"cyd", u"cyd_capacitador", u"cyd_admin", ]
+    redirect_unauthenticated_users = True
+    raise_exception = True
     model = Grupo
     template_name = 'cyd/grupo_list.html'
 
@@ -183,7 +195,10 @@ class GrupoListView(LoginRequiredMixin, ListView):
         return queryset
 
 
-class CalendarioView(LoginRequiredMixin, TemplateView):
+class CalendarioView(LoginRequiredMixin, GroupRequiredMixin, TemplateView):
+    group_required = [u"cyd", u"cyd_capacitador", u"cyd_admin", ]
+    redirect_unauthenticated_users = True
+    raise_exception = True
     template_name = 'cyd/calendario.html'
 
     def get_context_data(self, **kwargs):
@@ -192,6 +207,9 @@ class CalendarioView(LoginRequiredMixin, TemplateView):
         context['nueva_form'] = CalendarioFilterForm()
         if self.request.user.groups.filter(name="cyd_capacitador").exists():
             context['nueva_form'].fields['sede'].queryset = self.request.user.sedes.all()
+            context['sede_form'].fields['capacitador'].empty_label = None
+            context['sede_form'].fields['capacitador'].queryset = context['sede_form'].fields['capacitador'].queryset.filter(id=self.request.user.id)
+            context['sede_form'].fields['sede'].queryset = self.request.user.sedes.all()
         return context
 
 
@@ -201,6 +219,12 @@ class CalendarioListView(JsonRequestResponseMixin, View):
         calendario_list = Calendario.objects.filter(
             fecha__gte=datetime.strptime(self.request.GET.get('start'), '%Y-%m-%d'),
             fecha__lte=datetime.strptime(self.request.GET.get('end'), '%Y-%m-%d'))
+        capacitador = self.request.GET.get('capacitador', False)
+        if capacitador:
+            calendario_list = calendario_list.filter(grupo__sede__capacitador__id=capacitador)
+        sede = self.request.GET.get('sede', False)
+        if sede:
+            calendario_list = calendario_list.filter(grupo__sede__id=sede)
         for calendario in calendario_list:
             response.append({
                 'title': 'Grupo {}'.format(calendario.grupo.numero),
@@ -214,3 +238,95 @@ class CalendarioListView(JsonRequestResponseMixin, View):
                 '_id': '{}'.format(calendario.id),
                 '_url': reverse('calendario_api_detail', kwargs={'pk': calendario.id})})
         return self.render_json_response(response)
+
+
+class ParticipanteCreateView(LoginRequiredMixin, GroupRequiredMixin, CreateView):
+    group_required = [u"cyd", u"cyd_capacitador", u"cyd_admin", ]
+    redirect_unauthenticated_users = True
+    raise_exception = True
+    model = Participante
+    template_name = 'cyd/participante_add.html'
+    form_class = ParticipanteForm
+
+    def get_form(self, form_class=None):
+        form = super(ParticipanteCreateView, self).get_form(form_class)
+        if self.request.user.groups.filter(name="cyd_capacitador").exists():
+            form.fields['sede'].queryset = self.request.user.sedes.all()
+        return form
+
+
+class ParticipanteCreateListView(LoginRequiredMixin, GroupRequiredMixin, FormView):
+    group_required = [u"cyd", u"cyd_capacitador", u"cyd_admin", ]
+    redirect_unauthenticated_users = True
+    raise_exception = True
+    model = Participante
+    template_name = 'cyd/participante_importar.html'
+    form_class = ParticipanteBaseForm
+
+    def get_context_data(self, **kwargs):
+        context = super(ParticipanteCreateListView, self).get_context_data(**kwargs)
+        context['rol_list'] = ParRol.objects.all()
+        return context
+
+    def get_form(self, form_class=None):
+        form = super(ParticipanteCreateListView, self).get_form(form_class)
+        if self.request.user.groups.filter(name="cyd_capacitador").exists():
+            form.fields['sede'].queryset = self.request.user.sedes.all()
+        return form
+
+
+class ParticipanteJsonCreateView(LoginRequiredMixin, JsonRequestResponseMixin, CreateView):
+    require_json = True
+    model = Participante
+    form_class = ParticipanteForm
+
+    def post(self, request, *args, **kwargs):
+        try:
+            escuela = Escuela.objects.get(codigo=self.request_json['udi'])
+            grupo = Grupo.objects.get(id=self.request_json['grupo'])
+            rol = ParRol.objects.get(id=self.request_json['rol'])
+            participante = Participante.objects.create(
+                dpi=self.request_json['dpi'],
+                nombre=self.request_json['nombre'],
+                apellido=self.request_json['apellido'],
+                genero=self.request_json['genero'],
+                rol=rol,
+                mail=self.request_json['mail'],
+                tel_movil=self.request_json['tel_movil'],
+                escuela=escuela,
+                slug=self.request_json['dpi'])
+            participante.asignar(grupo)
+        except IntegrityError:
+            error_dict = {u"message": u"Dato duplicado"}
+            return self.render_bad_request_response(error_dict)
+        return self.render_json_response({'status': 'ok'})
+
+
+class ParticipanteDetailView(LoginRequiredMixin, DetailView):
+    model = Participante
+    template_name = 'cyd/participante_detail.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(ParticipanteDetailView, self).get_context_data(**kwargs)
+        context['rol_list'] = ParRol.objects.all()
+        context['etnia_list'] = ParEtnia.objects.all()
+        context['escolaridad_list'] = ParEscolaridad.objects.all()
+        context['genero_list'] = ParGenero.objects.all()
+        return context
+
+
+class ParticipanteEscuelaUpdateView(LoginRequiredMixin, JsonRequestResponseMixin, View):
+    """Para modificar la escuela a la que pertenece un participante.
+    Recibe el código UDI de la escuela y actualiza el ID en el registro del participante.
+    El único método admitido por esta vista es PATCH, para realizar una actualización parcial.
+    """
+    def patch(self, request, *args, **kwargs):
+        try:
+            escuela = Escuela.objects.get(codigo=self.request_json['udi'])
+            participante = Participante.objects.get(id=self.kwargs['pk'])
+            participante.escuela = escuela
+            participante.save()
+        except Exception:
+            error_dict = {u"message": u"Error. Verifique que el UDI sea correcto."}
+            return self.render_bad_request_response(error_dict)
+        return self.render_json_response({'status': 'ok'})

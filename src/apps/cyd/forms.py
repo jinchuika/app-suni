@@ -3,7 +3,7 @@ from django.forms.models import inlineformset_factory
 from django.core.urlresolvers import reverse_lazy
 from django.contrib.auth.models import User
 
-from apps.cyd.models import Curso, CrAsistencia, CrHito, Sede, Grupo
+from apps.cyd.models import Curso, CrAsistencia, CrHito, Sede, Grupo, Participante
 
 
 class CursoForm(forms.ModelForm):
@@ -59,9 +59,11 @@ class GrupoForm(forms.ModelForm):
 
 class SedeFilterForm(forms.Form):
     capacitador = forms.ModelChoiceField(
-        queryset=User.objects.filter(groups__name='cyd_capacitador'))
+        queryset=User.objects.filter(groups__name='cyd_capacitador'),
+        widget=forms.Select(attrs={'class': 'form-control', 'data-url': reverse_lazy('sede_api_list')}))
     sede = forms.ModelChoiceField(
-        queryset=Sede.objects.all())
+        queryset=Sede.objects.all(),
+        widget=forms.Select(attrs={'class': 'form-control'}))
 
     def __init__(self, *args, **kwargs):
         super(SedeFilterForm, self).__init__(*args, **kwargs)
@@ -73,4 +75,42 @@ class CalendarioFilterForm(forms.Form):
         queryset=Sede.objects.all(),
         widget=forms.Select(attrs={'class': 'form-control select2', 'data-url': reverse_lazy('grupo_api_list')}))
     grupo = forms.ChoiceField(
-        widget=forms.Select(attrs={'class': 'form-control select2', 'data-url': reverse_lazy('calendario_api_list')}))
+        widget=forms.Select(attrs={'class': 'form-control', 'data-url': reverse_lazy('calendario_api_list')}))
+
+
+class ParticipanteBaseForm(forms.Form):
+    """
+    Este formulario se usa para crear participantes por listado
+    Los campos tienen URL para que se consulte al API desde el template
+    """
+    sede = forms.ModelChoiceField(
+        queryset=Sede.objects.none(),
+        widget=forms.Select(attrs={'class': 'select2', 'data-url': reverse_lazy('grupo_api_list')}))
+    grupo = forms.ModelChoiceField(
+        queryset=Grupo.objects.none(),
+        widget=forms.Select(attrs={'data-url': reverse_lazy('participante_api_list')}))
+    udi = forms.CharField(
+        help_text='escuela_label',
+        widget=forms.TextInput(attrs={'data-url': reverse_lazy('escuela_api_list')}))
+
+
+class ParticipanteForm(ParticipanteBaseForm, forms.ModelForm):
+    """
+    Extiende el ParticipanteBaseForm para usar los mismos campos con URL
+    """
+    class Meta:
+        model = Participante
+        fields = [
+            'sede', 'grupo', 'udi', 'nombre', 'apellido', 'dpi', 'genero', 'rol',
+            'mail', 'tel_movil']
+        exclude = ('slug',)
+        widgets = {
+            'nombre': forms.TextInput(attrs={'class': 'form-reset'}),
+            'apellido': forms.TextInput(attrs={'class': 'form-reset'}),
+            'dpi': forms.TextInput(attrs={'class': 'form-reset', 'data-url': reverse_lazy('participante_api_list')}),
+            'mail': forms.TextInput(attrs={'class': 'form-reset'}),
+            'tel_movil': forms.TextInput(attrs={'class': 'form-reset'})
+        }
+        help_texts = {
+            'dpi': 'dpi_label'
+        }

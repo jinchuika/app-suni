@@ -1,5 +1,8 @@
+from random import randint
 from datetime import datetime, timedelta
 from django.db import models
+from django.utils.text import slugify
+from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 
@@ -10,36 +13,34 @@ from apps.escuela.models import Escuela
 
 
 class Curso(models.Model):
-    """
-    Description: Curso de capacitación
-    """
+    """Curso para impartir en la  capacitación."""
     nombre = models.CharField(max_length=75)
     nota_aprobacion = models.IntegerField()
     porcentaje = models.IntegerField()
 
-    def get_total_asistencia(self):
-        return sum(x.punteo_max for x in self.asistencias.all())
-
-    def get_total_hito(self):
-        return sum(x.punteo_max for x in self.hitos.all())
+    def __str__(self):
+        return self.nombre
 
     def get_absolute_url(self):
         return reverse('curso_detail', kwargs={"pk": self.id})
 
-    def __str__(self):
-        return self.nombre
+    def get_total_asistencia(self):
+        """Obtiene el total de puntos asignados a las asistencias."""
+        return sum(x.punteo_max for x in self.asistencias.all())
+
+    def get_total_hito(self):
+        """Obtiene el total de puntos asignados a los hitos."""
+        return sum(x.punteo_max for x in self.hitos.all())
 
 
 class CrAsistencia(models.Model):
-    """
-    Description: Asistencia a curso
-    """
+    """Período de asistencia establecido por el :model:`cyd.Curso`."""
     curso = models.ForeignKey(Curso, related_name="asistencias")
     modulo_num = models.IntegerField()
     punteo_max = models.IntegerField()
 
     class Meta:
-        unique_together = ('curso', 'modulo_num',)
+        unique_together = ('curso', 'modulo_num',)  # Un curso no puede tener dos veces el mismo módulo
         verbose_name = "Asistencia de curso"
         verbose_name_plural = "Asistencias de curso"
 
@@ -48,9 +49,7 @@ class CrAsistencia(models.Model):
 
 
 class CrHito(models.Model):
-    """
-    Description: Hito a curso
-    """
+    """Hito de :model:`cyd.Curso` (tareas, ejercicios, etc.)."""
     curso = models.ForeignKey(Curso, related_name="hitos")
     nombre = models.CharField(max_length=40)
     punteo_max = models.IntegerField()
@@ -82,7 +81,25 @@ class Sede(models.Model):
         return reverse('sede_detail', kwargs={'pk': self.id})
 
 
+class Asesoria(models.Model):
+    """Período en el que el capacitador está en la sede
+    sin dar un módulo o asistencia.
+    """
+    sede = models.ForeignKey(Sede, related_name='asesorias')
+    fecha = models.DateField(null=True, blank=True)
+    hora_inicio = models.TimeField(null=True, blank=True)
+    hora_fin = models.TimeField(null=True, blank=True)
+
+    class Meta:
+        verbose_name = 'Período de asesoría'
+        verbose_name_plural = 'Períodos de asesoría'
+
+    def __str__(self):
+        return '{} {}'.format(self.fecha, self.sede)
+
+
 class Grupo(models.Model):
+    """Grupo de capacitación"""
     sede = models.ForeignKey(Sede, related_name='grupos')
     numero = models.IntegerField(verbose_name='Número')
     curso = models.ForeignKey(Curso)
@@ -94,19 +111,40 @@ class Grupo(models.Model):
         unique_together = ("sede", "numero")
 
     def __str__(self):
-        return str(self.numero) + " - " + str(self.curso)
+        return '{} - {}'.format(self.numero, self.curso)
 
     def get_absolute_url(self):
         return reverse('grupo_detail', kwargs={'pk': self.id})
 
+    def get_hombres(self):
+        return self.asignados.filter(participante__genero__id=1).count()
+
+    def get_mujeres(self):
+        return self.asignados.filter(participante__genero__id=2).count()
+
+    def count_aprobados(self):
+        cuenta = sum(1 for asignacion in self.asignados.all() if asignacion.aprobado)
+        return cuenta
+
+    def get_porcentaje_aprobados(self):
+        return self.count_aprobados() / self.asignados.all().count() * 100
+
+    def get_progreso_asistencias(self):
+        """Cuenta la cantidad de de asistencias que ya se han impartido para este grupo.
+        Indica también qué porcentaje del total representan,
+        """
+        asistencias_pasadas = self.asistencias.filter(fecha__lt=datetime.now()).count()
+        porcentaje_actual = asistencias_pasadas / self.asistencias.all().count() * 100
+        return {'cantidad': asistencias_pasadas, 'porcentaje': porcentaje_actual}
+
 
 class Calendario(models.Model):
-    cr_asistencia = models.ForeignKey(CrAsistencia)
+    cr_asistencia = models.ForeignKey(CrAsistencia, verbose_name='Asistencia del curso')
     grupo = models.ForeignKey(Grupo, related_name='asistencias')
     fecha = models.DateField(null=True, blank=True)
-    hora_inicio = models.TimeField(null=True, blank=True)
-    hora_fin = models.TimeField(null=True, blank=True)
-    observacion = models.TextField(null=True, blank=True)
+    hora_inicio = models.TimeField(null=True, blank=True, verbose_name='Hora de inicio')
+    hora_fin = models.TimeField(null=True, blank=True, verbose_name='Hora de fin')
+    observacion = models.TextField(null=True, blank=True, verbose_name='Observaciones')
 
     class Meta:
         verbose_name = "Calendario de grupos"
@@ -116,6 +154,7 @@ class Calendario(models.Model):
         return str(self.cr_asistencia.modulo_num) + " - Grupo " + str(self.grupo)
 
     def save(self, *args, **kwargs):
+        # si el objeto no tiene hora de fin, asigna 90 minutos extras
         if self.hora_inicio and not self.hora_fin:
             fecha = self.fecha if self.fecha else datetime(2000, 1, 1)
             self.hora_fin = (datetime.combine(fecha, self.hora_inicio) + timedelta(minutes=90)).time()
@@ -124,8 +163,13 @@ class Calendario(models.Model):
     def get_api_url(self):
         return reverse('calendario_api_detail', kwargs={'pk': self.id})
 
+    def count_asistentes(self):
+        """Cuenta cuantos participantes asistieron."""
+        return self.notas_asociadas.filter(nota__gt=0).count()  # type: int
+
 
 class ParRol(models.Model):
+    """Rol del participante."""
     nombre = models.CharField(max_length=20)
 
     class Meta:
@@ -137,6 +181,7 @@ class ParRol(models.Model):
 
 
 class ParEtnia(models.Model):
+    """Etnia del participante."""
     nombre = models.CharField(max_length=20)
 
     class Meta:
@@ -158,16 +203,23 @@ class ParEscolaridad(models.Model):
         return self.nombre
 
 
-class Participante(models.Model):
-    GENDER_CHOICES = (
-        ("M", 'Hombre'),
-        ("F", 'Mujer'),
-    )
+class ParGenero(models.Model):
+    genero = models.CharField(max_length=8)
 
-    dpi = models.CharField(max_length=20, unique=True)
+    class Meta:
+        verbose_name = "Género"
+        verbose_name_plural = "Géneros"
+
+    def __str__(self):
+        return self.genero
+
+
+class Participante(models.Model):
+    """Participante de la capacitación por Funsepa."""
+    dpi = models.CharField(max_length=21, unique=True, null=True, blank=True, db_index=True)
     nombre = models.CharField(max_length=100)
     apellido = models.CharField(max_length=100)
-    genero = models.CharField(choices=GENDER_CHOICES, max_length=1)
+    genero = models.ForeignKey(ParGenero, null=True)
     rol = models.ForeignKey(ParRol, on_delete=models.PROTECT)
     escuela = models.ForeignKey(Escuela, on_delete=models.PROTECT)
     direccion = models.TextField(null=True, blank=True, verbose_name='Dirección')
@@ -183,6 +235,8 @@ class Participante(models.Model):
     etnia = models.ForeignKey(ParEtnia, null=True, blank=True)
     escolaridad = models.ForeignKey(ParEscolaridad, null=True, blank=True)
 
+    slug = models.SlugField(max_length=20, null=True, blank=True)
+
     class Meta:
         verbose_name = "Participante"
         verbose_name_plural = "Participantes"
@@ -191,19 +245,117 @@ class Participante(models.Model):
         return '{} {}'.format(self.nombre, self.apellido)
 
     def get_absolute_url(self):
-        return ('')
+        return reverse('participante_detail', kwargs={'pk': self.id})
+
+    def save(self, *args, **kwargs):
+        """En caso de que el participante no tenga DPI, se le asigna uno temporal.
+        El DPI creado sigue el patrón:
+        f-{correlativo}-{random}
+        El número aleatorio entre 100 y 999 asegura que dos participantes creados al mismo tiempo
+        no tengan el mismo correlativo (para los casos en los que la base de datos no realiza el proceso
+        de crear lo suficientemente rápido.)
+        """
+        if not self.dpi:
+            temp_id = self.id if self.pk else (Participante.objects.values('id').last()['id'] + 1)
+            self.dpi = "f-{}-{}".format(temp_id, randint(100, 999))
+        # aseguramos de tener el dpi como slug para el participante
+        self.slug = slugify(self.dpi)
+        super(Participante, self).save(*args, **kwargs)
+
+    def asignar(self, grupo):
+        """Crea un registro de :model:`cyd.Asignacion` para el participante actual hacia un :model:`cyd.Grupo` especificado.
+        Las notas son generadas automáticamente mediante `cyd.Asignacion.asignar_notas()`.
+        """
+        self.asignaciones.create(grupo=grupo)
 
 
 class Asignacion(models.Model):
+    """El método ``asignar()`` se encarga de crear las notas para el objeto actual."""
     participante = models.ForeignKey(Participante, related_name='asignaciones')
     grupo = models.ForeignKey(Grupo, related_name='asignados')
 
     class Meta:
         verbose_name = "Asignación"
         verbose_name_plural = "Asignaciones"
+        unique_together = ('participante', 'grupo',)
 
     def __str__(self):
         return '{} - {}'.format(self.grupo, self.participante)
 
+    def save(self, *args, **kwargs):
+        """Crea todos los registros de notas necesarias en caso de que el objeto actual no tenga `pk`."""
+        if not self.pk:
+            super(Asignacion, self).save(*args, **kwargs)
+            self.crear_notas()
+        else:
+            super(Asignacion, self).save(*args, **kwargs)
+
     def get_absolute_url(self):
         return ('')
+
+    def crear_notas(self):
+        """Crea las notas especificadas en el :model:`cyd.Curso` del :model:`cyd.Grupo`
+        relacionado con el objeto actual.
+        """
+        for calendario in self.grupo.asistencias.all():
+            self.notas_asistencias.create(gr_calendario=calendario)
+        for hito in self.grupo.curso.hitos.all():
+            self.notas_hitos.create(cr_hito=hito)
+
+    def get_nota_final(self):
+        return sum(nota.nota for nota in self.notas_asistencias.all()) + sum(nota.nota for nota in self.notas_hitos.all())
+    nota_final = property(get_nota_final)
+
+    def get_aprobado(self):
+        """Indica si la asignación actual alcanza la nota mínima establecida por el :model:`cyd.Curso`."""
+        return self.get_nota_final() >= self.grupo.curso.nota_aprobacion  # type: boolean
+    aprobado = property(get_aprobado)
+
+
+class NotaAsistencia(models.Model):
+    """Nota obtenida por el participante al llenar una asistencia."""
+    asignacion = models.ForeignKey(Asignacion, related_name='notas_asistencias')
+    gr_calendario = models.ForeignKey(Calendario, related_name='notas_asociadas')
+    nota = models.IntegerField(default=0)
+
+    class Meta:
+        """No pueden existir dos registros de notas para el mismo período de capacitación."""
+        verbose_name = "Nota de Asistencia"
+        verbose_name_plural = "Notas de Asistencia"
+        unique_together = ('asignacion', 'gr_calendario',)
+
+    def __str__(self):
+        return '{} - {}'.format(self.nota, self.gr_calendario)
+
+    def clean(self):
+        """Evita que la nota sobrepase el punteo máximo especificado en :model:`CrAsistencia`
+
+        Raises:
+            ValidationError: La nota no puede exceder el punteo máximo.
+        """
+        if self.nota > self.gr_calendario.cr_asistencia.punteo_max:
+            raise ValidationError({'nota': 'La nota no puede exceder el punteo máximo.'})
+
+
+class NotaHito(models.Model):
+    asignacion = models.ForeignKey(Asignacion, related_name='notas_hitos')
+    cr_hito = models.ForeignKey(CrHito)
+    nota = models.IntegerField(default=0)
+
+    class Meta:
+        """No pueden existir dos registros de notas para el mismo hito."""
+        verbose_name = "Nota de Hito"
+        verbose_name_plural = "Notas de Hito"
+        unique_together = ('asignacion', 'cr_hito',)
+
+    def __str__(self):
+        return '{} - {}'.format(self.nota, self.cr_hito)
+
+    def clean(self):
+        """Evita que la nota sobrepase el punteo máximo especificado en :model:`CrHito`
+
+        Raises:
+            ValidationError: La nota no puede exceder el punteo máximo.
+        """
+        if self.nota > self.cr_hito.punteo_max:
+            raise ValidationError({'nota': 'La nota no puede exceder el punteo máximo.'})

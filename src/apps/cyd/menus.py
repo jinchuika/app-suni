@@ -25,7 +25,19 @@ cyd_calendario_children = (
         "Capacitación",
         reverse_lazy("cyd_calendario"),
         weight=10,
-        icon="fa-book"),)
+        icon="fa-calendar"),)
+
+cyd_participantes_children = (
+    ViewMenuItem(
+        "Nuevo",
+        reverse_lazy("participante_add"),
+        weight=10,
+        icon="fa-plus"),
+    ViewMenuItem(
+        "Ingresar listado",
+        reverse_lazy("participante_importar"),
+        weight=20,
+        icon="fa-list"),)
 
 Menu.add_item(
     "user",
@@ -46,3 +58,13 @@ Menu.add_item(
         icon="fa-calendar",
         group="cyd",
         children=cyd_calendario_children),)
+
+Menu.add_item(
+    "user",
+    ViewMenuItem(
+        "Participantes",
+        '#',
+        weight=30,
+        icon="fa-user",
+        group="cyd",
+        children=cyd_participantes_children),)
