@@ -11,7 +11,7 @@ from braces.views import LoginRequiredMixin, GroupRequiredMixin, JsonRequestResp
 from apps.cyd.forms import (
     CursoForm, CrHitoFormSet, CrAsistenciaFormSet,
     SedeForm, GrupoForm, CalendarioFilterForm,
-    SedeFilterForm, ParticipanteForm, ParticipanteBaseForm)
+    SedeFilterForm, ParticipanteForm, ParticipanteBaseForm, AsesoriaForm)
 from apps.cyd.models import (
     Curso, Sede, Grupo, Calendario, Participante, ParRol,
     ParEtnia, ParEscolaridad, ParGenero)
@@ -104,6 +104,11 @@ class SedeCreateView(LoginRequiredMixin, GroupRequiredMixin, CreateView):
 class SedeDetailView(LoginRequiredMixin, DetailView):
     model = Sede
     template_name = 'cyd/sede_detail.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(SedeDetailView, self).get_context_data(**kwargs)
+        context['asesoria_form'] = AsesoriaForm(initial={'sede': self.object})
+        return context
 
 
 class SedeUpdateView(LoginRequiredMixin, UpdateView):

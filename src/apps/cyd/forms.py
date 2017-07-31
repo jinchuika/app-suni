@@ -3,7 +3,8 @@ from django.forms.models import inlineformset_factory
 from django.core.urlresolvers import reverse_lazy
 from django.contrib.auth.models import User
 
-from apps.cyd.models import Curso, CrAsistencia, CrHito, Sede, Grupo, Participante
+from apps.cyd.models import (
+    Curso, CrAsistencia, CrHito, Sede, Grupo, Participante, Asesoria)
 
 
 class CursoForm(forms.ModelForm):
@@ -113,4 +114,19 @@ class ParticipanteForm(ParticipanteBaseForm, forms.ModelForm):
         }
         help_texts = {
             'dpi': 'dpi_label'
+        }
+
+
+class AsesoriaForm(forms.ModelForm):
+    """Formulario para crear :model:`cyd.Asesoria` desde el perfil de la sede."""
+
+    class Meta:
+        model = Asesoria
+        fields = '__all__'
+        widgets = {
+            'sede': forms.HiddenInput(),
+            'fecha': forms.TextInput(attrs={'class': 'datepicker form-control'}),
+            'hora_inicio': forms.TextInput(attrs={'class': 'form-control'}),
+            'hora_fin': forms.TextInput(attrs={'class': 'form-control'}),
+            'observacion': forms.TextInput(attrs={'class': 'form-control'})
         }
