@@ -234,7 +234,7 @@ class TicketReparacion(models.Model):
     ticket = models.ForeignKey(TicketSoporte, related_name='reparaciones')
     triage = models.PositiveIntegerField()
     tipo_dispositivo = models.ForeignKey(DispositivoTipo)
-    tecnico_asignado = models.ForeignKey(User)
+    tecnico_asignado = models.ForeignKey(User, related_name='reparaciones_asignadas')
     estado = models.ForeignKey(TicketReparacionEstado)
     falla_reportada = models.TextField()
     falla_encontrada = models.TextField(null=True, blank=True)

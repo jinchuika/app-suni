@@ -1,6 +1,6 @@
 {% extends "base/base.html" %}
 
-{% load staticfiles %}
+{% load staticfiles editable_field %}
 
 {% block page_title %}
 <title>Grupo {{ grupo }}</title>
@@ -151,29 +151,24 @@
 												<a href="{{ asignacion.participante.get_absolute_url }}">{{ forloop.counter }}</a>
 											</td>
 											<td>
-												<a href="#" class="editable" data-name="dpi" data-type="text" data-pk="{{ asignacion.participante.id }}" data-url="{% url 'participante_api_update' pk=asignacion.participante.id %}">
-													{{ asignacion.participante.dpi }}
-												</a>
+												{% url 'participante_api_update' pk=asignacion.participante.id as participante_editable_url %}
+												{% editable_field value=asignacion.participante.dpi name="dpi" pk=asignacion.participante.id url=participante_editable_url editable=perms.cyd.change_participante %}
 											</td>
 											<td>
-												<a href="#" class="editable" data-name="nombre" data-type="text" data-pk="{{ asignacion.participante.id }}" data-url="{% url 'participante_api_update' pk=asignacion.participante.id %}">
-													{{ asignacion.participante.nombre }}
-												</a>
+												{% url 'participante_api_update' pk=asignacion.participante.id as participante_editable_url %}
+												{% editable_field value=asignacion.participante.nombre name="nombre" pk=asignacion.participante.id url=participante_editable_url editable=perms.cyd.change_participante %}
 											</td>
 											<td>
-												<a href="#" class="editable" data-name="apellido" data-type="text" data-pk="{{ asignacion.participante.id }}" data-url="{% url 'participante_api_update' pk=asignacion.participante.id %}">
-													{{ asignacion.participante.apellido }}
-												</a>
+												{% url 'participante_api_update' pk=asignacion.participante.id as participante_editable_url %}
+												{% editable_field value=asignacion.participante.apellido name="apellido" pk=asignacion.participante.id url=participante_editable_url editable=perms.cyd.change_participante %}
 											</td>
 											<td>
-												<a href="#" class="editable" data-name="genero" data-type="select" data-pk="{{ asignacion.participante.id }}" data-source="{ {% for genero in genero_list %}'{{ genero.id }}': '{{ genero.genero }}',{% endfor %} }" data-url="{% url 'participante_api_update' pk=asignacion.participante.id %}">
-													{{ asignacion.participante.genero }}
-												</a>
+												{% url 'participante_api_update' pk=asignacion.participante.id as participante_editable_url %}
+												{% editable_field value=asignacion.participante.genero name="genero" pk=asignacion.participante.id url=participante_editable_url editable=perms.cyd.change_participante data_type="select" source_list=genero_list source_id="id" source_text="genero" %}
 											</td>
 											<td>
-												<a href="#" class="editable" data-name="udi" data-type="text" data-pk="{{ asignacion.participante.id }}" data-url="{% url 'participante_escuela_update' pk=asignacion.participante.id %}">
-													{{ asignacion.participante.escuela }}
-												</a>
+												{% url 'participante_escuela_update' pk=asignacion.participante.id as participante_editable_url%}
+												{% editable_field value=asignacion.participante.escuela name="udi" pk=asignacion.participante.id url=participante_editable_url editable=perms.cyd.change_participante %}
 											</td>
 											<td>{{ asignacion.nota_final }}</td>
 											<td>

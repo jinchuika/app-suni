@@ -1,6 +1,6 @@
 {% extends "base/base.html" %}
 
-{% load staticfiles %}
+{% load staticfiles editable_field %}
 
 {% block page_title %}
 <title>{{ sede }}</title>
@@ -10,47 +10,57 @@
 <section class="content">
 	<div class="container-fluid">
 		<div class="row">
-			<div class="col-md-12">
-				<div class="box box-primary">
-					<div class="box-body box-profile">
-						<h3 class="profile-username text-center">{{ sede }}</h3>
-						<h4 class="text-center">{{ sede.codigo }}</h4>
-						<h6 class="text-center"><i class="fa fa-map-marker margin-r-5"></i> {{ sede.direccion }}</h6>
-					</div>
-				</div>
-			</div>
-		</div>
-		<div class="row">
 			<div class="col-md-3">
 				<div class="box box-primary">
-					<div class="box-header with-border">
-						<h3 class="box-title">
-							{% if perms.sede.change_sede %}
-							<a href="{% url 'sede_update' pk=sede.id %}" class="btn btn-info btn-xs">
-								<i class="fa fa-pencil-square-o" aria-hidden="true"></i>
-							</a>
-							{% endif %}
-							Información
-						</h3>
-					</div>
-					<div class="box-body">
+					<div class="box-body no-padding box-profile">
+						<h2 class="profile-username text-center">{{ sede.nombre }}</h2>
+						<p class="text-muted text-center">{{ sede.capacitador.get_full_name }}</p>
 						{% csrf_token %}
-						<strong><i class="fa fa-user margin-r-5"></i> Capacitador</strong>
-						<p class="text-muted">{{ sede.capacitador.perfil }}</p>
-
-						<strong><i class="fa fa-map-marker margin-r-5"></i> Dirección</strong>
-						<p class="text-muted">{{ sede.direccion }},</p>
-						<p class="text-muted">{{ sede.municipio.nombre }},</p>
-						<p class="text-muted">{{ sede.municipio.departamento }}</p>
-
-						<strong><i class="fa fa-pencil margin-r-5"></i> Observaciones</strong>
-						<p class="text-muted">{{ sede.observacion }}</p>
-
-						<strong><i class="fa fa-map margin-r-5"></i> Coordenadas</strong>
-						<p class="text-muted"><b>Latitud: </b>{{ sede.mapa.lat }}</p>
-						<p class="text-muted"><b>Longitud: </b>{{ sede.mapa.lng }}</p>
+						<table class="table">
+							<tr>
+								<th>Dirección</b></th>
+								<td>{{ sede.direccion }}</td>
+							</tr>
+							<tr>
+								<th>Municipio</th>
+								<td>{{ sede.municipio.nombre }}</td>
+							</tr>
+							<tr>
+								<th>Departamento</th> 
+								<td>{{ sede.municipio.departamento }}</td>
+							</tr>
+							<tr>
+								<th>Observaciones</th> 
+								<td>{{ sede.obervacion }}</td>
+							</tr>
+							<tr>
+								<th>Coordenadas</th> 
+								<td>{{ sede.mapa.lat|default_if_none:"" }}, {{ sede.mapa.lng|default_if_none:"" }}</td>
+							</tr>
+							{% if perms.sede.change_sede %}
+							<tr>
+								<td colspan="2">
+									<a href="{% url 'sede_update' pk=sede.id %}" class="btn btn-primary btn-block">
+										<i class="fa fa-pencil-square-o" aria-hidden="true"></i> Editar
+									</a>
+								</td>
+							</tr>
+							{% endif %}
+						</table>
 					</div>
 				</div>
+				{% if sede.mapa.lat and sede.mapa.lng %}
+				<div class="box box-info">
+					<div class="box-header with-border">
+						<h3 class="box-title">
+							Mapa
+						</h3>
+					</div>
+					<div class="box-body no-padding">
+						{% include "base/static-map.html" with latitud=sede.mapa.lat longitud=sede.mapa.lng %}
+					</div>
+				</div>
+				{% endif %}
 			</div>
 			<div class="col-md-9">
 				<div class="row">
@@ -117,9 +127,8 @@
 													<a href="{{ grupo.get_absolute_url }}">{{ grupo }}</a>
 												</td>
 												<td>
-													<a href="#" class="editable" data-name="comentario" data-type="text" data-pk="{{ grupo.id }}" data-url="{% url 'grupo_api_detail' pk=grupo.id %}">
-														{{ grupo.comentario }}
-													</a>
+													{% url 'grupo_api_detail' pk=grupo.id as grupo_editable_url %}
+													{% editable_field value=grupo.comentario name="comentario" pk=grupo.id url=grupo_editable_url %}
 												</td>
 											</tr>
 										{% endfor %}

@@ -25,6 +25,7 @@ urlpatterns = [
     url(r'^ticketregistro/print_detalle/$', TicketVisitaPrintDetalle.as_view(), name='ticket_registro_print_detalle'),
     url(r'^ticketreparacion/add/(?P<ticket_id>\d+)/$', TicketReparacionCreateView.as_view(), name='ticket_reparacion_add'),
     url(r'^tickettransporte/add/(?P<ticket_id>\d+)/$', TicketTransporteCreateView.as_view(), name='ticket_transporte_add'),
+    url(r'^ticketreparacion/list/$', TicketReparacionInformeView.as_view(), name='ticket_reparacion_informe'),
 
     url(r'^reparacion/list/$', cache_page(5)(ReparacionListView.as_view()), name='reparacion_list'),
     url(r'^reparacion/(?P<pk>\d+)/edit/$', cache_page(0)(ReparacionUpdateView.as_view()), name='reparacion_update'),

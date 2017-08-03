@@ -546,3 +546,56 @@
 
     } 
 }( window.TicketInforme = window.TicketInforme || {}, jQuery ));
+
+(function( TicketReparacionInforme, $, undefined ) {
+    var tabla = $('#ticket-reparacion-informe-table').DataTable({
+        dom: 'lfrtipB',
+        buttons: ['excel','pdf'],
+        processing: true,
+        ajax: {
+            url: "",
+            type: "POST",
+            deferRender: true,
+            dataSrc: '',
+            data: function () {
+                return $('#ticket-list-form').serializeObject();
+            }
+        },
+        columns: [
+        {data: "no_ticket"},
+        {
+            data: "triage",
+            render: function (data) {
+                return '<a href="' + data.url + '">' + data.triage + '</a>';
+            },
+            className: "nowrap"
+        },
+        {data: "entrega"},
+        {
+            data: "escuela",
+            render: function (data) {
+                return '<a href="' + data.url + '">' + data.nombre + '<br>(' + data.codigo + ')</a>';
+            }
+        },
+        {data: "fecha_inicio", "className": "nowrap", type: "date"},
+        {data: "fecha_fin", "className": "nowrap"},
+        {data: "estado" },
+        {data: "tecnico_asignado"},
+        ]
+    }).on('xhr.dt', function (e, settings, json, xhr) {
+        $('#spinner').hide();
+    });
+
+    // Public
+    TicketReparacionInforme.init = function () {
+        console.log("hola");
+        $('#spinner').hide();
+        $('#ticket-list-form').submit(function (e) {
+            e.preventDefault();
+            $('#spinner').show();
+            tabla.clear().draw();
+            tabla.ajax.reload();
+        });
+
+    } 
+}( window.TicketReparacionInforme = window.TicketReparacionInforme || {}, jQuery ));
