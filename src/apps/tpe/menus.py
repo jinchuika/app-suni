@@ -46,7 +46,12 @@ garantia_children = (
         "Tickets de soporte",
         reverse_lazy("ticket_informe"),
         weight=10,
-        icon="fa-ticket"),)
+        icon="fa-ticket"),
+    ViewMenuItem(
+        "Reparaciones",
+        reverse_lazy("ticket_reparacion_informe"),
+        weight=10,
+        icon="fa-plug"),)
 
 Menu.add_item(
     "user",

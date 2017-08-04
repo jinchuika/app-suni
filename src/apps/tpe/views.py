@@ -56,8 +56,8 @@ class EquipamientoListView(InformeMixin):
     template_name = 'tpe/equipamiento_list.html'
     filter_list = {
         'codigo': 'escuela__codigo',
-        'nombre': 'escuela__nombre__contains',
-        'direccion': 'escuela__direccion__contains',
+        'nombre': 'escuela__nombre__icontains',
+        'direccion': 'escuela__direccion__icontains',
         'municipio': 'escuela__municipio',
         'departamento': 'escuela__municipio__departamento',
         'nivel': 'escuela__nivel',
@@ -513,8 +513,15 @@ class TicketReparacionInformeView(InformeMixin):
                     'url': reparacion.get_absolute_url()},
                 'fecha_inicio': str(reparacion.fecha_inicio),
                 'fecha_fin': str(reparacion.fecha_fin) if reparacion.fecha_fin else "",
+                'falla_reportada': reparacion.falla_reportada,
+                'falla_encontrada': reparacion.falla_encontrada,
+                'solucion_detalle': reparacion.solucion_detalle,
                 'estado': str(reparacion.estado),
-                'tecnico_asignado': reparacion.tecnico_asignado.get_full_name()
+                'tecnico_asignado': reparacion.tecnico_asignado.get_full_name(),
+                'cooperante': [{
+                    'nombre': cooperante.nombre,
+                    'url': cooperante.get_absolute_url()}
+                    for cooperante in reparacion.ticket.garantia.equipamiento.cooperante.all()],
             } for reparacion in queryset
         ]
         return var

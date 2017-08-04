@@ -579,8 +579,19 @@
         },
         {data: "fecha_inicio", "className": "nowrap", type: "date"},
         {data: "fecha_fin", "className": "nowrap"},
+        {data: "falla_reportada" },
+        {data: "falla_encontrada" },
+        {data: "solucion_detalle" },
         {data: "estado" },
         {data: "tecnico_asignado"},
+        {
+            data: "cooperante",
+            render: function (data, type, full, meta) {
+                return data.map(function (cooperante) {
+                    return '<a href="' + cooperante.url + '">' + cooperante.nombre + '</a>';
+                }).join(', <br>');
+            }
+        },
         ]
     }).on('xhr.dt', function (e, settings, json, xhr) {
         $('#spinner').hide();
@@ -588,7 +599,6 @@
 
     // Public
     TicketReparacionInforme.init = function () {
-        console.log("hola");
         $('#spinner').hide();
         $('#ticket-list-form').submit(function (e) {
             e.preventDefault();
