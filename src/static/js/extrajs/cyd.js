@@ -56,6 +56,53 @@ function validar_udi_api(params) {
     }
 }( window.BuscadorSede = window.BuscadorSede || {}, jQuery ));
 
+(function( SedeDetail, $, undefined ) {
+    var crear_celda = function (asesoria) {
+        var fila = $('<tr />');
+        fila.append('<td><a href="#" class="editable" data-name="fecha" data-type="text" data-pk="'+asesoria.id+'" data-url="'+asesoria.url+'">' + asesoria.fecha + '</a></td>');
+        fila.append('<td><a href="#" class="editable" data-name="hora_inicio" data-type="text" data-pk="'+asesoria.id+'" data-url="'+asesoria.url+'">' + asesoria.hora_inicio + '</a></td>');
+        fila.append('<td><a href="#" class="editable" data-name="hora_fin" data-type="text" data-pk="'+asesoria.id+'" data-url="'+asesoria.url+'">' + asesoria.hora_fin + '</a></td>');
+        fila.append('<td><a href="#" class="editable" data-name="observacion" data-type="text" data-pk="'+asesoria.id+'" data-url="'+asesoria.url+'">' + asesoria.observacion + '</a></td>');
+        $('#asesoria-tabla-body').append(fila);
+        activar_edicion();
+    }
+
+    var activar_edicion = function () {
+        $('.editable').on('shown', function(e, editable) {
+            $('.datepicker').datepicker({
+                format: 'yyyy-mm-dd',
+                autoclose: true,
+                language: 'es'
+            });
+        }).editable({
+            ajaxOptions: {
+                contentType: 'application/json',
+                dataType: 'json',
+                type: "PATCH",
+                beforeSend: function(xhr, settings) {
+                    xhr.setRequestHeader("X-CSRFToken", $('input[name="csrfmiddlewaretoken"]').val());
+                }
+            },
+            params: function(params) {
+                var obj = {};
+                obj[params['name']] = params['value'];
+                return JSON.stringify(obj);
+            }
+        });
+    }
+    
+    SedeDetail.init = function () {
+        activar_edicion();
+        $('#asesoria-form').on('submit', function (e) {
+            e.preventDefault();
+            $.post($(this).attr('action'), $(this).serializeObject(), function (respuesta) {
+                $('#asesoria-form')[0].reset();
+                crear_celda(respuesta);
+            });
+        });
+    }
+}( window.SedeDetail = window.SedeDetail || {}, jQuery ));
+
 
 (function( GrupoDetail, $, undefined ) {
     var crear_grafico = function (contenedor) {
@@ -63,7 +110,6 @@ function validar_udi_api(params) {
         var grupo_id = $(contenedor).data('grupo_id');
 
         $.get(url, {grupo: grupo_id, fields: 'cr_asistencia,asistentes'}, function (respuesta) {
-            console.log(respuesta.map(function (calendario) {return calendario.cr_asistencia}));
             var asistencias_chart = new Chart(contenedor, {
                 type: 'line',
                 data: {

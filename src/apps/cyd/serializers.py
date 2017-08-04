@@ -4,7 +4,7 @@ from apps.main.serializers import DynamicFieldsModelSerializer
 from apps.cyd.models import (
     Sede, Grupo, Calendario, Participante,
     NotaAsistencia, NotaHito, Asignacion,
-    ParRol)
+    ParRol, Asesoria)
 from apps.escuela.serializers import EscuelaSerializer
 
 
@@ -31,13 +31,25 @@ class GrupoSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Grupo
-        fields = ('id', 'sede', 'numero', 'curso', 'asistencias')
+        fields = ('id', 'sede', 'numero', 'curso', 'asistencias', 'comentario')
 
 
 class SedeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Sede
         fields = '__all__'
+
+
+class AsesoriaSerializer(serializers.ModelSerializer):
+    """Para crear y listar periodos de :model:`cyd.Asesoria`."""
+    url = serializers.HyperlinkedIdentityField(view_name='asesoria_api_detail', lookup_field='pk')
+
+    class Meta:
+        model = Asesoria
+        fields = '__all__'
+        extra_kwargs = {
+            'url': {'view_name': 'asesoria_api_detail', 'lookup_field': 'id'},
+        }
 
 
 class ParticipanteSerializer(DynamicFieldsModelSerializer, serializers.ModelSerializer):

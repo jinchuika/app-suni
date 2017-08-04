@@ -1,6 +1,7 @@
 from random import randint
 from datetime import datetime, timedelta
 from django.db import models
+from django.db.models import Count, Avg
 from django.utils.text import slugify
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
@@ -80,6 +81,12 @@ class Sede(models.Model):
     def get_absolute_url(self):
         return reverse('sede_detail', kwargs={'pk': self.id})
 
+    def get_participantes(self):
+        participantes = Participante.objects.filter(
+            asignaciones__grupo__sede__id=self.id).annotate(
+            cursos_sede=Count('asignaciones'))
+        return participantes
+
 
 class Asesoria(models.Model):
     """Período en el que el capacitador está en la sede
@@ -89,6 +96,7 @@ class Asesoria(models.Model):
     fecha = models.DateField(null=True, blank=True)
     hora_inicio = models.TimeField(null=True, blank=True)
     hora_fin = models.TimeField(null=True, blank=True)
+    observacion = models.TextField(null=True, blank=True, verbose_name='Observaciones')
 
     class Meta:
         verbose_name = 'Período de asesoría'
@@ -108,7 +116,7 @@ class Grupo(models.Model):
     class Meta:
         verbose_name = "Grupo de capacitación"
         verbose_name_plural = "Grupos de capacitación"
-        unique_together = ("sede", "numero")
+        unique_together = ("sede", "numero", "curso")
 
     def __str__(self):
         return '{} - {}'.format(self.numero, self.curso)
@@ -127,7 +135,8 @@ class Grupo(models.Model):
         return cuenta
 
     def get_porcentaje_aprobados(self):
-        return self.count_aprobados() / self.asignados.all().count() * 100
+        asignados = self.asignados.all().count()
+        return self.count_aprobados() / asignados * 100 if asignados > 0 else 0
 
     def get_progreso_asistencias(self):
         """Cuenta la cantidad de de asistencias que ya se han impartido para este grupo.

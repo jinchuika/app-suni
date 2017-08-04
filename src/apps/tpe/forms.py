@@ -7,7 +7,7 @@ from apps.users.models import Perfil
 from apps.tpe.models import (
     Equipamiento, Garantia, TicketSoporte, TicketRegistro,
     Monitoreo, TicketReparacion, TicketReparacionRepuesto,
-    TicketTransporte)
+    TicketTransporte, TicketReparacionEstado, DispositivoTipo)
 from apps.mye.models import Cooperante, Proyecto
 from apps.escuela.models import EscContacto, EscPoblacion
 from apps.escuela.forms import EscuelaBuscarForm
@@ -258,3 +258,30 @@ class TicketInformeForm(forms.Form):
         label='Fecha de cierre máxima',
         widget=forms.TextInput(attrs={'class': 'datepicker', 'placeholder': 'Cuándo se cerró el ticket'}),
         required=False)
+
+
+class TicketReparacionInformeForm(forms.Form):
+    estado = forms.ModelChoiceField(
+        label='Estado',
+        required=False,
+        queryset=TicketReparacionEstado.objects.all())
+    ticket = forms.ModelChoiceField(
+        label='Ticket',
+        widget=forms.Select(attrs={'class': 'select2'}),
+        required=False,
+        queryset=TicketSoporte.objects.all())
+    tipo_dispositivo = forms.ModelChoiceField(
+        label='Tipo de dispositivo',
+        widget=forms.Select(attrs={'class': 'select2'}),
+        required=False,
+        queryset=DispositivoTipo.objects.all())
+    triage = forms.CharField(
+        required=False)
+    tecnico_asignado = forms.ModelChoiceField(
+        label='Técnico asignado',
+        queryset=User.objects.filter(groups__name='tpe_tecnico'),
+        required=False)
+
+    def __init__(self, *args, **kwargs):
+        super(TicketReparacionInformeForm, self).__init__(*args, **kwargs)
+        self.fields['tecnico_asignado'].label_from_instance = lambda obj: "%s" % obj.get_full_name()

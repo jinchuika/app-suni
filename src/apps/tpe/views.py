@@ -20,7 +20,7 @@ from apps.tpe.forms import (
     TicketCierreForm, TicketRegistroForm, EquipamientoListForm, MonitoreoListForm,
     TicketReparacionForm, TicketReparacionListForm, TicketReparacionUpdateForm,
     TicketReparacionRepuestoForm, TicketReparacionRepuestoAuthForm, TicketTransporteForm,
-    TicketRegistroUpdateForm, TicketInformeForm)
+    TicketRegistroUpdateForm, TicketInformeForm, TicketReparacionInformeForm)
 
 
 class EquipamientoCrearView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
@@ -56,8 +56,8 @@ class EquipamientoListView(InformeMixin):
     template_name = 'tpe/equipamiento_list.html'
     filter_list = {
         'codigo': 'escuela__codigo',
-        'nombre': 'escuela__nombre__contains',
-        'direccion': 'escuela__direccion__contains',
+        'nombre': 'escuela__nombre__icontains',
+        'direccion': 'escuela__direccion__icontains',
         'municipio': 'escuela__municipio',
         'departamento': 'escuela__municipio__departamento',
         'nivel': 'escuela__nivel',
@@ -480,5 +480,48 @@ class TicketInformeView(InformeMixin):
                 'costo_transporte': ticket.get_costo_transporte(),
                 'costo_total': ticket.get_costo_total(),
             } for ticket in queryset
+        ]
+        return var
+
+
+class TicketReparacionInformeView(InformeMixin):
+    form_class = TicketReparacionInformeForm
+    template_name = 'tpe/ticket_reparacion_informe.html'
+    filter_list = {
+        'estado': 'estado',
+        'ticket': 'ticket',
+        'tipo_dispositivo': 'tipo_dispositivo',
+        'triage': 'triage',
+        'tecnico_asignado': 'tecnico_asignado'
+    }
+    queryset = TicketReparacion.objects.all()
+
+    def create_response(self, queryset):
+        var = [
+            {
+                'entrega': reparacion.ticket.garantia.equipamiento.id,
+                'escuela': {
+                    'nombre': reparacion.ticket.garantia.equipamiento.escuela.nombre,
+                    'codigo': reparacion.ticket.garantia.equipamiento.escuela.codigo,
+                    'url': reparacion.ticket.garantia.equipamiento.escuela.get_absolute_url()
+                },
+                'no_ticket': '<a href="{}">{}<a/>'.format(
+                    reparacion.ticket.get_absolute_url(),
+                    reparacion.ticket.id),
+                'triage': {
+                    'triage': '{}-{}'.format(reparacion.tipo_dispositivo, reparacion.triage),
+                    'url': reparacion.get_absolute_url()},
+                'fecha_inicio': str(reparacion.fecha_inicio),
+                'fecha_fin': str(reparacion.fecha_fin) if reparacion.fecha_fin else "",
+                'falla_reportada': reparacion.falla_reportada,
+                'falla_encontrada': reparacion.falla_encontrada,
+                'solucion_detalle': reparacion.solucion_detalle,
+                'estado': str(reparacion.estado),
+                'tecnico_asignado': reparacion.tecnico_asignado.get_full_name(),
+                'cooperante': [{
+                    'nombre': cooperante.nombre,
+                    'url': cooperante.get_absolute_url()}
+                    for cooperante in reparacion.ticket.garantia.equipamiento.cooperante.all()],
+            } for reparacion in queryset
         ]
         return var

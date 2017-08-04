@@ -4,6 +4,16 @@ from apps.cyd import api_views
 
 sede_api_list = api_views.SedeViewSet.as_view({
     'get': 'list'})
+sede_api_detail = api_views.SedeViewSet.as_view({
+    'get': 'retrieve',
+    'post': 'create',
+    'patch': 'partial_update'})
+asesoria_api_list = api_views.AsesoriaViewSet.as_view({
+    'get': 'list'})
+asesoria_api = api_views.AsesoriaViewSet.as_view({
+    'get': 'retrieve',
+    'post': 'create',
+    'patch': 'partial_update'})
 
 grupo_api_list = api_views.GrupoViewSet.as_view({
     'get': 'list'})
@@ -42,6 +52,10 @@ nota_hito_api_update = api_views.NotaHitoViewSet.as_view({
 
 urlpatterns = [
     url(r'^api/sede/list/$', sede_api_list, name='sede_api_list'),
+    url(r'^api/sede/(?P<pk>\d+)/$', sede_api_detail, name='sede_api_detail'),
+    url(r'^api/asesoria/list/$', asesoria_api_list, name='asesoria_api_list'),
+    url(r'^api/asesoria/add/$', asesoria_api, name='asesoria_api_add'),
+    url(r'^api/asesoria/(?P<pk>\d+)/$', asesoria_api, name='asesoria_api_detail'),
     url(r'^api/grupo/list/$', grupo_api_list, name='grupo_api_list'),
     url(r'^api/grupo/(?P<pk>\d+)/$', grupo_api_detail, name='grupo_api_detail'),
 

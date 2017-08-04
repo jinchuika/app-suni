@@ -31,7 +31,7 @@
 							</tr>
 							<tr>
 								<th>Fecha de fin</th>
-								<td colspan="4">{{ validacion.fecha_final|default_if_none:"Pendiente" }}</td>
+								<td colspan="4">{{ validacion.fecha_final|date:"Y-m-d"|default_if_none:"Pendiente" }}</td>
 							</tr>
 							<tr>
 								<th>Fecha prevista de equipamiento</th>
@@ -102,7 +102,7 @@
 									{{ comentario.comentario }}
 								</td>
 								<td>
-									<small>{{ comentario.fecha|date:'d/m/Y' }}, {{ comentario.usuario.perfil }}</small>
+									<small>{{ comentario.fecha|date:"Y-m-d" }}, {{ comentario.usuario.perfil }}</small>
 								</td>
 							</tr>
 							{% endfor %}

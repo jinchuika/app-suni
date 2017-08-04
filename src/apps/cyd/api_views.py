@@ -5,10 +5,10 @@ from apps.main.mixins import APIFilterMixin
 from apps.cyd.serializers import (
     SedeSerializer, GrupoSerializer, CalendarioSerializer,
     AsignacionSerializer, ParticipanteSerializer,
-    NotaAsistenciaSerializer, NotaHitoSerializer)
+    NotaAsistenciaSerializer, NotaHitoSerializer, AsesoriaSerializer)
 from apps.cyd.models import (
     Sede, Grupo, Calendario, Asignacion, Participante,
-    NotaAsistencia, NotaHito)
+    NotaAsistencia, NotaHito, Asesoria)
 
 
 class GrupoViewSet(CsrfExemptMixin, viewsets.ModelViewSet):
@@ -75,3 +75,9 @@ class NotaHitoViewSet(viewsets.ModelViewSet):
     serializer_class = NotaHitoSerializer
     queryset = NotaHito.objects.all()
     filter_fields = ('asignacion',)
+
+
+class AsesoriaViewSet(viewsets.ModelViewSet):
+    serializer_class = AsesoriaSerializer
+    queryset = Asesoria.objects.all()
+    filter_fields = ('sede', 'sede__capacitador',)

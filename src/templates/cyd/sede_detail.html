@@ -1,6 +1,6 @@
 {% extends "base/base.html" %}
 
-{% load staticfiles %}
+{% load staticfiles editable_field %}
 
 {% block page_title %}
 <title>{{ sede }}</title>
@@ -10,46 +10,57 @@
 <section class="content">
 	<div class="container-fluid">
 		<div class="row">
-			<div class="col-md-12">
-				<div class="box box-primary">
-					<div class="box-body box-profile">
-						<h3 class="profile-username text-center">{{ sede }}</h3>
-						<h4 class="text-center">{{ sede.codigo }}</h4>
-						<h6 class="text-center"><i class="fa fa-map-marker margin-r-5"></i> {{ sede.direccion }}</h6>
-					</div>
-				</div>
-			</div>
-		</div>
-		<div class="row">
 			<div class="col-md-3">
 				<div class="box box-primary">
-					<div class="box-header with-border">
-						<h3 class="box-title">
+					<div class="box-body no-padding box-profile">
+						<h2 class="profile-username text-center">{{ sede.nombre }}</h2>
+						<p class="text-muted text-center">{{ sede.capacitador.get_full_name }}</p>
+						{% csrf_token %}
+						<table class="table">
+							<tr>
+								<th>Dirección</b></th>
+								<td>{{ sede.direccion }}</td>
+							</tr>
+							<tr>
+								<th>Municipio</th>
+								<td>{{ sede.municipio.nombre }}</td>
+							</tr>
+							<tr>
+								<th>Departamento</th> 
+								<td>{{ sede.municipio.departamento }}</td>
+							</tr>
+							<tr>
+								<th>Observaciones</th> 
+								<td>{{ sede.obervacion }}</td>
+							</tr>
+							<tr>
+								<th>Coordenadas</th> 
+								<td>{{ sede.mapa.lat|default_if_none:"" }}, {{ sede.mapa.lng|default_if_none:"" }}</td>
+							</tr>
 							{% if perms.sede.change_sede %}
-							<a href="{% url 'sede_update' pk=sede.id %}" class="btn btn-info btn-xs">
-								<i class="fa fa-pencil-square-o" aria-hidden="true"></i>
-							</a>
+							<tr>
+								<td colspan="2">
+									<a href="{% url 'sede_update' pk=sede.id %}" class="btn btn-primary btn-block">
+										<i class="fa fa-pencil-square-o" aria-hidden="true"></i> Editar
+									</a>
+								</td>
+							</tr>
 							{% endif %}
-							Información
-						</h3>
-					</div>
-					<div class="box-body">
-						<strong><i class="fa fa-user margin-r-5"></i> Capacitador</strong>
-						<p class="text-muted">{{ sede.capacitador.perfil }}</p>
-
-						<strong><i class="fa fa-map-marker margin-r-5"></i> Dirección</strong>
-						<p class="text-muted">{{ sede.direccion }},</p>
-						<p class="text-muted">{{ sede.municipio.nombre }},</p>
-						<p class="text-muted">{{ sede.municipio.departamento }}</p>
-
-						<strong><i class="fa fa-pencil margin-r-5"></i> Observaciones</strong>
-						<p class="text-muted">{{ sede.observacion }}</p>
-
-						<strong><i class="fa fa-map margin-r-5"></i> Coordenadas</strong>
-						<p class="text-muted"><b>Latitud: </b>{{ sede.mapa.lat }}</p>
-						<p class="text-muted"><b>Longitud: </b>{{ sede.mapa.lng }}</p>
+						</table>
 					</div>
 				</div>
+				{% if sede.mapa.lat and sede.mapa.lng %}
+				<div class="box box-info">
+					<div class="box-header with-border">
+						<h3 class="box-title">
+							Mapa
+						</h3>
+					</div>
+					<div class="box-body no-padding">
+						{% include "base/static-map.html" with latitud=sede.mapa.lat longitud=sede.mapa.lng %}
+					</div>
+				</div>
+				{% endif %}
 			</div>
 			<div class="col-md-9">
 				<div class="row">
@@ -57,13 +68,13 @@
 						<div class="nav-tabs-custom">
 							<ul class="nav nav-tabs nav-justified">
 								<li class="active">
-									<a href="#participantes" data-toggle="tab"><i class="fa fa-graduation-cap" aria-hidden="true"></i> Participantes</a>
+									<a href="#participantes" data-toggle="tab"><i class="fa fa-user" aria-hidden="true"></i> Participantes</a>
 								</li>
 								<li>
-									<a href="#grupos" data-toggle="tab"><i class="fa fa-search" aria-hidden="true"></i> Grupos</a>
+									<a href="#grupos" data-toggle="tab"><i class="fa fa-users" aria-hidden="true"></i> Grupos</a>
 								</li>
 								<li>
-									<a href="#equipamiento" data-toggle="tab"><i class="fa fa-television" aria-hidden="true"></i> Equipamiento</a>
+									<a href="#asesorias" data-toggle="tab"><i class="fa fa-question-circle-o" aria-hidden="true"></i> Asesorías</a>
 								</li>
 								<li>
 									<a href="#contactos" data-toggle="tab"><i class="fa fa-user" aria-hidden="true"></i> Contactos</a>
@@ -71,14 +82,107 @@
 							</ul>
 							<div class="tab-content">
 								<div class="tab-pane active" id="participantes">
+									<table class="table">
+										<thead>
+											<tr>
+												<th>No.</th>
+												<th>Nombre</th>
+												<th>Apellido</th>
+												<th>Grupo</th>
+												<th>Nota</th>
+												<th>Cursos</th>
+												<th>Rol</th>
+												<th>Escuela</th>
+											</tr>
+										</thead>
+										<tbody>
+											{% for participante in sede.get_participantes %}
+												<tr>
+													<td>{{ forloop.counter }}</td>
+													<td>{{ participante.nombre }}</td>
+													<td>{{ participante.apellido }}</td>
+													<td></td>
+													<td></td>
+													<td>{{ participante.cursos_sede }}</td>
+													<td>{{ participante.rol }}</td>
+													<td>{{ participante.escuelas }}</td>
+												</tr>
+											{% endfor %}
+										</tbody>
+									</table>
 								</div>
 
-								<div class="tab-pane" id="grupos">
-									
+								<div class="tab-pane no-padding" id="grupos">
+									<table class="table table-striped">
+										<thead>
+											<tr>
+												<th>Grupo</th>
+												<th>Observaciones</th>
+											</tr>
+										</thead>
+										<tbody>
+										{% for grupo in sede.grupos.all|dictsortreversed:"id" %}
+											<tr>
+												<td>
+													<a href="{{ grupo.get_absolute_url }}">{{ grupo }}</a>
+												</td>
+												<td>
+													{% url 'grupo_api_detail' pk=grupo.id as grupo_editable_url %}
+													{% editable_field value=grupo.comentario name="comentario" pk=grupo.id url=grupo_editable_url %}
+												</td>
+											</tr>
+										{% endfor %}
+										</tbody>
+									</table>
 								</div>
 
-								<div class="tab-pane" id="equipamiento">
-									
+								<div class="tab-pane no-padding" id="asesorias">
+									{% if sede.capacitador == request.user %}
+									<button id="btn-asesoria" class="btn btn-primary">Nueva <i class="fa fa-plus"></i></button>
+									{% endif %}
+									<form action="{% url 'asesoria_api_add' %}" method="post" id="asesoria-form" class="form">
+										{% csrf_token %}
+										{{ asesoria_form.as_p }}
+										<input type="submit" value="Crear" class="btn btn-success">
+									</form>
+									<table class="table table-striped" id="asesoria-tabla">
+										<thead>
+											<tr>
+												<th>Fecha</th>
+												<th>Hora de inicio</th>
+												<th>Hora para finalizar</th>
+												<th>Observaciones</th>
+												<th></th>
+											</tr>
+										</thead>
+										<tbody id="asesoria-tabla-body">
+											{% for asesoria in sede.asesorias.all|dictsort:"fecha" %}
+												<tr>
+													<td>
+														<a href="#" class="editable" data-name="fecha" data-type="text" data-pk="{{ asesoria.id }}" data-url="{% url 'asesoria_api_detail' pk=asesoria.id %}">
+															{{ asesoria.fecha|date:"Y-m-d" }}
+														</a>
+													</td>
+													<td>
+														<a href="#" class="editable" data-name="hora_inicio" data-type="text" data-pk="{{ asesoria.id }}" data-url="{% url 'asesoria_api_detail' pk=asesoria.id %}">
+															{{ asesoria.hora_inicio }}
+														</a>
+													</td>
+													<td>
+														<a href="#" class="editable" data-name="hora_fin" data-type="text" data-pk="{{ asesoria.id }}" data-url="{% url 'asesoria_api_detail' pk=asesoria.id %}">
+															{{ asesoria.hora_fin }}
+														</a>
+													</td>
+													<td>
+														<a href="#" class="editable" data-name="observacion" data-type="text" data-pk="{{ asesoria.id }}" data-url="{% url 'asesoria_api_detail' pk=asesoria.id %}">
+															{{ asesoria.observacion }}
+														</a>
+													</td>
+													<td></td>
+												</tr>
+											{% endfor %}
+										</tbody>
+									</table>
 								</div>
 
 								<div class="tab-pane" id="contactos">
@@ -93,3 +197,15 @@
 	</div>
 </section>
 {% endblock content %}
+
+{% block extra_css %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/bootstrap-editable.css' %}">
+{% endblock extra_css %}
+
+{% block extra_js %}
+<script src="{% static 'js/bootstrap-editable.min.js' %}"></script>
+<script src="{% static 'js/extrajs/cyd.js' %}"></script>
+<script>
+	SedeDetail.init();
+</script>
+{% endblock extra_js %}
