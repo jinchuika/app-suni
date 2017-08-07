@@ -137,38 +137,43 @@
 
 (function( MonitoreoList, $, undefined ) {
     var tabla = $('#monitoreo-table').DataTable({
-        "paging":   false,
-        rowsGroup: [
-        3, 2, 0, 1
+        paging:   false,
+        dom: 'lfrtipB',
+        serverSide: true,
+        processing: true,
+        deferLoading: 0,
+        buttons: ['excel','pdf'],
+        ajax: {
+            url: $('#monitoreo-list-form').attr('action'),
+            type: "POST",
+            deferRender: true,
+            dataSrc: '',
+            data: function () {
+                return $('#monitoreo-list-form').serializeObject();
+            }
+        },
+        columns: [
+        {data: "departamento"},
+        {data: "municipio"},
+        {
+            targets: 1,
+            data: "escuela",
+            render: function (data, type, full, meta) {
+                return '<a href="' + full.escuela_url + '">' + data + '<br>(' + full.escuela_codigo + ')</a>';
+            }
+        },
+        {data: "entrega"},
+        {data: "fecha", "className": "nowrap"},
+        {data: "comentario"},
         ],
     });
-    var armar_tabla = function (monitoreo_list) {
-        $.each(monitoreo_list, function (index, equipamiento) {
-            tabla.row.add([
-                equipamiento.departamento,
-                equipamiento.municipio,
-                equipamiento.escuela,
-                equipamiento.entrega,
-                equipamiento.fecha,
-                equipamiento.comentario
-                ]).draw(false);
-        });
-    }
 
     // Public
     MonitoreoList.init = function () {
         $('#monitoreo-list-form').submit(function (e) {
             e.preventDefault();
             tabla.clear().draw();
-            $.ajax({
-                type: 'post',
-                url: $(this).attr('action'),
-                dataType: 'json',
-                data: $(this).serialize(),
-                success: function (respuesta) {
-                    armar_tabla(respuesta);
-                }
-            });
+            tabla.ajax.reload();
         });
 
     }   

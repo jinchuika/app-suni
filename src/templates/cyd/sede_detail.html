@@ -99,10 +99,11 @@
 											{% for participante in sede.get_participantes %}
 												<tr>
 													<td>{{ forloop.counter }}</td>
-													<td>{{ participante.nombre }}</td>
+													<td>
+														<a href="{{ participante.get_absolute_url }}">{{ participante.nombre }}</a></td>
 													<td>{{ participante.apellido }}</td>
 													<td></td>
-													<td></td>
+													<td>{{ participante.nota}}</td>
 													<td>{{ participante.cursos_sede }}</td>
 													<td>{{ participante.rol }}</td>
 													<td>{{ participante.escuelas }}</td>

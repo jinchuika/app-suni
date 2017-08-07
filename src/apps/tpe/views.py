@@ -440,6 +440,7 @@ class MonitoreoListView(InformeMixin):
                 'entrega_url': monitoreo.equipamiento.get_absolute_url(),
                 'escuela': str(monitoreo.equipamiento.escuela),
                 'escuela_url': monitoreo.equipamiento.escuela.get_absolute_url(),
+                'escuela_codigo': monitoreo.equipamiento.escuela.codigo,
                 'departamento': str(monitoreo.equipamiento.escuela.municipio.departamento),
                 'municipio': str(monitoreo.equipamiento.escuela.municipio.nombre),
                 'comentario': monitoreo.comentario,

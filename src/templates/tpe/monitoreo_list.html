@@ -58,7 +58,7 @@
 {% endblock content %}
 
 {% block extra_js %}
-<script src="{% static "js/dataTables.rowsGroup.js" %}"></script>
+{% include "base/dataTables.html" %}
 <script src="{% static "js/extrajs/tpe.js" %}"></script>
 <script>
 	MonitoreoList.init();

@@ -70,7 +70,9 @@
     var tabla = $('#escuela-table').DataTable({
         dom: 'lfrtipB',
         buttons: ['excel','pdf'],
+        serverSide: true,
         processing: true,
+        deferLoading: 0,
         ajax: {
             url: $('#escuela-list-form').attr('action'),
             type: "POST",
