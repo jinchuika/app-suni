@@ -1,7 +1,7 @@
 from random import randint
 from datetime import datetime, timedelta
 from django.db import models
-from django.db.models import Count, Avg
+from django.db.models import Count, Avg, F, Sum
 from django.utils.text import slugify
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
@@ -85,6 +85,10 @@ class Sede(models.Model):
         participantes = Participante.objects.filter(
             asignaciones__grupo__sede__id=self.id).annotate(
             cursos_sede=Count('asignaciones'))
+        # asignaciones = Asignacion.objects.filter(grupo__sede=self).annotate()
+        # for participante in participantes:
+        #     print(participante.asignaciones.all().count())
+        # participantes = Asignacion.objects.filter(grupo__sede=self).annotate(nota=Avg('nota_final'))
         return participantes
 
 
