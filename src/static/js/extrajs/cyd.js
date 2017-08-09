@@ -93,11 +93,35 @@ function validar_udi_api(params) {
     
     SedeDetail.init = function () {
         activar_edicion();
+        $('#asesoria-form').hide();
+        $('#btn-asesoria').on('click', function () {
+            $('#asesoria-form').toggle();
+        });
         $('#asesoria-form').on('submit', function (e) {
             e.preventDefault();
             $.post($(this).attr('action'), $(this).serializeObject(), function (respuesta) {
                 $('#asesoria-form')[0].reset();
+                $('#asesoria-form').hide();
                 crear_celda(respuesta);
+            });
+        });
+
+        $('.eliminar-asesoria').on('click', function () {
+            var boton = $(this);
+            bootbox.confirm('¿Desea eliminar el período de asesoría?', function (result) {
+                if(result){
+                    $.ajax({
+                        beforeSend: function(xhr, settings) {
+                            xhr.setRequestHeader("X-CSRFToken", $("[name=csrfmiddlewaretoken]").val());
+                        },
+                        success: function (respuesta) {
+                            $('#asesoria-'+boton.data('pk')).remove();
+                        },
+                        dataType: 'json',
+                        type: 'DELETE',
+                        url: boton.data('url')
+                    });
+                }
             });
         });
     }
@@ -440,7 +464,7 @@ function validar_udi_api(params) {
                 type: 'POST',
                 url: $(this).attr('action')
             });
-        })
+        });
     }
 }( window.ParticipanteCrear = window.ParticipanteCrear || {}, jQuery ));
 

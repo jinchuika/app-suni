@@ -17,7 +17,7 @@ class Curso(models.Model):
     """Curso para impartir en la  capacitación."""
     nombre = models.CharField(max_length=75)
     nota_aprobacion = models.IntegerField()
-    porcentaje = models.IntegerField()
+    porcentaje = models.IntegerField(null=True, blank=True)
 
     def __str__(self):
         return self.nombre
@@ -81,15 +81,36 @@ class Sede(models.Model):
     def get_absolute_url(self):
         return reverse('sede_detail', kwargs={'pk': self.id})
 
+    def get_escuelas(self):
+        participantes = Participante.objects.filter(asignaciones__grupo__sede__id=self.id)
+        return Escuela.objects.filter(participantes__in=participantes).annotate(cantidad_participantes=Count('participantes')).distinct()
+
     def get_participantes(self):
+        resultado = {'listado': [], 'resumen': {'roles': {}, 'genero': {}, 'estado': {}}}
         participantes = Participante.objects.filter(
             asignaciones__grupo__sede__id=self.id).annotate(
             cursos_sede=Count('asignaciones'))
-        # asignaciones = Asignacion.objects.filter(grupo__sede=self).annotate()
-        # for participante in participantes:
-        #     print(participante.asignaciones.all().count())
-        # participantes = Asignacion.objects.filter(grupo__sede=self).annotate(nota=Avg('nota_final'))
-        return participantes
+        for participante in participantes:
+            asignaciones = participante.asignaciones.filter(grupo__sede=self)
+            resultado['listado'].append({
+                'participante': participante,
+                'nota': sum(a.get_nota_promediada()['nota'] for a in asignaciones),
+                'grupo': asignaciones.first().grupo.numero})
+        resultado['resumen']['roles'] = participantes.annotate(nombre_rol=F('rol__nombre')).values('nombre_rol').annotate(cantidad=Count('id', distinct=True))
+        resultado['resumen']['genero'] = participantes.annotate(nombre_genero=F('genero__genero')).values('nombre_genero').annotate(cantidad=Count('id', distinct=True))
+        aprobado = sum(1 for nota in resultado['listado'] if nota['nota'] >= 75)
+        nivelar = sum(1 for nota in resultado['listado'] if 70 <= nota['nota'] < 75)
+        reprobado = sum(1 for nota in resultado['listado'] if nota['nota'] < 70)
+        resultado['resumen']['estado']['aprobado'] = {
+            'cantidad': aprobado,
+            'porcentaje': (aprobado * 100 // len(resultado['listado'])) if len(resultado['listado']) > 0 else 0}
+        resultado['resumen']['estado']['nivelar'] = {
+            'cantidad': nivelar,
+            'porcentaje': (nivelar * 100 // len(resultado['listado'])) if len(resultado['listado']) > 0 else 0}
+        resultado['resumen']['estado']['reprobado'] = {
+            'cantidad': reprobado,
+            'porcentaje': (reprobado * 100 // len(resultado['listado'])) if len(resultado['listado']) > 0 else 0}
+        return resultado
 
 
 class Asesoria(models.Model):
@@ -234,7 +255,7 @@ class Participante(models.Model):
     apellido = models.CharField(max_length=100)
     genero = models.ForeignKey(ParGenero, null=True)
     rol = models.ForeignKey(ParRol, on_delete=models.PROTECT)
-    escuela = models.ForeignKey(Escuela, on_delete=models.PROTECT)
+    escuela = models.ForeignKey(Escuela, on_delete=models.PROTECT, related_name='participantes')
     direccion = models.TextField(null=True, blank=True, verbose_name='Dirección')
     mail = models.EmailField(null=True, blank=True)
     tel_casa = models.CharField(max_length=11, null=True, blank=True, verbose_name='Teléfono de casa')
@@ -323,6 +344,18 @@ class Asignacion(models.Model):
         """Indica si la asignación actual alcanza la nota mínima establecida por el :model:`cyd.Curso`."""
         return self.get_nota_final() >= self.grupo.curso.nota_aprobacion  # type: boolean
     aprobado = property(get_aprobado)
+
+    def get_nota_promediada(self):
+        """Devuelve la nota final promediada respecto al porcentaje del :model:`cyd.Curso` relacionado.
+        En caso de que el curso no tenga un porcentaje, devuelve la nota final real.
+        """
+        if self.grupo.curso.porcentaje:
+            nota = self.get_nota_final() * (self.grupo.curso.porcentaje / 100)
+            promediada = True
+        else:
+            nota = self.get_nota_final() / (Asignacion.objects.filter(grupo__sede=self.grupo.sede, participante=self.participante).count())
+            promediada = False
+        return {'nota': nota, 'promediada': promediada}
 
 
 class NotaAsistencia(models.Model):

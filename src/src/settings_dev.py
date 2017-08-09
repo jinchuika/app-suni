@@ -4,7 +4,11 @@ from .settings import *
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'suni_dev',
+        'USER': 'root',
+        'PASSWORD': 'db_r00t_Fun53Pa.l0cal',
+        'HOST': '200.114.118.174',
+        'PORT': '6033',
     }
 }

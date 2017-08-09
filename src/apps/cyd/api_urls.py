@@ -13,7 +13,8 @@ asesoria_api_list = api_views.AsesoriaViewSet.as_view({
 asesoria_api = api_views.AsesoriaViewSet.as_view({
     'get': 'retrieve',
     'post': 'create',
-    'patch': 'partial_update'})
+    'patch': 'partial_update',
+    'delete': 'destroy'})
 
 grupo_api_list = api_views.GrupoViewSet.as_view({
     'get': 'list'})

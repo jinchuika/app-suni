@@ -290,11 +290,12 @@ class ParticipanteJsonCreateView(LoginRequiredMixin, JsonRequestResponseMixin, C
             escuela = Escuela.objects.get(codigo=self.request_json['udi'])
             grupo = Grupo.objects.get(id=self.request_json['grupo'])
             rol = ParRol.objects.get(id=self.request_json['rol'])
+            genero = ParGenero.objects.get(id=self.request_json['genero'])
             participante = Participante.objects.create(
                 dpi=self.request_json['dpi'],
                 nombre=self.request_json['nombre'],
                 apellido=self.request_json['apellido'],
-                genero=self.request_json['genero'],
+                genero=genero,
                 rol=rol,
                 mail=self.request_json['mail'],
                 tel_movil=self.request_json['tel_movil'],
