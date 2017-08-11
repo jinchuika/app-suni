@@ -1,7 +1,7 @@
 function listar_grupos_sede(sede_selector, grupo_selector) {
     /*
     Al cambiar la sede, genera el listado de grupos
-     */
+    */
     $(grupo_selector).html('');
     if ($(sede_selector).val()) {
         $.get($(sede_selector).data('url'),
@@ -160,6 +160,54 @@ function validar_udi_api(params) {
         })
     }
 
+    var copiar_participantes = function () {
+        var api_url = $('#copiar-form').prop('action');
+        var grupo_id = $('#copiar-form #id_grupo').val();
+        var total = $('.check-participante:checkbox:checked').length;
+        var completados = 0;
+        $('.check-participante:checkbox:checked').each(function () {
+            var participante_id = $(this).val();
+            $.ajax({
+                beforeSend: function(xhr, settings) {
+                    xhr.setRequestHeader("X-CSRFToken", $('input[name="csrfmiddlewaretoken"]').val());
+                },
+                data: {
+                    grupo: grupo_id,
+                    participante: participante_id
+                },
+                dataType: 'json',
+                error: function (respuesta) {
+                    completados += 1;
+                    new Noty({
+                        text: 'Error al asignar a ' + $('#td-nombre-'+participante_id).text() + ' ' + $('#td-apellido-'+participante_id).text() +'.',
+                        type: 'error',
+                        timeout: 2500,
+                    }).show();
+                    ocultar_copiar_form(total, completados);
+                },
+                url: api_url,
+                success: function (respuesta) {
+                    completados += 1;
+                    new Noty({
+                        text: 'Copiado con éxito',
+                        type: 'success',
+                        timeout: 1700,
+                    }).show();
+                    ocultar_copiar_form(total, completados);
+                },
+                type: 'POST'
+            });
+        })
+    }
+
+    var ocultar_copiar_form = function (total, completados) {
+        if (completados >= total) {
+            $('#copiar-form')[0].reset();
+            $('.form-copiar').hide();
+            $('.check-participante').prop('checked', false);
+        }
+    }
+
     GrupoDetail.init = function () {
         $('.editable').on('shown', function(e, editable) {
             $('.datepicker').datepicker({
@@ -183,6 +231,20 @@ function validar_udi_api(params) {
             }
         });
         crear_grafico($("#grafico-asistencias"));
+        $('.form-copiar').hide();
+        $('#btn-select-all').click(function(){
+            $('.check-participante').prop('checked',true);
+        });
+        $('#btn-select-none').click(function(){
+            $('.check-participante:checkbox:checked').removeAttr('checked');
+        });
+        $('#btn-form-copiar').on('click', function () {
+            $('.form-copiar').toggle();
+        });
+        $('#copiar-form').on('submit', function (e) {
+            e.preventDefault();
+            copiar_participantes();
+        });
     }
 }( window.GrupoDetail = window.GrupoDetail || {}, jQuery ));
 
@@ -382,14 +444,14 @@ function validar_udi_api(params) {
     ParticipanteCrear.init = function () {
         /*
         Al cambiar la sede, genera el listado de grupos
-         */
+        */
         $('#form_participante #id_sede').on('change', function () {
             listar_grupos_sede('#form_participante #id_sede', '#form_participante #id_grupo');
         });
 
         /*
         Al cambiar el grupo, genera el listado de participantes
-         */
+        */
         $('#form_participante #id_grupo').on('change', function () {
             $('#tbody-listado').html('');
             $.get($(this).data('url'),
@@ -412,7 +474,7 @@ function validar_udi_api(params) {
 
         /*
         Valida que el UDI ingresado sea real
-         */
+        */
         $('#form_participante #id_udi').on('input', function () {
             $('#escuela_label').html('Escuela no encontrada');
             $('#btn-crear').prop('disabled', true);
@@ -475,12 +537,12 @@ function validar_udi_api(params) {
         if (dpi) {
             $.get(
                 participante_api_list_url,
-            {
-                dpi: dpi
-            },
-            function (respuesta) {
-                return respuesta.length > 0 ? callback(false) : callback(true);
-            });
+                {
+                    dpi: dpi
+                },
+                function (respuesta) {
+                    return respuesta.length > 0 ? callback(false) : callback(true);
+                });
         }
     }
 
@@ -492,35 +554,35 @@ function validar_udi_api(params) {
             $.each(tabla_importar.getData(), function (index, fila) {
                 if (fila[1] && fila[2] && fila[3] && fila[4]) {
                     try{
-                    $.ajax({
-                        beforeSend: function(xhr, settings) {
-                            xhr.setRequestHeader("X-CSRFToken", $("[name=csrfmiddlewaretoken]").val());
-                        },
-                        data: JSON.stringify({
-                            grupo: grupo,
-                            udi: udi,
-                            dpi: fila[0],
-                            nombre: fila[1],
-                            apellido: fila[2],
-                            genero: fila[3],
-                            rol: fila[4],
-                            mail: fila[5],
-                            tel_movil: fila[6],
-                        }),
-                        error: function (xhr, status, errorThrown) {
-                            new Noty({
-                                text: 'Error al crear a ' + fila[1] + ' ' + fila[2],
-                                type: 'error',
-                                timeout: 3500,
-                            }).show();
-                            progress += 1;
-                            notificar_fin(tabla_importar.countRows(), progress);
-                        },
-                        success: function (respuesta) {
-                            if(respuesta.status=="ok"){
+                        $.ajax({
+                            beforeSend: function(xhr, settings) {
+                                xhr.setRequestHeader("X-CSRFToken", $("[name=csrfmiddlewaretoken]").val());
+                            },
+                            data: JSON.stringify({
+                                grupo: grupo,
+                                udi: udi,
+                                dpi: fila[0],
+                                nombre: fila[1],
+                                apellido: fila[2],
+                                genero: fila[3],
+                                rol: fila[4],
+                                mail: fila[5],
+                                tel_movil: fila[6],
+                            }),
+                            error: function (xhr, status, errorThrown) {
+                                new Noty({
+                                    text: 'Error al crear a ' + fila[1] + ' ' + fila[2],
+                                    type: 'error',
+                                    timeout: 3500,
+                                }).show();
                                 progress += 1;
-                                filas_borrar.push(index + 1);
                                 notificar_fin(tabla_importar.countRows(), progress);
+                            },
+                            success: function (respuesta) {
+                                if(respuesta.status=="ok"){
+                                    progress += 1;
+                                    filas_borrar.push(index + 1);
+                                    notificar_fin(tabla_importar.countRows(), progress);
                                 //tabla_importar.alter('remove_row', index);
                             }
                             else{
@@ -532,10 +594,10 @@ function validar_udi_api(params) {
                         type: 'POST',
                         url: participante_add_ajax_url
                     });
-                }
-                catch(err){
-                    console.log('asd');
-                }
+                    }
+                    catch(err){
+                        console.log('asd');
+                    }
                 }
                 else{
                     progress += 1;
@@ -605,7 +667,7 @@ function validar_udi_api(params) {
 
         /*
         Al cambiar el grupo, genera el listado de participantes
-         */
+        */
         $('#form_participante #id_grupo').on('change', function () {
             $('#tbody-listado').html('');
             $.get($(this).data('url'),
@@ -628,7 +690,7 @@ function validar_udi_api(params) {
 
         /*
         Valida que el UDI ingresado sea real
-         */
+        */
         $('#form_participante #id_udi').on('input', function () {
             $('#escuela_label').html('Escuela no encontrada');
             $('#btn-crear').prop('disabled', true);

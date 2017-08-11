@@ -130,3 +130,10 @@ class AsesoriaForm(forms.ModelForm):
             'hora_fin': forms.TextInput(attrs={'class': 'form-control'}),
             'observacion': forms.TextInput(attrs={'class': 'form-control'})
         }
+
+
+class GrupoListForm(forms.Form):
+    """Formulario para listar :model:`cyd.Grupo` en una :model:`cyd.Sede`.
+    Se usa para copiar los participantes de un grupo a otros.
+    """
+    grupo = forms.ModelChoiceField(Grupo)

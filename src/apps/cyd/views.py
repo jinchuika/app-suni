@@ -1,5 +1,6 @@
 from datetime import datetime
 from django.db import IntegrityError
+from django.db.models import Q
 from django.http import HttpResponseRedirect
 from django.views.generic import DetailView, ListView, View, TemplateView
 from django.views.generic.edit import CreateView, UpdateView, FormView
@@ -11,7 +12,8 @@ from braces.views import LoginRequiredMixin, GroupRequiredMixin, JsonRequestResp
 from apps.cyd.forms import (
     CursoForm, CrHitoFormSet, CrAsistenciaFormSet,
     SedeForm, GrupoForm, CalendarioFilterForm,
-    SedeFilterForm, ParticipanteForm, ParticipanteBaseForm, AsesoriaForm)
+    SedeFilterForm, ParticipanteForm, ParticipanteBaseForm, AsesoriaForm,
+    GrupoListForm)
 from apps.cyd.models import (
     Curso, Sede, Grupo, Calendario, Participante, ParRol,
     ParEtnia, ParEscolaridad, ParGenero)
@@ -183,6 +185,8 @@ class GrupoDetailView(LoginRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super(GrupoDetailView, self).get_context_data(**kwargs)
         context['genero_list'] = ParGenero.objects.all()
+        context['grupo_list_form'] = GrupoListForm()
+        context['grupo_list_form'].fields['grupo'].queryset = Grupo.objects.filter(Q(sede=self.object.sede), ~Q(id=self.object.id))
         return context
 
 
@@ -192,6 +196,7 @@ class GrupoListView(LoginRequiredMixin, GroupRequiredMixin, ListView):
     raise_exception = True
     model = Grupo
     template_name = 'cyd/grupo_list.html'
+    ordering = ['-sede', '-id']
 
     def get_queryset(self):
         queryset = super(GrupoListView, self).get_queryset()

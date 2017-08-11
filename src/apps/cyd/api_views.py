@@ -1,5 +1,5 @@
 from braces.views import CsrfExemptMixin
-from rest_framework import generics, viewsets
+from rest_framework import generics, viewsets, filters
 
 from apps.main.mixins import APIFilterMixin
 from apps.cyd.serializers import (
@@ -35,10 +35,12 @@ class AsignacionViewSet(CsrfExemptMixin, viewsets.ModelViewSet):
 
 
 class ParticipanteViewSet(CsrfExemptMixin, viewsets.ModelViewSet):
-    """La diferencia con ParticipanteViewSet es que este usa el DPI como primary key
+    """Consulta de participantes usando el DPI como primary key.
     """
     serializer_class = ParticipanteSerializer
     queryset = Participante.objects.all()
+    filter_backends = (filters.SearchFilter, filters.DjangoFilterBackend)
+    search_fields = ('nombre', 'apellido')
     filter_fields = ('escuela', 'asignaciones__grupo', 'dpi')
     lookup_field = 'dpi'
 
@@ -49,6 +51,8 @@ class ParticipanteAPIViewSet(CsrfExemptMixin, viewsets.ModelViewSet):
     serializer_class = ParticipanteSerializer
     queryset = Participante.objects.all()
     filter_fields = ('escuela', 'asignaciones__grupo', 'dpi')
+    filter_backends = (filters.DjangoFilterBackend, filters.OrderingFilter)
+    search_fields = ('nombre')
 
 
 class CalendarioListAPIView(APIFilterMixin, generics.ListAPIView):

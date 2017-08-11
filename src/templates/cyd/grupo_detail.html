@@ -131,6 +131,15 @@
 					<div class="tab-content">
 						<!-- Panel de participantes -->
 						<div class="tab-pane active" id="participantes">
+							{% if grupo.sede.capacitador == request.user %}
+							<button id="btn-form-copiar" class="btn btn-primary btn-sm">Copiar</button> 
+							<button id="btn-select-all" class="btn btn-info btn-sm form-copiar">Todos</button> 
+							<button id="btn-select-none" class="btn btn-info btn-sm form-copiar">Ninguno</button>
+							<form action="{% url 'asignacion_api_add' %}" method="" class="form-copiar form-inline" id="copiar-form">
+								{{ grupo_list_form }}
+								<input type="submit" class="btn btn-success btn-sm" value="Copiar">
+							</form>
+							{% endif %}
 							<table class="table table-striped table-condensed">
 								<thead>
 									<tr>
@@ -147,18 +156,19 @@
 								<tbody>
 									{% for asignacion in grupo.asignados.all %}
 										<tr>
-											<td>
+											<td class="td-participante" data-pk="{{ asignacion.participante.id }}">
 												<a href="{{ asignacion.participante.get_absolute_url }}">{{ forloop.counter }}</a>
+												<input type="checkbox" class="form-copiar check-participante" value="{{ asignacion.participante.id }}">
 											</td>
 											<td>
 												{% url 'participante_api_update' pk=asignacion.participante.id as participante_editable_url %}
 												{% editable_field value=asignacion.participante.dpi name="dpi" pk=asignacion.participante.id url=participante_editable_url editable=perms.cyd.change_participante %}
 											</td>
-											<td>
+											<td id="td-nombre-{{ asignacion.participante.id }}">
 												{% url 'participante_api_update' pk=asignacion.participante.id as participante_editable_url %}
 												{% editable_field value=asignacion.participante.nombre name="nombre" pk=asignacion.participante.id url=participante_editable_url editable=perms.cyd.change_participante %}
 											</td>
-											<td>
+											<td id="td-apellido-{{ asignacion.participante.id }}">
 												{% url 'participante_api_update' pk=asignacion.participante.id as participante_editable_url %}
 												{% editable_field value=asignacion.participante.apellido name="apellido" pk=asignacion.participante.id url=participante_editable_url editable=perms.cyd.change_participante %}
 											</td>

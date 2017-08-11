@@ -90,6 +90,7 @@ class Sede(models.Model):
         participantes = Participante.objects.filter(
             asignaciones__grupo__sede__id=self.id).annotate(
             cursos_sede=Count('asignaciones'))
+        print(participantes.query)
         for participante in participantes:
             asignaciones = participante.asignaciones.filter(grupo__sede=self)
             resultado['listado'].append({

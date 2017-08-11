@@ -32,7 +32,7 @@
 								</tr>
 							</thead>
 							<tbody>
-								{% for grupo in grupo_list|dictsortreversed:"id" %}
+								{% for grupo in grupo_list %}
 								<tr>
 									<td>
 										<a href="{{ grupo.sede.get_absolute_url }}">{{ grupo.sede }}</a>
