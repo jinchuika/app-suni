@@ -1,9 +1,17 @@
 from django import forms
+from django.core.urlresolvers import reverse_lazy
+
 from apps.main.models import Departamento, Municipio
 
 
 class GeoForm(forms.Form):
-    departamento = forms.ModelChoiceField(Departamento.objects.all())
+    """Formulario para mostrar listados de :model:`main.Departamento`
+    y :model:`main.Municipio`. El departamento incluye la URL para generar
+    un listado de municipios usando AJAX.
+    """
+    departamento = forms.ModelChoiceField(
+        queryset=Departamento.objects.all(),
+        widget=forms.Select(attrs={'data-url': reverse_lazy('municipio_api_list')}))
     municipio = forms.ModelChoiceField(Municipio.objects.all())
 
 

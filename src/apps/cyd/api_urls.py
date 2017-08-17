@@ -68,7 +68,7 @@ urlpatterns = [
     url(r'^api/asignacion/(?P<pk>\d+)/$', asignacion_api_detail, name='asignacion_api_detail'),
 
     url(r'^api/participante/list/$', participante_api_list, name='participante_api_list'),
-    url(r'^api/participante/(?P<dpi>\w+)/$', participante_api_detail, name='participante_api_detail'),
+    url(r'^api/participante/(?P<pk>\w+)/$', participante_api_detail, name='participante_api_detail'),
     url(r'^api/participante/(?P<pk>\d+)/update/$', participante_api_update, name='participante_api_update'),
 
     url(r'^api/nota_asistencia/(?P<pk>\d+)/update/$', nota_asistencia_api_update, name='nota_asistencia_api_update'),

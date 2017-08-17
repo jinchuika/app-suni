@@ -1,4 +1,5 @@
 from django import forms
+from django.core.urlresolvers import reverse_lazy
 from django.forms.models import inlineformset_factory
 from django.forms.formsets import BaseFormSet, formset_factory
 
@@ -52,6 +53,7 @@ class EscuelaBuscarForm(forms.Form):
         required=False)
     departamento = forms.ModelChoiceField(
         queryset=Departamento.objects.all(),
+        widget=forms.Select(attrs={'data-url': reverse_lazy('municipio_api_list')}),
         required=False)
     municipio = forms.ModelChoiceField(
         queryset=Municipio.objects.all(),

@@ -1,5 +1,7 @@
 from rest_framework import serializers
 
+from apps.main.models import Departamento, Municipio
+
 
 class DynamicFieldsModelSerializer(serializers.ModelSerializer):
     """
@@ -21,3 +23,15 @@ class DynamicFieldsModelSerializer(serializers.ModelSerializer):
             existing = set(self.fields.keys())
             for field_name in existing - allowed:
                 self.fields.pop(field_name)
+
+
+class DepartamentoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Departamento
+        fields = '__all__'
+
+
+class MunicipioSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Municipio
+        fields = '__all__'

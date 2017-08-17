@@ -79,7 +79,9 @@
             tabla.clear().draw();
             tabla.ajax.reload();
         });
-
+        $('#equipamiento-list-form #id_departamento').on('change', function () {
+            listar_municipio_departamento('#equipamiento-list-form #id_departamento', '#equipamiento-list-form #id_municipio', true);
+        });
     } 
 }( window.EquipamientoList = window.EquipamientoList || {}, jQuery ));
 
@@ -131,7 +133,9 @@
             tabla.clear().draw();
             tabla.ajax.reload();
         });
-
+        $('#equipamiento-list-form #id_departamento').on('change', function () {
+            listar_municipio_departamento('#equipamiento-list-form #id_departamento', '#equipamiento-list-form #id_municipio', true);
+        });
     } 
 }( window.EquipamientoInforme = window.EquipamientoInforme || {}, jQuery ));
 

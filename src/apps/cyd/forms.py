@@ -3,6 +3,7 @@ from django.forms.models import inlineformset_factory
 from django.core.urlresolvers import reverse_lazy
 from django.contrib.auth.models import User
 
+from apps.main.forms import GeoForm
 from apps.cyd.models import (
     Curso, CrAsistencia, CrHito, Sede, Grupo, Participante, Asesoria)
 
@@ -115,6 +116,27 @@ class ParticipanteForm(ParticipanteBaseForm, forms.ModelForm):
         help_texts = {
             'dpi': 'dpi_label'
         }
+
+
+class ParticipanteBuscarForm(ParticipanteBaseForm, GeoForm, forms.ModelForm):
+    nombre = forms.CharField(required=False)
+    capacitador = forms.ModelChoiceField(
+        queryset=User.objects.filter(groups__name='cyd_capacitador'))
+
+    class Meta:
+        model = Participante
+        fields = ['nombre', 'capacitador']
+
+    def __init__(self, *args, **kwargs):
+        super(ParticipanteBuscarForm, self).__init__(*args, **kwargs)
+        self.fields['capacitador'].label_from_instance = lambda obj: "%s" % obj.get_full_name()
+        self.fields.pop('grupo')
+
+
+class ParticipanteAsignarForm(ParticipanteBaseForm):
+    def __init__(self, *args, **kwargs):
+        super(ParticipanteAsignarForm, self).__init__(*args, **kwargs)
+        self.fields.pop('udi')
 
 
 class AsesoriaForm(forms.ModelForm):

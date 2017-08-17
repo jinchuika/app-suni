@@ -1,4 +1,4 @@
-function listar_grupos_sede(sede_selector, grupo_selector) {
+function listar_grupos_sede(sede_selector, grupo_selector, null_option) {
     /*
     Al cambiar la sede, genera el listado de grupos
     */
@@ -10,6 +10,9 @@ function listar_grupos_sede(sede_selector, grupo_selector) {
         },
         function (respuesta) {
             var options = '';
+            if (null_option) {
+                options += '<option value="">------</option>';
+            }
             $.each(respuesta, function (index, grupo) {
                 options += '<option value="'+grupo.id+'">'+grupo.numero+' - '+grupo.curso+'</option>';
             });
@@ -752,3 +755,104 @@ function validar_udi_api(params) {
         });
     }
 }( window.ParticipanteDetail = window.ParticipanteDetail || {}, jQuery ));
+
+(function( ParticipanteBuscar, $, undefined ) {
+    var asignar_participante = function (participante_id) {
+        var api_url = $('#participante-asignar-form').prop('action');
+        var grupo_id = $('#participante-asignar-form #id_grupo').val();
+        if (grupo_id && participante_id) {
+            $.ajax({
+                beforeSend: function(xhr, settings) {
+                    xhr.setRequestHeader("X-CSRFToken", $('input[name="csrfmiddlewaretoken"]').val());
+                },
+                data: {
+                    grupo: grupo_id,
+                    participante: participante_id
+                },
+                dataType: 'json',
+                error: function (respuesta) {
+                    completados += 1;
+                    new Noty({
+                        text: 'Error al asignar a ' + $('#td-nombre-'+participante_id).text() + ' ' + $('#td-apellido-'+participante_id).text() +'.',
+                        type: 'error',
+                        timeout: 2500,
+                    }).show();
+                    ocultar_copiar_form(total, completados);
+                },
+                url: api_url,
+                success: function (respuesta) {
+                    completados += 1;
+                    new Noty({
+                        text: 'Copiado con éxito',
+                        type: 'success',
+                        timeout: 1700,
+                    }).show();
+                    ocultar_copiar_form(total, completados);
+                },
+                type: 'POST'
+            });
+        }
+    }
+
+    ParticipanteBuscar.init = function () {
+        $('#id_nombre').autocomplete({
+            minLength: 4,
+            selectFirst: false,
+            search: function (event, ui) {
+                $('#resultado-tbody').html('');
+            },
+            source: function (term, callback) {
+                $.getJSON(
+                    $('#participante-buscar-form').prop('action'),
+                    {
+                        search: term.term,
+                        fields: 'id,nombre,apellido,escuela,url,asignaciones',
+                        asignaciones__grupo__sede__capacitador: $('#participante-buscar-form #id_capacitador').val(),
+                        asignaciones__grupo__sede: $('#participante-buscar-form #id_sede').val(),
+                        asignaciones__grupo: $('#participante-buscar-form #id_grupo').val(),
+                        escuela__codigo: $('#participante-buscar-form #id_udi').val(),
+                        escuela__municipio__departamento: $('#participante-buscar-form #id_departamento').val(),
+                        escuela__municipio: $('#participante-buscar-form #id_municipio').val()
+                    },
+                    callback);
+            }
+        }).data('ui-autocomplete')._renderItem = function (ul, item) {
+            return $('<tr >')
+                .data('item.autocomplete', item)
+                .append(function () {
+                    var td_participante = '';
+                    td_participante += '<td><a href="'+item.url+'" class="btn btn-block">'+item.nombre+' '+item.apellido+'</a></td>';
+                    td_participante += '<td>'+item.asignaciones.map(function (asignacion) {
+                        return '<small class="badge bg-aqua">'+asignacion.grupo+'</small>';
+                    }).join('<br />')+ '</td>';
+                    td_participante += '<td><a href="'+item.escuela.url+'">'+item.escuela.nombre+'<br>'+item.escuela.codigo+'</a></td>';
+                    if (permite_asignar) {
+                        td_participante += '<td><button class="btn-asignar" onclick="asignar_participante('+item.id+');">Asignar</button></td>';
+                    }
+                    return td_participante;
+                })
+                .appendTo($('#resultado-tbody'));
+        };
+
+        $('#participante-buscar-form #id_sede').on('change', function () {
+            listar_grupos_sede('#participante-buscar-form #id_sede', '#participante-buscar-form #id_grupo', true);
+        });
+        $('#participante-buscar-form #id_grupo').on('change', function () {
+            $('#id_nombre').autocomplete('search');
+        });
+        $('#participante-buscar-form #id_departamento').on('change', function () {
+            listar_municipio_departamento('#participante-buscar-form #id_departamento', '#participante-buscar-form #id_municipio', true);
+        });
+        $('#participante-buscar-form #id_municipio').on('change', function () {
+            $('#id_nombre').autocomplete('search');
+        });
+
+        $('#participante-asignar-form #id_sede').on('change', function () {
+            listar_grupos_sede('#participante-asignar-form #id_sede', '#participante-asignar-form #id_grupo', true);
+        });
+        $('.btn-asignar').click(function () {
+            console.log('click trigger');
+            asignar_participante($(this).data('pk'));
+        })
+    }
+}( window.ParticipanteBuscar = window.ParticipanteBuscar || {}, jQuery ));

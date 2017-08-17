@@ -52,8 +52,18 @@ class AsesoriaSerializer(serializers.ModelSerializer):
         }
 
 
+class AsignacionResumenSerializer(DynamicFieldsModelSerializer, serializers.ModelSerializer):
+    grupo = serializers.StringRelatedField()
+
+    class Meta:
+        model = Asignacion
+        fields = ['grupo']
+
+
 class ParticipanteSerializer(DynamicFieldsModelSerializer, serializers.ModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='participante_detail', lookup_field='pk')
     escuela = EscuelaSerializer(read_only=True, fields='codigo,nombre,url')
+    asignaciones = AsignacionResumenSerializer(read_only=True, many=True)
 
     class Meta:
         model = Participante
