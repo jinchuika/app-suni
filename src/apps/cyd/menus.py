@@ -37,7 +37,12 @@ cyd_participantes_children = (
         "Ingresar listado",
         reverse_lazy("participante_importar"),
         weight=20,
-        icon="fa-list"),)
+        icon="fa-list"),
+    ViewMenuItem(
+        "Buscar participante",
+        reverse_lazy("participante_buscar"),
+        weight=20,
+        icon="fa-search"),)
 
 Menu.add_item(
     "user",

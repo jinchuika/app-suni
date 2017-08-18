@@ -1,5 +1,6 @@
+import django_filters
 from braces.views import CsrfExemptMixin
-from rest_framework import generics, viewsets
+from rest_framework import generics, viewsets, filters
 
 from apps.main.mixins import APIFilterMixin
 from apps.cyd.serializers import (
@@ -35,12 +36,25 @@ class AsignacionViewSet(CsrfExemptMixin, viewsets.ModelViewSet):
 
 
 class ParticipanteViewSet(CsrfExemptMixin, viewsets.ModelViewSet):
-    """La diferencia con ParticipanteViewSet es que este usa el DPI como primary key
+    """Consulta de participantes usando el DPI como primary key.
     """
+    class ParticipanteFilter(django_filters.FilterSet):
+        """Define los filtros estándares para el ViewSet.
+        Esta clase se define para poder usar SearchFilter y DjangoFilterBackend
+        en el mismo ViewSet.
+        """
+        class Meta:
+            model = Participante
+            fields = [
+                'escuela', 'asignaciones__grupo', 'asignaciones__grupo__sede',
+                'asignaciones__grupo__sede__capacitador', 'escuela__codigo',
+                'escuela__municipio', 'escuela__municipio__departamento']
     serializer_class = ParticipanteSerializer
     queryset = Participante.objects.all()
-    filter_fields = ('escuela', 'asignaciones__grupo', 'dpi')
-    lookup_field = 'dpi'
+    filter_class = ParticipanteFilter
+    filter_backends = (filters.SearchFilter, filters.DjangoFilterBackend)
+    search_fields = ('nombre', 'apellido')
+    lookup_field = 'pk'
 
 
 class ParticipanteAPIViewSet(CsrfExemptMixin, viewsets.ModelViewSet):
@@ -49,6 +63,8 @@ class ParticipanteAPIViewSet(CsrfExemptMixin, viewsets.ModelViewSet):
     serializer_class = ParticipanteSerializer
     queryset = Participante.objects.all()
     filter_fields = ('escuela', 'asignaciones__grupo', 'dpi')
+    filter_backends = (filters.DjangoFilterBackend, filters.OrderingFilter)
+    search_fields = ('nombre')
 
 
 class CalendarioListAPIView(APIFilterMixin, generics.ListAPIView):

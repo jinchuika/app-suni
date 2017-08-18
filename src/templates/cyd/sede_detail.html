@@ -77,11 +77,36 @@
 									<a href="#asesorias" data-toggle="tab"><i class="fa fa-question-circle-o" aria-hidden="true"></i> Asesorías</a>
 								</li>
 								<li>
-									<a href="#contactos" data-toggle="tab"><i class="fa fa-user" aria-hidden="true"></i> Contactos</a>
+									<a href="#escuelas" data-toggle="tab"><i class="fa fa-user" aria-hidden="true"></i> Escuelas</a>
 								</li>
 							</ul>
 							<div class="tab-content">
 								<div class="tab-pane active" id="participantes">
+								{% with sede.get_participantes as participantes %}
+									<ul class="list-unstyled">
+										<li>
+										{% for rol in participantes.resumen.roles %}
+										<b>{{ rol.nombre_rol }}</b>: {{rol.cantidad }}, 
+										{% endfor %}
+										</li>
+										<li>
+										{% for genero in participantes.resumen.genero %}
+										<b>{{ genero.nombre_genero }}</b>: {{genero.cantidad }}, 
+										{% endfor %}
+									</ul>
+									<p>
+										<b>Aprobado</b>: {{ participantes.resumen.estado.aprobado.cantidad }}, 
+										<b>Nivelar</b>: {{ participantes.resumen.estado.nivelar.cantidad }}, 
+										<b>Reprobado</b>: {{ participantes.resumen.estado.reprobado.cantidad }}
+									</p>
+									<div class="progress progress-xs">
+										<div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="{{ participantes.resumen.estado.aprobado.porcentaje }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ participantes.resumen.estado.aprobado.porcentaje }}%">
+										</div>
+										<div class="progress-bar progress-bar-warning" role="progressbar" aria-valuenow="{{ participantes.resumen.estado.nivelar.porcentaje }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ participantes.resumen.estado.nivelar.porcentaje }}%">
+										</div>
+										<div class="progress-bar progress-bar-danger" role="progressbar" aria-valuenow="{{ participantes.resumen.estado.reprobado.porcentaje }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ participantes.resumen.estado.reprobado.porcentaje }}%">
+										</div>
+									</div>
 									<table class="table">
 										<thead>
 											<tr>
@@ -96,21 +121,22 @@
 											</tr>
 										</thead>
 										<tbody>
-											{% for participante in sede.get_participantes %}
+											{% for p in participantes.listado %}
 												<tr>
 													<td>{{ forloop.counter }}</td>
 													<td>
-														<a href="{{ participante.get_absolute_url }}">{{ participante.nombre }}</a></td>
-													<td>{{ participante.apellido }}</td>
-													<td></td>
-													<td>{{ participante.nota}}</td>
-													<td>{{ participante.cursos_sede }}</td>
-													<td>{{ participante.rol }}</td>
-													<td>{{ participante.escuelas }}</td>
+														<a href="{{ p.participante.get_absolute_url }}">{{ p.participante.nombre }}</a></td>
+													<td>{{ p.participante.apellido }}</td>
+													<td>{{ p.grupo }}</td>
+													<td>{{ p.nota}}</td>
+													<td>{{ p.participante.cursos_sede }}</td>
+													<td>{{ p.participante.rol }}</td>
+													<td>{{ p.participante.escuela }}</td>
 												</tr>
 											{% endfor %}
 										</tbody>
 									</table>
+								{% endwith %}
 								</div>
 
 								<div class="tab-pane no-padding" id="grupos">
@@ -158,36 +184,77 @@
 										</thead>
 										<tbody id="asesoria-tabla-body">
 											{% for asesoria in sede.asesorias.all|dictsort:"fecha" %}
-												<tr>
+												<tr id="asesoria-{{ asesoria.id }}">
 													<td>
+														{% if sede.capacitador == request.user %}
 														<a href="#" class="editable" data-name="fecha" data-type="text" data-pk="{{ asesoria.id }}" data-url="{% url 'asesoria_api_detail' pk=asesoria.id %}">
 															{{ asesoria.fecha|date:"Y-m-d" }}
 														</a>
+														{% else %}
+															{{ asesoria.fecha|date:"Y-m-d" }}
+														{% endif %}
 													</td>
 													<td>
+														{% if sede.capacitador == request.user %}
 														<a href="#" class="editable" data-name="hora_inicio" data-type="text" data-pk="{{ asesoria.id }}" data-url="{% url 'asesoria_api_detail' pk=asesoria.id %}">
 															{{ asesoria.hora_inicio }}
 														</a>
+														{% else %}
+														{{ asesoria.hora_inicio }}
+														{% endif %}
 													</td>
 													<td>
+														{% if sede.capacitador == request.user %}
 														<a href="#" class="editable" data-name="hora_fin" data-type="text" data-pk="{{ asesoria.id }}" data-url="{% url 'asesoria_api_detail' pk=asesoria.id %}">
 															{{ asesoria.hora_fin }}
 														</a>
+														{% else %}
+														{{ asesoria.hora_fin }}
+														{% endif %}
 													</td>
 													<td>
+														{% if sede.capacitador == request.user %}
 														<a href="#" class="editable" data-name="observacion" data-type="text" data-pk="{{ asesoria.id }}" data-url="{% url 'asesoria_api_detail' pk=asesoria.id %}">
 															{{ asesoria.observacion }}
 														</a>
+														{% else %}
+														{{ asesoria.observacion }}
+														{% endif %}
 													</td>
-													<td></td>
+													<td>
+														{% if sede.capacitador == request.user %}
+														<button class="eliminar-asesoria" data-pk="{{ asesoria.id }}" data-url="{% url 'asesoria_api_detail' pk=asesoria.id %}">Eliminar</button>
+														{% endif %}
+													</td>
 												</tr>
 											{% endfor %}
 										</tbody>
 									</table>
 								</div>
 
-								<div class="tab-pane" id="contactos">
-									
+								<div class="tab-pane no-padding" id="escuelas">
+									<table class="table">
+										<thead>
+											<tr>
+												<th>Nombre</th>
+												<th>UDI</th>
+												<th>Dirección</th>
+												<th>Participantes</th>
+											</tr>
+										</thead>
+										<tbody>
+											{% for escuela in sede.get_escuelas.all %}
+											<tr>
+												<td>
+													<a href="{{ escuela.get_absolute_url }}">{{ escuela.nombre }}</a>
+												</td>
+												<td>{{ escuela.codigo }}</td>
+												<td>{{ escuela.direccion }}</td>
+												<td>{{ escuela.cantidad_participantes }}</td>
+											</tr>
+											{% endfor %}
+										</tbody>
+									</table>
 								</div>
 							</div>
 						</div>

@@ -1,7 +1,7 @@
-function listar_grupos_sede(sede_selector, grupo_selector) {
+function listar_grupos_sede(sede_selector, grupo_selector, null_option) {
     /*
     Al cambiar la sede, genera el listado de grupos
-     */
+    */
     $(grupo_selector).html('');
     if ($(sede_selector).val()) {
         $.get($(sede_selector).data('url'),
@@ -10,6 +10,9 @@ function listar_grupos_sede(sede_selector, grupo_selector) {
         },
         function (respuesta) {
             var options = '';
+            if (null_option) {
+                options += '<option value="">------</option>';
+            }
             $.each(respuesta, function (index, grupo) {
                 options += '<option value="'+grupo.id+'">'+grupo.numero+' - '+grupo.curso+'</option>';
             });
@@ -93,11 +96,35 @@ function validar_udi_api(params) {
     
     SedeDetail.init = function () {
         activar_edicion();
+        $('#asesoria-form').hide();
+        $('#btn-asesoria').on('click', function () {
+            $('#asesoria-form').toggle();
+        });
         $('#asesoria-form').on('submit', function (e) {
             e.preventDefault();
             $.post($(this).attr('action'), $(this).serializeObject(), function (respuesta) {
                 $('#asesoria-form')[0].reset();
+                $('#asesoria-form').hide();
                 crear_celda(respuesta);
+            });
+        });
+
+        $('.eliminar-asesoria').on('click', function () {
+            var boton = $(this);
+            bootbox.confirm('¿Desea eliminar el período de asesoría?', function (result) {
+                if(result){
+                    $.ajax({
+                        beforeSend: function(xhr, settings) {
+                            xhr.setRequestHeader("X-CSRFToken", $("[name=csrfmiddlewaretoken]").val());
+                        },
+                        success: function (respuesta) {
+                            $('#asesoria-'+boton.data('pk')).remove();
+                        },
+                        dataType: 'json',
+                        type: 'DELETE',
+                        url: boton.data('url')
+                    });
+                }
             });
         });
     }
@@ -136,6 +163,54 @@ function validar_udi_api(params) {
         })
     }
 
+    var copiar_participantes = function () {
+        var api_url = $('#copiar-form').prop('action');
+        var grupo_id = $('#copiar-form #id_grupo').val();
+        var total = $('.check-participante:checkbox:checked').length;
+        var completados = 0;
+        $('.check-participante:checkbox:checked').each(function () {
+            var participante_id = $(this).val();
+            $.ajax({
+                beforeSend: function(xhr, settings) {
+                    xhr.setRequestHeader("X-CSRFToken", $('input[name="csrfmiddlewaretoken"]').val());
+                },
+                data: {
+                    grupo: grupo_id,
+                    participante: participante_id
+                },
+                dataType: 'json',
+                error: function (respuesta) {
+                    completados += 1;
+                    new Noty({
+                        text: 'Error al asignar a ' + $('#td-nombre-'+participante_id).text() + ' ' + $('#td-apellido-'+participante_id).text() +'.',
+                        type: 'error',
+                        timeout: 2500,
+                    }).show();
+                    ocultar_copiar_form(total, completados);
+                },
+                url: api_url,
+                success: function (respuesta) {
+                    completados += 1;
+                    new Noty({
+                        text: 'Copiado con éxito',
+                        type: 'success',
+                        timeout: 1700,
+                    }).show();
+                    ocultar_copiar_form(total, completados);
+                },
+                type: 'POST'
+            });
+        })
+    }
+
+    var ocultar_copiar_form = function (total, completados) {
+        if (completados >= total) {
+            $('#copiar-form')[0].reset();
+            $('.form-copiar').hide();
+            $('.check-participante').prop('checked', false);
+        }
+    }
+
     GrupoDetail.init = function () {
         $('.editable').on('shown', function(e, editable) {
             $('.datepicker').datepicker({
@@ -159,6 +234,20 @@ function validar_udi_api(params) {
             }
         });
         crear_grafico($("#grafico-asistencias"));
+        $('.form-copiar').hide();
+        $('#btn-select-all').click(function(){
+            $('.check-participante').prop('checked',true);
+        });
+        $('#btn-select-none').click(function(){
+            $('.check-participante:checkbox:checked').removeAttr('checked');
+        });
+        $('#btn-form-copiar').on('click', function () {
+            $('.form-copiar').toggle();
+        });
+        $('#copiar-form').on('submit', function (e) {
+            e.preventDefault();
+            copiar_participantes();
+        });
     }
 }( window.GrupoDetail = window.GrupoDetail || {}, jQuery ));
 
@@ -358,14 +447,14 @@ function validar_udi_api(params) {
     ParticipanteCrear.init = function () {
         /*
         Al cambiar la sede, genera el listado de grupos
-         */
+        */
         $('#form_participante #id_sede').on('change', function () {
             listar_grupos_sede('#form_participante #id_sede', '#form_participante #id_grupo');
         });
 
         /*
         Al cambiar el grupo, genera el listado de participantes
-         */
+        */
         $('#form_participante #id_grupo').on('change', function () {
             $('#tbody-listado').html('');
             $.get($(this).data('url'),
@@ -388,7 +477,7 @@ function validar_udi_api(params) {
 
         /*
         Valida que el UDI ingresado sea real
-         */
+        */
         $('#form_participante #id_udi').on('input', function () {
             $('#escuela_label').html('Escuela no encontrada');
             $('#btn-crear').prop('disabled', true);
@@ -440,7 +529,7 @@ function validar_udi_api(params) {
                 type: 'POST',
                 url: $(this).attr('action')
             });
-        })
+        });
     }
 }( window.ParticipanteCrear = window.ParticipanteCrear || {}, jQuery ));
 
@@ -451,12 +540,12 @@ function validar_udi_api(params) {
         if (dpi) {
             $.get(
                 participante_api_list_url,
-            {
-                dpi: dpi
-            },
-            function (respuesta) {
-                return respuesta.length > 0 ? callback(false) : callback(true);
-            });
+                {
+                    dpi: dpi
+                },
+                function (respuesta) {
+                    return respuesta.length > 0 ? callback(false) : callback(true);
+                });
         }
     }
 
@@ -468,35 +557,35 @@ function validar_udi_api(params) {
             $.each(tabla_importar.getData(), function (index, fila) {
                 if (fila[1] && fila[2] && fila[3] && fila[4]) {
                     try{
-                    $.ajax({
-                        beforeSend: function(xhr, settings) {
-                            xhr.setRequestHeader("X-CSRFToken", $("[name=csrfmiddlewaretoken]").val());
-                        },
-                        data: JSON.stringify({
-                            grupo: grupo,
-                            udi: udi,
-                            dpi: fila[0],
-                            nombre: fila[1],
-                            apellido: fila[2],
-                            genero: fila[3],
-                            rol: fila[4],
-                            mail: fila[5],
-                            tel_movil: fila[6],
-                        }),
-                        error: function (xhr, status, errorThrown) {
-                            new Noty({
-                                text: 'Error al crear a ' + fila[1] + ' ' + fila[2],
-                                type: 'error',
-                                timeout: 3500,
-                            }).show();
-                            progress += 1;
-                            notificar_fin(tabla_importar.countRows(), progress);
-                        },
-                        success: function (respuesta) {
-                            if(respuesta.status=="ok"){
+                        $.ajax({
+                            beforeSend: function(xhr, settings) {
+                                xhr.setRequestHeader("X-CSRFToken", $("[name=csrfmiddlewaretoken]").val());
+                            },
+                            data: JSON.stringify({
+                                grupo: grupo,
+                                udi: udi,
+                                dpi: fila[0],
+                                nombre: fila[1],
+                                apellido: fila[2],
+                                genero: fila[3],
+                                rol: fila[4],
+                                mail: fila[5],
+                                tel_movil: fila[6],
+                            }),
+                            error: function (xhr, status, errorThrown) {
+                                new Noty({
+                                    text: 'Error al crear a ' + fila[1] + ' ' + fila[2],
+                                    type: 'error',
+                                    timeout: 3500,
+                                }).show();
                                 progress += 1;
-                                filas_borrar.push(index + 1);
                                 notificar_fin(tabla_importar.countRows(), progress);
+                            },
+                            success: function (respuesta) {
+                                if(respuesta.status=="ok"){
+                                    progress += 1;
+                                    filas_borrar.push(index + 1);
+                                    notificar_fin(tabla_importar.countRows(), progress);
                                 //tabla_importar.alter('remove_row', index);
                             }
                             else{
@@ -508,10 +597,10 @@ function validar_udi_api(params) {
                         type: 'POST',
                         url: participante_add_ajax_url
                     });
-                }
-                catch(err){
-                    console.log('asd');
-                }
+                    }
+                    catch(err){
+                        console.log('asd');
+                    }
                 }
                 else{
                     progress += 1;
@@ -581,7 +670,7 @@ function validar_udi_api(params) {
 
         /*
         Al cambiar el grupo, genera el listado de participantes
-         */
+        */
         $('#form_participante #id_grupo').on('change', function () {
             $('#tbody-listado').html('');
             $.get($(this).data('url'),
@@ -604,7 +693,7 @@ function validar_udi_api(params) {
 
         /*
         Valida que el UDI ingresado sea real
-         */
+        */
         $('#form_participante #id_udi').on('input', function () {
             $('#escuela_label').html('Escuela no encontrada');
             $('#btn-crear').prop('disabled', true);
@@ -666,3 +755,101 @@ function validar_udi_api(params) {
         });
     }
 }( window.ParticipanteDetail = window.ParticipanteDetail || {}, jQuery ));
+
+(function( ParticipanteBuscar, $, undefined ) {
+    var asignar_participante = function (participante_id) {
+        var api_url = $('#participante-asignar-form').prop('action');
+        var grupo_id = $('#participante-asignar-form #id_grupo').val();
+        console.log(participante_id, grupo_id);
+        if (grupo_id && participante_id) {
+            $.ajax({
+                beforeSend: function(xhr, settings) {
+                    xhr.setRequestHeader("X-CSRFToken", $('input[name="csrfmiddlewaretoken"]').val());
+                },
+                data: {
+                    grupo: grupo_id,
+                    participante: participante_id
+                },
+                dataType: 'json',
+                error: function (respuesta) {
+                    new Noty({
+                        text: 'Error al realizar la asignación',
+                        type: 'error',
+                        timeout: 2500,
+                    }).show();
+                },
+                url: api_url,
+                success: function (respuesta) {
+                    new Noty({
+                        text: 'Asignado con éxito',
+                        type: 'success',
+                        timeout: 1700,
+                    }).show();
+                    $('#id_nombre').autocomplete('search');
+                },
+                type: 'POST'
+            });
+        }
+    }
+
+    ParticipanteBuscar.init = function () {
+        $('#id_nombre').autocomplete({
+            minLength: 4,
+            selectFirst: false,
+            search: function (event, ui) {
+                $('#resultado-tbody').html('');
+            },
+            source: function (term, callback) {
+                $.getJSON(
+                    $('#participante-buscar-form').prop('action'),
+                    {
+                        search: term.term,
+                        fields: 'id,nombre,apellido,escuela,url,asignaciones',
+                        asignaciones__grupo__sede__capacitador: $('#participante-buscar-form #id_capacitador').val(),
+                        asignaciones__grupo__sede: $('#participante-buscar-form #id_sede').val(),
+                        asignaciones__grupo: $('#participante-buscar-form #id_grupo').val(),
+                        escuela__codigo: $('#participante-buscar-form #id_udi').val(),
+                        escuela__municipio__departamento: $('#participante-buscar-form #id_departamento').val(),
+                        escuela__municipio: $('#participante-buscar-form #id_municipio').val()
+                    },
+                    callback);
+            }
+        }).data('ui-autocomplete')._renderItem = function (ul, item) {
+            return $('<tr >')
+                .data('item.autocomplete', item)
+                .append(function () {
+                    var td_participante = '';
+                    td_participante += '<td><a href="'+item.url+'" class="btn btn-block">'+item.nombre+' '+item.apellido+'</a></td>';
+                    td_participante += '<td>'+item.asignaciones.map(function (asignacion) {
+                        return '<small class="badge bg-aqua">'+asignacion.grupo+'</small>';
+                    }).join('<br />')+ '</td>';
+                    td_participante += '<td><a href="'+item.escuela.url+'">'+item.escuela.nombre+'<br>'+item.escuela.codigo+'</a></td>';
+                    if (permite_asignar) {
+                        td_participante += '<td><button class="btn-asignar" data-pk="'+item.id+'">Asignar</button></td>';
+                    }
+                    return td_participante;
+                })
+                .appendTo($('#resultado-tbody'));
+        };
+
+        $('#participante-buscar-form #id_sede').on('change', function () {
+            listar_grupos_sede('#participante-buscar-form #id_sede', '#participante-buscar-form #id_grupo', true);
+        });
+        $('#participante-buscar-form #id_grupo').on('change', function () {
+            $('#id_nombre').autocomplete('search');
+        });
+        $('#participante-buscar-form #id_departamento').on('change', function () {
+            listar_municipio_departamento('#participante-buscar-form #id_departamento', '#participante-buscar-form #id_municipio', true);
+        });
+        $('#participante-buscar-form #id_municipio').on('change', function () {
+            $('#id_nombre').autocomplete('search');
+        });
+
+        $('#participante-asignar-form #id_sede').on('change', function () {
+            listar_grupos_sede('#participante-asignar-form #id_sede', '#participante-asignar-form #id_grupo', true);
+        });
+        $(document).on("click", ".btn-asignar", function () {
+            asignar_participante($(this).data('pk'));
+        });
+    }
+}( window.ParticipanteBuscar = window.ParticipanteBuscar || {}, jQuery ));

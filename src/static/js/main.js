@@ -57,6 +57,27 @@ function activar_datatable(tabla) {
 	});
 }
 
+function listar_municipio_departamento(departamento_selector, municipio_selector, null_option) {
+    /*
+    Al cambiar el departamento, genera el listado de municipios
+    */
+    $(municipio_selector).html('');
+    $.get($(departamento_selector).data('url'),
+    {
+        departamento: $(departamento_selector).val()
+    },
+    function (respuesta) {
+        var options = '';
+        if (null_option) {
+            options += '<option value="">---</option>';
+        }
+        $.each(respuesta, function (index, municipio) {
+            options += '<option value="'+municipio.id+'">'+municipio.nombre+'</option>';
+        });
+        $(municipio_selector).html(options).trigger('change');
+    });
+}
+
 $(document).ready(function () {
 	$('.datepicker').datepicker({
 		format: 'yyyy-mm-dd',

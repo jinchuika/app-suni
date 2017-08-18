@@ -24,6 +24,7 @@ urlpatterns = [
     url(r'^participante/add/a/$', ParticipanteJsonCreateView.as_view(), name='participante_add_ajax'),
     url(r'^participante/(?P<pk>\d+)/$', ParticipanteDetailView.as_view(), name='participante_detail'),
     url(r'^participante/(?P<pk>\d+)/escuelaupdate/$', ParticipanteEscuelaUpdateView.as_view(), name='participante_escuela_update'),
+    url(r'^participante/buscar/$', ParticipanteBuscarView.as_view(), name='participante_buscar'),
 
     url(r'^participante/importar/$', ParticipanteCreateListView.as_view(), name='participante_importar'),
 ]

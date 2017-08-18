@@ -52,8 +52,18 @@ class AsesoriaSerializer(serializers.ModelSerializer):
         }
 
 
+class AsignacionResumenSerializer(DynamicFieldsModelSerializer, serializers.ModelSerializer):
+    grupo = serializers.StringRelatedField()
+
+    class Meta:
+        model = Asignacion
+        fields = ['grupo']
+
+
 class ParticipanteSerializer(DynamicFieldsModelSerializer, serializers.ModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='participante_detail', lookup_field='pk')
     escuela = EscuelaSerializer(read_only=True, fields='codigo,nombre,url')
+    asignaciones = AsignacionResumenSerializer(read_only=True, many=True)
 
     class Meta:
         model = Participante
@@ -100,12 +110,9 @@ class NotaHitoSerializer(serializers.ModelSerializer):
 
 
 class AsignacionSerializer(DynamicFieldsModelSerializer, serializers.ModelSerializer):
+    """Serializer de uso general para :model:`cyd.Asignacion`."""
     notas_asistencias = NotaAsistenciaSerializer(many=True, read_only=True)
     notas_hitos = NotaHitoSerializer(many=True, read_only=True)
-
-    class Meta:
-        model = Asignacion
-        fields = ('id', 'grupo', 'participante', 'notas_asistencias', 'notas_hitos', 'nota_final', 'aprobado')
 
 
 class ParRolSerializer(serializers.ModelSerializer):

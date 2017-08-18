@@ -3,6 +3,7 @@ from django.forms.models import inlineformset_factory
 from django.core.urlresolvers import reverse_lazy
 from django.contrib.auth.models import User
 
+from apps.main.forms import GeoForm
 from apps.cyd.models import (
     Curso, CrAsistencia, CrHito, Sede, Grupo, Participante, Asesoria)
 
@@ -117,6 +118,27 @@ class ParticipanteForm(ParticipanteBaseForm, forms.ModelForm):
         }
 
 
+class ParticipanteBuscarForm(ParticipanteBaseForm, GeoForm, forms.ModelForm):
+    nombre = forms.CharField(required=False)
+    capacitador = forms.ModelChoiceField(
+        queryset=User.objects.filter(groups__name='cyd_capacitador'))
+
+    class Meta:
+        model = Participante
+        fields = ['nombre', 'capacitador']
+
+    def __init__(self, *args, **kwargs):
+        super(ParticipanteBuscarForm, self).__init__(*args, **kwargs)
+        self.fields['capacitador'].label_from_instance = lambda obj: "%s" % obj.get_full_name()
+        self.fields.pop('grupo')
+
+
+class ParticipanteAsignarForm(ParticipanteBaseForm):
+    def __init__(self, *args, **kwargs):
+        super(ParticipanteAsignarForm, self).__init__(*args, **kwargs)
+        self.fields.pop('udi')
+
+
 class AsesoriaForm(forms.ModelForm):
     """Formulario para crear :model:`cyd.Asesoria` desde el perfil de la sede."""
 
@@ -130,3 +152,10 @@ class AsesoriaForm(forms.ModelForm):
             'hora_fin': forms.TextInput(attrs={'class': 'form-control'}),
             'observacion': forms.TextInput(attrs={'class': 'form-control'})
         }
+
+
+class GrupoListForm(forms.Form):
+    """Formulario para listar :model:`cyd.Grupo` en una :model:`cyd.Sede`.
+    Se usa para copiar los participantes de un grupo a otros.
+    """
+    grupo = forms.ModelChoiceField(Grupo)

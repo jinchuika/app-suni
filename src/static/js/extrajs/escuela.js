@@ -142,6 +142,9 @@
                 $('#spinner').hide();
             }
         });
+        $('#escuela-list-form #id_departamento').on('change', function () {
+            listar_municipio_departamento('#escuela-list-form #id_departamento', '#escuela-list-form #id_municipio', true);
+        });
     }   
 }( window.EscuelaBuscar = window.EscuelaBuscar || {}, jQuery ));
 
