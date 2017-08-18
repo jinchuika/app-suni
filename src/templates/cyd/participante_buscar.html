@@ -19,6 +19,7 @@
 				<div class="box">
 					<div class="box-body">
 						<form action="{% url 'participante_api_list' %}" id="participante-buscar-form">
+							{% csrf_token %}
 							{% for field in form %}
 							<div class="form-group">
 								{{ field.label_tag }}
@@ -60,7 +61,9 @@
 									<th>Participante</th>
 									<th>Asignaciones</th>
 									<th>Escuela</th>
+									{% if request.user|has_group:"cyd_capacitador" %}
 									<th></th>
+									{% endif %}
 								</tr>
 							</thead>
 							<tbody id="resultado-tbody"></tbody>

@@ -239,6 +239,7 @@ class ParEscolaridad(models.Model):
 
 
 class ParGenero(models.Model):
+    """Género para el :model:`cyd.Participante`."""
     genero = models.CharField(max_length=8)
 
     class Meta:
@@ -298,14 +299,15 @@ class Participante(models.Model):
         super(Participante, self).save(*args, **kwargs)
 
     def asignar(self, grupo):
-        """Crea un registro de :model:`cyd.Asignacion` para el participante actual hacia un :model:`cyd.Grupo` especificado.
-        Las notas son generadas automáticamente mediante `cyd.Asignacion.asignar_notas()`.
+        """Crea un registro de :model:`cyd.Asignacion` para el :model:`cyd.Participante` 
+        actual hacia un :model:`cyd.Grupo` especificado. Las notas son generadas
+        automáticamente mediante `cyd.Asignacion.asignar_notas()`.
         """
         self.asignaciones.create(grupo=grupo)
 
 
 class Asignacion(models.Model):
-    """El método ``asignar()`` se encarga de crear las notas para el objeto actual."""
+    """Asignación de un participante a un grupo."""
     participante = models.ForeignKey(Participante, related_name='asignaciones')
     grupo = models.ForeignKey(Grupo, related_name='asignados')
 
@@ -325,8 +327,19 @@ class Asignacion(models.Model):
         else:
             super(Asignacion, self).save(*args, **kwargs)
 
+    def validate_unique(self, *args, **kwargs):
+        """Valida que un :model:`cyd.Participante` no pueda asignarse más
+        de una vez al mismo :model:`cyd.Curso` en la misma :model:`cyd.Sede`.
+        """
+        super(Asignacion, self).validate_unique(*args, **kwargs)
+        qs = Asignacion.objects.filter(grupo__sede=self.grupo.sede, grupo__curso=self.grupo.curso)
+        if qs.filter(participante=self.participante).exists():
+            raise ValidationError({
+                'grupo': ['No se puede asignar dos veces el mismo curso en la misma sede']})
+
     def get_absolute_url(self):
-        return ('')
+        """Se muestra en el perfil del :model:`cyd.Participante`."""
+        return self.participante.get_absolute_url()
 
     def crear_notas(self):
         """Crea las notas especificadas en el :model:`cyd.Curso` del :model:`cyd.Grupo`
@@ -354,7 +367,8 @@ class Asignacion(models.Model):
             nota = self.get_nota_final() * (self.grupo.curso.porcentaje / 100)
             promediada = True
         else:
-            nota = self.get_nota_final() / (Asignacion.objects.filter(grupo__sede=self.grupo.sede, participante=self.participante).count())
+            cantidad_asignaciones = Asignacion.objects.filter(grupo__sede=self.grupo.sede, participante=self.participante).count()
+            nota = self.get_nota_final() / cantidad_asignaciones
             promediada = False
         return {'nota': nota, 'promediada': promediada}
 

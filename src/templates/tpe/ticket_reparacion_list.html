@@ -23,7 +23,7 @@
 		<div class="box box-solid box-warning">
 			<div class="box-body">
 				<h4>
-					{{ reparacion.tipo_dispositivo }} - {{ reparacion.triage }}
+					<a href="{{ reparacion.get_absolute_url }}">{{ reparacion.tipo_dispositivo }} - {{ reparacion.triage }}</a>
 					{% if not reparacion.solucion_tipo and not ticket.cerrado %}
 						<a href="{{ reparacion.get_absolute_url }}" class="btn btn-success btn-sm pull-right">Editar</a>
 					{% endif %}
@@ -34,6 +34,7 @@
 					<li><strong>Falla reportada:</strong> {{ reparacion.falla_reportada }}</li>
 					<li><strong>Técnico asignado:</strong> {{ reparacion.tecnico_asignado.perfil }}</li>
 					<li><strong>Falla encontrada:</strong> {{ reparacion.falla_encontrada|default_if_none:""}}</li>
+					<li><strong>Solución:</strong> {{ reparacion.solucion_detalle|default_if_none:"" }}</li>
 					<li><strong>Costo:</strong> Q.{{ reparacion.get_costo }}</li>
 				</ul>
 				{% if reparacion.foto %}

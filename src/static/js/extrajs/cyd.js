@@ -760,6 +760,7 @@ function validar_udi_api(params) {
     var asignar_participante = function (participante_id) {
         var api_url = $('#participante-asignar-form').prop('action');
         var grupo_id = $('#participante-asignar-form #id_grupo').val();
+        console.log(participante_id, grupo_id);
         if (grupo_id && participante_id) {
             $.ajax({
                 beforeSend: function(xhr, settings) {
@@ -771,23 +772,20 @@ function validar_udi_api(params) {
                 },
                 dataType: 'json',
                 error: function (respuesta) {
-                    completados += 1;
                     new Noty({
-                        text: 'Error al asignar a ' + $('#td-nombre-'+participante_id).text() + ' ' + $('#td-apellido-'+participante_id).text() +'.',
+                        text: 'Error al realizar la asignación',
                         type: 'error',
                         timeout: 2500,
                     }).show();
-                    ocultar_copiar_form(total, completados);
                 },
                 url: api_url,
                 success: function (respuesta) {
-                    completados += 1;
                     new Noty({
-                        text: 'Copiado con éxito',
+                        text: 'Asignado con éxito',
                         type: 'success',
                         timeout: 1700,
                     }).show();
-                    ocultar_copiar_form(total, completados);
+                    $('#id_nombre').autocomplete('search');
                 },
                 type: 'POST'
             });
@@ -827,7 +825,7 @@ function validar_udi_api(params) {
                     }).join('<br />')+ '</td>';
                     td_participante += '<td><a href="'+item.escuela.url+'">'+item.escuela.nombre+'<br>'+item.escuela.codigo+'</a></td>';
                     if (permite_asignar) {
-                        td_participante += '<td><button class="btn-asignar" onclick="asignar_participante('+item.id+');">Asignar</button></td>';
+                        td_participante += '<td><button class="btn-asignar" data-pk="'+item.id+'">Asignar</button></td>';
                     }
                     return td_participante;
                 })
@@ -850,9 +848,8 @@ function validar_udi_api(params) {
         $('#participante-asignar-form #id_sede').on('change', function () {
             listar_grupos_sede('#participante-asignar-form #id_sede', '#participante-asignar-form #id_grupo', true);
         });
-        $('.btn-asignar').click(function () {
-            console.log('click trigger');
+        $(document).on("click", ".btn-asignar", function () {
             asignar_participante($(this).data('pk'));
-        })
+        });
     }
 }( window.ParticipanteBuscar = window.ParticipanteBuscar || {}, jQuery ));

@@ -110,12 +110,9 @@ class NotaHitoSerializer(serializers.ModelSerializer):
 
 
 class AsignacionSerializer(DynamicFieldsModelSerializer, serializers.ModelSerializer):
+    """Serializer de uso general para :model:`cyd.Asignacion`."""
     notas_asistencias = NotaAsistenciaSerializer(many=True, read_only=True)
     notas_hitos = NotaHitoSerializer(many=True, read_only=True)
-
-    class Meta:
-        model = Asignacion
-        fields = ('id', 'grupo', 'participante', 'notas_asistencias', 'notas_hitos', 'nota_final', 'aprobado')
 
 
 class ParRolSerializer(serializers.ModelSerializer):
