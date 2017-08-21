@@ -155,7 +155,10 @@ class EquipamientoCalendarHomeView(CsrfExemptMixin, JsonRequestResponseMixin, Vi
             response.append({
                 'title': str(equipamiento.escuela),
                 'start': str(equipamiento.fecha),
-                'url': equipamiento.get_absolute_url()})
+                'url': equipamiento.get_absolute_url(),
+                'direccion': '{}, {}'.format(
+                    equipamiento.escuela.direccion,
+                    equipamiento.escuela.municipio)})
         return self.render_json_response(response)
 
 

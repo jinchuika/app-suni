@@ -407,5 +407,8 @@ class ValidacionListHomeView(CsrfExemptMixin, JsonRequestResponseMixin, View):
             response.append({
                 'title': str(validacion.escuela),
                 'start': str(validacion.fecha_equipamiento),
-                'url': validacion.get_absolute_url()})
+                'url': validacion.get_absolute_url(),
+                'direccion': '{}, {}'.format(
+                    validacion.escuela.direccion,
+                    validacion.escuela.municipio)})
         return self.render_json_response(response)
