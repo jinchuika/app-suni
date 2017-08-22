@@ -37,11 +37,13 @@ class IndexView(LoginRequiredMixin, TemplateView):
                 'template_name': 'widgets/tpe_equipamiento_calendario.html',
                 'media_css': [
                     'css/fullcalendar.min.css',
+                    'css/jquery.qtip.min.css'
                 ],
                 'media_js': [
                     'js/distributed/moment.min.js',
                     'js/distributed/fullcalendar.min.js',
                     'js/distributed/fullcalendar.es.js',
+                    'js/distributed/jquery.qtip.min.js'
                 ],
                 'extra': {
                     'url_validacion': reverse_lazy('validacion_list_home'),

@@ -34,7 +34,15 @@
 				right: 'title'
 			},
 
-			navLinks: true, 
+			navLinks: true,
+			eventRender: function (event, element) {
+                element.qtip({
+                    content: {
+                        title: event.tip_title,
+                        text: event.tip_text
+                    },
+                });
+            },
 			eventSources: [
 			{
 				url: $('#equipamiento-calendario').data('url-validacion'),
