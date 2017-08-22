@@ -1,0 +1,48 @@
+{% extends "base/base.html" %}
+
+{% load staticfiles has_group %}
+
+{% block page_title %}
+	<title>Listado de rúbricas</title>
+{% endblock page_title %}
+
+{% block content %}
+<section class="content">
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-md-12">
+				<div class="box box-primary">
+					<div class="box-header">
+						<h3 class="box-title">Listado de rúbricas</h3>
+						<span class="pull-right">
+							<a href="{% url 'rubrica_add' %}" class="btn btn-success">Nueva rúbrica</a>
+						</span>
+					</div>
+					<div class="box-body table-responsive">
+						<table class="table">
+							<thead>
+								<tr>
+									<th>Rúbrica</th>
+									<th>Aspectos</th>
+								</tr>
+							</thead>
+							<tbody>
+								{% for rubrica in rubrica_list %}
+								<tr>
+									<td>
+										<a href="{{ rubrica.get_absolute_url }}">{{ rubrica }}</a>
+									</td>
+									<td>
+										{{ rubrica.indicadores.count }}
+									</td>
+								</tr>
+								{% endfor %}
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+{% endblock content %}

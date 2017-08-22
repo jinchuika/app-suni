@@ -1,0 +1,57 @@
+{% extends "base/base.html" %}
+{% load widget_tweaks %}
+
+{% block page_title %}
+	<title>{{ rubrica }}</title>
+{% endblock page_title %}
+
+{% block content %}
+<section class="content-header">
+	<h1>
+		{{ rubrica }} 
+		<small>{{ rubrica.descripcion|default_if_none:"" }}</small>
+	</h1>
+</section>
+
+<section class="content">
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-md-9">
+				<div class="box box-primary">
+					<div class="box-header">
+						<h3 class="box-title">Indicadores</h3>
+					</div>
+					<div class="box-body no-padding">
+						<table class="table table-striped table-hover">
+							{% for indicador in rubrica.indicadores.all %}
+							<tr>
+								<td>{{ indicador }}</td>
+							</tr>
+							{% endfor %}
+						</table>
+					</div>
+				</div>
+			</div>
+			<div class="col-md-3">
+				<div class="box">
+					<div class="box-header">
+						<h3 class="box-title">Nuevo indicador</h3>
+					</div>
+					<div class="box-body">
+						<form class="form" action="{% url 'indicador_add' %}" method="post">
+							{% csrf_token %}
+							{% for field in indicador_form %}
+								<tr>
+									<td>{{field.label}}</td>
+									<td>{{ field|add_class:"form-control" }} {{ field.errors }}</td>
+								</tr>
+								{% endfor %}
+							<input type="submit" value="Agregar" class="btn btn-primary">
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+{% endblock content %}
