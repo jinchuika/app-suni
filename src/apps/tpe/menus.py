@@ -23,7 +23,12 @@ tpe_children = (
         "Informe de entregas",
         reverse_lazy("equipamiento_informe"),
         weight=90,
-        icon="fa-list-alt"),)
+        icon="fa-list-alt"),
+    ViewMenuItem(
+        "Calendario",
+        reverse_lazy("calendario_tpe"),
+        weight=75,
+        icon="fa-calendar"),)
 
 Menu.add_item(
     "user",

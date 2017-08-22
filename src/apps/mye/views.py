@@ -408,7 +408,6 @@ class ValidacionListHomeView(CsrfExemptMixin, JsonRequestResponseMixin, View):
                 'title': str(validacion.escuela),
                 'start': str(validacion.fecha_equipamiento),
                 'url': validacion.get_absolute_url(),
-                'direccion': '{}, {}'.format(
-                    validacion.escuela.direccion,
-                    validacion.escuela.municipio)})
+                'tip_title': str(validacion.escuela.municipio),
+                'tip_text': validacion.escuela.direccion})
         return self.render_json_response(response)

@@ -618,3 +618,51 @@
 
     } 
 }( window.TicketReparacionInforme = window.TicketReparacionInforme || {}, jQuery ));
+
+
+(function( CalendarioTPE, $, undefined ) {
+    var crear_equipamiento_calendario = function () {
+        $('#tpe-calendario').fullCalendar({
+            header: {
+                left: 'prev,next today',
+                center: 'title',
+                right: 'month,listMonth'
+            },
+            height: 650,
+            navLinks: true,
+            eventRender: function (event, element) {
+                element.qtip({
+                    content: {
+                        title: event.tip_title,
+                        text: event.tip_text
+                    },
+                });
+            },
+            eventSources: [
+            {
+                url: $('#tpe-calendario').data('url-validacion'),
+                type: 'GET',
+                color: 'orange',
+                cache: true,
+            },
+            {
+                url: $('#tpe-calendario').data('url-equipamiento'),
+                type: 'GET',
+                color: 'green',
+                cache: true,
+            },
+            {
+                url: $('#tpe-calendario').data('url-ticket'),
+                type: 'GET',
+                cache: true,
+            }
+            ]
+        });
+    }
+
+    // Public
+    CalendarioTPE.init = function () {
+        $('#spinner').hide();
+        crear_equipamiento_calendario();
+    } 
+}( window.CalendarioTPE = window.CalendarioTPE || {}, jQuery ));

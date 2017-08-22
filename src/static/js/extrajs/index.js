@@ -38,8 +38,8 @@
 			eventRender: function (event, element) {
                 element.qtip({
                     content: {
-                        title: event.municipio,
-                        text: event.direccion
+                        title: event.tip_title,
+                        text: event.tip_text
                     },
                 });
             },

@@ -18,6 +18,7 @@ urlpatterns = [
     url(r'^garantia/(?P<pk>\d+)/ticket/(?P<ticket_id>\d+)/$', GarantiaDetailView.as_view(), name='ticket_detail'),
     url(r'^ticket/add/$', TicketCreateView.as_view(), name='ticket_soporte_add'),
     url(r'^ticket/informe/$', cache_page(5)(TicketInformeView.as_view()), name='ticket_informe'),
+    url(r'^ticket/list/$', cache_page(5)(TicketCalendarView.as_view()), name='ticket_list_calendar'),
     url(r'^ticket/(?P<pk>\d+)/edit/$', TicketCierreView.as_view(), name='ticket_soporte_update'),
     url(r'^ticket/print_detalle/$', GarantiaPrintDetalle.as_view(), name='ticket_print_detalle'),
     url(r'^ticketregistro/add/(?P<ticket_id>\d+)/$', TicketRegistroCreateView.as_view(), name='ticket_registro_add'),
@@ -34,4 +35,6 @@ urlpatterns = [
 
     url(r'^monitoreo/add/(?P<equipamiento_id>\d+)/$', MonitoreoCreateView.as_view(), name='monitoreo_add'),
     url(r'^monitoreo/list/$', cache_page(5)(MonitoreoListView.as_view()), name='monitoreo_list'),
+
+    url(r'^calendario/$', CalendarioTPEView.as_view(), name='calendario_tpe'),
 ]

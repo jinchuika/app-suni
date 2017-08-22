@@ -1,6 +1,6 @@
 from math import floor
 from django.shortcuts import reverse
-from django.db.models import Count
+from django.db.models import Count, Q
 from django.utils.timezone import datetime
 from django.views.generic import DetailView, ListView, View, TemplateView
 from django.views.generic.edit import CreateView, UpdateView
@@ -156,9 +156,8 @@ class EquipamientoCalendarHomeView(CsrfExemptMixin, JsonRequestResponseMixin, Vi
                 'title': str(equipamiento.escuela),
                 'start': str(equipamiento.fecha),
                 'url': equipamiento.get_absolute_url(),
-                'direccion': '{}, {}'.format(
-                    equipamiento.escuela.direccion,
-                    equipamiento.escuela.municipio)})
+                'tip_title': str(equipamiento.escuela.municipio),
+                'tip_text': equipamiento.escuela.direccion})
         return self.render_json_response(response)
 
 
@@ -529,3 +528,35 @@ class TicketReparacionInformeView(InformeMixin):
             } for reparacion in queryset
         ]
         return var
+
+
+class TicketCalendarView(CsrfExemptMixin, JsonRequestResponseMixin, View):
+    def get(self, request, *args, **kwargs):
+        response = []
+        inicio_filtro = self.request.GET.get('start')
+        fin_filtro = self.request.GET.get('end')
+        ticket_abierto_list = TicketSoporte.objects.filter(
+            fecha_abierto__range=[inicio_filtro, fin_filtro])
+        ticket_cerrado_list = TicketSoporte.objects.filter(
+            fecha_cierre__range=[inicio_filtro, fin_filtro], cerrado=True)
+        for ticket in ticket_abierto_list:
+            response.append({
+                'title': 'Ticket {} (inicio)'.format(ticket.id),
+                'start': str(ticket.fecha_abierto),
+                'url': ticket.get_absolute_url(),
+                'tip_title': 'Actual: Cerrado' if ticket.cerrado else 'Actual: Abierto',
+                'tip_text': str(ticket.garantia.equipamiento.escuela)})
+        for ticket in ticket_cerrado_list:
+            response.append({
+                'title': 'Ticket {} (fin)'.format(ticket.id),
+                'start': str(ticket.fecha_abierto),
+                'url': ticket.get_absolute_url(),
+                'tip_title': 'Actual: Cerrado',
+                'tip_text': str(ticket.garantia.equipamiento.escuela)})
+        return self.render_json_response(response)
+
+
+class CalendarioTPEView(LoginRequiredMixin, TemplateView):
+    """Vista para el calendario de TPE."""
+
+    template_name = 'tpe/calendario.html'
