@@ -1,0 +1,160 @@
+{% extends "base/base.html" %}
+{% load widget_tweaks staticfiles editable_field %}
+
+{% block page_title %}
+<title>{{ visita }}</title>
+{% endblock page_title %}
+
+{% block content %}
+<section class="content-header">
+	<h1>
+		Visita {{ visita.numero }} - <a href="{{ visita.escuela.get_absolute_url }}">{{ visita.escuela }}</a>
+		<small>{{ visita.escuela.direccion|default_if_none:"" }}</small>
+	</h1>
+</section>
+
+<section class="content">
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-md-9">
+				{% csrf_token %}
+				<div class="box box-primary">
+					<div class="box-header">
+						<h3 class="box-title">Información general</h3>
+					</div>
+					<div class="box-body">
+						<p>
+							<strong>Fecha: </strong>
+							{% if perms.kalite.visita_change %}
+							<a href="#" class="editable lead" data-mode="inline" data-name="fecha" data-type="text" data-pk="{{ visita.id }}" data-url="{% url 'visita_api_detail' pk=visita.id %}" data-inputclass="datepicker">
+							{{ visita.fecha|date:"Y-m-d" }}
+							</a>
+							{% else %}
+							{{ visita.fecha|date:"Y-m-d" }}
+							{% endif %}
+						</p>
+						
+						<p><strong>Hora de inicio: </strong></p>
+						{% if perms.kalite.visita_change %}
+						<a href="#" class="editable" data-name="hora_inicio" data-type="text" data-pk="{{ visita.id }}" data-url="{% url 'visita_api_detail' pk=visita.id %}">
+						{{ visita.hora_inicio|default_if_none:"" }}
+						</a>
+						{% else %}
+						{{ visita.hora_inicio|default_if_none:"" }}
+						{% endif %}
+
+						<p><strong>Hora de fin: </strong></p>
+						{% if perms.kalite.visita_change %}
+						<a href="#" class="editable" data-name="hora_fin" data-type="text" data-pk="{{ visita.id }}" data-url="{% url 'visita_api_detail' pk=visita.id %}">
+						{{ visita.hora_fin|default_if_none:"" }}
+						</a>
+						{% else %}
+						{{ visita.hora_fin|default_if_none:"" }}
+						{% endif %}
+
+						<p><strong>Observaciones: </strong></p>
+						{% if perms.kalite.visita_change %}
+						<a href="#" class="editable" data-name="observaciones" data-type="text" data-pk="{{ visita.id }}" data-url="{% url 'visita_api_detail' pk=visita.id %}">
+						{{ visita.observaciones|default_if_none:"" }}
+						</a>
+						{% else %}
+						{{ visita.observaciones|default_if_none:"" }}
+						{% endif %}
+					</div>
+				</div>
+
+				<!-- Sección de evaluaciones -->
+				{% for evaluacion in visita.evaluaciones.all %}
+				<div class="box box-solid">
+					<div class="box-header bg-{{ evaluacion.rubrica.color }}">
+						<h2 class="box-title">{{ evaluacion.rubrica }}</h2>
+						<div class="pull-right">
+							<span class="promedio-evaluacion strong" id="evaluacion-{{ evaluacion.id }}" data-id="{{ evaluacion.id }}" data-url="{% url 'evaluacion_api_detail' pk=evaluacion.id %}"></span>%
+						</div>
+					</div>
+					<div class="box-body">
+						<blockquote>
+							<p>{{ evaluacion.rubrica.descripcion }}</p>
+						</blockquote>
+						<table class="table table-striped">
+							{% for nota in evaluacion.notas.all %}
+								<tr>
+									<td>{{ nota.indicador }}</td>
+									<td>
+										{% if perms.kalite.change_punteo %}
+										<a href="#" class="editable btn btn-lg btn-block" data-name="nota" data-type="select" data-pk="{{ nota.id }}" data-source="{{ notas_list }}" data-url="{% url 'punteo_api_detail' pk=nota.id %}">
+										{{ nota.nota }}
+										</a>
+										{% else %}
+										{{ nota.nota }}
+										{% endif %}
+									</td>
+								</tr>
+							{% endfor %}
+						</table>
+						<p>
+							<strong>Observaciones:</strong>
+						</p>
+						<p>
+							{% if perms.kalite.change_evaluacion %}
+							<a href="#" class="editable" data-name="observaciones" data-type="text" data-pk="{{ evaluacion.id }}" data-url="{% url 'evaluacion_api_detail' pk=evaluacion.id %}">
+							{{ evaluacion.observaciones|default_if_none:"" }}
+							</a>
+							{% else %}
+							{{ evaluacion.observaciones|default_if_none:"" }}
+							{% endif %}
+						</p>
+					</div>
+				</div>
+				{% endfor %}
+			</div>
+
+			<!-- Gráficos de resumen -->
+			<div class="col-md-3">
+
+				<!-- Gráfico de visita -->
+				<div class="info-box bg-teal">
+					<span class="info-box-icon"><i class="fa fa-check-square-o"></i></span>
+
+					<div class="info-box-content">
+						<span class="info-box-text">Visita {{ visita.numero }}</span>
+						<span class="info-box-number" data-url="{% url 'visita_api_detail' pk=visita.id %}" id="promedio-visita">{{ visita.promedio }}%</span>
+
+						<div class="progress">
+							<div class="progress-bar" id="progressbar-visita" style="width: {{ visita.promedio|floatformat:"0" }}%"></div>
+						</div>
+					</div>
+				</div>
+
+				<!-- Gráficos de evaluaciones -->
+				{% for evaluacion in visita.evaluaciones.all %}
+				<div class="info-box bg-{{ evaluacion.rubrica.color }}">
+					<span class="info-box-icon"><i class="fa {{ evaluacion.rubrica.icon }}"></i></span>
+
+					<div class="info-box-content">
+						<span class="info-box-text">{{ evaluacion.rubrica }}</span>
+						<span class="info-box-number" id="promedio-evaluacion-graph-{{ evaluacion.id }}">{{ evaluacion.promedio }}%</span>
+
+						<div class="progress">
+							<div class="progress-bar" id="progressbar-{{ evaluacion.id }}" style="width: {{ evaluacion.promedio|floatformat:"0" }}%"></div>
+						</div>
+					</div>
+				</div>
+				{% endfor %}
+			</div>
+		</div>
+	</div>
+</section>
+{% endblock content %}
+
+{% block extra_css %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/bootstrap-editable.css' %}">
+{% endblock extra_css %}
+
+{% block extra_js %}
+<script src="{% static 'js/bootstrap-editable.min.js' %}"></script>
+<script src="{% static 'js/extrajs/kalite.js' %}"></script>
+<script>
+	VisitaDetail.init();
+</script>
+{% endblock extra_js %}

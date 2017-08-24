@@ -178,6 +178,7 @@
 									</div>
 								</div>
 								<div class="tab-pane" id="capacitacion">
+								{% include "kalite/visita_list.html" with visita_list=escuela.visitas_kalite.all visita_kalite_nueva_form=visita_kalite_nueva_form %}
 								</div>
 
 								<div class="tab-pane" id="evaluacion">

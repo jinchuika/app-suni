@@ -15,6 +15,7 @@ from apps.mye.forms import (
     SolicitudForm, ValidacionNuevaForm, ValidacionForm)
 from apps.tpe.models import Equipamiento
 from apps.tpe.forms import EquipamientoForm, EquipamientoNuevoForm
+from apps.kalite.forms import VisitaForm
 
 from apps.escuela.forms import FormEscuelaCrear, ContactoForm, EscuelaBuscarForm
 from apps.escuela.models import Escuela, EscContacto, EscContactoTelefono, EscContactoMail
@@ -40,8 +41,7 @@ class EscuelaCrear(LoginRequiredMixin, CreateView):
 
 
 class EscuelaDetail(LoginRequiredMixin, DetailView):
-    """Vista para el perfil de la escuela
-    """
+    """Vista para el perfil de :model:`escuela.Escuela`."""
     template_name = 'escuela/detail.html'
     model = Escuela
 
@@ -58,13 +58,15 @@ class EscuelaDetail(LoginRequiredMixin, DetailView):
         context['solicitud_nueva_form'] = SolicitudNuevaForm(initial={'escuela': self.object.pk})
         context['equipamiento_nuevo_form'] = EquipamientoNuevoForm(initial={'escuela': self.object.pk})
         context['validacion_nueva_form'] = ValidacionNuevaForm(initial={'escuela': self.object.pk})
+        context['visita_kalite_nueva_form'] = VisitaForm(initial={'escuela': self.object.pk})
         if self.request.user.groups.filter(name='mye_validacion_nula').count() > 0:
+            # para permitir :model:`mye.Validacion` sin requisitos
             context['validacion_nueva_form'].fields['tipo'].queryset = ValidacionTipo.objects.all()
         else:
             context['validacion_nueva_form'].fields['tipo'].queryset = ValidacionTipo.objects.exclude(id=3)
 
-        # Crea un formulario de solicitud si encuentra la ID
         if 'id_solicitud' in self.kwargs:
+            # Crea un formulario para editar la solicitud si encuentra que se envió una ID
             solicitud = Solicitud.objects.get(pk=self.kwargs['id_solicitud'])
             if solicitud in self.object.solicitud.all():
                 context['solicitud_form'] = SolicitudForm(instance=solicitud)

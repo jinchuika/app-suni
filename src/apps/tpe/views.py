@@ -35,6 +35,12 @@ class EquipamientoCrearView(LoginRequiredMixin, PermissionRequiredMixin, CreateV
 
 
 class EquipamientoUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
+
+    """Vista para editar un :model:`tpe.Equipamiento`. Solo funciona para
+    recibir un `EquipamientoForm` mediante POST y actualizar los datos,
+    pero no muestra ningún template con el método GET.
+    """
+
     model = Equipamiento
     form_class = EquipamientoForm
     permission_required = 'tpe.change_equipamiento'
