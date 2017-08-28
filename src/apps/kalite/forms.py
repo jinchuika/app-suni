@@ -1,6 +1,6 @@
 from django import forms
 
-from apps.kalite.models import Rubrica, Indicador, Visita, TipoVisita
+from apps.kalite.models import Rubrica, Indicador, Visita, TipoVisita, Grado
 
 
 class TipoVisitaForm(forms.ModelForm):
@@ -34,4 +34,13 @@ class VisitaForm(forms.ModelForm):
         widgets = {
             'escuela': forms.HiddenInput(),
             'fecha': forms.TextInput(attrs={'class': 'datepicker'})
+        }
+
+
+class GradoForm(forms.ModelForm):
+    class Meta:
+        model = Grado
+        fields = ('visita', 'grado', 'seccion')
+        widgets = {
+            'visita': forms.HiddenInput()
         }

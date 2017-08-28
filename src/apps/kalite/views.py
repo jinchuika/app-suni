@@ -4,7 +4,9 @@ from django.views.generic.edit import CreateView
 
 from braces.views import LoginRequiredMixin, PermissionRequiredMixin
 
-from apps.kalite.forms import RubricaForm, IndicadorForm, VisitaForm, TipoVisitaForm
+from apps.kalite.forms import (
+    RubricaForm, IndicadorForm, VisitaForm, TipoVisitaForm,
+    GradoForm)
 from apps.kalite.models import Rubrica, Indicador, Visita, Punteo, TipoVisita
 
 
@@ -65,6 +67,7 @@ class VisitaDetailView(LoginRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super(VisitaDetailView, self).get_context_data(**kwargs)
         context['notas_list'] = Punteo.notas()
+        context['grado_form'] = GradoForm(initial={'visita': self.object})
         return context
 
 

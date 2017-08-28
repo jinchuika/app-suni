@@ -27,10 +27,10 @@ class VisitaViewSet(viewsets.ModelViewSet):
 class GradoViewSet(viewsets.ModelViewSet):
     serializer_class = GradoSerializer
     queryset = Grado.objects.all()
-    filter_fields = ('visita',)
+    filter_fields = ('id', 'visita')
 
 
 class EjerciciosGradoViewSet(viewsets.ModelViewSet):
     serializer_class = EjerciciosGradoSerializer
     queryset = EjerciciosGrado.objects.all()
-    filter_fields = ('grado',)
+    filter_fields = ('id', 'grado')

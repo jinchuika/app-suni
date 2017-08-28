@@ -16,7 +16,6 @@
 					<th>No.</th>
 					<th>Fecha</th>
 					<th>Progreso</th>
-					<th>Capacitador</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -30,12 +29,13 @@
 						<div class="progress-group">
 							<span class="progress-text">{{ visita.estado.alcance }} alcance</span>
 							<span class="progress-number"><b> {{ visita.promedio }}%</b></span>
-							<div class="progress sm">
-							<div class="progress-bar progress-bar-{{ visita.estado.color }}" style="width: {{ visita.promedio|floatformat:"0" }}%"></div>
-							</div>
+							{% for evaluacion in visita.evaluaciones.all %}
+								<div class="progress sm">
+									<div class="progress-bar progress-bar-{{ evaluacion.rubrica.color }}" style="width: {{ evaluacion.promedio|floatformat:"0" }}%"></div>
+								</div>
+							{% endfor %}
 						</div>
 					</td>
-					<td>{{ visita.capacitador.get_full_name }}</td>
 				</tr>
 				{% endfor %}
 			</tbody>

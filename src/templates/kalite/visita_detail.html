@@ -16,7 +16,7 @@
 <section class="content">
 	<div class="container-fluid">
 		<div class="row">
-			<div class="col-md-9">
+			<div class="col-md-7">
 				{% csrf_token %}
 				<div class="box box-primary">
 					<div class="box-header">
@@ -25,9 +25,9 @@
 					<div class="box-body">
 						<p>
 							<strong>Fecha: </strong>
-							{% if perms.kalite.visita_change %}
+							{% if perms.kalite.change_visita %}
 							<a href="#" class="editable lead" data-mode="inline" data-name="fecha" data-type="text" data-pk="{{ visita.id }}" data-url="{% url 'visita_api_detail' pk=visita.id %}" data-inputclass="datepicker">
-							{{ visita.fecha|date:"Y-m-d" }}
+								{{ visita.fecha|date:"Y-m-d" }}
 							</a>
 							{% else %}
 							{{ visita.fecha|date:"Y-m-d" }}
@@ -35,27 +35,27 @@
 						</p>
 						
 						<p><strong>Hora de inicio: </strong></p>
-						{% if perms.kalite.visita_change %}
+						{% if perms.kalite.change_visita %}
 						<a href="#" class="editable" data-name="hora_inicio" data-type="text" data-pk="{{ visita.id }}" data-url="{% url 'visita_api_detail' pk=visita.id %}">
-						{{ visita.hora_inicio|default_if_none:"" }}
+							{{ visita.hora_inicio|default_if_none:"" }}
 						</a>
 						{% else %}
 						{{ visita.hora_inicio|default_if_none:"" }}
 						{% endif %}
 
 						<p><strong>Hora de fin: </strong></p>
-						{% if perms.kalite.visita_change %}
+						{% if perms.kalite.change_visita %}
 						<a href="#" class="editable" data-name="hora_fin" data-type="text" data-pk="{{ visita.id }}" data-url="{% url 'visita_api_detail' pk=visita.id %}">
-						{{ visita.hora_fin|default_if_none:"" }}
+							{{ visita.hora_fin|default_if_none:"" }}
 						</a>
 						{% else %}
 						{{ visita.hora_fin|default_if_none:"" }}
 						{% endif %}
 
 						<p><strong>Observaciones: </strong></p>
-						{% if perms.kalite.visita_change %}
+						{% if perms.kalite.change_visita %}
 						<a href="#" class="editable" data-name="observaciones" data-type="text" data-pk="{{ visita.id }}" data-url="{% url 'visita_api_detail' pk=visita.id %}">
-						{{ visita.observaciones|default_if_none:"" }}
+							{{ visita.observaciones|default_if_none:"" }}
 						</a>
 						{% else %}
 						{{ visita.observaciones|default_if_none:"" }}
@@ -78,18 +78,18 @@
 						</blockquote>
 						<table class="table table-striped">
 							{% for nota in evaluacion.notas.all %}
-								<tr>
-									<td>{{ nota.indicador }}</td>
-									<td>
-										{% if perms.kalite.change_punteo %}
-										<a href="#" class="editable btn btn-lg btn-block" data-name="nota" data-type="select" data-pk="{{ nota.id }}" data-source="{{ notas_list }}" data-url="{% url 'punteo_api_detail' pk=nota.id %}">
+							<tr>
+								<td>{{ nota.indicador }}</td>
+								<td>
+									{% if perms.kalite.change_punteo %}
+									<a href="#" class="editable btn btn-lg btn-block" data-name="nota" data-type="select" data-pk="{{ nota.id }}" data-source="{{ notas_list }}" data-url="{% url 'punteo_api_detail' pk=nota.id %}">
 										{{ nota.nota }}
-										</a>
-										{% else %}
-										{{ nota.nota }}
-										{% endif %}
-									</td>
-								</tr>
+									</a>
+									{% else %}
+									{{ nota.nota }}
+									{% endif %}
+								</td>
+							</tr>
 							{% endfor %}
 						</table>
 						<p>
@@ -98,7 +98,7 @@
 						<p>
 							{% if perms.kalite.change_evaluacion %}
 							<a href="#" class="editable" data-name="observaciones" data-type="text" data-pk="{{ evaluacion.id }}" data-url="{% url 'evaluacion_api_detail' pk=evaluacion.id %}">
-							{{ evaluacion.observaciones|default_if_none:"" }}
+								{{ evaluacion.observaciones|default_if_none:"" }}
 							</a>
 							{% else %}
 							{{ evaluacion.observaciones|default_if_none:"" }}
@@ -110,7 +110,7 @@
 			</div>
 
 			<!-- Gráficos de resumen -->
-			<div class="col-md-3">
+			<div class="col-md-5">
 
 				<!-- Gráfico de visita -->
 				<div class="info-box bg-teal">
@@ -141,6 +141,52 @@
 					</div>
 				</div>
 				{% endfor %}
+
+				<!-- Ejercicios realizados por grado -->
+				<div class="box">
+					<div class="box-header with-border">
+						<h3 class="box-title">Grados</h3>
+						{% if perms.kalite.change_visita %}
+						<div class="pull-right box-tools">
+							<button type="button" class="btn btn-danger btn-sm" onclick="$('#form-grado').toggle();">
+								<i class="fa fa-plus"></i> Agregar
+							</button>
+						</div>
+						{% endif %}
+					</div>
+					
+					<div class="box-body">
+						<form id="form-grado" action="{% url 'grado_api' %}">
+							<table class="table">
+								{% csrf_token %}
+								{{ grado_form.as_table }}
+								<tr>
+									<td colspan="2" align="center">
+										<input type="submit" value="Agregar" class="btn btn-primary">
+									</td>
+								</tr>
+							</table>
+						</form>
+
+						<div class="box-group" id="grado-accordion" data-url="{% url 'grado_api' %}" data-visita="{{ visita.id }}" data-url-ejgr="{% url 'ejerciciosgrado_api' %}">
+
+						</div>
+					</div>
+				</div>
+
+				<!-- Gráfico de grados -->
+				<div class="box">
+					<div class="box-body" style="display: block;">
+						<div class="row">
+							<div class="col-md-12">
+								<div class="chart">
+									<canvas id="grafico-grados" style="height: 250px;">
+									</canvas>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
 			</div>
 		</div>
 	</div>
@@ -153,8 +199,13 @@
 
 {% block extra_js %}
 <script src="{% static 'js/bootstrap-editable.min.js' %}"></script>
+<script src="{% static 'js/distributed/Chart.min.js' %}"></script>
 <script src="{% static 'js/extrajs/kalite.js' %}"></script>
 <script>
-	VisitaDetail.init();
+	{% if perms.kalite.change_visita %}
+	VisitaDetail.init(1);
+	{% else %}
+	VisitaDetail.init(0);
+	{% endif %}
 </script>
 {% endblock extra_js %}

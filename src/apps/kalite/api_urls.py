@@ -23,7 +23,7 @@ visita_api_detail = api_views.VisitaViewSet.as_view({
     'post': 'update',
     'patch': 'partial_update'})
 
-grado_api_list = api_views.GradoViewSet.as_view({
+grado_api = api_views.GradoViewSet.as_view({
     'get': 'list',
     'post': 'create'})
 grado_api_detail = api_views.GradoViewSet.as_view({
@@ -31,7 +31,7 @@ grado_api_detail = api_views.GradoViewSet.as_view({
     'post': 'update',
     'patch': 'partial_update'})
 
-ejerciciosgrado_api_list = api_views.EjerciciosGradoViewSet.as_view({
+ejerciciosgrado_api = api_views.EjerciciosGradoViewSet.as_view({
     'get': 'list',
     'post': 'create'})
 ejerciciosgrado_api_detail = api_views.EjerciciosGradoViewSet.as_view({
@@ -50,9 +50,9 @@ urlpatterns = [
     url(r'^api/visita/$', visita_api_list, name='visita_api_list'),
     url(r'^api/visita/(?P<pk>\d+)/$', visita_api_detail, name='visita_api_detail'),
 
-    url(r'^api/grado/$', grado_api_list, name='grado_api_list'),
+    url(r'^api/grado/$', grado_api, name='grado_api'),
     url(r'^api/grado/(?P<pk>\d+)/$', grado_api_detail, name='grado_api_detail'),
 
-    url(r'^api/ejerciciosgrado/$', ejerciciosgrado_api_list, name='ejerciciosgrado_api_list'),
+    url(r'^api/ejerciciosgrado/$', ejerciciosgrado_api, name='ejerciciosgrado_api'),
     url(r'^api/ejerciciosgrado/(?P<pk>\d+)/$', ejerciciosgrado_api_detail, name='ejerciciosgrado_api_detail'),
 ]

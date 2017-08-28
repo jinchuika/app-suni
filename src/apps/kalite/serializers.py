@@ -31,13 +31,25 @@ class VisitaSerializer(DynamicFieldsModelSerializer, serializers.ModelSerializer
         read_only_fields = ('id', 'escuela')
 
 
-class GradoSerializer(DynamicFieldsModelSerializer, serializers.ModelSerializer):
+class EjerciciosGradoSerializer(DynamicFieldsModelSerializer, serializers.ModelSerializer):
+    url = serializers.CharField(source='get_api_url', read_only=True)
+    grado_url = serializers.CharField(source='grado.get_api_url', read_only=True)
+
     class Meta:
-        model = Grado
+        model = EjerciciosGrado
         fields = '__all__'
 
 
-class EjerciciosGradoSerializer(DynamicFieldsModelSerializer, serializers.ModelSerializer):
+class GradoSerializer(DynamicFieldsModelSerializer, serializers.ModelSerializer):
+    url = serializers.CharField(source='get_api_url', read_only=True)
+    ejercicios = EjerciciosGradoSerializer(many=True, read_only=True)
+    alcanzados = serializers.IntegerField(read_only=True)
+    nivelar = serializers.IntegerField(read_only=True)
+    total_estudiantes = serializers.IntegerField(read_only=True)
+    total_ejercicios = serializers.IntegerField(read_only=True)
+    promedio_ejercicios = serializers.FloatField(read_only=True)
+    promedio_alcanzados = serializers.FloatField(read_only=True)
+
     class Meta:
-        model = EjerciciosGrado
+        model = Grado
         fields = '__all__'

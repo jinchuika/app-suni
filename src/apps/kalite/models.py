@@ -229,7 +229,7 @@ class Grado(models.Model):
     visita = models.ForeignKey(Visita, related_name='grados')
     grado = models.IntegerField()
     seccion = models.CharField(max_length=2, null=True, blank=True, verbose_name='Sección')
-    minimo_esperado = models.PositiveIntegerField(verbose_name='Mínimo esperado')
+    minimo_esperado = models.PositiveIntegerField(verbose_name='Mínimo esperado', default=1)
     observaciones = models.TextField(null=True, blank=True)
 
     class Meta:
@@ -240,6 +240,48 @@ class Grado(models.Model):
     def __str__(self):
         return '{} {}'.format(self.grado, self.seccion)
 
+    def get_api_url(self):
+        return reverse_lazy('grado_api_detail', kwargs={'pk': self.pk})
+
+    @property
+    def total_estudiantes(self):
+        return sum(e.estudiantes for e in self.ejercicios.all())
+
+    @property
+    def total_ejercicios(self):
+        return sum(e.estudiantes * e.ejercicios for e in self.ejercicios.all())
+
+    @property
+    def alcanzados(self):
+        """Cantidad de estudiantes que alcanzaron la cantidad mínima de ejercicios.
+        """
+        return sum(
+            e.estudiantes for e in self.ejercicios.all()
+            if e.ejercicios >= self.minimo_esperado)
+
+    @property
+    def nivelar(self):
+        """Cantidad de estudiantes que NO alcanzaron la cantidad mínima de ejercicios.
+        """
+        return self.total_estudiantes - self.alcanzados
+
+    @property
+    def promedio_ejercicios(self):
+        """Calcula la cantidad de ejercicios realizados, en promedio, por
+        un estudiante.
+        """
+        if self.total_ejercicios == 0:
+            return 0
+        else:
+            return round(self.total_ejercicios / self.total_estudiantes, 2)
+
+    @property
+    def promedio_alcanzados(self):
+        if self.alcanzados == 0:
+            return 0
+        else:
+            return round(self.alcanzados / self.total_estudiantes, 2)
+
 
 class EjerciciosGrado(models.Model):
     """Registro de cantidad de estudiantes que realizan cierta cantidad de
@@ -247,7 +289,7 @@ class EjerciciosGrado(models.Model):
     """
 
     grado = models.ForeignKey(Grado, related_name='ejercicios')
-    estudiantes = models.PositiveIntegerField()
+    estudiantes = models.PositiveIntegerField(default=0)
     ejercicios = models.PositiveIntegerField()
 
     class Meta:
@@ -257,3 +299,6 @@ class EjerciciosGrado(models.Model):
 
     def __str__(self):
         return '{} - {}'.format(self.estudiantes, self.ejercicios)
+
+    def get_api_url(self):
+        return reverse_lazy('ejerciciosgrado_api_detail', kwargs={'pk': self.pk})
