@@ -1,5 +1,5 @@
 from django.urls import reverse_lazy
-from django.views.generic import DetailView, ListView
+from django.views.generic import DetailView, ListView, TemplateView
 from django.views.generic.edit import CreateView
 
 from braces.views import LoginRequiredMixin, PermissionRequiredMixin
@@ -83,3 +83,7 @@ class VisitaCreateView(LoginRequiredMixin, CreateView):
     def form_valid(self, form):
         form.instance.capacitador = self.request.user
         return super(VisitaCreateView, self).form_valid(form)
+
+
+class VisitaCalendarView(LoginRequiredMixin, TemplateView):
+    template_name = 'kalite/calendario.html'

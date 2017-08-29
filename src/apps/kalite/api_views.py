@@ -2,7 +2,8 @@ from rest_framework import viewsets
 
 from apps.kalite.serializers import (
     PunteoSerializer, EvaluacionSerializer, VisitaSerializer,
-    GradoSerializer, EjerciciosGradoSerializer)
+    GradoSerializer, EjerciciosGradoSerializer,
+    VisitaCalendarSerializer)
 
 from apps.kalite.models import (
     Punteo, Evaluacion, Visita, Grado, EjerciciosGrado)
@@ -34,3 +35,8 @@ class EjerciciosGradoViewSet(viewsets.ModelViewSet):
     serializer_class = EjerciciosGradoSerializer
     queryset = EjerciciosGrado.objects.all()
     filter_fields = ('id', 'grado')
+
+
+class VisitaCalendarViewSet(viewsets.ModelViewSet):
+    queryset = Visita.objects.all()
+    serializer_class = VisitaCalendarSerializer

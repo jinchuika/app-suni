@@ -1,78 +1,54 @@
 {% extends "base/base.html" %}
-{% load staticfiles%}
-{% load widget_tweaks %}
+{% load staticfiles widget_tweaks %}
+
 {% block page_title %}
 <title>Equipo</title>
 {% endblock page_title %}
+
 {% block content %}
 <section class="content-header">
-	<h1>Equipo</h1>
+	<h1>Equipo en Kardex</h1>
 </section>
+
 <section class="content">
 
 	<div class="container-fluid">
-		<div class="row">
-			<div class="col-md-1"></div>
-			<div class="col-md-10">
+		<div class="row-fluid">
+			<div class="col-md-12">
 				<div class="nav-tabs-custom">
-					<!--barra navegacion-->
+					<!--Panel de pestañas -->
 					<ul class="nav nav-tabs nav-justified">
-						<li class="active"><a href="#listar" data-toggle="tab"><i class="fa fa-list-ul"></i> Lista del Equipo</a></li>
+						<li class="active"><a href="#equipo_lista" data-toggle="tab"><i class="fa fa-list-ul"></i> Lista del Equipo</a></li>
 						<li><a href="#ingresar" data-toggle="tab"><i class="fa fa-sign-in"></i> Ingresar Equipo</a></li>
 						<li><a href="#informe" data-toggle="tab"><i class="fa fa-book"></i> Crear Informe</a></li>
 					</ul>
-					<!--/barra navegacion-->
+					<!--/Panel de pestañas -->
+					
 					<div class="tab-content">
-
-						<div class="tab-pane active" id="listar">
-							<div class="row">
-								<div class="col-md-1"></div>
-								<div class="col-md-10">
-									<div class="box box-Navy" style="margin-top:15px; ">
-
-										<div class="box-header">
-											<div class="box-title">Tecnonogía para Educar</div>
-										</div>
-
-										<div class="box-body">
-											<div class="table-responsive">
-												<table id="tablelol" class="table table-datatables table-bordered table-hover" style="margin-top:10px;">
-													<thead>
-														<tr>
-															<th>Id</th>
-															<th>Nombre</th>
-															<th>Total Ingresadas</th>
-															<th>Total Egresadas</th>
-															<th>Existencia</th>
-														</tr>
-													</thead>
-													<tbody>
-														{% for i in lista %}
-														<tr>
-															<td width="25">{{i.id}}</td>
-															<td>{{i}}</td>
-															<td><a href="#" onclick="entrada({{ i.id }}, '{{ i }}');">{{i.total_ingreso}}</a></td>
-															<td><a href="#" onclick="salida({{ i.id }}, '{{ i }}');">{{i.total_egreso}}</a></td>
-															<td>{{ i.existencia }}</td>
-														</tr>
-														{% endfor %}
-													</tbody>
-													<tfoot>
-														<tr>
-															<th>Id</th>
-															<th>Nombre</th>
-															<th>Total Ingresadas</th>
-															<th>Total Egresadas</th>
-															<th>Existencia</th>
-														</tr>
-													</tfoot>
-												</table>
-											</div>
-
-										</div>
-									</div>
-								</div>
-								<div class="col-md-1"></div>
+						<div class="tab-pane active" id="equipo_lista">
+							<div class="table-responsive">
+								<table id="tablelol" class="table table-datatables table-striped table-hover">
+									<thead>
+										<tr>
+											<th>ID</th>
+											<th>Nombre</th>
+											<th>Total entradas</th>
+											<th>Total salidas</th>
+											<th>Existencia</th>
+										</tr>
+									</thead>
+									<tbody>
+										{% for i in lista %}
+										<tr>
+											<td>{{i.id}}</td>
+											<td>{{i}}</td>
+											<td><a href="#" onclick="entrada({{ i.id }}, '{{ i }}');">{{i.total_ingreso}}</a></td>
+											<td><a href="#" onclick="salida({{ i.id }}, '{{ i }}');">{{i.total_egreso}}</a></td>
+											<td>{{ i.existencia }}</td>
+										</tr>
+										{% endfor %}
+									</tbody>
+								</table>
 							</div>
 						</div>
 

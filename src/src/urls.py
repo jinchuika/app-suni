@@ -17,6 +17,7 @@ urlpatterns = [
     url(r'^accounts/', include('allauth.urls')),
     url(r'^contactos/', include('apps.fr.urls')),
     url(r'^kardex/', include('apps.kardex.urls')),
+    url(r'^kardex/', include('apps.kardex.api_urls')),
     url(r'^tpe/', include('apps.tpe.urls')),
     url(r'^tpe/', include('apps.tpe.api_urls')),
     url(r'^dh/', include('apps.dh.urls')),

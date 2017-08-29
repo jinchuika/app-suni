@@ -23,6 +23,9 @@ visita_api_detail = api_views.VisitaViewSet.as_view({
     'post': 'update',
     'patch': 'partial_update'})
 
+calendario_api_list = api_views.VisitaCalendarViewSet.as_view({
+    'get': 'list'})
+
 grado_api = api_views.GradoViewSet.as_view({
     'get': 'list',
     'post': 'create'})
@@ -48,6 +51,7 @@ urlpatterns = [
     url(r'^api/evaluacion/(?P<pk>\d+)/$', evaluacion_api_detail, name='evaluacion_api_detail'),
 
     url(r'^api/visita/$', visita_api_list, name='visita_api_list'),
+    url(r'^api/calendario/$', calendario_api_list, name='kalite_calendario_api_list'),
     url(r'^api/visita/(?P<pk>\d+)/$', visita_api_detail, name='visita_api_detail'),
 
     url(r'^api/grado/$', grado_api, name='grado_api'),

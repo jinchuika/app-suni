@@ -300,6 +300,9 @@
 			type: 'bar',
 			data: VisitaDetail.grado_chart_data,
 			options: {
+				tooltips: {
+					mode: 'label'
+				},
 				responsive: true,
                 hoverMode: 'index',
                 title:{

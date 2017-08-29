@@ -31,6 +31,15 @@ class VisitaSerializer(DynamicFieldsModelSerializer, serializers.ModelSerializer
         read_only_fields = ('id', 'escuela')
 
 
+class VisitaCalendarSerializer(DynamicFieldsModelSerializer, serializers.ModelSerializer):
+    capacitador = serializers.CharField(source='capacitador.get_full_name')
+    start = serializers.DateField(source='fecha')
+
+    class Meta:
+        model = Visita
+        fields = ('id', 'capacitador', 'start')
+
+
 class EjerciciosGradoSerializer(DynamicFieldsModelSerializer, serializers.ModelSerializer):
     url = serializers.CharField(source='get_api_url', read_only=True)
     grado_url = serializers.CharField(source='grado.get_api_url', read_only=True)

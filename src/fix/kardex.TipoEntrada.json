@@ -1,0 +1,51 @@
+[
+{
+  "model": "kardex.tipoentrada",
+  "pk": 1,
+  "fields": {
+    "tipo": "Antiguo"
+  }
+},
+{
+  "model": "kardex.tipoentrada",
+  "pk": 2,
+  "fields": {
+    "tipo": "Compra"
+  }
+},
+{
+  "model": "kardex.tipoentrada",
+  "pk": 3,
+  "fields": {
+    "tipo": "Donaci\u00f3n"
+  }
+},
+{
+  "model": "kardex.tipoentrada",
+  "pk": 4,
+  "fields": {
+    "tipo": "Devoluci\u00f3n"
+  }
+},
+{
+  "model": "kardex.tipoentrada",
+  "pk": 5,
+  "fields": {
+    "tipo": "Fabricado"
+  }
+},
+{
+  "model": "kardex.tipoentrada",
+  "pk": 6,
+  "fields": {
+    "tipo": "Garant\u00eda"
+  }
+},
+{
+  "model": "kardex.tipoentrada",
+  "pk": 7,
+  "fields": {
+    "tipo": "Reparaci\u00f3n"
+  }
+}
+]
