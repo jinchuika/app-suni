@@ -29,11 +29,36 @@
 			</div>
 			<div class="col-md-6 col-sm-6 col-xs-12">
 				<div class="info-box">
+					<span class="info-box-icon bg-yellow"><i class="fa fa-refresh"></i></span>
+
+					<div class="info-box-content">
+						<span class="info-box-text">Renovaciones</span>
+						<span class="info-box-number">{{ extra.renovacion_total }}</span>
+					</div>
+				</div>
+			</div>
+			
+		</div>
+
+		<div class="row">
+			<div class="col-md-6 col-sm-6 col-xs-12">
+				<div class="info-box">
 					<span class="info-box-icon bg-aqua"><i class="fa fa-child" aria-hidden="true"></i></span>
 
 					<div class="info-box-content">
 						<span class="info-box-text">Niños<br>beneficiados</span>
 						<span class="info-box-number">{{ extra.alumnos_total }}</span>
+					</div>
+				</div>
+			</div>
+
+			<div class="col-md-6 col-sm-6 col-xs-12">
+				<div class="info-box">
+					<span class="info-box-icon bg-red"><i class="fa fa-user" aria-hidden="true"></i></span>
+
+					<div class="info-box-content">
+						<span class="info-box-text">Maestros<br>beneficiados</span>
+						<span class="info-box-number">{{ extra.maestros_total }}</span>
 					</div>
 				</div>
 			</div>
@@ -50,13 +75,14 @@
 					</div>
 				</div>
 			</div>
+
 			<div class="col-md-6 col-sm-6 col-xs-12">
 				<div class="info-box">
-					<span class="info-box-icon bg-red"><i class="fa fa-user" aria-hidden="true"></i></span>
+					<span class="info-box-icon bg-blue"><i class="fa fa-wrench"></i></span>
 
 					<div class="info-box-content">
-						<span class="info-box-text">Maestros<br>beneficiados</span>
-						<span class="info-box-number">{{ extra.maestros_total }}</span>
+						<span class="info-box-text">Reparaciones<br>realizadas</span>
+						<span class="info-box-number">{{ extra.reparacion_total }}</span>
 					</div>
 				</div>
 			</div>

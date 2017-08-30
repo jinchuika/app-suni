@@ -1,0 +1,33 @@
+{% extends "base/base.html" %}
+{% load staticfiles widget_tweaks %}
+
+
+{% block page_title %}
+<title>Proveedores de insumos</title>
+{% endblock page_title %}
+
+{% block content %}
+<section class="content">
+	<div class="container-fluid">
+		<div class="row-fluid">
+			<div class="col-md-12">
+				<div class="box box-success">
+					<div class="box-body table-responsive">
+						<form action="{{ action }}" method="post">							
+							<table class="table table-striped table-hover">
+								{% csrf_token %}
+								{{ form.as_table }}
+								<tr>
+									<td colspan="2">
+										<button class="btn btn-success">Guardar</button>
+									</td>
+								</tr>
+							</table>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+{% endblock content %}

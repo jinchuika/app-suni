@@ -1,5 +1,5 @@
-from django import forms 
-from django.forms import ModelForm, ModelChoiceField, formset_factory, modelformset_factory, widgets
+from django import forms
+from django.forms import ModelForm, ModelChoiceField, formset_factory, modelformset_factory
 from django.forms.models import inlineformset_factory, BaseInlineFormSet
 from .models import *
 from apps.kardex.models import *
@@ -19,6 +19,27 @@ class ProveedorForm(forms.ModelForm):
         fields = '__all__'
 
 
+class EntradaForm(forms.ModelForm):
+    class Meta:
+        model = Entrada
+        fields = '__all__'
+        widgets = {
+            'equipo': forms.Select(attrs={'class': 'select2'}),
+            'proveedor': forms.Select(attrs={'class': 'select2'}),
+            'fecha': forms.TextInput(attrs={'class': 'datepicker'})
+        }
+
+
+class SalidaForm(forms.ModelForm):
+    class Meta:
+        model = Salida
+        fields = '__all__'
+        widgets = {
+            'equipo': forms.Select(attrs={'class': 'select2'}),
+            'fecha': forms.TextInput(attrs={'class': 'datepicker'})
+        }
+
+
 ###########
 class FormularioEquipo(ModelForm):
     class Meta:
@@ -33,7 +54,7 @@ class FormularioEntradaInforme(forms.ModelForm):
         model = Entrada
         fields = ['tipo', 'proveedor']
         labels = {'tipo': _('Tipo de Entrada')}
-        widgets= {
+        widgets = {
             'tipo':forms.Select(attrs={'class':' form-control'}),
             }
 

@@ -21,7 +21,7 @@ kardex_children = (
         icon="fa-arrow-down"),
     ViewMenuItem(
         "Proveedores",
-        reverse_lazy("kardex_proveedor"),
+        reverse_lazy("kardex_proveedor_list"),
         weight=50,
         icon="fa-truck"),)
 

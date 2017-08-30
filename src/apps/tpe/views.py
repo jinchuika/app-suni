@@ -143,9 +143,12 @@ class EquipamientoInformeView(EquipamientoListView):
 class EquipamientoListHomeView(CsrfExemptMixin, JsonRequestResponseMixin, View):
     def post(self, request, *args, **kwargs):
         today = datetime.now()
-        equipamiento_list = []
+        equipamiento_list = {'equipamiento': [], 'renovacion': []}
         for i in range(1, 13):
-            equipamiento_list.append(Equipamiento.objects.filter(fecha__year=today.year, fecha__month=i).count())
+            equipamiento_list['equipamiento'].append(
+                Equipamiento.objects.filter(fecha__year=today.year, fecha__month=i, renovacion=False).count())
+            equipamiento_list['renovacion'].append(
+                Equipamiento.objects.filter(fecha__year=today.year, fecha__month=i, renovacion=True).count())
         return self.render_json_response(equipamiento_list)
 
 

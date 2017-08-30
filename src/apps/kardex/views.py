@@ -1,10 +1,10 @@
 from apps.kardex.models import *
 from apps.kardex.forms import *
 from apps.kardex.forms import (
-    EquipoForm)
-from django.views.generic import DetailView
-from django.views.generic.edit import CreateView
-from django.views.generic.list import ListView
+    EquipoForm, EntradaForm, ProveedorForm, SalidaForm)
+from django.views.generic import DetailView, ListView
+from django.views.generic.edit import CreateView, UpdateView
+
 from braces.views import LoginRequiredMixin
 from django.urls import reverse_lazy
 from django.http import HttpResponse
@@ -36,6 +36,39 @@ class ProveedorListView(LoginRequiredMixin, ListView):
 class ProveedorCreateView(LoginRequiredMixin, CreateView):
     model = Proveedor
     form_class = ProveedorForm
+    template_name = 'kardex/proveedor_form.html'
+
+
+class ProveedorUpdateView(LoginRequiredMixin, UpdateView):
+    model = Proveedor
+    form_class = ProveedorForm
+    template_name = 'kardex/proveedor_form.html'
+
+
+class ProveedorDetailView(LoginRequiredMixin, DetailView):
+    model = Proveedor
+    template_name = 'kardex/proveedor_detail.html'
+
+
+class EquipoCreateView(LoginRequiredMixin, CreateView):
+    """Vista para crear un :model:`kardex.Equipo`.
+    Esta vista no tiene acceso mediante GET.
+    """
+
+    model = Equipo
+    form_class = EquipoForm
+
+
+class EntradaCreateView(LoginRequiredMixin, CreateView):
+    model = Entrada
+    form_class = EntradaForm
+    template_name = 'kardex/entrada.html'
+
+
+class SalidaCreateView(LoginRequiredMixin, CreateView):
+    model = Salida
+    template_name = 'kardex/salida.html'
+    form_class = SalidaForm
 
 # Desde aquí empieza el código a renovar
 # 

@@ -1,5 +1,6 @@
 {% extends "base/base.html" %}
-{% load staticfiles%}
+{% load staticfiles widget_tweaks %}
+
 {% block page_title %}
 <title>Entradas</title>
 {% endblock page_title %}
@@ -11,70 +12,51 @@
 
 <section class="content">
 	<div class="container-fluid">
-		<div class="nav-tabs-custom">
-			<ul class="nav nav-tabs nav-justified">
-				<li class="active"><a href="#ingreso" data-toggle="tab"><i class="fa fa-sign-in"></i> Crear Entrada</a></li>
-				<li><a href="#listado" data-toggle="tab"><i class="fa fa-list"></i> Listar Entradas</a></li>
-			</ul>
-			<div class="tab-content">
-				<div class="tab-pane active" id="ingreso">
-					<table id="in-form" class="table table-hover table-bordered table-striped">
-						<form  method="POST" align="center" action="{{action}}" >
-							{% csrf_token %}
-							{{ form.as_table}}
-							<tr>	
-								<td></td>
-								<td colspan="2">
-									<input type="submit" class="btn btn-primary" value="Guardar">
-								</td>
-								<td></td>
-							</tr>
+		<div class="row-fluid">
+			<div class="col-md-8 col-md-offset-2">
+				
+				<div class="box box-success">
+					<div class="box-header">
+						<h3 class="box-title">Entrada</h3>
+						<div class="box-tools pull-right">
+							<form id="entrada-buscar-form" action="{% url 'entrada_api_list' %}">
+								<div class="has-feedback">
+									<input type="number" name="id" class="form-control input-xs" placeholder="Buscar...">
+									<span class="fa fa-search form-control-feedback"></span>
+								</div>
+							</form>
+						</div>
+					</div>
+
+					<div class="box-body">
+						<form action="" method="post">
+							<table class="table table-condensed table-hover">
+								{% csrf_token %}
+								{% for field in form %}
+									<tr>
+										<td>{{ field.label_tag }}</td>
+										<td>{{ field|add_class:"form-control" }}</td>
+									</tr>
+								{% endfor %}
+
+								<tr>
+									<td></td>
+									<td>
+										<button class="btn btn-primary btn-block">
+											Guardar
+										</button>
+									</td>
+								</tr>
+							</table>
 						</form>
-					</table>
-				</div>
-
-				<div class="tab-pane" id="listado">
-					<table class="table table-hover table-striped">
-						{% for field in formulario %}
-						<tr> 
-							<td>	
-								<strong> {{field.label}} </strong> 
-							</td>
-							<td id="field">
-								{{field}}
-							</td>
-						</tr>
-						{% endfor %}
-						<tr>
-							<td><strong>Fecha Inicio</strong></td>
-							<td>
-								<input type="text" placeholder="Fecha de inicio" id="ini" class="datepicker form-control">		
-							</td>
-						</tr>
-						<tr>
-							<td><strong>Fecha Fin</strong></td>
-							<td>
-								<input type="text" placeholder="Fecha final" id="out" class="datepicker form-control">
-							</td>
-						</tr>
-						<tr>
-							<td></td>
-							<td><a href="javascript:void(0)" onclick="get_informe_entradas()" class="btn btn-success">Generar informe</a></td>
-						</tr>
-					</table>
-					<div id="here"></div>
-
+					</div>
 				</div>
 			</div>
 		</div>
-	</div>
-	<!--<div class="form-group has-error">
-    	<label class="control-label" for="inputError"><i class="fa fa-times-circle-o"></i> Input with
-        	error</label>
-    	<input type="text" class="form-control" id="inputError" placeholder="Enter ...">
-    	<span class="help-block">Help block with error</span>
-    </div>-->
 
+
+		
+	</div>
 
 </section>
 
@@ -82,9 +64,12 @@
 
 {% endblock content %}
 
-{% block extra_css %}
-<link rel="stylesheet" type="text/css" href="{% static "css/kardex.css" %}">
-{% endblock extra_css %}
+
 {% block extra_js %}
+<script src="{% static "js/pdfmake.min.js" %}"></script>
+<script src="{% static "js/vfs_fonts.js" %}"></script>
 <script src="{% static "js/extrajs/kardex.js" %}"></script>
+<script>
+	EntradaCreate.init();
+</script>
 {% endblock extra_js %}

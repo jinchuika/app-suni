@@ -8,14 +8,24 @@
 					labels: ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"],
 					datasets: [{
 						label: 'Equipamientos',
-						data: data,
+						data: data.equipamiento,
 						backgroundColor: 'rgba(0, 166, 90, 0.8)',
+						borderWidth: 1
+					},
+					{
+						label: 'Renovaciones',
+						data: data.renovacion,
+						backgroundColor: 'rgba(243, 156, 18, 0.8)',
 						borderWidth: 1
 					}]
 				},
 				options: {
 					scales: {
+						xAxes: [{
+                            stacked: true,
+                        }],
 						yAxes: [{
+							stacked: true,
 							ticks: {
 								beginAtZero:true
 							}

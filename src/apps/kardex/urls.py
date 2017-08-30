@@ -10,8 +10,14 @@ urlpatterns = [
     url(r'^salida/(?P<pk>\d+)/$', EquipoSalida.as_view(), name='kardex_equipo_salida'),
     url(r'^out/$', SalidaCreate.as_view(), name='kardex_salida'),
     url(r'^out/(?P<tecnico>[\w-]+)/(?P<ini>[\w-]+)/(?P<out>[\w-]+)/$', get_informe_salidas, name='kardex_salida_informe'),
-    url(r'^in/$', EntradaCreate.as_view(), name='kardex_entrada'),
     url(r'^in/(?P<proveedor>[\w-]+)/(?P<tipo>[\w-]+)/(?P<ini>[\w-]+)/(?P<out>[\w-]+)/$', get_informe_entradas, name='kardex_entrada_informe'),
-    url(r'^proveedor/$', ProveedorListView.as_view(), name='kardex_proveedor'),
-    url(r'^proveedor/add/$', ProveedorCreateView.as_view(), name='kardex_proveedor_add')
+
+    url(r'^equipo/add/$', EquipoCreateView.as_view(), name='kardex_equipo_add'),
+
+    url(r'^proveedor/$', ProveedorListView.as_view(), name='kardex_proveedor_list'),
+    url(r'^proveedor/add/$', ProveedorCreateView.as_view(), name='kardex_proveedor_add'),
+    url(r'^proveedor/(?P<pk>\d+)/$', ProveedorDetailView.as_view(), name='kardex_proveedor_detail'),
+    url(r'^proveedor/(?P<pk>\d+)/update/$', ProveedorUpdateView.as_view(), name='kardex_proveedor_update'),
+
+    url(r'^in/$', EntradaCreateView.as_view(), name='kardex_entrada'),
 ]

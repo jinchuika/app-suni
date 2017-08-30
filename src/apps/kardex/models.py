@@ -15,6 +15,21 @@ class Equipo(models.Model):
     def __str__(self):
         return self.nombre
 
+    def get_absolute_url(self):
+        return reverse_lazy('kardex_equipo_list')
+
+    @property
+    def cantidad_entrada(self):
+        return sum(entrada.cantidad for entrada in self.entradas.all())
+
+    @property
+    def cantidad_salida(self):
+        return sum(detalle.cantidad for detalle in self.detalles_salida.all())
+
+    @property
+    def existencia(self):
+        return self.cantidad_entrada - self.cantidad_salida
+
 
 class TipoProveedor(models.Model):
     tipo = models.CharField(max_length=15)
@@ -74,8 +89,9 @@ class Proveedor(models.Model):
         return self.nombre
 
     def get_absolute_url(self):
-        return reverse_lazy('kardex_proveedor')
+        return reverse_lazy('kardex_proveedor_detail', kwargs={'pk': self.id})
 
+    @property
     def equipo_ingresado(self):
         return sum(entrada.cantidad for entrada in self.entradas.all())
 
@@ -86,7 +102,7 @@ class Entrada(models.Model):
     proveedor = models.ForeignKey(Proveedor, on_delete=models.PROTECT, related_name='entradas')
     tipo = models.ForeignKey(TipoEntrada, on_delete=models.PROTECT)
     cantidad = models.PositiveIntegerField()
-    fecha = models.DateField(default=timezone.now)
+    fecha = models.DateField()
     precio = models.DecimalField(max_digits=7, decimal_places=2, null=True, blank=True)
     factura = models.IntegerField(null=True, blank=True)
     observacion = models.TextField(null=True, blank=True, verbose_name='Observaciones')
@@ -101,9 +117,10 @@ class Entrada(models.Model):
 
 class Salida(models.Model):
     tecnico = models.ForeignKey(Perfil, on_delete=models.PROTECT)
-    fecha = models.DateField(default=timezone.now)
+    fecha = models.DateField()
     tipo = models.ForeignKey(TipoSalida, on_delete=models.PROTECT)
     observacion = models.TextField(null=True, blank=True, verbose_name='Observaciones')
+    terminada = models.BooleanField(blank=True, default=False)
 
     class Meta:
         verbose_name = 'Salida'

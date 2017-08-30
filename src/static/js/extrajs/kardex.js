@@ -9,16 +9,98 @@
                 }
             })
         })
-        /*$('#proveedor-form').submit(function (e) {
+    }
+}( window.ProveedorList = window.ProveedorList || {}, jQuery ));
+
+
+(function( EntradaCreate, $, undefined ) {
+    var generar_tabla_entrada = function (entrada) {
+        var tabla_html = '<table class="table table-striped" id="tabla-entrada">';
+        tabla_html += '<tr><th>Número:</th><td>' + entrada.id +'</td></tr>';
+        tabla_html += '<tr><th>Artículo:</th><td>' + entrada.equipo +'</td></tr>';
+        tabla_html += '<tr><th>Cantidad:</th><td>' + entrada.cantidad +'</td></tr>';
+        tabla_html += '<tr><th>Fecha:</th><td>' + entrada.fecha +'</td></tr>';
+        tabla_html += '<tr><th>Proveedor:</th><td>' + entrada.proveedor +'</td></tr>';
+        tabla_html += '<tr><th>Estado:</th><td>' + entrada.estado +'</td></tr>';
+        tabla_html += '<tr><th>Tipo de entrada:</th><td>' + entrada.tipo +'</td></tr>';
+        if (entrada.factura) {
+            tabla_html += '<tr><th>No. Factura:</th><td>' + entrada.factura +'</td></tr>';
+        }
+        if (entrada.precio) {
+            tabla_html += '<tr><th>Precio:</th><td>' + entrada.precio +'</td></tr>';
+        }
+        tabla_html += '<tr><th>Observaciones:</th><td>' + entrada.observacion +'</td></tr>';
+        tabla_html += '</table>';
+
+        var tabla_pdf = {
+            table: {
+                widths: [100, 200],
+                body: [
+                    ['Número:', entrada.id],
+                    ['Artículo', entrada.equipo],
+                    ['Cantidad', entrada.cantidad],
+                    ['Fecha', entrada.fecha],
+                    ['Proveedor', entrada.proveedor],
+                    ['Estado', entrada.estado],
+                    ['Tipo de entrada', entrada.tipo],
+                    ['No. factura', entrada.factura],
+                    ['Precio', entrada.precio],
+                    ['Observaciones', entrada.observacion],
+                ]
+            }
+        }
+
+        return {html: tabla_html, pdf: tabla_pdf};
+    }
+    EntradaCreate.init = function () {
+        $('#entrada-buscar-form').submit(function (e) {
             e.preventDefault();
             $.ajax({
                 url: $(this).prop('action'),
                 data: $(this).serializeObject(),
+                success: function (respuesta) {
+                    if (respuesta.length == 1) {
+                        var tabla = generar_tabla_entrada(respuesta[0]);
 
+                        bootbox.dialog({
+                            title: 'Entrada ' + respuesta[0].id,
+                            message: tabla.html,
+                            buttons: {
+                                imprimir: {
+                                    label: 'Imprimir',
+                                    className: 'btn-info',
+                                    callback: function () {
+                                        var contenido = {
+                                            content: [
+                                                {text: 'Entrada no. '+respuesta[0].id, style: 'header'},
+                                                tabla.pdf
+                                                ],
+                                                styles: {
+                                                    header: {
+                                                        fontSize: 18,
+                                                        bold: true,
+                                                        margin: [0, 0, 0, 10]
+                                                    }
+                                                },
+                                        };
+                                        pdfMake.createPdf(contenido).download('Entrada.pdf');
+                                    }
+                                },
+                                cerrar: {
+                                    label: 'Cerrar',
+                                    className: 'btn-danger',
+                                    callback: function () {
+                                        // body...
+                                    }
+                                }
+                            }
+                        })
+                    }
+                }
             })
-        });*/
+        })
     }
-}( window.ProveedorList = window.ProveedorList || {}, jQuery ));
+}( window.EntradaCreate = window.EntradaCreate || {}, jQuery ));
 
 //para entrada
 function entrada(id_equipo, equipo){

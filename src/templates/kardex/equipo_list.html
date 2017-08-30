@@ -23,8 +23,8 @@
 					<!-- /pestañas de navegación -->
 
 					<div class="tab-content">
-						<div class="tab-pane" id="equipo_lista">
-							<table class="table table-striped">
+						<div class="tab-pane active" id="equipo_lista">
+							<table class="table table-striped table-hover table-datatables">
 								<thead>
 									<tr>
 										<th>ID</th>
@@ -39,8 +39,8 @@
 										<tr>
 											<td>{{ equipo.id }}</td>
 											<td>{{ equipo }}</td>
-											<td>{{ equipo.entradas }}</td>
-											<td>{{ equipo.salidas }}</td>
+											<td>{{ equipo.cantidad_entrada }}</td>
+											<td>{{ equipo.cantidad_salida }}</td>
 											<td>{{ equipo.existencia }}</td>
 										</tr>
 									{% endfor %}
@@ -49,7 +49,17 @@
 						</div>
 
 						<div class="tab-pane" id="equipo_add">
-							
+							<form action="{% url 'kardex_equipo_add' %}" method="post">
+								<table class="table table-striped">
+									{% csrf_token %}
+									{{ equipo_form.as_table }}
+									<tr>
+										<td colspan="2">
+											<button class="btn btn-success">Guardar</button>
+										</td>
+									</tr>
+								</table>
+							</form>
 						</div>
 					</div>
 				</div>
