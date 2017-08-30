@@ -1,0 +1,16 @@
+[
+{
+  "model": "kardex.estadoequipo",
+  "pk": 1,
+  "fields": {
+    "estado": "Nuevo"
+  }
+},
+{
+  "model": "kardex.estadoequipo",
+  "pk": 2,
+  "fields": {
+    "estado": "Usado"
+  }
+}
+]

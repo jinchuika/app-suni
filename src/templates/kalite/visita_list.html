@@ -1,0 +1,56 @@
+<div class="box">
+	<div class="box-header">
+		<h3 class="box-title">Visitas de seguimiento</h3>
+		{% if perms.kalite.add_visita %}
+		<div class="pull-right box-tools">
+			<button type="button" class="btn btn-info btn-sm" onclick="$('#form-nueva-visita-kalite').toggle();">
+				<i class="fa fa-plus"></i> Nueva
+			</button>
+		</div>
+		{% endif %}
+	</div>
+	<div class="box-body no-padding">
+		<table class="table table-striped">
+			<thead>
+				<tr>
+					<th>No.</th>
+					<th>Fecha</th>
+					<th>Progreso</th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for visita in visita_list|dictsort:"numero" %}
+				<tr>
+					<td>
+						<a href="{{ visita.get_absolute_url }}" class="btn btn-block">{{ visita.numero }}</a>
+					</td>
+					<td>{{ visita.fecha|date:"Y-m-d" }}</td>
+					<td>
+						<div class="progress-group">
+							<span class="progress-text">{{ visita.estado.alcance }} alcance</span>
+							<span class="progress-number"><b> {{ visita.promedio }}%</b></span>
+							{% for evaluacion in visita.evaluaciones.all %}
+								<div class="progress sm">
+									<div class="progress-bar progress-bar-{{ evaluacion.rubrica.color }}" style="width: {{ evaluacion.promedio|floatformat:"0" }}%"></div>
+								</div>
+							{% endfor %}
+						</div>
+					</td>
+				</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+
+		{% if perms.kalite.add_visita %}
+		<form id="form-nueva-visita-kalite" action="{% url 'visita_kalite_add' %}" method="post">
+			<table class="table">
+				{% csrf_token %}
+				{{ visita_kalite_nueva_form.as_table }}
+				<tr>
+					<td colspan="2"><input type="submit" value="Crear" class="btn btn-success"></td>
+				</tr>
+			</table>
+		</form>
+		{% endif %}
+	</div>
+</div>

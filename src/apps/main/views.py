@@ -18,6 +18,7 @@ class IndexView(LoginRequiredMixin, TemplateView):
         if self.request.user.groups.filter(name='tpe').exists():
             today = datetime.now()
             equipamiento_list = Equipamiento.objects.filter(fecha__year=today.year)
+            reparaciones = TicketReparacion.objects.filter(fecha_fin__year=today.year).count()
             widgets.append({
                 'queryset': '',
                 'template_name': 'widgets/tpe_equipamiento_chart.html',
@@ -26,10 +27,12 @@ class IndexView(LoginRequiredMixin, TemplateView):
                 },
                 'extra': {
                     'url': reverse_lazy('equipamiento_list_home'),
-                    'equipamiento_total': equipamiento_list.count(),
+                    'equipamiento_total': equipamiento_list.filter(renovacion=False).count(),
                     'computadoras_total': sum(e.cantidad_equipo for e in equipamiento_list),
                     'alumnos_total': sum(e.poblacion.total_alumno for e in equipamiento_list if e.poblacion),
-                    'maestros_total': sum(e.poblacion.total_maestro for e in equipamiento_list if e.poblacion)
+                    'maestros_total': sum(e.poblacion.total_maestro for e in equipamiento_list if e.poblacion),
+                    'renovacion_total': equipamiento_list.filter(renovacion=True).count(),
+                    'reparacion_total': reparaciones,
                 }
             })
             widgets.append({

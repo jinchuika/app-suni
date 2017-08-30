@@ -1,0 +1,70 @@
+{% extends "base/base.html" %}
+{% load staticfiles widget_tweaks %}
+
+{% block page_title %}
+<title>Equipo de bodega</title>
+{% endblock page_title %}
+
+{% block content %}
+<section class="content-header">
+	<h1>Equipo en bodega</h1>
+</section>
+
+<section class="content">
+	<div class="container">
+		<div class="row-fluid">
+			<div class="col-md-12">
+				<div class="nav-tabs-custom">
+					<!-- pestañas de navegación -->
+					<ul class="nav nav-tabs nav-justified">
+						<li class="active"><a href="#equipo_lista" data-toggle="tab"><i class="fa fa-list-ul"></i> Lista del Equipo</a></li>
+						<li><a href="#equipo_add" data-toggle="tab"><i class="fa fa-sign-in"></i> Ingresar Equipo</a></li>
+					</ul>
+					<!-- /pestañas de navegación -->
+
+					<div class="tab-content">
+						<div class="tab-pane active" id="equipo_lista">
+							<table class="table table-striped table-hover table-datatables">
+								<thead>
+									<tr>
+										<th>ID</th>
+										<th>Equipo</th>
+										<th>Entradas</th>
+										<th>Salidas</th>
+										<th>Existencia</th>
+									</tr>
+								</thead>
+								<tbody>
+									{% for equipo in equipo_list %}
+										<tr>
+											<td>{{ equipo.id }}</td>
+											<td>{{ equipo }}</td>
+											<td>{{ equipo.cantidad_entrada }}</td>
+											<td>{{ equipo.cantidad_salida }}</td>
+											<td>{{ equipo.existencia }}</td>
+										</tr>
+									{% endfor %}
+								</tbody>
+							</table>
+						</div>
+
+						<div class="tab-pane" id="equipo_add">
+							<form action="{% url 'kardex_equipo_add' %}" method="post">
+								<table class="table table-striped">
+									{% csrf_token %}
+									{{ equipo_form.as_table }}
+									<tr>
+										<td colspan="2">
+											<button class="btn btn-success">Guardar</button>
+										</td>
+									</tr>
+								</table>
+							</form>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+{% endblock content %}

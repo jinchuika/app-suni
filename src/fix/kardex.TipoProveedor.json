@@ -1,0 +1,16 @@
+[
+{
+  "model": "kardex.tipoproveedor",
+  "pk": 1,
+  "fields": {
+    "tipo": "Empresa"
+  }
+},
+{
+  "model": "kardex.tipoproveedor",
+  "pk": 2,
+  "fields": {
+    "tipo": "Donante"
+  }
+}
+]

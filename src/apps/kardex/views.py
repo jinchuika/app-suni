@@ -1,17 +1,82 @@
-from django.shortcuts import render
 from apps.kardex.models import *
 from apps.kardex.forms import *
-from django.views.generic import DetailView
-from django.views.generic.edit import CreateView
-from django.views.generic.list import ListView
+from apps.kardex.forms import (
+    EquipoForm, EntradaForm, ProveedorForm, SalidaForm)
+from django.views.generic import DetailView, ListView
+from django.views.generic.edit import CreateView, UpdateView
+
 from braces.views import LoginRequiredMixin
 from django.urls import reverse_lazy
 from django.http import HttpResponse
-from .mixins import SalidaContextMixin
+
 import json
 from datetime import date
 
 
+class EquipoListView(LoginRequiredMixin, ListView):
+    template_name = 'kardex/equipo_list.html'
+    model = Equipo
+
+    def get_context_data(self, **kwargs):
+        context = super(EquipoListView, self).get_context_data(**kwargs)
+        context['equipo_form'] = EquipoForm()
+        return context
+
+
+class ProveedorListView(LoginRequiredMixin, ListView):
+    template_name = 'kardex/proveedor_list.html'
+    model = Proveedor
+
+    def get_context_data(self, **kwargs):
+        context = super(ProveedorListView, self).get_context_data(**kwargs)
+        context['proveedor_form'] = ProveedorForm()
+        return context
+
+
+class ProveedorCreateView(LoginRequiredMixin, CreateView):
+    model = Proveedor
+    form_class = ProveedorForm
+    template_name = 'kardex/proveedor_form.html'
+
+
+class ProveedorUpdateView(LoginRequiredMixin, UpdateView):
+    model = Proveedor
+    form_class = ProveedorForm
+    template_name = 'kardex/proveedor_form.html'
+
+
+class ProveedorDetailView(LoginRequiredMixin, DetailView):
+    model = Proveedor
+    template_name = 'kardex/proveedor_detail.html'
+
+
+class EquipoCreateView(LoginRequiredMixin, CreateView):
+    """Vista para crear un :model:`kardex.Equipo`.
+    Esta vista no tiene acceso mediante GET.
+    """
+
+    model = Equipo
+    form_class = EquipoForm
+
+
+class EntradaCreateView(LoginRequiredMixin, CreateView):
+    model = Entrada
+    form_class = EntradaForm
+    template_name = 'kardex/entrada.html'
+
+
+class SalidaCreateView(LoginRequiredMixin, CreateView):
+    model = Salida
+    template_name = 'kardex/salida.html'
+    form_class = SalidaForm
+
+# Desde aquí empieza el código a renovar
+# 
+# 
+# 
+# 
+# 
+# 
 class Equipolog(LoginRequiredMixin, CreateView):
     model = Equipo
     form_class = FormularioEquipo
@@ -59,7 +124,7 @@ class EquipoSalida(LoginRequiredMixin, DetailView):
     def get(self, request, **kwargs):
         lista_salida = Salida.objects.filter()
 
-        lista2 = SalidaEquipo.objects.filter(equipo = self.get_object())
+        lista2 = Salida.objects.filter(equipo = self.get_object())
         lista_vacia = []
         for egreso in lista2:
             lista_vacia.append({'id':egreso.id, 'tecnico':str(egreso.salida.tecnico), 'fecha': str(egreso.salida.fecha), 'cantidad': egreso.cantidad})
@@ -131,7 +196,7 @@ def get_informe_entradas(request, proveedor, tipo, ini, out):
             )
 
 #Salida del equipo
-class SalidaCreate(LoginRequiredMixin, SalidaContextMixin, CreateView):
+class SalidaCreate(LoginRequiredMixin, CreateView):
     model = Salida
     form_class = FormularioSalida
     template_name = "kardex/salida.html"
@@ -152,9 +217,9 @@ def get_informe_salidas(request, tecnico, ini, out):
         fin = out
 
     if tecnico == "all":
-        lista_entrada = SalidaEquipo.objects.filter( salida__fecha__range=(inicio, fin))
+        lista_entrada = Salida.objects.filter( salida__fecha__range=(inicio, fin))
     else:
-        lista_entrada = SalidaEquipo.objects.filter(salida__tecnico__id=tecnico, salida__fecha__range=(inicio, fin))
+        lista_entrada = Salida.objects.filter(salida__tecnico__id=tecnico, salida__fecha__range=(inicio, fin))
     
     lista_vacia = []
     for salida in lista_entrada:

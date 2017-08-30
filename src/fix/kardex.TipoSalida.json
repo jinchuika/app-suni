@@ -1,0 +1,23 @@
+[
+{
+  "model": "kardex.tiposalida",
+  "pk": 1,
+  "fields": {
+    "tipo": "Uso de TPE"
+  }
+},
+{
+  "model": "kardex.tiposalida",
+  "pk": 2,
+  "fields": {
+    "tipo": "Devoluci\u00f3n por garant\u00eda"
+  }
+},
+{
+  "model": "kardex.tiposalida",
+  "pk": 3,
+  "fields": {
+    "tipo": "Desecho"
+  }
+}
+]

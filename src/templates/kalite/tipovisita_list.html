@@ -1,0 +1,52 @@
+{% extends "base/base.html" %}
+
+{% load staticfiles has_group %}
+
+{% block page_title %}
+	<title>Tipos de visita de KA Lite</title>
+{% endblock page_title %}
+
+{% block content %}
+<section class="content">
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-md-12">
+				<div class="box box-primary">
+					<div class="box-header">
+						<h3 class="box-title">Listado</h3>
+						{% if perms.kalite.add_tipovisita %}
+						<span class="pull-right">
+							<a href="{% url 'tipovisita_add' %}" class="btn btn-success">Nuevo tipo</a>
+						</span>
+						{% endif %}
+					</div>
+					<div class="box-body table-responsive">
+						<table class="table">
+							<thead>
+								<tr>
+									<th>Tipo</th>
+									<th>Rúbricas</th>
+								</tr>
+							</thead>
+							<tbody>
+								{% for tipovisita in tipovisita_list %}
+								<tr>
+									<td>
+										{{ tipovisita }}
+									</td>
+									<td>
+										{% for rubrica in tipovisita.rubricas.all %}
+										{{ rubrica }}, 
+										{% endfor %}
+									</td>
+								</tr>
+								{% endfor %}
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+{% endblock content %}

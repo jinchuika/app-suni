@@ -34,6 +34,7 @@
         $('#form-nueva-solicitud').hide();
         $('#form-nuevo-equipamiento').hide();
         $('#form-nueva-validacion').hide();
+        $('#form-nueva-visita-kalite').hide();
         $('.comentario-btn').click(function () {
             var id_validacion = $(this).data('id');
             var url = $(this).data('url');

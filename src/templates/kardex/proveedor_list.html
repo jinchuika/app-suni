@@ -1,0 +1,57 @@
+{% extends "base/base.html" %}
+{% load staticfiles widget_tweaks %}
+
+{% block page_title %}
+<title>Proveedores de insumos</title>
+{% endblock page_title %}
+
+{% block content %}
+<section class="content-header">
+	<h1>
+		Proveedores
+		<span class="pull-right">
+			<a href="#" class="btn btn-success">Nuevo</a>
+		</span>
+	</h1>
+</section>
+
+<section class="content">
+	<div class="container-fluid">
+		<div class="row-fluid">
+			<div class="col-md-12">
+				<div class="box box-success">
+					<div class="box-body table-responsive">
+						<table class="table table-striped table-hover" id="proveedor-tabla" data-url-entrada="{% url 'entrada_api_list' %}">
+							<thead>
+								<tr>
+									<th>Proveedor</th>
+									<th>Equipo ingresado</th>
+									<th>Cantidad de entradas</th>
+								</tr>
+							</thead>
+							<tbody>
+								{% for proveedor in proveedor_list %}
+								<tr>
+									<td>
+										<a href="{{ proveedor.get_absolute_url }}" class="btn btn-block" data-id="{{ proveedor.id }}">{{ proveedor }}</a>
+									</td>
+									<td>{{ proveedor.equipo_ingresado }}</td>
+									<td>{{ proveedor.entradas.count }}</td>
+								</tr>
+								{% endfor %}
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+{% endblock content %}
+
+{% block extra_js %}
+<script src="{% static 'js/extrajs/kardex.js' %}"></script>
+<script>
+	ProveedorList.init();
+</script>
+{% endblock extra_js %}
