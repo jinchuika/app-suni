@@ -240,8 +240,10 @@ class CalendarioListView(JsonRequestResponseMixin, View):
                 'title': 'Grupo {}'.format(calendario.grupo.numero),
                 'start': '{} {}'.format(calendario.fecha, calendario.hora_inicio),
                 'end': '{} {}'.format(calendario.fecha, calendario.hora_fin),
-                'curso': '{}'.format(calendario.grupo.curso),
-                'description': 'Grupo {}, asistencia {} en la sede {}'.format(
+                'color': calendario.grupo.sede.capacitador.perfil.color,
+                'tipo': 'c',
+                'tip_title': '{}'.format(calendario.grupo.curso),
+                'tip_text': 'Grupo {}, asistencia {} en la sede {}'.format(
                     calendario.grupo.numero,
                     calendario.cr_asistencia.modulo_num,
                     calendario.grupo.sede),

@@ -330,3 +330,38 @@
 		});
     }
 }( window.VisitaDetail = window.VisitaDetail || {}, jQuery ));
+
+
+(function( CalendarioKalite, $, undefined ) {
+	var crear_kalite_calendario = function () {
+        $('#kalite-calendario').fullCalendar({
+            header: {
+                left: 'prev,next today',
+                center: 'title',
+                right: 'month,listMonth'
+            },
+            height: 650,
+            navLinks: true,
+            eventRender: function (event, element) {
+                element.qtip({
+                    content: {
+                        title: event.tip_title,
+                        text: event.tip_text
+                    },
+                });
+            },
+            eventSources: [{
+                url: $('#kalite-calendario').data('url-calendario'),
+                type: 'GET',
+                color: 'orange',
+                cache: true,
+            }]
+        });
+    }
+
+    // Public
+    CalendarioKalite.init = function () {
+        $('#spinner').hide();
+        crear_kalite_calendario();
+    } 
+}( window.CalendarioKalite = window.CalendarioKalite || {}, jQuery ));

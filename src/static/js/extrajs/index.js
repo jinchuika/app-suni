@@ -20,6 +20,7 @@
 					}]
 				},
 				options: {
+					hoverMode: 'index',
 					scales: {
 						xAxes: [{
                             stacked: true,
@@ -30,7 +31,10 @@
 								beginAtZero:true
 							}
 						}]
-					}
+					},
+					tooltips: {
+						mode: 'label'
+					},
 				}
 			});	
 		});

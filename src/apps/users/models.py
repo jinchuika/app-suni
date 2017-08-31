@@ -7,11 +7,21 @@ from apps.users.managers import *
 
 class PerfilQuerySet(models.QuerySet):
     def capacitadores(self):
-        queryset = User.objects.filter(groups__in=(7,))
+        queryset = User.objects.filter(groups__name='cyd_capacitador')
         return self.filter(user__in=queryset)
 
 
 class Perfil(models.Model):
+    COLOR_CHOICES = (
+        ('#0073b7', 'azul'),
+        ('#39cccc', 'aqua'),
+        ('green', 'verde'),
+        ('#f3c612', 'amarillo'),
+        ('#dd4b39', 'rojo'),
+        ('#605ca8', 'morado'),
+        ('#f012be', 'rosa'),
+        ('#ff851b', 'gris'),
+        ('#777777', 'naranja'))
     GENERO_CHOICES = (
         ('M', 'Masculino'),
         ('F', 'Femenino'),)
@@ -26,6 +36,8 @@ class Perfil(models.Model):
         null=True,
         blank=True,
         editable=True,)
+    color = models.CharField(max_length=20, default='#0073b7', choices=COLOR_CHOICES)
+
     objects = models.Manager()
     grupos = PerfilQuerySet.as_manager()
 

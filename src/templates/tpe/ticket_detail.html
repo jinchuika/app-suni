@@ -26,7 +26,10 @@
 			<div class="col-md-3 col-sm-3 invoice-col">
 				<address>
 					<strong><i class="fa fa-user margin-r-5"></i> Contacto</strong>
-					<br>{{ ticket.contacto_reporta|default_if_none:"" }}
+					<br>{{ ticket.contacto_reporta|default_if_none:"" }}<br>
+					{% for telefono in ticket.contacto_reporta.telefono.all %}
+						{{ telefono }}<br>
+					{% endfor %}
 				</address>
 			</div>
 			<div class="col-md-3 col-sm-3 invoice-col">

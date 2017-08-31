@@ -34,6 +34,7 @@ class SalidaForm(forms.ModelForm):
     class Meta:
         model = Salida
         fields = '__all__'
+        exclude = ('terminada',)
         widgets = {
             'equipo': forms.Select(attrs={'class': 'select2'}),
             'fecha': forms.TextInput(attrs={'class': 'datepicker'})

@@ -14,7 +14,12 @@ kalite_children = (
         reverse_lazy("tipovisita_list"),
         weight=5,
         icon="fa-list",
-        perm='kalite.add_tipovisita'),)
+        perm='kalite.add_tipovisita'),
+    ViewMenuItem(
+        "Calendario",
+        reverse_lazy("kalite_calendario"),
+        weight=40,
+        icon="fa-calendar"),)
 
 Menu.add_item(
     "user",
@@ -23,4 +28,5 @@ Menu.add_item(
         reverse_lazy('list_c'),
         weight=35,
         icon="fa-leaf",
+        group="kalite",
         children=kalite_children))

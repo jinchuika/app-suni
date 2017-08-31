@@ -268,31 +268,33 @@ function validar_udi_api(params) {
             },
             editable: true,
             eventClick: function (calEvent, jsEvent, view) {
-                var form = $('<form></form>');
-                form.append('<div class="form-group"><label for="hora_inicio_m">Hora de inicio</label><input type="text" class="form-control" id="hora_inicio_m" value="'+calEvent.start.hour()+':'+calEvent.start.minute()+'"></div>');
-                form.append('<div class="form-group"><label for="hora_fin_m">Hora de fin</label><input type="text" class="form-control" id="hora_fin_m" value="'+calEvent.end.hour()+':'+calEvent.end.minute()+'"></div>');
-                bootbox.dialog({
-                    message: form,
-                    buttons: [
-                    {
-                        label: 'Cancelar',
-                        className: 'btn-danger'
-                    },
-                    {
-                        label: 'Guardar',
-                        className: 'btn-success',
-                        callback: function () {
-                            update_event({
-                                url: calEvent._url,
-                                id: calEvent._id,
-                                fecha: calEvent.start.year()+'-'+(calEvent.start.month()+1)+'-'+calEvent.start.date(),
-                                hora_inicio: $('#hora_inicio_m').val(),
-                                hora_fin: $('#hora_fin_m').val(),
-                            });
+                if (calEvent.tipo == 'c') {
+                    var form = $('<form></form>');
+                    form.append('<div class="form-group"><label for="hora_inicio_m">Hora de inicio</label><input type="text" class="form-control" id="hora_inicio_m" value="'+calEvent.start.hour()+':'+calEvent.start.minute()+'"></div>');
+                    form.append('<div class="form-group"><label for="hora_fin_m">Hora de fin</label><input type="text" class="form-control" id="hora_fin_m" value="'+calEvent.end.hour()+':'+calEvent.end.minute()+'"></div>');
+                    bootbox.dialog({
+                        message: form,
+                        buttons: [
+                        {
+                            label: 'Cancelar',
+                            className: 'btn-danger'
+                        },
+                        {
+                            label: 'Guardar',
+                            className: 'btn-success',
+                            callback: function () {
+                                update_event({
+                                    url: calEvent._url,
+                                    id: calEvent._id,
+                                    fecha: calEvent.start.year()+'-'+(calEvent.start.month()+1)+'-'+calEvent.start.date(),
+                                    hora_inicio: $('#hora_inicio_m').val(),
+                                    hora_fin: $('#hora_fin_m').val(),
+                                });
+                            }
                         }
-                    }
-                    ],
-                });
+                        ],
+                    });
+                }
             },
             eventDrop: function(event, delta, revertFunc, jsEvent, ui, view) {
                 update_event({
@@ -307,8 +309,8 @@ function validar_udi_api(params) {
             eventRender: function (event, element) {
                 element.qtip({
                     content: {
-                        title: event.curso,
-                        text: event.description
+                        title: event.tip_title,
+                        text: event.tip_text
                     },
                 });
             },
@@ -332,6 +334,18 @@ function validar_udi_api(params) {
                     params['sede'] = $('#sede_form #id_sede').val();
                     return params;
                 }
+            },
+            {
+                url: $('#cyd-calendario').data('url-asesoria'),
+                type: 'GET',
+                cache: true,
+                data: function () {
+                    var params = {};
+                    params['sede__capacitador'] = $('#id_capacitador').val();
+                    params['sede'] = $('#sede_form #id_sede').val();
+                    return params;
+                },
+                editable: false
             }
             ],
             firstDay: 0,
@@ -342,105 +356,105 @@ function validar_udi_api(params) {
             },
             navLinks: false,
         });
-    }
+}
 
-    function update_event(params) {
-        $.ajax({
-            beforeSend: function(xhr, settings) {
-                xhr.setRequestHeader("X-CSRFToken", $("[name=csrfmiddlewaretoken]").val());
-            },
-            url: params.url,
-            data: {
-                csrfmiddlewaretoken: $("[name=csrfmiddlewaretoken]").val(),
-                id: params.id,
-                fecha: params.fecha,
-                hora_inicio: params.hora_inicio,
-                hora_fin: params.hora_fin
-            },
-            type: 'PATCH',
-            success: function (calendario) {
-                $('#drop-'+calendario.id).html('A'+calendario.cr_asistencia+' '+(calendario.fecha ? calendario.fecha : ''));
-                $('#cyd-calendario').fullCalendar('refetchEvents');
-                new Noty({
-                    text: 'Guardado con éxito',
-                    type: 'success',
-                    timeout: 2000,
-                    closeWith: ['click', 'button'],
-                }).show();
-            }
-        })
-    }
-
-    function ini_events(ele) {
-        ele.each(function () {
-            var eventObject = {
-                title: $.trim($(this).text())
-            };
-
-            $(this).data('eventObject', eventObject);
-
-            $(this).draggable({
-                zIndex: 1070,
-                revert: true, 
-                revertDuration: 0  
-            });
-        });
-    }
-
-    CalendarioCyD.init = function () {
-        ini_events($('#asistencia_list div.external-event'));
-
-        $('#sede_form #id_capacitador').on('change', function () {
-            $.get($(this).data('url'), {capacitador: $(this).val()},
-                function (respuesta) {
-                    var options = '<option></option>';
-                    $.each(respuesta, function (index, sede) {
-                        options += '<option value="'+sede.id+'">'+sede.nombre+'</option>';
-                    });
-                    $('#sede_form #id_sede').html(options).trigger('change');
-                });
-        });
-
-        $('#sede_form #id_sede').on('change', function () {
+function update_event(params) {
+    $.ajax({
+        beforeSend: function(xhr, settings) {
+            xhr.setRequestHeader("X-CSRFToken", $("[name=csrfmiddlewaretoken]").val());
+        },
+        url: params.url,
+        data: {
+            csrfmiddlewaretoken: $("[name=csrfmiddlewaretoken]").val(),
+            id: params.id,
+            fecha: params.fecha,
+            hora_inicio: params.hora_inicio,
+            hora_fin: params.hora_fin
+        },
+        type: 'PATCH',
+        success: function (calendario) {
+            $('#drop-'+calendario.id).html('A'+calendario.cr_asistencia+' '+(calendario.fecha ? calendario.fecha : ''));
             $('#cyd-calendario').fullCalendar('refetchEvents');
-        })
-
-        $('#asistencia_form #id_sede').on('change', function () {
-            $('#asistencia_form #id_grupo').html('');
-            $('#asistencia_list').html('');
-            if ($(this).val()) {
-                $.get($(this).data('url'), {sede: $(this).val()},
-                    function (respuesta) {
-                        var options = '';
-                        $.each(respuesta, function (index, grupo) {
-                            options += '<option value="'+grupo.id+'">'+grupo.numero+' - '+grupo.curso+'</option>';
-                        });
-                        $('#asistencia_form #id_grupo').html(options).trigger('change');
-                    });
-            }
-        });
-        $('#asistencia_form #id_grupo').on('change', function () {
-            $('#asistencia_list').html('');
-            $.get($(this).data('url'), {grupo: $(this).val()},
-                function (respuesta) {
-                    var eventos = [];
-                    $.each(respuesta, function (index, calendario) {
-                        var event = $("<div />");
-                        event.attr('id', 'drop-'+calendario.id);
-                        event.attr('data-id', calendario.id);
-                        event.attr('data-url', calendario.url);
-                        event.addClass("external-event bg-aqua");
-                        event.html('A'+calendario.cr_asistencia+' '+(calendario.fecha ? calendario.fecha : ''));
-                        eventos.push(event);
-                        ini_events(event);
-                    });
-                    $('#asistencia_list').html(eventos);
-                });
-        });
-        if ($('#cyd-calendario').length) {
-            crear_cyd_calendario();
+            new Noty({
+                text: 'Guardado con éxito',
+                type: 'success',
+                timeout: 2000,
+                closeWith: ['click', 'button'],
+            }).show();
         }
+    })
+}
+
+function ini_events(ele) {
+    ele.each(function () {
+        var eventObject = {
+            title: $.trim($(this).text())
+        };
+
+        $(this).data('eventObject', eventObject);
+
+        $(this).draggable({
+            zIndex: 1070,
+            revert: true, 
+            revertDuration: 0  
+        });
+    });
+}
+
+CalendarioCyD.init = function () {
+    ini_events($('#asistencia_list div.external-event'));
+
+    $('#sede_form #id_capacitador').on('change', function () {
+        $.get($(this).data('url'), {capacitador: $(this).val()},
+            function (respuesta) {
+                var options = '<option></option>';
+                $.each(respuesta, function (index, sede) {
+                    options += '<option value="'+sede.id+'">'+sede.nombre+'</option>';
+                });
+                $('#sede_form #id_sede').html(options).trigger('change');
+            });
+    });
+
+    $('#sede_form #id_sede').on('change', function () {
+        $('#cyd-calendario').fullCalendar('refetchEvents');
+    })
+
+    $('#asistencia_form #id_sede').on('change', function () {
+        $('#asistencia_form #id_grupo').html('');
+        $('#asistencia_list').html('');
+        if ($(this).val()) {
+            $.get($(this).data('url'), {sede: $(this).val()},
+                function (respuesta) {
+                    var options = '';
+                    $.each(respuesta, function (index, grupo) {
+                        options += '<option value="'+grupo.id+'">'+grupo.numero+' - '+grupo.curso+'</option>';
+                    });
+                    $('#asistencia_form #id_grupo').html(options).trigger('change');
+                });
+        }
+    });
+    $('#asistencia_form #id_grupo').on('change', function () {
+        $('#asistencia_list').html('');
+        $.get($(this).data('url'), {grupo: $(this).val()},
+            function (respuesta) {
+                var eventos = [];
+                $.each(respuesta, function (index, calendario) {
+                    var event = $("<div />");
+                    event.attr('id', 'drop-'+calendario.id);
+                    event.attr('data-id', calendario.id);
+                    event.attr('data-url', calendario.url);
+                    event.addClass("external-event bg-aqua");
+                    event.html('A'+calendario.cr_asistencia+' '+(calendario.fecha ? calendario.fecha : ''));
+                    eventos.push(event);
+                    ini_events(event);
+                });
+                $('#asistencia_list').html(eventos);
+            });
+    });
+    if ($('#cyd-calendario').length) {
+        crear_cyd_calendario();
     }
+}
 }( window.CalendarioCyD = window.CalendarioCyD || {}, jQuery ));
 
 (function( ParticipanteCrear, $, undefined ) {
@@ -816,20 +830,20 @@ function validar_udi_api(params) {
             }
         }).data('ui-autocomplete')._renderItem = function (ul, item) {
             return $('<tr >')
-                .data('item.autocomplete', item)
-                .append(function () {
-                    var td_participante = '';
-                    td_participante += '<td><a href="'+item.url+'" class="btn btn-block">'+item.nombre+' '+item.apellido+'</a></td>';
-                    td_participante += '<td>'+item.asignaciones.map(function (asignacion) {
-                        return '<small class="badge bg-aqua">'+asignacion.grupo+'</small>';
-                    }).join('<br />')+ '</td>';
-                    td_participante += '<td><a href="'+item.escuela.url+'">'+item.escuela.nombre+'<br>'+item.escuela.codigo+'</a></td>';
-                    if (permite_asignar) {
-                        td_participante += '<td><button class="btn-asignar" data-pk="'+item.id+'">Asignar</button></td>';
-                    }
-                    return td_participante;
-                })
-                .appendTo($('#resultado-tbody'));
+            .data('item.autocomplete', item)
+            .append(function () {
+                var td_participante = '';
+                td_participante += '<td><a href="'+item.url+'" class="btn btn-block">'+item.nombre+' '+item.apellido+'</a></td>';
+                td_participante += '<td>'+item.asignaciones.map(function (asignacion) {
+                    return '<small class="badge bg-aqua">'+asignacion.grupo+'</small>';
+                }).join('<br />')+ '</td>';
+                td_participante += '<td><a href="'+item.escuela.url+'">'+item.escuela.nombre+'<br>'+item.escuela.codigo+'</a></td>';
+                if (permite_asignar) {
+                    td_participante += '<td><button class="btn-asignar" data-pk="'+item.id+'">Asignar</button></td>';
+                }
+                return td_participante;
+            })
+            .appendTo($('#resultado-tbody'));
         };
 
         $('#participante-buscar-form #id_sede').on('change', function () {

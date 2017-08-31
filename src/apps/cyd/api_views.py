@@ -6,7 +6,8 @@ from apps.main.mixins import APIFilterMixin
 from apps.cyd.serializers import (
     SedeSerializer, GrupoSerializer, CalendarioSerializer,
     AsignacionSerializer, ParticipanteSerializer,
-    NotaAsistenciaSerializer, NotaHitoSerializer, AsesoriaSerializer)
+    NotaAsistenciaSerializer, NotaHitoSerializer, AsesoriaSerializer,
+    AsesoriaCalendarSerializer)
 from apps.cyd.models import (
     Sede, Grupo, Calendario, Asignacion, Participante,
     NotaAsistencia, NotaHito, Asesoria)
@@ -97,3 +98,18 @@ class AsesoriaViewSet(viewsets.ModelViewSet):
     serializer_class = AsesoriaSerializer
     queryset = Asesoria.objects.all()
     filter_fields = ('sede', 'sede__capacitador',)
+
+
+class CalendarioFilter(filters.FilterSet):
+    start = django_filters.DateFilter(name='fecha', lookup_expr='gte')
+    end = django_filters.DateFilter(name='fecha', lookup_expr='lte')
+
+    class Meta:
+        model = Asesoria
+        fields = ['sede__capacitador', 'sede', 'fecha', 'start', 'end']
+
+
+class AsesoriaCalendarViewSet(viewsets.ModelViewSet):
+    queryset = Asesoria.objects.all()
+    serializer_class = AsesoriaCalendarSerializer
+    filter_class = CalendarioFilter

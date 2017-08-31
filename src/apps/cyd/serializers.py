@@ -1,3 +1,4 @@
+from datetime import datetime
 from rest_framework import serializers
 from django.contrib.auth.models import User
 from apps.main.serializers import DynamicFieldsModelSerializer
@@ -50,6 +51,34 @@ class AsesoriaSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             'url': {'view_name': 'asesoria_api_detail', 'lookup_field': 'id'},
         }
+
+
+class AsesoriaCalendarSerializer(DynamicFieldsModelSerializer, serializers.ModelSerializer):
+    """Para listar periodos de :model:`cyd.Asesoria` y mostrarlos
+    en el calendario general de capacitación."""
+
+    start = serializers.SerializerMethodField()
+    end = serializers.SerializerMethodField()
+    title = serializers.CharField(source='sede.capacitador.get_full_name')
+    tip_title = serializers.SerializerMethodField()
+    tip_text = serializers.SerializerMethodField()
+    color = serializers.CharField(source='sede.capacitador.perfil.color')
+
+    class Meta:
+        model = Asesoria
+        fields = ('id', 'start', 'end', 'title', 'tip_title', 'tip_text', 'color')
+
+    def get_start(self, object):
+        return datetime.combine(object.fecha, object.hora_inicio)
+
+    def get_end(self, object):
+        return datetime.combine(object.fecha, object.hora_fin)
+
+    def get_tip_title(self, object):
+        return 'Asesoría - {}'.format(object.sede)
+
+    def get_tip_text(self, object):
+        return str(object.sede.municipio)
 
 
 class AsignacionResumenSerializer(DynamicFieldsModelSerializer, serializers.ModelSerializer):

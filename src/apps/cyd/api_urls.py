@@ -15,6 +15,8 @@ asesoria_api = api_views.AsesoriaViewSet.as_view({
     'post': 'create',
     'patch': 'partial_update',
     'delete': 'destroy'})
+asesoria_api_calendario = api_views.AsesoriaCalendarViewSet.as_view({
+    'get': 'list'})
 
 grupo_api_list = api_views.GrupoViewSet.as_view({
     'get': 'list'})
@@ -56,6 +58,7 @@ urlpatterns = [
     url(r'^api/sede/(?P<pk>\d+)/$', sede_api_detail, name='sede_api_detail'),
     url(r'^api/asesoria/list/$', asesoria_api_list, name='asesoria_api_list'),
     url(r'^api/asesoria/add/$', asesoria_api, name='asesoria_api_add'),
+    url(r'^api/asesoria/calendario/$', asesoria_api_calendario, name='asesoria_api_calendario'),
     url(r'^api/asesoria/(?P<pk>\d+)/$', asesoria_api, name='asesoria_api_detail'),
     url(r'^api/grupo/list/$', grupo_api_list, name='grupo_api_list'),
     url(r'^api/grupo/(?P<pk>\d+)/$', grupo_api_detail, name='grupo_api_detail'),
