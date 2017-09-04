@@ -1,4 +1,5 @@
-from rest_framework import viewsets
+import django_filters
+from rest_framework import viewsets, filters
 
 from apps.kalite.serializers import (
     PunteoSerializer, EvaluacionSerializer, VisitaSerializer,
@@ -37,6 +38,16 @@ class EjerciciosGradoViewSet(viewsets.ModelViewSet):
     filter_fields = ('id', 'grado')
 
 
+class CalendarioFilter(filters.FilterSet):
+    start = django_filters.DateFilter(name='fecha', lookup_expr='gte')
+    end = django_filters.DateFilter(name='fecha', lookup_expr='lte')
+
+    class Meta:
+        model = Visita
+        fields = ['capacitador', 'escuela', 'fecha', 'start', 'end']
+
+
 class VisitaCalendarViewSet(viewsets.ModelViewSet):
     queryset = Visita.objects.all()
     serializer_class = VisitaCalendarSerializer
+    filter_class = CalendarioFilter

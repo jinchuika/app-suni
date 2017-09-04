@@ -1,0 +1,49 @@
+{% extends "base/base.html" %}
+
+{% load staticfiles has_group %}
+
+{% block page_title %}
+<title>Calendario de KA Lite</title>
+{% endblock page_title %}
+
+{% block content %}
+<section class="content-header">
+	<h1>
+		Calendario de KA Lite
+	</h1>
+</section>
+<section class="content">
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-md-12">
+				<div class="box box-success">
+					<div class="box-body no-padding">
+						<!-- Calendario -->
+						<div id="kalite-calendario" data-url-calendario="{% url 'kalite_api_calendario' %}"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+{% endblock content %}
+
+
+{% block extra_css %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/fullcalendar.min.css' %}">
+<link rel="stylesheet" type="text/css" href="{% static 'css/jquery.qtip.min.css' %}">
+{% endblock extra_css %}
+
+
+
+{% block extra_js %}
+<script src="{% static 'js/distributed/jquery-ui.js' %}"></script>
+<script src="{% static 'js/distributed/moment.min.js' %}"></script>
+<script src="{% static 'js/distributed/fullcalendar.min.js' %}"></script>
+<script src="{% static 'js/distributed/fullcalendar.es.js' %}"></script>
+<script src="{% static 'js/distributed/jquery.qtip.min.js' %}"></script>
+<script src="{% static "js/extrajs/kalite.js" %}"></script>
+<script>
+	CalendarioKalite.init();
+</script>
+{% endblock extra_js %}

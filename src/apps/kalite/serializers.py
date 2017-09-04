@@ -1,3 +1,4 @@
+from datetime import datetime
 from rest_framework import serializers
 from apps.main.serializers import DynamicFieldsModelSerializer
 
@@ -32,12 +33,29 @@ class VisitaSerializer(DynamicFieldsModelSerializer, serializers.ModelSerializer
 
 
 class VisitaCalendarSerializer(DynamicFieldsModelSerializer, serializers.ModelSerializer):
-    capacitador = serializers.CharField(source='capacitador.get_full_name')
-    start = serializers.DateField(source='fecha')
+    url = serializers.URLField(source='get_absolute_url')
+    start = serializers.SerializerMethodField()
+    end = serializers.SerializerMethodField()
+    title = serializers.CharField(source='escuela')
+    tip_title = serializers.SerializerMethodField()
+    tip_text = serializers.SerializerMethodField()
+    color = serializers.CharField(source='capacitador.perfil.color')
 
     class Meta:
         model = Visita
-        fields = ('id', 'capacitador', 'start')
+        fields = ('id', 'start', 'end', 'url', 'title', 'tip_title', 'tip_text', 'color')
+
+    def get_start(self, object):
+        return datetime.combine(object.fecha, object.hora_inicio)
+
+    def get_end(self, object):
+        return datetime.combine(object.fecha, object.hora_fin)
+
+    def get_tip_title(self, object):
+        return 'Visita {} - {}'.format(object.numero, object.capacitador.get_full_name())
+
+    def get_tip_text(self, object):
+        return str(object.escuela.municipio)
 
 
 class EjerciciosGradoSerializer(DynamicFieldsModelSerializer, serializers.ModelSerializer):

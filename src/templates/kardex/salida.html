@@ -1,15 +1,58 @@
 {% extends "base/base.html" %}
-{% load staticfiles %}
-{% load widget_tweaks %}
+{% load staticfiles widget_tweaks %}
+
 {% block page_title %}
 <title>Salidas</title>
 {% endblock page_title %}
+
 {% block content %}
 <section class="content-header">
 	<h1>Salida del Kardex</h1>
 </section>
 <section class="content">
-	
+	<div class="container-fluid">
+		<div class="row-fluid">
+			<div class="col-md-8 col-md-offset-2">
+				<div class="nav-tabs-custom">
+					<ul class="nav nav-tabs nav-justified">
+						<li class="active"><a href="#nueva_salida" data-toggle="tab"><i class="fa fa-sign-in"></i> Nueva Salida</a></li>
+						<li><a href="#buscar_salida" data-toggle="tab"><i class="fa fa-list"></i> Buscar salida</a></li>
+					</ul>
+
+					<div class="tab-content">
+						<!-- panel de creación -->
+						<div class="tab-pane active" id="nueva_salida">
+							<form action="{{ action }}">
+								{% csrf_token %}
+								<table class="table table-hover table-condensed">
+									{% for field in form %}
+										<tr>
+											<td>{{ field.label_tag }}</td>
+											<td>{{ field|add_class:"form-control" }}</td>
+										</tr>
+									{% endfor %}
+									<tr>
+										<td></td>
+										<td><button class="btn btn-primary btn-block">Guardar</button></td>
+									</tr>
+								</table>
+							</form>
+						</div>
+
+						<!-- panel de búsqueda -->
+						<div class="tab-pane" id="buscar_salida">
+							{% include "kardex/salida_detail.html" %}
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+
+
+
+
 	<div class="container-fluid">
 		<div class="nav-tabs-custom">
 			<ul class="nav nav-tabs nav-justified">

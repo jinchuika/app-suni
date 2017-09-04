@@ -52,6 +52,7 @@
 
         return {html: tabla_html, pdf: tabla_pdf};
     }
+
     EntradaCreate.init = function () {
         $('#entrada-buscar-form').submit(function (e) {
             e.preventDefault();
@@ -101,6 +102,21 @@
         })
     }
 }( window.EntradaCreate = window.EntradaCreate || {}, jQuery ));
+
+
+(function( SalidaCreate, $, undefined ) {
+    SalidaCreate.init = function () {
+        $('.btn-proveedor').click(function () {
+            $.ajax({
+                url: $('#proveedor-tabla').data('url-entrada'),
+                data: {
+                    proveedor: $(this).data('id')
+                }
+            })
+        })
+    }
+}( window.SalidaCreate = window.SalidaCreate || {}, jQuery ));
+
 
 //para entrada
 function entrada(id_equipo, equipo){

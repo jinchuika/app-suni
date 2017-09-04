@@ -65,6 +65,16 @@ class EntradaCreateView(LoginRequiredMixin, CreateView):
     template_name = 'kardex/entrada.html'
 
 
+class SalidaListView(LoginRequiredMixin, ListView):
+    model = Salida
+    template_name = 'kardex/salida_list.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(SalidaListView, self).get_context_data(**kwargs)
+        context['salida_form'] = SalidaForm()
+        return context
+
+
 class SalidaCreateView(LoginRequiredMixin, CreateView):
     model = Salida
     template_name = 'kardex/salida.html'

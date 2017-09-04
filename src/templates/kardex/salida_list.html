@@ -1,0 +1,71 @@
+{% extends "base/base.html" %}
+{% load staticfiles %}
+
+{% block page_title %}
+<title>Salidas</title>
+{% endblock page_title %}
+
+{% block content %}
+<section class="content-header">
+	<h1>Salidas del Kardex</h1>
+</section>
+
+<section class="content">
+	<div class="container-fluid">
+		<div class="row-fluid">
+			<div class="col-md-12">
+				<div class="box box-primary">
+					<div class="box-header">
+						<h3 class="box-title">Listado de Salidas</h3>
+						<div class="pull-right box-tools">
+							<button type="button" class="btn btn-primary btn-sm" onclick="$('#form-nueva-salida').toggle();">
+								<i class="fa fa-plus"></i> Nueva
+							</button>
+						</div>
+					</div>
+					<div class="box-body">
+						<form action="{% url 'kardex_salida_add' %}">
+							{% csrf_token %}
+							<table>
+								{{ salida_form.as_table }}
+								<tr>
+									<td></td>
+									<td><button class="btn btn-success">Crear</button></td>
+								</tr>
+							</table>
+						</form>
+						<table class="table">
+							<thead>
+								<tr>
+									<th>No.</th>
+									<th>Artículo</th>
+									<th>Fecha</th>
+									<th>Técnico</th>
+								</tr>
+							</thead>
+							<tbody>
+								{% for salida in salida_list %}
+								<tr>
+									<td>{{ salida.id }}</td>
+									<td>
+										{% for detalle in salida.detalles.all %}
+										{{ detalle.equipo }}, 
+										{% endfor %}
+									</td>
+								</tr>
+								{% endfor %}
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+
+
+
+
+	
+</section>
+{% endblock %}
