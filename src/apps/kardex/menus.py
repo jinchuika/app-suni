@@ -16,7 +16,7 @@ kardex_children = (
         icon='fa-arrow-up'),
     ViewMenuItem(
         "Salidas",
-        reverse_lazy("kardex_salida"),
+        reverse_lazy("kardex_salida_list"),
         weight=40,
         icon="fa-arrow-down"),
     ViewMenuItem(

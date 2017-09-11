@@ -23,10 +23,30 @@ class EntradaForm(forms.ModelForm):
     class Meta:
         model = Entrada
         fields = '__all__'
+        exclude = ('terminada',)
         widgets = {
             'equipo': forms.Select(attrs={'class': 'select2'}),
             'proveedor': forms.Select(attrs={'class': 'select2'}),
             'fecha': forms.TextInput(attrs={'class': 'datepicker'})
+        }
+
+
+class EntradaDetalleForm(forms.ModelForm):
+    class Meta:
+        model = EntradaDetalle
+        fields = '__all__'
+        widgets = {
+            'equipo': forms.Select(attrs={'class': 'select2'}),
+            'entrada': forms.HiddenInput()
+        }
+
+
+class EntradaCerrarForm(forms.ModelForm):
+    class Meta:
+        model = Entrada
+        fields = ('terminada',)
+        widgets = {
+            'terminada': forms.HiddenInput()
         }
 
 
@@ -40,6 +60,25 @@ class SalidaForm(forms.ModelForm):
             'fecha': forms.TextInput(attrs={'class': 'datepicker'})
         }
 
+
+class SalidaCerrarForm(forms.ModelForm):
+    class Meta:
+        model = Salida
+        fields = ('terminada',)
+        widgets = {
+            'terminada': forms.HiddenInput()
+        }
+
+
+class SalidaDetalleForm(forms.ModelForm):
+    class Meta:
+        model = SalidaDetalle
+        fields = '__all__'
+        widgets = {
+            'salida': forms.HiddenInput(),
+            'equipo': forms.Select(attrs={'class': 'select2 form-control'}),
+            'cantidad': forms.NumberInput(attrs={'class': 'form-control'})
+        }
 
 ###########
 class FormularioEquipo(ModelForm):

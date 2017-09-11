@@ -14,22 +14,31 @@
 		<div class="row-fluid">
 			<div class="col-md-8 col-md-offset-2">
 				<div class="nav-tabs-custom">
+					<!-- pestañas -->
 					<ul class="nav nav-tabs nav-justified">
-						<li class="active"><a href="#nueva_salida" data-toggle="tab"><i class="fa fa-sign-in"></i> Nueva Salida</a></li>
-						<li><a href="#buscar_salida" data-toggle="tab"><i class="fa fa-list"></i> Buscar salida</a></li>
+						<li class="active">
+							<a href="#nueva-salida" data-toggle="tab"><i class="fa fa-sign-in"></i> Nueva Salida</a>
+						</li>
+						<li>
+							<a href="#buscar-salida" data-toggle="tab"><i class="fa fa-search"></i> Buscar salida</a>
+						</li>
+						<li>
+							<a href="#listar-salida" data-toggle="tab"><i class="fa fa-list"></i> Listar salidas</a>
+						</li>
 					</ul>
+					<!-- /pestañas -->
 
 					<div class="tab-content">
 						<!-- panel de creación -->
-						<div class="tab-pane active" id="nueva_salida">
-							<form action="{{ action }}">
+						<div class="tab-pane active" id="nueva-salida">
+							<form action="{{ action }}" method="post">
 								{% csrf_token %}
 								<table class="table table-hover table-condensed">
 									{% for field in form %}
-										<tr>
-											<td>{{ field.label_tag }}</td>
-											<td>{{ field|add_class:"form-control" }}</td>
-										</tr>
+									<tr>
+										<td>{{ field.label_tag }}</td>
+										<td>{{ field|add_class:"form-control" }}</td>
+									</tr>
 									{% endfor %}
 									<tr>
 										<td></td>
@@ -38,107 +47,26 @@
 								</table>
 							</form>
 						</div>
+						<!-- /panel de creación -->
 
 						<!-- panel de búsqueda -->
-						<div class="tab-pane" id="buscar_salida">
-							{% include "kardex/salida_detail.html" %}
+						<div class="tab-pane" id="buscar-salida">
+							<form id="salida-buscar-form" action="{% url 'salida_api' %}">
+								<div class="input-group input-group-sm">
+									<input type="number" min="1" class="form-control" id="salida-id">
+									<span class="input-group-btn">
+										<input type="submit" class="btn btn-info btn-flat" value="Buscar">
+									</span>
+								</div>
+							</form>
 						</div>
+						<!-- /panel de búsqueda -->
 					</div>
 				</div>
 			</div>
 		</div>
 	</div>
 
-
-
-
-
-	<div class="container-fluid">
-		<div class="nav-tabs-custom">
-			<ul class="nav nav-tabs nav-justified">
-				<li class="active"><a href="#egreso" data-toggle="tab"><i class="fa fa-sign-in"></i> Crear Salida</a></li>
-				<li><a href="#listado" data-toggle="tab"><i class="fa fa-list"></i> Listar Salidas</a></li>
-			</ul>
-			<div class="tab-content">
-				<div class="tab-pane active" id="egreso">
-					<div class="box">
-
-						<form  method="POST" align="center" action="{{action}}" >
-							<table class="table table-hover table-bordered">
-								{% csrf_token %}
-								{% for field in form %}
-								<tr>
-									<td>
-										{{field.label}}
-									</td>
-									<td colspan="3">
-										{{field|add_class:"form-control"}}
-									</td>
-								</tr>
-								{% endfor %}
-
-								<tbody id="salida_table">
-									{% for form_salida in named_formsets.salida.forms %}
-									<tr id="{{form_salida.prefix}}-row" class="form-container-salida">
-										<td>Producto</td>
-										{{ form_salida.id}}
-										<td>
-											<label class="pull-left">Equipo</label>
-											{{form_salida.equipo|add_class:"form-control"}}
-										</td>
-										<td>
-											<label class="pull-left">Cantidad</label>
-											{{form_salida.cantidad|add_class:"form-control"}}
-										</td>
-										<td>
-
-											{% if form_salida.instance.pk %}{{ form_salida.DELETE }}{% endif %}
-										</td>
-									</tr>
-									{% endfor %}
-								</tbody>
-
-
-
-
-
-
-								<tr><td></td><td>
-									<input type="submit" class="btn btn-primary" value="Guardar">
-								</td></tr>
-							</table>
-							{{ named_formsets.salida.management_form }}
-						</form>
-					</div>
-				</div>
-				<div class="tab-pane" id="listado">
-					<table class="table">
-						{% for field in formulario %}
-						<tr>
-							<td><strong>{{field.label}}</strong></td>
-							<td id="tecnico"> {{field}} </td>
-						</tr>
-						{% endfor %}
-						<tr>
-							<td><strong>Fecha de Inicio</strong></td>
-							<td> <input type="text" placeholder="Fecha de Inicio" class="datepicker form-control" id="ini"> </td>
-						</tr>
-						<tr>
-							<td><strong>Fecha Final</strong></td>
-							<td> <input type="text" placeholder="Fecha Final" class="datepicker form-control" id="out"> </td>
-						</tr>
-						<tr>
-							<td></td>
-							<td><a class="btn btn-primary" href="javascript:void(0)" onclick="get_salidas()">Crear Informe</a></td>
-						</tr>
-					</table>
-					<div id="informe"></div>
-
-				</div>
-			</div>
-		</div>
-
-	</div>
 </section>
 {% endblock content %}
 {% block extra_css %}
@@ -149,16 +77,7 @@
 <script src="{% static "js/extrajs/kardex.js" %}"></script>
 <script src="{% static "js/jquery.formset.js" %}"></script>
 <script type="text/javascript">
-	$(function() {
-		$('#salida_table  tr').formset({
-			prefix: "{{ named_formsets.salida.prefix }}"
-		});
-		
-		$('table.form-container-salida').formset({
-			prefix: "{{ named_formsets.salida.prefix }}",
-
-		});
-	});
+	SalidaCreate.init();
 </script>
 
 {% endblock extra_js %}
