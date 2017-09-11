@@ -106,14 +106,20 @@
 
 (function( SalidaCreate, $, undefined ) {
     SalidaCreate.init = function () {
-        $('.btn-proveedor').click(function () {
-            $.ajax({
-                url: $('#proveedor-tabla').data('url-entrada'),
-                data: {
-                    proveedor: $(this).data('id')
-                }
-            })
-        })
+        $('#salida-buscar-form').submit(function (e) {
+          e.preventDefault();
+          $.ajax({
+            url: $(this).prop('action'),
+            data: {
+              id: $('#salida-buscar-form #salida-id').val()
+            },
+            success: function (respuesta) {
+              if (respuesta.length > 0) {
+                window.location = respuesta[0].url;
+              }
+            }
+          })
+        });
     }
 }( window.SalidaCreate = window.SalidaCreate || {}, jQuery ));
 

@@ -21,6 +21,12 @@ equipo_api_list = api_views.EquipoViewSet.as_view({
 equipo_api_detail = api_views.EquipoViewSet.as_view({
     'get': 'retrieve'})
 
+salida_api = api_views.SalidaViewSet.as_view({
+    'get': 'list'})
+
+salidadetalle_api = api_views.SalidaDetalleViewSet.as_view({
+    'get': 'list'})
+
 urlpatterns = [
     url(r'^api/entrada/$', entrada_api_list, name='entrada_api_list'),
     url(r'^api/entrada/(?P<pk>\d+)/$', entrada_api_detail, name='entrada_api_detail'),
@@ -30,4 +36,7 @@ urlpatterns = [
 
     url(r'^api/equipo/$', equipo_api_list, name='equipo_api_list'),
     url(r'^api/equipo/(?P<pk>\d+)/$', equipo_api_detail, name='equipo_api_detail'),
+
+    url(r'^api/salida/$', salida_api, name='salida_api'),
+    url(r'^api/salidadetalle/$', salidadetalle_api, name='salidadetalle_api'),
 ]

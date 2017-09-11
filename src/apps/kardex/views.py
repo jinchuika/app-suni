@@ -1,7 +1,8 @@
 from apps.kardex.models import *
 from apps.kardex.forms import *
 from apps.kardex.forms import (
-    EquipoForm, EntradaForm, ProveedorForm, SalidaForm)
+    EquipoForm, EntradaForm, ProveedorForm, SalidaForm,
+    SalidaDetalleForm, SalidaCerrarForm, EntradaDetalleForm)
 from django.views.generic import DetailView, ListView
 from django.views.generic.edit import CreateView, UpdateView
 
@@ -65,6 +66,29 @@ class EntradaCreateView(LoginRequiredMixin, CreateView):
     template_name = 'kardex/entrada.html'
 
 
+class EntradaDetailView(LoginRequiredMixin, DetailView):
+    model = Entrada
+    template_name = 'kardex/entrada_detail.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(EntradaDetailView, self).get_context_data(**kwargs)
+        if not self.object.terminada:
+            context['detalle_form'] = EntradaDetalleForm(initial={'entrada': self.object})
+            context['cerrar_form'] = EntradaCerrarForm(instance=self.object, initial={'terminada': True})
+        return context
+
+
+class EntradaDetalleCreateView(LoginRequiredMixin, CreateView):
+    model = EntradaDetalle
+    form_class = EntradaDetalleForm
+    template_name = 'kardex/entrada.html'
+
+
+class EntradaUpdateView(LoginRequiredMixin, UpdateView):
+    model = Entrada
+    form_class = EntradaCerrarForm
+
+
 class SalidaListView(LoginRequiredMixin, ListView):
     model = Salida
     template_name = 'kardex/salida_list.html'
@@ -79,6 +103,33 @@ class SalidaCreateView(LoginRequiredMixin, CreateView):
     model = Salida
     template_name = 'kardex/salida.html'
     form_class = SalidaForm
+
+
+class SalidaUpdateView(LoginRequiredMixin, UpdateView):
+    model = Salida
+    form_class = SalidaCerrarForm
+
+
+class SalidaDetailView(LoginRequiredMixin, DetailView):
+    model = Salida
+    template_name = 'kardex/salida_detail.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(SalidaDetailView, self).get_context_data(**kwargs)
+        if not self.object.terminada:
+            context['detalle_form'] = SalidaDetalleForm(initial={'salida': self.object})
+            context['cerrar_form'] = SalidaCerrarForm(instance=self.object, initial={'terminada': True})
+        return context
+
+
+class SalidaPrintView(LoginRequiredMixin, DetailView):
+    model = Salida
+    template_name = 'kardex/salida_print.html'
+
+
+class SalidaDetalleCreateView(LoginRequiredMixin, CreateView):
+    model = SalidaDetalle
+    form_class = SalidaDetalleForm
 
 # Desde aquí empieza el código a renovar
 # 

@@ -10,22 +10,34 @@
 			<div class="row">
 				<div class="col-xs-12">
 					<h2 class="page-header">
-						<i class="fa fa-arrow-down"></i> Salida No. {{ salida.id }}
-						<small class="pull-right">Fecha: {{ salida.fecha|date:"Y-m-d" }}</small>
+						<i class="fa fa-arrow-down"></i> Entrada No. {{ entrada.id }}
+						<small class="pull-right">Fecha: {{ entrada.fecha|date:"Y-m-d" }}</small>
 					</h2>
 				</div>
 			</div>
 			<div class="row invoice-info">
-				<div class="col-sm-4 invoice-col">
-					<b>Usuario</b>
+				<div class="col-sm-3 invoice-col">
+					<b>Proveedor</b>
 					<address>
-						{{ salida.tecnico }}
+						{{ entrada.proveedor }}
 					</address>
 				</div>
-				<div class="col-sm-4 invoice-col">
-					<b>Tipo</b>
+				<div class="col-sm-3 invoice-col">
+					<b>Tipo de entrada</b>
 					<address>
-						{{ salida.tipo }}
+						{{ entrada.tipo }}
+					</address>
+				</div>
+				<div class="col-sm-3 invoice-col">
+					<b>Factura</b>
+					<address>
+						{{ entrada.factura|default_if_none:"" }}
+					</address>
+				</div>
+				<div class="col-sm-3 invoice-col">
+					<b>Precio total</b>
+					<address>
+						Q. {{ entrada.precio_total }}
 					</address>
 				</div>
 			</div>
@@ -37,13 +49,15 @@
 							<tr>
 								<th>Cantidad</th>
 								<th>Producto</th>
+								<th>Precio</th>
 							</tr>
 						</thead>
 						<tbody>
-							{% for detalle in salida.detalles.all %}
+							{% for detalle in entrada.detalles.all %}
 							<tr>
 								<td>{{ detalle.cantidad }}</td>
 								<td>{{ detalle.equipo }}</td>
+								<td>Q. {{ detalle.precio }}</td>
 							</tr>
 							{% endfor %}
 						</tbody>
@@ -56,13 +70,13 @@
 					<p class="lead">Observaciones:</p>
 
 					<p class="well well-sm no-shadow" style="margin-top: 10px;">
-						{{ salida.observacion }}
+						{{ entrada.observacion }}
 					</p>
 				</div>
-				{% if salida.terminada != True %}
+				{% if entrada.terminada != True %}
 				<div class="col-xs-6">
 					<p class="lead">Agregar equipo</p>
-					<form id="detalle-form" action="{% url 'kardex_salidadetalle_add' %}" method="post">
+					<form id="detalle-form" action="{% url 'kardex_entradadetalle_add' %}" method="post">
 						{% csrf_token %}
 						<div class="table-responsive">
 							<table class="table">
@@ -77,14 +91,14 @@
 
 			<div class="row no-print">
 				<div class="col-xs-12">
-					{% if salida.terminada != True %}
-					<form action="{% url 'kardex_salida_update' pk=salida.id %}" method="post">
+					{% if entrada.terminada != True %}
+					<form action="{% url 'kardex_entrada_update' pk=entrada.id %}" method="post">
 						{% csrf_token %}
 						{{ cerrar_form.as_p }}
 						<input type="submit" class="btn btn-danger" value="Terminar">
 					</form>
 					{% else %}
-					<a href="{{ salida.get_print_url }}" target="_blank" class="btn btn-default"><i class="fa fa-print"></i> Imprimir</a>
+					<a href="{{ entrada.get_print_url }}" target="_blank" class="btn btn-default"><i class="fa fa-print"></i> Imprimir</a>
 					{% endif %}
 				</div>
 			</div>
@@ -97,6 +111,6 @@
 {% block extra_js %}
 <script src="{% static 'js/extrajs/kardex.js' %}"></script>
 <script>
-	SalidaDetail.init();
+	EntradaDetail.init();
 </script>
 {% endblock extra_js %}

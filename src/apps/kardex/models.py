@@ -1,7 +1,6 @@
 from __future__ import unicode_literals
 from apps.users.models import Perfil
 from django.db import models
-from django.utils import timezone
 from django.urls import reverse_lazy
 
 
@@ -97,15 +96,13 @@ class Proveedor(models.Model):
 
 
 class Entrada(models.Model):
-    equipo = models.ForeignKey(Equipo, on_delete=models.PROTECT, related_name='entradas')
     estado = models.ForeignKey(EstadoEquipo, on_delete=models.PROTECT)
     proveedor = models.ForeignKey(Proveedor, on_delete=models.PROTECT, related_name='entradas')
     tipo = models.ForeignKey(TipoEntrada, on_delete=models.PROTECT)
-    cantidad = models.PositiveIntegerField()
     fecha = models.DateField()
-    precio = models.DecimalField(max_digits=7, decimal_places=2, null=True, blank=True)
     factura = models.IntegerField(null=True, blank=True)
     observacion = models.TextField(null=True, blank=True, verbose_name='Observaciones')
+    terminada = models.BooleanField(blank=True, default=False)
 
     class Meta:
         verbose_name = 'Entrada'
@@ -113,6 +110,30 @@ class Entrada(models.Model):
 
     def __str__(self):
         return '{} ({})'.format(self.id, self.fecha)
+
+    def get_absolute_url(self):
+        return reverse_lazy('kardex_entrada_detail', kwargs={'pk': self.id})
+
+    @property
+    def precio_total(self):
+        return sum(d.precio for d in self.detalles.all())
+
+
+class EntradaDetalle(models.Model):
+    entrada = models.ForeignKey(Entrada, related_name='detalles')
+    equipo = models.ForeignKey(Equipo, related_name='detalles_entrada')
+    cantidad = models.PositiveIntegerField()
+    precio = models.DecimalField(max_digits=7, decimal_places=2, null=True, blank=True)
+
+    class Meta:
+        verbose_name = 'Detalle de entrada'
+        verbose_name_plural = 'Detalles de entrada'
+
+    def __str__(self):
+        return '{} - {}'.format(self.entrada, self.equipo)
+
+    def get_absolute_url(self):
+        return self.entrada.get_absolute_url()
 
 
 class Salida(models.Model):
@@ -127,7 +148,13 @@ class Salida(models.Model):
         verbose_name_plural = 'Salidas'
 
     def __str__(self):
-        return '{} ({})'.format(self.id, self.fecha)
+        return str(self.id)
+
+    def get_absolute_url(self):
+        return reverse_lazy('kardex_salida_detail', kwargs={'pk': self.id})
+
+    def get_print_url(self):
+        return reverse_lazy('kardex_salida_print', kwargs={'pk': self.id})
 
 
 class SalidaDetalle(models.Model):
@@ -135,5 +162,13 @@ class SalidaDetalle(models.Model):
     equipo = models.ForeignKey(Equipo, on_delete=models.PROTECT, related_name='detalles_salida')
     cantidad = models.PositiveIntegerField()
 
+    class Meta:
+        verbose_name = 'Detalle de salida'
+        verbose_name_plural = 'Detalles de salida'
+        unique_together = ('salida', 'equipo')
+
     def __str__(self):
-        return '{} - {}'.format(self.cantidad, self.equipo)
+        return '{} - {}'.format(self.entrada, self.equipo)
+
+    def get_absolute_url(self):
+        return self.salida.get_absolute_url()

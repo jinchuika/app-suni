@@ -14,6 +14,64 @@
 	<div class="container-fluid">
 		<div class="row-fluid">
 			<div class="col-md-8 col-md-offset-2">
+				<div class="nav-tabs-custom">
+					<!-- pestañas -->
+					<ul class="nav nav-tabs nav-justified">
+						<li class="active">
+							<a href="#nueva-entrada" data-toggle="tab"><i class="fa fa-sign-in"></i> Nueva entrada</a>
+						</li>
+						<li>
+							<a href="#buscar-entrada" data-toggle="tab"><i class="fa fa-search"></i> Buscar entrada</a>
+						</li>
+						<li>
+							<a href="#listar-entrada" data-toggle="tab"><i class="fa fa-list"></i> Listar entradas</a>
+						</li>
+					</ul>
+					<!-- /pestañas -->
+
+					<div class="tab-content">
+						<!-- panel de creación -->
+						<div class="tab-pane active" id="nueva-entrada">
+							<form action="{{ action }}" method="post">
+								{% csrf_token %}
+								<table class="table table-hover table-condensed">
+									{% for field in form %}
+									<tr>
+										<td>{{ field.label_tag }}</td>
+										<td>{{ field|add_class:"form-control" }}</td>
+									</tr>
+									{% endfor %}
+									<tr>
+										<td></td>
+										<td><button class="btn btn-primary btn-block">Guardar</button></td>
+									</tr>
+								</table>
+							</form>
+						</div>
+						<!-- /panel de creación -->
+
+						<!-- panel de búsqueda -->
+						<div class="tab-pane" id="buscar-entrada">
+							<form id="entrada-buscar-form" action="">
+								<div class="input-group input-group-sm">
+									<input type="number" min="1" class="form-control" id="entrada-id">
+									<span class="input-group-btn">
+										<input type="submit" class="btn btn-info btn-flat" value="Buscar">
+									</span>
+								</div>
+							</form>
+						</div>
+						<!-- /panel de búsqueda -->
+					</div>
+				</div>
+			</div>
+		</div>
+
+
+
+
+
+			<div class="col-md-8 col-md-offset-2">
 				
 				<div class="box box-success">
 					<div class="box-header">
