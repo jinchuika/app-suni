@@ -39,6 +39,10 @@ class EjerciciosGradoViewSet(viewsets.ModelViewSet):
 
 
 class CalendarioFilter(filters.FilterSet):
+
+    """Filtros para que permita hacer rangos de fecha
+    """
+
     start = django_filters.DateFilter(name='fecha', lookup_expr='gte')
     end = django_filters.DateFilter(name='fecha', lookup_expr='lte')
 

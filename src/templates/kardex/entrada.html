@@ -52,7 +52,7 @@
 
 						<!-- panel de búsqueda -->
 						<div class="tab-pane" id="buscar-entrada">
-							<form id="entrada-buscar-form" action="">
+							<form id="entrada-buscar-form" action="{% url 'entrada_api_list' %}">
 								<div class="input-group input-group-sm">
 									<input type="number" min="1" class="form-control" id="entrada-id">
 									<span class="input-group-btn">
@@ -60,65 +60,34 @@
 									</span>
 								</div>
 							</form>
+
+							{% if pendientes_list.count > 0 %}
+							<h4 class="box-title">Pendientes</h4>
+							<ul class="nav nav-pills nav-stacked">
+							{% for entrada_pendiente in pendientes_list %}
+								<li>
+									<a href="{{ entrada_pendiente.get_absolute_url }}">
+										Entrada {{ entrada_pendiente.id }}
+										<span class="pull-right text-red"><i class="fa fa-calendar"></i> {{ entrada_pendiente.fecha|date:"Y-m-d" }}</span>
+									</a>
+								</li>
+							{% endfor %}
+							</ul>
+							{% endif %}
 						</div>
 						<!-- /panel de búsqueda -->
-					</div>
-				</div>
-			</div>
-		</div>
 
-
-
-
-
-			<div class="col-md-8 col-md-offset-2">
-				
-				<div class="box box-success">
-					<div class="box-header">
-						<h3 class="box-title">Entrada</h3>
-						<div class="box-tools pull-right">
-							<form id="entrada-buscar-form" action="{% url 'entrada_api_list' %}">
-								<div class="has-feedback">
-									<input type="number" name="id" class="form-control input-xs" placeholder="Buscar...">
-									<span class="fa fa-search form-control-feedback"></span>
-								</div>
-							</form>
+						<!-- panel para listado de entradas -->
+						<div class="tab-pane" id="listar-entrada">
+							
 						</div>
-					</div>
-
-					<div class="box-body">
-						<form action="" method="post">
-							<table class="table table-condensed table-hover">
-								{% csrf_token %}
-								{% for field in form %}
-									<tr>
-										<td>{{ field.label_tag }}</td>
-										<td>{{ field|add_class:"form-control" }}</td>
-									</tr>
-								{% endfor %}
-
-								<tr>
-									<td></td>
-									<td>
-										<button class="btn btn-primary btn-block">
-											Guardar
-										</button>
-									</td>
-								</tr>
-							</table>
-						</form>
+						<!-- /panel para listado de entradas -->
 					</div>
 				</div>
 			</div>
 		</div>
-
-
-		
 	</div>
-
 </section>
-
-
 
 {% endblock content %}
 

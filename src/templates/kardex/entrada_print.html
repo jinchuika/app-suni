@@ -1,0 +1,103 @@
+{% extends "base/base-print.html" %}
+
+{% block content %}
+<section class="invoice">
+	<div class="row">
+		<div class="col-xs-12">
+			<h2 class="page-header">
+				<i class="fa fa-sign-in"></i> Entrada No. {{ entrada.id }}
+				<small class="pull-right">Fecha: {{ entrada.fecha|date:"Y-m-d" }}</small>
+			</h2>
+		</div>
+	</div>
+	<div class="row invoice-info">
+		<div class="col-md-3 col-sm-3 invoice-col">
+			<b>Proveedor</b>
+			<address>
+				{{ entrada.proveedor }}
+			</address>
+		</div>
+		<div class="col-md-3 col-sm-3 invoice-col">
+			<b>Tipo de entrada</b>
+			<address>
+				{{ entrada.tipo }}
+			</address>
+		</div>
+		<div class="col-md-3 col-sm-3 invoice-col">
+			<b>No. Factura</b>
+			<address>
+				{{ entrada.factura|default_if_none:"" }}
+			</address>
+		</div>
+		<div class="col-md-3 col-sm-3 invoice-col">
+			<b>Precio total</b>
+			<address>
+				Q. {{ entrada.precio_total }}
+			</address>
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="col-xs-12 table-responsive">
+			<table class="table table-striped table-condensed table-hover">
+				<thead>
+					<tr>
+						<th>Cantidad</th>
+						<th>Producto</th>
+						<th>Precio Unitario</th>
+						<th>Subtotal</th>
+					</tr>
+				</thead>
+				<tbody>
+					{% for detalle in entrada.detalles.all %}
+					<tr>
+						<td>{{ detalle.cantidad }}</td>
+						<td>{{ detalle.equipo }}</td>
+						<td>Q. {{ detalle.precio }}</td>
+						<td>Q. {{ detalle.precio_total }}</td>
+					</tr>
+					{% endfor %}
+				</tbody>
+			</table>
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="col-xs-6">
+			<p class="lead">Observaciones:</p>
+
+			<p class="well well-sm no-shadow" style="margin-top: 10px;">
+				{{ entrada.observacion }}
+			</p>
+		</div>
+		{% if entrada.terminada != True %}
+		<div class="col-xs-6">
+			<p class="lead">Agregar equipo</p>
+			<form id="detalle-form" action="{% url 'kardex_entradadetalle_add' %}" method="post">
+				{% csrf_token %}
+				<div class="table-responsive">
+					<table class="table">
+						{{ detalle_form.as_table }}
+					</table>
+				</div>
+				<input type="submit" class="btn btn-success pull-right" value="Agregar">
+			</form>
+		</div>
+		{% endif %}
+	</div>
+
+	<div class="row no-print">
+		<div class="col-xs-12">
+			{% if entrada.terminada != True %}
+			<form action="{% url 'kardex_entrada_update' pk=entrada.id %}" method="post">
+				{% csrf_token %}
+				{{ cerrar_form.as_p }}
+				<input type="submit" class="btn btn-danger" value="Terminar">
+			</form>
+			{% else %}
+			<a href="{{ entrada.get_print_url }}" target="_blank" class="btn btn-default"><i class="fa fa-print"></i> Imprimir</a>
+			{% endif %}
+		</div>
+	</div>
+</section>
+{% endblock content %}

@@ -1,3 +1,89 @@
+(function( EquipoList, $, undefined ) {
+    var tabla_equipo = $('#tabla-equipo').DataTable({
+        dom: 'lfrtipB',
+        buttons: ['excel','pdf']
+    });
+
+    var tabla_entrada = $('#tabla-entrada').DataTable({
+        dom: 'lfrtipB',
+        buttons: ['excel','pdf'],
+        columns: [
+            {
+                data: 'entrada',
+                render: function ( data, type, full, meta ) {
+                    return '<a href="' + full.entrada_url + '">' + data + '</a>';
+                }
+            },
+            {
+                data: 'fecha',
+                className: 'nowrap'
+            },
+            {data: 'cantidad'},
+        ]
+    });
+
+    var tabla_salida = $('#tabla-salida').DataTable({
+        dom: 'lfrtipB',
+        buttons: ['excel','pdf'],
+        columns: [
+            {
+                data: 'salida',
+                render: function ( data, type, full, meta ) {
+                    return '<a href="' + full.salida_url + '">' + data + '</a>';
+                }
+            },
+            {
+                data: 'fecha',
+                className: 'nowrap'
+            },
+            {data: 'cantidad'},
+        ]
+    });
+
+    EquipoList.init = function () {
+        $('#form-equipo').hide();
+        $('.box-informe').hide();
+        $('#btn-equipo-add').click(function () {
+            $('#form-equipo').toggle();
+        });
+
+        // Generar listados de entradas
+        $('.btn-entrada').on('click', function () {
+            $('.box-informe').hide();
+            tabla_entrada.clear().draw();
+            $.ajax({
+                url: $(this).data('url'),
+                data: {
+                    equipo: $(this).data('pk'),
+                    fields: 'entrada,fecha,cantidad,entrada_url'
+                },
+                success: function (respuesta) {
+                    $('#box-entrada').show();
+                    tabla_entrada.rows.add(respuesta).draw();
+                }
+            });
+        });
+
+        // Generar listados de salidas
+        $('.btn-salida').on('click', function () {
+            $('.box-informe').hide();
+            tabla_salida.clear().draw();
+            $.ajax({
+                url: $(this).data('url'),
+                data: {
+                    equipo: $(this).data('pk'),
+                    fields: 'salida,fecha,cantidad,salida_url'
+                },
+                success: function (respuesta) {
+                    $('#box-salida').show();
+                    tabla_salida.rows.add(respuesta).draw();
+                }
+            });
+        });
+    }
+}( window.EquipoList = window.EquipoList || {}, jQuery ));
+
+
 (function( ProveedorList, $, undefined ) {
     ProveedorList.init = function () {
         $('#proveedor-tabla').DataTable();
@@ -14,104 +100,13 @@
 
 
 (function( EntradaCreate, $, undefined ) {
-    var generar_tabla_entrada = function (entrada) {
-        var tabla_html = '<table class="table table-striped" id="tabla-entrada">';
-        tabla_html += '<tr><th>Número:</th><td>' + entrada.id +'</td></tr>';
-        tabla_html += '<tr><th>Artículo:</th><td>' + entrada.equipo +'</td></tr>';
-        tabla_html += '<tr><th>Cantidad:</th><td>' + entrada.cantidad +'</td></tr>';
-        tabla_html += '<tr><th>Fecha:</th><td>' + entrada.fecha +'</td></tr>';
-        tabla_html += '<tr><th>Proveedor:</th><td>' + entrada.proveedor +'</td></tr>';
-        tabla_html += '<tr><th>Estado:</th><td>' + entrada.estado +'</td></tr>';
-        tabla_html += '<tr><th>Tipo de entrada:</th><td>' + entrada.tipo +'</td></tr>';
-        if (entrada.factura) {
-            tabla_html += '<tr><th>No. Factura:</th><td>' + entrada.factura +'</td></tr>';
-        }
-        if (entrada.precio) {
-            tabla_html += '<tr><th>Precio:</th><td>' + entrada.precio +'</td></tr>';
-        }
-        tabla_html += '<tr><th>Observaciones:</th><td>' + entrada.observacion +'</td></tr>';
-        tabla_html += '</table>';
-
-        var tabla_pdf = {
-            table: {
-                widths: [100, 200],
-                body: [
-                    ['Número:', entrada.id],
-                    ['Artículo', entrada.equipo],
-                    ['Cantidad', entrada.cantidad],
-                    ['Fecha', entrada.fecha],
-                    ['Proveedor', entrada.proveedor],
-                    ['Estado', entrada.estado],
-                    ['Tipo de entrada', entrada.tipo],
-                    ['No. factura', entrada.factura],
-                    ['Precio', entrada.precio],
-                    ['Observaciones', entrada.observacion],
-                ]
-            }
-        }
-
-        return {html: tabla_html, pdf: tabla_pdf};
-    }
-
     EntradaCreate.init = function () {
         $('#entrada-buscar-form').submit(function (e) {
-            e.preventDefault();
-            $.ajax({
-                url: $(this).prop('action'),
-                data: $(this).serializeObject(),
-                success: function (respuesta) {
-                    if (respuesta.length == 1) {
-                        var tabla = generar_tabla_entrada(respuesta[0]);
-
-                        bootbox.dialog({
-                            title: 'Entrada ' + respuesta[0].id,
-                            message: tabla.html,
-                            buttons: {
-                                imprimir: {
-                                    label: 'Imprimir',
-                                    className: 'btn-info',
-                                    callback: function () {
-                                        var contenido = {
-                                            content: [
-                                                {text: 'Entrada no. '+respuesta[0].id, style: 'header'},
-                                                tabla.pdf
-                                                ],
-                                                styles: {
-                                                    header: {
-                                                        fontSize: 18,
-                                                        bold: true,
-                                                        margin: [0, 0, 0, 10]
-                                                    }
-                                                },
-                                        };
-                                        pdfMake.createPdf(contenido).download('Entrada.pdf');
-                                    }
-                                },
-                                cerrar: {
-                                    label: 'Cerrar',
-                                    className: 'btn-danger',
-                                    callback: function () {
-                                        // body...
-                                    }
-                                }
-                            }
-                        })
-                    }
-                }
-            })
-        })
-    }
-}( window.EntradaCreate = window.EntradaCreate || {}, jQuery ));
-
-
-(function( SalidaCreate, $, undefined ) {
-    SalidaCreate.init = function () {
-        $('#salida-buscar-form').submit(function (e) {
           e.preventDefault();
           $.ajax({
             url: $(this).prop('action'),
             data: {
-              id: $('#salida-buscar-form #salida-id').val()
+              id: $('#entrada-buscar-form #entrada-id').val()
             },
             success: function (respuesta) {
               if (respuesta.length > 0) {
@@ -121,219 +116,72 @@
           })
         });
     }
+}( window.EntradaCreate = window.EntradaCreate || {}, jQuery ));
+
+
+(function( SalidaCreate, $, undefined ) {
+    SalidaCreate.init = function () {
+        $('#salida-buscar-form').submit(function (e) {
+            e.preventDefault();
+            $.ajax({
+                url: $(this).prop('action'),
+                data: {
+                    id: $('#salida-buscar-form #salida-id').val()
+                },
+                success: function (respuesta) {
+                    if (respuesta.length > 0) {
+                        window.location = respuesta[0].url;
+                    }
+                }
+            })
+        });
+    }
 }( window.SalidaCreate = window.SalidaCreate || {}, jQuery ));
 
 
-//para entrada
-function entrada(id_equipo, equipo){
-  $.ajax({
-    url: 'entrada/'+id_equipo+'/',
-    dataType: "json",
+(function( KardexInforme, $, undefined ) {
+    var tabla;
 
-    success: function(respuesta){
-      var texto = "<table class='table table-datatables'>";
-      texto += "<thead>";
-      texto += "<tr>";
-      texto += "<th>Id de entrada</th>";
-      texto += "<th>Fecha </th>";
-      texto += "<th>Cantidad Ingresado</th>";
-      texto += "<th>Observación</th>";
-      texto += "</tr>";
-      texto += "</thead>";
-      $.each(respuesta.tablainf, function(index, item){
-        texto += "<tr><td>" + item.id + "</td><td>"+ item.fecha + "</td><td>" + item.cantidad + "</td><td>" + item.observacion + "</td></tr>";
+    // Public
+    KardexInforme.init = function () {
+        tabla = $('#inventario-table').DataTable({
+            dom: 'lfrtipB',
+            buttons: ['excel','pdf'],
+            processing: true,
+            ajax: {
+                url: $('#kardex-informe-form').prop('action'),
+                type: "get",
+                deferRender: true,
+                dataSrc: '',
+                data: function () {
+                    return $('#kardex-informe-form').serializeObject();
+                }
+            },
+            columns: [
+            { "data": "nombre"},
+            { "data": "cantidad_entrada"},
+            { "data": "cantidad_salida"},
+            { "data": "inventario_entrada"},
+            { "data": "inventario_salida"},
+            {
+                data: 'existencia',
+                render: function ( data, type, full, meta ) {
+                    return full.inventario_entrada - full.inventario_salida;
+                }
+            },            
+            { "data": "existencia" },
+            ]
+        }).on('xhr.dt', function (e, settings, json, xhr) {
+            $('#spinner').hide();
+        });
 
-    })
-
-      bootbox.alert({
-        title: "Id del equipo: " + id_equipo + "<br><br> Nombre del equipo:  " + equipo,
-        message: texto +  "</table>",
-        size : 'large',
-        backdrop: true
-    });
-
-
-  }
-});
-}
-
-
-//para salida
-function salida(id_equipo, equipo){
-  $.ajax({
-    url: 'salida/'+id_equipo+'/',
-    dataType: "json",
-
-    success: function(respuesta){
-      var texto = "<table class='table table-datatables'>";
-      texto += "<thead>";
-      texto += "<tr>";
-      texto += "<th>No. de salida</th>";
-      texto += "<th>Técnico</th>";
-      texto += "<th>Fecha</th>";
-      texto += "<th>Cantidad Egresados</th>";
-      texto += "</tr>";
-      texto += "</thead>";
-      $.each(respuesta.tablainf, function(index, item){
-        texto += "<tr><td>" + item.id + "</td><td>"+ item.tecnico + "</td><td>" +item.fecha + "</td><td>" + item.cantidad + "</td></tr>";
-
-    })
-
-      bootbox.alert({
-        title: "Id del equipo: " + id_equipo + "<br><br> Nombre del equipo:  " + equipo,
-        message: texto +  "</table>",
-        size : 'large',
-        backdrop: true
-    });
-
-
-  }
-});
-}
-
-//para informe
-function informe(){
-  var ini = $('#ini').val();
-  var out = $('#out').val();
-  if (ini == "") {
-    ini = "all";
-};
-if (out == "") {
-    out = "all";
-};
-$.ajax({
-    url: "informe/"+ ini + "/" + out + "/",
-    dataType: "json",
-    success: function(respuesta){
-      var texto = "";
-      if (respuesta.properties.length == 0){
-        texto += "<div class='box box-danger'><div class='box-body'>";
-        texto += "<h4 align='center'>No se encontraron resultados</h4></div></div>";
-    } else{
-        texto += "<div class='box box-success'><table class='table table-hover table-striped table-bordered'>";
-        texto += "<thead>";
-        texto += "<tr>";
-        texto += "<th>Nombre</th>";
-        texto += "<th>No. Entradas</th>";
-        texto += "<th>No. Salidas</th>";
-        texto += "<th>Cant. Ingresada</th>";
-        texto += "<th>Cant. Egresadas</th>";
-        texto += "<th>Diferencia</th>";
-        texto += "<th>Existencia actual</th>";
-        texto += "</tr>";
-        texto += "</thead>";
-        $.each(respuesta.properties, function(index, item){
-          texto += "<tr><td>"+item.nombre+"</td><td>"+item.cantidad_ingresos+"</td><td>"+item.cantidad_egresos+"</td><td>";
-          texto += item.ingreso+"</td><td>"+item.egreso+"</td><td>"+item.diferencia+"</td><td>"+item.existencia_actual+"</td></tr>";
-      })
-        texto += "</table></div>"
-    };
-    document.getElementById('info').innerHTML = texto;
-}
-});
-}
-
-
-//informe de las Entradas
-function get_informe_entradas(){
-  var ini = $('#ini').val();
-  var out = $('#out').val();
-  var proveedor = $('#field #id_proveedor').val();
-  var tipo = $('#field #id_tipo_entrada').val();
-  if (proveedor < 1) {
-    proveedor = "all";
-};
-if (tipo < 1 ) {
-    tipo = "all";
-};
-if (ini == "") {
-    ini = "all";
-};
-if (out == "") {
-    out = "all";
-};
-$.ajax({
-    url: proveedor+"/"+tipo+"/"+ini+"/"+out+"/",
-    dataType: "json",
-    success: function(respuesta){
-      var texto = "";
-      if (respuesta.tablainf.length == 0 ) {
-        texto += "<div class='box box-danger'><div class='box-body'>";
-        texto += "<h4 align='center'> No se encontraron resultados </h4></div></div>";
-    } else{
-        texto = "<div class='box box-success'><table class='table table-hover table-striped'>";
-        texto += "<thead>";
-        texto += "<tr>";
-        texto += "<th>No. Entrada</th>";
-        texto += "<th>Tipo</th>"
-        texto += "<th>Proveedor</th>"
-        texto += "<th>Equipo</th>";
-        texto += "<th>Fecha</th>";
-        texto += "<th>Cantidad</th>";
-        if (tipo == 2) {
-          texto += "<th>Precio</th>";
-          texto += "<th>Factura</th>";
-      };
-      texto += "</tr>";
-      texto += "</thead>";
-      if (tipo == 2) {
-          $.each(respuesta.tablainf, function(index, itemm){
-            texto += "<tr><td>" + itemm.id + "</td><td>" + itemm.tipo + "</td><td>"+ itemm.prov +"</td><td>"+ itemm.equipo + "</td><td>" + itemm.fecha +"</td><td>" + itemm.cantidad + "</td><td>Q " + itemm.precio +"</td><td>" + itemm.factura+"</td></tr>";
-        })
-      } else{
-          $.each(respuesta.tablainf, function(index, item){
-            texto += "<tr><td>" + item.id + "</td><td>"+ item.tipo +"</td><td>"+ item.prov +"</td><td>"+ item.equipo + "</td><td>" + item.fecha +"</td><td>" + item.cantidad +"</td></tr>";
-        })
-          texto += "</table></div>";
-      };
-  };
-  document.getElementById('here').innerHTML = texto;
-}
-});
-}
-
-//informe de las Entradas
-function get_salidas(){
-  var ini = $('#ini').val();
-  var out = $('#out').val();
-  var tecnico = $('#tecnico select').val();
-  if (tecnico < 1) {
-    tecnico = "all"
-};
-if (ini == "") {
-    ini = "all";
-};
-if (out =="") {
-    out = "all";
-};
-$.ajax({
-    url: tecnico+"/"+ini+'/'+out+"/",
-    dataType: "json",
-    success: function(respuesta){
-      if (respuesta.tablainf.length == 0) {
-        var texto = "<div class='box box-danger'><div class='box-body'>"
-        texto += " <h4 align='center'> No se encontraron resultados <h4></div> </div>"
-    } else{
-        var texto = "<div class='box box-success'><table class='table table-hover table-striped'>";
-        texto += "<thead>";
-        texto += "<tr>";
-        texto += "<th>No. Salida</th>";
-        texto += "<th>Técnico</th>";
-        texto += "<th>Fecha</th>";
-        texto += "<th>Equipo</th>";
-        texto += "<th>Cantidad</th>";
-        texto += "</tr>";
-        texto += "</thead>";
-        $.each(respuesta.tablainf, function(index, item){
-          texto += "<tr><td>" + item.id + "</td><td>"+ item.tecnico + "</td><td>"+ item.fecha + "</td><td>" + item.equipo +"</td><td>" + item.cantidad +"</td></tr>";
-      })
-        texto += "</table></div>";
-    };
-    document.getElementById('informe').innerHTML = texto;
-
-
-}
-});
-}
-
-
+        $('#spinner').hide();
+        $('#kardex-informe-form').submit(function (e) {
+            e.preventDefault();
+            $('#spinner').show();
+            tabla.clear().draw();
+            tabla.ajax.reload();
+        });
+        
+    } 
+}( window.KardexInforme = window.KardexInforme || {}, jQuery ));

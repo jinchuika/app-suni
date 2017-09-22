@@ -10,7 +10,7 @@
 			<div class="row">
 				<div class="col-xs-12">
 					<h2 class="page-header">
-						<i class="fa fa-arrow-down"></i> Entrada No. {{ entrada.id }}
+						<i class="fa fa-sign-in"></i> Entrada No. {{ entrada.id }}
 						<small class="pull-right">Fecha: {{ entrada.fecha|date:"Y-m-d" }}</small>
 					</h2>
 				</div>
@@ -35,12 +35,13 @@
 					</address>
 				</div>
 				<div class="col-sm-3 invoice-col">
-					<b>Precio total</b>
+					<b>Total</b>
 					<address>
 						Q. {{ entrada.precio_total }}
 					</address>
 				</div>
 			</div>
+			<hr>
 
 			<div class="row">
 				<div class="col-xs-12 table-responsive">
@@ -49,7 +50,8 @@
 							<tr>
 								<th>Cantidad</th>
 								<th>Producto</th>
-								<th>Precio</th>
+								<th>Precio Unitario</th>
+								<th>Subtotal</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -58,6 +60,7 @@
 								<td>{{ detalle.cantidad }}</td>
 								<td>{{ detalle.equipo }}</td>
 								<td>Q. {{ detalle.precio }}</td>
+								<td>Q. {{ detalle.precio_total }}</td>
 							</tr>
 							{% endfor %}
 						</tbody>

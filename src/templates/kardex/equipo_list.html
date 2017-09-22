@@ -1,70 +1,127 @@
 {% extends "base/base.html" %}
-{% load staticfiles widget_tweaks %}
+{% load staticfiles %}
 
 {% block page_title %}
-<title>Equipo de bodega</title>
+<title>Kardex - Listado de equipo</title>
 {% endblock page_title %}
 
 {% block content %}
-<section class="content-header">
-	<h1>Equipo en bodega</h1>
-</section>
-
 <section class="content">
 	<div class="container">
 		<div class="row-fluid">
 			<div class="col-md-12">
-				<div class="nav-tabs-custom">
-					<!-- pestañas de navegación -->
-					<ul class="nav nav-tabs nav-justified">
-						<li class="active"><a href="#equipo_lista" data-toggle="tab"><i class="fa fa-list-ul"></i> Lista del Equipo</a></li>
-						<li><a href="#equipo_add" data-toggle="tab"><i class="fa fa-sign-in"></i> Ingresar Equipo</a></li>
-					</ul>
-					<!-- /pestañas de navegación -->
-
-					<div class="tab-content">
-						<div class="tab-pane active" id="equipo_lista">
-							<table class="table table-striped table-hover table-datatables">
-								<thead>
-									<tr>
-										<th>ID</th>
-										<th>Equipo</th>
-										<th>Entradas</th>
-										<th>Salidas</th>
-										<th>Existencia</th>
-									</tr>
-								</thead>
-								<tbody>
-									{% for equipo in equipo_list %}
-										<tr>
-											<td>{{ equipo.id }}</td>
-											<td>{{ equipo }}</td>
-											<td>{{ equipo.cantidad_entrada }}</td>
-											<td>{{ equipo.cantidad_salida }}</td>
-											<td>{{ equipo.existencia }}</td>
-										</tr>
-									{% endfor %}
-								</tbody>
+				<!-- Box de listado de equipo -->
+				<div class="box box-primary">
+					<div class="box-header">
+						<h3 class="box-title">Bodega de insumos</h3>
+						<span class="pull-right">
+							<button class="btn btn-info" id="btn-equipo-add">Agregar nuevo</button>
+						</span>
+					</div>
+					<div class="box-body">
+						<form action="{% url 'kardex_equipo_add' %}" method="post" id="form-equipo">
+							<table class="table table-striped">
+								{% csrf_token %}
+								{{ equipo_form.as_table }}
+								<tr>
+									<td colspan="2">
+										<button class="btn btn-success">Guardar</button>
+									</td>
+								</tr>
 							</table>
-						</div>
-
-						<div class="tab-pane" id="equipo_add">
-							<form action="{% url 'kardex_equipo_add' %}" method="post">
-								<table class="table table-striped">
-									{% csrf_token %}
-									{{ equipo_form.as_table }}
+							<hr>
+						</form>
+						<table class="table table-striped table-hover" id="tabla-equipo">
+							<thead>
+								<tr>
+									<th>ID</th>
+									<th>Equipo</th>
+									<th>Entradas</th>
+									<th>Salidas</th>
+									<th>Existencia</th>
+								</tr>
+							</thead>
+							<tbody>
+								{% for equipo in equipo_list %}
 									<tr>
-										<td colspan="2">
-											<button class="btn btn-success">Guardar</button>
+										<td>{{ equipo.id }}</td>
+										<td>{{ equipo }}</td>
+										<td>
+											<a href="#" class="btn btn-block btn-entrada" data-url="{% url 'entradadetalle_api' %}" data-pk="{{ equipo.id }}">{{ equipo.inventario_entrada }}</a>
 										</td>
+										<td>
+											<a href="#" class="btn btn-block btn-salida" data-url="{% url 'salidadetalle_api' %}" data-pk="{{ equipo.id }}">{{ equipo.inventario_salida }}</a>
+										</td>
+										<td>{{ equipo.existencia }}</td>
 									</tr>
-								</table>
-							</form>
-						</div>
+								{% endfor %}
+							</tbody>
+						</table>
 					</div>
 				</div>
+				<!-- /Box de listado de equipo -->
+
+				<!-- Box para listado de entradas -->
+				<div class="box box-success box-informe" id="box-entrada">
+					<div class="box-header with-border">
+						<h3 class="box-title">Entradas</h3>
+
+						<div class="box-tools pull-right">
+							<button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+						</div>
+					</div>
+					<div class="box-body">
+						<table id="tabla-entrada" class="table table-hover">
+							<thead>
+								<tr>
+									<th>ID. Entrada</th>
+									<th>Fecha</th>
+									<th>Cantidad</th>
+								</tr>
+							</thead>
+							<tbody id="tbody-entrada">
+								
+							</tbody>
+						</table>
+					</div>
+				</div>
+				<!-- /Box para listado de entradas -->
+
+				<!-- Box para listado de salidas -->
+				<div class="box box-danger box-informe" id="box-salida">
+					<div class="box-header with-border">
+						<h3 class="box-title">Salidas</h3>
+
+						<div class="box-tools pull-right">
+							<button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+						</div>
+					</div>
+					<div class="box-body">
+						<table id="tabla-salida" class="table table-hover">
+							<thead>
+								<tr>
+									<th>ID. Entrada</th>
+									<th>Fecha</th>
+									<th>Cantidad</th>
+								</tr>
+							</thead>
+							<tbody id="tbody-salida">
+								
+							</tbody>
+						</table>
+					</div>
+				</div>
+				<!-- /Box para listado de salidas -->
 			</div>
 		</div>
 	</div>
 </section>
 {% endblock content %}
+
+{% block extra_js %}
+{% include "base/dataTables.html" %}
+<script src="{% static "js/extrajs/kardex.js" %}"></script>
+<script>
+	EquipoList.init();
+</script>
+{% endblock extra_js %}
