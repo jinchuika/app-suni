@@ -1,7 +1,9 @@
-from __future__ import unicode_literals
-from apps.users.models import Perfil
+from django.core.exceptions import ValidationError
+
 from django.db import models
 from django.urls import reverse_lazy
+
+from django.contrib.auth.models import User
 
 
 class Equipo(models.Model):
@@ -179,7 +181,7 @@ class EntradaDetalle(models.Model):
 
 
 class Salida(models.Model):
-    tecnico = models.ForeignKey(Perfil, on_delete=models.PROTECT)
+    tecnico = models.ForeignKey(User, on_delete=models.PROTECT)
     fecha = models.DateField()
     tipo = models.ForeignKey(TipoSalida, on_delete=models.PROTECT)
     observacion = models.TextField(null=True, blank=True, verbose_name='Observaciones')
@@ -214,3 +216,12 @@ class SalidaDetalle(models.Model):
 
     def get_absolute_url(self):
         return self.salida.get_absolute_url()
+
+    def clean(self):
+        """Evita que la nota sobrepase el punteo máximo especificado en :model:`CrAsistencia`
+
+        Raises:
+            ValidationError: La nota no puede exceder el punteo máximo.
+        """
+        if self.cantidad > self.equipo.existencia:
+            raise ValidationError({'cantidad': 'La cantidad no puede ser mayor a la existencia.'})
