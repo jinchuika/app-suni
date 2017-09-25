@@ -80,6 +80,13 @@ class SalidaDetalleForm(forms.ModelForm):
             'cantidad': forms.NumberInput(attrs={'class': 'form-control'})
         }
 
+
+class KardexInformeForm(forms.Form):
+    fecha_inicio = forms.DateField(
+        required=False, widget=forms.TextInput(attrs={'class': 'datepicker'}))
+    fecha_fin = forms.DateField(
+        required=False, widget=forms.TextInput(attrs={'class': 'datepicker'}))
+
 ###########
 class FormularioEquipo(ModelForm):
     class Meta:

@@ -1,17 +1,16 @@
+import json
+from datetime import date
+
 from apps.kardex.models import *
-from apps.kardex.forms import *
 from apps.kardex.forms import (
-    EquipoForm, EntradaForm, ProveedorForm, SalidaForm,
-    SalidaDetalleForm, SalidaCerrarForm, EntradaDetalleForm)
-from django.views.generic import DetailView, ListView
+    EquipoForm, EntradaForm, EntradaCerrarForm, ProveedorForm,
+    SalidaForm, SalidaDetalleForm, SalidaCerrarForm,
+    EntradaDetalleForm, KardexInformeForm)
+from django.views.generic import DetailView, ListView, FormView
 from django.views.generic.edit import CreateView, UpdateView
 
 from braces.views import LoginRequiredMixin
-from django.urls import reverse_lazy
 from django.http import HttpResponse
-
-import json
-from datetime import date
 
 
 class EquipoListView(LoginRequiredMixin, ListView):
@@ -65,6 +64,11 @@ class EntradaCreateView(LoginRequiredMixin, CreateView):
     form_class = EntradaForm
     template_name = 'kardex/entrada.html'
 
+    def get_context_data(self, **kwargs):
+        context = super(EntradaCreateView, self).get_context_data(**kwargs)
+        context['pendientes_list'] = Entrada.objects.filter(terminada=False)
+        return context
+
 
 class EntradaDetailView(LoginRequiredMixin, DetailView):
     model = Entrada
@@ -73,9 +77,21 @@ class EntradaDetailView(LoginRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super(EntradaDetailView, self).get_context_data(**kwargs)
         if not self.object.terminada:
+            equipo_queryset = Equipo.objects.exclude(
+                id__in=self.object.detalles.values('equipo').values_list('equipo'))
             context['detalle_form'] = EntradaDetalleForm(initial={'entrada': self.object})
+            context['detalle_form'].fields['equipo'].queryset = equipo_queryset
             context['cerrar_form'] = EntradaCerrarForm(instance=self.object, initial={'terminada': True})
         return context
+
+
+class EntradaPrintView(LoginRequiredMixin, DetailView):
+
+    """Vista para imprimir la salida.
+    """
+
+    model = Entrada
+    template_name = 'kardex/entrada_print.html'
 
 
 class EntradaDetalleCreateView(LoginRequiredMixin, CreateView):
@@ -123,6 +139,10 @@ class SalidaDetailView(LoginRequiredMixin, DetailView):
 
 
 class SalidaPrintView(LoginRequiredMixin, DetailView):
+
+    """Vista para imprimir la salida.
+    """
+
     model = Salida
     template_name = 'kardex/salida_print.html'
 
@@ -131,6 +151,11 @@ class SalidaDetalleCreateView(LoginRequiredMixin, CreateView):
     model = SalidaDetalle
     form_class = SalidaDetalleForm
 
+
+class KardexInformeView(LoginRequiredMixin, FormView):
+    template_name = "kardex/informe.html"
+    form_class = KardexInformeForm
+
 # Desde aquí empieza el código a renovar
 # 
 # 
@@ -138,16 +163,6 @@ class SalidaDetalleCreateView(LoginRequiredMixin, CreateView):
 # 
 # 
 # 
-class Equipolog(LoginRequiredMixin, CreateView):
-    model = Equipo
-    form_class = FormularioEquipo
-    template_name = "kardex/equipo.html"
-    success_url = reverse_lazy('kardex_equipo')
-
-    def get_context_data(self, **kwargs):
-        context = super(Equipolog, self).get_context_data(**kwargs)
-        context['lista'] = self.model.objects.all()
-        return context
 
 
 def informe_general(request, ini, out):
@@ -197,26 +212,6 @@ class EquipoSalida(LoginRequiredMixin, DetailView):
     
 
 
-#entrada del equipo
-class EntradaCreate(LoginRequiredMixin, CreateView):
-    model = Entrada
-    form_class = FormularioEntrada
-    template_name = "kardex/entrada.html"
-    success_url = reverse_lazy('kardex_equipo')
-    
-    def get_context_data(self, **kwargs):
-        context = super(EntradaCreate, self).get_context_data(**kwargs)
-        context['formulario'] = FormularioEntradaInforme
-        return context
-
-    def form_valid(self, form):
-        self.object = form.save(commit = False)
-        precio = self.object.precio
-        if precio is not None and precio <= 0:
-            return self.form_invalid(form)
-        else:
-            self.object.save()
-            return super(EntradaCreate, self).form_valid(form)
 
 def get_informe_entradas(request, proveedor, tipo, ini, out):
     #este se quedó
@@ -256,16 +251,6 @@ def get_informe_entradas(request, proveedor, tipo, ini, out):
                 })
             )
 
-#Salida del equipo
-class SalidaCreate(LoginRequiredMixin, CreateView):
-    model = Salida
-    form_class = FormularioSalida
-    template_name = "kardex/salida.html"
-    success_url = reverse_lazy('kardex_equipo')
-    def get_context_data(self, **kwargs):
-        context = super(SalidaCreate, self).get_context_data(**kwargs)
-        context['formulario'] = FormularioSalidaInforme
-        return context
 
 def get_informe_salidas(request, tecnico, ini, out):
     if ini == "all":
@@ -295,12 +280,3 @@ def get_informe_salidas(request, tecnico, ini, out):
     
 
 
-class ProveedorCreate(LoginRequiredMixin, CreateView):
-    model = Proveedor
-    form_class = FormularioProveedor
-    template_name = "kardex/proveedor.html"
-    success_url = reverse_lazy('kardex_proveedor')
-    def get_context_data(self, **kwargs):
-        context = super(ProveedorCreate, self).get_context_data(**kwargs)
-        context['lista'] = Proveedor.objects.all()
-        return context

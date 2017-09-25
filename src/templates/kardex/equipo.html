@@ -38,12 +38,12 @@
 										</tr>
 									</thead>
 									<tbody>
-										{% for i in lista %}
+										{% for equipo in equipo_list %}
 										<tr>
 											<td>{{i.id}}</td>
 											<td>{{i}}</td>
-											<td><a href="#" onclick="entrada({{ i.id }}, '{{ i }}');">{{i.total_ingreso}}</a></td>
-											<td><a href="#" onclick="salida({{ i.id }}, '{{ i }}');">{{i.total_egreso}}</a></td>
+											<td><a href="#" onclick="entrada({{ i.id }}, '{{ i }}');">{{i.cantidad_entrada}}</a></td>
+											<td><a href="#" onclick="salida({{ i.id }}, '{{ i }}');">{{i.cantidad_salida}}</a></td>
 											<td>{{ i.existencia }}</td>
 										</tr>
 										{% endfor %}

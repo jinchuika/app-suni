@@ -17,17 +17,47 @@ class Equipo(models.Model):
     def get_absolute_url(self):
         return reverse_lazy('kardex_equipo_list')
 
-    @property
     def cantidad_entrada(self):
-        return sum(entrada.cantidad for entrada in self.entradas.all())
+        return self.detalles_entrada.count()
 
-    @property
     def cantidad_salida(self):
-        return sum(detalle.cantidad for detalle in self.detalles_salida.all())
+        return self.detalles_salida.count()
+
+    def inventario_entrada(self, **kwargs):
+        """Obtiene la cantidad de equipo ingresado al inventario
+
+        Args:
+            **kwargs: `fecha_inicio` o `fecha_fin`
+
+        Returns:
+            TYPE: int
+        """
+        queryset = self.detalles_entrada.all()
+        if 'fecha_inicio' in kwargs and kwargs['fecha_inicio'] is not None:
+            queryset = queryset.filter(entrada__fecha__gte=kwargs['fecha_inicio'])
+        if 'fecha_fin' in kwargs and kwargs['fecha_fin'] is not None:
+            queryset = queryset.filter(entrada__fecha__lte=kwargs['fecha_fin'])
+        return sum(detalle.cantidad for detalle in queryset)
+
+    def inventario_salida(self, **kwargs):
+        """Obtiene la cantidad de equipo que ha salido del inventario
+
+        Args:
+            **kwargs: `fecha_inicio` o `fecha_fin`
+
+        Returns:
+            TYPE: int
+        """
+        queryset = self.detalles_salida.all()
+        if 'fecha_inicio' in kwargs and kwargs['fecha_inicio'] is not None:
+            queryset = queryset.filter(salida__fecha__gte=kwargs['fecha_inicio'])
+        if 'fecha_fin' in kwargs and kwargs['fecha_fin'] is not None:
+            queryset = queryset.filter(salida__fecha__lte=kwargs['fecha_fin'])
+        return sum(detalle.cantidad for detalle in queryset)
 
     @property
     def existencia(self):
-        return self.cantidad_entrada - self.cantidad_salida
+        return self.inventario_entrada() - self.inventario_salida()
 
 
 class TipoProveedor(models.Model):
@@ -77,7 +107,7 @@ class TipoEntrada(models.Model):
 class Proveedor(models.Model):
     nombre = models.CharField(max_length=75)
     tipo = models.ForeignKey(TipoProveedor, on_delete=models.PROTECT)
-    direccion = models.CharField(max_length=50, null=True, blank=True, verbose_name='Dirección')
+    direccion = models.CharField(max_length=128, null=True, blank=True, verbose_name='Dirección')
     telefono = models.IntegerField(null=True, blank=True)
 
     class Meta:
@@ -92,7 +122,7 @@ class Proveedor(models.Model):
 
     @property
     def equipo_ingresado(self):
-        return sum(entrada.cantidad for entrada in self.entradas.all())
+        return sum(entrada.cantidad_total for entrada in self.entradas.all())
 
 
 class Entrada(models.Model):
@@ -114,26 +144,38 @@ class Entrada(models.Model):
     def get_absolute_url(self):
         return reverse_lazy('kardex_entrada_detail', kwargs={'pk': self.id})
 
+    def get_print_url(self):
+        return reverse_lazy('kardex_entrada_print', kwargs={'pk': self.id})
+
     @property
     def precio_total(self):
-        return sum(d.precio for d in self.detalles.all())
+        return sum(d.precio_total for d in self.detalles.all())
+
+    @property
+    def cantidad_total(self):
+        return sum(d.cantidad for d in self.detalles.all())
 
 
 class EntradaDetalle(models.Model):
     entrada = models.ForeignKey(Entrada, related_name='detalles')
     equipo = models.ForeignKey(Equipo, related_name='detalles_entrada')
     cantidad = models.PositiveIntegerField()
-    precio = models.DecimalField(max_digits=7, decimal_places=2, null=True, blank=True)
+    precio = models.DecimalField(max_digits=7, decimal_places=2, null=True, blank=True, default=0.0)
 
     class Meta:
         verbose_name = 'Detalle de entrada'
         verbose_name_plural = 'Detalles de entrada'
+        unique_together = ('entrada', 'equipo')
 
     def __str__(self):
         return '{} - {}'.format(self.entrada, self.equipo)
 
     def get_absolute_url(self):
         return self.entrada.get_absolute_url()
+
+    @property
+    def precio_total(self):
+        return self.cantidad * self.precio
 
 
 class Salida(models.Model):

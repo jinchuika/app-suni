@@ -6,30 +6,35 @@ from apps.main.menus import ViewMenuItem
 kardex_children = (
     ViewMenuItem(
         "Equipo",
-        reverse_lazy("kardex_equipo"),
+        reverse_lazy("kardex_equipo_list"),
         weight=10,
         icon="fa-desktop"),
     ViewMenuItem(
         "Entradas",
         reverse_lazy("kardex_entrada"),
         weight=20,
-        icon='fa-arrow-up'),
+        icon='fa-sign-in'),
     ViewMenuItem(
         "Salidas",
         reverse_lazy("kardex_salida_list"),
         weight=40,
-        icon="fa-arrow-down"),
+        icon="fa-sign-out"),
     ViewMenuItem(
         "Proveedores",
         reverse_lazy("kardex_proveedor_list"),
         weight=50,
-        icon="fa-truck"),)
+        icon="fa-truck"),
+    ViewMenuItem(
+        "Informe",
+        reverse_lazy("kardex_informe"),
+        weight=60,
+        icon="fa-list-alt"),)
 
 Menu.add_item(
     "user",
     ViewMenuItem(
         "Kardex",
-        reverse_lazy('kardex_equipo'),
+        reverse_lazy('list_c'),
         weight=40,
         icon="fa-cog",
         group="kardex",

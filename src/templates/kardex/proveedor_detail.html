@@ -49,8 +49,6 @@
 								<tr>
 									<th>No.</th>
 									<th nowrap>Fecha</th>
-									<th>Equipo</th>
-									<th>Cantidad</th>
 									<th nowrap>Precio</th>
 									<th>Observaciones</th>
 								</tr>
@@ -62,10 +60,8 @@
 											<a href="{{ entrada.get_absolute_url }}" class="btn btn-block">{{ entrada.id }}</a>
 										</td>
 										<td>{{ entrada.fecha|date:"Y-m-d" }}</td>
-										<td>{{ entrada.equipo }}</td>
-										<td>{{ entrada.cantidad }}</td>
-										<td>Q. {{ entrada.precio|default_if_none:"0.00" }}</td>
-										<td>{{ entrada.observaciones }}</td>
+										<td>Q. {{ entrada.precio_total|default_if_none:"0.00" }}</td>
+										<td>{{ entrada.observacion|default_if_none:"" }}</td>
 									</tr>
 								{% endfor %}
 							</tbody>
