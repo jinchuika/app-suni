@@ -60,6 +60,11 @@ class SalidaForm(forms.ModelForm):
             'fecha': forms.TextInput(attrs={'class': 'datepicker'})
         }
 
+    def __init__(self, *args, **kwargs):
+        super(SalidaForm, self).__init__(*args, **kwargs)
+        self.fields['tecnico'].queryset = self.fields['tecnico'].queryset.filter(is_active=True)
+        self.fields['tecnico'].label_from_instance = lambda obj: "%s" % obj.get_full_name()
+
 
 class SalidaCerrarForm(forms.ModelForm):
     class Meta:

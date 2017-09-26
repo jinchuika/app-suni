@@ -192,7 +192,7 @@ class Salida(models.Model):
         verbose_name_plural = 'Salidas'
 
     def __str__(self):
-        return str(self.id)
+        return str(self.tecnico)
 
     def get_absolute_url(self):
         return reverse_lazy('kardex_salida_detail', kwargs={'pk': self.id})
@@ -218,10 +218,10 @@ class SalidaDetalle(models.Model):
         return self.salida.get_absolute_url()
 
     def clean(self):
-        """Evita que la nota sobrepase el punteo máximo especificado en :model:`CrAsistencia`
+        """Para evitar que se retiren más de la existencia actual
 
         Raises:
-            ValidationError: La nota no puede exceder el punteo máximo.
+            ValidationError: La cantidad no puede ser mayor a la existencia.
         """
         if self.cantidad > self.equipo.existencia:
             raise ValidationError({'cantidad': 'La cantidad no puede ser mayor a la existencia.'})
