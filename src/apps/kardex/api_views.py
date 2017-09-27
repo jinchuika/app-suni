@@ -1,3 +1,5 @@
+import django_filters
+
 from rest_framework import viewsets
 
 
@@ -9,10 +11,20 @@ from apps.kardex.serializers import (
     EquipoSerializer, SalidaSerializer, SalidaDetalleSerializer)
 
 
+class EntradaFilter(django_filters.FilterSet):
+    fecha_inicio = django_filters.DateFilter(name='fecha', lookup_expr='gte')
+    fecha_fin = django_filters.DateFilter(name='fecha', lookup_expr='lte')
+    equipo = django_filters.NumberFilter(name='detalles__equipo')
+
+    class Meta:
+        model = Entrada
+        fields = ['fecha_inicio', 'fecha_fin', 'proveedor', 'equipo', 'id']
+
+
 class EntradaViewSet(viewsets.ModelViewSet):
     serializer_class = EntradaSerializer
     queryset = Entrada.objects.all()
-    filter_fields = ('proveedor', 'id')
+    filter_class = EntradaFilter
 
 
 class EntradaDetalleViewSet(viewsets.ModelViewSet):
@@ -26,10 +38,18 @@ class ProveedorViewSet(viewsets.ModelViewSet):
     queryset = Proveedor.objects.all()
 
 
+class EquipoFilter(django_filters.FilterSet):
+    equipo = django_filters.NumberFilter(name='id')
+
+    class Meta:
+        model = Equipo
+        fields = ['equipo', 'id']
+
+
 class EquipoViewSet(viewsets.ModelViewSet):
     serializer_class = EquipoSerializer
     queryset = Equipo.objects.all()
-    filter_fields = ('id',)
+    filter_class = EquipoFilter
 
     def get_serializer_context(self):
         """Obtiene los parámetros enviados para filtrar la fecha
@@ -43,10 +63,20 @@ class EquipoViewSet(viewsets.ModelViewSet):
         return context
 
 
+class SalidaFilter(django_filters.FilterSet):
+    fecha_inicio = django_filters.DateFilter(name='fecha', lookup_expr='gte')
+    fecha_fin = django_filters.DateFilter(name='fecha', lookup_expr='lte')
+    equipo = django_filters.NumberFilter(name='detalles__equipo')
+
+    class Meta:
+        model = Salida
+        fields = ['fecha_inicio', 'fecha_fin', 'tecnico', 'equipo', 'id']
+
+
 class SalidaViewSet(viewsets.ModelViewSet):
     serializer_class = SalidaSerializer
     queryset = Salida.objects.all()
-    filter_fields = ('id',)
+    filter_class = SalidaFilter
 
 
 class SalidaDetalleViewSet(viewsets.ModelViewSet):

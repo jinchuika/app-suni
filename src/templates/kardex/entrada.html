@@ -2,10 +2,10 @@
 {% load staticfiles widget_tweaks %}
 
 {% block page_title %}
-<title>Entradas</title>
+<title>Entradas al Kardex</title>
 {% endblock page_title %}
-{% block content %}
 
+{% block content %}
 <section class="content-header">
 	<h1>Entrada del Kardex</h1>
 </section>
@@ -79,7 +79,23 @@
 
 						<!-- panel para listado de entradas -->
 						<div class="tab-pane" id="listar-entrada">
-							
+							<form id="filter-form" action="{% url 'entrada_api_list' %}">
+								{{ filter_form.as_p }}
+								<input type="submit" class="btn btn-success" value="Buscar">
+							</form>
+
+							<table class="table table-hover" id="tabla-entradas">
+								<thead>
+									<tr>
+										<th>ID</th>
+										<th>Fecha</th>
+										<th>Proveedor</th>
+										<th>Factura</th>
+										<th>Precio</th>
+									</tr>
+								</thead>
+								<tbody id="tbody-entradas"></tbody>
+							</table>
 						</div>
 						<!-- /panel para listado de entradas -->
 					</div>

@@ -62,15 +62,17 @@
 				{% if salida.terminada != True %}
 				<div class="col-xs-6">
 					<p class="lead">Agregar equipo</p>
-					<form id="detalle-form" action="{% url 'kardex_salidadetalle_add' %}" method="post">
+					<!-- Formaulario para agregar un detalle -->
+					<form id="detalle-form" action="{% url 'kardex_salidadetalle_add' %}" method="post" data-url-validacion="{% url 'equipo_api_list' %}">
 						{% csrf_token %}
 						<div class="table-responsive">
 							<table class="table">
 								{{ detalle_form.as_table }}
 							</table>
 						</div>
-						<input type="submit" class="btn btn-success pull-right" value="Agregar">
+						<input type="submit" class="btn btn-success pull-right" id="btn-agregar" value="Agregar">
 					</form>
+					<!-- /Formaulario para agregar un detalle -->
 				</div>
 				{% endif %}
 			</div>

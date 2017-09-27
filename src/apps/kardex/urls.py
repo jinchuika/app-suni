@@ -16,7 +16,7 @@ urlpatterns = [
     url(r'^entrada/(?P<pk>\d+)/update/$', EntradaUpdateView.as_view(), name='kardex_entrada_update'),
     url(r'^entradadetalle/add/$', EntradaDetalleCreateView.as_view(), name='kardex_entradadetalle_add'),
 
-    url(r'^salida/$', SalidaCreateView.as_view(), name='kardex_salida_list'),
+    url(r'^salida/$', SalidaCreateView.as_view(), name='kardex_salida'),
     url(r'^salida/add/$', SalidaCreateView.as_view(), name='kardex_salida_add'),
     url(r'^salida/(?P<pk>\d+)/$', SalidaDetailView.as_view(), name='kardex_salida_detail'),
     url(r'^salida/(?P<pk>\d+)/print/$', SalidaPrintView.as_view(), name='kardex_salida_print'),

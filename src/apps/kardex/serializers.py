@@ -17,6 +17,14 @@ class EquipoSerializer(DynamicFieldsModelSerializer, serializers.ModelSerializer
         fields = '__all__'
 
     def get_cantidad_entrada(self, obj):
+        """Para obtener la cantidad de :model:`kardex.EntradaDetalle`
+        en el rango de fechas seleccionado. Depende del contexto
+        enviado por la vista, recibe `fecha_inicio` o `fecha_salida`
+        como parámetros opcionales.
+
+        Returns:
+            TYPE: int
+        """
         queryset = obj.detalles_entrada.all()
         if self.context['fecha_inicio']:
             queryset = queryset.filter(entrada__fecha__gte=self.context['fecha_inicio'])
@@ -25,6 +33,14 @@ class EquipoSerializer(DynamicFieldsModelSerializer, serializers.ModelSerializer
         return queryset.count()
 
     def get_cantidad_salida(self, obj):
+        """Para obtener la cantidad de :model:`kardex.SalidaDetalle`
+        en el rango de fechas seleccionado. Depende del contexto
+        enviado por la vista, recibe `fecha_inicio` o `fecha_salida`
+        como parámetros opcionales.
+
+        Returns:
+            TYPE: int
+        """
         queryset = obj.detalles_salida.all()
         if self.context['fecha_inicio']:
             queryset = queryset.filter(salida__fecha__gte=self.context['fecha_inicio'])
@@ -33,6 +49,14 @@ class EquipoSerializer(DynamicFieldsModelSerializer, serializers.ModelSerializer
         return queryset.count()
 
     def get_inventario_entrada(self, obj):
+        """Para obtener la cantidad de equipo ingresado por medio
+        de las :model:`kardex.EntradaDetalle` en un rango de fechas determinado.
+        Depende de los parámetros de contexto opcionales `fecha_inicio`
+        y `fecha_salida`.
+
+        Returns:
+            TYPE: int
+        """
         queryset = obj.detalles_entrada.all()
         if self.context['fecha_inicio']:
             queryset = queryset.filter(entrada__fecha__gte=self.context['fecha_inicio'])
@@ -41,6 +65,14 @@ class EquipoSerializer(DynamicFieldsModelSerializer, serializers.ModelSerializer
         return sum(detalle.cantidad for detalle in queryset)
 
     def get_inventario_salida(self, obj):
+        """Para obtener la cantidad de equipo que ha salido por medio
+        de :model:`kardex.SalidaDetalle` en un rango de fechas determinado.
+        Depende de los parámetros de contexto opcionales `fecha_inicio`
+        y `fecha_salida`.
+
+        Returns:
+            TYPE: int
+        """
         queryset = obj.detalles_salida.all()
         if self.context['fecha_inicio']:
             queryset = queryset.filter(salida__fecha__gte=self.context['fecha_inicio'])
@@ -54,6 +86,7 @@ class EntradaSerializer(DynamicFieldsModelSerializer, serializers.ModelSerialize
     tipo = serializers.StringRelatedField()
     estado = serializers.StringRelatedField()
     url = serializers.URLField(source='get_absolute_url')
+    precio_total = serializers.DecimalField(max_digits=7, decimal_places=2, read_only=True)
 
     class Meta:
         model = Entrada
@@ -77,6 +110,7 @@ class ProveedorSerializer(DynamicFieldsModelSerializer, serializers.ModelSeriali
 
 class SalidaSerializer(DynamicFieldsModelSerializer, serializers.ModelSerializer):
     url = serializers.URLField(source='get_absolute_url')
+    tecnico = serializers.CharField(source='tecnico.get_full_name')
 
     class Meta:
         model = Salida

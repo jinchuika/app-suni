@@ -1,7 +1,7 @@
 from random import randint
 from datetime import datetime, timedelta
 from django.db import models
-from django.db.models import Count, Avg, F, Sum
+from django.db.models import Count, F
 from django.utils.text import slugify
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
