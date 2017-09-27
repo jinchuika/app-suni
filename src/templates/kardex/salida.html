@@ -59,8 +59,42 @@
 									</span>
 								</div>
 							</form>
+
+							{% if pendientes_list.count > 0 %}
+							<h4 class="box-title">Pendientes</h4>
+							<ul class="nav nav-pills nav-stacked">
+							{% for salida_pendiente in pendientes_list %}
+								<li>
+									<a href="{{ salida_pendiente.get_absolute_url }}">
+										Salida {{ salida_pendiente.id }}
+										<span class="pull-right text-red"><i class="fa fa-calendar"></i> {{ salida_pendiente.fecha|date:"Y-m-d" }}</span>
+									</a>
+								</li>
+							{% endfor %}
+							</ul>
+							{% endif %}
 						</div>
 						<!-- /panel de búsqueda -->
+
+						<!-- panel para listado de salidas -->
+						<div class="tab-pane" id="listar-salida">
+							<form id="filter-form" action="{% url 'salida_api' %}">
+								{{ filter_form.as_p }}
+								<input type="submit" class="btn btn-success" value="Buscar">
+							</form>
+
+							<table class="table table-hover" id="tabla-salidas">
+								<thead>
+									<tr>
+										<th>ID</th>
+										<th>Fecha</th>
+										<th>Técnico</th>
+									</tr>
+								</thead>
+								<tbody id="tbody-salidas"></tbody>
+							</table>
+						</div>
+						<!-- /panel para listado de salidas -->
 					</div>
 				</div>
 			</div>
@@ -75,19 +109,7 @@
 
 {% block extra_js %}
 <script src="{% static "js/extrajs/kardex.js" %}"></script>
-<script src="{% static "js/jquery.formset.js" %}"></script>
-<script type="text/javascript">
+<script>
 	SalidaCreate.init();
 </script>
-
 {% endblock extra_js %}
-<!--
-#def clean_cantidad(self):
-	#	cantidad = self.cleaned_data.get('cantidad')
-	#	if cantidad <= 0:
-	#		raise forms.ValidationError("Este campo tiene que ser mayor a 0")
-#
-#		existente = self.cleaned_data.get('equipo').existencia
-#		if cantidad > existente:
-#			raise forms.ValidationError("El campo tiene que ser menor o igual a la existente (" + str(existente) + ")" )	
-#		return cantidad	-->

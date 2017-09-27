@@ -48,7 +48,7 @@
         });
 
         // Generar listados de entradas
-        $('.btn-entrada').on('click', function () {
+        $('#tabla-equipo').on('click', '.btn-entrada', function () {
             $('.box-informe').hide();
             tabla_entrada.clear().draw();
             $.ajax({
@@ -65,7 +65,7 @@
         });
 
         // Generar listados de salidas
-        $('.btn-salida').on('click', function () {
+        $('#tabla-equipo').on('click', '.btn-salida', function () {
             $('.box-informe').hide();
             tabla_salida.clear().draw();
             $.ajax({
@@ -102,18 +102,38 @@
 (function( EntradaCreate, $, undefined ) {
     EntradaCreate.init = function () {
         $('#entrada-buscar-form').submit(function (e) {
-          e.preventDefault();
-          $.ajax({
-            url: $(this).prop('action'),
-            data: {
-              id: $('#entrada-buscar-form #entrada-id').val()
-            },
-            success: function (respuesta) {
-              if (respuesta.length > 0) {
-                window.location = respuesta[0].url;
-              }
-            }
-          })
+            e.preventDefault();
+            $.ajax({
+                url: $(this).prop('action'),
+                data: {
+                    id: $('#entrada-buscar-form #entrada-id').val()
+                },
+                success: function (respuesta) {
+                    if (respuesta.length > 0) {
+                        window.location = respuesta[0].url;
+                    }
+                }
+            });
+        });
+
+        $('#filter-form').submit(function (e) {
+            e.preventDefault();
+            $('#tbody-entradas').empty();
+            $.ajax({
+                url: $(this).prop('action'),
+                data: $(this).serializeObject(),
+                success: function (respuesta) {
+                    var tr = '';
+                    $.each(respuesta, function (index, entrada) {
+                        tr = '<td><a href="'+entrada.url+'" class="btn btn-block">'+entrada.id+'</a></td>';
+                        tr += '<td nowrap>'+entrada.fecha+'</td>';
+                        tr += '<td>'+entrada.proveedor+'</td>';
+                        tr += '<td>'+(entrada.factura ? entrada.factura : '')+'</td>';
+                        tr += '<td>Q. '+entrada.precio_total+'</td>';
+                        $('#tbody-entradas').append('<tr>'+tr+'</tr>');
+                    })
+                }
+            });
         });
     }
 }( window.EntradaCreate = window.EntradaCreate || {}, jQuery ));
@@ -134,6 +154,24 @@
                     }
                 }
             })
+        });
+
+        $('#filter-form').submit(function (e) {
+            e.preventDefault();
+            $('#tbody-salidas').empty();
+            $.ajax({
+                url: $(this).prop('action'),
+                data: $(this).serializeObject(),
+                success: function (respuesta) {
+                    var tr = '';
+                    $.each(respuesta, function (index, salida) {
+                        tr = '<td><a href="'+salida.url+'" class="btn btn-block">'+salida.id+'</a></td>';
+                        tr += '<td nowrap>'+salida.fecha+'</td>';
+                        tr += '<td>'+salida.tecnico+'</td>';
+                        $('#tbody-salidas').append('<tr>'+tr+'</tr>');
+                    })
+                }
+            });
         });
     }
 }( window.SalidaCreate = window.SalidaCreate || {}, jQuery ));
@@ -185,3 +223,26 @@
         
     } 
 }( window.KardexInforme = window.KardexInforme || {}, jQuery ));
+
+(function( SalidaDetail, $, undefined ) {
+    SalidaDetail.init = function () {
+        $('#id_equipo').on('change', function () {
+            var id_equipo = $(this).val();
+            $('#btn-agregar').prop('disabled', true);
+            if (id_equipo) {
+                $.ajax({
+                    url: $('#detalle-form').data('url-validacion'),
+                    data: {
+                        id: id_equipo,
+                        field: 'existencia'
+                    },
+                    dataType: 'json',
+                    success: function (respuesta) {
+                        $('#id_cantidad').prop('max', respuesta[0].existencia);
+                        $('#btn-agregar').prop('disabled', false);
+                    }
+                })
+            }
+        });
+    }
+}( window.SalidaDetail = window.SalidaDetail || {}, jQuery ));

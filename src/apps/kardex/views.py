@@ -1,19 +1,21 @@
-import json
-from datetime import date
+from django.views.generic import DetailView, ListView, FormView
+from django.views.generic.edit import CreateView, UpdateView
 
-from apps.kardex.models import *
+from braces.views import LoginRequiredMixin, GroupRequiredMixin
+
+from apps.kardex.models import (
+    Proveedor, Equipo, Entrada, EntradaDetalle,
+    Salida, SalidaDetalle)
 from apps.kardex.forms import (
     EquipoForm, EntradaForm, EntradaCerrarForm, ProveedorForm,
     SalidaForm, SalidaDetalleForm, SalidaCerrarForm,
     EntradaDetalleForm, KardexInformeForm)
-from django.views.generic import DetailView, ListView, FormView
-from django.views.generic.edit import CreateView, UpdateView
-
-from braces.views import LoginRequiredMixin
-from django.http import HttpResponse
 
 
-class EquipoListView(LoginRequiredMixin, ListView):
+class EquipoListView(LoginRequiredMixin, GroupRequiredMixin, ListView):
+    group_required = [u"kardex", ]
+    redirect_unauthenticated_users = True
+    raise_exception = True
     template_name = 'kardex/equipo_list.html'
     model = Equipo
 
@@ -23,7 +25,10 @@ class EquipoListView(LoginRequiredMixin, ListView):
         return context
 
 
-class ProveedorListView(LoginRequiredMixin, ListView):
+class ProveedorListView(LoginRequiredMixin, GroupRequiredMixin, ListView):
+    group_required = [u"kardex", ]
+    redirect_unauthenticated_users = True
+    raise_exception = True
     template_name = 'kardex/proveedor_list.html'
     model = Proveedor
 
@@ -33,24 +38,36 @@ class ProveedorListView(LoginRequiredMixin, ListView):
         return context
 
 
-class ProveedorCreateView(LoginRequiredMixin, CreateView):
+class ProveedorCreateView(LoginRequiredMixin, GroupRequiredMixin, CreateView):
+    group_required = [u"kardex", ]
+    redirect_unauthenticated_users = True
+    raise_exception = True
     model = Proveedor
     form_class = ProveedorForm
     template_name = 'kardex/proveedor_form.html'
 
 
-class ProveedorUpdateView(LoginRequiredMixin, UpdateView):
+class ProveedorUpdateView(LoginRequiredMixin, GroupRequiredMixin, UpdateView):
+    group_required = [u"kardex", ]
+    redirect_unauthenticated_users = True
+    raise_exception = True
     model = Proveedor
     form_class = ProveedorForm
     template_name = 'kardex/proveedor_form.html'
 
 
-class ProveedorDetailView(LoginRequiredMixin, DetailView):
+class ProveedorDetailView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
+    group_required = [u"kardex", ]
+    redirect_unauthenticated_users = True
+    raise_exception = True
     model = Proveedor
     template_name = 'kardex/proveedor_detail.html'
 
 
-class EquipoCreateView(LoginRequiredMixin, CreateView):
+class EquipoCreateView(LoginRequiredMixin, GroupRequiredMixin, CreateView):
+    group_required = [u"kardex", ]
+    redirect_unauthenticated_users = True
+    raise_exception = True
     """Vista para crear un :model:`kardex.Equipo`.
     Esta vista no tiene acceso mediante GET.
     """
@@ -59,7 +76,10 @@ class EquipoCreateView(LoginRequiredMixin, CreateView):
     form_class = EquipoForm
 
 
-class EntradaCreateView(LoginRequiredMixin, CreateView):
+class EntradaCreateView(LoginRequiredMixin, GroupRequiredMixin, CreateView):
+    group_required = [u"kardex", ]
+    redirect_unauthenticated_users = True
+    raise_exception = True
     model = Entrada
     form_class = EntradaForm
     template_name = 'kardex/entrada.html'
@@ -67,10 +87,14 @@ class EntradaCreateView(LoginRequiredMixin, CreateView):
     def get_context_data(self, **kwargs):
         context = super(EntradaCreateView, self).get_context_data(**kwargs)
         context['pendientes_list'] = Entrada.objects.filter(terminada=False)
+        context['filter_form'] = KardexInformeForm()
         return context
 
 
-class EntradaDetailView(LoginRequiredMixin, DetailView):
+class EntradaDetailView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
+    group_required = [u"kardex", ]
+    redirect_unauthenticated_users = True
+    raise_exception = True
     model = Entrada
     template_name = 'kardex/entrada_detail.html'
 
@@ -85,7 +109,10 @@ class EntradaDetailView(LoginRequiredMixin, DetailView):
         return context
 
 
-class EntradaPrintView(LoginRequiredMixin, DetailView):
+class EntradaPrintView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
+    group_required = [u"kardex", ]
+    redirect_unauthenticated_users = True
+    raise_exception = True
 
     """Vista para imprimir la salida.
     """
@@ -94,39 +121,55 @@ class EntradaPrintView(LoginRequiredMixin, DetailView):
     template_name = 'kardex/entrada_print.html'
 
 
-class EntradaDetalleCreateView(LoginRequiredMixin, CreateView):
+class EntradaDetalleCreateView(LoginRequiredMixin, GroupRequiredMixin, CreateView):
+    group_required = [u"kardex", ]
+    redirect_unauthenticated_users = True
+    raise_exception = True
     model = EntradaDetalle
     form_class = EntradaDetalleForm
     template_name = 'kardex/entrada.html'
 
 
-class EntradaUpdateView(LoginRequiredMixin, UpdateView):
+class EntradaUpdateView(LoginRequiredMixin, GroupRequiredMixin, UpdateView):
+    group_required = [u"kardex", ]
+    redirect_unauthenticated_users = True
+    raise_exception = True
     model = Entrada
     form_class = EntradaCerrarForm
 
 
-class SalidaListView(LoginRequiredMixin, ListView):
-    model = Salida
-    template_name = 'kardex/salida_list.html'
-
-    def get_context_data(self, **kwargs):
-        context = super(SalidaListView, self).get_context_data(**kwargs)
-        context['salida_form'] = SalidaForm()
-        return context
-
-
-class SalidaCreateView(LoginRequiredMixin, CreateView):
+class SalidaCreateView(LoginRequiredMixin, GroupRequiredMixin, CreateView):
+    group_required = [u"kardex", ]
+    redirect_unauthenticated_users = True
+    raise_exception = True
     model = Salida
     template_name = 'kardex/salida.html'
     form_class = SalidaForm
 
+    def get_context_data(self, **kwargs):
+        context = super(SalidaCreateView, self).get_context_data(**kwargs)
+        context['pendientes_list'] = Salida.objects.filter(terminada=False)
+        context['filter_form'] = KardexInformeForm()
+        return context
 
-class SalidaUpdateView(LoginRequiredMixin, UpdateView):
+
+class SalidaUpdateView(LoginRequiredMixin, GroupRequiredMixin, UpdateView):
+    group_required = [u"kardex", ]
+    redirect_unauthenticated_users = True
+    raise_exception = True
+
+    """Para recibir el formulario que cierra la :model:`kardex.Salida`.
+    Redirecciona al detalle de la :model:`kardex.Salida`.
+    """
+
     model = Salida
     form_class = SalidaCerrarForm
 
 
-class SalidaDetailView(LoginRequiredMixin, DetailView):
+class SalidaDetailView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
+    group_required = [u"kardex", ]
+    redirect_unauthenticated_users = True
+    raise_exception = True
     model = Salida
     template_name = 'kardex/salida_detail.html'
 
@@ -134,11 +177,16 @@ class SalidaDetailView(LoginRequiredMixin, DetailView):
         context = super(SalidaDetailView, self).get_context_data(**kwargs)
         if not self.object.terminada:
             context['detalle_form'] = SalidaDetalleForm(initial={'salida': self.object})
-            context['cerrar_form'] = SalidaCerrarForm(instance=self.object, initial={'terminada': True})
+            context['cerrar_form'] = SalidaCerrarForm(
+                instance=self.object,
+                initial={'terminada': True})
         return context
 
 
-class SalidaPrintView(LoginRequiredMixin, DetailView):
+class SalidaPrintView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
+    group_required = [u"kardex", ]
+    redirect_unauthenticated_users = True
+    raise_exception = True
 
     """Vista para imprimir la salida.
     """
@@ -147,136 +195,17 @@ class SalidaPrintView(LoginRequiredMixin, DetailView):
     template_name = 'kardex/salida_print.html'
 
 
-class SalidaDetalleCreateView(LoginRequiredMixin, CreateView):
+class SalidaDetalleCreateView(LoginRequiredMixin, GroupRequiredMixin, CreateView):
+    group_required = [u"kardex", ]
+    redirect_unauthenticated_users = True
+    raise_exception = True
     model = SalidaDetalle
     form_class = SalidaDetalleForm
 
 
-class KardexInformeView(LoginRequiredMixin, FormView):
+class KardexInformeView(LoginRequiredMixin, GroupRequiredMixin, FormView):
+    group_required = [u"kardex", ]
+    redirect_unauthenticated_users = True
+    raise_exception = True
     template_name = "kardex/informe.html"
     form_class = KardexInformeForm
-
-# Desde aquí empieza el código a renovar
-# 
-# 
-# 
-# 
-# 
-# 
-
-
-def informe_general(request, ini, out):
-    if ini == "all":
-        ini = "2000-01-01"
-    if out == "all":
-        out = date.today()
-    equipo_list = Equipo.objects.all()
-    lista_vacia = []
-    for equipo in equipo_list:
-        if equipo.get_cant_entradas(ini, out) != 0:
-            lista_vacia.append({
-                'nombre': str(equipo), 'cantidad_ingresos': equipo.get_cant_entradas(ini, out),
-                'cantidad_egresos': equipo.get_cant_salidas(ini, out), 'ingreso': equipo.get_entradas(ini, out),
-                'egreso': equipo.get_salidas(ini, out), 'diferencia': equipo.get_entradas(ini, out) - equipo.get_salidas(ini, out),
-                'existencia_actual': equipo.get_existencia()})
-    return HttpResponse(json.dumps({'properties': lista_vacia}))
-
-
-class EquipoEntrada(LoginRequiredMixin, DetailView):
-    model = Equipo
-    def get(self, request, **kwargs):
-        lista_entrada = Entrada.objects.filter(equipo = self.get_object())
-        lista_vacia = []
-        for ingreso in lista_entrada:
-            lista_vacia.append({'id':ingreso.id, 'fecha':str(ingreso.fecha), 'cantidad': ingreso.cantidad, 'observacion':ingreso.observacion})
-        return HttpResponse(
-                json.dumps({
-                    "tablainf": lista_vacia,
-                    })
-                )
-
-class EquipoSalida(LoginRequiredMixin, DetailView):
-    model = Equipo
-    def get(self, request, **kwargs):
-        lista_salida = Salida.objects.filter()
-
-        lista2 = Salida.objects.filter(equipo = self.get_object())
-        lista_vacia = []
-        for egreso in lista2:
-            lista_vacia.append({'id':egreso.id, 'tecnico':str(egreso.salida.tecnico), 'fecha': str(egreso.salida.fecha), 'cantidad': egreso.cantidad})
-        return HttpResponse(
-            json.dumps({
-                "tablainf" : lista_vacia,
-                })
-            )
-    
-
-
-
-def get_informe_entradas(request, proveedor, tipo, ini, out):
-    #este se quedó
-    if ini == "all":
-        inicio = "2000-01-01"
-    else:
-        inicio = ini
-    
-    if out == "all":
-        fin = date.today()  
-    else:
-        fin = out   
-
-    if tipo == "all" and proveedor == "all" :
-        lista_entrada = Entrada.objects.filter(fecha__range=(inicio, fin))
-    else:
-        if tipo == "all":
-            if proveedor != "all":
-                lista_entrada = Entrada.objects.filter(fecha__range=(inicio, fin), proveedor__id = proveedor)
-        else:
-            if proveedor != "all":
-                lista_entrada = Entrada.objects.filter(fecha__range=(inicio, fin), proveedor__id=proveedor, tipo_entrada__id=tipo)
-            else:
-                lista_entrada = Entrada.objects.filter(fecha__range=(inicio, fin), tipo_entrada__id=tipo)
-
-    lista_vacia = []
-    if tipo == "2":
-        for ingreso in lista_entrada:
-            lista_vacia.append({'id':ingreso.id, 'equipo':str(ingreso.equipo), 'tipo':str(ingreso.tipo_entrada), 'prov': str(ingreso.proveedor), 'fecha':str(ingreso.fecha), 'cantidad': ingreso.cantidad, 'precio':str(ingreso.precio), 'factura':str(ingreso.factura)})
-    else:
-        for ingreso in lista_entrada:
-            lista_vacia.append({'id':ingreso.id, 'equipo':str(ingreso.equipo), 'tipo':str(ingreso.tipo_entrada), 'prov': str(ingreso.proveedor), 'fecha':str(ingreso.fecha), 'cantidad': ingreso.cantidad})
-
-    return HttpResponse(
-            json.dumps({
-                "tablainf": lista_vacia,
-                })
-            )
-
-
-def get_informe_salidas(request, tecnico, ini, out):
-    if ini == "all":
-        inicio = "2000-01-01"
-    else:
-        inicio = ini
-    if out == "all":
-        fin = date.today()
-    else:
-        fin = out
-
-    if tecnico == "all":
-        lista_entrada = Salida.objects.filter( salida__fecha__range=(inicio, fin))
-    else:
-        lista_entrada = Salida.objects.filter(salida__tecnico__id=tecnico, salida__fecha__range=(inicio, fin))
-    
-    lista_vacia = []
-    for salida in lista_entrada:
-        lista_vacia.append({'id':salida.id, 'tecnico':str(salida.salida.tecnico), 'fecha': str(salida.salida.fecha), 'equipo':str(salida.equipo), 'cantidad': salida.cantidad})
-    
-    return HttpResponse(
-            json.dumps({
-                "tablainf": lista_vacia, 
-                })
-            )
-
-    
-
-

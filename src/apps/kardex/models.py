@@ -147,6 +147,8 @@ class Entrada(models.Model):
         return reverse_lazy('kardex_entrada_detail', kwargs={'pk': self.id})
 
     def get_print_url(self):
+        """Para generar la URL de la vista de impresión de este modelo.
+        """
         return reverse_lazy('kardex_entrada_print', kwargs={'pk': self.id})
 
     @property
@@ -192,7 +194,7 @@ class Salida(models.Model):
         verbose_name_plural = 'Salidas'
 
     def __str__(self):
-        return str(self.tecnico)
+        return '{} ({})'.format(self.id, self.fecha)
 
     def get_absolute_url(self):
         return reverse_lazy('kardex_salida_detail', kwargs={'pk': self.id})
@@ -212,7 +214,7 @@ class SalidaDetalle(models.Model):
         unique_together = ('salida', 'equipo')
 
     def __str__(self):
-        return '{} - {}'.format(self.entrada, self.equipo)
+        return '{} - {}'.format(self.salida, self.equipo)
 
     def get_absolute_url(self):
         return self.salida.get_absolute_url()
