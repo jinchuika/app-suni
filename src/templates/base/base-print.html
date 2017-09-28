@@ -28,7 +28,7 @@
 
 </head>
 
-<body onload="window.print();">
+<body>
 	{% block content %}
 	{% endblock content %}
 </body>
@@ -38,6 +38,8 @@
 <script src="{% static "js/app.min.js" %}"></script>
 
 {% block extra_js %}
-
+<script>
+window.onload= function () { window.print();window.close();   } 
+</script>
 {% endblock extra_js %}
 </html>

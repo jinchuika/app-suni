@@ -569,3 +569,39 @@ class CalendarioTPEView(LoginRequiredMixin, TemplateView):
     """Vista para el calendario de TPE."""
 
     template_name = 'tpe/calendario.html'
+
+
+class TicketRecepcionPrintView(LoginRequiredMixin, DetailView):
+
+    """Para generar un formulario de recepción de garantía en base
+    a un :model:`tpe.TicketSoporte`.
+    """
+    
+    model = TicketSoporte
+    template_name = 'tpe/ticket_recepcion_print.html'
+
+    def get_context_data(self, **kwargs):
+        """Elige la recepción del equipo del listado de :model:`tpe.TicketRegistro`
+        relacionados al :model:`tpe.TicketSoporte`.
+        """
+        context = super(TicketRecepcionPrintView, self).get_context_data(**kwargs)
+        context['recepcion'] = self.object.registros.filter(tipo__id=3).first()
+        return context
+
+
+class TicketEntregaPrintView(LoginRequiredMixin, DetailView):
+
+    """Para generar un formulario de entrega de garantía en base
+    a un :model:`tpe.TicketSoporte`.
+    """
+    
+    model = TicketSoporte
+    template_name = 'tpe/ticket_entrega_print.html'
+
+    def get_context_data(self, **kwargs):
+        """Elige la entrega del equipo del listado de :model:`tpe.TicketRegistro`
+        relacionados al :model:`tpe.TicketSoporte`.
+        """
+        context = super(TicketEntregaPrintView, self).get_context_data(**kwargs)
+        context['entrega'] = self.object.registros.filter(tipo__id=4).first()
+        return context

@@ -55,6 +55,12 @@
 				<button class="btn btn-xs btn-success btn-print-registro" data-url="{% url 'ticket_registro_print_detalle' %}" data-ticket="{{ ticket.id }}">
 					<i class="fa fa-print"></i> Visita
 				</button>
+				<a href="{% url 'ticket_recepcion_print' pk=ticket.id %}" target="_blank" class="btn btn-xs btn-info">
+					<i class="fa fa-print"></i> Recepción
+				</a>
+				<a href="{% url 'ticket_entrega_print' pk=ticket.id %}" target="_blank" class="btn btn-xs btn-info">
+					<i class="fa fa-print"></i> Entrega
+				</a>
 			</div>
 		</div>
 		<div class="row">
