@@ -28,6 +28,9 @@ urlpatterns = [
     url(r'^tickettransporte/add/(?P<ticket_id>\d+)/$', TicketTransporteCreateView.as_view(), name='ticket_transporte_add'),
     url(r'^ticketreparacion/list/$', cache_page(5)(TicketReparacionInformeView.as_view()), name='ticket_reparacion_informe'),
 
+    url(r'^ticket/(?P<pk>\d+)/recepcion/$', TicketRecepcionPrintView.as_view(), name='ticket_recepcion_print'),
+    url(r'^ticket/(?P<pk>\d+)/entrega/$', TicketEntregaPrintView.as_view(), name='ticket_entrega_print'),
+
     url(r'^reparacion/list/$', cache_page(5)(ReparacionListView.as_view()), name='reparacion_list'),
     url(r'^reparacion/(?P<pk>\d+)/edit/$', cache_page(0)(ReparacionUpdateView.as_view()), name='reparacion_update'),
     url(r'^reparacion/repuesto/add/$', ReparacionRepuestoCreateView.as_view(), name='reparacion_repuesto_add'),
