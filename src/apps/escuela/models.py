@@ -1,3 +1,4 @@
+import requests
 from django.db import models
 from django.urls import reverse
 from django.utils import timezone
@@ -162,6 +163,26 @@ class Escuela(models.Model):
 
     def get_ficha_escolar(self):
         return 'https://public.tableau.com/views/1-FichaEscolarDatosGenerales/DatosGenerales?CODUDI={}'.format(self.codigo)
+
+    def get_capacitacion(self):
+        """Establece una conexión al servidor del SUNI1 para
+        obtener datos de capacitación. Esta función será eliminada en futuras versiones.
+
+        Returns:
+            dict: Diccionario con el nombre de la escuela y el listado de participantes
+        """
+        url = 'http://funsepa.net/suni/app/src/libs/informe_ca_escuela.php'
+        params = {'udi': self.codigo}
+        resp = requests.post(url=url, data=params)
+        return resp.json()
+
+    @property
+    def capacitacion(self):
+        data = self.get_capacitacion()
+        respuesta = {'capacitada': True if len(data[1]) > 0 else False}
+        if respuesta['capacitada'] is True:
+            respuesta['participantes'] = data[1]
+        return respuesta
 
 
 class EscContactoRol(models.Model):
