@@ -291,3 +291,44 @@ class Monitoreo(models.Model):
 
     def __str__(self):
         return self.comentario[:15] + '...'
+
+    def get_absolute_url(self):
+        return reverse_lazy('monitoreo_detail', kwargs={'pk': self.id})
+
+    def crear_evaluaciones(self):
+        preguntas = EvaluacionPregunta.objects.filter(activa=True)
+        for pregunta in preguntas:
+            punteo = (pregunta.maximo - pregunta.minimo) / 2
+            self.evaluaciones.create(pregunta=pregunta, punteo=int(punteo))
+
+
+class EvaluacionPregunta(models.Model):
+    pregunta = models.TextField()
+    activa = models.BooleanField(default=True)
+    minimo = models.PositiveIntegerField(default=1)
+    maximo = models.PositiveIntegerField(default=5)
+
+    class Meta:
+        verbose_name = "Pregunta de evaluación"
+        verbose_name_plural = "Preguntas de evaluación"
+
+    def __str__(self):
+        return self.pregunta
+
+
+class EvaluacionMonitoreo(models.Model):
+    monitoreo = models.ForeignKey(Monitoreo, related_name='evaluaciones')
+    pregunta = models.ForeignKey(EvaluacionPregunta)
+    punteo = models.PositiveSmallIntegerField()
+
+    class Meta:
+        verbose_name = "Evaluación de monitoreo"
+        verbose_name_plural = "Evaluaciones de monitoreo"
+        unique_together = ('monitoreo', 'pregunta')
+
+    def __str__(self):
+        return '{} - ({})'.format(self.pregunta, self.punteo)
+
+    @property
+    def porcentaje(self):
+        return self.punteo / (self.pregunta.maximo - self.pregunta.minimo + 1) * 100

@@ -7,7 +7,8 @@ from apps.users.models import Perfil
 from apps.tpe.models import (
     Equipamiento, Garantia, TicketSoporte, TicketRegistro,
     Monitoreo, TicketReparacion, TicketReparacionRepuesto,
-    TicketTransporte, TicketReparacionEstado, DispositivoTipo)
+    TicketTransporte, TicketReparacionEstado, DispositivoTipo,
+    EvaluacionMonitoreo)
 from apps.mye.models import Cooperante, Proyecto
 from apps.escuela.models import EscContacto, EscPoblacion
 from apps.escuela.forms import EscuelaBuscarForm
@@ -285,3 +286,30 @@ class TicketReparacionInformeForm(forms.Form):
     def __init__(self, *args, **kwargs):
         super(TicketReparacionInformeForm, self).__init__(*args, **kwargs)
         self.fields['tecnico_asignado'].label_from_instance = lambda obj: "%s" % obj.get_full_name()
+
+
+class EvaluacionMonitoreoCreateForm(forms.ModelForm):
+
+    """Este formulario se encarga de enviar la id del :model:`tpe.Monitoreo`
+    para crear las :model:`tpe.EvaluacionMonitoreo` correspondientes.
+    """
+
+    evaluacion = forms.BooleanField(
+        widget=forms.HiddenInput())
+
+    class Meta:
+        model = Monitoreo
+        fields = ('id',)
+        widgets = {
+            'id': forms.HiddenInput()
+        }
+
+
+class EvaluacionMonitoreoForm(forms.ModelForm):
+    class Meta:
+        model = EvaluacionMonitoreo
+        fields = '__all__'
+        widgets = {
+            'monitoreo': forms.HiddenInput(),
+            'pregunta': forms.HiddenInput()
+        }

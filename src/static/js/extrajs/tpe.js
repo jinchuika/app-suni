@@ -666,3 +666,30 @@
         crear_equipamiento_calendario();
     } 
 }( window.CalendarioTPE = window.CalendarioTPE || {}, jQuery ));
+
+
+(function( EvaluacionMonitoreo, $, undefined ) {
+
+    // Public
+    EvaluacionMonitoreo.init = function () {
+        $('#evaluacion-form').on('submit', function (e) {
+            e.preventDefault();
+            var data = [];
+            $.each($('.punteo'), function (index, item) {
+                $.ajax({
+                    beforeSend: function(xhr, settings) {
+                        xhr.setRequestHeader("X-CSRFToken", $('input[name="csrfmiddlewaretoken"]').val());
+                    },
+                    url: $(item).data('url'),
+                    data: {'punteo': $(item).val()},
+                    type: 'post',
+                    dataType: 'json',
+                    success: function (resultado) {
+                        $('#evaluacion-'+resultado.id).html(resultado.porcentaje);
+                    }
+                });
+            });
+            console.log(data);
+        })
+    }
+}( window.EvaluacionMonitoreo = window.ReparacionDetalle || {}, jQuery ));

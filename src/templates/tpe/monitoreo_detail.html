@@ -1,0 +1,70 @@
+{% extends "base/base.html" %}
+
+{% load staticfiles %}
+
+{% block content %}
+<section class="content">
+	<div class="row">
+		<div class="col-md-12">
+			<div class="box box-warning">
+				<div class="box-header">
+					<h3 class="box-title">Evaluación al equipamiento</h3>
+				</div>
+				<div class="box-body">
+					<h3>
+						<a href="{{ monitoreo.equipamiento.escuela.get_absolute_url }}">
+							{{ monitoreo.equipamiento.escuela }}
+						</a>, 
+						{{ monitoreo.equipamiento.escuela.direccion }}
+					</h3>
+					<h4>{{ monitoreo.comentario }}</h4>
+					<p>{{ monitoreo.fecha|date:"Y-m-d" }}</p>
+					{% if evaluacion_form %}
+					<form method="post" action="{% url 'monitoreo_update' pk=monitoreo.id %}">
+						{% csrf_token %}
+						{{ evaluacion_form.as_table }}
+						<input type="submit" class="btn btn-warning" value="Crear evaluación">
+					</form>
+					{% else %}
+					<form id="evaluacion-form">
+						<table class="table">
+							<thead>
+								<tr>
+									<th>Pregunta</th>
+									<th>Rango evaluación</th>
+									<th>Resultado</th>
+									<th>Porcentaje</th>
+								</tr>
+							</thead>
+							{% csrf_token %}
+							{% for evaluacion in monitoreo.evaluaciones.all %}
+							<tr>
+								<th>{{ evaluacion.pregunta }}</th>
+								<td>{{ evaluacion.pregunta.minimo }} - {{ evaluacion.pregunta.maximo }}</td>
+								<td>
+									<input type="number" class="punteo form-control" value="{{ evaluacion.punteo }}" name="punteo" data-url="{% url 'evaluacionmonitoreo_api_detail' pk=evaluacion.id %}">
+								</td>
+								<td>
+									<span id="evaluacion-{{ evaluacion.id }}">{{ evaluacion.porcentaje|floatformat:"2" }}</span>%
+								</td>
+							</tr>
+							{% endfor %}
+						</table>
+						<input type="submit" class="btn btn-primary" value="Guardar">
+					</form>
+					{% endif %}
+				</div>
+				<div class="box-footer">
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+{% endblock content %}
+
+{% block extra_js %}
+<script src="{% static "js/extrajs/tpe.js" %}"></script>
+<script>
+EvaluacionMonitoreo.init();
+</script>
+{% endblock extra_js %}

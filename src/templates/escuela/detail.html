@@ -82,7 +82,7 @@
 												<span class="info-box-icon"><i class="fa fa-graduation-cap"></i></span>
 												<div class="info-box-content">
 													<span class="info-box-text">Capacitación</span>
-													<span class="info-box-number"><h3></h3></span>
+													<span class="info-box-number"><h3>{% if escuela.capacitacion.capacitada %}Sí{% else %}No{% endif %}</h3></span>
 												</div>
 											</div>
 										</div>
@@ -178,7 +178,36 @@
 									</div>
 								</div>
 								<div class="tab-pane" id="capacitacion">
-								{% include "kalite/visita_list.html" with visita_list=escuela.visitas_kalite.all visita_kalite_nueva_form=visita_kalite_nueva_form %}
+									<div class="box-group" id="accordion">
+										<div class="panel box box-danger">
+											<div class="box-header with-border">
+												<h4 class="box-title">
+													<a data-toggle="collapse" data-parent="#accordion" href="#participantes_list" aria-expanded="false" class="collapsed">
+														Participantes
+													</a>
+												</h4>
+											</div>
+											<div id="participantes_list" class="panel-collapse collapse" aria-expanded="false" style="height: 0px;">
+												<div class="box-body">
+													{% include "cyd/participante_escuela_list.html" with participante_list=escuela.capacitacion.participantes %}
+												</div>
+											</div>
+										</div>
+										<div class="panel box box-success">
+											<div class="box-header with-border">
+												<h4 class="box-title">
+													<a data-toggle="collapse" data-parent="#accordion" href="#kalite_visitas" class="collapsed" aria-expanded="false">
+														Seguimiento KA Lite
+													</a>
+												</h4>
+											</div>
+											<div id="kalite_visitas" class="panel-collapse collapse" aria-expanded="false" style="height: 0px;">
+												<div class="box-body">
+													{% include "kalite/visita_list.html" with visita_list=escuela.visitas_kalite.all visita_kalite_nueva_form=visita_kalite_nueva_form %}
+												</div>
+											</div>
+										</div>
+									</div>
 								</div>
 
 								<div class="tab-pane" id="evaluacion">
