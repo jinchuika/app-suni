@@ -3,6 +3,8 @@ from django.utils import timezone
 from django.urls import reverse_lazy
 from django.contrib.auth.models import User
 
+from apps.tpe.models import Monitoreo
+
 
 class Cooperante(models.Model):
     """

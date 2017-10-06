@@ -39,5 +39,8 @@ urlpatterns = [
     url(r'^monitoreo/add/(?P<equipamiento_id>\d+)/$', MonitoreoCreateView.as_view(), name='monitoreo_add'),
     url(r'^monitoreo/list/$', cache_page(5)(MonitoreoListView.as_view()), name='monitoreo_list'),
 
+    url(r'^monitoreo/(?P<pk>\d+)/evaluacion/$', MonitoreoUpdateView.as_view(), name='monitoreo_update'),
+    url(r'^monitoreo/(?P<pk>\d+)/$', MonitoreoDetailView.as_view(), name='monitoreo_detail'),
+
     url(r'^calendario/$', CalendarioTPEView.as_view(), name='calendario_tpe'),
 ]

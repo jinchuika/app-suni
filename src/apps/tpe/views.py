@@ -14,13 +14,14 @@ from apps.escuela.models import Escuela
 from apps.tpe.models import (
     Equipamiento, Garantia, TicketSoporte, TicketRegistro,
     Monitoreo, TicketReparacionEstado, TicketReparacion, TicketReparacionRepuesto,
-    TicketTransporte)
+    TicketTransporte, EvaluacionMonitoreo)
 from apps.tpe.forms import (
     EquipamientoNuevoForm, EquipamientoForm, GarantiaForm, TicketSoporteForm,
     TicketCierreForm, TicketRegistroForm, EquipamientoListForm, MonitoreoListForm,
     TicketReparacionForm, TicketReparacionListForm, TicketReparacionUpdateForm,
     TicketReparacionRepuestoForm, TicketReparacionRepuestoAuthForm, TicketTransporteForm,
-    TicketRegistroUpdateForm, TicketInformeForm, TicketReparacionInformeForm)
+    TicketRegistroUpdateForm, TicketInformeForm, TicketReparacionInformeForm,
+    EvaluacionMonitoreoCreateForm)
 
 
 class EquipamientoCrearView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
@@ -576,7 +577,7 @@ class TicketRecepcionPrintView(LoginRequiredMixin, DetailView):
     """Para generar un formulario de recepción de garantía en base
     a un :model:`tpe.TicketSoporte`.
     """
-    
+
     model = TicketSoporte
     template_name = 'tpe/ticket_recepcion_print.html'
 
@@ -594,7 +595,7 @@ class TicketEntregaPrintView(LoginRequiredMixin, DetailView):
     """Para generar un formulario de entrega de garantía en base
     a un :model:`tpe.TicketSoporte`.
     """
-    
+
     model = TicketSoporte
     template_name = 'tpe/ticket_entrega_print.html'
 
@@ -605,3 +606,31 @@ class TicketEntregaPrintView(LoginRequiredMixin, DetailView):
         context = super(TicketEntregaPrintView, self).get_context_data(**kwargs)
         context['entrega'] = self.object.registros.filter(tipo__id=4).first()
         return context
+
+
+class MonitoreoDetailView(LoginRequiredMixin, DetailView):
+
+    """Vista para detalle de :model:`tpe.Monitoreo`. Se encarga de
+    administrar los :model:`tpe.EvaluacionMonitoreo`.
+    """
+
+    model = Monitoreo
+    template_name = 'tpe/monitoreo_detail.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(MonitoreoDetailView, self).get_context_data(**kwargs)
+        if self.object.evaluaciones.count() == 0:
+            context['evaluacion_form'] = EvaluacionMonitoreoCreateForm(
+                instance=self.object,
+                initial={'evaluacion': True})
+        return context
+
+
+class MonitoreoUpdateView(LoginRequiredMixin, UpdateView):
+    form_class = EvaluacionMonitoreoCreateForm
+    model = Monitoreo
+
+    def form_valid(self, form):
+        if form.cleaned_data['evaluacion'] is True:
+            form.instance.crear_evaluaciones()
+        return super(MonitoreoUpdateView, self).form_valid(form)

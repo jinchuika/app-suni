@@ -42,7 +42,12 @@
 					<tr>
 						<td>{{ monitoreo.comentario }}</td>
 						<td>{{ monitoreo.creado_por.perfil }}</td>
-						<td>{{ monitoreo.fecha|date:"Y-m-d" }}</td>
+						<td>
+							{{ monitoreo.fecha|date:"Y-m-d" }}
+							<a href="{{ monitoreo.get_absolute_url }}" class="btn btn-warning btn-xs pull-right">
+								<i class="fa fa-external-link p"></i>
+							</a>
+						</td>
 					</tr>
 				{% endfor %}
 			</tbody>
