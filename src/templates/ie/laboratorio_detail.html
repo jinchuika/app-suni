@@ -1,0 +1,210 @@
+{% extends "base/base.html" %}
+
+
+{% block content %}
+<section class="content">
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-md-12">
+				<div class="box box-success box-solid">
+					<div class="box-header">
+						<h3 class="box-title">Laboratorio {{ laboratorio }}</h3>
+					</div>
+					<div class="box-body">
+						<div class="row">
+							<div class="col-sm-3">
+								<div class="description-block border-right">
+									<h5 class="description-header">
+										<a href="{{ laboratorio.escuela.get_absolute_url }}">
+											{{ laboratorio.escuela }}
+										</a>
+									</h5>
+									<span class="description-text">
+										{{ laboratorio.escuela.codigo }}
+									</span><br>
+									<span class="description-text">
+										{{ laboratorio.escuela.municipio }}
+									</span>
+								</div>
+							</div>
+							<div class="col-sm-3">
+								<div class="description-block border-right">
+									<span class="description-text">Organización</span>
+									<h5 class="description-header">{{ laboratorio.organizacion }}</h5>
+								</div>
+							</div>
+							<div class="col-sm-3">
+								<div class="description-block border-right">
+									<span class="description-text">Computadoras</span>
+									<h5 class="description-header">{{ laboratorio.computadoras.count }}</h5>
+								</div>
+							</div>
+							<div class="col-sm-3">
+								<div class="description-block">
+									<span class="description-text">Fecha</span>
+									<h5 class="description-header">{{ laboratorio.fecha|date:"Y-m-d" }}</h5>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="row">
+			<div class="col-md-8">
+				<div class="box box-info">
+					<div class="box-header">
+						<h3 class="box-title">Detalle</h3>
+						<span class="box-tools pull-right">
+							<a href="{% url 'laboratorio_update' pk=laboratorio.id %}" class="btn btn-info btn-xs">
+								Editar
+							</a>
+						</span>
+					</div>
+					<div class="box-body no-padding">
+						<table class="table table-hover">
+							{% if form %}
+							{% comment %}
+								Si recibe un formulario, es de edición
+							{% endcomment %}
+							<form action="{{ action }}" method="post">
+							{% csrf_token %}
+							{{ form.as_table }}
+							<tr>
+								<td></td>
+								<td>
+									<input type="submit" class="btn btn-success" value="Guardar">
+									<a href="{{ laboratorio.get_absolute_url }}" class="btn btn-danger">Cancelar</a>
+								</td>
+							</tr>
+							</form>
+							{% else %}
+							{% comment %}
+								Si no recibe un formulario, muestra los datos generales
+							{% endcomment %}
+							<tr>
+								<th>Escuela</th>
+								<td>
+									<a href="{{ laboratorio.escuela.get_absolute_url }}">
+										{{ laboratorio.escuela }}
+									</a>
+								</td>
+							</tr>
+							<tr>
+								<th>Código</th>
+								<td>
+									{{ laboratorio.escuela.codigo }}
+								</td>
+							</tr>
+							<tr>
+								<th>Departamento</th>
+								<td>
+									{{ laboratorio.escuela.municipio.departamento }}
+								</td>
+							</tr>
+							<tr>
+								<th>Municipio</th>
+								<td>
+									{{ laboratorio.escuela.municipio.nombre }}
+								</td>
+							</tr>
+							<tr>
+								<th>Dirección</th>
+								<td>
+									{{ laboratorio.escuela.direccion }}
+								</td>
+							</tr>
+							<tr>
+								<th>Organización</th>
+								<td>
+									{{ laboratorio.organizacion }}
+								</td>
+							</tr>
+							<tr>
+								<th>Internet</th>
+								<td>
+									{% if laboratorio.internet %}Sí{% else %}No{% endif %}
+								</td>
+							</tr>
+							<tr>
+								<th>Red local</th>
+								<td>
+									{% if laboratorio.red %}Sí{% else %}No{% endif %}
+								</td>
+							</tr>
+							<tr>
+								<th>Observaciones</th>
+								<td>
+									{{ laboratorio.observaciones }}
+								</td>
+							</tr>
+							{% endif %}
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="row">
+			<div class="col-md-8">
+				<div class="box">
+					<div class="box-header">
+						<h3 class="box-title">Computadoras</h3>
+						<span class="box-tools pull-right">
+							<form action="{% url 'computadora_add' %}" method="post">
+								{% csrf_token %}
+								{{ computadora_form.as_table }}
+								<input type="submit" class="btn btn-info btn-xs" value="Agregar">
+							</form>
+						</span>
+					</div>
+					<div class="box-body no-padding">
+						<table class="table table-hover">
+							<thead>
+								<tr>
+									<th>ID.</th>
+									<th>Detalle</th>
+								</tr>
+							</thead>
+							<tbody>
+								{% for computadora in laboratorio.computadoras.all %}
+								<tr>
+									<td>{{ computadora.id }}</td>
+									<td>
+										<ul>
+											{% for serie in computadora.series.all %}
+											<li>
+												({{ serie.item.tipo }}) {{ serie.item }} [{{ serie }}]
+											</li>
+											{% endfor %}
+										</ul>
+									</td>
+								</tr>
+								{% endfor %}
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+			<div class="col-md-4">
+				<div class="box">
+					<div class="box-body">
+						<table class="table">
+							<form action="{% url 'serie_add' %}" method="post">
+								{% csrf_token %}
+								{{ serie_form.as_table }}
+								<tr>
+									<td colspan="2">
+										<input type="submit" class="btn btn-success" value="Guardar">
+									</td>
+								</tr>
+							</form>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+{% endblock content %}

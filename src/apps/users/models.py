@@ -2,13 +2,29 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.shortcuts import reverse
 from easy_thumbnails.fields import ThumbnailerImageField
-from apps.users.managers import *
 
 
-class PerfilQuerySet(models.QuerySet):
-    def capacitadores(self):
-        queryset = User.objects.filter(groups__name='cyd_capacitador')
-        return self.filter(user__in=queryset)
+class Organizacion(models.Model):
+    COLOR_CHOICES = (
+        ('#0073b7', 'azul'),
+        ('#39cccc', 'aqua'),
+        ('green', 'verde'),
+        ('#f3c612', 'amarillo'),
+        ('#dd4b39', 'rojo'),
+        ('#605ca8', 'morado'),
+        ('#f012be', 'rosa'),
+        ('#ff851b', 'gris'),
+        ('#777777', 'naranja'))
+
+    nombre = models.CharField(max_length=150)
+    color = models.CharField(max_length=20, default='#0073b7', choices=COLOR_CHOICES)
+
+    class Meta:
+        verbose_name = "Organización"
+        verbose_name_plural = "Organizaciones"
+
+    def __str__(self):
+        return self.nombre
 
 
 class Perfil(models.Model):
@@ -38,8 +54,13 @@ class Perfil(models.Model):
         editable=True,)
     color = models.CharField(max_length=20, default='#0073b7', choices=COLOR_CHOICES)
 
-    objects = models.Manager()
-    grupos = PerfilQuerySet.as_manager()
+    organizacion = models.ForeignKey(
+        Organizacion,
+        verbose_name='Organización',
+        on_delete=models.PROTECT,
+        default=1,
+        null=True,
+        blank=True)
 
     def get_nombre(self):
         return self.user.first_name
@@ -57,19 +78,4 @@ class Perfil(models.Model):
         verbose_name_plural = 'perfiles'
 
     def __str__(self):
-        return self.nombre + " " + self.apellido
-
-
-class PerfilTelefono(models.Model):
-    perfil = models.ForeignKey(Perfil)
-    numero = models.CharField(max_length=10)
-    principal = models.BooleanField(default=False)
-
-    objects = TelefonoManager()
-
-    class Meta:
-        verbose_name = "Teléfono de perfil"
-        verbose_name_plural = "Teléfonos de perfil"
-
-    def __str__(self):
-        return self.numero
+        return self.user.get_full_name()

@@ -1,6 +1,5 @@
 from datetime import date
 from django import forms
-from django.forms import ModelForm
 from django.utils import timezone
 from django.core.urlresolvers import reverse_lazy
 
@@ -14,7 +13,7 @@ from apps.mye.models import (
     Requisito, ValidacionVersion, Validacion)
 
 
-class CooperanteForm(ModelForm):
+class CooperanteForm(forms.ModelForm):
     class Meta:
         """Datos del  modelo
         """
@@ -23,80 +22,14 @@ class CooperanteForm(ModelForm):
         widgets = {'nombre': forms.TextInput(attrs={'class': 'form-control'})}
 
 
-class EscuelaCooperanteForm(ModelForm):
-    """Formulario para asignaciones de cooperantes a escuelas
-    """
-    eliminar = False
-
-    class Meta:
-        model = Escuela
-        fields = ['id', 'cooperante_asignado']
-        widgets = {
-            'id': forms.HiddenInput(),
-            'cooperante_asignado': forms.SelectMultiple(attrs={'class': 'select2'})
-        }
-
-    def __init__(self, eliminar, *args, **kwargs):
-        super(EscuelaCooperanteForm, self).__init__(*args, **kwargs)
-        self.eliminar = eliminar
-
-    def save(self, commit=True):
-        instance = super(EscuelaCooperanteForm, self).save(commit=False)
-        instance.asignacion_cooperante = instance.asignacion_cooperante.filter(activa=True)
-        # Revisa que el usuario tenga permiso para eliminar
-        if self.eliminar:
-            # Revisa si un cooperante fue eliminado
-            for asignacion in instance.asignacion_cooperante.all():
-                if asignacion.cooperante not in self.cleaned_data['cooperante_asignado']:
-                    asignacion.activa = False
-                    asignacion.fecha_anulacion = timezone.now()
-                    asignacion.save()
-        for cooperante in self.cleaned_data['cooperante_asignado']:
-            if EscuelaCooperante.objects.filter(escuela=instance, cooperante=cooperante, activa=True).count() == 0:
-                esc_coo = EscuelaCooperante(escuela=instance, cooperante=cooperante)
-                esc_coo.save()
-
-
-class ProyectoForm(ModelForm):
+class ProyectoForm(forms.ModelForm):
     class Meta:
         model = Proyecto
         fields = '__all__'
         widgets = {'nombre': forms.TextInput(attrs={'class': 'form-control'})}
 
 
-class EscuelaProyectoForm(ModelForm):
-    eliminar = False
-
-    class Meta:
-        model = Escuela
-        fields = ['id', 'proyecto_asignado']
-        widgets = {
-            'id': forms.HiddenInput(),
-            'proyecto_asignado': forms.SelectMultiple(attrs={'class': 'select2'})
-        }
-
-    def __init__(self, eliminar, *args, **kwargs):
-        super(EscuelaProyectoForm, self).__init__(*args, **kwargs)
-        self.eliminar = eliminar
-
-    def save(self, commit=True):
-        instance = super(EscuelaProyectoForm, self).save(commit=False)
-        instance.asignacion_proyecto = instance.asignacion_proyecto.filter(activa=True)
-        # Revisa que el usuario tenga permiso para eliminar
-        if self.eliminar:
-            # Revisa si un proyecto fue eliminado
-            for asignacion in instance.asignacion_proyecto.all():
-                if asignacion.proyecto not in self.cleaned_data['proyecto_asignado']:
-                    asignacion.activa = False
-                    asignacion.fecha_anulacion = timezone.now()
-                    asignacion.save()
-        for proyecto in self.cleaned_data['proyecto_asignado']:
-            if EscuelaProyecto.objects.filter(escuela=instance, proyecto=proyecto, activa=True).count() == 0:
-                esc_pro = EscuelaProyecto(escuela=instance, proyecto=proyecto)
-                esc_pro.save()
-
-
-class SolicitudVersionForm(ModelForm):
+class SolicitudVersionForm(forms.ModelForm):
     """Formulario para versiones de solicitudes
     """
     class Meta:
@@ -136,7 +69,7 @@ class SolicitudNuevaForm(forms.ModelForm):
         return instance
 
 
-class SolicitudForm(ModelForm):
+class SolicitudForm(forms.ModelForm):
     alumna = forms.IntegerField(
         label='Cantidad de niñas',
         widget=forms.NumberInput(attrs={'min': 0, 'class': 'form-control'}))
@@ -227,16 +160,6 @@ class SolicitudListForm(forms.Form):
     direccion = forms.CharField(
         label='Dirección',
         widget=forms.TextInput(),
-        required=False)
-    cooperante_mye = forms.ModelChoiceField(
-        label='Cooperante en proceso',
-        queryset=Cooperante.objects.all(),
-        widget=forms.Select(attrs={'class': 'select2'}),
-        required=False)
-    proyecto_mye = forms.ModelChoiceField(
-        label='Proyecto en proceso',
-        queryset=Proyecto.objects.all(),
-        widget=forms.Select(attrs={'class': 'select2'}),
         required=False)
     fecha_min = forms.CharField(
         label='Fecha mínima',
@@ -361,8 +284,6 @@ class InformeMyeForm(forms.ModelForm):
     CAMPO_CHOICES = (
         ("direccion", "Dirección"),
         ("sector", "Sector"),
-        ("cooperante_mye", "Cooperante en proceso"),
-        ("proyecto_mye", "Proyecto en proceso"),
         ("solicitud", "Solicitud"),
         ("validada", "Validada"),
         ("equipada", "Equipada"),
@@ -377,16 +298,6 @@ class InformeMyeForm(forms.ModelForm):
         (1, 'No'),)
     departamento = forms.ModelChoiceField(
         queryset=Departamento.objects.all(),
-        required=False)
-    cooperante_mye = forms.ModelMultipleChoiceField(
-        label='Cooperante en proceso',
-        queryset=Cooperante.objects.all(),
-        widget=forms.SelectMultiple(attrs={'class': 'select2'}),
-        required=False)
-    proyecto_mye = forms.ModelMultipleChoiceField(
-        label='Proyecto en proceso',
-        queryset=Proyecto.objects.all(),
-        widget=forms.SelectMultiple(attrs={'class': 'select2'}),
         required=False)
     codigo = forms.CharField(
         label='Código',

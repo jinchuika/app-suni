@@ -3,6 +3,7 @@ from django.db import models
 from django.urls import reverse_lazy
 from django.utils import timezone
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
 
 
 class EquipamientoEstado(models.Model):
@@ -61,6 +62,19 @@ class Equipamiento(models.Model):
 
     def get_absolute_url(self):
         return reverse_lazy('escuela_equipamiento_detail', kwargs={'pk': self.escuela.id, 'id_equipamiento': self.id})
+
+    @property
+    def evaluacion(self):
+        sumatoria = 0
+        cantidad = 0
+        for monitoreo in self.monitoreos.all():
+            if monitoreo.porcentaje_evaluacion is not None:
+                sumatoria += monitoreo.porcentaje_evaluacion
+                cantidad += 1
+        if cantidad > 0:
+            return sumatoria / cantidad
+        else:
+            return None
 
 
 class EquipamientoSeguimiento(models.Model):
@@ -301,6 +315,15 @@ class Monitoreo(models.Model):
             punteo = (pregunta.maximo - pregunta.minimo) / 2
             self.evaluaciones.create(pregunta=pregunta, punteo=int(punteo))
 
+    @property
+    def porcentaje_evaluacion(self):
+        cantidad = self.evaluaciones.count()
+        if cantidad > 0:
+            sumatoria = sum(evaluacion.porcentaje for evaluacion in self.evaluaciones.all())
+            return sumatoria / cantidad
+        else:
+            return None
+
 
 class EvaluacionPregunta(models.Model):
     pregunta = models.TextField()
@@ -314,6 +337,13 @@ class EvaluacionPregunta(models.Model):
 
     def __str__(self):
         return self.pregunta
+
+    def clean(self):
+        if self.minimo < 1:
+            self.minimo += 1
+            self.maximo += 1
+        if self.minimo >= self.maximo:
+            raise ValidationError({'maximo': 'El máximo debe ser mayor que el mínimo.'})
 
 
 class EvaluacionMonitoreo(models.Model):
@@ -331,4 +361,8 @@ class EvaluacionMonitoreo(models.Model):
 
     @property
     def porcentaje(self):
-        return self.punteo / (self.pregunta.maximo - self.pregunta.minimo + 1) * 100
+        return (self.punteo - 1) / (self.pregunta.maximo - self.pregunta.minimo) * 100
+
+    def clean(self):
+        if not self.pregunta.minimo <= self.punteo <= self.pregunta.maximo:
+            raise ValidationError({'punteo': 'El punteo debe estar entre el rango de la pregunta.'})

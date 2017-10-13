@@ -10,13 +10,14 @@
 		</h3>
 		<div class="box-tools pull-right">
 			<button type="button" class="btn btn-box-tool" data-widget="collapse">
-				<i class="fa fa-plus"></i>
+				<i class="fa fa-minus"></i>
 			</button>
 		</div>
 	</div>
 	<div class="box-body">
 		{% if perms.tpe.add_monitoreo %}
-			<form class="monitoreo-form" action="{% url 'monitoreo_add' equipamiento_id=monitoreo.id %}">
+			<form class="monitoreo-form" action="{% url 'monitoreo_api' %}" data-equipamiento="{{ monitoreo.id }}">
+				{% csrf_token %}
 				<button class="btn btn-warning">
 					Nuevo registro <i class="fa fa-plus" aria-hidden="true"></i>
 				</button>
@@ -29,6 +30,7 @@
 			</a><br>
 		{% endfor %}
 		<h4>Entrega {{ monitoreo.id }}</h4>
+		<h5>{{ monitoreo.evaluacion }}</h5>
 		<table class="table table-striped table-hover">
 			<thead>
 				<tr>
@@ -41,7 +43,10 @@
 				{% for monitoreo in monitoreo.monitoreos.all %}
 					<tr>
 						<td>{{ monitoreo.comentario }}</td>
-						<td>{{ monitoreo.creado_por.perfil }}</td>
+						<td>
+							{{ monitoreo.creado_por.perfil }}
+							({{ monitoreo.porcentaje_evaluacion|default_if_none:"" }}%)
+						</td>
 						<td>
 							{{ monitoreo.fecha|date:"Y-m-d" }}
 							<a href="{{ monitoreo.get_absolute_url }}" class="btn btn-warning btn-xs pull-right">

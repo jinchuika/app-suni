@@ -34,14 +34,6 @@ class EscuelaBuscarForm(forms.Form):
         (None, 'No importa'),
         (False, 'Sí'),
         (True, 'No'),)
-    cooperante_mye = forms.ModelChoiceField(
-        label='Cooperante en proceso',
-        queryset=Cooperante.objects.all(),
-        required=False)
-    proyecto_mye = forms.ModelChoiceField(
-        label='Proyecto en proceso',
-        queryset=Proyecto.objects.all(),
-        required=False)
     codigo = forms.CharField(
         label='Código',
         required=False)

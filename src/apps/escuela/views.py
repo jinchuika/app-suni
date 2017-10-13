@@ -8,11 +8,10 @@ from braces.views import LoginRequiredMixin, PermissionRequiredMixin
 
 from apps.main.models import Coordenada
 from apps.mye.models import (
-    EscuelaCooperante, EscuelaProyecto,
     Solicitud, Validacion, ValidacionTipo)
 from apps.mye.forms import (
-    EscuelaCooperanteForm, EscuelaProyectoForm, SolicitudNuevaForm,
-    SolicitudForm, ValidacionNuevaForm, ValidacionForm)
+    SolicitudNuevaForm, SolicitudForm,
+    ValidacionNuevaForm, ValidacionForm)
 from apps.tpe.models import Equipamiento
 from apps.tpe.forms import EquipamientoForm, EquipamientoNuevoForm
 from apps.kalite.forms import VisitaForm
@@ -86,74 +85,6 @@ class EscuelaDetail(LoginRequiredMixin, DetailView):
                 context['equipamiento_id'] = self.kwargs['id_equipamiento']
 
         return context
-
-
-class EscuelaCooperanteUpdate(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
-    """Actualiza los cooperantes asignados a una escuela
-    """
-    model = Escuela
-    form_class = EscuelaCooperanteForm
-    template_name = 'mye/cooperante_asignacion_escuela.html'
-    permission_required = 'mye.change_escuelacooperante'
-    redirect_unauthenticated_users = True
-    raise_exception = True
-
-    def get_form(self, *args, **kwargs):
-        """Crea el formulario para el template
-
-        Args:
-            *args: Description
-            **kwargs: Description
-
-        Returns:
-            Form: Formulario para cooperantes
-        """
-        eliminar = self.request.user.has_perm('mye.delete_escuela_cooperante')
-        form = self.form_class(eliminar=eliminar, **self.get_form_kwargs())
-        form.initial['cooperante_asignado'] = [c.cooperante for c in EscuelaCooperante.objects.filter(escuela=self.object, activa=True)]
-        return form
-
-    def get_success_url(self):
-        """Obtiene la url de la escuela tras actualizar el cooperante
-
-        Returns:
-            string: url de la escuela
-        """
-        return reverse('escuela_detail', kwargs={'pk': self.kwargs['pk']})
-
-
-class EscuelaProyectoUpdate(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
-    """Actualiza los proyectos asignados a la escuela
-    """
-    model = Escuela
-    form_class = EscuelaProyectoForm
-    template_name = 'mye/proyecto_asignacion_escuela.html'
-    permission_required = 'mye.change_escuelaproyecto'
-    redirect_unauthenticated_users = True
-    raise_exception = True
-
-    def get_form(self, *args, **kwargs):
-        """Crea el formulario para los proyectos
-
-        Args:
-            *args: Description
-            **kwargs: Description
-
-        Returns:
-            Form: Formulario de proyectos
-        """
-        eliminar = self.request.user.has_perm('mye.delete_escuela_proyecto')
-        form = self.form_class(eliminar=eliminar, **self.get_form_kwargs())
-        form.initial['proyecto_asignado'] = [c.proyecto for c in EscuelaProyecto.objects.filter(escuela=self.object, activa=True)]
-        return form
-
-    def get_success_url(self):
-        """Obtiene la url de la escuela del proyecto
-
-        Returns:
-            string: url de la escuela
-        """
-        return reverse('escuela_detail', kwargs={'pk': self.kwargs['pk']})
 
 
 class EscuelaEditar(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):

@@ -61,7 +61,8 @@ LOCAL_APPS = (
     'apps.tpe',
     'apps.dh',
     'apps.naat',
-    'apps.kalite')
+    'apps.kalite',
+    'apps.ie')
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 
@@ -141,9 +142,9 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/1.10/topics/i18n/
 
-LANGUAGE_CODE = 'es-es'
+LANGUAGE_CODE = 'es-GT'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'America/Guatemala'
 
 USE_I18N = True
 
@@ -223,3 +224,8 @@ CRONTAB_DJANGO_PROJECT_NAME = 'src'
 CRONJOBS = [
     ('*/59 * * * *', 'apps.main.cron.backup_cron', '>> ~/cronjob.log')
 ]
+
+# Para conectar a SUNI1
+LEGACY_URL = {
+    'cyd_informe': ''
+}
