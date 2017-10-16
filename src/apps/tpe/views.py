@@ -1,6 +1,6 @@
 from math import floor
 from django.shortcuts import reverse
-from django.db.models import Count, Q
+from django.db.models import Count
 from django.utils.timezone import datetime
 from django.views.generic import DetailView, ListView, View, TemplateView
 from django.views.generic.edit import CreateView, UpdateView
@@ -14,7 +14,7 @@ from apps.escuela.models import Escuela
 from apps.tpe.models import (
     Equipamiento, Garantia, TicketSoporte, TicketRegistro,
     Monitoreo, TicketReparacionEstado, TicketReparacion, TicketReparacionRepuesto,
-    TicketTransporte, EvaluacionMonitoreo)
+    TicketTransporte)
 from apps.tpe.forms import (
     EquipamientoNuevoForm, EquipamientoForm, GarantiaForm, TicketSoporteForm,
     TicketCierreForm, TicketRegistroForm, EquipamientoListForm, MonitoreoListForm,

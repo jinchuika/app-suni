@@ -2,9 +2,10 @@ import requests
 from django.db import models
 from django.urls import reverse
 from django.utils import timezone
+from django.conf import settings
+
 from apps.main.models import Municipio, Coordenada
 from apps.main.utils import get_telefonica
-from apps.mye.models import Cooperante, Proyecto, Solicitud
 
 
 class EscArea(models.Model):
@@ -110,25 +111,16 @@ class Escuela(models.Model):
     distrito = models.CharField(max_length=10, null=True, blank=True)
     municipio = models.ForeignKey(Municipio, on_delete=models.PROTECT)
     nombre = models.CharField(max_length=250)
-    direccion = models.TextField()
-    telefono = models.CharField(max_length=12, null=True, blank=True)
+    direccion = models.TextField(verbose_name='Dirección')
+    telefono = models.CharField(max_length=12, null=True, blank=True, verbose_name='Teléfono')
     nivel = models.ForeignKey(EscNivel, on_delete=models.PROTECT)
     sector = models.ForeignKey(EscSector, on_delete=models.PROTECT)
-    area = models.ForeignKey(EscArea, on_delete=models.PROTECT)
+    area = models.ForeignKey(EscArea, on_delete=models.PROTECT, verbose_name='Área')
     status = models.ForeignKey(EscStatus, on_delete=models.PROTECT)
     modalidad = models.ForeignKey(EscModalidad, on_delete=models.PROTECT)
     jornada = models.ForeignKey(EscJornada, on_delete=models.PROTECT)
     plan = models.ForeignKey(EscPlan, on_delete=models.PROTECT)
     mapa = models.ForeignKey(Coordenada, null=True, blank=True)
-
-    cooperante_asignado = models.ManyToManyField(
-        Cooperante,
-        through='mye.EscuelaCooperante',
-        blank=True)
-    proyecto_asignado = models.ManyToManyField(
-        Proyecto,
-        through='mye.EscuelaProyecto',
-        blank=True)
 
     class Meta:
         verbose_name = "Escuela"
@@ -151,18 +143,9 @@ class Escuela(models.Model):
         return True if self.equipamiento.count() > 0 else False
     equipada = property(es_equipada)
 
-    def tiene_solicitud(self):
-        return Solicitud.objects.filter(escuela=self).count() > 0
-
-    def es_reservada(self):
-        if self.asignacion_cooperante.filter(activa=True) or self.asignacion_proyecto.filter(activa=True):
-            return True
-        else:
-            return False
-    reservada = property(es_reservada)
-
     def get_ficha_escolar(self):
-        return 'https://public.tableau.com/views/1-FichaEscolarDatosGenerales/DatosGenerales?CODUDI={}'.format(self.codigo)
+        return 'https://public.tableau.com/views/1-FichaEscolarDatosGenerales/DatosGenerales?CODUDI={}'.format(
+            self.codigo)
 
     def get_capacitacion(self):
         """Establece una conexión al servidor del SUNI1 para
@@ -171,10 +154,13 @@ class Escuela(models.Model):
         Returns:
             dict: Diccionario con el nombre de la escuela y el listado de participantes
         """
-        url = 'http://funsepa.net/suni/app/src/libs/informe_ca_escuela.php'
-        params = {'udi': self.codigo}
-        resp = requests.post(url=url, data=params)
-        return resp.json()
+        url = settings.LEGACY_URL['cyd_informe']
+        if url is not '':
+            params = {'udi': self.codigo}
+            resp = requests.post(url=url, data=params)
+            return resp.json()
+        else:
+            return [[], []]
 
     @property
     def capacitacion(self):
@@ -240,13 +226,23 @@ class EscPoblacion(models.Model):
     escuela = models.ForeignKey(Escuela, related_name="poblaciones")
     fecha = models.DateField(default=timezone.now)
 
-    alumna = models.IntegerField(default=0)
-    alumno = models.IntegerField(default=0)
-    maestra = models.IntegerField(default=0)
-    maestro = models.IntegerField(default=0)
+    alumna = models.PositiveIntegerField(
+        default=0, verbose_name='Estudiantes mujeres')
+    alumno = models.PositiveIntegerField(
+        default=0, verbose_name='Estudiantes varones')
+    maestra = models.PositiveIntegerField(
+        default=0, verbose_name='Docentes mujeres')
+    maestro = models.PositiveIntegerField(
+        default=0, verbose_name='Dicentes varones')
 
-    total_alumno = models.IntegerField(null=True, blank=True)
-    total_maestro = models.IntegerField(null=True, blank=True)
+    total_alumno = models.PositiveIntegerField(
+        null=True,
+        blank=True,
+        verbose_name='Total de estudiantes')
+    total_maestro = models.PositiveIntegerField(
+        null=True,
+        blank=True,
+        verbose_name='Total de docentes')
 
     class Meta:
         verbose_name = "Población de escuela"
@@ -256,8 +252,14 @@ class EscPoblacion(models.Model):
         return str(self.escuela)[:15] + " - " + str(self.fecha)
 
     def save(self, *args, **kwargs):
+        """En caso de que no se hubiera ingresado el total, suma las cantidades
+        detalladas para establecerlo.
+        """
         if self.total_alumno is None or self.total_alumno == 0:
             self.total_alumno = self.alumna + self.alumno
         if self.total_maestro is None or self.total_maestro == 0:
             self.total_maestro = self.maestra + self.maestro
         super(EscPoblacion, self).save(*args, **kwargs)
+
+    def get_absolute_url(self):
+        return self.escuela.get_absolute_url()

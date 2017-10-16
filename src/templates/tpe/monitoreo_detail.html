@@ -5,20 +5,50 @@
 {% block content %}
 <section class="content">
 	<div class="row">
-		<div class="col-md-12">
+		<div class="col-md-4">
 			<div class="box box-warning">
 				<div class="box-header">
 					<h3 class="box-title">Evaluación al equipamiento</h3>
+					<span class="box-tools pull-right"></span>
 				</div>
 				<div class="box-body">
-					<h3>
-						<a href="{{ monitoreo.equipamiento.escuela.get_absolute_url }}">
-							{{ monitoreo.equipamiento.escuela }}
-						</a>, 
-						{{ monitoreo.equipamiento.escuela.direccion }}
-					</h3>
 					<h4>{{ monitoreo.comentario }}</h4>
-					<p>{{ monitoreo.fecha|date:"Y-m-d" }}</p>
+					<p></p>					
+					<ul class="timeline">
+						<li class="time-label">
+							<span class="bg-yellow">
+								{{ monitoreo.fecha|date:"Y-m-d" }}
+							</span>
+						</li>
+						<li>
+							<div class="timeline-item">
+								<h3 class="timeline-header">
+									<a href="{{ monitoreo.equipamiento.escuela.get_absolute_url }}">
+										{{ monitoreo.equipamiento.escuela }}
+									</a>
+								</h3>
+								<div class="timeline-body">
+									{{ monitoreo.equipamiento.escuela.direccion }}
+									<hr>
+									<i class="fa fa-user"></i> {{ monitoreo.creado_por.get_full_name }}
+								</div>
+							</div>
+						</li>
+						<li class="time-label">
+							<span class="bg-green">
+								{{ monitoreo.porcentaje_evaluacion }} %
+							</span>
+						</li>
+					</ul>
+				</div>
+				<div class="box-footer">
+				</div>
+			</div>
+		</div>
+
+		<div class="col-md-8">
+			<div class="box box-warning">
+				<div class="box-body">
 					{% if evaluacion_form %}
 					<form method="post" action="{% url 'monitoreo_update' pk=monitoreo.id %}">
 						{% csrf_token %}
@@ -53,8 +83,6 @@
 						<input type="submit" class="btn btn-primary" value="Guardar">
 					</form>
 					{% endif %}
-				</div>
-				<div class="box-footer">
 				</div>
 			</div>
 		</div>

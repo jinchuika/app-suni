@@ -8,7 +8,6 @@ from braces.views import (
 
 from apps.dh.forms import EventoDHForm
 from apps.dh.models import EventoDH
-from apps.mye.models import EscuelaCooperante, EscuelaProyecto
 
 
 class EventoDHCreateView(LoginRequiredMixin, GroupRequiredMixin, CreateView):
@@ -64,16 +63,3 @@ class EventoDHCalendarHomeView(CsrfExemptMixin, JsonRequestResponseMixin, View):
                 'color': evento.tipo_evento.color,
                 'url': evento.get_absolute_url()})
         return self.render_json_response(response)
-
-
-class ReservacionListView(LoginRequiredMixin, GroupRequiredMixin, TemplateView):
-    group_required = [u"dejando_huella", ]
-    redirect_unauthenticated_users = True
-    raise_exception = True
-    template_name = 'dh/reservacion_list.html'
-
-    def get_context_data(self, **kwargs):
-        context = super(ReservacionListView, self).get_context_data(**kwargs)
-        context['cooperante_list'] = EscuelaCooperante.objects.all()
-        context['proyecto_list'] = EscuelaProyecto.objects.all()
-        return context

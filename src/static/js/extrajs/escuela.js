@@ -15,17 +15,30 @@
         });
     }
 
-    var crear_monitoreo = function (url, comentario) {
+    var crear_monitoreo = function (url, comentario, equipamiento) {
         var data = {
-            "comentario": comentario
+            "comentario": comentario,
+            "equipamiento": equipamiento
         }
-        $.post(url, JSON.stringify(data)).then(function (respuesta) {
-            var fecha = new Date(respuesta.fecha);
-            var td_fecha = $('<td></td>').text(fecha.getFullYear() + "-" + (fecha.getMonth()+1) + "-" + fecha.getDate());
-            var td_usuario = $('<td></td>').text(respuesta.usuario);
-            var td = $('<td></td>').text(respuesta.comentario);
-            var tr = $('<tr></tr>').append(td).append(td_usuario). append(td_fecha);
-            $('#body-monitoreo-' + respuesta.equipamiento_id).append(tr);
+        $.ajax({
+            beforeSend: function(xhr, settings) {
+                xhr.setRequestHeader("X-CSRFToken", $('input[name="csrfmiddlewaretoken"]').val());
+            },
+            url: url,
+            data: data,
+            type: 'post',
+            dataType: 'json',
+            success: function (respuesta) {
+                console.log(respuesta);
+                var fecha = new Date(respuesta.fecha);
+                var fecha_text = fecha.getFullYear() + "-" + (fecha.getMonth()+1) + "-" + fecha.getDate();
+                var btn = '<a href="'+respuesta.url+'" class="btn btn-xs btn-warning pull-right"><i class="fa fa-external-link p"></i></a>';
+                var td_fecha = $('<td></td>').html(fecha_text+btn);
+                var td_usuario = $('<td></td>').text(respuesta.creado_por);
+                var td = $('<td></td>').text(respuesta.comentario);
+                var tr = $('<tr></tr>').append(td).append(td_usuario).append(td_fecha);
+                $('#body-monitoreo-' + respuesta.equipamiento).append(tr);
+            }
         });
     }
 
@@ -33,8 +46,15 @@
     PerfilEscuela.init = function () {
         $('#form-nueva-solicitud').hide();
         $('#form-nuevo-equipamiento').hide();
+        $('#btn-equipamiento').click(function () {
+            $('#form-nuevo-equipamiento').toggle();
+        });
         $('#form-nueva-validacion').hide();
         $('#form-nueva-visita-kalite').hide();
+        $('#form-nueva-poblacion').hide();
+        $('#btn-poblacion').click(function () {
+            $('#form-nueva-poblacion').toggle();
+        });
         $('.comentario-btn').click(function () {
             var id_validacion = $(this).data('id');
             var url = $(this).data('url');
@@ -53,16 +73,17 @@
         $('.monitoreo-form').submit(function (e) {
             e.preventDefault();
             var url = $(this).prop('action');
+            var equipamiento = $(this).data('equipamiento');
             bootbox.prompt({
                 title: "Nuevo registro de monitoreo",
                 inputType: 'textarea',
                 callback: function (comentario) {
                     if (comentario) {
-                        crear_monitoreo(url, comentario);
+                        crear_monitoreo(url, comentario, equipamiento);
                     }
                 }
             });
-        })
+        });
     }   
 }( window.PerfilEscuela = window.PerfilEscuela || {}, jQuery ));
 

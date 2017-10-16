@@ -8,17 +8,20 @@ from braces.views import LoginRequiredMixin, PermissionRequiredMixin
 
 from apps.main.models import Coordenada
 from apps.mye.models import (
-    EscuelaCooperante, EscuelaProyecto,
-    Solicitud, Validacion, ValidacionTipo)
+    Solicitud, Validacion)
 from apps.mye.forms import (
-    EscuelaCooperanteForm, EscuelaProyectoForm, SolicitudNuevaForm,
-    SolicitudForm, ValidacionNuevaForm, ValidacionForm)
+    SolicitudNuevaForm, SolicitudForm,
+    ValidacionNuevaForm, ValidacionForm)
 from apps.tpe.models import Equipamiento
 from apps.tpe.forms import EquipamientoForm, EquipamientoNuevoForm
 from apps.kalite.forms import VisitaForm
 
-from apps.escuela.forms import FormEscuelaCrear, ContactoForm, EscuelaBuscarForm
-from apps.escuela.models import Escuela, EscContacto, EscContactoTelefono, EscContactoMail
+from apps.ie.forms import LaboratorioCreateForm
+
+from apps.escuela.forms import (
+    FormEscuelaCrear, ContactoForm, EscuelaBuscarForm, EscPoblacionForm)
+from apps.escuela.models import (
+    Escuela, EscContacto, EscContactoTelefono, EscContactoMail, EscPoblacion)
 from apps.main.mixins import InformeMixin
 
 
@@ -55,15 +58,14 @@ class EscuelaDetail(LoginRequiredMixin, DetailView):
             list: Variables de contexto para el template
         """
         context = super(EscuelaDetail, self).get_context_data(**kwargs)
+        context['poblacion_form'] = EscPoblacionForm(initial={'escuela': self.object.pk})
         context['solicitud_nueva_form'] = SolicitudNuevaForm(initial={'escuela': self.object.pk})
         context['equipamiento_nuevo_form'] = EquipamientoNuevoForm(initial={'escuela': self.object.pk})
         context['validacion_nueva_form'] = ValidacionNuevaForm(initial={'escuela': self.object.pk})
         context['visita_kalite_nueva_form'] = VisitaForm(initial={'escuela': self.object.pk})
-        if self.request.user.groups.filter(name='mye_validacion_nula').count() > 0:
-            # para permitir :model:`mye.Validacion` sin requisitos
-            context['validacion_nueva_form'].fields['tipo'].queryset = ValidacionTipo.objects.all()
-        else:
-            context['validacion_nueva_form'].fields['tipo'].queryset = ValidacionTipo.objects.exclude(id=3)
+
+        if self.object.poblaciones.count() > 0:
+            context['laboratorio_form'] = LaboratorioCreateForm(initial={'escuela': self.object.pk})
 
         if 'id_solicitud' in self.kwargs:
             # Crea un formulario para editar la solicitud si encuentra que se envió una ID
@@ -78,82 +80,14 @@ class EscuelaDetail(LoginRequiredMixin, DetailView):
                 context['validacion_form'] = ValidacionForm(instance=validacion)
                 context['validacion_id'] = self.kwargs['id_validacion']
 
-        # Crea un formulario de equipamiento si encuentra la ID
         if 'id_equipamiento' in self.kwargs:
+            # Crea un formulario de equipamiento si encuentra la ID
             equipamiento = Equipamiento.objects.get(pk=self.kwargs['id_equipamiento'])
             if equipamiento in self.object.equipamiento.all():
                 context['equipamiento_form'] = EquipamientoForm(instance=equipamiento)
                 context['equipamiento_id'] = self.kwargs['id_equipamiento']
 
         return context
-
-
-class EscuelaCooperanteUpdate(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
-    """Actualiza los cooperantes asignados a una escuela
-    """
-    model = Escuela
-    form_class = EscuelaCooperanteForm
-    template_name = 'mye/cooperante_asignacion_escuela.html'
-    permission_required = 'mye.change_escuelacooperante'
-    redirect_unauthenticated_users = True
-    raise_exception = True
-
-    def get_form(self, *args, **kwargs):
-        """Crea el formulario para el template
-
-        Args:
-            *args: Description
-            **kwargs: Description
-
-        Returns:
-            Form: Formulario para cooperantes
-        """
-        eliminar = self.request.user.has_perm('mye.delete_escuela_cooperante')
-        form = self.form_class(eliminar=eliminar, **self.get_form_kwargs())
-        form.initial['cooperante_asignado'] = [c.cooperante for c in EscuelaCooperante.objects.filter(escuela=self.object, activa=True)]
-        return form
-
-    def get_success_url(self):
-        """Obtiene la url de la escuela tras actualizar el cooperante
-
-        Returns:
-            string: url de la escuela
-        """
-        return reverse('escuela_detail', kwargs={'pk': self.kwargs['pk']})
-
-
-class EscuelaProyectoUpdate(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
-    """Actualiza los proyectos asignados a la escuela
-    """
-    model = Escuela
-    form_class = EscuelaProyectoForm
-    template_name = 'mye/proyecto_asignacion_escuela.html'
-    permission_required = 'mye.change_escuelaproyecto'
-    redirect_unauthenticated_users = True
-    raise_exception = True
-
-    def get_form(self, *args, **kwargs):
-        """Crea el formulario para los proyectos
-
-        Args:
-            *args: Description
-            **kwargs: Description
-
-        Returns:
-            Form: Formulario de proyectos
-        """
-        eliminar = self.request.user.has_perm('mye.delete_escuela_proyecto')
-        form = self.form_class(eliminar=eliminar, **self.get_form_kwargs())
-        form.initial['proyecto_asignado'] = [c.proyecto for c in EscuelaProyecto.objects.filter(escuela=self.object, activa=True)]
-        return form
-
-    def get_success_url(self):
-        """Obtiene la url de la escuela del proyecto
-
-        Returns:
-            string: url de la escuela
-        """
-        return reverse('escuela_detail', kwargs={'pk': self.kwargs['pk']})
 
 
 class EscuelaEditar(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
@@ -340,3 +274,8 @@ class EscuelaBuscar(InformeMixin):
                 'equipada': escuela.equipada
             } for escuela in queryset
         ]
+
+
+class EscPoblacionCreateView(CreateView):
+    model = EscPoblacion
+    form_class = EscPoblacionForm

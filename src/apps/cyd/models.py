@@ -299,7 +299,7 @@ class Participante(models.Model):
         super(Participante, self).save(*args, **kwargs)
 
     def asignar(self, grupo):
-        """Crea un registro de :model:`cyd.Asignacion` para el :model:`cyd.Participante` 
+        """Crea un registro de :model:`cyd.Asignacion` para el :model:`cyd.Participante`
         actual hacia un :model:`cyd.Grupo` especificado. Las notas son generadas
         automáticamente mediante `cyd.Asignacion.asignar_notas()`.
         """
