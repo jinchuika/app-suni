@@ -35,37 +35,6 @@ class EscuelaCooperanteManager(models.Manager):
         return super(EscuelaCooperanteManager, self).get_queryset().filter(activa=True)
 
 
-class EscuelaCooperante(models.Model):
-    """
-    Description: Asignación de cooperante a escuela
-    """
-    escuela = models.ForeignKey('escuela.Escuela', related_name='asignacion_cooperante')
-    cooperante = models.ForeignKey(Cooperante, related_name='escuela_asignada')
-    activa = models.BooleanField(default=True)
-    fecha_activacion = models.DateField(null=True, blank=True, default=timezone.now)
-    fecha_anulacion = models.DateField(null=True, blank=True)
-
-    objects = models.Manager()
-    activas = EscuelaCooperanteManager()
-
-    def __str__(self):
-        return str(self.cooperante) + " - " + str(self.escuela)
-
-
-class EscuelaProyecto(models.Model):
-    """
-    Description: Asignación de proyecto a escuela
-    """
-    escuela = models.ForeignKey('escuela.Escuela', related_name='asignacion_proyecto')
-    proyecto = models.ForeignKey(Proyecto, related_name='escuela_asignada')
-    activa = models.BooleanField(default=True)
-    fecha_activacion = models.DateField(null=True, blank=True, default=timezone.now)
-    fecha_anulacion = models.DateField(null=True, blank=True)
-
-    def __str__(self):
-        return str(self.proyecto) + " - " + str(self.escuela)
-
-
 class Requisito(models.Model):
     """
     Description: Requerimiento de solicitud

@@ -8,7 +8,7 @@ from braces.views import LoginRequiredMixin, PermissionRequiredMixin
 
 from apps.main.models import Coordenada
 from apps.mye.models import (
-    Solicitud, Validacion, ValidacionTipo)
+    Solicitud, Validacion)
 from apps.mye.forms import (
     SolicitudNuevaForm, SolicitudForm,
     ValidacionNuevaForm, ValidacionForm)
@@ -16,8 +16,12 @@ from apps.tpe.models import Equipamiento
 from apps.tpe.forms import EquipamientoForm, EquipamientoNuevoForm
 from apps.kalite.forms import VisitaForm
 
-from apps.escuela.forms import FormEscuelaCrear, ContactoForm, EscuelaBuscarForm
-from apps.escuela.models import Escuela, EscContacto, EscContactoTelefono, EscContactoMail
+from apps.ie.forms import LaboratorioCreateForm
+
+from apps.escuela.forms import (
+    FormEscuelaCrear, ContactoForm, EscuelaBuscarForm, EscPoblacionForm)
+from apps.escuela.models import (
+    Escuela, EscContacto, EscContactoTelefono, EscContactoMail, EscPoblacion)
 from apps.main.mixins import InformeMixin
 
 
@@ -54,15 +58,14 @@ class EscuelaDetail(LoginRequiredMixin, DetailView):
             list: Variables de contexto para el template
         """
         context = super(EscuelaDetail, self).get_context_data(**kwargs)
+        context['poblacion_form'] = EscPoblacionForm(initial={'escuela': self.object.pk})
         context['solicitud_nueva_form'] = SolicitudNuevaForm(initial={'escuela': self.object.pk})
         context['equipamiento_nuevo_form'] = EquipamientoNuevoForm(initial={'escuela': self.object.pk})
         context['validacion_nueva_form'] = ValidacionNuevaForm(initial={'escuela': self.object.pk})
         context['visita_kalite_nueva_form'] = VisitaForm(initial={'escuela': self.object.pk})
-        if self.request.user.groups.filter(name='mye_validacion_nula').count() > 0:
-            # para permitir :model:`mye.Validacion` sin requisitos
-            context['validacion_nueva_form'].fields['tipo'].queryset = ValidacionTipo.objects.all()
-        else:
-            context['validacion_nueva_form'].fields['tipo'].queryset = ValidacionTipo.objects.exclude(id=3)
+
+        if self.object.poblaciones.count() > 0:
+            context['laboratorio_form'] = LaboratorioCreateForm(initial={'escuela': self.object.pk})
 
         if 'id_solicitud' in self.kwargs:
             # Crea un formulario para editar la solicitud si encuentra que se envió una ID
@@ -77,8 +80,8 @@ class EscuelaDetail(LoginRequiredMixin, DetailView):
                 context['validacion_form'] = ValidacionForm(instance=validacion)
                 context['validacion_id'] = self.kwargs['id_validacion']
 
-        # Crea un formulario de equipamiento si encuentra la ID
         if 'id_equipamiento' in self.kwargs:
+            # Crea un formulario de equipamiento si encuentra la ID
             equipamiento = Equipamiento.objects.get(pk=self.kwargs['id_equipamiento'])
             if equipamiento in self.object.equipamiento.all():
                 context['equipamiento_form'] = EquipamientoForm(instance=equipamiento)
@@ -271,3 +274,8 @@ class EscuelaBuscar(InformeMixin):
                 'equipada': escuela.equipada
             } for escuela in queryset
         ]
+
+
+class EscPoblacionCreateView(CreateView):
+    model = EscPoblacion
+    form_class = EscPoblacionForm

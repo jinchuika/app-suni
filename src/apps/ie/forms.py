@@ -11,6 +11,9 @@ class LaboratorioCreateForm(forms.ModelForm):
     class Meta:
         model = Laboratorio
         fields = ('escuela',)
+        widgets = {
+            'escuela': forms.HiddenInput()
+        }
 
 
 class LaboratorioUpdateForm(forms.ModelForm):
@@ -25,7 +28,7 @@ class ComputadoraForm(forms.ModelForm):
         model = Computadora
         fields = ('laboratorio',)
         widgets = {
-        	'laboratorio': forms.HiddenInput()
+            'laboratorio': forms.HiddenInput()
         }
 
 
@@ -34,8 +37,8 @@ class SerieForm(forms.ModelForm):
         model = Serie
         fields = '__all__'
         widgets = {
-        	'computadora': forms.Select(attrs={'class': 'form-control'}),
-        	'item': forms.Select(attrs={'class': 'select2 form-control'})
+            'computadora': forms.Select(attrs={'class': 'form-control'}),
+            'item': forms.Select(attrs={'class': 'select2 form-control'})
         }
 
     def __init__(self, *args, **kwargs):

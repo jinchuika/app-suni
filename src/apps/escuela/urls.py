@@ -5,7 +5,7 @@ from apps.mye.views import ValidacionDetailView
 
 urlpatterns = [
     url(r'^$', EscuelaCrear.as_view(), name='escuela_crear'),
-    url(r'^add/', EscuelaCrear.as_view(), name='escuela_add'),
+    url(r'^add/$', EscuelaCrear.as_view(), name='escuela_add'),
     url(r'^buscar/$', EscuelaBuscar.as_view(), name='escuela_buscar'),
 
     url(r'^(?P<pk>\d+)/solicitud/(?P<id_solicitud>\d+)/$', EscuelaDetail.as_view(), name='escuela_solicitud_update'),
@@ -21,4 +21,6 @@ urlpatterns = [
 
     url(r'^(?P<id_escuela>\d+)/contacto/(?P<pk>\d+)/', EscContactoEditar.as_view(), name='escuela_contacto_edit'),
     url(r'^(?P<id_escuela>\d+)/contacto/$', EscContactoCrear.as_view(), name='escuela_contacto_add'),
+
+    url(r'^/poblacion/add/$', EscPoblacionCreateView.as_view(), name='poblacion_add'),
 ]

@@ -46,8 +46,15 @@
     PerfilEscuela.init = function () {
         $('#form-nueva-solicitud').hide();
         $('#form-nuevo-equipamiento').hide();
+        $('#btn-equipamiento').click(function () {
+            $('#form-nuevo-equipamiento').toggle();
+        });
         $('#form-nueva-validacion').hide();
         $('#form-nueva-visita-kalite').hide();
+        $('#form-nueva-poblacion').hide();
+        $('#btn-poblacion').click(function () {
+            $('#form-nueva-poblacion').toggle();
+        });
         $('.comentario-btn').click(function () {
             var id_validacion = $(this).data('id');
             var url = $(this).data('url');
@@ -76,7 +83,7 @@
                     }
                 }
             });
-        })
+        });
     }   
 }( window.PerfilEscuela = window.PerfilEscuela || {}, jQuery ));
 

@@ -1,6 +1,5 @@
 from datetime import date
 from django import forms
-from django.utils import timezone
 from django.core.urlresolvers import reverse_lazy
 
 from apps.escuela.models import (
@@ -8,8 +7,8 @@ from apps.escuela.models import (
     EscPoblacion)
 from apps.main.models import Departamento, Municipio
 from apps.mye.models import (
-    Cooperante, EscuelaCooperante, Proyecto,
-    EscuelaProyecto, SolicitudVersion, Solicitud,
+    Cooperante, Proyecto,
+    SolicitudVersion, Solicitud,
     Requisito, ValidacionVersion, Validacion)
 
 

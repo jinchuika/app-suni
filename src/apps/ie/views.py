@@ -9,8 +9,12 @@ from apps.ie.forms import (
 
 class LaboratorioCreateView(CreateView):
     model = Laboratorio
-    template_name = "asd"
     form_class = LaboratorioCreateForm
+
+    def form_valid(self, form):
+        form.instance.poblacion = form.instance.escuela.poblaciones.last()
+        form.instance.organizacion = self.request.user.perfil.organizacion
+        return super(LaboratorioCreateView, self).form_valid(form)
 
 
 class LaboratorioDetailView(DetailView):

@@ -144,7 +144,8 @@ class Escuela(models.Model):
     equipada = property(es_equipada)
 
     def get_ficha_escolar(self):
-        return 'https://public.tableau.com/views/1-FichaEscolarDatosGenerales/DatosGenerales?CODUDI={}'.format(self.codigo)
+        return 'https://public.tableau.com/views/1-FichaEscolarDatosGenerales/DatosGenerales?CODUDI={}'.format(
+            self.codigo)
 
     def get_capacitacion(self):
         """Establece una conexión al servidor del SUNI1 para
@@ -225,13 +226,23 @@ class EscPoblacion(models.Model):
     escuela = models.ForeignKey(Escuela, related_name="poblaciones")
     fecha = models.DateField(default=timezone.now)
 
-    alumna = models.IntegerField(default=0)
-    alumno = models.IntegerField(default=0)
-    maestra = models.IntegerField(default=0)
-    maestro = models.IntegerField(default=0)
+    alumna = models.PositiveIntegerField(
+        default=0, verbose_name='Estudiantes mujeres')
+    alumno = models.PositiveIntegerField(
+        default=0, verbose_name='Estudiantes varones')
+    maestra = models.PositiveIntegerField(
+        default=0, verbose_name='Docentes mujeres')
+    maestro = models.PositiveIntegerField(
+        default=0, verbose_name='Dicentes varones')
 
-    total_alumno = models.IntegerField(null=True, blank=True)
-    total_maestro = models.IntegerField(null=True, blank=True)
+    total_alumno = models.PositiveIntegerField(
+        null=True,
+        blank=True,
+        verbose_name='Total de estudiantes')
+    total_maestro = models.PositiveIntegerField(
+        null=True,
+        blank=True,
+        verbose_name='Total de docentes')
 
     class Meta:
         verbose_name = "Población de escuela"
@@ -241,8 +252,14 @@ class EscPoblacion(models.Model):
         return str(self.escuela)[:15] + " - " + str(self.fecha)
 
     def save(self, *args, **kwargs):
+        """En caso de que no se hubiera ingresado el total, suma las cantidades
+        detalladas para establecerlo.
+        """
         if self.total_alumno is None or self.total_alumno == 0:
             self.total_alumno = self.alumna + self.alumno
         if self.total_maestro is None or self.total_maestro == 0:
             self.total_maestro = self.maestra + self.maestro
         super(EscPoblacion, self).save(*args, **kwargs)
+
+    def get_absolute_url(self):
+        return self.escuela.get_absolute_url()

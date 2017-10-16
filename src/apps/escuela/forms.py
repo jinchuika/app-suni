@@ -1,11 +1,12 @@
 from django import forms
+from datetime import date
 from django.core.urlresolvers import reverse_lazy
 from django.forms.models import inlineformset_factory
 from django.forms.formsets import BaseFormSet, formset_factory
 
 from apps.escuela.models import (
     Escuela, EscContacto, EscContactoTelefono,
-    EscContactoMail, EscNivel, EscSector)
+    EscContactoMail, EscNivel, EscSector, EscPoblacion)
 from apps.main.models import Departamento, Municipio
 from apps.mye.models import Cooperante, Proyecto
 
@@ -92,6 +93,19 @@ class EscuelaBuscarForm(forms.Form):
         label='Proyecto de equipamiento',
         queryset=Proyecto.objects.all(),
         required=False)
+
+
+class EscPoblacionForm(forms.ModelForm):
+    fecha = forms.DateField(
+        initial=date.today(),
+        widget=forms.TextInput(attrs={'class': 'datepicker'}))
+
+    class Meta:
+        model = EscPoblacion
+        fields = '__all__'
+        widgets = {
+            'escuela': forms.HiddenInput()
+        }
 
 
 class ContactoForm(forms.ModelForm):

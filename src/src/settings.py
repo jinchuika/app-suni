@@ -96,6 +96,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'dynamic_preferences.processors.global_preferences',
+                'apps.main.context_processors.google_analytics',
             ],
         },
     },
@@ -229,3 +230,6 @@ CRONJOBS = [
 LEGACY_URL = {
     'cyd_informe': ''
 }
+
+GOOGLE_ANALYTICS_PROPERTY_ID = ''
+GOOGLE_ANALYTICS_DOMAIN = ''

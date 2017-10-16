@@ -210,8 +210,6 @@ class EquipamientoListForm(EscuelaBuscarForm):
     def __init__(self, *args, **kwargs):
         super(EquipamientoListForm, self).__init__(*args, **kwargs)
         self.fields.pop('sector')
-        self.fields.pop('cooperante_mye')
-        self.fields.pop('proyecto_mye')
         self.fields.pop('poblacion_min')
         self.fields.pop('poblacion_max')
         self.fields.pop('solicitud')

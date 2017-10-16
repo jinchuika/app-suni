@@ -9,5 +9,4 @@ urlpatterns = [
     url(r'^evento/calendario/home$', cache_page(5)(EventoDHCalendarHomeView.as_view()), name='evento_dh_calendario_home'),
 
     url(r'^calendario/$', cache_page(5)(CalendarioDHView.as_view()), name='evento_dh_calendario'),
-    url(r'^reservaciones/$', ReservacionListView.as_view(), name='dh_reservaciones'),
 ]

@@ -3,7 +3,7 @@ from django.utils import timezone
 from django.urls import reverse_lazy
 
 from apps.users.models import Organizacion
-from apps.escuela.models import Escuela
+from apps.escuela.models import Escuela, EscPoblacion
 
 
 class Laboratorio(models.Model):
@@ -21,12 +21,13 @@ class Laboratorio(models.Model):
     """
 
     escuela = models.ForeignKey(Escuela)
-    organizacion = models.ForeignKey(Organizacion, verbose_name='Organización')
+    organizacion = models.ForeignKey(Organizacion, related_name='laboratorios', verbose_name='Organización')
     fecha = models.DateField(default=timezone.now)
     observaciones = models.TextField(null=True, blank=True)
     red = models.BooleanField(default=False, blank=True)
     internet = models.BooleanField(default=False, blank=True)
     fotos_link = models.URLField(null=True, blank=True)
+    poblacion = models.ForeignKey(EscPoblacion, related_name='laboratorios', verbose_name='Población')
 
     class Meta:
         verbose_name = "Laboratorio"

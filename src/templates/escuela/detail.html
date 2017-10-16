@@ -1,8 +1,6 @@
 {% extends "base/base.html" %}
 
-{% load telefonica %}
-{% load staticfiles %}
-{% load embed_gdrive_folder %}
+{% load telefonica staticfiles embed_gdrive_folder %}
 
 {% block page_title %}
 <title>{{ escuela }}</title>
@@ -154,7 +152,27 @@
 											</table>
 										</div>
 										<div class="col-md-6">
-											<strong><i class="fa fa-user margin-r-5"></i> Población</strong>
+											<h4>
+												<i class="fa fa-child"></i> Población
+												{% if poblacion_form and perms.escuela.add_escpoblacion %}
+												<span class="box-tools pull-right">
+													<button class="btn btn-xs btn-info" id="btn-poblacion">Agregar registro</button>
+												</span>
+												{% endif %}
+											</h4>
+											{% if poblacion_form and perms.escuela.add_escpoblacion %}
+											<form action="{% url 'poblacion_add' %}" method="post" class="table-responsive" id="form-nueva-poblacion">
+												<table class="table">
+													{% csrf_token %}
+													{{ poblacion_form.as_table }}
+													<tr>
+														<td colspan="2">
+															<input type="submit" class="btn btn-success" value="Guardar">
+														</td>
+													</tr>
+												</table>
+											</form>
+											{% endif %}
 											<div class="table-responsive">
 												<table class="table table-striped table-condensed">
 													<tr>
@@ -294,7 +312,7 @@
 											{% include "tpe/equipamiento_detail.html" with equipamiento=equipamiento equipamiento_detail=equipamiento_detail %}
 										{% endfor %}
 										{% if perms.tpe.add_equipamiento %}
-											<input onclick="$('#form-nuevo-equipamiento').toggle();" type="submit" class="btn btn-primary" value="Nuevo equipamiento">
+											<button class="btn btn-primary" id="btn-equipamiento">Nuevo equipamiento</button>
 											<form method="post" role="form" action="{% url "equipamiento_add" %}" id="form-nuevo-equipamiento">
 												{% csrf_token %}
 												{{ equipamiento_nuevo_form.as_p }}
@@ -304,6 +322,14 @@
 									{% endif %}
 									{% if equipamiento_form %}
 										{% include "tpe/equipamiento_form.html" with equipamiento_form=equipamiento_form %}
+									{% endif %}
+
+									{% if laboratorio_form and perms.ie.add_laboratorio %}
+										<form action="{% url 'laboratorio_add' %}" method="post">
+											{% csrf_token %}
+											{{ laboratorio_form.as_p }}
+											<input type="submit" class="btn btn-info" value="Nuevo laboratorio">
+										</form>
 									{% endif %}
 								</div>
 
