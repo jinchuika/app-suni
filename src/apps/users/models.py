@@ -58,7 +58,6 @@ class Perfil(models.Model):
         Organizacion,
         verbose_name='Organización',
         on_delete=models.PROTECT,
-        default=1,
         null=True,
         blank=True)
 
