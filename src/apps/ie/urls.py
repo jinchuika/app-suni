@@ -14,6 +14,8 @@ urlpatterns = [
     url(r'^requerimiento/add/$', RequerimientoCreateView.as_view(), name='ie_requerimiento_add'),
     url(r'^versionvalidacion/add/$', ValidacionVersionCreateView.as_view(), name='ie_versionvalidacion_add'),
     url(r'^validacion/add/$', ValidacionCreateView.as_view(), name='ie_validacion_add'),
+    url(r'^validacion/(?P<pk>\d+)/$', IEValidacionDetailView.as_view(), name='ie_validacion_detail'),
+    url(r'^validacion/(?P<pk>\d+)/update/$', IEValidacionUpdateView.as_view(), name='ie_validacion_update'),
 
     url(r'^dashboard/$', DashboardView.as_view(), name='ie_dashboard'),
     url(r'^dashboard/mapa/$', MapDashboardView.as_view(), name='ie_dashboard_mapa'),

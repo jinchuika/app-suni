@@ -122,6 +122,12 @@
 								</td>
 							</tr>
 							<tr>
+								<th>Tipo de equipo</th>
+								<td>
+									{{ laboratorio.tipo_equipo|default_if_none:"" }}
+								</td>
+							</tr>
+							<tr>
 								<th>Internet</th>
 								<td>
 									{% if laboratorio.internet %}Sí{% else %}No{% endif %}
@@ -131,6 +137,18 @@
 								<th>Red local</th>
 								<td>
 									{% if laboratorio.red %}Sí{% else %}No{% endif %}
+								</td>
+							</tr>
+							<tr>
+								<th>El equipo es uniforme</th>
+								<td>
+									{% if laboratorio.equipo_uniforme %}Sí{% else %}No{% endif %}
+								</td>
+							</tr>
+							<tr>
+								<th>Marca del equipo</th>
+								<td>
+									{{ laboratorio.marca_equipo|default_if_none:"" }}
 								</td>
 							</tr>
 							<tr>

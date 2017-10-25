@@ -21,6 +21,8 @@
 						<thead>
 							<tr>
 								<th>Número</th>
+								<th>Escuela</th>
+								<th>Código</th>
 								<th>Organización</th>
 								<th>Fecha</th>
 								<th>Computadoras</th>
@@ -33,9 +35,17 @@
 											{{ laboratorio }}
 										</a>
 									</td>
+									<td>
+										<a href="{{ laboratorio.escuela.get_absolute_url }}">
+											{{ laboratorio.escuela}}
+										</a>
+									</td>
+									<td nowrap>
+										{{ laboratorio.escuela.codigo }}
+									</td>
 									<td>{{ laboratorio.organizacion }}</td>
 									<td>{{ laboratorio.fecha|date:"Y-m-d" }}</td>
-									<td>{{ laboratorio.computadoras.count }}</td>
+									<td>{{ laboratorio.cantidad_computadoras }}</td>
 								</tr>
 							{% endfor %}
 						</table>

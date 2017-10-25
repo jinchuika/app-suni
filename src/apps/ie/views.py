@@ -10,7 +10,7 @@ from apps.ie.models import (
 from apps.ie.forms import (
     LaboratorioCreateForm, LaboratorioUpdateForm,
     ComputadoraForm, SerieForm, IEValidacionVersionForm,
-    RequerimientoForm)
+    RequerimientoForm, IEValidacionCreateForm, IEValidacionUpdateForm)
 
 
 class LaboratorioCreateView(CreateView):
@@ -106,3 +106,15 @@ class RequerimientoCreateView(CreateView):
 
 class ValidacionCreateView(CreateView):
     model = Validacion
+    form_class = IEValidacionCreateForm
+
+
+class IEValidacionDetailView(DetailView):
+    model = Validacion
+    template_name = "ie/validacion_detail.html"
+
+
+class IEValidacionUpdateView(UpdateView):
+    model = Validacion
+    form_class = IEValidacionUpdateForm
+    template_name = "ie/validacion_detail.html"

@@ -19,3 +19,20 @@ Menu.add_item(
         icon="fa-cubes",
         group="nacion_digital",
         children=ie_children))
+
+ie_admin = (
+    ViewMenuItem(
+        "Versiones de validación",
+        reverse_lazy("ie_versionvalidacion_add"),
+        weight=10,
+        icon="fa-list"),)
+
+Menu.add_item(
+    "user",
+    ViewMenuItem(
+        "Admin ND",
+        '#',
+        weight=40,
+        icon="fa-cubes",
+        group="nacion_digital_admin",
+        children=ie_admin))

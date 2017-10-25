@@ -200,3 +200,20 @@ class Validacion(models.Model):
 
     def __str__(self):
         return str(self.id)
+
+    def get_absolute_url(self):
+        return reverse_lazy('ie_validacion_detail', kwargs={'pk': self.id})
+
+    def porcentaje_requisitos(self):
+        return self.requerimientos.count() / self.version.requerimientos.count() * 100
+
+    def listar_requerimientos(self):
+        req_de_version = self.version.requisitos.all()
+        requerimiento_list = []
+        for requerimiento in req_de_version:
+            requerimiento_list.append(
+                {
+                    'requerimiento': requerimiento,
+                    'cumple': requerimiento in self.requerimientos.all()
+                })
+        return requerimiento_list

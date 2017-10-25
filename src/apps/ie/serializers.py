@@ -24,20 +24,17 @@ class OrganizacionSerializer(DynamicFieldsModelSerializer, serializers.ModelSeri
 
 class LaboratorioSerializer(serializers.ModelSerializer):
     computadoras = serializers.IntegerField(source='cantidad_computadoras')
-    municipio = serializers.StringRelatedField(source='escuela.municipio.nombre')
-    departamento = serializers.StringRelatedField(source='escuela.municipio.departamento')
-    escuela = serializers.StringRelatedField()
-    area = serializers.StringRelatedField(source='escuela.area')
-    organizacion = serializers.StringRelatedField()
-    poblacion = serializers.IntegerField(source='poblacion.total_alumno')
-    ninas = serializers.IntegerField(source='poblacion.alumna')
-    ninos = serializers.IntegerField(source='poblacion.alumno')
+    departamento = serializers.StringRelatedField(source='escuela__municipio__departamento__nombre')
+    area = serializers.StringRelatedField(source='escuela__area__area')
+    organizacion = serializers.StringRelatedField(source='organizacion__nombre')
+    ninas = serializers.IntegerField(source='poblacion__alumna')
+    ninos = serializers.IntegerField(source='poblacion__alumno')
 
     class Meta:
         model = ie_models.Laboratorio
         fields = (
-            'computadoras', 'municipio', 'escuela', 'area',
-            'organizacion', 'poblacion', 'fecha', 'departamento',
+            'computadoras', 'area',
+            'organizacion', 'fecha', 'departamento',
             'ninas', 'ninos')
 
 

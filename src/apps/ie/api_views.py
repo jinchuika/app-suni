@@ -19,7 +19,14 @@ class OrganizacionViewSet(viewsets.ModelViewSet):
 
 class LaboratorioViewSet(viewsets.ModelViewSet):
     serializer_class = LaboratorioSerializer
-    queryset = ie_models.Laboratorio.objects.all()
+    queryset = ie_models.Laboratorio.objects.values(
+        'cantidad_computadoras',
+        'escuela__municipio__departamento__nombre',
+        'escuela__area__area',
+        'organizacion__nombre',
+        'poblacion__alumna',
+        'poblacion__alumno',
+        'fecha').all()
 
 
 class EscuelaViewSet(viewsets.ModelViewSet):

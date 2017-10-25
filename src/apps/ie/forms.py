@@ -37,6 +37,7 @@ class LaboratorioUpdateForm(forms.ModelForm):
         super(LaboratorioUpdateForm, self).__init__(*args, **kwargs)
         if 'poblacion' in self.initial:
             self.fields['poblacion'].queryset = EscPoblacion.objects.filter(escuela=self.instance.escuela)
+            self.fields['poblacion'].label_from_instance = lambda obj: '{} ({})'.format(obj.total_alumno, obj.fecha)
 
 
 class ComputadoraForm(forms.ModelForm):
@@ -75,6 +76,28 @@ class IEValidacionCreateForm(forms.ModelForm):
         }
 
 
+class IEValidacionUpdateForm(forms.ModelForm):
+
+    """Formulario para crear una :class:`Validacion`.
+    """
+
+    class Meta:
+        model = Validacion
+        fields = '__all__'
+        exclude = ('escuela', 'version')
+        widgets = {
+            'fecha_inicio': forms.TextInput(attrs={'class': 'form-control datepicker'}),
+            'fotos_link': forms.TextInput(attrs={'class': 'form-control'}),
+            'observaciones': forms.Textarea(attrs={'class': 'form-control'}),
+            'requerimientos': forms.CheckboxSelectMultiple()
+        }
+
+    def __init__(self, *args, **kwargs):
+        super(IEValidacionUpdateForm, self).__init__(*args, **kwargs)
+        version = ValidacionVersion.objects.get(id=self.instance.version.id)
+        self.fields['requerimientos'].queryset = Requerimiento.objects.filter(id__in=version.requisitos.all())
+
+
 class IEValidacionVersionForm(forms.ModelForm):
     class Meta:
         model = ValidacionVersion
@@ -88,4 +111,3 @@ class RequerimientoForm(forms.ModelForm):
     class Meta:
         model = Requerimiento
         fields = '__all__'
-    

@@ -154,7 +154,14 @@
 	<form action="{% url 'laboratorio_add' %}" method="post">
 		{% csrf_token %}
 		{{ laboratorio_form.as_p }}
-		<input type="submit" class="btn btn-info" value="Nuevo laboratorio">
+		<input type="submit" class="btn btn-success" value="Nuevo laboratorio">
+	</form>
+	{% endif %}
+	{% if ie_validacion_form and perms.ie.add_validacion %}
+	<form action="{% url 'ie_validacion_add' %}" method="post">
+		{% csrf_token %}
+		{{ ie_validacion_form.as_p }}
+		<input type="submit" class="btn btn-info" value="Nueva validacion">
 	</form>
 	{% endif %}
 	{% for laboratorio in escuela.laboratorios.all %}

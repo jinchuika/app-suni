@@ -9,7 +9,7 @@ function makeGraphs(error, projectsJson) {
 	var dateFormat = d3.time.format("%Y-%m-%d");
 	donorschooseProjects.forEach(function(d) {
 		d["fecha"] = dateFormat.parse(d["fecha"]);
-		d["fecha"].setDate(1);
+		// d["fecha"].setDate(1);
 		d["computadoras"] = +d["computadoras"];
 	});
 
@@ -19,28 +19,23 @@ function makeGraphs(error, projectsJson) {
 	//Define Dimensions
 	var dateDim = ndx.dimension(function(d) { return d["fecha"]; });
 	var orgDim = ndx.dimension(function(d) { return d["organizacion"]; });
-	var povertyLevelDim = ndx.dimension(function(d) { return d["area"]; });
-	var municipioDim = ndx.dimension(function(d) { return d["municipio"]; });
+	var areaDim = ndx.dimension(function(d) { return d["area"]; });
 	var departamentoDim = ndx.dimension(function(d) { return d["departamento"]; });
 	var totalDonationsDim  = ndx.dimension(function(d) { return d["computadoras"]; });
 
 
 	//Calculate metrics
 	var numProjectsByDate = dateDim.group(); 
-	var numProjectsByResourceType = orgDim.group();
-	var numProjectsByPovertyLevel = povertyLevelDim.group();
-	var totalDonationsByState = municipioDim.group().reduceSum(function(d) {
-		return d["computadoras"];
-	});
-	var totalComputadorasDepartamento = departamentoDim.group().reduceSum(function(d) {
+	var orgGroup = orgDim.group();
+	var areaGroup = areaDim.group();
+	var departamentoGroup = departamentoDim.group().reduceSum(function(d) {
 		return d["computadoras"];
 	});
 
 	var all = ndx.groupAll();
 	var totalDonations = ndx.groupAll().reduceSum(function(d) {return d["computadoras"];});
 
-	var max_state = totalDonationsByState.top(1)[0].value;
-	var max_departamento = totalComputadorasDepartamento.top(1)[0].value;
+	var max_departamento = departamentoGroup.top(1)[0].value;
 
 	//Define values (to be used in charts)
 	var minDate = dateDim.bottom(1)[0]["fecha"];
@@ -74,29 +69,29 @@ function makeGraphs(error, projectsJson) {
 		.transitionDuration(500)
 		.x(d3.time.scale().domain([minDate, maxDate]))
 		.elasticY(true)
-		.xAxisLabel("Año")
+		.xAxisLabel("Fecha")
 		.yAxis().ticks(4);
 
 	orgChart
         .width(600)
         .height(250)
         .dimension(orgDim)
-        .group(numProjectsByResourceType)
+        .group(orgGroup)
         .xAxis().ticks(4);
 
     departamentoChart
         .width(600)
         .height(550)
         .dimension(departamentoDim)
-        .group(totalComputadorasDepartamento)
+        .group(departamentoGroup)
         .xAxis().ticks(4);
 
 	areaChart
 		.width(200)
 		.height(200)
-        .dimension(povertyLevelDim)
+        .dimension(areaDim)
         .colors(d3.scale.ordinal().range(['#BCB382', '#09814A']))
-        .group(numProjectsByPovertyLevel);
+        .group(areaGroup);
     dc.renderAll();
 
 };
