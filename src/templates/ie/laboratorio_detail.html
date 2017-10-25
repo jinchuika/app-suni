@@ -36,7 +36,7 @@
 							<div class="col-sm-3">
 								<div class="description-block border-right">
 									<span class="description-text">Computadoras</span>
-									<h5 class="description-header">{{ laboratorio.computadoras.count }}</h5>
+									<h5 class="description-header">{{ laboratorio.cantidad_computadoras }}</h5>
 								</div>
 							</div>
 							<div class="col-sm-3">
@@ -141,6 +141,23 @@
 							</tr>
 							{% endif %}
 						</table>
+					</div>
+				</div>
+			</div>
+			<div class="col-md-4">
+				<div class="info-box">
+					<span class="info-box-icon bg-aqua"><i class="fa fa-child" aria-hidden="true"></i></span>
+					<div class="info-box-content">
+						<span class="info-box-text">Niños<br>beneficiados</span>
+						<span class="info-box-number">{{ laboratorio.poblacion.total_alumno }}</span>
+					</div>
+				</div>
+				<div class="info-box">
+					<span class="info-box-icon bg-red"><i class="fa fa-user" aria-hidden="true"></i></span>
+
+					<div class="info-box-content">
+						<span class="info-box-text">Maestros<br>beneficiados</span>
+						<span class="info-box-number">{{ laboratorio.poblacion.total_maestro }}</span>
 					</div>
 				</div>
 			</div>

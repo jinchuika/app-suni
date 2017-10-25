@@ -6,40 +6,6 @@ from apps.users.models import Organizacion
 from apps.escuela.models import Escuela, EscPoblacion
 
 
-class Laboratorio(models.Model):
-
-    """Laboratorio entregado a una escuela.
-
-    Attributes:
-        escuela (:class:`Escuela`): Escuela que recibe el equipamiento
-        fecha (date): Fecha en la que se realiza la entrega del equipo
-        fotos_link (str): Link hacia carpeta de Google Drive
-        internet (bool): Indica si la escuela tiene conexión a internet
-        observaciones (str): Observaciones generales del equipamiento
-        organizacion (:class:`Organizacion`): Entidad que realiza la entrega
-        red (bool): Indica si la escuela tiene red de área local
-    """
-
-    escuela = models.ForeignKey(Escuela)
-    organizacion = models.ForeignKey(Organizacion, related_name='laboratorios', verbose_name='Organización')
-    fecha = models.DateField(default=timezone.now)
-    observaciones = models.TextField(null=True, blank=True)
-    red = models.BooleanField(default=False, blank=True)
-    internet = models.BooleanField(default=False, blank=True)
-    fotos_link = models.URLField(null=True, blank=True)
-    poblacion = models.ForeignKey(EscPoblacion, related_name='laboratorios', verbose_name='Población')
-
-    class Meta:
-        verbose_name = "Laboratorio"
-        verbose_name_plural = "Laboratorios"
-
-    def __str__(self):
-        return str(self.id)
-
-    def get_absolute_url(self):
-        return reverse_lazy('laboratorio_detail', kwargs={'pk': self.id})
-
-
 class TipoItem(models.Model):
 
     """Tipo de item que se puede entregar (Monitor, teclado, etc.)
@@ -74,6 +40,18 @@ class MarcaItem(models.Model):
         return self.marca
 
 
+class SoftwareItem(models.Model):
+    software = models.CharField(max_length=100)
+    sistema_operativo = models.BooleanField(default=False)
+
+    class Meta:
+        verbose_name = "Software para equipo"
+        verbose_name_plural = "Software para equipo"
+
+    def __str__(self):
+        return self.software
+
+
 class Item(models.Model):
 
     """Producto a ser entregado en los laboratorios. Es el
@@ -98,6 +76,56 @@ class Item(models.Model):
         return '{marca} {modelo}'.format(
             marca=self.marca,
             modelo=self.modelo)
+
+
+class LaboratorioTipo(models.Model):
+    tipo = models.CharField(max_length=35)
+
+    class Meta:
+        verbose_name = "Tipo de laboratorio"
+        verbose_name_plural = "Tipos de laboratorios"
+
+    def __str__(self):
+        return self.tipo
+
+
+class Laboratorio(models.Model):
+
+    """Laboratorio entregado a una escuela.
+
+    Attributes:
+        escuela (:class:`Escuela`): Escuela que recibe el equipamiento
+        fecha (date): Fecha en la que se realiza la entrega del equipo
+        fotos_link (str): Link hacia carpeta de Google Drive
+        internet (bool): Indica si la escuela tiene conexión a internet
+        observaciones (str): Observaciones generales del equipamiento
+        organizacion (:class:`Organizacion`): Entidad que realiza la entrega
+        red (bool): Indica si la escuela tiene red de área local
+    """
+
+    escuela = models.ForeignKey(Escuela, related_name='laboratorios')
+    organizacion = models.ForeignKey(Organizacion, related_name='laboratorios', verbose_name='Organización')
+    fecha = models.DateField(default=timezone.now)
+    observaciones = models.TextField(null=True, blank=True)
+    red = models.BooleanField(default=False, blank=True)
+    internet = models.BooleanField(default=False, blank=True)
+    fotos_link = models.URLField(null=True, blank=True, verbose_name='Link a fotos (GDrive)')
+    marca_equipo = models.ForeignKey(MarcaItem, related_name='laboratorios', null=True, blank=True)
+    tipo_equipo = models.ForeignKey(TipoItem, related_name='laboratorios', null=True, blank=True, on_delete=models.PROTECT, verbose_name='Tipo de equipo')
+    equipo_uniforme = models.BooleanField(default=True, blank=True, verbose_name='El equipo es uniforme')
+    servidor_local = models.BooleanField(default=False, blank=True, verbose_name='Posee servidor local')
+    poblacion = models.ForeignKey(EscPoblacion, related_name='laboratorios', verbose_name='Población')
+    cantidad_computadoras = models.PositiveIntegerField(default=0, verbose_name='Cantidad de computadoras')
+
+    class Meta:
+        verbose_name = "Laboratorio"
+        verbose_name_plural = "Laboratorios"
+
+    def __str__(self):
+        return str(self.id)
+
+    def get_absolute_url(self):
+        return reverse_lazy('laboratorio_detail', kwargs={'pk': self.id})
 
 
 class Computadora(models.Model):
@@ -131,3 +159,44 @@ class Serie(models.Model):
 
     def get_absolute_url(self):
         return self.computadora.get_absolute_url()
+
+
+class Requerimiento(models.Model):
+    """
+    Description: Requerimiento para equipamiento
+    """
+    nombre = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.nombre
+
+
+class ValidacionVersion(models.Model):
+    nombre = models.CharField(max_length=50)
+    activa = models.BooleanField(default=True, blank=True)
+    requisitos = models.ManyToManyField(Requerimiento, blank=True)
+
+    class Meta:
+        verbose_name = "Versión de validación"
+        verbose_name_plural = "Versiones de validaciónes"
+
+    def __str__(self):
+        return self.nombre
+
+
+class Validacion(models.Model):
+    escuela = models.ForeignKey(Escuela, related_name='ie_validaciones')
+    version = models.ForeignKey(ValidacionVersion)
+    fecha_inicio = models.DateField(default=timezone.now, verbose_name='Fecha de inicio')
+    fotos_link = models.URLField(null=True, blank=True, verbose_name='Link a fotos')
+    observaciones = models.TextField(null=True, blank=True)
+    completada = models.BooleanField(default=False, blank=True)
+
+    requerimientos = models.ManyToManyField(Requerimiento, blank=True)
+
+    class Meta:
+        verbose_name = "Validacion"
+        verbose_name_plural = "Validacions"
+
+    def __str__(self):
+        return str(self.id)

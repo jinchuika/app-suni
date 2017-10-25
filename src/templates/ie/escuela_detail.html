@@ -1,0 +1,200 @@
+{% load widget_tweaks %}
+
+<div class="tab-pane active" id="info-nacion">
+	<div class="row">
+		<div class="col-md-3 col-sm-3 col-xs-6">
+			<div class="info-box bg-yellow">
+				<span class="info-box-icon"><i class="fa fa-check-square-o"></i></span>
+				<div class="info-box-content">
+					<span class="info-box-text">Validación</span>
+					<span class="info-box-number"><h3>{% if escuela.validacion.count > 0 %}Sí{% else %}No{% endif %}</h3></span>
+				</div>
+			</div>
+		</div>
+		<div class="col-md-3 col-sm-3 col-xs-6">
+			<div class="info-box bg-green">
+				<span class="info-box-icon"><i class="fa fa-television"></i></span>
+				<div class="info-box-content">
+					<span class="info-box-text">Equipamiento</span>
+					<span class="info-box-number"><h3>{% if escuela.laboratorios.count > 0 %}Sí{% else %}No{% endif %}</h3></span>
+				</div>
+			</div>
+		</div>
+		<div class="col-md-3 col-sm-3 col-xs-6">
+			<div class="info-box bg-red">
+				<span class="info-box-icon"><i class="fa fa-graduation-cap"></i></span>
+				<div class="info-box-content">
+					<span class="info-box-text">Capacitación</span>
+					<span class="info-box-number"><h3>{% if escuela.capacitacion.capacitada %}Sí{% else %}No{% endif %}</h3></span>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-md-6">
+			<table class="table table-striped table-hover table-condensed">
+				<tr>
+					<th><i class="fa fa-map-marker"></i> Departamento</th>
+					<td>{{ escuela.municipio.departamento }}</td>
+				</tr>
+				<tr>
+					<th><i class="fa fa-map-marker"></i> Municipio</th>
+					<td>{{ escuela.municipio.nombre }}</td>
+				</tr>
+				<tr>
+					<th><i class="fa fa-bars"></i> Nivel</th>
+					<td>{{ escuela.nivel }}</td>
+				</tr>
+				<tr>
+					<th><i class="fa fa-bookmark-o"></i> Sector</th>
+					<td>{{ escuela.sector }}</td>
+				</tr>
+				<tr>
+					<th><i class="fa fa-sun-o"></i> Área</th>
+					<td>{{ escuela.area }}</td>
+				</tr>
+				<tr>
+					<th><i class="fa fa-clock-o"></i> Jornada</th>
+					<td>{{ escuela.jornada }}</td>
+				</tr>
+				<tr>
+					<th><i class="fa fa-calendar"></i> Plan</th>
+					<td>{{ escuela.plan }}</td>
+				</tr>
+				<tr>
+					<th><i class="fa fa-exclamation-circle"></i> Status</th>
+					<td>{{ escuela.status }}</td>
+				</tr>
+				<tr>
+					<th><i class="fa fa-book"></i> Modalidad</th>
+					<td>{{ escuela.modalidad }}</td>
+				</tr>
+				<tr>
+					<th><i class="fa fa-phone-square"></i> Teléfono</th>
+					<td>{{ escuela.telefono }}</td>
+				</tr>
+				<tr>
+					<th><i class="fa fa-map"></i> Coordenadas</th>
+					<td>{{ escuela.mapa.lat }}, {{ escuela.mapa.lng }}</td>
+				</tr>
+				<tr>
+					<th><i class="fa fa-info" aria-hidden="true"></i> Ficha escolar</th>
+					<td>
+						<a href="{{ escuela.get_ficha_escolar }}" class="btn btn-primary btn-xs" target="_blank">
+							Ficha escolar <i class="fa fa-external-link" aria-hidden="true"></i>
+						</a>
+					</td>
+				</tr>
+				{% if perms.escuela.change_escuela %}
+				<tr>
+					<td colspan="2">
+						<a href="{% url 'escuela_update' pk=escuela.id%}" class="btn btn-info btn-xs">
+							<i class="fa fa-pencil-square-o" aria-hidden="true"></i> Editar
+						</a>
+					</td>
+				</tr>
+				{% endif %}
+			</table>
+		</div>
+		<div class="col-md-6">
+			<h4>
+				<i class="fa fa-child"></i> Población
+				{% if poblacion_form and perms.escuela.add_escpoblacion %}
+				<span class="box-tools pull-right">
+					<button class="btn btn-xs btn-info" id="btn-poblacion">Agregar registro</button>
+				</span>
+				{% endif %}
+			</h4>
+			{% if poblacion_form and perms.escuela.add_escpoblacion %}
+			<form action="{% url 'poblacion_add' %}" method="post" class="table-responsive" id="form-nueva-poblacion">
+				<table class="table">
+					{% csrf_token %}
+					{% for hidden in poblacion_form.hidden_fields %}
+					{{ hidden }}
+					{% endfor %}
+					{% for field in poblacion_form.visible_fields %}
+						<tr>
+							<td>{{ field.label_tag }}</td>
+							<td>{{ field|add_class:"form-control" }}</td>
+						</tr>
+					{% endfor %}
+					<tr>
+						<td colspan="2">
+							<input type="submit" class="btn btn-success" value="Guardar">
+						</td>
+					</tr>
+				</table>
+			</form>
+			{% endif %}
+			<div class="table-responsive">
+				<table class="table table-striped table-condensed">
+					<tr>
+						<th>Alumnos</th>
+						<th>Docentes</th>
+						<th>Fecha</th>
+					</tr>
+					{% for poblacion in escuela.poblaciones.all|dictsortreversed:"fecha" %}
+					<tr>
+						<td>{{poblacion.total_alumno}}</td>
+						<td>{{poblacion.total_maestro}}</td>
+						<td>{{poblacion.fecha|date:"Y-m-d"|lower}}</td>
+					</tr>
+					{% endfor %}
+				</table>
+			</div>
+			{% if escuela.mapa %}
+			{% include "base/static-map.html" with latitud=escuela.mapa.lat longitud=escuela.mapa.lng %}
+			{% endif %}
+		</div>
+	</div>
+</div>
+<div class="tab-pane" id="nacion-digital">
+
+	{% if laboratorio_form and perms.ie.add_laboratorio %}
+	<form action="{% url 'laboratorio_add' %}" method="post">
+		{% csrf_token %}
+		{{ laboratorio_form.as_p }}
+		<input type="submit" class="btn btn-info" value="Nuevo laboratorio">
+	</form>
+	{% endif %}
+	{% for laboratorio in escuela.laboratorios.all %}
+		<div class="row">
+			<div class="col-md-12">
+				<div class="box box-success box-solid">
+					<div class="box-header">
+						<h3 class="box-title">Laboratorio {{ laboratorio }}</h3>
+					</div>
+					<div class="box-body">
+						<div class="row">
+							<div class="col-sm-3">
+								<div class="description-block border-right">
+									<a href="{{ laboratorio.get_absolute_url }}" class="btn btn-info">
+										<i class="fa fa-external-link"></i> Ver detalle
+									</a>
+								</div>
+							</div>
+							<div class="col-sm-3">
+								<div class="description-block border-right">
+									<span class="description-text">Organización</span>
+									<h5 class="description-header">{{ laboratorio.organizacion }}</h5>
+								</div>
+							</div>
+							<div class="col-sm-3">
+								<div class="description-block border-right">
+									<span class="description-text">Computadoras</span>
+									<h5 class="description-header">{{ laboratorio.cantidad_computadoras }}</h5>
+								</div>
+							</div>
+							<div class="col-sm-3">
+								<div class="description-block">
+									<span class="description-text">Fecha</span>
+									<h5 class="description-header">{{ laboratorio.fecha|date:"Y-m-d" }}</h5>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	{% endfor %}
+</div>

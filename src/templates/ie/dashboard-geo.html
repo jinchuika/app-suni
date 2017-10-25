@@ -1,0 +1,158 @@
+{% extends "ie/base.html" %}
+{% load staticfiles %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static "ie/lib/css/dc.css" %}">
+<link rel="stylesheet" href="{% static "ie/css/custom.css" %}">	
+{% endblock extra_css %}
+
+{% block extra_js %}
+<script src="{% static "ie/lib/js/crossfilter.js" %}"></script>
+<script src="{% static "ie/lib/js/d3.js" %}"></script>
+<script src="{% static "ie/lib/js/dc.js" %}"></script>
+<script src="{% static "ie/lib/js/queue.js" %}"></script>
+<script src='{% static "ie/js/graph-geo.js" %}'></script>
+{% endblock extra_js %}
+
+{% block content %}
+<section class="content">
+	<div class="container-fluid">
+		<div class="row">
+			<!-- Gráfico de departamento -->
+			<div class="col-md-6">
+				<div class="row">
+					<div class="col-md-12 col-sm-12">
+						<div class="box">
+							<div class="box-header with-border">
+								<h3 class="box-title">Por departamento</h3>
+								<div class="box-tools pull-right">
+									<button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Ocultar">
+										<i class="fa fa-minus"></i>
+									</button>
+								</div>
+							</div>
+							<div class="box-body table-responsive">
+								<table class="table">
+									<div id="us-chart">
+										<div class="reset" style="visibility: none;">selección: <span class="filter"></span>
+										</div>
+									</div>
+								</table>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- /Gráfico de departamento -->
+
+			<div class="col-md-6">
+				<div class="row">
+					<!-- Area escuela -->
+					<div class="col-md-6">
+						<div class="box">
+							<div class="box-header with-border">
+								<h3 class="box-title">Áreas beneficiadas</h3>
+								<div class="box-tools pull-right">
+									<button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Ocultar">
+										<i class="fa fa-minus"></i>
+									</button>
+								</div>
+							</div>
+							<div class="box-body table-responsive no-padding">
+								<table class="table">
+									<div id="poverty-level-row-chart">
+										<div class="reset" style="visibility: none;">selección: <span class="filter"></span>
+										</div>
+									</div>
+								</table>
+							</div>
+						</div>
+					</div>
+					<!-- /Area escuela -->
+
+					<!-- Gráfico de sector -->
+					<div class="col-md-6">
+						<div class="box">
+							<div class="box-header with-border">
+								<h3 class="box-title">Por sector</h3>
+								<div class="box-tools pull-right">
+									<button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Ocultar">
+										<i class="fa fa-minus"></i>
+									</button>
+								</div>
+							</div>
+							<div class="box-body table-responsive no-padding">
+								<table class="table">
+									<div id="sector-chart">
+										<div class="reset" style="visibility: none;">selección: <span class="filter"></span>
+										</div>
+									</div>
+								</table>
+							</div>
+						</div>
+					</div>
+					<!-- /Gráfico de sector -->
+				</div>
+
+				<div class="row">
+					<!-- Gráfico de nivel -->
+					<div class="col-md-12">
+						<div class="box">
+							<div class="box-header with-border">
+								<h3 class="box-title">Nivel de la escuela</h3>
+								<div class="box-tools pull-right">
+									<button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Ocultar">
+										<i class="fa fa-minus"></i>
+									</button>
+								</div>
+							</div>
+							<div class="box-body table-responsive">
+								<table class="table">
+									<div id="resource-type-row-chart">
+										<div class="reset" style="visibility: none;">selección: <span class="filter"></span>
+										</div>
+									</div>
+								</table>
+							</div>
+						</div>
+					</div>
+					<!-- /Gráfico de nivel -->
+				</div>
+			</div>
+
+
+			<div class="col-md-6">
+
+				<div class="row">
+					
+					<div class="col-md-6">
+
+						<!-- Conteo de computadoras -->
+						<div class="box">
+							<div class="box-header with-border">
+								<h3 class="box-title">Cantidad de escuelas</h3>
+								<div class="box-tools pull-right">
+									<button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Ocultar">
+										<i class="fa fa-minus"></i>
+									</button>
+								</div>
+							</div>
+							<div class="box-body table-responsive">
+								<table class="table">
+									<div id="total-donations-nd"></div>
+								</table>
+							</div>
+						</div>
+						<!-- /Conteo de computadoras -->
+					</div>
+				</div>
+
+
+
+			</div>
+
+			
+		</div>
+	</div>
+</section>
+{% endblock content %}
