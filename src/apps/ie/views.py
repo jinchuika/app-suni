@@ -3,6 +3,7 @@ from django.views.generic import DetailView, ListView, TemplateView
 from django.views.generic.edit import CreateView, UpdateView
 
 from apps.users.models import Organizacion
+from apps.main.models import ArchivoGenerado
 
 from apps.ie.models import (
     Laboratorio, Computadora, Serie, ValidacionVersion,
@@ -76,13 +77,37 @@ class SerieCreateView(CreateView):
 class DashboardView(TemplateView):
     template_name = 'ie/dashboard.html'
 
+    def get_context_data(self, **kwargs):
+        context = super(DashboardView, self).get_context_data(**kwargs)
+        try:
+            context['archivo_generado'] = ArchivoGenerado.objects.get(nombre='ie_dashboard')
+        except ArchivoGenerado.DoesNotExist:
+            context['archivo_generado'] = None
+        return context
+
 
 class MapDashboardView(TemplateView):
     template_name = 'ie/dashboard-mapa.html'
 
+    def get_context_data(self, **kwargs):
+        context = super(MapDashboardView, self).get_context_data(**kwargs)
+        try:
+            context['archivo_generado'] = ArchivoGenerado.objects.get(nombre='ie_mapa')
+        except ArchivoGenerado.DoesNotExist:
+            context['archivo_generado'] = None
+        return context
+
 
 class GeoDashboardView(TemplateView):
     template_name = 'ie/dashboard-geo.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(GeoDashboardView, self).get_context_data(**kwargs)
+        try:
+            context['archivo_generado'] = ArchivoGenerado.objects.get(nombre='ie_geo')
+        except ArchivoGenerado.DoesNotExist:
+            context['archivo_generado'] = None
+        return context
 
 
 class ValidacionVersionCreateView(CreateView):

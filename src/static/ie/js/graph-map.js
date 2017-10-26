@@ -1,5 +1,5 @@
 queue()
-.defer(d3.json, "/ie/api/escuela/")
+.defer(d3.json, $('.origen-de-datos').data('url'))
 .await(makeGraphs);
 
 var vista_calor = false;

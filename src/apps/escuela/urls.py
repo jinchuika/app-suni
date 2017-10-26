@@ -22,5 +22,5 @@ urlpatterns = [
     url(r'^(?P<id_escuela>\d+)/contacto/(?P<pk>\d+)/', EscContactoEditar.as_view(), name='escuela_contacto_edit'),
     url(r'^(?P<id_escuela>\d+)/contacto/$', EscContactoCrear.as_view(), name='escuela_contacto_add'),
 
-    url(r'^/poblacion/add/$', EscPoblacionCreateView.as_view(), name='poblacion_add'),
+    url(r'^poblacion/add/$', EscPoblacionCreateView.as_view(), name='poblacion_add'),
 ]

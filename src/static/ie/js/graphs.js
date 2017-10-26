@@ -1,5 +1,5 @@
 queue()
-    .defer(d3.json, "/ie/api/laboratorio/")
+    .defer(d3.json, $('.origen-de-datos').data('url'))
     .await(makeGraphs);
 
 function makeGraphs(error, projectsJson) {
