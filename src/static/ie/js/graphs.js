@@ -77,12 +77,14 @@ function makeGraphs(error, projectsJson) {
         .height(250)
         .dimension(orgDim)
         .group(orgGroup)
+        .elasticX(true)
         .xAxis().ticks(4);
 
     departamentoChart
         .width(600)
         .height(550)
         .dimension(departamentoDim)
+        .elasticX(true)
         .group(departamentoGroup)
         .xAxis().ticks(4);
 
