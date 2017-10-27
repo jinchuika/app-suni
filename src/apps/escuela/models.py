@@ -109,7 +109,7 @@ class Escuela(models.Model):
     """
     codigo = models.CharField(max_length=15, unique=True)
     distrito = models.CharField(max_length=10, null=True, blank=True)
-    municipio = models.ForeignKey(Municipio, on_delete=models.PROTECT)
+    municipio = models.ForeignKey(Municipio, on_delete=models.PROTECT, related_name='escuelas')
     nombre = models.CharField(max_length=250)
     direccion = models.TextField(verbose_name='Dirección')
     telefono = models.CharField(max_length=12, null=True, blank=True, verbose_name='Teléfono')

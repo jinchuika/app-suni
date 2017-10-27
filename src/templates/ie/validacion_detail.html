@@ -1,0 +1,165 @@
+{% extends "base/base.html" %}
+
+
+{% block content %}
+<section class="content">
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-md-12">
+				<div class="box box-warning box-solid">
+					<div class="box-header">
+						<h3 class="box-title">Validación {{ validacion }}</h3>
+					</div>
+					<div class="box-body">
+						<div class="row">
+							<div class="col-sm-3">
+								<div class="description-block border-right">
+									<h5 class="description-header">
+										<a href="{{ validacion.escuela.get_absolute_url }}">
+											{{ validacion.escuela }}
+										</a>
+									</h5>
+									<span class="description-text">
+										{{ validacion.escuela.codigo }}
+									</span><br>
+									<span class="description-text">
+										{{ validacion.escuela.municipio }}
+									</span>
+								</div>
+							</div>
+							<div class="col-sm-3">
+								<div class="description-block border-right">
+									<span class="description-text">Organización</span>
+									<h5 class="description-header">{{ validacion.organizacion }}</h5>
+								</div>
+							</div>
+							<div class="col-sm-3">
+								<div class="description-block border-right">
+									<span class="description-text">Computadoras</span>
+									<h5 class="description-header">{{ validacion.cantidad_computadoras }}</h5>
+								</div>
+							</div>
+							<div class="col-sm-3">
+								<div class="description-block">
+									<span class="description-text">Fecha</span>
+									<h5 class="description-header">{{ validacion.fecha|date:"Y-m-d" }}</h5>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="row">
+			<div class="col-md-8">
+				<div class="box box-info">
+					<div class="box-header">
+						<h3 class="box-title">Detalle</h3>
+						<span class="box-tools pull-right">
+							<a href="{% url 'ie_validacion_update' pk=validacion.id %}" class="btn btn-info btn-xs">
+								Editar
+							</a>
+						</span>
+					</div>
+					<div class="box-body no-padding">
+						<table class="table table-hover">
+							{% if form %}
+							{% comment %}
+								Si recibe un formulario, es de edición
+							{% endcomment %}
+							<form action="{{ action }}" method="post">
+							{% csrf_token %}
+							{{ form.as_table }}
+							<tr>
+								<td></td>
+								<td>
+									<input type="submit" class="btn btn-success" value="Guardar">
+									<a href="{{ validacion.get_absolute_url }}" class="btn btn-danger">Cancelar</a>
+								</td>
+							</tr>
+							</form>
+							{% else %}
+							{% comment %}
+								Si no recibe un formulario, muestra los datos generales
+							{% endcomment %}
+							<tr>
+								<th>Escuela</th>
+								<td>
+									<a href="{{ validacion.escuela.get_absolute_url }}">
+										{{ validacion.escuela }}
+									</a>
+								</td>
+							</tr>
+							<tr>
+								<th>Código</th>
+								<td>
+									{{ validacion.escuela.codigo }}
+								</td>
+							</tr>
+							<tr>
+								<th>Departamento</th>
+								<td>
+									{{ validacion.escuela.municipio.departamento }}
+								</td>
+							</tr>
+							<tr>
+								<th>Municipio</th>
+								<td>
+									{{ validacion.escuela.municipio.nombre }}
+								</td>
+							</tr>
+							<tr>
+								<th>Dirección</th>
+								<td>
+									{{ validacion.escuela.direccion }}
+								</td>
+							</tr>
+							<tr>
+								<th>Observaciones</th>
+								<td>
+									{{ validacion.observaciones|default_if_none:"" }}
+								</td>
+							</tr>
+							<tr>
+								<td colspan="2">
+									<ul class="list-unstyled">
+										{% for requisito in validacion.listar_requerimientos %}
+										<li>
+											{% if requisito.cumple %}
+											<i class="fa fa-check"></i>
+											{% else %}
+											<i class="fa fa-close"></i>
+											{% endif %}
+											<span class="text">{{ requisito.requerimiento }}</span>
+										</li>
+										{% endfor %}
+									</ul>
+								</td>
+							</tr>
+							{% endif %}
+						</table>
+					</div>
+				</div>
+			</div>
+			<div class="col-md-4">
+				<div class="info-box">
+					<span class="info-box-icon bg-aqua"><i class="fa fa-child" aria-hidden="true"></i></span>
+					<div class="info-box-content">
+						<span class="info-box-text">Niños<br>beneficiados</span>
+						<span class="info-box-number">{{ validacion.poblacion.total_alumno }}</span>
+					</div>
+				</div>
+				<div class="info-box">
+					<span class="info-box-icon bg-red"><i class="fa fa-user" aria-hidden="true"></i></span>
+
+					<div class="info-box-content">
+						<span class="info-box-text">Maestros<br>beneficiados</span>
+						<span class="info-box-number">{{ validacion.poblacion.total_maestro }}</span>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+{% endblock content %}

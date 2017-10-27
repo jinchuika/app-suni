@@ -1,0 +1,150 @@
+{% extends "ie/base.html" %}
+{% load staticfiles %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static "ie/lib/css/dc.css" %}">
+<link rel="stylesheet" href="{% static "ie/css/custom.css" %}">	
+{% endblock extra_css %}
+
+{% block extra_js %}
+<script src="{% static "ie/lib/js/crossfilter.js" %}"></script>
+<script src="{% static "ie/lib/js/d3.js" %}"></script>
+<script src="{% static "ie/lib/js/dc.js" %}"></script>
+<script src="{% static "ie/lib/js/queue.js" %}"></script>
+<script src='{% static "ie/js/graphs.js" %}'></script>
+{% endblock extra_js %}
+
+{% block content %}
+<section class="content">
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-md-6">
+				<div class="row">
+					<div class="col-md-12">
+						<!-- Gráfico de fechas -->
+						<div class="box box-info box-solid">
+							<div class="box-header">
+								<h3 class="box-title">Laboratorios instalados</h3>
+								<div class="box-tools pull-right">
+									<button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Ocultar">
+										<i class="fa fa-minus"></i>
+									</button>
+								</div>
+							</div>
+							<div class="box-body table-responsive">
+								<table class="table">
+									<div id="time-chart"></div>
+								</table>
+							</div>
+						</div>
+						<!-- /Gráfico de fechas -->
+					</div>
+				</div>
+
+				<div class="row">
+					<div class="col-md-6">
+						<!-- Area escuela -->
+						<div class="box box-primary box-solid">
+							<div class="box-header with-border">
+								<h3 class="box-title">Áreas beneficiadas</h3>
+								<div class="box-tools pull-right">
+									<button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Ocultar">
+										<i class="fa fa-minus"></i>
+									</button>
+								</div>
+							</div>
+							<div class="box-body table-responsive">
+								<table class="table">
+									<div id="poverty-level-row-chart"></div>
+								</table>
+							</div>
+						</div>
+						<!-- /Area escuela -->
+					</div>
+
+					<div class="col-md-6">
+						<!-- Conteo de laboratorios -->
+						<div class="box box-info box-solid">
+							<div class="box-header with-border">
+								<h3 class="box-title">Total de laboratorios</h3>
+								<div class="box-tools pull-right">
+									<button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Ocultar">
+										<i class="fa fa-minus"></i>
+									</button>
+								</div>
+							</div>
+							<div class="box-body table-responsive">
+								<table class="table">
+									<div id="number-projects-nd"></div>
+								</table>
+							</div>
+						</div>
+						<!-- /Conteo de laboratorios -->
+
+						<!-- Conteo de computadoras -->
+						<div class="box box-info box-solid">
+							<div class="box-header with-border">
+								<h3 class="box-title">Total de computadoras</h3>
+								<div class="box-tools pull-right">
+									<button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Ocultar">
+										<i class="fa fa-minus"></i>
+									</button>
+								</div>
+							</div>
+							<div class="box-body table-responsive">
+								<table class="table">
+									<div id="total-donations-nd"></div>
+								</table>
+							</div>
+						</div>
+						<!-- /Conteo de computadoras -->
+					</div>
+				</div>
+
+				
+			</div>
+
+			<div class="col-md-6">
+				<div class="row">
+					<div class="col-md-12 col-sm-12">
+						<div class="box box-success box-solid">
+							<div class="box-header with-border">
+								<h3 class="box-title">Computadoras por departamento</h3>
+								<div class="box-tools pull-right">
+									<button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Ocultar">
+										<i class="fa fa-minus"></i>
+									</button>
+								</div>
+							</div>
+							<div class="box-body table-responsive">
+								<table class="table">
+									<div id="us-chart"></div>
+								</table>
+							</div>
+						</div>
+
+						<!-- Gráfico de organizaciones -->
+						<div class="box box-success box-solid">
+							<div class="box-header with-border">
+								<h3 class="box-title">Laboratorios por organización</h3>
+								<div class="box-tools pull-right">
+									<button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Ocultar">
+										<i class="fa fa-minus"></i>
+									</button>
+								</div>
+							</div>
+							<div class="box-body table-responsive">
+								<table class="table">
+									<div id="resource-type-row-chart"></div>
+								</table>
+							</div>
+						</div>
+						<!-- /Gráfico de organizaciones -->
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<span class="origen-de-datos" data-url="{{ archivo_generado.get_absolute_url }}"></span>
+</section>
+{% endblock content %}

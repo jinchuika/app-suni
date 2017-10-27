@@ -103,6 +103,18 @@ class IndexView(LoginRequiredMixin, TemplateView):
                     'url_evento_dh': reverse_lazy('evento_dh_calendario_home'),
                 }
             })
+        if self.request.user.groups.filter(name='nacion_digital').exists():
+            widgets.append({
+                'queryset': '',
+                'template_name': 'widgets/ie_organizacion_chart.html',
+                'media_js': {
+                    'js/distributed/Chart.min.js',
+                    'js/extrajs/ie.js'
+                },
+                'extra': {
+                    'url': reverse_lazy('ie_organizacion_api_list'),
+                }
+            })
         return widgets
 
     def get_context_data(self, **kwargs):

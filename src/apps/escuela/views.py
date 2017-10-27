@@ -16,7 +16,7 @@ from apps.tpe.models import Equipamiento
 from apps.tpe.forms import EquipamientoForm, EquipamientoNuevoForm
 from apps.kalite.forms import VisitaForm
 
-from apps.ie.forms import LaboratorioCreateForm
+from apps.ie.forms import LaboratorioCreateForm, IEValidacionCreateForm
 
 from apps.escuela.forms import (
     FormEscuelaCrear, ContactoForm, EscuelaBuscarForm, EscPoblacionForm)
@@ -66,6 +66,7 @@ class EscuelaDetail(LoginRequiredMixin, DetailView):
 
         if self.object.poblaciones.count() > 0:
             context['laboratorio_form'] = LaboratorioCreateForm(initial={'escuela': self.object.pk})
+            context['ie_validacion_form'] = IEValidacionCreateForm(initial={'escuela': self.object.pk})
 
         if 'id_solicitud' in self.kwargs:
             # Crea un formulario para editar la solicitud si encuentra que se envió una ID

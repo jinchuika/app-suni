@@ -1,6 +1,6 @@
 {% extends "base/base.html" %}
 
-{% load telefonica staticfiles embed_gdrive_folder %}
+{% load telefonica staticfiles embed_gdrive_folder has_group %}
 
 {% block page_title %}
 <title>{{ escuela }}</title>
@@ -26,6 +26,14 @@
 					<div class="col-md-12">
 						<div class="nav-tabs-custom">
 							<ul class="nav nav-tabs nav-justified">
+								{% if request.user|has_group:"nacion_digital" %}
+								<li class="active">
+									<a href="#info-nacion" data-toggle="tab"><i class="fa fa-info" aria-hidden="true"></i> Información</a>
+								</li>
+								<li>
+									<a href="#nacion-digital" data-toggle="tab"><i class="fa fa-info" aria-hidden="true"></i> Nación digital</a>
+								</li>
+								{% else %}
 								<li class="active">
 									<a href="#info" data-toggle="tab"><i class="fa fa-info" aria-hidden="true"></i> Información</a>
 								</li>
@@ -44,9 +52,14 @@
 								<li>
 									<a href="#contactos" data-toggle="tab"><i class="fa fa-user" aria-hidden="true"></i> Contactos</a>
 								</li>
+								{% endif %}
 							</ul>
 							<div class="tab-content">
-								<div class="tab-pane active" id="info">
+								{% if request.user|has_group:"nacion_digital" %}
+									 {{ laboratorio_form.as_p }}
+									{% include "ie/escuela_detail.html" with escuela=escuela laboratorio_form=laboratorio_form %}
+								{% endif %}
+								<div class="tab-pane {% if not request.user|has_group:"nacion_digital" %} active{% endif %}" id="info">
 									<div class="row">
 										<div class="col-md-3 col-sm-3 col-xs-6">
 											<div class="info-box bg-aqua">
@@ -322,14 +335,6 @@
 									{% endif %}
 									{% if equipamiento_form %}
 										{% include "tpe/equipamiento_form.html" with equipamiento_form=equipamiento_form %}
-									{% endif %}
-
-									{% if laboratorio_form and perms.ie.add_laboratorio %}
-										<form action="{% url 'laboratorio_add' %}" method="post">
-											{% csrf_token %}
-											{{ laboratorio_form.as_p }}
-											<input type="submit" class="btn btn-info" value="Nuevo laboratorio">
-										</form>
 									{% endif %}
 								</div>
 

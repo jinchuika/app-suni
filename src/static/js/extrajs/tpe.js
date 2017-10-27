@@ -140,10 +140,10 @@
 }( window.EquipamientoInforme = window.EquipamientoInforme || {}, jQuery ));
 
 (function( MonitoreoList, $, undefined ) {
+    var tablaHabilitada = false;
     var tabla = $('#monitoreo-table').DataTable({
         paging:   false,
         dom: 'lfrtipB',
-        serverSide: true,
         processing: true,
         deferLoading: 0,
         buttons: ['excel','pdf'],
@@ -155,6 +155,9 @@
             data: function () {
                 return $('#monitoreo-list-form').serializeObject();
             }
+        },
+        preDrawCallback: function () {
+            return tablaHabilitada;
         },
         columns: [
         {data: "departamento"},
@@ -172,12 +175,36 @@
         ],
     });
 
+    var filtro_list = [];
+
     // Public
     MonitoreoList.init = function () {
         $('#monitoreo-list-form').submit(function (e) {
             e.preventDefault();
+
+            filtro_list = [];
             tabla.clear().draw();
-            tabla.ajax.reload();
+            $('#spinner').show();
+
+            $("#monitoreo-list-form :input").not(':submit,:button,:hidden').each(function() {
+                if($(this).val() != ""){
+                    filtro_list.push(1);
+                }
+            });
+
+            if (filtro_list.length > 0) {
+                tablaHabilitada = true;
+                $('#span-filtros').remove();
+                $('#spinner').show();
+                tabla.clear().draw();
+                tabla.ajax.reload();
+            }
+            else{
+                tablaHabilitada = false;
+                $('#monitoreo-list-form').append('<span id="span-filtros">Seleccione al menos un filtro</span>');
+                $('#spinner').hide();
+            }
+
         });
 
     }   

@@ -31,8 +31,17 @@
 	<title>SUNI</title>
 	{% endblock page_title %}
 
-</head>
+	<!-- Seguimiento de Google Analytics -->
+	<script async src="https://www.googletagmanager.com/gtag/js?id={{ GOOGLE_ANALYTICS_PROPERTY_ID }}"></script>
+	<script>
+	window.dataLayer = window.dataLayer || [];
+	function gtag(){dataLayer.push(arguments);}
+	gtag('js', new Date());
 
+	gtag('config', '{{ GOOGLE_ANALYTICS_PROPERTY_ID }}');
+	</script>
+</head>
+{% block body %}
 <body class="hold-transition sidebar-collapse {{ request.user.preferences.ui__skin }} sidebar-mini {% if user.preferences.ui__fixed is True %}fixed {% endif %}">
 	<div class="wrapper">
 		{% if user.is_authenticated %}
@@ -53,6 +62,7 @@
 		</footer>
 	</div>
 </body>
+{% endblock body %}
 
 <script src="{% static "js/jquery.min.js" %}"></script>
 <script src="{% static "js/bootstrap.min.js" %}"></script>
@@ -69,15 +79,4 @@
 {% block extra_js %}
 
 {% endblock extra_js %}
-
-<!-- Seguimiento de Google Analytics -->
-<script async src="https://www.googletagmanager.com/gtag/js?id={{ GOOGLE_ANALYTICS_PROPERTY_ID }}"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', '{{ GOOGLE_ANALYTICS_PROPERTY_ID }}');
-</script>
-
 </html>

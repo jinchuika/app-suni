@@ -1,0 +1,41 @@
+[
+{
+  "model": "main.archivogenerado",
+  "pk": 1,
+  "fields": {
+    "nombre": "ie_mapa",
+    "slug": "mapa",
+    "ultima_actualizacion": "2017-10-26T18:14:37.775Z",
+    "archivo": "generados/ie_mapa_2017-10-26-21-34-01.json",
+    "descripcion": "",
+    "input_url": "ie_escuela_api_list",
+    "activo": true
+  }
+},
+{
+  "model": "main.archivogenerado",
+  "pk": 2,
+  "fields": {
+    "nombre": "ie_dashboard",
+    "slug": "ie_laboratorio_api_list",
+    "ultima_actualizacion": "2017-10-26T20:25:44.049Z",
+    "archivo": "generados/ie_laboratorio_api_list_2017-10-26-21-34-01.json",
+    "descripcion": "",
+    "input_url": "ie_laboratorio_api_list",
+    "activo": true
+  }
+},
+{
+  "model": "main.archivogenerado",
+  "pk": 3,
+  "fields": {
+    "nombre": "ie_geo",
+    "slug": "ie_geo_api_list",
+    "ultima_actualizacion": "2017-10-26T20:26:09.691Z",
+    "archivo": "generados/ie_geo_api_list_2017-10-26-21-34-02.json",
+    "descripcion": "",
+    "input_url": "ie_geo_api_list",
+    "activo": true
+  }
+}
+]

@@ -1,10 +1,17 @@
-from django.views.generic import DetailView, ListView
+from django.urls import reverse_lazy
+from django.views.generic import DetailView, ListView, TemplateView
 from django.views.generic.edit import CreateView, UpdateView
 
-from apps.ie.models import Laboratorio, Computadora, Serie
+from apps.users.models import Organizacion
+from apps.main.models import ArchivoGenerado
+
+from apps.ie.models import (
+    Laboratorio, Computadora, Serie, ValidacionVersion,
+    Validacion, Requerimiento)
 from apps.ie.forms import (
     LaboratorioCreateForm, LaboratorioUpdateForm,
-    ComputadoraForm, SerieForm)
+    ComputadoraForm, SerieForm, IEValidacionVersionForm,
+    RequerimientoForm, IEValidacionCreateForm, IEValidacionUpdateForm)
 
 
 class LaboratorioCreateView(CreateView):
@@ -36,7 +43,12 @@ class LaboratorioDetailView(DetailView):
 
 class LaboratorioListView(ListView):
     model = Laboratorio
-    template_name = "asd"
+    template_name = "ie/laboratorio_list.html"
+
+    def get_context_data(self, **kwargs):
+        context = super(LaboratorioListView, self).get_context_data(**kwargs)
+        context['organizacion_list'] = Organizacion.objects.all()
+        return context
 
 
 class LaboratorioUpdateView(UpdateView):
@@ -60,3 +72,74 @@ class ComputadoraCreateView(CreateView):
 class SerieCreateView(CreateView):
     model = Serie
     form_class = SerieForm
+
+
+class DashboardView(TemplateView):
+    template_name = 'ie/dashboard.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(DashboardView, self).get_context_data(**kwargs)
+        try:
+            context['archivo_generado'] = ArchivoGenerado.objects.get(nombre='ie_dashboard')
+        except ArchivoGenerado.DoesNotExist:
+            context['archivo_generado'] = None
+        return context
+
+
+class MapDashboardView(TemplateView):
+    template_name = 'ie/dashboard-mapa.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(MapDashboardView, self).get_context_data(**kwargs)
+        try:
+            context['archivo_generado'] = ArchivoGenerado.objects.get(nombre='ie_mapa')
+        except ArchivoGenerado.DoesNotExist:
+            context['archivo_generado'] = None
+        return context
+
+
+class GeoDashboardView(TemplateView):
+    template_name = 'ie/dashboard-geo.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(GeoDashboardView, self).get_context_data(**kwargs)
+        try:
+            context['archivo_generado'] = ArchivoGenerado.objects.get(nombre='ie_geo')
+        except ArchivoGenerado.DoesNotExist:
+            context['archivo_generado'] = None
+        return context
+
+
+class ValidacionVersionCreateView(CreateView):
+    model = ValidacionVersion
+    template_name = "ie/validacionversion_form.html"
+    form_class = IEValidacionVersionForm
+    success_url = reverse_lazy('ie_versionvalidacion_add')
+
+    def get_context_data(self, **kwargs):
+        context = super(ValidacionVersionCreateView, self).get_context_data(**kwargs)
+        context['requerimiento_form'] = RequerimientoForm()
+        context['version_list'] = ValidacionVersion.objects.all()
+        return context
+
+
+class RequerimientoCreateView(CreateView):
+    model = Requerimiento
+    form_class = RequerimientoForm
+    success_url = reverse_lazy('ie_versionvalidacion_add')
+
+
+class ValidacionCreateView(CreateView):
+    model = Validacion
+    form_class = IEValidacionCreateForm
+
+
+class IEValidacionDetailView(DetailView):
+    model = Validacion
+    template_name = "ie/validacion_detail.html"
+
+
+class IEValidacionUpdateView(UpdateView):
+    model = Validacion
+    form_class = IEValidacionUpdateForm
+    template_name = "ie/validacion_detail.html"

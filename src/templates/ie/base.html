@@ -1,0 +1,61 @@
+{% extends "base/base.html" %}
+{% load staticfiles %}
+
+{% block extra_css %}
+<link rel="stylesheet" type="text/css" href="{% static "css/skin/skin-blue.min.css" %}">
+{% endblock extra_css %}
+
+{% block body %}
+<body class="skin-blue sidebar-mini sidebar-collapse">
+	<div class="wrapper">
+		<header class="main-header">
+			<!-- Logo -->
+			<a href="#" class="logo">
+				<span class="logo-mini">
+					<img style="display: inline-block; height: 35px; width: auto;" src="{% static "ie/image/logo_corto.png" %}" class="">
+				</span>
+				<span class="logo-lg">
+					<img style="display: inline-block; height: 35px; width: auto;" src="{% static "ie/image/logo_largo.png" %}" class="">
+				</span>
+			</a>
+			<!-- Header Navbar -->
+			<nav class="navbar navbar-static-top" role="navigation">
+				<a href="#" class="sidebar-toggle" data-toggle="offcanvas" role="button">
+					<span class="sr-only">Cambiar navegación</span>
+				</a>
+				<div class="navbar-custom-menu">
+					<ul class="nav navbar-nav">
+
+					</ul>
+				</div>
+			</nav>
+		</header>
+
+		<aside class="main-sidebar">
+			<section class="sidebar" style="height: auto;">
+				<ul class="sidebar-menu">
+					<li>
+						<a href="{% url 'ie_dashboard' %}"><i class="fa fa-bar-chart text-red"></i> <span>Global</span></a>
+					</li>
+					<li>
+						<a href="{% url 'ie_dashboard_geo' %}"><i class="fa fa-university text-yellow"></i> <span>Escuelas</span></a>
+					</li>
+					<li>
+						<a href="{% url 'ie_dashboard_mapa' %}"><i class="fa fa-map-o text-aqua"></i> <span>Mapa</span></a>
+					</li>
+				</ul>
+			</section>
+		</aside>
+
+		<div class="content-wrapper">
+			{% block content %}
+			{% endblock content %}
+		</div>
+
+		<footer class="main-footer">
+			<strong>Copyright © 2017 <a href="https://funsepa.org">Fundación Sergio Paiz Andrade</a>.</strong> 
+			Todos los derechos reservados.
+		</footer>
+	</div>
+</body>
+{% endblock body %}

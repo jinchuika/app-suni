@@ -1,0 +1,76 @@
+{% extends "base/base.html" %}
+
+{% block page_title %}
+<title>Listado de laboratorios</title>
+{% endblock page_title %}
+
+{% block content %}
+<section class="content-header">
+	<h1>
+		Listado de laboratorios
+	</h1>
+</section>
+
+<section class="content">
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-md-9">
+				<div class="box box-primary">
+					<div class="box-body table-responsive">
+						<table class="table table-hover table-datatables">
+						<thead>
+							<tr>
+								<th>Número</th>
+								<th>Escuela</th>
+								<th>Código</th>
+								<th>Organización</th>
+								<th>Fecha</th>
+								<th>Computadoras</th>
+							</tr>
+						</thead>
+							{% for laboratorio in laboratorio_list %}
+								<tr>
+									<td>
+										<a href="{{ laboratorio.get_absolute_url }}" class="btn btn-block">
+											{{ laboratorio }}
+										</a>
+									</td>
+									<td>
+										<a href="{{ laboratorio.escuela.get_absolute_url }}">
+											{{ laboratorio.escuela}}
+										</a>
+									</td>
+									<td nowrap>
+										{{ laboratorio.escuela.codigo }}
+									</td>
+									<td>{{ laboratorio.organizacion }}</td>
+									<td>{{ laboratorio.fecha|date:"Y-m-d" }}</td>
+									<td>{{ laboratorio.cantidad_computadoras }}</td>
+								</tr>
+							{% endfor %}
+						</table>
+					</div>
+				</div>
+			</div>
+
+			<div class="col-md-3">
+				<div class="box">
+					<div class="box-header">
+						<h3 class="box-title">Organizaciones</h3>
+					</div>
+					<div class="box-body">
+						<table class="table table-hover">
+							{% for organizacion in organizacion_list %}
+								<tr>
+									<td>{{ organizacion.nombre }}</td>
+									<td>{{ organizacion.laboratorios.count }}</td>
+								</tr>
+							{% endfor %}
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+{% endblock content %}

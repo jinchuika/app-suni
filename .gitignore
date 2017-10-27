@@ -11,11 +11,9 @@ __pycache__/
 env/
 build/
 develop-eggs/
-dist/
 downloads/
 eggs/
 .eggs/
-lib/
 lib64/
 parts/
 sdist/
@@ -54,8 +52,10 @@ coverage.xml
 local_settings.py
 settings_dev.py
 settings_prod.py
+settings_stage.py
 src/src/settings_dev.py
 src/src/settings_prod.py
+src/src/settings_stage.py
 src/src/settings_dev_live.py
 
 # Flask stuff:

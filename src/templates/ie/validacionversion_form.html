@@ -1,0 +1,63 @@
+{% extends "base/base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+	<div class="row-fluid">
+		<div class="col-md-8">
+			<div class="box box-primary">
+				<div class="box-header">
+					<h3 class="box-title">Nueva versión</h3>
+				</div>
+				<div class="box-body">
+					<form action="{{ action }}" method="post">
+						<table class="table">
+							{% csrf_token %}
+							{{ form.as_table }}
+							<tr>
+								<td colspan="2">
+									<input type="submit" value="Guardar" class="btn btn-primary">
+								</td>
+							</tr>
+						</table>
+					</form>
+				</div>
+			</div>
+		</div>
+
+		<div class="col-md-4">
+			<div class="box">
+				<div class="box-header">
+					<h3 class="box-title">Nuevo requerimiento</h3>
+				</div>
+				<div class="box-body">
+					
+					<form action="{% url 'ie_requerimiento_add' %}" method="post">
+						{% csrf_token %}
+						{{ requerimiento_form.as_p }}
+						<input type="submit" class="btn btn-primary" value="Guardar">
+					</form>
+				</div>
+			</div>
+
+			<div class="box box-primary">
+				<div class="box-header">
+					<h3 class="box-title">Versiones actuales</h3>
+				</div>
+
+				<div class="box-body">
+					<table class="table">
+						{% for version in version_list %}
+						<tr>
+							<td>
+								{{ version }}
+
+							</td>
+						</tr>
+						{% endfor %}
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock content %}
