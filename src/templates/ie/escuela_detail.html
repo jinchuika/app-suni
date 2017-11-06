@@ -1,207 +1,334 @@
-{% load widget_tweaks %}
+{% extends "base/base.html" %}
 
-<div class="tab-pane active" id="info-nacion">
-	<div class="row">
-		<div class="col-md-3 col-sm-3 col-xs-6">
-			<div class="info-box bg-yellow">
-				<span class="info-box-icon"><i class="fa fa-check-square-o"></i></span>
-				<div class="info-box-content">
-					<span class="info-box-text">Validación</span>
-					<span class="info-box-number"><h3>{% if escuela.validacion.count > 0 %}Sí{% else %}No{% endif %}</h3></span>
-				</div>
-			</div>
-		</div>
-		<div class="col-md-3 col-sm-3 col-xs-6">
-			<div class="info-box bg-green">
-				<span class="info-box-icon"><i class="fa fa-television"></i></span>
-				<div class="info-box-content">
-					<span class="info-box-text">Equipamiento</span>
-					<span class="info-box-number"><h3>{% if escuela.laboratorios.count > 0 %}Sí{% else %}No{% endif %}</h3></span>
-				</div>
-			</div>
-		</div>
-		<div class="col-md-3 col-sm-3 col-xs-6">
-			<div class="info-box bg-red">
-				<span class="info-box-icon"><i class="fa fa-graduation-cap"></i></span>
-				<div class="info-box-content">
-					<span class="info-box-text">Capacitación</span>
-					<span class="info-box-number"><h3>{% if escuela.capacitacion.capacitada %}Sí{% else %}No{% endif %}</h3></span>
-				</div>
-			</div>
-		</div>
-	</div>
-	<div class="row">
-		<div class="col-md-6">
-			<table class="table table-striped table-hover table-condensed">
-				<tr>
-					<th><i class="fa fa-map-marker"></i> Departamento</th>
-					<td>{{ escuela.municipio.departamento }}</td>
-				</tr>
-				<tr>
-					<th><i class="fa fa-map-marker"></i> Municipio</th>
-					<td>{{ escuela.municipio.nombre }}</td>
-				</tr>
-				<tr>
-					<th><i class="fa fa-bars"></i> Nivel</th>
-					<td>{{ escuela.nivel }}</td>
-				</tr>
-				<tr>
-					<th><i class="fa fa-bookmark-o"></i> Sector</th>
-					<td>{{ escuela.sector }}</td>
-				</tr>
-				<tr>
-					<th><i class="fa fa-sun-o"></i> Área</th>
-					<td>{{ escuela.area }}</td>
-				</tr>
-				<tr>
-					<th><i class="fa fa-clock-o"></i> Jornada</th>
-					<td>{{ escuela.jornada }}</td>
-				</tr>
-				<tr>
-					<th><i class="fa fa-calendar"></i> Plan</th>
-					<td>{{ escuela.plan }}</td>
-				</tr>
-				<tr>
-					<th><i class="fa fa-exclamation-circle"></i> Status</th>
-					<td>{{ escuela.status }}</td>
-				</tr>
-				<tr>
-					<th><i class="fa fa-book"></i> Modalidad</th>
-					<td>{{ escuela.modalidad }}</td>
-				</tr>
-				<tr>
-					<th><i class="fa fa-phone-square"></i> Teléfono</th>
-					<td>{{ escuela.telefono }}</td>
-				</tr>
-				<tr>
-					<th><i class="fa fa-map"></i> Coordenadas</th>
-					<td>{{ escuela.mapa.lat }}, {{ escuela.mapa.lng }}</td>
-				</tr>
-				<tr>
-					<th><i class="fa fa-info" aria-hidden="true"></i> Ficha escolar</th>
-					<td>
-						<a href="{{ escuela.get_ficha_escolar }}" class="btn btn-primary btn-xs" target="_blank">
-							Ficha escolar <i class="fa fa-external-link" aria-hidden="true"></i>
-						</a>
-					</td>
-				</tr>
-				{% if perms.escuela.change_escuela %}
-				<tr>
-					<td colspan="2">
-						<a href="{% url 'escuela_update' pk=escuela.id%}" class="btn btn-info btn-xs">
-							<i class="fa fa-pencil-square-o" aria-hidden="true"></i> Editar
-						</a>
-					</td>
-				</tr>
-				{% endif %}
-			</table>
-		</div>
-		<div class="col-md-6">
-			<h4>
-				<i class="fa fa-child"></i> Población
-				{% if poblacion_form and perms.escuela.add_escpoblacion %}
-				<span class="box-tools pull-right">
-					<button class="btn btn-xs btn-info" id="btn-poblacion">Agregar registro</button>
-				</span>
-				{% endif %}
-			</h4>
-			{% if poblacion_form and perms.escuela.add_escpoblacion %}
-			<form action="{% url 'poblacion_add' %}" method="post" class="table-responsive" id="form-nueva-poblacion">
-				<table class="table">
-					{% csrf_token %}
-					{% for hidden in poblacion_form.hidden_fields %}
-					{{ hidden }}
-					{% endfor %}
-					{% for field in poblacion_form.visible_fields %}
-						<tr>
-							<td>{{ field.label_tag }}</td>
-							<td>{{ field|add_class:"form-control" }}</td>
-						</tr>
-					{% endfor %}
-					<tr>
-						<td colspan="2">
-							<input type="submit" class="btn btn-success" value="Guardar">
-						</td>
-					</tr>
-				</table>
-			</form>
-			{% endif %}
-			<div class="table-responsive">
-				<table class="table table-striped table-condensed">
-					<tr>
-						<th>Alumnos</th>
-						<th>Docentes</th>
-						<th>Fecha</th>
-					</tr>
-					{% for poblacion in escuela.poblaciones.all|dictsortreversed:"fecha" %}
-					<tr>
-						<td>{{poblacion.total_alumno}}</td>
-						<td>{{poblacion.total_maestro}}</td>
-						<td>{{poblacion.fecha|date:"Y-m-d"|lower}}</td>
-					</tr>
-					{% endfor %}
-				</table>
-			</div>
-			{% if escuela.mapa %}
-			{% include "base/static-map.html" with latitud=escuela.mapa.lat longitud=escuela.mapa.lng %}
-			{% endif %}
-		</div>
-	</div>
-</div>
-<div class="tab-pane" id="nacion-digital">
+{% load widget_tweaks telefonica staticfiles embed_gdrive_folder has_group %}
 
-	{% if laboratorio_form and perms.ie.add_laboratorio %}
-	<form action="{% url 'laboratorio_add' %}" method="post">
-		{% csrf_token %}
-		{{ laboratorio_form.as_p }}
-		<input type="submit" class="btn btn-success" value="Nuevo laboratorio">
-	</form>
-	{% endif %}
-	{% if ie_validacion_form and perms.ie.add_validacion %}
-	<form action="{% url 'ie_validacion_add' %}" method="post">
-		{% csrf_token %}
-		{{ ie_validacion_form.as_p }}
-		<input type="submit" class="btn btn-info" value="Nueva validacion">
-	</form>
-	{% endif %}
-	{% for laboratorio in escuela.laboratorios.all %}
+{% block page_title %}
+<title>{{ escuela }}</title>
+{% endblock page_title %}
+
+{% block content %}
+<section class="content">
+	<div class="container-fluid">
 		<div class="row">
 			<div class="col-md-12">
-				<div class="box box-success box-solid">
-					<div class="box-header">
-						<h3 class="box-title">Laboratorio {{ laboratorio }}</h3>
+				<div class="box box-primary">
+					<div class="box-body box-profile">
+						<h3 class="profile-username text-center">{{ escuela }}</h3>
+						<h4 class="text-center">{{ escuela.codigo }}</h4>
+						<h6 class="text-center"><i class="fa fa-map-marker margin-r-5"></i> {{ escuela.direccion }}</h6>
 					</div>
-					<div class="box-body">
-						<div class="row">
-							<div class="col-sm-3">
-								<div class="description-block border-right">
-									<a href="{{ laboratorio.get_absolute_url }}" class="btn btn-info">
-										<i class="fa fa-external-link"></i> Ver detalle
-									</a>
+				</div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-md-12">
+				<div class="row">
+					<div class="col-md-12">
+						<div class="nav-tabs-custom">
+							<ul class="nav nav-tabs nav-justified">
+								<li class="active">
+									<a href="#info-nacion" data-toggle="tab"><i class="fa fa-info" aria-hidden="true"></i> Información</a>
+								</li>
+								<li>
+									<a href="#validacion-tab" data-toggle="tab"><i class="fa fa-info" aria-hidden="true"></i> Validación</a>
+								</li>
+								<li>
+									<a href="#laboratorio-tab" data-toggle="tab"><i class="fa fa-info" aria-hidden="true"></i> Equipamiento</a>
+								</li>
+							</ul>
+							<div class="tab-content">
+								<div class="tab-pane active" id="info-nacion">
+									<div class="row">
+										<div class="col-md-3 col-sm-3 col-xs-6">
+											<div class="info-box bg-yellow">
+												<span class="info-box-icon"><i class="fa fa-check-square-o"></i></span>
+												<div class="info-box-content">
+													<span class="info-box-text">Validación</span>
+													<span class="info-box-number"><h3>{% if escuela.validacion.count > 0 %}Sí{% else %}No{% endif %}</h3></span>
+												</div>
+											</div>
+										</div>
+										<div class="col-md-3 col-sm-3 col-xs-6">
+											<div class="info-box bg-green">
+												<span class="info-box-icon"><i class="fa fa-television"></i></span>
+												<div class="info-box-content">
+													<span class="info-box-text">Equipamiento</span>
+													<span class="info-box-number"><h3>{% if escuela.laboratorios.count > 0 %}Sí{% else %}No{% endif %}</h3></span>
+												</div>
+											</div>
+										</div>
+										<div class="col-md-3 col-sm-3 col-xs-6">
+											<div class="info-box bg-red">
+												<span class="info-box-icon"><i class="fa fa-graduation-cap"></i></span>
+												<div class="info-box-content">
+													<span class="info-box-text">Capacitación</span>
+													<span class="info-box-number"><h3>{% if escuela.capacitacion.capacitada %}Sí{% else %}No{% endif %}</h3></span>
+												</div>
+											</div>
+										</div>
+									</div>
+									<div class="row">
+										<div class="col-md-6">
+											<table class="table table-striped table-hover table-condensed">
+												<tr>
+													<th><i class="fa fa-map-marker"></i> Departamento</th>
+													<td>{{ escuela.municipio.departamento }}</td>
+												</tr>
+												<tr>
+													<th><i class="fa fa-map-marker"></i> Municipio</th>
+													<td>{{ escuela.municipio.nombre }}</td>
+												</tr>
+												<tr>
+													<th><i class="fa fa-bars"></i> Nivel</th>
+													<td>{{ escuela.nivel }}</td>
+												</tr>
+												<tr>
+													<th><i class="fa fa-bookmark-o"></i> Sector</th>
+													<td>{{ escuela.sector }}</td>
+												</tr>
+												<tr>
+													<th><i class="fa fa-sun-o"></i> Área</th>
+													<td>{{ escuela.area }}</td>
+												</tr>
+												<tr>
+													<th><i class="fa fa-clock-o"></i> Jornada</th>
+													<td>{{ escuela.jornada }}</td>
+												</tr>
+												<tr>
+													<th><i class="fa fa-calendar"></i> Plan</th>
+													<td>{{ escuela.plan }}</td>
+												</tr>
+												<tr>
+													<th><i class="fa fa-exclamation-circle"></i> Status</th>
+													<td>{{ escuela.status }}</td>
+												</tr>
+												<tr>
+													<th><i class="fa fa-book"></i> Modalidad</th>
+													<td>{{ escuela.modalidad }}</td>
+												</tr>
+												<tr>
+													<th><i class="fa fa-phone-square"></i> Teléfono</th>
+													<td>{{ escuela.telefono }}</td>
+												</tr>
+												<tr>
+													<th><i class="fa fa-map"></i> Coordenadas</th>
+													<td>{{ escuela.mapa.lat }}, {{ escuela.mapa.lng }}</td>
+												</tr>
+												<tr>
+													<th><i class="fa fa-info" aria-hidden="true"></i> Ficha escolar</th>
+													<td>
+														<a href="{{ escuela.get_ficha_escolar }}" class="btn btn-primary btn-xs" target="_blank">
+															Ficha escolar <i class="fa fa-external-link" aria-hidden="true"></i>
+														</a>
+													</td>
+												</tr>
+												{% if perms.escuela.change_escuela %}
+												<tr>
+													<td colspan="2">
+														<a href="{% url 'escuela_update' pk=escuela.id%}" class="btn btn-info btn-xs">
+															<i class="fa fa-pencil-square-o" aria-hidden="true"></i> Editar
+														</a>
+													</td>
+												</tr>
+												{% endif %}
+											</table>
+										</div>
+										<div class="col-md-6">
+											<h4>
+												<i class="fa fa-child"></i> Población
+												{% if poblacion_form and perms.escuela.add_escpoblacion %}
+												<span class="box-tools pull-right">
+													<button class="btn btn-xs btn-info" id="btn-poblacion">Agregar registro</button>
+												</span>
+												{% endif %}
+											</h4>
+											{% if poblacion_form and perms.escuela.add_escpoblacion %}
+											<form action="{% url 'poblacion_add' %}" method="post" class="table-responsive" id="form-nueva-poblacion">
+												<table class="table">
+													{% csrf_token %}
+													{% for hidden in poblacion_form.hidden_fields %}
+													{{ hidden }}
+													{% endfor %}
+													{% for field in poblacion_form.visible_fields %}
+													<tr>
+														<td>{{ field.label_tag }}</td>
+														<td>{{ field|add_class:"form-control" }}</td>
+													</tr>
+													{% endfor %}
+													<tr>
+														<td colspan="2">
+															<input type="submit" class="btn btn-success" value="Guardar">
+														</td>
+													</tr>
+												</table>
+											</form>
+											{% endif %}
+											<div class="table-responsive">
+												<table class="table table-striped table-condensed">
+													<tr>
+														<th>Alumnos</th>
+														<th>Docentes</th>
+														<th>Fecha</th>
+													</tr>
+													{% for poblacion in escuela.poblaciones.all|dictsortreversed:"fecha" %}
+													<tr>
+														<td>{{poblacion.total_alumno}}</td>
+														<td>{{poblacion.total_maestro}}</td>
+														<td>{{poblacion.fecha|date:"Y-m-d"|lower}}</td>
+													</tr>
+													{% endfor %}
+												</table>
+											</div>
+											{% if escuela.mapa %}
+											{% include "base/static-map.html" with latitud=escuela.mapa.lat longitud=escuela.mapa.lng %}
+											{% endif %}
+										</div>
+									</div>
 								</div>
-							</div>
-							<div class="col-sm-3">
-								<div class="description-block border-right">
-									<span class="description-text">Organización</span>
-									<h5 class="description-header">{{ laboratorio.organizacion }}</h5>
+
+								<!-- Validacion tab -->
+								<div class="tab-pane" id="validacion-tab">
+									{% for validacion in escuela.ie_validaciones.all %}
+									<div class="row">
+										<div class="col-md-12">
+											<div class="box box-warning box-solid">
+												<div class="box-header">
+													<h3 class="box-title">Validación {{ validacion }}</h3>
+												</div>
+												<div class="box-body">
+													<div class="row">
+														<div class="col-sm-3">
+															<div class="description-block border-right">
+																<a href="{{ validacion.get_absolute_url }}" class="btn btn-info">
+																	<i class="fa fa-external-link"></i> Ver detalle
+																</a>
+															</div>
+														</div>
+														<div class="col-sm-3">
+															<div class="description-block border-right">
+																<span class="description-text">Organización</span>
+																<h5 class="description-header">{{ validacion.organizacion }}</h5>
+															</div>
+														</div>
+														<div class="col-sm-3">
+															<div class="description-block border-right">
+																<span class="description-text">Completada</span>
+																<h5 class="description-header">
+																	{% if validacion.completada %}
+																	Sí
+																	{% else %}
+																	No
+																	{% endif %}
+																</h5>
+															</div>
+														</div>
+														<div class="col-sm-3">
+															<div class="description-block">
+																<span class="description-text">Requerimientos</span>
+																<h5 class="description-header">{{ validacion.porcentaje_requisitos }}%</h5>
+															</div>
+														</div>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+									{% endfor %}
+									{% if ie_validacion_form and perms.ie.add_validacion %}
+									<div class="row">
+										<div class="col-md-12">											
+											<form action="{% url 'ie_validacion_add' %}" method="post" class="pull-right">
+												<table class="table">
+													{% csrf_token %}
+													{{ ie_validacion_form.as_table }}
+													<tr>
+														<td colspan="2">
+															<input type="submit" class="btn btn-info" value="Nueva validacion">
+														</td>
+													</tr>
+												</table>
+											</form>
+										</div>
+									</div>
+									{% endif %}
 								</div>
-							</div>
-							<div class="col-sm-3">
-								<div class="description-block border-right">
-									<span class="description-text">Computadoras</span>
-									<h5 class="description-header">{{ laboratorio.cantidad_computadoras }}</h5>
+								<!-- /Validacion tab -->
+
+								<!-- Laboratorio tab -->
+								<div class="tab-pane" id="laboratorio-tab">
+									{% for laboratorio in escuela.laboratorios.all %}
+									<div class="row">
+										<div class="col-md-12">
+											<div class="box box-success box-solid">
+												<div class="box-header">
+													<h3 class="box-title">Laboratorio {{ laboratorio }}</h3>
+												</div>
+												<div class="box-body">
+													<div class="row">
+														<div class="col-sm-3">
+															<div class="description-block border-right">
+																<a href="{{ laboratorio.get_absolute_url }}" class="btn btn-info">
+																	<i class="fa fa-external-link"></i> Ver detalle
+																</a>
+															</div>
+														</div>
+														<div class="col-sm-3">
+															<div class="description-block border-right">
+																<span class="description-text">Organización</span>
+																<h5 class="description-header">{{ laboratorio.organizacion }}</h5>
+															</div>
+														</div>
+														<div class="col-sm-3">
+															<div class="description-block border-right">
+																<span class="description-text">Computadoras</span>
+																<h5 class="description-header">{{ laboratorio.cantidad_computadoras }}</h5>
+															</div>
+														</div>
+														<div class="col-sm-3">
+															<div class="description-block">
+																<span class="description-text">Fecha</span>
+																<h5 class="description-header">{{ laboratorio.fecha|date:"Y-m-d" }}</h5>
+															</div>
+														</div>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+									{% endfor %}
+									{% if laboratorio_form and perms.ie.add_laboratorio %}
+									<div class="row">
+										<div class="col-md-12">
+											<form action="{% url 'laboratorio_add' %}" method="post" class="pull-right">
+												{% csrf_token %}
+												{{ laboratorio_form.as_p }}
+												<input type="submit" class="btn btn-success" value="Nuevo laboratorio">
+											</form>
+										</div>
+									</div>
+									{% endif %}
 								</div>
-							</div>
-							<div class="col-sm-3">
-								<div class="description-block">
-									<span class="description-text">Fecha</span>
-									<h5 class="description-header">{{ laboratorio.fecha|date:"Y-m-d" }}</h5>
-								</div>
+								
 							</div>
 						</div>
 					</div>
 				</div>
 			</div>
 		</div>
-	{% endfor %}
-</div>
+	</section>
+	{% endblock content %}
+
+	{% block extra_js %}
+	<script src="{% static "js/extrajs/escuela.js" %}"></script>
+	<script>
+	$(document).ready(function () {
+		{% if solicitud_form or validacion_form or validacion_detail %}
+		activar_tab('evaluacion');
+		{% endif %}
+		{% if equipamiento_form or equipamiento_detail %}
+		activar_tab('equipamiento');
+		{% endif %}
+	});
+	PerfilEscuela.init();
+	</script>
+	{% endblock extra_js %}

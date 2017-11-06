@@ -25,9 +25,10 @@ from apps.escuela.models import (
 from apps.main.mixins import InformeMixin
 
 
-class EscuelaCrear(LoginRequiredMixin, CreateView):
+class EscuelaCrear(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     """Vista para crear una escuela
     """
+    permission_required = "escuela.add_escuela"
     template_name = 'escuela/add.html'
     raise_exception = True
     redirect_unauthenticated_users = True
@@ -47,6 +48,13 @@ class EscuelaDetail(LoginRequiredMixin, DetailView):
     """Vista para el perfil de :model:`escuela.Escuela`."""
     template_name = 'escuela/detail.html'
     model = Escuela
+
+    def get_template_names(self):
+        if (self.request.user.groups.filter(name='nacion_digital').exists()
+            or not self.request.user.is_superuser):
+            return ['ie/escuela_detail.html']
+        else:
+            return ['escuela/detail.html']
 
     def get_context_data(self, **kwargs):
         """Obtiene las variables de contexto para enviar al template

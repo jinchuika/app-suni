@@ -24,7 +24,7 @@ class FormEscuelaCrear(forms.ModelForm):
     class Meta:
         model = Escuela
         fields = '__all__'
-        exclude = ['cooperante_asignado', 'proyecto_asignado', 'mapa']
+        exclude = ['mapa']
         widgets = {
             'municipio': forms.Select(attrs={'class': 'select2'})
         }

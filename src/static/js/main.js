@@ -83,7 +83,7 @@ $(document).ready(function () {
 		format: 'yyyy-mm-dd',
 		autoclose: true,
 		language: 'es'
-	});
+	}).attr('onkeydown', 'return false');
 
 	$.each($('.table-datatables'), function (index, tabla) {
 		activar_datatable(tabla);

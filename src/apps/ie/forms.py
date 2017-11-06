@@ -1,8 +1,10 @@
 from django import forms
 
+from apps.main import models as main_models
 from apps.escuela.models import EscPoblacion
 from apps.ie.models import (
-    Laboratorio, Computadora, Serie, Validacion, ValidacionVersion, Requerimiento)
+    Laboratorio, Computadora, Serie,
+    Validacion, ValidacionVersion, Requerimiento)
 
 
 class LaboratorioCreateForm(forms.ModelForm):
@@ -68,6 +70,10 @@ class IEValidacionCreateForm(forms.ModelForm):
     """Formulario para crear una :class:`Validacion`.
     """
 
+    version = forms.ModelChoiceField(
+        queryset=ValidacionVersion.objects.filter(activa=True),
+        widget=forms.Select(attrs={'class': 'form-control'}))
+
     class Meta:
         model = Validacion
         fields = ('escuela', 'version')
@@ -83,13 +89,14 @@ class IEValidacionUpdateForm(forms.ModelForm):
 
     class Meta:
         model = Validacion
-        fields = '__all__'
-        exclude = ('escuela', 'version')
+        fields = ('__all__')
+        exclude = ('escuela', 'version', 'organizacion', 'creada_por')
         widgets = {
             'fecha_inicio': forms.TextInput(attrs={'class': 'form-control datepicker'}),
             'fotos_link': forms.TextInput(attrs={'class': 'form-control'}),
             'observaciones': forms.Textarea(attrs={'class': 'form-control'}),
-            'requerimientos': forms.CheckboxSelectMultiple()
+            'requerimientos': forms.CheckboxSelectMultiple(),
+            'fecha_fin': forms.TextInput(attrs={'class': 'form-control datepicker'}),
         }
 
     def __init__(self, *args, **kwargs):
@@ -111,3 +118,47 @@ class RequerimientoForm(forms.ModelForm):
     class Meta:
         model = Requerimiento
         fields = '__all__'
+
+
+class LaboratorioInformeForm(forms.ModelForm):
+    codigo = forms.CharField(
+        max_length=16,
+        required=False)
+    departamento = forms.ModelChoiceField(
+        queryset=main_models.Departamento.objects.all(),
+        widget=forms.Select(attrs={'class': 'select2'}),
+        required=False)
+    municipio = forms.ModelChoiceField(
+        queryset=main_models.Municipio.objects.all(),
+        widget=forms.Select(attrs={'class': 'select2'}),
+        required=False)
+
+    class Meta:
+        model = Laboratorio
+        fields = ('organizacion',)
+
+    def __init__(self, *args, **kwargs):
+        super(LaboratorioInformeForm, self).__init__(*args, **kwargs)
+        self.fields['organizacion'].required = False
+
+
+class ValidacionInformeForm(forms.ModelForm):
+    codigo = forms.CharField(
+        max_length=16,
+        required=False)
+    departamento = forms.ModelChoiceField(
+        queryset=main_models.Departamento.objects.all(),
+        widget=forms.Select(attrs={'class': 'select2'}),
+        required=False)
+    municipio = forms.ModelChoiceField(
+        queryset=main_models.Municipio.objects.all(),
+        widget=forms.Select(attrs={'class': 'select2'}),
+        required=False)
+
+    class Meta:
+        model = Validacion
+        fields = ('organizacion',)
+
+    def __init__(self, *args, **kwargs):
+        super(ValidacionInformeForm, self).__init__(*args, **kwargs)
+        self.fields['organizacion'].required = False

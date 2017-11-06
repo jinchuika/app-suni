@@ -35,14 +35,20 @@
 							</div>
 							<div class="col-sm-3">
 								<div class="description-block border-right">
-									<span class="description-text">Computadoras</span>
-									<h5 class="description-header">{{ validacion.cantidad_computadoras }}</h5>
+									<span class="description-text">Completada</span>
+									<h5 class="description-header">
+										{% if validacion.completada %}
+											Sí
+										{% else %}
+											No
+										{% endif %}
+									</h5>
 								</div>
 							</div>
 							<div class="col-sm-3">
 								<div class="description-block">
-									<span class="description-text">Fecha</span>
-									<h5 class="description-header">{{ validacion.fecha|date:"Y-m-d" }}</h5>
+									<span class="description-text">Requerimientos</span>
+									<h5 class="description-header">{{ validacion.porcentaje_requisitos }}%</h5>
 								</div>
 							</div>
 						</div>
@@ -116,25 +122,17 @@
 								</td>
 							</tr>
 							<tr>
+								<th>Fecha en que dio inicio</th>
+								<td>{{ validacion.fecha_inicio }}</td>
+							</tr>
+							<tr>
+								<th>Fecha en que finalizó</th>
+								<td>{{ validacion.fecha_fin|default_if_none:"" }}</td>
+							</tr>
+							<tr>
 								<th>Observaciones</th>
 								<td>
 									{{ validacion.observaciones|default_if_none:"" }}
-								</td>
-							</tr>
-							<tr>
-								<td colspan="2">
-									<ul class="list-unstyled">
-										{% for requisito in validacion.listar_requerimientos %}
-										<li>
-											{% if requisito.cumple %}
-											<i class="fa fa-check"></i>
-											{% else %}
-											<i class="fa fa-close"></i>
-											{% endif %}
-											<span class="text">{{ requisito.requerimiento }}</span>
-										</li>
-										{% endfor %}
-									</ul>
 								</td>
 							</tr>
 							{% endif %}
@@ -143,19 +141,21 @@
 				</div>
 			</div>
 			<div class="col-md-4">
-				<div class="info-box">
-					<span class="info-box-icon bg-aqua"><i class="fa fa-child" aria-hidden="true"></i></span>
-					<div class="info-box-content">
-						<span class="info-box-text">Niños<br>beneficiados</span>
-						<span class="info-box-number">{{ validacion.poblacion.total_alumno }}</span>
+				<div class="box box-info">
+					<div class="box-header">
+						<h3 class="box-title">Requerimientos</h3>
 					</div>
-				</div>
-				<div class="info-box">
-					<span class="info-box-icon bg-red"><i class="fa fa-user" aria-hidden="true"></i></span>
-
-					<div class="info-box-content">
-						<span class="info-box-text">Maestros<br>beneficiados</span>
-						<span class="info-box-number">{{ validacion.poblacion.total_maestro }}</span>
+					<div class="box-body">
+						{% for requisito in validacion.listar_requerimientos %}
+						<h4>
+							{% if requisito.cumple %}
+							<i class="fa fa-check"></i>
+							{% else %}
+							<i class="fa fa-close"></i>
+							{% endif %}
+							<span class="text">{{ requisito.requerimiento }}</span>
+						</h4>
+						{% endfor %}
 					</div>
 				</div>
 			</div>

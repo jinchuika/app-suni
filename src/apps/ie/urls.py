@@ -1,12 +1,13 @@
 from django.conf.urls import url, include
 from apps.ie.views import *
-
+from apps.ie.api_urls import router as api_router
 
 urlpatterns = [
     url(r'^laboratorio/add/$', LaboratorioCreateView.as_view(), name='laboratorio_add'),
     url(r'^laboratorio/list/$', LaboratorioListView.as_view(), name='laboratorio_list'),
     url(r'^laboratorio/(?P<pk>\d+)/$', LaboratorioDetailView.as_view(), name='laboratorio_detail'),
     url(r'^laboratorio/(?P<pk>\d+)/update/$', LaboratorioUpdateView.as_view(), name='laboratorio_update'),
+    url(r'^laboratorio/informe/$', LaboratorioInformeView.as_view(), name='laboratorio_informe'),
 
     url(r'^computadora/add/$', ComputadoraCreateView.as_view(), name='computadora_add'),
     url(r'^serie/add/$', SerieCreateView.as_view(), name='serie_add'),
@@ -16,10 +17,11 @@ urlpatterns = [
     url(r'^validacion/add/$', ValidacionCreateView.as_view(), name='ie_validacion_add'),
     url(r'^validacion/(?P<pk>\d+)/$', IEValidacionDetailView.as_view(), name='ie_validacion_detail'),
     url(r'^validacion/(?P<pk>\d+)/update/$', IEValidacionUpdateView.as_view(), name='ie_validacion_update'),
+    url(r'^validacion/informe/$', IEValidacionInformeView.as_view(), name='ie_validacion_informe'),
 
     url(r'^dashboard/$', DashboardView.as_view(), name='ie_dashboard'),
     url(r'^dashboard/mapa/$', MapDashboardView.as_view(), name='ie_dashboard_mapa'),
     url(r'^dashboard/geo/$', GeoDashboardView.as_view(), name='ie_dashboard_geo'),
 
-    url(r'^api/', include('apps.ie.api_urls'))
+    url(r'^api/', include(api_router.urls, namespace='ie_api'))
 ]

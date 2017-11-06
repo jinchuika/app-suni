@@ -49,8 +49,14 @@
 						{% for version in version_list %}
 						<tr>
 							<td>
-								{{ version }}
-
+								<a href="#" data-toggle="collapse" data-target="#version-{{ version.id }}">
+									{{ version }} {% if not version.activa %}(Inactiva){% endif %}
+								</a>
+								<ul id="version-{{ version.id }}" class="collapse">
+									{% for req in version.requisitos.all %}
+										<li>{{ req }}</li>
+									{% endfor %}
+								</ul>
 							</td>
 						</tr>
 						{% endfor %}
