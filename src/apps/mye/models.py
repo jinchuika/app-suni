@@ -30,11 +30,6 @@ class Proyecto(models.Model):
         return reverse_lazy('proyecto_detail', args=[str(self.id)])
 
 
-class EscuelaCooperanteManager(models.Manager):
-    def get_queryset(self):
-        return super(EscuelaCooperanteManager, self).get_queryset().filter(activa=True)
-
-
 class Requisito(models.Model):
     """
     Description: Requerimiento de solicitud

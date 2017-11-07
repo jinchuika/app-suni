@@ -1,6 +1,7 @@
 from django.db import models
 from django.utils import timezone
 from django.urls import reverse_lazy
+from django.contrib.auth.models import User
 
 from apps.users.models import Organizacion
 from apps.escuela.models import Escuela, EscPoblacion
@@ -191,6 +192,9 @@ class Validacion(models.Model):
     fotos_link = models.URLField(null=True, blank=True, verbose_name='Link a fotos')
     observaciones = models.TextField(null=True, blank=True)
     completada = models.BooleanField(default=False, blank=True)
+    fecha_fin = models.DateField(verbose_name='Fecha de fin', null=True, blank=True)
+    organizacion = models.ForeignKey(Organizacion, null=True, blank=True)
+    creada_por = models.ForeignKey(User, null=True, blank=True)
 
     requerimientos = models.ManyToManyField(Requerimiento, blank=True)
 
@@ -205,7 +209,9 @@ class Validacion(models.Model):
         return reverse_lazy('ie_validacion_detail', kwargs={'pk': self.id})
 
     def porcentaje_requisitos(self):
-        return self.requerimientos.count() / self.version.requerimientos.count() * 100
+        return round(
+            self.requerimientos.count() / self.version.requisitos.count() * 100,
+            2)
 
     def listar_requerimientos(self):
         req_de_version = self.version.requisitos.all()

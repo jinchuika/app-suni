@@ -1,4 +1,4 @@
-from django.conf.urls import url
+from django.conf.urls import url, include
 from apps.tpe.views import *
 from django.views.decorators.cache import cache_page
 
@@ -43,4 +43,5 @@ urlpatterns = [
     url(r'^monitoreo/(?P<pk>\d+)/$', MonitoreoDetailView.as_view(), name='monitoreo_detail'),
 
     url(r'^calendario/$', CalendarioTPEView.as_view(), name='calendario_tpe'),
+    url(r'^api/', include('apps.tpe.api_urls', namespace='tpe_api')),
 ]

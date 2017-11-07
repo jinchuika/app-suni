@@ -29,3 +29,11 @@ class DateForm(forms.Form):
 class GeoDateForm(GeoForm, DateForm):
     def __init__(self, *args, **kwargs):
         super(GeoDateForm, self).__init__(*args, **kwargs)
+
+
+class DateRangeWidget(forms.TextInput):
+    class Media:
+        css = ('css/daterangepicker.css',)
+        js = (
+            'js/distributed/moment.min.js',
+            'js/distributed/daterangepicker.js')

@@ -1,21 +1,12 @@
-from django.conf.urls import url
 from apps.ie import api_views
+from rest_framework import routers
 
-organizacion_api_list = api_views.OrganizacionViewSet.as_view({
-    'get': 'list'})
+router = routers.DefaultRouter()
+router.register(r'dash-organizacion', api_views.DashOrganizacionViewSet)
+router.register(r'dash-laboratorio', api_views.DashLaboratorioViewSet)
+router.register(r'dash-geo', api_views.DashGeografiaViewSet, base_name='geo')
+router.register(r'dash-escuela', api_views.DashEscuelaViewSet, base_name='escuela')
+router.register(r'laboratorio', api_views.LaboratorioViewSet, base_name='laboratorio')
+router.register(r'validacion', api_views.IEValidacionViewSet, base_name='validacion')
 
-laboratorio_api_list = api_views.LaboratorioViewSet.as_view({
-    'get': 'list'})
-
-escuela_api_list = api_views.EscuelaViewSet.as_view({
-    'get': 'list'})
-
-geo_api_list = api_views.GeografiaViewSet.as_view({
-    'get': 'list'})
-
-urlpatterns = [
-    url(r'^organizacion/$', organizacion_api_list, name='ie_organizacion_api_list'),
-    url(r'^laboratorio/$', laboratorio_api_list, name='ie_laboratorio_api_list'),
-    url(r'^escuela/$', escuela_api_list, name='ie_escuela_api_list'),
-    url(r'^geo/$', geo_api_list, name='ie_geo_api_list'),
-]
+urlpatterns = router.urls

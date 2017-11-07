@@ -72,7 +72,7 @@
 								<th>{{ evaluacion.pregunta }}</th>
 								<td>{{ evaluacion.pregunta.minimo }} - {{ evaluacion.pregunta.maximo }}</td>
 								<td>
-									<input type="number" class="punteo form-control" value="{{ evaluacion.punteo }}" name="punteo" data-url="{% url 'evaluacionmonitoreo_api_detail' pk=evaluacion.id %}">
+									<input type="number" class="punteo form-control" value="{{ evaluacion.punteo }}" name="punteo" data-url="{% url 'tpe_api:evaluacionmonitoreo_api_detail' pk=evaluacion.id %}">
 								</td>
 								<td>
 									<span id="evaluacion-{{ evaluacion.id }}">{{ evaluacion.porcentaje|floatformat:"2" }}</span>%

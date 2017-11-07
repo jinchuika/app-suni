@@ -1,3 +1,4 @@
+from rest_framework import routers
 from django.conf.urls import url
 from apps.tpe import api_views
 
@@ -21,12 +22,18 @@ evaluacionmonitoreo_api_detail = api_views.EvaluacionMonitoreoViewSet.as_view({
     'post': 'update',
     'patch': 'partial_update'})
 
+router = routers.DefaultRouter()
+router.register(r'equipamiento', api_views.EquipamientoViewSet, base_name='equipamiento')
+router.register(r'equipamiento-informe', api_views.EquipamientoFullViewSet, base_name='equipamiento-informe')
+
 urlpatterns = [
-    url(r'^api/reparacion/list/$', reparacion_api_list, name='reparacion_api_list'),
+    url(r'^reparacion/list/$', reparacion_api_list, name='reparacion_api_list'),
 
-    url(r'^api/monitoreo/$', monitoreo_api, name='monitoreo_api'),
-    url(r'^api/monitoreo/(?P<pk>\d+)/$', monitoreo_api_detail, name='monitoreo_api_detail'),
+    url(r'^monitoreo/$', monitoreo_api, name='monitoreo_api'),
+    url(r'^monitoreo/(?P<pk>\d+)/$', monitoreo_api_detail, name='monitoreo_api_detail'),
 
-    url(r'^api/evaluacionmonitoreo/$', evaluacionmonitoreo_api, name='evaluacionmonitoreo_api'),
-    url(r'^api/evaluacionmonitoreo/(?P<pk>\d+)/$', evaluacionmonitoreo_api_detail, name='evaluacionmonitoreo_api_detail'),
+    url(r'^evaluacionmonitoreo/$', evaluacionmonitoreo_api, name='evaluacionmonitoreo_api'),
+    url(r'^evaluacionmonitoreo/(?P<pk>\d+)/$', evaluacionmonitoreo_api_detail, name='evaluacionmonitoreo_api_detail'),
 ]
+
+urlpatterns += router.urls

@@ -15,13 +15,12 @@
 		<div class="row">
 			<div class="col-md-3">
 				<div class="box">
-					<form method="post" id="equipamiento-list-form">
+					<form method="post" id="equipamiento-list-form" action="{% url 'tpe_api:equipamiento-list' %}">
 						<div class="box-header">
 							<button class="btn btn-primary col-md-12">Generar informe</button><br>
 							<h3 class="box-title">Filtros</h3>
 						</div>
 						<div class="box-body">
-							{% csrf_token %}
 							{% for field in form %}
 								<div class="form-group">
 									{{ field.label_tag }}

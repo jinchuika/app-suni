@@ -16,7 +16,7 @@
 	</div>
 	<div class="box-body">
 		{% if perms.tpe.add_monitoreo %}
-		<form class="monitoreo-form" action="{% url 'monitoreo_api' %}" data-equipamiento="{{ monitoreo.id }}">
+		<form class="monitoreo-form" action="{% url 'tpe_api:monitoreo_api' %}" data-equipamiento="{{ monitoreo.id }}">
 			{% csrf_token %}
 			<button class="btn btn-warning">
 				Nuevo registro <i class="fa fa-plus" aria-hidden="true"></i>

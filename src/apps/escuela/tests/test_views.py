@@ -1,37 +1,33 @@
-import pytest
-from django.test import RequestFactory
-from apps.escuela import views
-from mixer.backend.django import mixer
+from django.urls import reverse
+from django.core.management import call_command
+from django.test import Client, TestCase
 
-pytestmark = pytest.mark.django_db
-
-
-class TestEscuelaView:
-    def test_abre(self):
-        req = RequestFactory().get('/escuela/1')
-        req.user = mixer.blend('auth.User', is_superuser=True)
-        resp = views.EscuelaCrear.as_view()(req)
-        assert resp.status_code == 200
+from apps.main.tests.mixins import PermissionTest
+from apps.escuela.tests import factories
 
 
-class TestEscuelaDetail:
-    def test_abre(self):
-        req = RequestFactory().get('/escuela/1/')
-        req.user = mixer.blend('auth.User', is_superuser=True)
-        mixer.blend('escuela.Escuela', nombre='EORM')
-        resp = views.EscuelaDetail.as_view()(req, pk=1)
-        assert resp.status_code == 200, 'No se puede abrir el perfil de la escuela'
+class EscuelaCrearTest(PermissionTest, TestCase):
+    """Test para la vista de creación de escuelas"""
+    view_url = 'escuela_crear'
+    permissions = ['escuela.add_escuela']
 
-    def test_abre_solicitud(self):
-        req = RequestFactory().get('/escuela/')
+    def setUp(self):
+        call_command('loaddata', 'src/fix/test_data.json', verbosity=0)
+        self.client = Client()
 
-        req.user = mixer.blend('auth.User', is_superuser=True)
-        eorm = mixer.blend('escuela.Escuela', nombre='EORM')
-        mixer.blend('escuela.Escuela', nombre='EOUM')
-        mixer.blend('mye.Solicitud', escuela=eorm)
-
-        resp = views.EscuelaDetail.as_view()(req, pk=1, id_solicitud=1)
-        assert 'solicitud_nueva_form' in resp.context_data
-
-        resp = views.EscuelaDetail.as_view()(req, pk=2, id_solicitud=1)
-        assert 'solicitud_nueva_form' not in resp.context_data, 'La solicitud debe ser de la escuela'
+    def test_crea(self):
+        escuela = factories.EscuelaFactory()
+        self.client.get(reverse(self.view_url))
+        self.client.form['codigo'] = escuela.codigo
+        self.client.form['municipio'] = escuela.municipio
+        self.client.form['nombre'] = escuela.nombre
+        self.client.form['direccion'] = escuela.direccion
+        self.client.form['nivel'] = escuela.nivel
+        self.client.form['sector'] = escuela.sector
+        self.client.form['area'] = escuela.area
+        self.client.form['status'] = escuela.status
+        self.client.form['modalidad'] = escuela.modalidad
+        self.client.form['jornada'] = escuela.jornada
+        self.client.form['plan'] = escuela.plan
+        page = self.client.form.submit()
+        self.assertRedirects(page, escuela.get_absolute_url())
