@@ -194,11 +194,11 @@ class EquipamientoListForm(EscuelaBuscarForm):
         label='Fecha máxima',
         widget=forms.TextInput(attrs={'class': 'datepicker'}),
         required=False)
-    cooperante_tpe = forms.ModelChoiceField(
+    cooperante = forms.ModelChoiceField(
         label='Cooperante de equipamiento',
         queryset=Cooperante.objects.all(),
         required=False)
-    proyecto_tpe = forms.ModelChoiceField(
+    proyecto = forms.ModelChoiceField(
         label='Proyecto de equipamiento',
         queryset=Proyecto.objects.all(),
         required=False)
@@ -209,9 +209,13 @@ class EquipamientoListForm(EscuelaBuscarForm):
 
     def __init__(self, *args, **kwargs):
         super(EquipamientoListForm, self).__init__(*args, **kwargs)
+        self.fields.pop('cooperante_tpe')
+        self.fields.pop('proyecto_tpe')
         self.fields.pop('sector')
         self.fields.pop('poblacion_min')
         self.fields.pop('poblacion_max')
+        self.fields.pop('validacion')
+        self.fields.pop('validacion_id')
         self.fields.pop('solicitud')
         self.fields.pop('solicitud_id')
         self.fields.pop('equipamiento')

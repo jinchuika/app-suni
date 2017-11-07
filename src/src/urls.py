@@ -20,7 +20,6 @@ urlpatterns = [
     url(r'^kardex/', include('apps.kardex.urls')),
     url(r'^kardex/', include('apps.kardex.api_urls')),
     url(r'^tpe/', include('apps.tpe.urls')),
-    url(r'^tpe/', include('apps.tpe.api_urls')),
     url(r'^dh/', include('apps.dh.urls')),
     url(r'^naat/', include('apps.naat.urls')),
     url(r'^', include('apps.main.api_urls')),

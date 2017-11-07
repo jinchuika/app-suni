@@ -17,17 +17,26 @@
         buttons: ['excel','pdf'],
         processing: true,
         ajax: {
-            url: "",
-            type: "POST",
+            url: $('#equipamiento-list-form').attr('action'),
             deferRender: true,
             dataSrc: '',
             data: function () {
-                return $('#equipamiento-list-form').serializeObject();
+                return $('#equipamiento-list-form').serializeObject(true);
             }
         },
         columns: [
-        {"data": "entrega"},
-        {"data": "escuela"},
+        {
+            data: "entrega",
+            render: function ( data, type, full, meta ) {
+                return '<a href="' + full.entrega_url + '">' + data + '</a>';
+            }
+        },
+        {
+            data: "escuela",
+            render: function (data, type, full, meta) {
+                return '<a href="' + full.escuela_url + '">' + data + '<br>(' + full.escuela_codigo + ')</a>';
+            }
+        },
         {"data": "fecha", "className": "nowrap"  },
         {"data": "renovacion" },
         {"data": "khan" },
@@ -49,22 +58,6 @@
                 }).join(', <br>');
             }
         },
-        ],
-        "columnDefs": [
-        {
-            targets: 0,
-            data: "entrega",
-            render: function ( data, type, full, meta ) {
-                return '<a href="' + full.entrega_url + '">' + data + '</a>';
-            }
-        },
-        {
-            targets: 1,
-            data: "escuela",
-            render: function (data, type, full, meta) {
-                return '<a href="' + full.escuela_url + '">' + data + '<br>(' + full.escuela_codigo + ')</a>';
-            }
-        }
         ]
     }).on('xhr.dt', function (e, settings, json, xhr) {
         $('#spinner').hide();
@@ -91,8 +84,7 @@
         buttons: ['excel','pdf'],
         processing: true,
         ajax: {
-            url: "",
-            type: "POST",
+            url: $('#equipamiento-list-form').attr('action'),
             deferRender: true,
             dataSrc: '',
             data: function () {
@@ -100,9 +92,19 @@
             }
         },
         columns: [
-        { "data": "entrega"},
-        { "data": "escuela"},
-        { "data": "codigo", "className": "nowrap"  },
+        {
+            data: "entrega",
+            render: function ( data, type, full, meta ) {
+                return '<a href="' + full.entrega_url + '">' + data + '</a>';
+            }
+        },
+        {
+            data: "escuela",
+            render: function (data, type, full, meta) {
+                return '<a href="' + full.escuela_url + '">' + data + '</a>';
+            }
+        },
+        { "data": "escuela_codigo", "className": "nowrap"  },
         { "data": "departamento"},
         { "data": "municipio"},
         { "data": "direccion" },
@@ -111,8 +113,22 @@
         { "data": "khan"},
         { "data": "cantidad"},
         { "data": "tipo_red"},
-        { "data": "cooperante", 'render': '[, <br>].cooperante'},
-        { "data": "proyecto", 'render': '[, <br>].proyecto'},
+        {
+            data: "cooperante",
+            render: function (data, type, full, meta) {
+                return data.map(function (cooperante) {
+                    return '<a href="' + cooperante.url + '">' + cooperante.nombre + '</a>';
+                }).join(', <br>');
+            }
+        },
+        {
+            data: "proyecto",
+            render: function (data, type, full, meta) {
+                return data.map(function (proyecto) {
+                    return '<a href="' + proyecto.url + '">' + proyecto.nombre + '</a>';
+                }).join(', <br>');
+            }
+        },
         { "data": "alumnas"},
         { "data": "alumnos"},
         { "data": "total_alumnos"},

@@ -3,7 +3,7 @@ from django.shortcuts import reverse
 from django.db.models import Count
 from django.utils.timezone import datetime
 from django.views.generic import DetailView, ListView, View, TemplateView
-from django.views.generic.edit import CreateView, UpdateView
+from django.views.generic.edit import CreateView, UpdateView, FormView
 from braces.views import (
     LoginRequiredMixin, PermissionRequiredMixin, GroupRequiredMixin,
     CsrfExemptMixin, JsonRequestResponseMixin)
@@ -58,87 +58,14 @@ class EquipamientoDetailView(EscuelaDetail):
         return context
 
 
-class EquipamientoListView(InformeMixin):
+class EquipamientoListView(LoginRequiredMixin, FormView):
     form_class = EquipamientoListForm
     template_name = 'tpe/equipamiento_list.html'
-    filter_list = {
-        'codigo': 'escuela__codigo',
-        'nombre': 'escuela__nombre__icontains',
-        'direccion': 'escuela__direccion__icontains',
-        'municipio': 'escuela__municipio',
-        'departamento': 'escuela__municipio__departamento',
-        'nivel': 'escuela__nivel',
-        'equipamiento_id': 'id',
-        'cooperante_tpe': 'cooperante',
-        'proyecto_tpe': 'proyecto',
-        'fecha_min': 'fecha__gte',
-        'fecha_max': 'fecha__lte'
-    }
     queryset = Equipamiento.objects.all()
-
-    def create_response(self, queryset):
-        var = [
-            {
-                'entrega': equipamiento.id,
-                'entrega_url': equipamiento.get_absolute_url(),
-                'escuela': equipamiento.escuela.nombre,
-                'escuela_url': equipamiento.escuela.get_absolute_url(),
-                'escuela_codigo': equipamiento.escuela.codigo,
-                'fecha': str(equipamiento.fecha),
-                'renovacion': 'Sí' if equipamiento.renovacion else 'No',
-                'khan': 'Sí' if equipamiento.servidor_khan else 'No',
-                'cantidad': equipamiento.cantidad_equipo,
-                'tipo_red': str(equipamiento.tipo_red) if equipamiento.red else 'No',
-                'cooperante': [{
-                    'nombre': cooperante.nombre,
-                    'url': cooperante.get_absolute_url()}
-                    for cooperante in equipamiento.cooperante.all()],
-                'proyecto': [{
-                    'nombre': proyecto.nombre,
-                    'url': proyecto.get_absolute_url()}
-                    for proyecto in equipamiento.proyecto.all()],
-            } for equipamiento in queryset
-        ]
-        return var
 
 
 class EquipamientoInformeView(EquipamientoListView):
     template_name = 'tpe/equipamiento_informe.html'
-
-    def create_response(self, queryset):
-        return [
-            {
-                'entrega': equipamiento.id,
-                'escuela': '<a href="{}">{} <br /></a>'.format(
-                    equipamiento.escuela.get_absolute_url(),
-                    equipamiento.escuela.nombre),
-                'codigo': equipamiento.escuela.codigo,
-                'departamento': str(equipamiento.escuela.municipio.departamento),
-                'municipio': str(equipamiento.escuela.municipio),
-                'direccion': str(equipamiento.escuela.direccion),
-                'fecha': str(equipamiento.fecha),
-                'renovacion': 'Sí' if equipamiento.renovacion else 'No',
-                'khan': 'Sí' if equipamiento.servidor_khan else 'No',
-                'cantidad': equipamiento.cantidad_equipo,
-                'tipo_red': str(equipamiento.tipo_red) if equipamiento.red else 'No',
-                'cooperante': [{
-                    'cooperante': '<a href="{}">{}</a>'.format(
-                        cooperante.get_absolute_url(),
-                        cooperante.nombre)}
-                    for cooperante in equipamiento.cooperante.all()],
-                'proyecto': [{
-                    'proyecto': '<a href="{}">{}</a>'.format(
-                        proyecto.get_absolute_url(),
-                        proyecto.nombre)}
-                    for proyecto in equipamiento.proyecto.all()],
-                'alumnas': equipamiento.poblacion.alumna if equipamiento.poblacion else "",
-                'alumnos': equipamiento.poblacion.alumno if equipamiento.poblacion else "",
-                'total_alumnos': equipamiento.poblacion.total_alumno if equipamiento.poblacion else "",
-                'maestras': equipamiento.poblacion.maestra if equipamiento.poblacion else "",
-                'maestros': equipamiento.poblacion.maestro if equipamiento.poblacion else "",
-                'total_maestros': equipamiento.poblacion.total_maestro if equipamiento.poblacion else "",
-            } for equipamiento in queryset
-        ]
 
 
 class EquipamientoListHomeView(CsrfExemptMixin, JsonRequestResponseMixin, View):

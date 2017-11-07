@@ -103,6 +103,7 @@ class IndexView(LoginRequiredMixin, TemplateView):
                     'url_evento_dh': reverse_lazy('evento_dh_calendario_home'),
                 }
             })
+        return widgets
 
     def get_context_data(self, **kwargs):
         context = super(IndexView, self).get_context_data(**kwargs)
