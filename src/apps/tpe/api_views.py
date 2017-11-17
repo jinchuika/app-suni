@@ -77,3 +77,23 @@ class EquipamientoFullViewSet(LoginRequiredMixin, viewsets.ReadOnlyModelViewSet)
     queryset = tpe_models.Equipamiento.objects.all()
     filter_class = EquipamientoFilter
     filter_backends = (filters.SearchFilter, filters.DjangoFilterBackend)
+
+
+class EquipamientoCalendarFilter(filters.FilterSet):
+    start = django_filters.DateFilter(name='fecha', lookup_expr='gte')
+    end = django_filters.DateFilter(name='fecha', lookup_expr='lte')
+
+    class Meta:
+        model = tpe_models.Equipamiento
+        fields = ('start', 'end')
+
+
+class EquipamientoCalendarViewSet(LoginRequiredMixin, viewsets.ReadOnlyModelViewSet):
+
+    """Para generar el listado de `Equipamiento`s en
+    la página de inicio.
+    """
+    
+    serializer_class = tpe_serializers.EquipamientoCalendarSerializer
+    queryset = tpe_models.Equipamiento.objects.all()
+    filter_class = EquipamientoCalendarFilter

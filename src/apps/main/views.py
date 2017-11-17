@@ -49,8 +49,8 @@ class IndexView(LoginRequiredMixin, TemplateView):
                     'js/distributed/jquery.qtip.min.js'
                 ],
                 'extra': {
-                    'url_validacion': reverse_lazy('validacion_list_home'),
-                    'url_equipamiento': reverse_lazy('equipamiento_calendario_home'),
+                    'url_validacion': reverse_lazy('mye_api:validacion-calendar-list'),
+                    'url_equipamiento': reverse_lazy('tpe_api:equipamiento-calendar-list'),
                 }
             })
 

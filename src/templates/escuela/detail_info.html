@@ -1,0 +1,71 @@
+<div class="box box-solid">
+	<div class="box-header">
+		<h3 class="box-title">Detalle</h3>
+		{% if perms.escuela.change_escuela %}
+		<div class="box-tools pull-right">
+			<a href="{% url 'escuela_update' pk=escuela.id%}" class="btn btn-info btn-xs">
+				<i class="fa fa-pencil-square-o" aria-hidden="true"></i> Editar
+			</a>
+		</div>
+		{% endif %}
+	</div>
+	<div class="box-body table-responsive">
+		<table class="table table-striped table-hover table-condensed">
+			<tr>
+				<th><i class="fa fa-map-marker"></i> Departamento</th>
+				<td>{{ escuela.municipio.departamento }}</td>
+			</tr>
+			<tr>
+				<th><i class="fa fa-map-marker"></i> Municipio</th>
+				<td>{{ escuela.municipio.nombre }}</td>
+			</tr>
+			<tr>
+				<th><i class="fa fa-bars"></i> Nivel</th>
+				<td>{{ escuela.nivel }}</td>
+			</tr>
+			<tr>
+				<th><i class="fa fa-bookmark-o"></i> Sector</th>
+				<td>{{ escuela.sector }}</td>
+			</tr>
+			<tr>
+				<th><i class="fa fa-sun-o"></i> Área</th>
+				<td>{{ escuela.area }}</td>
+			</tr>
+			<tr>
+				<th><i class="fa fa-clock-o"></i> Jornada</th>
+				<td>{{ escuela.jornada }}</td>
+			</tr>
+			<tr>
+				<th><i class="fa fa-calendar"></i> Plan</th>
+				<td>{{ escuela.plan }}</td>
+			</tr>
+			<tr>
+				<th><i class="fa fa-exclamation-circle"></i> Status</th>
+				<td>{{ escuela.status }}</td>
+			</tr>
+			<tr>
+				<th><i class="fa fa-book"></i> Modalidad</th>
+				<td>{{ escuela.modalidad }}</td>
+			</tr>
+			<tr>
+				<th><i class="fa fa-phone-square"></i> Teléfono</th>
+				<td>{{ escuela.telefono }}</td>
+			</tr>
+			<tr>
+				<th><i class="fa fa-map"></i> Coordenadas</th>
+				<td>
+					{{ escuela.mapa.lat }},<br>
+					{{ escuela.mapa.lng }}
+				</td>
+			</tr>
+			<tr>
+				<th><i class="fa fa-info" aria-hidden="true"></i> Ficha escolar</th>
+				<td>
+					<a href="{{ escuela.get_ficha_escolar }}" class="btn btn-primary btn-xs" target="_blank">
+						Ficha escolar <i class="fa fa-external-link" aria-hidden="true"></i>
+					</a>
+				</td>
+			</tr>
+		</table>
+	</div>
+</div>

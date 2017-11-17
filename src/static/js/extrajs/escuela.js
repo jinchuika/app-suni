@@ -52,6 +52,14 @@
         $('#form-nueva-validacion').hide();
         $('#form-nueva-visita-kalite').hide();
         $('#form-nueva-poblacion').hide();
+        $('#form-nueva-matricula').hide();
+        $('#btn-matricula').click(function () {
+            $('#form-nueva-matricula').toggle();
+        });
+        $('#form-nuevo-rendimiento').hide();
+        $('#btn-rendimiento').click(function () {
+            $('#form-nuevo-rendimiento').toggle();
+        });
         $('#btn-poblacion').click(function () {
             $('#form-nueva-poblacion').toggle();
         });
@@ -88,76 +96,88 @@
 }( window.PerfilEscuela = window.PerfilEscuela || {}, jQuery ));
 
 (function( EscuelaBuscar, $, undefined ) {
-    var tablaHabilitada = false;
-    var tabla = $('#escuela-table').DataTable({
-        dom: 'lfrtipB',
-        buttons: ['excel','pdf'],
-        processing: true,
-        deferLoading: 0,
-        ajax: {
-            url: $('#escuela-list-form').attr('action'),
-            type: "POST",
-            deferRender: true,
-            dataSrc: '',
-            data: function () {
-                return $('#escuela-list-form').serializeObject();
-            }
-        },
-        preDrawCallback: function () {
-            return tablaHabilitada;
-        },
-        columns: [
-        {"data": "codigo"},
-        {
-            data: "nombre",
-            render: function ( data, type, full, meta ) {
-                return '<a href="' + full.escuela_url + '">' + data + '</a>';
-            }
-        },
-        {"data": "direccion"},
-        {"data": "departamento"},
-        {"data": "municipio"},
-        {"data": "sector"},
-        {"data": "nivel"},
-        {"data": "poblacion"},
-        {
-            data: "equipada",
-            render: function (data) {
-                return data ? 'Sí' : 'No';
-            }
-        },
-        ]
-    }).on('xhr.dt', function (e, settings, json, xhr) {
-        $('#spinner').hide();
-    });
-    var filtro_list = [];
+    EscuelaBuscar.tablaHabilitada = false;
+    EscuelaBuscar.tabla = null;
+    EscuelaBuscar.filtro_list = [];
+
+    EscuelaBuscar.iniciar_tabla = function () {
+        let tabla = $('#escuela-table').DataTable({
+            dom: 'lfrtipB',
+            buttons: ['excel','pdf'],
+            processing: true,
+            deferLoading: 0,
+            ajax: {
+                url: $('#escuela-list-form').attr('action'),
+                type: "POST",
+                deferRender: true,
+                dataSrc: '',
+                data: function () {
+                    return $('#escuela-list-form').serializeObject();
+                }
+            },
+            preDrawCallback: function () {
+                return EscuelaBuscar.tablaHabilitada;
+            },
+            columns: [
+            {"data": "codigo", "class": "nowrap"},
+            {
+                data: "nombre",
+                render: function ( data, type, full, meta ) {
+                    return '<a href="' + full.escuela_url + '">' + data + '</a>';
+                }
+            },
+            {"data": "direccion"},
+            {"data": "departamento"},
+            {"data": "municipio"},
+            {"data": "sector"},
+            {"data": "nivel"},
+            {"data": "poblacion"},
+            {
+                data: "equipada",
+                render: function (data) {
+                    return data ? 'Sí' : 'No';
+                }
+            },
+            ]
+        }).on('xhr.dt', function (e, settings, json, xhr) {
+            $('#spinner').hide();
+        });
+        return tabla;
+    }
 
     // Public
     EscuelaBuscar.init = function () {
         $('#spinner').hide();
         $('#escuela-list-form').submit(function (e) {
+            // Evita que se envíe el formulario
             e.preventDefault();
-
-            filtro_list = [];
-            tabla.clear().draw();
             $('#spinner').show();
+
+            EscuelaBuscar.filtro_list = [];
+
+            if (EscuelaBuscar.tabla == null) {
+                EscuelaBuscar.tabla = EscuelaBuscar.iniciar_tabla();
+            }
+            else{
+                EscuelaBuscar.tabla.clear().draw();
+            }
             $('#lista-filtros').empty();
 
             $("#escuela-list-form :input").not(':submit,:button,:hidden').each(function() {
                 if($(this).val() != ""){
-                    filtro_list.push($("label[for='"+$(this).attr('id')+"']").text());
+                    EscuelaBuscar.filtro_list.push($("label[for='"+$(this).attr('id')+"']").text());
                 }
             });
             
-            if (filtro_list.length > 0) {
-                tablaHabilitada = true;
+            if (EscuelaBuscar.filtro_list.length > 0) {
+                EscuelaBuscar.tablaHabilitada = true;
                 $('#filtros-collapse').hide();
                 $('#spinner').show();
-                tabla.clear().draw();
-                tabla.ajax.reload();
+                EscuelaBuscar.tabla.clear().draw();
+                EscuelaBuscar.tabla.ajax.reload();
             }
             else{
-                tablaHabilitada = false;
+                EscuelaBuscar.tablaHabilitada = false;
                 $('#lista-filtros').append('<li>Seleccione al menos un filtro</li>');
                 $('#filtros-collapse').show();
                 $('#spinner').hide();
@@ -172,6 +192,6 @@
 (function( EscuelaContacto, $, undefined ) {
     // Public
     EscuelaContacto.init = function () {
-        
+
     }   
 }( window.EscuelaContacto = window.EscuelaContacto || {}, jQuery ));

@@ -147,6 +147,14 @@ class Escuela(models.Model):
         return 'https://public.tableau.com/views/1-FichaEscolarDatosGenerales/DatosGenerales?CODUDI={}'.format(
             self.codigo)
 
+    def get_matricula_url(self):
+        return 'https://public.tableau.com/views/2-FichaaEscolaraMatriculaHistorica/DetallePromovidosRetirados?CODUDI={}&%3AshowVizHome=no'.format(
+            self.codigo)
+
+    def get_rendimiento_url(self):
+        return 'https://public.tableau.com/views/6-Fichaescolarpruebasestandarizadas/Pruebasestandarizadas?CODUDI={}&%3AshowVizHome=no'.format(
+            self.codigo)
+
     def get_capacitacion(self):
         """Establece una conexión al servidor del SUNI1 para
         obtener datos de capacitación. Esta función será eliminada en futuras versiones.
@@ -263,3 +271,126 @@ class EscPoblacion(models.Model):
 
     def get_absolute_url(self):
         return self.escuela.get_absolute_url()
+
+
+class EscMatricula(models.Model):
+
+    """Registro histórico de la matrícula de la escuela.
+    Cuántos promovidos, retirados y reprobados.
+    """
+    escuela = models.ForeignKey(Escuela, related_name='matriculas')
+    ano = models.PositiveIntegerField(verbose_name='Año')
+    m_promovido = models.PositiveIntegerField(default=0, verbose_name='Mujeres promovidas')
+    m_no_promovido = models.PositiveIntegerField(default=0, verbose_name='Mujeres no promovidas')
+    m_retirado = models.PositiveIntegerField(default=0, verbose_name='Mujeres retiradas')
+    h_promovido = models.PositiveIntegerField(default=0, verbose_name='Hombres promovidos')
+    h_no_promovido = models.PositiveIntegerField(default=0, verbose_name='Hombres no promovidos')
+    h_retirado = models.PositiveIntegerField(default=0, verbose_name='Hombres retirados')
+
+    class Meta:
+        verbose_name = "Matrícula de escuela"
+        verbose_name_plural = "Matrículas de escuelas"
+        ordering = ['escuela', '-ano']
+
+    def __str__(self):
+        return '{escuela} - {ano}'.format(
+            escuela=self.escuela,
+            ano=self.ano)
+
+    @property
+    def t_promovido(self):
+        return self.m_promovido + self.h_promovido
+
+    @property
+    def t_no_promovido(self):
+        return self.m_no_promovido + self.h_no_promovido
+
+    @property
+    def t_retirado(self):
+        return self.m_retirado + self.h_retirado
+
+    @property
+    def m_total(self):
+        return self.m_promovido + self.m_no_promovido + self.m_retirado
+
+    @property
+    def h_total(self):
+        return self.h_promovido + self.h_no_promovido + self.h_retirado
+
+    @property
+    def m_promovido_p(self):
+        return int(self.m_promovido / self.m_total * 100)
+
+    @property
+    def m_no_promovido_p(self):
+        return int(self.m_no_promovido / self.m_total * 100)
+
+    @property
+    def m_retirado_p(self):
+        return int(self.m_retirado / self.m_total * 100)
+
+    @property
+    def h_promovido_p(self):
+        return int(self.h_promovido / self.h_total * 100)
+
+    @property
+    def h_no_promovido_p(self):
+        return int(self.h_no_promovido / self.h_total * 100)
+
+    @property
+    def h_retirado_p(self):
+        return int(self.h_retirado / self.h_total * 100)
+
+    @property
+    def t_promovido_p(self):
+        return int(self.t_promovido / (self.t_promovido + self.t_retirado + self.t_no_promovido) * 100)
+
+    def get_absolute_url(self):
+        return self.escuela.get_absolute_url()
+
+
+class EscRendimientoMateria(models.Model):
+
+    """Materia a evaluar en una prueba de rendimiento académico.
+    """
+
+    materia = models.CharField(max_length=20)
+
+    class Meta:
+        verbose_name = "Materia de rendimiento"
+        verbose_name_plural = "Materias de rendimiento"
+
+    def __str__(self):
+        return self.materia
+
+
+class EscRendimientoAcademico(models.Model):
+
+    """Pruebas estandarizadas del rendimiento académico de la escuela.
+    """
+
+    escuela = models.ForeignKey(Escuela, related_name='rendimientos')
+    materia = models.ForeignKey(EscRendimientoMateria, related_name='registros')
+    ano = models.PositiveIntegerField(verbose_name='Año')
+    insatisfactorio = models.DecimalField(max_digits=5, decimal_places=2)
+    debe_mejorar = models.DecimalField(max_digits=5, decimal_places=2)
+    satisfactorio = models.DecimalField(max_digits=5, decimal_places=2)
+    excelente = models.DecimalField(max_digits=5, decimal_places=2)
+    no_evaluado = models.DecimalField(max_digits=5, decimal_places=2)
+
+    class Meta:
+        verbose_name = "Rendimiento académico"
+        verbose_name_plural = "Rendimientos académicos"
+        ordering = ['escuela', '-ano']
+
+    def __str__(self):
+        return '{escuela} - {ano}'.format(
+            escuela=self.escuela,
+            ano=self.ano)
+
+    def get_absolute_url(self):
+        return self.escuela.get_absolute_url()
+
+    @property
+    def porcentaje_logro(self):
+        return self.excelente + self.satisfactorio

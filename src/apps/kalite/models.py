@@ -6,7 +6,7 @@ from apps.escuela.models import Escuela
 
 
 class Rubrica(models.Model):
-    """Rúbrica para evaluar el rendimiento de la :model:`kalite.Visita`."""
+    """Rúbrica para evaluar el rendimiento de la :class:`kalite.Visita`."""
     AQUA = 'aqua'
     GREEN = 'green'
     YELLOW = 'yellow'
@@ -36,9 +36,9 @@ class Rubrica(models.Model):
 
 
 class TipoVisita(models.Model):
-    """Indica qué :model:`kalite.Rubrica`s aplican para la :model:`kalite.Visita`.
+    """Indica qué :class:`kalite.Rubrica`s aplican para la :class:`kalite.Visita`.
     En base al listado que tenga relacionado este objeto, se pueden crear
-    las :model:`kalite.Evaluacion` correspondientes.
+    las :class:`kalite.Evaluacion` correspondientes.
     """
     nombre = models.CharField(max_length=30)
     rubricas = models.ManyToManyField(Rubrica)
@@ -78,7 +78,7 @@ class Visita(models.Model):
 
     def save(self, *args, **kwargs):
         """Al registrar este objeto en la base de datos, crea las
-        :model:`kalite.Evaluacion`es indicadas en `tipo_visita`.
+        :class:`kalite.Evaluacion`es indicadas en `tipo_visita`.
         """
         if not self.pk:
             super(Visita, self).save(*args, **kwargs)
@@ -87,8 +87,8 @@ class Visita(models.Model):
             super(Visita, self).save(*args, **kwargs)
 
     def crear_evaluaciones(self):
-        """Crea las :model:`kalite.Evaluacion`s indicadas por el
-        :model:`kalite.TipoVisita` de este objeto.
+        """Crea las :class:`kalite.Evaluacion`s indicadas por el
+        :class:`kalite.TipoVisita` de este objeto.
         """
         for rubrica in self.tipo_visita.rubricas.all():
             self.evaluaciones.create(rubrica=rubrica)
@@ -114,7 +114,7 @@ class Visita(models.Model):
 
 
 class Indicador(models.Model):
-    """Indicador a evaluar de la :model:`kalite.Rubrica`."""
+    """Indicador a evaluar de la :class:`kalite.Rubrica`."""
     rubrica = models.ForeignKey(Rubrica, related_name='indicadores')
     indicador = models.TextField()
 
@@ -130,8 +130,8 @@ class Indicador(models.Model):
 
 
 class Evaluacion(models.Model):
-    """Evaluación realizada durante una :model:`kalite.Visita` en base
-    a una :model:`kalite.Rubrica`.
+    """Evaluación realizada durante una :class:`kalite.Visita` en base
+    a una :class:`kalite.Rubrica`.
     """
 
     visita = models.ForeignKey(Visita, related_name='evaluaciones')
@@ -150,7 +150,7 @@ class Evaluacion(models.Model):
         return self.visita.get_absolute_url()
 
     def save(self, *args, **kwargs):
-        """Para crear los :model:`kalite.Punteo`s al registrar
+        """Para crear los :class:`kalite.Punteo`s al registrar
         este objeto por primera vez en la base de datos.
         """
         if not self.pk:
@@ -160,8 +160,8 @@ class Evaluacion(models.Model):
             super(Evaluacion, self).save(*args, **kwargs)
 
     def crear_notas(self):
-        """Crea los registros de :model:`kalite.Punteo` asociados a la
-        :model:`kalite.Rubrica` de este objeto en particular.
+        """Crea los registros de :class:`kalite.Punteo` asociados a la
+        :class:`kalite.Rubrica` de este objeto en particular.
         """
         for indicador in self.rubrica.indicadores.all():
             self.notas.create(indicador=indicador)
@@ -177,8 +177,8 @@ class Evaluacion(models.Model):
 
 
 class Punteo(models.Model):
-    """Punteo asignado a un :model:`kalite.Indicador` durante
-    una :model:`kalite.Evaluacion`.
+    """Punteo asignado a un :class:`kalite.Indicador` durante
+    una :class:`kalite.Evaluacion`.
 
     Las opciones de `nota` son constantes "privadas" para la clase.
     `MULTIPLICADOR` es el factor para las opciones de `nota`.
@@ -224,13 +224,16 @@ class Punteo(models.Model):
 
 
 class Grado(models.Model):
-    """Registro de grado (con sección) durante una :model:`kalite.Visita`."""
+    """Registro de grado (con sección) durante una :class:`kalite.Visita`."""
 
     visita = models.ForeignKey(Visita, related_name='grados')
     grado = models.IntegerField()
     seccion = models.CharField(max_length=2, null=True, blank=True, verbose_name='Sección')
     minimo_esperado = models.PositiveIntegerField(verbose_name='Mínimo esperado', default=1)
     observaciones = models.TextField(null=True, blank=True)
+    total_estudiantes = models.PositiveIntegerField(verbose_name='Cantidad de estudiantes', default=1)
+    alcanzados = models.PositiveIntegerField(verbose_name='Estudiantes alcanzados', default=1)
+    total_ejercicios = models.PositiveIntegerField(verbose_name='Cantidad de ejercicios', default=1)
 
     class Meta:
         verbose_name = "Grado"
@@ -242,22 +245,6 @@ class Grado(models.Model):
 
     def get_api_url(self):
         return reverse_lazy('grado_api_detail', kwargs={'pk': self.pk})
-
-    @property
-    def total_estudiantes(self):
-        return sum(e.estudiantes for e in self.ejercicios.all())
-
-    @property
-    def total_ejercicios(self):
-        return sum(e.estudiantes * e.ejercicios for e in self.ejercicios.all())
-
-    @property
-    def alcanzados(self):
-        """Cantidad de estudiantes que alcanzaron la cantidad mínima de ejercicios.
-        """
-        return sum(
-            e.estudiantes for e in self.ejercicios.all()
-            if e.ejercicios >= self.minimo_esperado)
 
     @property
     def nivelar(self):
@@ -285,7 +272,7 @@ class Grado(models.Model):
 
 class EjerciciosGrado(models.Model):
     """Registro de cantidad de estudiantes que realizan cierta cantidad de
-    ejercicios en un :model:`kalite.Grado`.
+    ejercicios en un :class:`kalite.Grado`.
     """
 
     grado = models.ForeignKey(Grado, related_name='ejercicios')

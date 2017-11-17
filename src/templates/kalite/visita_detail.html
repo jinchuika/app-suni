@@ -155,11 +155,19 @@
 						{% endif %}
 					</div>
 					
-					<div class="box-body">
+					<div class="box-body table-responsive">
 						<form id="form-grado" action="{% url 'grado_api' %}">
 							<table class="table">
 								{% csrf_token %}
-								{{ grado_form.as_table }}
+								{% for hidden in grado_form.hidden_fields %}
+								{{ hidden }}
+								{% endfor %}
+								{% for field in grado_form.visible_fields %}
+									<tr>
+										<td>{{ field.label_tag }}</td>
+										<td>{{ field|add_class:"form-control" }}</td>
+									</tr>
+								{% endfor %}
 								<tr>
 									<td colspan="2" align="center">
 										<input type="submit" value="Agregar" class="btn btn-primary">

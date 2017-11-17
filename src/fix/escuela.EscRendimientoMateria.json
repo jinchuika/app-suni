@@ -1,0 +1,16 @@
+[
+{
+  "model": "escuela.escrendimientomateria",
+  "pk": 1,
+  "fields": {
+    "materia": "Matem\u00e1ticas"
+  }
+},
+{
+  "model": "escuela.escrendimientomateria",
+  "pk": 2,
+  "fields": {
+    "materia": "Lectura"
+  }
+}
+]

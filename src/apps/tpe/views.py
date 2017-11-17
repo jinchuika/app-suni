@@ -80,24 +80,6 @@ class EquipamientoListHomeView(CsrfExemptMixin, JsonRequestResponseMixin, View):
         return self.render_json_response(equipamiento_list)
 
 
-class EquipamientoCalendarHomeView(CsrfExemptMixin, JsonRequestResponseMixin, View):
-    def get(self, request, *args, **kwargs):
-        response = []
-        inicio = datetime.strptime(self.request.GET.get('start'), '%Y-%m-%d')
-        fin = datetime.strptime(self.request.GET.get('end'), '%Y-%m-%d')
-        equipamiento_list = Equipamiento.objects.filter(
-            fecha__gte=inicio,
-            fecha__lte=fin)
-        for equipamiento in equipamiento_list:
-            response.append({
-                'title': str(equipamiento.escuela),
-                'start': str(equipamiento.fecha),
-                'url': equipamiento.get_absolute_url(),
-                'tip_title': str(equipamiento.escuela.municipio),
-                'tip_text': equipamiento.escuela.direccion})
-        return self.render_json_response(response)
-
-
 class EquipamientoMapView(CsrfExemptMixin, JsonRequestResponseMixin, TemplateView):
     template_name = 'tpe/map.html'
 
