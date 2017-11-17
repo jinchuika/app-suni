@@ -40,7 +40,7 @@ class VisitaForm(forms.ModelForm):
 class GradoForm(forms.ModelForm):
     class Meta:
         model = Grado
-        fields = ('visita', 'grado', 'seccion')
+        fields = '__all__'
         widgets = {
             'visita': forms.HiddenInput()
         }

@@ -25,6 +25,7 @@ evaluacionmonitoreo_api_detail = api_views.EvaluacionMonitoreoViewSet.as_view({
 router = routers.DefaultRouter()
 router.register(r'equipamiento', api_views.EquipamientoViewSet, base_name='equipamiento')
 router.register(r'equipamiento-informe', api_views.EquipamientoFullViewSet, base_name='equipamiento-informe')
+router.register(r'equipamiento-calendar', api_views.EquipamientoCalendarViewSet, base_name='equipamiento-calendar')
 
 urlpatterns = [
     url(r'^reparacion/list/$', reparacion_api_list, name='reparacion_api_list'),

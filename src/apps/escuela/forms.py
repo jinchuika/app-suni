@@ -6,7 +6,8 @@ from django.forms.formsets import BaseFormSet, formset_factory
 
 from apps.escuela.models import (
     Escuela, EscContacto, EscContactoTelefono,
-    EscContactoMail, EscNivel, EscSector, EscPoblacion)
+    EscContactoMail, EscNivel, EscSector, EscPoblacion,
+    EscMatricula, EscRendimientoAcademico)
 from apps.main.models import Departamento, Municipio
 from apps.mye.models import Cooperante, Proyecto
 
@@ -159,3 +160,26 @@ ContactoMailFormSet = inlineformset_factory(
     can_delete=True)
 
 MailFormSet = formset_factory(EscContactoTelefonoFormset, formset=EscContactoTelefonoFormset)
+
+
+class EscMatriculaForm(forms.ModelForm):
+    class Meta:
+        model = EscMatricula
+        fields = '__all__'
+        widgets = {
+            'escuela': forms.HiddenInput()
+        }
+
+
+class EscRendimientoAcademicoForm(forms.ModelForm):
+
+    """Formulario para crear un registro de `:class:EscRendimientoAcademico`
+    desde una escuela.
+    """
+
+    class Meta:
+        model = EscRendimientoAcademico
+        fields = '__all__'
+        widgets = {
+            'escuela': forms.HiddenInput()
+        }

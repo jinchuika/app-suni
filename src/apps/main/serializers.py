@@ -36,3 +36,14 @@ class MunicipioSerializer(serializers.ModelSerializer):
     class Meta:
         model = Municipio
         fields = '__all__'
+
+
+class CalendarSerializer(serializers.ModelSerializer):
+    start = serializers.DateField(source='fecha')
+    title = serializers.StringRelatedField(source='escuela')
+    url = serializers.URLField(source='get_absolute_url')
+    tip_title = serializers.CharField()
+    tip_text = serializers.CharField()
+
+    class Meta:
+        fields = ('start', 'title', 'url', 'tip_title', 'tip_text')

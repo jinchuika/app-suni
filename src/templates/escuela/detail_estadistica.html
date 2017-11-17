@@ -1,0 +1,160 @@
+<div class="box box-solid">
+	<div class="box-header with-border">
+		<h3 class="box-title">Matrícula escolar</h3>
+		<div class="box-tools pull-right">
+			<a href="{{ escuela.get_matricula_url }}" class="btn btn-primary btn-xs" target="_blank">
+				<i class="fa fa-external-link"></i>
+			</a>
+			{% if perms.escuela.add_escmatricula %}
+			<a href="{% url 'matricula_add' id_escuela=escuela.id %}" class="btn btn-info btn-xs">
+				<i class="fa fa-plus"></i>
+			</a>
+			{% endif %}
+		</div>
+	</div>
+	<div class="box-body table-responsive">
+		<table class="table table-striped table-condensed table-hover">
+			<tr>
+				<th>Año</th>
+				<th class="text-center">Mujeres</th>
+				<th class="text-center">Hombres</th>
+				<th class="text-center">Aprobación</th>
+			</tr>
+			{% for matricula in escuela.matriculas.all %}
+			<tr>
+				<td>{{ matricula.ano }}</td>
+				<td class="text-center">
+					<div class="progress xs">
+						<div class="progress-bar progress-bar-danger" style="width: {{ matricula.m_retirado_p }}%">
+							<span class="sr-only">{{ matricula.m_retirado_p }}%</span>
+						</div>
+						<div class="progress-bar progress-bar-warning progress-bar-striped" style="width: {{ matricula.m_no_promovido_p }}%">
+							<span class="sr-only">{{ matricula.m_no_promovido_p }}%</span>
+						</div>
+						<div class="progress-bar progress-bar-success" style="width: {{ matricula.m_promovido_p }}%">
+							<span class="sr-only">{{ matricula.m_promovido_p }}%</span>
+						</div>
+					</div>
+					{{ matricula.m_no_promovido }} /
+					{{ matricula.m_retirado }} /
+					{{ matricula.m_promovido }}
+				</td>
+				<td class="text-center">
+					<div class="progress xs">
+						<div class="progress-bar progress-bar-danger" style="width: {{ matricula.h_retirado_p }}%">
+							<span class="sr-only">{{ matricula.h_retirado_p }}%</span>
+						</div>
+						<div class="progress-bar progress-bar-warning progress-bar-striped" style="width: {{ matricula.h_no_promovido_p }}%">
+							<span class="sr-only">{{ matricula.h_no_promovido_p }}%</span>
+						</div>
+						<div class="progress-bar progress-bar-success" style="width: {{ matricula.h_promovido_p }}%">
+							<span class="sr-only">{{ matricula.h_promovido_p }}%</span>
+						</div>
+					</div>
+					{{ matricula.h_no_promovido }} /
+					{{ matricula.h_retirado }} /
+					{{ matricula.h_promovido }}
+				</td>
+				<td class="text-center">
+					{{ matricula.t_promovido_p|floatformat:"0" }}%
+				</td>
+			</tr>
+			{% endfor %}
+		</table>
+	</div>
+	<div class="box-footer">
+		<table class="table">
+			<tr>
+				<td>
+					<i class="text-red fa fa-square"></i> Retirado
+				</td>
+				<td>
+					<i class="text-yellow fa fa-square"></i> No promovido
+				</td>
+				<td>
+					<i class="text-green fa fa-square"></i> Promovido
+				</td>
+			</tr>
+		</table>
+	</div>
+</div>
+
+<div class="box box-solid">
+	<div class="box-header with-border">
+		<h3 class="box-title">Rendimiento académico</h3>
+		<div class="box-tools pull-right">
+			<a href="{{ escuela.get_rendimiento_url }}" class="btn btn-primary btn-xs" target="_blank">
+				<i class="fa fa-external-link"></i>
+			</a>
+			{% if perms.escuela.add_escrendimiento %}
+			<a href="{% url 'rendimientoacademico_add' id_escuela=escuela.id %}" class="btn btn-info btn-xs">
+				<i class="fa fa-plus"></i>
+			</a>
+			{% endif %}
+		</div>
+	</div>
+	<div class="box-body table-responsive">
+		<table class="table table-striped table-condensed table-hover">
+			<tr>
+				<th>Año - Materia</th>
+				<th class="text-center">Rendimiento</th>
+				<th>Logro</th>
+			</tr>
+			{% for rendimiento in escuela.rendimientos.all %}
+			<tr>
+				<td>{{ rendimiento.ano }} - {{ rendimiento.materia }}</td>
+				<td width="70%">
+					<div class="progress-group" data-toggle="collapse" data-target="#r-{{ rendimiento.id }}">
+						<div class="progress xs">
+							<div class="progress-bar bg-navy" style="width: {{ rendimiento.no_evaluado|floatformat:"0" }}%">
+								<span class="sr-only">{{ rendimiento.no_evaluado|floatformat:"0" }}%</span>
+							</div>
+							<div class="progress-bar bg-red" style="width: {{ rendimiento.insatisfactorio|floatformat:"0" }}%">
+								<span class="sr-only">{{ rendimiento.insatisfactorio|floatformat:"0" }}%</span>
+							</div>
+							<div class="progress-bar bg-orange" style="width: {{ rendimiento.debe_mejorar|floatformat:"0" }}%">
+								<span class="sr-only">{{ rendimiento.debe_mejorar|floatformat:"0" }}%</span>
+							</div>
+							<div class="progress-bar bg-green" style="width: {{ rendimiento.satisfactorio|floatformat:"0" }}%">
+								<span class="sr-only">{{ rendimiento.satisfactorio|floatformat:"0" }}%</span>
+							</div>
+							<div class="progress-bar bg-lime" style="width: {{ rendimiento.excelente|floatformat:"0" }}%">
+								<span class="sr-only">{{ rendimiento.excelente|floatformat:"0" }}%</span>
+							</div>
+						</div>
+					</div>
+					<div class="collapse progress-text" id="r-{{ rendimiento.id }}">
+						( {{ rendimiento.no_evaluado|floatformat:"0" }} /
+						{{ rendimiento.insatisfactorio|floatformat:"0" }} /
+						{{ rendimiento.debe_mejorar|floatformat:"0" }} /
+						{{ rendimiento.satisfactorio|floatformat:"0" }} /
+						{{ rendimiento.excelente|floatformat:"0" }} ) %
+					</div>
+				</td>
+				<td class="text-center">{{ rendimiento.porcentaje_logro|floatformat:"0" }}%</td>
+			</tr>
+			{% endfor %}
+		</table>
+	</div>
+	<div class="box-footer">
+		<table class="table">
+			<tr>
+				<td>
+					<i class="text-navy fa fa-square"></i> No evaluado
+				</td>
+				<td>
+					<i class="text-red fa fa-square"></i> Insatisfactorio
+				</td>
+				<td>
+					<i class="text-orange fa fa-square"></i> Debe mejorar
+				</td>
+				<td>
+					<i class="text-green fa fa-square"></i> Satisfactorio
+				</td>
+				<td>
+					<i class="text-lime fa fa-square"></i> Excelente
+				</td>
+			</tr>
+		</table>
+	</div>
+</div>

@@ -1,7 +1,7 @@
 from datetime import datetime
 from rest_framework import serializers
 
-from apps.main.serializers import DynamicFieldsModelSerializer
+from apps.main.serializers import DynamicFieldsModelSerializer, CalendarSerializer
 from apps.tpe import models as tpe_models
 from apps.mye import serializers as mye_serializers
 
@@ -105,3 +105,12 @@ class EquipamientoFullSerializer(EquipamientoSerializer):
             'renovacion', 'khan', 'cantidad', 'tipo_red', 'cooperante', 'proyecto',
             'municipio', 'departamento', 'direccion', 'alumnas', 'alumnos', 'total_alumnos',
             'maestras', 'maestros', 'total_maestros')
+
+
+class EquipamientoCalendarSerializer(CalendarSerializer):
+    tip_title = serializers.CharField(source='escuela.municipio')
+    tip_text = serializers.CharField(source='escuela.direccion')
+
+    class Meta:
+        model = tpe_models.Equipamiento
+        fields = ('start', 'title', 'url', 'tip_text', 'tip_title')

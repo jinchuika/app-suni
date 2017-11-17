@@ -78,30 +78,18 @@
 		});
 	}
 
-	var tabla_ejercicios = function (ejercicios, grado_id) {
-		var tabla = '<table class="table table-striped" id="tabla-ejercicios-'+grado_id+'">';
-		if (VisitaDetail.puede_editar == 1 ) {
-			tabla += '<tr><td colspan="2"><button class="btn-ejgr btn btn-xs btn-info" onclick="VisitaDetail.nuevo_ejgr('+grado_id+');" >Nuevo</button></td></tr>';
-		}
-		tabla += '<tr><th>Estudiantes</th><th>Ejercicios</th></tr>';
-		$.each(ejercicios, function (index, ejgr) {
-			tabla += '<tr><td>';
-			tabla += '<a href="#" class="editable btn btn-block" data-url="'+ejgr.url+'" data-pk="'+ejgr.id+'" data-name="estudiantes" data-type="text">';
-			tabla += ejgr.estudiantes + '</a></td><td>';
-			tabla += '<a href="#" class="editable btn btn-block" data-url="'+ejgr.url+'" data-pk="'+ejgr.id+'" data-name="ejercicios" data-type="text">';
-			tabla += ejgr.ejercicios + '</a></td><td></tr>';
-		});
-		tabla += '</table>';
-		return tabla;
-	}
-
+	/*
+	* Crea la tabla con detalle de los datos del grado
+	*/
 	var tabla_grado = function (grado) {
 		var tabla = '<table class="table" id="tabla-grado-'+grado.id+'">';
+		// Cantidad de ejercicios esperados
+		tabla += '<tr><th>Esperado</th><td>'+grado.minimo_esperado+'</td></tr>';
 		tabla += '<tr><th>Alcanzados</th><td>'+grado.alcanzados+'</td></tr>';
-		tabla += '<tr><th>Nivelar</th><td>'+grado.nivelar+'</td></tr>';
+		tabla += '<tr><th>Por nivelar</th><td>'+grado.nivelar+'</td></tr>';
 		tabla += '<tr><th>Total estudiantes</th><td>'+grado.total_estudiantes+'</td></tr>';
 		tabla += '<tr><th>Total ejercicios</th><td>'+grado.total_ejercicios+'</td></tr>';
-		tabla += '<tr><th>Ejercicios / Estudiante</th><td>'+grado.promedio_ejercicios+'</td></tr>';
+		tabla += '<tr><th>Promedio</th><td>'+grado.promedio_ejercicios+'</td></tr>';
 		tabla += '</table>';
 		VisitaDetail.listado_grados[grado.id] = {
 			'grado': grado.grado + ' ' + grado.seccion,
@@ -123,19 +111,9 @@
 		// panel body
 		panel_content += '<div id="grado-'+data.id+'" class="panel-collapse collapse" aria-expanded="false" style="height: 0px;">'
 		panel_content += '<div class="box-body table-responsive">';
-		panel_content += tabla_ejercicios(data.ejercicios, data.id);
 
 		//tabla resumen
 		panel_content += '<table class="table">';
-		panel_content += '<tr><th>Esperado</th><td>';
-		if (VisitaDetail.puede_editar==1) {
-			panel_content += '<a href="#" class="editable btn btn-block" data-url="'+data.url+'" data-pk="'+data.id+'" data-name="minimo_esperado" data-type="text">';
-		}
-		panel_content += data.minimo_esperado;
-		if (VisitaDetail.puede_editar==1) {
-			panel_content += '</a>';
-		}
-		panel_content += '</td></tr></table>';
 
 		panel_content += tabla_grado(data);
 		panel_content += '</div></div>';

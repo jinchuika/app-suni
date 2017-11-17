@@ -19,9 +19,11 @@ from apps.kalite.forms import VisitaForm
 from apps.ie.forms import LaboratorioCreateForm, IEValidacionCreateForm
 
 from apps.escuela.forms import (
-    FormEscuelaCrear, ContactoForm, EscuelaBuscarForm, EscPoblacionForm)
+    FormEscuelaCrear, ContactoForm, EscuelaBuscarForm, EscPoblacionForm,
+    EscMatriculaForm, EscRendimientoAcademicoForm)
 from apps.escuela.models import (
-    Escuela, EscContacto, EscContactoTelefono, EscContactoMail, EscPoblacion)
+    Escuela, EscContacto, EscContactoTelefono, EscContactoMail, EscPoblacion,
+    EscMatricula, EscRendimientoAcademico)
 from apps.main.mixins import InformeMixin
 
 
@@ -67,6 +69,8 @@ class EscuelaDetail(LoginRequiredMixin, DetailView):
         """
         context = super(EscuelaDetail, self).get_context_data(**kwargs)
         context['poblacion_form'] = EscPoblacionForm(initial={'escuela': self.object.pk})
+        context['matricula_form'] = EscMatriculaForm(initial={'escuela': self.object.pk})
+        context['rendimiento_form'] = EscRendimientoAcademicoForm(initial={'escuela': self.object.pk})
         context['solicitud_nueva_form'] = SolicitudNuevaForm(initial={'escuela': self.object.pk})
         context['equipamiento_nuevo_form'] = EquipamientoNuevoForm(initial={'escuela': self.object.pk})
         context['validacion_nueva_form'] = ValidacionNuevaForm(initial={'escuela': self.object.pk})
@@ -285,6 +289,50 @@ class EscuelaBuscar(InformeMixin):
         ]
 
 
-class EscPoblacionCreateView(CreateView):
+class EscPoblacionCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     model = EscPoblacion
     form_class = EscPoblacionForm
+
+    permission_required = "escuela.add_escpoblacion"
+    raise_exception = True
+    redirect_unauthenticated_users = True
+
+
+class EscMatriculaCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
+
+    """Vista para crear una `:class:EscMatricula`.
+    """
+
+    model = EscMatricula
+    form_class = EscMatriculaForm
+    template_name = 'escuela/escmatricula_form.html'
+
+    permission_required = "escuela.add_escmatricula"
+    raise_exception = True
+    redirect_unauthenticated_users = True
+
+    def get_initial(self):
+        """Obtiene los datos iniciales de la escuela
+        """
+        escuela = get_object_or_404(Escuela, id=self.kwargs.get('id_escuela'))
+        return {'escuela': escuela}
+
+
+class EscRendimientoAcademicoCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
+
+    """Vista para crear una `:class:EscRendimientoAcademico`.
+    """
+
+    model = EscRendimientoAcademico
+    form_class = EscRendimientoAcademicoForm
+    template_name = 'escuela/escrendimientoacademico_form.html'
+
+    permission_required = "escuela.add_escrendimientoacademico"
+    raise_exception = True
+    redirect_unauthenticated_users = True
+
+    def get_initial(self):
+        """Obtiene los datos iniciales de la escuela
+        """
+        escuela = get_object_or_404(Escuela, id=self.kwargs.get('id_escuela'))
+        return {'escuela': escuela}

@@ -69,11 +69,10 @@ class EjerciciosGradoSerializer(DynamicFieldsModelSerializer, serializers.ModelS
 
 class GradoSerializer(DynamicFieldsModelSerializer, serializers.ModelSerializer):
     url = serializers.CharField(source='get_api_url', read_only=True)
-    ejercicios = EjerciciosGradoSerializer(many=True, read_only=True)
-    alcanzados = serializers.IntegerField(read_only=True)
+    alcanzados = serializers.IntegerField()
     nivelar = serializers.IntegerField(read_only=True)
-    total_estudiantes = serializers.IntegerField(read_only=True)
-    total_ejercicios = serializers.IntegerField(read_only=True)
+    total_estudiantes = serializers.IntegerField()
+    total_ejercicios = serializers.IntegerField()
     promedio_ejercicios = serializers.FloatField(read_only=True)
     promedio_alcanzados = serializers.FloatField(read_only=True)
 

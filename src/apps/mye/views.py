@@ -149,11 +149,6 @@ class ValidacionUpdate(LoginRequiredMixin, UpdateView):
         return reverse('escuela_detail', kwargs={'pk': self.object.escuela.id})
 
 
-class InformeMyeView(LoginRequiredMixin, FormView):
-    form_class = InformeMyeForm
-    template_name = 'mye/informe_form.html'
-
-
 class ValidacionComentarioCrear(CsrfExemptMixin, JsonRequestResponseMixin, View):
     require_json = True
 
@@ -185,144 +180,6 @@ class ValidacionDetailView(EscuelaDetail):
         return context
 
 
-class InformeMyeBk(CsrfExemptMixin, JsonRequestResponseMixin, View):
-    def armar_query(self, filtros):
-        qs = Escuela.objects.all()
-
-        codigo = filtros.get('codigo', None)
-        nombre = filtros.get('nombre', None)
-        direccion = filtros.get('direccion', None)
-        municipio = filtros.get('municipio', None)
-        departamento = filtros.get('departamento', None)
-        cooperante_mye = filtros.get('cooperante_mye', None)
-        proyecto_mye = filtros.get('proyecto_mye', None)
-        nivel = filtros.get('nivel', None)
-        sector = filtros.get('sector', None)
-        poblacion_min = filtros.get('poblacion_min', None)
-        poblacion_max = filtros.get('poblacion_max', None)
-        solicitud = filtros.get('solicitud', None)
-        solicitud_id = filtros.get('solicitud_id', None)
-        validada = filtros.get('validada', None)
-        validacion_id = filtros.get('validacion_id', None)
-        equipamiento = filtros.get('equipamiento', None)
-        equipamiento_id = filtros.get('equipamiento_id', None)
-        cooperante_tpe = filtros.get('cooperante_tpe', None)
-        proyecto_tpe = filtros.get('proyecto_tpe', None)
-
-        if codigo:
-            qs = qs.filter(codigo=codigo)
-        if solicitud:
-            solicitud_list = Solicitud.objects.all()
-            # sí
-            if solicitud == "2":
-                qs = qs.filter(solicitud__in=solicitud_list).distinct()
-            # no
-            if solicitud == "1":
-                qs = qs.exclude(solicitud__in=solicitud_list).distinct()
-        if solicitud_id:
-            solicitud_list = Solicitud.objects.filter(id=solicitud_id)
-            qs = qs.filter(solicitud__in=solicitud_list).distinct()
-        # Con validación
-        if validada == "2":
-            qs = qs.annotate(num_validacion=models.Count("validacion")).filter(num_validacion__gte=1)
-        # Sin validación
-        if validada == "1":
-            qs = qs.annotate(num_validacion=models.Count("validacion")).filter(num_validacion=0)
-        if validacion_id:
-            validacion_list = Validacion.objects.filter(id=validacion_id)
-            qs = qs.filter(validacion__in=validacion_list).distinct()
-        if equipamiento_id:
-            equipamiento_list = Equipamiento.objects.filter(id=equipamiento_id)
-            qs = qs.filter(equipamiento__in=equipamiento_list).distinct()
-        if equipamiento:
-            equipamiento_list = Equipamiento.objects.all()
-            if equipamiento == "2":
-                qs = qs.filter(equipamiento__in=equipamiento_list).distinct()
-            if equipamiento == "1":
-                qs = qs.exclude(equipamiento__in=equipamiento_list).distinct()
-        if departamento:
-            qs = qs.filter(municipio__in=Municipio.objects.filter(departamento=departamento)).distinct()
-        if municipio:
-            qs = qs.filter(municipio=municipio)
-        if cooperante_mye:
-            qs = qs.filter(cooperante_asignado__in=cooperante_mye).distinct()
-        if proyecto_mye:
-            qs = qs.filter(proyecto_asignado__in=proyecto_mye).distinct()
-        if nombre:
-            qs = qs.filter(nombre__icontains=nombre)
-        if direccion:
-            qs = qs.filter(direccion__icontains=direccion)
-        if nivel:
-            qs = qs.filter(nivel=nivel)
-        if sector:
-            qs = qs.filter(sector=sector)
-        if poblacion_min:
-            solicitud_list = Solicitud.objects.filter(total_alumno__gte=poblacion_min)
-            qs = qs.filter(solicitud__in=solicitud_list).distinct()
-        if poblacion_max:
-            solicitud_list = Solicitud.objects.filter(total_alumno__lte=poblacion_max)
-            qs = qs.filter(solicitud__in=solicitud_list).distinct()
-        if cooperante_tpe:
-            equipamiento_list = Equipamiento.objects.filter(cooperante__in=cooperante_tpe)
-            qs = qs.filter(equipamiento__in=equipamiento_list).distinct()
-        if proyecto_tpe:
-            equipamiento_list = Equipamiento.objects.filter(proyecto__in=proyecto_tpe)
-            qs = qs.filter(equipamiento__in=equipamiento_list).distinct()
-        return qs
-
-    def crear_item(self, item, extras=None):
-        campo_basic = {
-            'url': item.get_absolute_url(),
-            'codigo': item.codigo,
-            'nombre': item.nombre,
-            'municipio': item.municipio.nombre,
-            'departamento': item.municipio.departamento.nombre,
-            'nivel': item.nivel.nivel,
-            'poblacion': item.poblacion_actual,
-            'extras': {}
-        }
-        if 'direccion' in extras:
-            campo_basic['extras']['direccion'] = item.direccion
-        if 'cooperante_mye' in extras:
-            cooperante_list = item.cooperante_asignado.all().values('nombre')
-            campo_basic['extras']['cooperante_mye'] = ', '.join(i['nombre'] for i in cooperante_list)
-        if 'proyecto_mye' in extras:
-            proyecto_list = item.proyecto_asignado.all().values('nombre')
-            campo_basic['extras']['proyecto_mye'] = ', '.join(i['nombre'] for i in proyecto_list)
-        if 'sector' in extras:
-            campo_basic['extras']['sector'] = item.sector.sector
-        if 'solicitud' in extras:
-            campo_basic['extras']['solicitud'] = "Sí" if item.solicitud.count() > 0 else "No"
-        if 'validada' in extras:
-            validacion_list = Validacion.objects.filter(escuela=item, completada=True)
-            campo_basic['extras']['validada'] = "Sí" if validacion_list.count() > 0 else "No"
-        if 'equipada' in extras:
-            campo_basic['extras']['equipada'] = "Sí" if item.equipamiento.count() > 0 else "No"
-        if 'equipamiento_id' in extras:
-            equipamiento_list = item.equipamiento.all().values('id')
-            campo_basic['extras']['equipamiento_id'] = '<br /> '.join(str(i['id']) for i in equipamiento_list)
-        if 'equipamiento_fecha' in extras:
-            equipamiento_list = item.equipamiento.all().values('fecha')
-            campo_basic['extras']['equipamiento_fecha'] = '<br /> '.join(str(i['fecha']) for i in equipamiento_list)
-        if 'hist_validacion' in extras:
-            campo_basic['extras']['hist_validacion'] = ''
-            for validacion in item.validacion.all():
-                comentario_list = validacion.comentarios.all().values('comentario')
-                campo_basic['extras']['hist_validacion'] += ', '.join(i['comentario'] for i in comentario_list)
-                campo_basic['extras']['hist_validacion'] += '<br />'
-        return campo_basic
-
-    def armar_lista(self, lista_objeto, extras=None):
-        return [
-            self.crear_item(item, extras) for item in lista_objeto
-        ]
-
-    def post(self, request, *args, **kwargs):
-        print(self.request_json)
-        qs = self.armar_query(self.request_json)
-        return self.render_json_response(self.armar_lista(qs, self.request_json['extras']))
-
-
 class SolicitudListView(InformeMixin):
     form_class = SolicitudListForm
     template_name = 'mye/solicitud_list.html'
@@ -333,8 +190,6 @@ class SolicitudListView(InformeMixin):
         'direccion': 'escuela__direccion__contains',
         'municipio': 'escuela__municipio',
         'departamento': 'escuela__municipio__departamento',
-        'cooperante_mye': 'escuela__asignacion_cooperante__in',
-        'proyecto_mye': 'escuela__asignacion_proyecto__in',
         'fecha_min': 'fecha__gte',
         'fecha_max': 'fecha__lte',
         'alumnos_min': 'poblacion__total_alumno__gte',
@@ -392,22 +247,3 @@ class ValidacionListView(SolicitudListView):
         self.filter_list['fecha_tpe_max'] = 'fecha_equipamiento__lte'
         self.filter_list['estado'] = 'completada'
         self.filter_list['version'] = 'version'
-
-
-class ValidacionListHomeView(CsrfExemptMixin, JsonRequestResponseMixin, View):
-    def get(self, request, *args, **kwargs):
-        response = []
-        inicio = datetime.strptime(self.request.GET.get('start'), '%Y-%m-%d')
-        fin = datetime.strptime(self.request.GET.get('end'), '%Y-%m-%d')
-        validacion_list = Validacion.objects.filter(
-            fecha_equipamiento__gte=inicio,
-            fecha_equipamiento__lte=fin,
-            completada=False)
-        for validacion in validacion_list:
-            response.append({
-                'title': str(validacion.escuela),
-                'start': str(validacion.fecha_equipamiento),
-                'url': validacion.get_absolute_url(),
-                'tip_title': str(validacion.escuela.municipio),
-                'tip_text': validacion.escuela.direccion})
-        return self.render_json_response(response)

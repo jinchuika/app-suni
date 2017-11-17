@@ -23,4 +23,7 @@ urlpatterns = [
     url(r'^(?P<id_escuela>\d+)/contacto/$', EscContactoCrear.as_view(), name='escuela_contacto_add'),
 
     url(r'^poblacion/add/$', EscPoblacionCreateView.as_view(), name='poblacion_add'),
+    url(r'^(?P<id_escuela>\d+)/matricula/add/$', EscMatriculaCreateView.as_view(), name='matricula_add'),
+    url(r'^(?P<id_escuela>\d+)/rendimientoacademico/add/$', EscRendimientoAcademicoCreateView.as_view(), name='rendimientoacademico_add'),
+
 ]

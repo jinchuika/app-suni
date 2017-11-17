@@ -26,7 +26,7 @@ urlpatterns = [
     url(r'^$', include('apps.main.urls')),
 ]
 
-if settings.DEBUG:
+if settings.DEBUG and settings.DEBUG_TOOLBAR:
     import debug_toolbar
     urlpatterns = [
         url(r'^__debug__/', include(debug_toolbar.urls)),
