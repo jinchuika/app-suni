@@ -193,7 +193,7 @@ class SolicitudListView(InformeMixin):
         'fecha_min': 'fecha__gte',
         'fecha_max': 'fecha__lte',
         'alumnos_min': 'poblacion__total_alumno__gte',
-        'alumnos_max': 'poblacion__total_alumno__lte',
+        'alumnos_max': 'poblacion__total_alumno__lte'
     }
 
     def create_response(self, queryset):

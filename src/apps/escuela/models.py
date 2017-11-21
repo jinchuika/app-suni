@@ -178,6 +178,10 @@ class Escuela(models.Model):
             respuesta['participantes'] = data[1]
         return respuesta
 
+    @property
+    def equipada(self):
+        return self.equipamiento.count() > 0
+
 
 class EscContactoRol(models.Model):
     """

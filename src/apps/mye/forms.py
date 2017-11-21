@@ -145,6 +145,10 @@ class SolicitudForm(forms.ModelForm):
 
 
 class SolicitudListForm(forms.Form):
+    EQUIPADA_CHOICES = (
+        (1, 'No importa'),
+        (2, 'Sí'),
+        (3, 'No'),)
     departamento = forms.ModelChoiceField(
         queryset=Departamento.objects.all(),
         required=False)
@@ -175,6 +179,10 @@ class SolicitudListForm(forms.Form):
     alumnos_max = forms.CharField(
         label='Población máxima',
         widget=forms.NumberInput(attrs={'min': '1'}),
+        required=False)
+    equipada = forms.ChoiceField(
+        label='Equipada',
+        choices=EQUIPADA_CHOICES,
         required=False)
 
 
