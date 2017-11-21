@@ -83,8 +83,7 @@
         buttons: ['excel','pdf'],
         processing: true,
         ajax: {
-            url: "",
-            type: "POST",
+            url: $('#solicitud-list-form').prop('action'),
             deferRender: true,
             cache: false,
             dataSrc: '',
@@ -95,11 +94,21 @@
         columns: [
         { "data": "departamento", "className": "nowrap" },
         { "data": "municipio", "className": "nowrap" },
-        { "data": "escuela" },
+        {
+            "data": "escuela",
+            render: function (data) {
+                return '<a href="'+data.url+'">'+data.nombre+'<br>('+data.codigo+')</a>';
+            }
+        },
         { "data": "alumnos" },
         { "data": "maestros" },
         { "data": "fecha", "className": "nowrap" },
-        { "data": "requisitos" }
+        {
+            "data": "requisitos",
+            render: function (data) {
+                return parseInt(data) + "%";
+            }
+        }
         ]
     })
     .on('xhr.dt', function (e, settings, json, xhr) {
@@ -118,7 +127,6 @@
             tabla.clear().draw();
             tabla.ajax.reload();
         });
-
     }   
 }( window.SolicitudList = window.SolicitudList || {}, jQuery ));
 

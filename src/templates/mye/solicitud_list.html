@@ -15,7 +15,7 @@
 		<div class="row">
 			<div class="col-md-3 col-sm-3">
 				<div class="box">
-					<form action="{{ action }}" id="solicitud-list-form">
+					<form action="{% url 'mye_api:solicitud-list' %}" id="solicitud-list-form">
 						<div class="box-header">
 							<input type="submit" class="btn btn-primary col-md-12" value="Generar informe"><br>
 							<h3 class="box-title">Filtros</h3>

@@ -2,6 +2,7 @@ from django.db import models
 from django.utils import timezone
 from django.urls import reverse_lazy
 from django.contrib.auth.models import User
+from apps.escuela.models import Escuela
 
 
 class Cooperante(models.Model):
@@ -71,7 +72,7 @@ class Solicitud(models.Model):
     """
     version = models.ForeignKey(SolicitudVersion, on_delete=models.PROTECT, related_name='solicitud')
     formulario = models.BooleanField(default=False, blank=True)
-    escuela = models.ForeignKey('escuela.Escuela', on_delete=models.PROTECT, related_name='solicitud')
+    escuela = models.ForeignKey(Escuela, on_delete=models.PROTECT, related_name='solicitud')
     fecha = models.DateField()
     jornada = models.IntegerField()
     edf = models.BooleanField(blank=True)
