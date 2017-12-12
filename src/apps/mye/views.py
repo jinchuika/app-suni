@@ -180,70 +180,11 @@ class ValidacionDetailView(EscuelaDetail):
         return context
 
 
-class SolicitudListView(InformeMixin):
+class SolicitudListView(LoginRequiredMixin, FormView):
     form_class = SolicitudListForm
     template_name = 'mye/solicitud_list.html'
-    queryset = Solicitud.objects.all()
-    filter_list = {
-        'codigo': 'escuela__codigo',
-        'nombre': 'escuela__nombre__contains',
-        'direccion': 'escuela__direccion__contains',
-        'municipio': 'escuela__municipio',
-        'departamento': 'escuela__municipio__departamento',
-        'fecha_min': 'fecha__gte',
-        'fecha_max': 'fecha__lte',
-        'alumnos_min': 'poblacion__total_alumno__gte',
-        'alumnos_max': 'poblacion__total_alumno__lte'
-    }
-
-    def create_response(self, queryset):
-        return [
-            {
-                'departamento': str(solicitud.escuela.municipio.departamento),
-                'municipio': solicitud.escuela.municipio.nombre,
-                'escuela': '<a href="{}">{} <br />({})</a>'.format(
-                    solicitud.escuela.get_absolute_url(),
-                    solicitud.escuela.nombre,
-                    solicitud.escuela.codigo),
-                'requisitos': str(solicitud.porcentaje_requisitos())[:4] + "%",
-                'alumnos': solicitud.poblacion.total_alumno,
-                'maestros': solicitud.poblacion.total_maestro,
-                'fecha': solicitud.fecha
-            } for solicitud in queryset
-        ]
 
 
-class ValidacionListView(SolicitudListView):
+class ValidacionListView(LoginRequiredMixin, FormView):
     form_class = ValidacionListForm
     template_name = 'mye/validacion_list.html'
-    queryset = Validacion.objects.all()
-
-    def create_response(self, queryset):
-        return [
-            {
-                'departamento': str(validacion.escuela.municipio.departamento),
-                'municipio': validacion.escuela.municipio.nombre,
-                'escuela': '<a href="{}">{} <br />({})</a>'.format(
-                    validacion.escuela.get_absolute_url(),
-                    validacion.escuela.nombre,
-                    validacion.escuela.codigo),
-                'estado': {
-                    'estado': 'Completa' if validacion.completada is True else 'Pendiente',
-                    'url': validacion.get_absolute_url()},
-                'fecha': '{}'.format(validacion.fecha_inicio),
-                'fecha_equipamiento': '{}'.format(validacion.fecha_equipamiento),
-                'requisitos': str(validacion.porcentaje_requisitos())[:4] + "%",
-                'comentarios': [{
-                    'comentario': '- ' + com.comentario
-                } for com in validacion.comentarios.all().order_by('fecha')]
-            } for validacion in queryset
-        ]
-
-    def __init__(self, *args, **kwargs):
-        super(ValidacionListView, self).__init__(*args, **kwargs)
-        self.filter_list['fecha_min'] = 'fecha_inicio__gte'
-        self.filter_list['fecha_max'] = 'fecha_inicio__lte'
-        self.filter_list['fecha_tpe_min'] = 'fecha_equipamiento__gte'
-        self.filter_list['fecha_tpe_max'] = 'fecha_equipamiento__lte'
-        self.filter_list['estado'] = 'completada'
-        self.filter_list['version'] = 'version'

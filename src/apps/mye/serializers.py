@@ -50,3 +50,29 @@ class SolicitudSerializer(serializers.ModelSerializer):
             'maestros',
             'equipada',
             'fecha')
+
+
+class ValidacionSerializer(serializers.ModelSerializer):
+
+    """Serializer para generar un API endpoint hacie el modelo de
+    :class:`Validacion`.
+    """
+
+    departamento = serializers.StringRelatedField(source='escuela.municipio.departamento')
+    municipio = serializers.StringRelatedField(source='escuela.municipio.nombre')
+    escuela = EscuelaSerializer(fields='nombre,codigo,url')
+    requisitos = serializers.StringRelatedField(source='porcentaje_requisitos')
+    estado = serializers.SerializerMethodField()
+    fecha = serializers.DateField(source='fecha_inicio')
+
+    class Meta:
+        model = mye_models.Validacion
+        fields = (
+            'departamento', 'municipio', 'escuela', 'requisitos',
+            'estado', 'fecha', 'fecha_equipamiento')
+
+    def get_estado(self, obj):
+        """Devuelve un texto indicando si la :class:`Validacion`
+        está completa o no.
+        """
+        return 'Completa' if obj.completada is True else 'Pendiente'

@@ -40,6 +40,7 @@ urlpatterns = [
 
     url(r'^monitoreo/(?P<pk>\d+)/evaluacion/$', MonitoreoUpdateView.as_view(), name='monitoreo_update'),
     url(r'^monitoreo/(?P<pk>\d+)/$', MonitoreoDetailView.as_view(), name='monitoreo_detail'),
+    url(r'^evaluacionmonitoreo/list/$', cache_page(5)(EvaluacionMonitoreoInformeView.as_view()), name='evaluacionmonitoreo_list'),
 
     url(r'^calendario/$', CalendarioTPEView.as_view(), name='calendario_tpe'),
     url(r'^api/', include('apps.tpe.api_urls', namespace='tpe_api')),

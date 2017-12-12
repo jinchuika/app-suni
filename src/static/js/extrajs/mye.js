@@ -92,8 +92,8 @@
             }
         },
         columns: [
-        { "data": "departamento", "className": "nowrap" },
-        { "data": "municipio", "className": "nowrap" },
+        {"data": "departamento", "className": "nowrap"},
+        {"data": "municipio", "className": "nowrap"},
         {
             "data": "escuela",
             render: function (data) {
@@ -137,8 +137,7 @@
         buttons: ['excel','pdf'],
         processing: true,
         ajax: {
-            url: "",
-            type: "POST",
+            url: $('#validacion-list-form').prop('action'),
             deferRender: true,
             dataSrc: '',
             cache: false,
@@ -147,19 +146,23 @@
             }
         },
         columns: [
-        { data: "departamento", className: "nowrap" },
-        { data: "municipio", className: "nowrap" },
-        { data: "escuela" },
+        {data: "departamento", className: "nowrap" },
+        {data: "municipio", className: "nowrap" },
         {
-            data: "estado",
+            "data": "escuela",
             render: function (data) {
-                return '<a href="'+data.url+'">'+data.estado+'</a>';
+                return '<a href="'+data.url+'">'+data.nombre+'<br>('+data.codigo+')</a>';
             }
         },
-        { data: "fecha", className: "nowrap"},
-        { data: "fecha_equipamiento", className: "nowrap"},
-        { data: "requisitos",},
-        { data: "comentarios", render: "[<br />].comentario" }
+        {data: "estado"},
+        {data: "fecha", className: "nowrap"},
+        {data: "fecha_equipamiento", className: "nowrap"},
+        {
+            "data": "requisitos",
+            render: function (data) {
+                return parseInt(data) + "%";
+            }
+        }
         ]
     }).on('xhr.dt', function () {
          $('#spinner').hide();

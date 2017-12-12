@@ -736,3 +736,51 @@
         })
     }
 }( window.EvaluacionMonitoreo = window.ReparacionDetalle || {}, jQuery ));
+
+(function( EvaluacionMonitoreoList, $, undefined ) {
+    var tabla = $('#evaluacionmonitoreo-table').DataTable({
+        dom: 'lfrtipB',
+        buttons: ['excel','pdf'],
+        processing: true,
+        ajax: {
+            url: $('#evaluacionmonitoreo-list-form').prop('action'),
+            deferRender: true,
+            cache: false,
+            dataSrc: '',
+            data: function () {
+                return $('#evaluacionmonitoreo-list-form').serializeObject();
+            }
+        },
+        columns: [
+        {
+            "data": "escuela",
+            render: function (data) {
+                return '<a href="'+data.url+'">'+data.nombre+'<br>('+data.codigo+')</a>';
+            }
+        },
+        {"data": "equipamiento"},
+        {"data": "fecha_equipamiento", "className": "nowrap"},
+        {"data": "pregunta"},
+        {"data": "creado_por"},
+        {"data": "fecha", "className": "nowrap"},
+        {"data": "porcentaje"},
+        ]
+    })
+    .on('xhr.dt', function (e, settings, json, xhr) {
+        $('#evaluacionmonitoreo-table tbody tr').each(function(index, item){
+            $(item).find('td:eq(5)').attr('nowrap', 'nowrap');
+        });
+         $('#spinner').hide();
+    });
+
+    // Public
+    EvaluacionMonitoreoList.init = function () {
+        $('#spinner').hide();
+        $('#evaluacionmonitoreo-list-form').submit(function (e) {
+            e.preventDefault();
+            $('#spinner').show();
+            tabla.clear().draw();
+            tabla.ajax.reload();
+        });
+    }   
+}( window.EvaluacionMonitoreoList = window.EvaluacionMonitoreoList || {}, jQuery ));

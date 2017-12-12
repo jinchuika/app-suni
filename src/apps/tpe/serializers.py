@@ -4,6 +4,7 @@ from rest_framework import serializers
 from apps.main.serializers import DynamicFieldsModelSerializer, CalendarSerializer
 from apps.tpe import models as tpe_models
 from apps.mye import serializers as mye_serializers
+from apps.escuela.serializers import EscuelaSerializer
 
 
 class GarantiaSerializer(serializers.ModelSerializer):
@@ -38,11 +39,29 @@ class MonitoreoSerializer(serializers.ModelSerializer):
 class EvaluacionMonitoreoSerializer(serializers.ModelSerializer):
     url = serializers.URLField(source='get_absolute_url', read_only=True)
     porcentaje = serializers.DecimalField(max_digits=5, decimal_places=2, read_only=True)
+    creado_por = serializers.StringRelatedField(
+        source='monitoreo.creado_por.get_full_name',
+        read_only=True)
 
     class Meta:
         model = tpe_models.EvaluacionMonitoreo
         fields = '__all__'
         read_only_fields = ('monitoreo', 'pregunta', 'porcentaje')
+
+
+class EvaluacionMonitoreoFullSerializer(EvaluacionMonitoreoSerializer):
+
+    """Serializer para generar informes completos de :class:`EvaluacionMonitoreo`
+    """
+
+    pregunta = serializers.StringRelatedField()
+    equipamiento = serializers.StringRelatedField(source='monitoreo.equipamiento', read_only=True)
+    fecha = serializers.DateField(source='monitoreo.fecha', read_only=True)
+    fecha_equipamiento = serializers.DateField(source='monitoreo.equipamiento.fecha', read_only=True)
+    escuela = EscuelaSerializer(
+        source='monitoreo.equipamiento.escuela',
+        fields='id,nombre,codigo',
+        read_only=True)
 
 
 class EquipamientoSerializer(DynamicFieldsModelSerializer, serializers.ModelSerializer):

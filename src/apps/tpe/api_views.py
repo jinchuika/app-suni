@@ -37,6 +37,26 @@ class EvaluacionMonitoreoViewSet(LoginRequiredMixin, viewsets.ModelViewSet):
     filter_fields = ('monitoreo', 'pregunta')
 
 
+class EvaluacionMonitoreoFilter(filters.FilterSet):
+    creado_por = django_filters.CharFilter(name='monitoreo__creado_por')
+    fecha_min = django_filters.DateFilter(name='monitoreo__fecha', lookup_expr='gte')
+    fecha_max = django_filters.DateFilter(name='monitoreo__fecha', lookup_expr='lte')
+
+    class Meta:
+        model = tpe_models.EvaluacionMonitoreo
+        fields = ('creado_por', 'fecha_max', 'fecha_min',)
+
+
+class EvaluacionMonitoreoFullViewSet(LoginRequiredMixin, viewsets.ModelViewSet):
+
+    """ViewSet para generar informes de :class:`EvaluacionMonitoreo`
+    """
+
+    serializer_class = tpe_serializers.EvaluacionMonitoreoFullSerializer
+    queryset = tpe_models.EvaluacionMonitoreo.objects.all()
+    filter_class = EvaluacionMonitoreoFilter
+
+
 class EquipamientoFilter(filters.FilterSet):
     codigo = django_filters.CharFilter(name='escuela__codigo')
     fecha_min = django_filters.DateFilter(name='fecha', lookup_expr='gte')
@@ -93,7 +113,7 @@ class EquipamientoCalendarViewSet(LoginRequiredMixin, viewsets.ReadOnlyModelView
     """Para generar el listado de `Equipamiento`s en
     la página de inicio.
     """
-    
+
     serializer_class = tpe_serializers.EquipamientoCalendarSerializer
     queryset = tpe_models.Equipamiento.objects.all()
     filter_class = EquipamientoCalendarFilter

@@ -28,7 +28,12 @@ tpe_children = (
         "Calendario",
         reverse_lazy("calendario_tpe"),
         weight=75,
-        icon="fa-calendar"),)
+        icon="fa-calendar"),
+    ViewMenuItem(
+        "Evaluación",
+        reverse_lazy("evaluacionmonitoreo_list"),
+        weight=95,
+        icon="fa-check"),)
 
 Menu.add_item(
     "user",
