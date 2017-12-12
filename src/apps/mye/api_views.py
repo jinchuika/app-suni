@@ -30,9 +30,11 @@ class ValidacionCalendarViewSet(LoginRequiredMixin, viewsets.ReadOnlyModelViewSe
     filter_class = ValidacionCalendarFilter
 
 
-class SolicitudFilter(filters.FilterSet):
+class MyeFilter(filters.FilterSet):
 
-    """Filtros para :class:`SolicitudViewSet`
+    """
+    Conjunto de filtros para los campos comunes utilizados en
+    :class:`SolicitudFilter` y en :class:`ValidacionFilter`.
     """
 
     escuela = django_filters.ModelChoiceFilter(queryset=Escuela.objects.all())
@@ -44,8 +46,8 @@ class SolicitudFilter(filters.FilterSet):
     equipada = django_filters.BooleanFilter(method='filter_equipada')
     fecha_min = django_filters.DateFilter(name='fecha', lookup_expr='gte')
     fecha_max = django_filters.DateFilter(name='fecha', lookup_expr='lte')
-    alumnos_min = django_filters.DateFilter(name='poblacion__total_alumno', lookup_expr='gte')
-    alumnos_max = django_filters.DateFilter(name='poblacion__total_alumno', lookup_expr='lte')
+    alumnos_min = django_filters.NumberFilter(name='poblacion__total_alumno', lookup_expr='gte')
+    alumnos_max = django_filters.NumberFilter(name='poblacion__total_alumno', lookup_expr='lte')
 
     def filter_equipada(self, queryset, name, value):
         if value:
@@ -56,16 +58,48 @@ class SolicitudFilter(filters.FilterSet):
                 equipamientos=Count('escuela__equipamiento')).filter(equipamientos=0)
         return queryset
 
+
+class SolicitudFilter(MyeFilter):
+
+    """Filtros para :class:`SolicitudViewSet`
+    """
+
     class Meta:
         model = mye_models.Solicitud
-        fields = ('escuela', 'codigo', 'departamento', 'fecha_max', 'fecha_min')
+        fields = ('escuela', 'codigo', 'departamento',)
 
 
-class SolicitudViewSet(viewsets.ReadOnlyModelViewSet):
+class SolicitudViewSet(LoginRequiredMixin, viewsets.ReadOnlyModelViewSet):
 
-    """ViewSet para generar listados de :class:`Solicitud`
+    """ViewSet para generar listados de :class:`Solicitud`.
     """
 
     serializer_class = mye_serializers.SolicitudSerializer
     queryset = mye_models.Solicitud.objects.all()
     filter_class = SolicitudFilter
+
+
+class ValidacionFilter(MyeFilter):
+
+    """Filtros para :class:`ValidacionViewSet`.
+    """
+
+    fecha_min = django_filters.DateFilter(name='fecha_inicio', lookup_expr='gte')
+    fecha_max = django_filters.DateFilter(name='fecha_inicio', lookup_expr='lte')
+    fecha_tpe_min = django_filters.DateFilter(name='fecha_equipamiento', lookup_expr='gte')
+    fecha_tpe_max = django_filters.DateFilter(name='fecha_equipamiento', lookup_expr='lte')
+    completada = django_filters.BooleanFilter(name='completada')
+
+    class Meta:
+        model = mye_models.Validacion
+        fields = ('escuela', 'codigo', 'departamento', 'completada')
+
+
+class ValidacionViewSet(LoginRequiredMixin, viewsets.ReadOnlyModelViewSet):
+
+    """ViewSet para generar listados de :class:`Validacion`
+    """
+
+    serializer_class = mye_serializers.ValidacionSerializer
+    queryset = mye_models.Validacion.objects.all()
+    filter_class = ValidacionFilter

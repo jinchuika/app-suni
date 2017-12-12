@@ -374,17 +374,13 @@ class InformeMyeForm(forms.ModelForm):
 
 class ValidacionListForm(SolicitudListForm):
     ESTADO_CHOICES = (
-        (None, 'No importa'),
-        (True, 'Sí'),
-        (False, 'No'),)
-    estado = forms.ChoiceField(
+        (1, 'No importa'),
+        (2, 'Sí'),
+        (3, 'No'),)
+    completada = forms.ChoiceField(
         label='Completada',
         required=False,
         choices=ESTADO_CHOICES)
-    version = forms.ModelChoiceField(
-        queryset=ValidacionVersion.objects.all(),
-        label='Versión de validación',
-        required=False)
     fecha_tpe_min = forms.CharField(
         label='Fecha de equipamiento (mín)',
         widget=forms.TextInput(attrs={'class': 'datepicker'}),

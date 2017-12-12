@@ -543,3 +543,14 @@ class MonitoreoUpdateView(LoginRequiredMixin, UpdateView):
         if form.cleaned_data['evaluacion'] is True:
             form.instance.crear_evaluaciones()
         return super(MonitoreoUpdateView, self).form_valid(form)
+
+
+class EvaluacionMonitoreoInformeView(LoginRequiredMixin, FormView):
+
+    """
+    Vista para generar informes de class:`EvaluacionMonitoreo`.
+    Realiza una conexión a DRF para funcionar.
+    """
+
+    form_class = MonitoreoListForm
+    template_name = 'tpe/evaluacionmonitoreo_informe.html'
