@@ -133,3 +133,29 @@ class EquipamientoCalendarSerializer(CalendarSerializer):
     class Meta:
         model = tpe_models.Equipamiento
         fields = ('start', 'title', 'url', 'tip_text', 'tip_title')
+
+
+class DispositivoTipoSerializer(DynamicFieldsModelSerializer):
+
+    """Serializer para :class:`DispositivoTipo`.
+    Usado de forma interna, por ahora no tiene vista ni endpoint expuesto
+    """
+
+    class Meta:
+        model = tpe_models.DispositivoTipo
+        fields = '__all__'
+
+
+class DispositivoReparacionSerializar(serializers.ModelSerializer):
+
+    """Para listar la cantidad de :class:`TicketReparacion`es por cada
+    :class:`DispositivoTipo`.
+    """
+
+    total = serializers.IntegerField()
+    tipo = serializers.CharField(source='tipo_dispositivo__tipo')
+    tipo_id = serializers.IntegerField(source='tipo_dispositivo')
+
+    class Meta:
+        model = tpe_models.TicketReparacion
+        fields = ('tipo_id', 'tipo', 'total')

@@ -784,3 +784,42 @@
         });
     }   
 }( window.EvaluacionMonitoreoList = window.EvaluacionMonitoreoList || {}, jQuery ));
+
+
+(function( DispositivoReparacion, $, undefined ) {
+    var tabla = $('#dispositivo-table').DataTable({
+        dom: 'lfrtipB',
+        buttons: ['excel','pdf'],
+        processing: true,
+        ajax: {
+            url: $('#dispositivo-list-form').prop('action'),
+            deferRender: true,
+            cache: false,
+            dataSrc: '',
+            data: function () {
+                return $('#dispositivo-list-form').serializeObject();
+            }
+        },
+        columns: [
+        {"data": "tipo"},
+        {"data": "total"}
+        ]
+    })
+    .on('xhr.dt', function (e, settings, json, xhr) {
+        $('#dispositivo-table tbody tr').each(function(index, item){
+            $(item).find('td:eq(5)').attr('nowrap', 'nowrap');
+        });
+         $('#spinner').hide();
+    });
+
+    // Public
+    DispositivoReparacion.init = function () {
+        $('#spinner').hide();
+        $('#dispositivo-list-form').submit(function (e) {
+            e.preventDefault();
+            $('#spinner').show();
+            tabla.clear().draw();
+            tabla.ajax.reload();
+        });
+    }   
+}( window.DispositivoReparacion = window.DispositivoReparacion || {}, jQuery ));

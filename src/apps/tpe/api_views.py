@@ -1,5 +1,6 @@
 import django_filters
 from datetime import datetime
+from django.db.models import Count
 
 from rest_framework import viewsets, filters
 from braces.views import LoginRequiredMixin
@@ -117,3 +118,29 @@ class EquipamientoCalendarViewSet(LoginRequiredMixin, viewsets.ReadOnlyModelView
     serializer_class = tpe_serializers.EquipamientoCalendarSerializer
     queryset = tpe_models.Equipamiento.objects.all()
     filter_class = EquipamientoCalendarFilter
+
+
+class DispositivoReparacionFilter(filters.FilterSet):
+
+    """Filtros para usar en el ViewSet de
+    :class:`DispositivoReparacionViewSet`
+    """
+
+    fecha_min = django_filters.DateFilter(name='fecha_fin', lookup_expr='gte')
+    fecha_max = django_filters.DateFilter(name='fecha_fin', lookup_expr='lte')
+
+    class Meta:
+        model = tpe_models.TicketReparacion
+        fields = ('fecha_min', 'fecha_max')
+
+
+class DispositivoReparacionViewSet(LoginRequiredMixin, viewsets.ReadOnlyModelViewSet):
+
+    """Para listar los la cantidad de :class:`DispositivoReparacion`es creadas
+    para cada :class:`TicketReparacion`.
+    """
+    serializer_class = tpe_serializers.DispositivoReparacionSerializar
+    queryset = tpe_models.TicketReparacion.objects.values(
+        'tipo_dispositivo', 'tipo_dispositivo__tipo').annotate(
+        total=Count('id'))
+    filter_class = DispositivoReparacionFilter

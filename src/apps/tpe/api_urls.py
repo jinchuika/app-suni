@@ -22,11 +22,15 @@ evaluacionmonitoreo_api_detail = api_views.EvaluacionMonitoreoViewSet.as_view({
     'post': 'update',
     'patch': 'partial_update'})
 
+dispositivoreparacion_api = api_views.DispositivoReparacionViewSet.as_view({
+    'get': 'list'})
+
 router = routers.DefaultRouter()
 router.register(r'equipamiento', api_views.EquipamientoViewSet, base_name='equipamiento')
 router.register(r'equipamiento-informe', api_views.EquipamientoFullViewSet, base_name='equipamiento-informe')
 router.register(r'equipamiento-calendar', api_views.EquipamientoCalendarViewSet, base_name='equipamiento-calendar')
 router.register(r'evaluacion-monitoreo', api_views.EvaluacionMonitoreoFullViewSet, base_name='evaluacion-monitoreo')
+router.register(r'dispositivo-reparacion', api_views.DispositivoReparacionViewSet, base_name='dispositivo-reparacion')
 
 urlpatterns = [
     url(r'^reparacion/list/$', reparacion_api_list, name='reparacion_api_list'),

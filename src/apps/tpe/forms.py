@@ -315,3 +315,22 @@ class EvaluacionMonitoreoForm(forms.ModelForm):
             'monitoreo': forms.HiddenInput(),
             'pregunta': forms.HiddenInput()
         }
+
+
+class DispositivoReparacionListForm(forms.Form):
+    usuario = forms.ModelChoiceField(
+        label='Técnico',
+        required=False,
+        queryset=User.objects.filter(id__in=TicketReparacion.objects.values('tecnico_asignado').distinct()))
+    fecha_min = forms.CharField(
+        label='Fecha mínima',
+        widget=forms.TextInput(attrs={'class': 'datepicker'}),
+        required=False)
+    fecha_max = forms.CharField(
+        label='Fecha máxima',
+        widget=forms.TextInput(attrs={'class': 'datepicker'}),
+        required=False)
+
+    def __init__(self, *args, **kwargs):
+        super(DispositivoReparacionListForm, self).__init__(*args, **kwargs)
+        self.fields['usuario'].label_from_instance = lambda obj: "%s" % (obj.get_full_name())

@@ -61,7 +61,12 @@ garantia_children = (
         "Reparaciones",
         reverse_lazy("ticket_reparacion_informe"),
         weight=10,
-        icon="fa-plug"),)
+        icon="fa-plug"),
+    ViewMenuItem(
+        "Dispositivos",
+        reverse_lazy("dispositivo_reparacion_list"),
+        weight=20,
+        icon="fa-microchip"),)
 
 Menu.add_item(
     "user",
