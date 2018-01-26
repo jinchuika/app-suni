@@ -22,6 +22,7 @@ from apps.tpe.forms import (
     TicketReparacionRepuestoForm, TicketReparacionRepuestoAuthForm, TicketTransporteForm,
     TicketRegistroUpdateForm, TicketInformeForm, TicketReparacionInformeForm,
     EvaluacionMonitoreoCreateForm)
+from apps.tpe import forms as tpe_forms
 
 
 class EquipamientoCrearView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
@@ -554,3 +555,8 @@ class EvaluacionMonitoreoInformeView(LoginRequiredMixin, FormView):
 
     form_class = MonitoreoListForm
     template_name = 'tpe/evaluacionmonitoreo_informe.html'
+
+
+class DispositivoReparacionListView(LoginRequiredMixin, FormView):
+    form_class = tpe_forms.DispositivoReparacionListForm
+    template_name = 'tpe/dispositivo_reparacion_list.html'
