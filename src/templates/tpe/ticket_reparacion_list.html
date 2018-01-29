@@ -1,48 +1,50 @@
 {% load widget_tweaks staticfiles %}
 
 {% block content %}	
-	<h3 class="box-title">
-		Reparaciones
-		{% if ticket.cerrado != True %}
-			<button onclick="$('#reparacion-{{ ticket.id }}').toggle();" class="btn btn-info btn-flat"><i class="fa fa-plus"></i></button>
-		{% endif %}
-	</h3>
-	<h5 class="box-title"><strong>Costo total:</strong> {{ ticket.get_costo_reparacion }}</h5>
-	<div class="attachment-block form-nueva-reparacion" id="reparacion-{{ ticket.id }}">
-		<form action="{% url 'ticket_reparacion_add' ticket_id=ticket.id %}" class="box-body" method="post">
-			{% csrf_token %}
-			{% for field in ticket_reparacion_form %}
-				{{ field.label_tag }}
-				{{ field|add_class:"form-control" }}
-			{% endfor %}
-			<input type="submit" value="Crear" class="btn btn-success">
-		</form>
-	</div>
+<h3 class="box-title">
+	Reparaciones
+	{% if ticket.cerrado != True %}
+	<button onclick="$('#reparacion-{{ ticket.id }}').toggle();" class="btn btn-info btn-flat"><i class="fa fa-plus"></i></button>
+	{% endif %}
+</h3>
+<h5 class="box-title"><strong>Costo total:</strong> {{ ticket.get_costo_reparacion }}</h5>
+{% if not ticket.cerrado %}
+<div class="attachment-block form-nueva-reparacion" id="reparacion-{{ ticket.id }}">
+	<form action="{% url 'ticket_reparacion_add' ticket_id=ticket.id %}" class="box-body" method="post">
+		{% csrf_token %}
+		{% for field in ticket_reparacion_form %}
+		{{ field.label_tag }}
+		{{ field|add_class:"form-control" }}
+		{% endfor %}
+		<input type="submit" value="Crear" class="btn btn-success">
+	</form>
+</div>
+{% endif %}
 
-	{% for reparacion in ticketreparacion_list|dictsortreversed:"fecha_inicio" %}
-		<div class="box box-solid box-warning">
-			<div class="box-body">
-				<h4>
-					<a href="{{ reparacion.get_absolute_url }}">{{ reparacion.tipo_dispositivo }} - {{ reparacion.triage }}</a>
-					{% if not reparacion.solucion_tipo and not ticket.cerrado %}
-						<a href="{{ reparacion.get_absolute_url }}" class="btn btn-success btn-sm pull-right">Editar</a>
-					{% endif %}
-				</h4>
-				<ul class="list-unstyled">
-					<li><strong>Estado: </strong>{{ reparacion.estado }}</li>
-					<li><strong>Reportada:</strong> {{ reparacion.fecha_inicio|date:"Y-m-d" }}</li>
-					<li><strong>Falla reportada:</strong> {{ reparacion.falla_reportada }}</li>
-					<li><strong>Técnico asignado:</strong> {{ reparacion.tecnico_asignado.perfil }}</li>
-					<li><strong>Falla encontrada:</strong> {{ reparacion.falla_encontrada|default_if_none:""}}</li>
-					<li><strong>Solución:</strong> {{ reparacion.solucion_detalle|default_if_none:"" }}</li>
-					<li><strong>Costo:</strong> Q.{{ reparacion.get_costo }}</li>
-				</ul>
-				{% if reparacion.foto %}
-					<p><a href="reparacion.foto">Fotos</a></p>
-				{% endif %}
-				<small>{{ reparacion.creado_por.perfil }}</small>
-			</div>
-		</div>
-	{% endfor %}
+{% for reparacion in ticketreparacion_list|dictsortreversed:"fecha_inicio" %}
+<div class="box box-solid box-warning">
+	<div class="box-body">
+		<h4>
+			<a href="{{ reparacion.get_absolute_url }}">{{ reparacion.tipo_dispositivo }} - {{ reparacion.triage }}</a>
+			{% if not reparacion.solucion_tipo and not ticket.cerrado %}
+			<a href="{{ reparacion.get_absolute_url }}" class="btn btn-success btn-sm pull-right">Editar</a>
+			{% endif %}
+		</h4>
+		<ul class="list-unstyled">
+			<li><strong>Estado: </strong>{{ reparacion.estado }}</li>
+			<li><strong>Reportada:</strong> {{ reparacion.fecha_inicio|date:"Y-m-d" }}</li>
+			<li><strong>Falla reportada:</strong> {{ reparacion.falla_reportada }}</li>
+			<li><strong>Técnico asignado:</strong> {{ reparacion.tecnico_asignado.perfil }}</li>
+			<li><strong>Falla encontrada:</strong> {{ reparacion.falla_encontrada|default_if_none:""}}</li>
+			<li><strong>Solución:</strong> {{ reparacion.solucion_detalle|default_if_none:"" }}</li>
+			<li><strong>Costo:</strong> Q.{{ reparacion.get_costo }}</li>
+		</ul>
+		{% if reparacion.foto %}
+		<p><a href="reparacion.foto">Fotos</a></p>
+		{% endif %}
+		<small>{{ reparacion.creado_por.perfil }}</small>
+	</div>
+</div>
+{% endfor %}
 {% endblock content %}
 
