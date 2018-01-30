@@ -20,7 +20,12 @@
 							<tr>
 								<th>Escuela</th>
 								<td>
-									<a href="{{ garantia.equipamiento.escuela.get_absolute_url }}">{{ garantia.equipamiento.escuela }}</a>
+									<a href="{{ garantia.equipamiento.escuela.get_absolute_url }}">
+										{{ garantia.equipamiento.escuela }}, 
+										{{ garantia.equipamiento.escuela.direccion }}
+									</a>
+									<br>
+									{{ garantia.equipamiento.escuela.municipio }}
 								</td>
 							</tr>
 							<tr>

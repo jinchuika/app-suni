@@ -138,6 +138,14 @@ class TicketSoporte(models.Model):
     def __str__(self):
         return str(self.id)
 
+    def cubierto(self):
+        """Indica si un ticket fue abierto antes de que la :class:`Garantia` finalice
+
+        Returns:
+            bool: Cubierto o no por la garantía
+        """
+        return self.garantia.equipamiento.fecha <= self.fecha_abierto <= self.garantia.fecha_vencimiento
+
     def get_absolute_url(self):
         return reverse_lazy('ticket_detail', kwargs={'pk': self.garantia.id, 'ticket_id': self.id})
 

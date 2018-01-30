@@ -21,6 +21,12 @@
 				<address>
 					<strong><i class="fa fa-hourglass-start margin-r-5"></i> Creación</strong>
 					<br>{{ ticket.fecha_abierto|date:"Y-m-d" }}, {{ ticket.abierto_por.perfil }}
+					<br>
+					{% if ticket.cubierto %}
+						<span class="label label-success">Cubierto</span>
+					{% else %}
+						<span class="label label-danger">Sin cobertura</span>
+					{% endif %}
 				</address>
 			</div>
 			<div class="col-md-3 col-sm-3 invoice-col">
