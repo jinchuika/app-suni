@@ -29,6 +29,7 @@ class VisitaFilter(filters.FilterSet):
     fecha_min = django_filters.DateFilter(name='fecha', lookup_expr='gte')
     fecha_max = django_filters.DateFilter(name='fecha', lookup_expr='lte')
     municipio = django_filters.NumberFilter(name='escuela__municipio')
+    departamento = django_filters.NumberFilter(name='escuela__municipio__departamento')
 
     class Meta:
         model = Visita

@@ -19,7 +19,17 @@ kalite_children = (
         "Calendario",
         reverse_lazy("kalite_calendario"),
         weight=40,
-        icon="fa-calendar"),)
+        icon="fa-calendar"),
+    ViewMenuItem(
+        "Informe",
+        reverse_lazy("visita_kalite_informe"),
+        weight=40,
+        icon="fa-th"),
+    ViewMenuItem(
+        "Gráficos",
+        reverse_lazy("visita_kalite_dashboard"),
+        weight=50,
+        icon="fa-bar-chart"),)
 
 Menu.add_item(
     "user",
