@@ -21,9 +21,24 @@ class EvaluacionViewSet(viewsets.ModelViewSet):
     queryset = Evaluacion.objects.all()
 
 
+class VisitaFilter(filters.FilterSet):
+
+    """Filtros para la visa de :class:`VisitaViewSet`
+    """
+
+    fecha_min = django_filters.DateFilter(name='fecha', lookup_expr='gte')
+    fecha_max = django_filters.DateFilter(name='fecha', lookup_expr='lte')
+    municipio = django_filters.NumberFilter(name='escuela__municipio')
+
+    class Meta:
+        model = Visita
+        fields = ['capacitador', 'fecha_min', 'fecha_max']
+
+
 class VisitaViewSet(viewsets.ModelViewSet):
     serializer_class = VisitaSerializer
     queryset = Visita.objects.all()
+    filter_class = VisitaFilter
 
 
 class GradoViewSet(viewsets.ModelViewSet):

@@ -12,6 +12,7 @@ urlpatterns = [
     url(r'^tipovisita/list/$', kalite_views.TipoVisitaListView.as_view(), name='tipovisita_list'),
     url(r'^visita/(?P<pk>\d+)/$', kalite_views.VisitaDetailView.as_view(), name='visita_detail'),
     url(r'^visita/add/$', kalite_views.VisitaCreateView.as_view(), name='visita_kalite_add'),
+    url(r'^visita/informe/$', kalite_views.VisitaInformeView.as_view(), name='visita_kalite_informe'),
 
     url(r'^calendario/$', kalite_views.VisitaCalendarView.as_view(), name='kalite_calendario'),
 ]

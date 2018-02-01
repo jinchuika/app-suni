@@ -1,6 +1,8 @@
 from datetime import datetime
 from rest_framework import serializers
 from apps.main.serializers import DynamicFieldsModelSerializer
+from apps.escuela.serializers import EscuelaSerializer
+from apps.users.serializers import UserSerializer
 
 from apps.kalite.models import Punteo, Evaluacion, Visita, Grado, EjerciciosGrado
 
@@ -25,6 +27,12 @@ class EvaluacionSerializer(DynamicFieldsModelSerializer, serializers.ModelSerial
 
 class VisitaSerializer(DynamicFieldsModelSerializer, serializers.ModelSerializer):
     promedio = serializers.FloatField(read_only=True)
+    alcance = serializers.CharField(source='estado.alcance')
+    escuela = EscuelaSerializer(fields='nombre,url,codigo')
+    capacitador = serializers.StringRelatedField(source='capacitador.get_full_name')
+    tipo_visita = serializers.StringRelatedField()
+    municipio = serializers.StringRelatedField(source='escuela.municipio.nombre')
+    departamento = serializers.StringRelatedField(source='escuela.municipio.departamento')
 
     class Meta:
         model = Visita

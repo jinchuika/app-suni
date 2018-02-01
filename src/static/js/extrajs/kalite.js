@@ -343,3 +343,53 @@
         crear_kalite_calendario();
     } 
 }( window.CalendarioKalite = window.CalendarioKalite || {}, jQuery ));
+
+
+(function( VisitaInforme, $, undefined ) {
+    var tabla = $('#visita-table').DataTable({
+        dom: 'lfrtipB',
+        buttons: ['excel','pdf'],
+        processing: true,
+        ajax: {
+            url: $('#visita-list-form').prop('action'),
+            deferRender: true,
+            cache: false,
+            dataSrc: '',
+            data: function () {
+                return $('#visita-list-form').serializeObject();
+            }
+        },
+        columns: [
+        {
+        	data: "escuela",
+            render: function (data, type, full, meta) {
+                return '<a href="' + data.url + '">' + data.nombre + '<br>(' + data.codigo + ')</a>';
+            }
+        },
+        {"data": "municipio"},
+        {"data": "departamento"},
+        {"data": "capacitador"},
+        {"data": "numero"},
+		{"data": "promedio"},
+		{"data": "alcance"},
+		{"data": "fecha"}
+        ]
+    })
+    .on('xhr.dt', function (e, settings, json, xhr) {
+        $('#visita-table tbody tr').each(function(index, item){
+            $(item).find('td:eq(5)').attr('nowrap', 'nowrap');
+        });
+         $('#spinner').hide();
+    });
+
+    // Public
+    VisitaInforme.init = function () {
+        $('#spinner').hide();
+        $('#visita-list-form').submit(function (e) {
+            e.preventDefault();
+            $('#spinner').show();
+            tabla.clear().draw();
+            tabla.ajax.reload();
+        });
+    }   
+}( window.VisitaInforme = window.VisitaInforme || {}, jQuery ));
