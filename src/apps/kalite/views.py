@@ -1,12 +1,12 @@
 from django.urls import reverse_lazy
 from django.views.generic import DetailView, ListView, TemplateView
-from django.views.generic.edit import CreateView
+from django.views.generic.edit import CreateView, FormView
 
 from braces.views import LoginRequiredMixin, PermissionRequiredMixin
 
 from apps.kalite.forms import (
     RubricaForm, IndicadorForm, VisitaForm, TipoVisitaForm,
-    GradoForm)
+    GradoForm, VisitaInformeForm)
 from apps.kalite.models import Rubrica, Indicador, Visita, Punteo, TipoVisita
 
 
@@ -87,3 +87,8 @@ class VisitaCreateView(LoginRequiredMixin, CreateView):
 
 class VisitaCalendarView(LoginRequiredMixin, TemplateView):
     template_name = 'kalite/calendario.html'
+
+
+class VisitaInformeView(LoginRequiredMixin, FormView):
+    form_class = VisitaInformeForm
+    template_name = 'kalite/visita_informe.html'
