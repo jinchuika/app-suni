@@ -11,8 +11,11 @@ class GeoForm(forms.Form):
     """
     departamento = forms.ModelChoiceField(
         queryset=Departamento.objects.all(),
+        required=False,
         widget=forms.Select(attrs={'data-url': reverse_lazy('municipio_api_list')}))
-    municipio = forms.ModelChoiceField(Municipio.objects.all())
+    municipio = forms.ModelChoiceField(
+        Municipio.objects.all(),
+        required=False)
 
 
 class DateForm(forms.Form):

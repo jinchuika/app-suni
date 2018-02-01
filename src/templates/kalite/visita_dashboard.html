@@ -1,0 +1,171 @@
+{% extends "base/base.html" %}
+
+{% load staticfiles %}
+
+{% block content %}
+<section class="content">
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-md-6">
+				<div class="row">
+					<div class="col-md-8">
+						<!-- Alcance -->
+						<div class="box box-info box-solid">
+							<div class="box-header with-border">
+								<h3 class="box-title">Alcance</h3>
+								<div class="box-tools pull-right">
+									<button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Ocultar">
+										<i class="fa fa-minus"></i>
+									</button>
+								</div>
+							</div>
+							<div class="box-body table-responsive">
+								<table class="table">
+									<div id="alcance-pie-chart"></div>
+								</table>
+							</div>
+						</div>
+						<!-- /Alcance -->
+					</div>
+
+					<div class="col-md-4">
+						<!-- Conteo de visitas -->
+						<div class="box box-info box-solid">
+							<div class="box-header with-border">
+								<h3 class="box-title">Cantidad de visitas</h3>
+								<div class="box-tools pull-right">
+									<button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Ocultar">
+										<i class="fa fa-minus"></i>
+									</button>
+								</div>
+							</div>
+							<div class="box-body table-responsive">
+								<table class="table">
+									<h1 id="cantidad-visitas"></h1>
+								</table>
+							</div>
+						</div>
+						<!-- /Conteo de visitas -->
+
+						<!-- Rendimiento promedio -->
+						<div class="box box-info box-solid">
+							<div class="box-header with-border">
+								<h3 class="box-title">Rendimiento</h3>
+								<div class="box-tools pull-right">
+									<button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Ocultar">
+										<i class="fa fa-minus"></i>
+									</button>
+								</div>
+							</div>
+							<div class="box-body table-responsive">
+								<table class="table">
+									<h1><span id="rendimiento-promedio"></span>%</h1>
+								</table>
+							</div>
+						</div>
+						<!-- /Rendimiento promedio -->
+					</div>
+				</div>
+
+				<div class="row">
+					<div class="col-md-12">
+						<!-- Gráfico de fechas -->
+						<div class="box box-info box-solid">
+							<div class="box-header">
+								<h3 class="box-title">Visitas realizadas</h3>
+								<div class="box-tools pull-right">
+									<button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Ocultar">
+										<i class="fa fa-minus"></i>
+									</button>
+								</div>
+							</div>
+							<div class="box-body table-responsive">
+								<table class="table">
+									<div id="time-chart"></div>
+								</table>
+							</div>
+						</div>
+						<!-- /Gráfico de fechas -->
+					</div>
+				</div>
+				
+			</div>
+
+			<div class="col-md-6">
+				<div class="row">
+					<div class="col-md-12 col-sm-12">
+						<div class="box box-success box-solid">
+							<div class="box-header with-border">
+								<h3 class="box-title">Promedio por departamento</h3>
+								<div class="box-tools pull-right">
+									<button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Ocultar">
+										<i class="fa fa-minus"></i>
+									</button>
+								</div>
+							</div>
+							<div class="box-body table-responsive">
+								<table class="table">
+									<div id="us-chart"></div>
+								</table>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-md-6">
+								<!-- Visitas por capacitador -->
+								<div class="box box-success box-solid">
+									<div class="box-header with-border">
+										<h3 class="box-title">Visitas por capacitador</h3>
+										<div class="box-tools pull-right">
+											<button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Ocultar">
+												<i class="fa fa-minus"></i>
+											</button>
+										</div>
+									</div>
+									<div class="box-body table-responsive">
+										<table class="table">
+											<div id="resource-type-row-chart"></div>
+										</table>
+									</div>
+								</div>
+								<!-- /Visitas por capacitador -->
+							</div>
+							<div class="col-md-6">
+								<!-- Número de visita -->
+								<div class="box box-success box-solid">
+									<div class="box-header with-border">
+										<h3 class="box-title">Número de visita</h3>
+										<div class="box-tools pull-right">
+											<button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Ocultar">
+												<i class="fa fa-minus"></i>
+											</button>
+										</div>
+									</div>
+									<div class="box-body table-responsive">
+										<table class="table">
+											<div id="numero-visita"></div>
+										</table>
+									</div>
+								</div>
+								<!-- /Número de visita -->
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<span class="origen-de-datos" data-url="{% url 'visita_api_list' %}"></span>
+</section>
+{% endblock content %}
+
+
+
+
+
+{% block extra_js %}
+{% include "base/d3_dashboard.html" %}
+<script src="{% static "js/extrajs/kalite.js" %}"></script>
+<script>
+VisitaDashboard.init();
+</script>
+{% endblock extra_js %}

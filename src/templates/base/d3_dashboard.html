@@ -1,0 +1,12 @@
+{% load staticfiles %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static "css/dashboard/dc.css" %}">
+{% endblock extra_css %}
+
+{% block extra_js %}
+<script src="{% static "js/dashboard/crossfilter.js" %}"></script>
+<script src="{% static "js/dashboard/d3.js" %}"></script>
+<script src="{% static "js/dashboard/dc.js" %}"></script>
+<script src="{% static "js/dashboard/queue.js" %}"></script>
+{% endblock extra_js %}

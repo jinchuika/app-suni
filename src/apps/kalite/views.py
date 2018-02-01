@@ -90,5 +90,13 @@ class VisitaCalendarView(LoginRequiredMixin, TemplateView):
 
 
 class VisitaInformeView(LoginRequiredMixin, FormView):
+
+    """Vista para generar un informe de listado de :class:`Visita`
+    """
+
     form_class = VisitaInformeForm
     template_name = 'kalite/visita_informe.html'
+
+
+class VisitaDashboardView(LoginRequiredMixin, TemplateView):
+    template_name = 'kalite/visita_dashboard.html'

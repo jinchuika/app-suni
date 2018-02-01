@@ -3,12 +3,12 @@ from django.contrib.auth.models import User
 
 from apps.main.forms import GeoDateForm
 
-from apps.kalite.models import Rubrica, Indicador, Visita, TipoVisita, Grado
+from apps.kalite import models as kalite_models
 
 
 class TipoVisitaForm(forms.ModelForm):
     class Meta:
-        model = TipoVisita
+        model = kalite_models.TipoVisita
         fields = '__all__'
         widgets = {
             'rubricas': forms.CheckboxSelectMultiple()
@@ -17,13 +17,13 @@ class TipoVisitaForm(forms.ModelForm):
 
 class RubricaForm(forms.ModelForm):
     class Meta:
-        model = Rubrica
+        model = kalite_models.Rubrica
         fields = '__all__'
 
 
 class IndicadorForm(forms.ModelForm):
     class Meta:
-        model = Indicador
+        model = kalite_models.Indicador
         fields = '__all__'
         widgets = {
             'rubrica': forms.HiddenInput()
@@ -32,7 +32,7 @@ class IndicadorForm(forms.ModelForm):
 
 class VisitaForm(forms.ModelForm):
     class Meta:
-        model = Visita
+        model = kalite_models.Visita
         fields = ('numero', 'tipo_visita', 'escuela', 'fecha', 'hora_inicio', 'hora_fin')
         widgets = {
             'escuela': forms.HiddenInput(),
@@ -42,7 +42,7 @@ class VisitaForm(forms.ModelForm):
 
 class GradoForm(forms.ModelForm):
     class Meta:
-        model = Grado
+        model = kalite_models.Grado
         fields = '__all__'
         widgets = {
             'visita': forms.HiddenInput()
@@ -50,8 +50,13 @@ class GradoForm(forms.ModelForm):
 
 
 class VisitaInformeForm(GeoDateForm):
+
+    """Formulario para el informe de :class:`Visita
+    """
+
     capacitador = forms.ModelChoiceField(
-        queryset=User.objects.filter(groups__name='cyd_capacitador'))
+        queryset=User.objects.filter(groups__name='cyd_capacitador'),
+        required=False)
 
     def __init__(self, *args, **kwargs):
         super(VisitaInformeForm, self).__init__(*args, **kwargs)
