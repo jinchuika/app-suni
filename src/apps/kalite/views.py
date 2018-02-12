@@ -4,16 +4,14 @@ from django.views.generic.edit import CreateView, FormView
 
 from braces.views import LoginRequiredMixin, PermissionRequiredMixin
 
-from apps.kalite.forms import (
-    RubricaForm, IndicadorForm, VisitaForm, TipoVisitaForm,
-    GradoForm, VisitaInformeForm)
+from apps.kalite import forms as kalite_forms
 from apps.kalite.models import Rubrica, Indicador, Visita, Punteo, TipoVisita
 
 
 class RubricaCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     model = Rubrica
     template_name = 'kalite/rubrica_add.html'
-    form_class = RubricaForm
+    form_class = kalite_forms.RubricaForm
 
     permission_required = 'kalite.add_rubrica'
     redirect_unauthenticated_users = True
@@ -26,7 +24,7 @@ class RubricaDetailView(LoginRequiredMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super(RubricaDetailView, self).get_context_data(**kwargs)
-        context['indicador_form'] = IndicadorForm(initial={'rubrica': self.object})
+        context['indicador_form'] = kalite_forms.IndicadorForm(initial={'rubrica': self.object})
         return context
 
 
@@ -37,12 +35,12 @@ class RubricaListView(LoginRequiredMixin, ListView):
 
 class IndicadorCreateView(LoginRequiredMixin, CreateView):
     model = Indicador
-    form_class = IndicadorForm
+    form_class = kalite_forms.IndicadorForm
 
 
 class TipoVisitaCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     model = TipoVisita
-    form_class = TipoVisitaForm
+    form_class = kalite_forms.TipoVisitaForm
     template_name = 'kalite/tipovisita_add.html'
     success_url = reverse_lazy('rubrica_list')
 
@@ -67,7 +65,7 @@ class VisitaDetailView(LoginRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super(VisitaDetailView, self).get_context_data(**kwargs)
         context['notas_list'] = Punteo.notas()
-        context['grado_form'] = GradoForm(initial={'visita': self.object})
+        context['grado_form'] = kalite_forms.GradoForm(initial={'visita': self.object})
         return context
 
 
@@ -78,15 +76,29 @@ class VisitaCreateView(LoginRequiredMixin, CreateView):
     """
 
     model = Visita
-    form_class = VisitaForm
+    form_class = kalite_forms.VisitaForm
 
     def form_valid(self, form):
         form.instance.capacitador = self.request.user
         return super(VisitaCreateView, self).form_valid(form)
 
 
-class VisitaCalendarView(LoginRequiredMixin, TemplateView):
+class VisitaCalendarView(LoginRequiredMixin, FormView):
+
+    """
+    Vista para el calendario de KA Lite. Incluye un formulario para filtrar
+    por capacitador.
+    """
+
     template_name = 'kalite/calendario.html'
+    form_class = kalite_forms.CalendarFilterForm
+
+    def get_form(self, form_class=None):
+        form = super(VisitaCalendarView, self).get_form(form_class)
+        if self.request.user.groups.filter(name="cyd_capacitador").exists():
+            form.fields['capacitador'].queryset = form.fields['capacitador'].queryset.filter(id=self.request.user.id)
+            form.fields['capacitador'].empty_label = None
+        return form
 
 
 class VisitaInformeView(LoginRequiredMixin, FormView):
@@ -94,7 +106,7 @@ class VisitaInformeView(LoginRequiredMixin, FormView):
     """Vista para generar un informe de listado de :class:`Visita`
     """
 
-    form_class = VisitaInformeForm
+    form_class = kalite_forms.VisitaInformeForm
     template_name = 'kalite/visita_informe.html'
 
 

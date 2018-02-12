@@ -333,13 +333,15 @@
                 type: 'GET',
                 color: 'orange',
                 cache: true,
+                data: function () {
+                    return $('#calendario-form').serializeObject();
+                }
             }]
         });
     }
 
     // Public
     CalendarioKalite.init = function () {
-        $('#spinner').hide();
         crear_kalite_calendario();
     } 
 }( window.CalendarioKalite = window.CalendarioKalite || {}, jQuery ));
@@ -494,8 +496,8 @@
                 .group(numProjectsByDate)
                 .transitionDuration(500)
                 .x(d3.time.scale().domain([minDate, maxDate]))
-                .elasticY(true)
-                .yAxis().ticks(4);
+                .brushOn(true)
+                .xAxis().ticks(d3.time.month);
 
             capacitadorChart
                 .x(d3.scale.ordinal())

@@ -1,22 +1,18 @@
 from django import forms
 from django.forms import ModelForm
 from django.db.models import Count
-
 from django.contrib.auth.models import User
+
+from apps.tpe import models as tpe_m
+from apps.mye import models as mye_m
+from apps.escuela import models as escuela_m
 from apps.users.models import Perfil
-from apps.tpe.models import (
-    Equipamiento, Garantia, TicketSoporte, TicketRegistro,
-    Monitoreo, TicketReparacion, TicketReparacionRepuesto,
-    TicketTransporte, TicketReparacionEstado, DispositivoTipo,
-    EvaluacionMonitoreo)
-from apps.mye.models import Cooperante, Proyecto
-from apps.escuela.models import EscContacto, EscPoblacion
 from apps.escuela.forms import EscuelaBuscarForm
 
 
 class EquipamientoNuevoForm(forms.ModelForm):
     class Meta:
-        model = Equipamiento
+        model = tpe_m.Equipamiento
         fields = ('id', 'escuela')
         labels = {
             'id': 'Número de entrega'}
@@ -27,7 +23,7 @@ class EquipamientoNuevoForm(forms.ModelForm):
 
 class EquipamientoForm(ModelForm):
     class Meta:
-        model = Equipamiento
+        model = tpe_m.Equipamiento
         fields = '__all__'
         exclude = ('id',)
         widgets = {
@@ -41,13 +37,13 @@ class EquipamientoForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super(EquipamientoForm, self).__init__(*args, **kwargs)
         if 'poblacion' in self.initial:
-            self.fields['poblacion'].queryset = EscPoblacion.objects.filter(escuela=self.initial['escuela'])
+            self.fields['poblacion'].queryset = escuela_m.EscPoblacion.objects.filter(escuela=self.initial['escuela'])
         self.fields['poblacion'].label_from_instance = lambda obj: "%s (%s)" % (obj.fecha, obj.total_alumno)
 
 
 class GarantiaForm(forms.ModelForm):
     class Meta:
-        model = Garantia
+        model = tpe_m.Garantia
         fields = '__all__'
         exclude = ('id', )
         widgets = {
@@ -56,13 +52,18 @@ class GarantiaForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
+        """
+        Filtra el campo de `equipamiento` para que mostrar solo los que tienen una :class:`Garantia`
+        """
         super(GarantiaForm, self).__init__(*args, **kwargs)
-        self.fields['equipamiento'].queryset = self.fields['equipamiento'].queryset.annotate(num_garantias=Count('garantias')).filter(num_garantias__lt=1)
+        qs = self.fields['equipamiento'].queryset
+        qs = qs.annotate.annotate(num_garantias=Count('garantias')).filter(num_garantias__lt=1)
+        self.fields['equipamiento'].queryset = qs
 
 
 class TicketSoporteForm(forms.ModelForm):
     class Meta:
-        model = TicketSoporte
+        model = tpe_m.TicketSoporte
         fields = ('garantia', 'descripcion', 'contacto_reporta')
         widgets = {
             'garantia': forms.HiddenInput(),
@@ -71,14 +72,16 @@ class TicketSoporteForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(TicketSoporteForm, self).__init__(*args, **kwargs)
-        if 'garantia' in self.initial:
-            self.fields['contacto_reporta'].queryset = EscContacto.objects.filter(escuela=self.initial['garantia'].equipamiento.escuela)
+        garantia = self.initial.get('garantia', None)
+        if garantia is not None:
+            contacto_qs = escuela_m.EscContacto.objects.filter(escuela=garantia.equipamiento.escuela)
+            self.fields['contacto_reporta'].queryset = contacto_qs
         self.fields['contacto_reporta'].label_from_instance = lambda obj: "%s (%s)" % (str(obj), obj.telefono.first())
 
 
 class TicketCierreForm(forms.ModelForm):
     class Meta:
-        model = TicketSoporte
+        model = tpe_m.TicketSoporte
         fields = ('cerrado',)
         widgets = {
             'cerrado': forms.HiddenInput()
@@ -87,7 +90,7 @@ class TicketCierreForm(forms.ModelForm):
 
 class TicketRegistroForm(forms.ModelForm):
     class Meta:
-        model = TicketRegistro
+        model = tpe_m.TicketRegistro
         fields = ('tipo', 'descripcion', 'foto')
         widgets = {
             'tipo': forms.Select(attrs={'class': 'form-control'}),
@@ -98,7 +101,7 @@ class TicketRegistroForm(forms.ModelForm):
 
 class TicketRegistroUpdateForm(forms.ModelForm):
     class Meta:
-        model = TicketRegistro
+        model = tpe_m.TicketRegistro
         fields = ('foto', )
         widgets = {
             'foto': forms.URLInput(attrs={'class': 'form-control'}),
@@ -107,7 +110,7 @@ class TicketRegistroUpdateForm(forms.ModelForm):
 
 class TicketReparacionForm(forms.ModelForm):
     class Meta:
-        model = TicketReparacion
+        model = tpe_m.TicketReparacion
         fields = ('triage', 'tipo_dispositivo', 'falla_reportada', 'tecnico_asignado')
 
     def __init__(self, *args, **kwargs):
@@ -118,19 +121,19 @@ class TicketReparacionForm(forms.ModelForm):
 
 class TicketReparacionListForm(forms.ModelForm):
     class Meta:
-        model = TicketReparacion
+        model = tpe_m.TicketReparacion
         fields = ('estado', 'tecnico_asignado')
 
     def __init__(self, *args, **kwargs):
         super(TicketReparacionListForm, self).__init__(*args, **kwargs)
         self.fields['estado'].required = False
-        self.fields['tecnico_asignado'].queryset = Perfil.objects.filter(user__in=TicketReparacion.objects.values('tecnico_asignado').distinct())
+        self.fields['tecnico_asignado'].queryset = Perfil.objects.filter(user__in=tpe_m.TicketReparacion.objects.values('tecnico_asignado').distinct())
         self.fields['tecnico_asignado'].required = False
 
 
 class TicketReparacionUpdateForm(forms.ModelForm):
     class Meta:
-        model = TicketReparacion
+        model = tpe_m.TicketReparacion
         fields = ('falla_encontrada', 'solucion_tipo', 'solucion_detalle')
         widgets = {
             'falla_encontrada': forms.Textarea(attrs={'class': 'form-control'}),
@@ -141,7 +144,7 @@ class TicketReparacionUpdateForm(forms.ModelForm):
 
 class TicketReparacionRepuestoForm(forms.ModelForm):
     class Meta:
-        model = TicketReparacionRepuesto
+        model = tpe_m.TicketReparacionRepuesto
         fields = ('reparacion', 'tipo_dispositivo', 'costo', 'justificacion')
         widgets = {
             'reparacion': forms.HiddenInput(),
@@ -153,7 +156,7 @@ class TicketReparacionRepuestoForm(forms.ModelForm):
 
 class TicketReparacionRepuestoAuthForm(forms.ModelForm):
     class Meta:
-        model = TicketReparacionRepuesto
+        model = tpe_m.TicketReparacionRepuesto
         fields = ('autorizado', 'rechazado')
         widgets = {
             'autorizado': forms.HiddenInput(),
@@ -163,7 +166,7 @@ class TicketReparacionRepuestoAuthForm(forms.ModelForm):
 
 class TicketTransporteForm(forms.ModelForm):
     class Meta:
-        model = TicketTransporte
+        model = tpe_m.TicketTransporte
         fields = '__all__'
         exclude = ('ticket', 'fecha')
         widgets = {
@@ -196,11 +199,11 @@ class EquipamientoListForm(EscuelaBuscarForm):
         required=False)
     cooperante = forms.ModelChoiceField(
         label='Cooperante de equipamiento',
-        queryset=Cooperante.objects.all(),
+        queryset=mye_m.Cooperante.objects.all(),
         required=False)
     proyecto = forms.ModelChoiceField(
         label='Proyecto de equipamiento',
-        queryset=Proyecto.objects.all(),
+        queryset=mye_m.Proyecto.objects.all(),
         required=False)
     renovacion = forms.ChoiceField(
         label='Renovación',
@@ -225,7 +228,7 @@ class MonitoreoListForm(forms.Form):
     usuario = forms.ModelChoiceField(
         label='Usuario',
         required=False,
-        queryset=Perfil.objects.filter(user__in=Monitoreo.objects.values('creado_por').distinct()))
+        queryset=Perfil.objects.filter(user__in=tpe_m.Monitoreo.objects.values('creado_por').distinct()))
     fecha_min = forms.CharField(
         label='Fecha mínima',
         widget=forms.TextInput(attrs={'class': 'datepicker'}),
@@ -267,17 +270,17 @@ class TicketReparacionInformeForm(forms.Form):
     estado = forms.ModelChoiceField(
         label='Estado',
         required=False,
-        queryset=TicketReparacionEstado.objects.all())
+        queryset=tpe_m.TicketReparacionEstado.objects.all())
     ticket = forms.ModelChoiceField(
         label='Ticket',
         widget=forms.Select(attrs={'class': 'select2'}),
         required=False,
-        queryset=TicketSoporte.objects.all())
+        queryset=tpe_m.TicketSoporte.objects.all())
     tipo_dispositivo = forms.ModelChoiceField(
         label='Tipo de dispositivo',
         widget=forms.Select(attrs={'class': 'select2'}),
         required=False,
-        queryset=DispositivoTipo.objects.all())
+        queryset=tpe_m.DispositivoTipo.objects.all())
     triage = forms.CharField(
         required=False)
     tecnico_asignado = forms.ModelChoiceField(
@@ -300,7 +303,7 @@ class EvaluacionMonitoreoCreateForm(forms.ModelForm):
         widget=forms.HiddenInput())
 
     class Meta:
-        model = Monitoreo
+        model = tpe_m.Monitoreo
         fields = ('id',)
         widgets = {
             'id': forms.HiddenInput()
@@ -309,7 +312,7 @@ class EvaluacionMonitoreoCreateForm(forms.ModelForm):
 
 class EvaluacionMonitoreoForm(forms.ModelForm):
     class Meta:
-        model = EvaluacionMonitoreo
+        model = tpe_m.EvaluacionMonitoreo
         fields = '__all__'
         widgets = {
             'monitoreo': forms.HiddenInput(),
@@ -318,10 +321,12 @@ class EvaluacionMonitoreoForm(forms.ModelForm):
 
 
 class DispositivoReparacionListForm(forms.Form):
+    TECNICOS_REPARACION = tpe_m.TicketReparacion.objects.values('tecnico_asignado').distinct()
+
     usuario = forms.ModelChoiceField(
         label='Técnico',
         required=False,
-        queryset=User.objects.filter(id__in=TicketReparacion.objects.values('tecnico_asignado').distinct()))
+        queryset=User.objects.filter(id__in=TECNICOS_REPARACION))
     fecha_min = forms.CharField(
         label='Fecha mínima',
         widget=forms.TextInput(attrs={'class': 'datepicker'}),

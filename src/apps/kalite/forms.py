@@ -61,3 +61,13 @@ class VisitaInformeForm(GeoDateForm):
     def __init__(self, *args, **kwargs):
         super(VisitaInformeForm, self).__init__(*args, **kwargs)
         self.fields['capacitador'].label_from_instance = lambda obj: "%s" % obj.get_full_name()
+
+
+class CalendarFilterForm(forms.Form):
+    capacitador = forms.ModelChoiceField(
+        queryset=User.objects.filter(id__in=kalite_models.Visita.objects.values('capacitador').distinct()),
+        required=False)
+
+    def __init__(self, *args, **kwargs):
+        super(CalendarFilterForm, self).__init__(*args, **kwargs)
+        self.fields['capacitador'].label_from_instance = lambda obj: "%s" % obj.get_full_name()

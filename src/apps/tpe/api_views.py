@@ -5,15 +5,15 @@ from django.db.models import Count
 from rest_framework import viewsets, filters
 from braces.views import LoginRequiredMixin
 
-from apps.mye import models as mye_models
+from apps.mye import models as mye_m
 from apps.tpe import (
     serializers as tpe_serializers,
-    models as tpe_models)
+    models as tpe_m)
 
 
 class TicketReparacionViewSet(LoginRequiredMixin, viewsets.ModelViewSet):
     serializer_class = tpe_serializers.TicketReparacionSerializer
-    queryset = tpe_models.TicketReparacion.objects.all()
+    queryset = tpe_m.TicketReparacion.objects.all()
     filter_fields = (
         'ticket',
         'tecnico_asignado',
@@ -25,7 +25,7 @@ class TicketReparacionViewSet(LoginRequiredMixin, viewsets.ModelViewSet):
 
 class MonitoreoViewSet(LoginRequiredMixin, viewsets.ModelViewSet):
     serializer_class = tpe_serializers.MonitoreoSerializer
-    queryset = tpe_models.Monitoreo.objects.all()
+    queryset = tpe_m.Monitoreo.objects.all()
     filter_fields = ('equipamiento', 'equipamiento__escuela')
 
     def perform_create(self, serializer):
@@ -34,7 +34,7 @@ class MonitoreoViewSet(LoginRequiredMixin, viewsets.ModelViewSet):
 
 class EvaluacionMonitoreoViewSet(LoginRequiredMixin, viewsets.ModelViewSet):
     serializer_class = tpe_serializers.EvaluacionMonitoreoSerializer
-    queryset = tpe_models.EvaluacionMonitoreo.objects.all()
+    queryset = tpe_m.EvaluacionMonitoreo.objects.all()
     filter_fields = ('monitoreo', 'pregunta')
 
 
@@ -44,7 +44,7 @@ class EvaluacionMonitoreoFilter(filters.FilterSet):
     fecha_max = django_filters.DateFilter(name='monitoreo__fecha', lookup_expr='lte')
 
     class Meta:
-        model = tpe_models.EvaluacionMonitoreo
+        model = tpe_m.EvaluacionMonitoreo
         fields = ('creado_por', 'fecha_max', 'fecha_min',)
 
 
@@ -54,7 +54,7 @@ class EvaluacionMonitoreoFullViewSet(LoginRequiredMixin, viewsets.ModelViewSet):
     """
 
     serializer_class = tpe_serializers.EvaluacionMonitoreoFullSerializer
-    queryset = tpe_models.EvaluacionMonitoreo.objects.all()
+    queryset = tpe_m.EvaluacionMonitoreo.objects.all()
     filter_class = EvaluacionMonitoreoFilter
 
 
@@ -67,12 +67,12 @@ class EquipamientoFilter(filters.FilterSet):
     nivel = django_filters.NumberFilter(name='escuela__nivel')
     renovacion = django_filters.BooleanFilter(name='renovacion')
     equipamiento_id = django_filters.NumberFilter(name='id')
-    cooperante = django_filters.ModelMultipleChoiceFilter(queryset=mye_models.Cooperante.objects.all())
-    proyecto = django_filters.ModelMultipleChoiceFilter(queryset=mye_models.Proyecto.objects.all())
+    cooperante = django_filters.ModelMultipleChoiceFilter(queryset=mye_m.Cooperante.objects.all())
+    proyecto = django_filters.ModelMultipleChoiceFilter(queryset=mye_m.Proyecto.objects.all())
     nombre = django_filters.CharFilter(name='escuela__nombre', lookup_expr='icontains')
 
     class Meta:
-        model = tpe_models.Equipamiento
+        model = tpe_m.Equipamiento
         fields = (
             'codigo',
             'fecha_min',
@@ -88,14 +88,14 @@ class EquipamientoFilter(filters.FilterSet):
 
 class EquipamientoViewSet(LoginRequiredMixin, viewsets.ReadOnlyModelViewSet):
     serializer_class = tpe_serializers.EquipamientoSerializer
-    queryset = tpe_models.Equipamiento.objects.all()
+    queryset = tpe_m.Equipamiento.objects.all()
     filter_class = EquipamientoFilter
     filter_backends = (filters.SearchFilter, filters.DjangoFilterBackend)
 
 
 class EquipamientoFullViewSet(LoginRequiredMixin, viewsets.ReadOnlyModelViewSet):
     serializer_class = tpe_serializers.EquipamientoFullSerializer
-    queryset = tpe_models.Equipamiento.objects.all()
+    queryset = tpe_m.Equipamiento.objects.all()
     filter_class = EquipamientoFilter
     filter_backends = (filters.SearchFilter, filters.DjangoFilterBackend)
 
@@ -105,7 +105,7 @@ class EquipamientoCalendarFilter(filters.FilterSet):
     end = django_filters.DateFilter(name='fecha', lookup_expr='lte')
 
     class Meta:
-        model = tpe_models.Equipamiento
+        model = tpe_m.Equipamiento
         fields = ('start', 'end')
 
 
@@ -116,7 +116,7 @@ class EquipamientoCalendarViewSet(LoginRequiredMixin, viewsets.ReadOnlyModelView
     """
 
     serializer_class = tpe_serializers.EquipamientoCalendarSerializer
-    queryset = tpe_models.Equipamiento.objects.all()
+    queryset = tpe_m.Equipamiento.objects.all()
     filter_class = EquipamientoCalendarFilter
 
 
@@ -130,7 +130,7 @@ class DispositivoReparacionFilter(filters.FilterSet):
     fecha_max = django_filters.DateFilter(name='fecha_fin', lookup_expr='lte')
 
     class Meta:
-        model = tpe_models.TicketReparacion
+        model = tpe_m.TicketReparacion
         fields = ('fecha_min', 'fecha_max')
 
 
@@ -140,7 +140,7 @@ class DispositivoReparacionViewSet(LoginRequiredMixin, viewsets.ReadOnlyModelVie
     para cada :class:`TicketReparacion`.
     """
     serializer_class = tpe_serializers.DispositivoReparacionSerializar
-    queryset = tpe_models.TicketReparacion.objects.values(
+    queryset = tpe_m.TicketReparacion.objects.values(
         'tipo_dispositivo', 'tipo_dispositivo__tipo').annotate(
         total=Count('id'))
     filter_class = DispositivoReparacionFilter

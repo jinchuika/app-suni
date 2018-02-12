@@ -162,6 +162,14 @@
             render: function (data) {
                 return parseInt(data) + "%";
             }
+        },
+        {
+            "data": "comentarios",
+            render: function (data) {
+                return $.map(data, function (comentario, index) {
+                    return '- ' + comentario.comentario;
+                }).join('<br>');
+            }
         }
         ]
     }).on('xhr.dt', function () {
