@@ -72,6 +72,9 @@ class Perfil(models.Model):
     def get_absolute_url(self):
         return reverse('perfil_detail', kwargs={'pk': self.id})
 
+    def es_miembro(self, grupo=''):
+        return self.user.groups.filter(name=grupo).exists()
+
     class Meta:
         verbose_name = 'perfil'
         verbose_name_plural = 'perfiles'

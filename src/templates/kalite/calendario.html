@@ -1,6 +1,6 @@
 {% extends "base/base.html" %}
 
-{% load staticfiles has_group %}
+{% load staticfiles has_group widget_tweaks %}
 
 {% block page_title %}
 <title>Calendario de KA Lite</title>
@@ -20,6 +20,11 @@
 					<div class="box-body no-padding">
 						<!-- Calendario -->
 						<div id="kalite-calendario" data-url-calendario="{% url 'kalite_api_calendario' %}"></div>
+					</div>
+					<div class="box-footer">
+						<form id="calendario-form">
+							{{ form }}
+						</form>
 					</div>
 				</div>
 			</div>

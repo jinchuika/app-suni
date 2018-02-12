@@ -2,12 +2,11 @@ from datetime import datetime
 from rest_framework import serializers
 from apps.main.serializers import DynamicFieldsModelSerializer
 from apps.escuela.serializers import EscuelaSerializer
-from apps.users.serializers import UserSerializer
 
 from apps.kalite.models import Punteo, Evaluacion, Visita, Grado, EjerciciosGrado
 
 
-class PunteoSerializer(DynamicFieldsModelSerializer, serializers.ModelSerializer):
+class PunteoSerializer(DynamicFieldsModelSerializer):
     multiplicador = serializers.IntegerField(read_only=True)
 
     class Meta:
@@ -16,7 +15,7 @@ class PunteoSerializer(DynamicFieldsModelSerializer, serializers.ModelSerializer
         read_only_fields = ('id', 'evaluacion', 'indicador', 'multiplicador')
 
 
-class EvaluacionSerializer(DynamicFieldsModelSerializer, serializers.ModelSerializer):
+class EvaluacionSerializer(DynamicFieldsModelSerializer):
     promedio = serializers.FloatField(read_only=True)
 
     class Meta:
@@ -25,7 +24,7 @@ class EvaluacionSerializer(DynamicFieldsModelSerializer, serializers.ModelSerial
         read_only_fields = ('id', 'visita', 'rubrica')
 
 
-class VisitaSerializer(DynamicFieldsModelSerializer, serializers.ModelSerializer):
+class VisitaSerializer(DynamicFieldsModelSerializer):
     promedio = serializers.FloatField(read_only=True)
     alcance = serializers.CharField(source='estado.alcance')
     escuela = EscuelaSerializer(fields='nombre,url,codigo')
@@ -40,7 +39,7 @@ class VisitaSerializer(DynamicFieldsModelSerializer, serializers.ModelSerializer
         read_only_fields = ('id', 'escuela')
 
 
-class VisitaCalendarSerializer(DynamicFieldsModelSerializer, serializers.ModelSerializer):
+class VisitaCalendarSerializer(DynamicFieldsModelSerializer):
     url = serializers.URLField(source='get_absolute_url')
     start = serializers.SerializerMethodField()
     end = serializers.SerializerMethodField()
@@ -54,10 +53,16 @@ class VisitaCalendarSerializer(DynamicFieldsModelSerializer, serializers.ModelSe
         fields = ('id', 'start', 'end', 'url', 'title', 'tip_title', 'tip_text', 'color')
 
     def get_start(self, object):
-        return datetime.combine(object.fecha, object.hora_inicio)
+        if object.hora_inicio is not None:
+            return datetime.combine(object.fecha, object.hora_inicio)
+        else:
+            return object.fecha
 
     def get_end(self, object):
-        return datetime.combine(object.fecha, object.hora_fin)
+        if object.hora_fin is not None:
+            return datetime.combine(object.fecha, object.hora_fin)
+        else:
+            return object.fecha
 
     def get_tip_title(self, object):
         return 'Visita {} - {}'.format(object.numero, object.capacitador.get_full_name())
@@ -66,7 +71,7 @@ class VisitaCalendarSerializer(DynamicFieldsModelSerializer, serializers.ModelSe
         return str(object.escuela.municipio)
 
 
-class EjerciciosGradoSerializer(DynamicFieldsModelSerializer, serializers.ModelSerializer):
+class EjerciciosGradoSerializer(DynamicFieldsModelSerializer):
     url = serializers.CharField(source='get_api_url', read_only=True)
     grado_url = serializers.CharField(source='grado.get_api_url', read_only=True)
 
@@ -75,7 +80,7 @@ class EjerciciosGradoSerializer(DynamicFieldsModelSerializer, serializers.ModelS
         fields = '__all__'
 
 
-class GradoSerializer(DynamicFieldsModelSerializer, serializers.ModelSerializer):
+class GradoSerializer(DynamicFieldsModelSerializer):
     url = serializers.CharField(source='get_api_url', read_only=True)
     alcanzados = serializers.IntegerField()
     nivelar = serializers.IntegerField(read_only=True)

@@ -5,6 +5,8 @@ from django.utils import timezone
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 
+from apps.escuela import models as escuela_m
+
 
 class EquipamientoEstado(models.Model):
     estado = models.CharField(max_length=50)
@@ -37,12 +39,17 @@ class Equipamiento(models.Model):
         EquipamientoEstado,
         default=1,
         on_delete=models.PROTECT)
-    escuela = models.ForeignKey('escuela.Escuela', related_name='equipamiento')
+    escuela = models.ForeignKey(escuela_m.Escuela, related_name='equipamiento')
     fecha = models.DateField(default=timezone.now)
     observacion = models.TextField(null=True, blank=True, verbose_name='Observaciones')
     renovacion = models.BooleanField(blank=True, default=False)
     servidor_khan = models.BooleanField(blank=True, default=False)
-    servidor_os = models.ForeignKey(EquipamientoOs, null=True, blank=True, related_name='servidores', verbose_name='SO del servidor')
+    servidor_os = models.ForeignKey(
+        EquipamientoOs,
+        null=True,
+        blank=True,
+        related_name='servidores',
+        verbose_name='SO del servidor')
     cantidad_equipo = models.IntegerField(default=0)
     equipo_os = models.ForeignKey(EquipamientoOs, null=True, blank=True, verbose_name='SO de las PC')
     red = models.BooleanField(blank=True, default=False)
@@ -52,7 +59,7 @@ class Equipamiento(models.Model):
     manual = models.BooleanField(default=False, blank=True)
     edulibre = models.BooleanField(default=False, blank=True)
     carta = models.BooleanField(default=False, blank=True)
-    poblacion = models.ForeignKey('escuela.EscPoblacion', null=True, blank=True, verbose_name='Población')
+    poblacion = models.ForeignKey(escuela_m.EscPoblacion, null=True, blank=True, verbose_name='Población')
 
     cooperante = models.ManyToManyField('mye.Cooperante', blank=True, related_name='equipamientos')
     proyecto = models.ManyToManyField('mye.Proyecto', blank=True, related_name='equipamientos')
@@ -61,7 +68,9 @@ class Equipamiento(models.Model):
         return str(self.id)
 
     def get_absolute_url(self):
-        return reverse_lazy('escuela_equipamiento_detail', kwargs={'pk': self.escuela.id, 'id_equipamiento': self.id})
+        return reverse_lazy(
+            'escuela_equipamiento_detail',
+            kwargs={'pk': self.escuela.id, 'id_equipamiento': self.id})
 
     @property
     def evaluacion(self):
@@ -129,7 +138,11 @@ class TicketSoporte(models.Model):
     cerrado = models.BooleanField(default=False, blank=True)
     fecha_cierre = models.DateField(null=True, blank=True)
     cerrado_por = models.ForeignKey(User, null=True, blank=True, related_name='tickets_cerrados')
-    contacto_reporta = models.ForeignKey('escuela.EscContacto', related_name='tickets', null=True, blank=True)
+    contacto_reporta = models.ForeignKey(
+        escuela_m.EscContacto,
+        related_name='tickets',
+        null=True,
+        blank=True)
 
     class Meta:
         verbose_name = "Ticket de soporte"
@@ -186,7 +199,9 @@ class TicketRegistro(models.Model):
         return '{} - {}'.format(self.ticket, self.id)
 
     def get_absolute_url(self):
-        return reverse_lazy('ticket_detail', kwargs={'pk': self.ticket.garantia.id, 'ticket_id': self.ticket.id})
+        return reverse_lazy(
+            'ticket_detail',
+            kwargs={'pk': self.ticket.garantia.id, 'ticket_id': self.ticket.id})
 
 
 class TicketTransporteTipo(models.Model):
@@ -216,7 +231,9 @@ class TicketTransporte(models.Model):
         return 'G{} - {}'.format(self.ticket.garantia, self.tipo)
 
     def get_absolute_url(self):
-        return reverse_lazy('ticket_detail', kwargs={'pk': self.ticket.garantia.id, 'ticket_id': self.ticket.id})
+        return reverse_lazy(
+            'ticket_detail',
+            kwargs={'pk': self.ticket.garantia.id, 'ticket_id': self.ticket.id})
 
 
 class DispositivoTipo(models.Model):

@@ -1,14 +1,15 @@
 from rest_framework import serializers
-from apps.main.serializers import CalendarSerializer
+
+from apps.main.serializers import CalendarSerializer, DynamicFieldsModelSerializer
 from apps.escuela.serializers import EscuelaSerializer
-from apps.mye import models as mye_models
+from apps.mye import models as mye_m
 
 
 class CooperanteSerializer(serializers.ModelSerializer):
     url = serializers.URLField(source='get_absolute_url')
 
     class Meta:
-        model = mye_models.Cooperante
+        model = mye_m.Cooperante
         fields = '__all__'
 
 
@@ -16,7 +17,7 @@ class ProyectoSerializer(serializers.ModelSerializer):
     url = serializers.URLField(source='get_absolute_url')
 
     class Meta:
-        model = mye_models.Proyecto
+        model = mye_m.Proyecto
         fields = '__all__'
 
 
@@ -26,7 +27,7 @@ class ValidacionCalendarSerializer(CalendarSerializer):
     tip_text = serializers.StringRelatedField(source='escuela.direccion')
 
     class Meta:
-        model = mye_models.Validacion
+        model = mye_m.Validacion
         fields = ('start', 'title', 'url', 'tip_title', 'tip_text')
 
 
@@ -40,7 +41,7 @@ class SolicitudSerializer(serializers.ModelSerializer):
     equipada = serializers.BooleanField(source='escuela.equipada')
 
     class Meta:
-        model = mye_models.Solicitud
+        model = mye_m.Solicitud
         fields = (
             'departamento',
             'municipio',
@@ -50,6 +51,13 @@ class SolicitudSerializer(serializers.ModelSerializer):
             'maestros',
             'equipada',
             'fecha')
+
+
+class ValidacionComentarioSerializer(DynamicFieldsModelSerializer):
+
+    class Meta:
+        model = mye_m.ValidacionComentario
+        fields = '__all__'
 
 
 class ValidacionSerializer(serializers.ModelSerializer):
@@ -64,12 +72,13 @@ class ValidacionSerializer(serializers.ModelSerializer):
     requisitos = serializers.StringRelatedField(source='porcentaje_requisitos')
     estado = serializers.SerializerMethodField()
     fecha = serializers.DateField(source='fecha_inicio')
+    comentarios = ValidacionComentarioSerializer(many=True, fields='comentario')
 
     class Meta:
-        model = mye_models.Validacion
+        model = mye_m.Validacion
         fields = (
             'departamento', 'municipio', 'escuela', 'requisitos',
-            'estado', 'fecha', 'fecha_equipamiento')
+            'estado', 'fecha', 'fecha_equipamiento', 'comentarios')
 
     def get_estado(self, obj):
         """Devuelve un texto indicando si la :class:`Validacion`
