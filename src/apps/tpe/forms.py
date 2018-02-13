@@ -53,11 +53,11 @@ class GarantiaForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         """
-        Filtra el campo de `equipamiento` para que mostrar solo los que tienen una :class:`Garantia`
+        Filtra el campo de `equipamiento` para que mostrar solo los que no tienen una :class:`Garantia`
         """
         super(GarantiaForm, self).__init__(*args, **kwargs)
         qs = self.fields['equipamiento'].queryset
-        qs = qs.annotate.annotate(num_garantias=Count('garantias')).filter(num_garantias__lt=1)
+        qs = qs.annotate(num_garantias=Count('garantias')).filter(num_garantias__lt=1)
         self.fields['equipamiento'].queryset = qs
 
 

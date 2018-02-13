@@ -343,6 +343,9 @@
     // Public
     CalendarioKalite.init = function () {
         crear_kalite_calendario();
+        $('#id_capacitador').on('change', function(){
+            $('#kalite-calendario').fullCalendar( 'refetchEvents' );
+        })
     } 
 }( window.CalendarioKalite = window.CalendarioKalite || {}, jQuery ));
 
