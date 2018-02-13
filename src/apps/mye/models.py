@@ -3,7 +3,7 @@ from django.utils import timezone
 from django.urls import reverse_lazy
 from django.contrib.auth.models import User
 
-from apps.escuela.models import Escuela
+from apps.escuela import models as escuela_m
 
 
 class Cooperante(models.Model):
@@ -73,13 +73,17 @@ class Solicitud(models.Model):
     """
     version = models.ForeignKey(SolicitudVersion, on_delete=models.PROTECT, related_name='solicitud')
     formulario = models.BooleanField(default=False, blank=True)
-    escuela = models.ForeignKey(Escuela, on_delete=models.PROTECT, related_name='solicitud')
+    escuela = models.ForeignKey(escuela_m.Escuela, on_delete=models.PROTECT, related_name='solicitud')
     fecha = models.DateField()
     jornada = models.IntegerField()
     edf = models.BooleanField(blank=True)
     lab_actual = models.BooleanField(blank=True)
 
-    poblacion = models.ForeignKey('escuela.EscPoblacion', on_delete=models.PROTECT, related_name='solicitudes', null=True)
+    poblacion = models.ForeignKey(
+        escuela_m.EscPoblacion,
+        on_delete=models.PROTECT,
+        related_name='solicitudes',
+        null=True)
 
     requisito = models.ManyToManyField(Requisito, blank=True)
     medio = models.ManyToManyField(Medio, blank=True)
@@ -143,7 +147,11 @@ class Validacion(models.Model):
     fecha_equipamiento = models.DateField(null=True, blank=True)
     fotos_link = models.URLField(null=True, blank=True)
 
-    poblacion = models.ForeignKey('escuela.EscPoblacion', on_delete=models.PROTECT, related_name='validaciones', null=True)
+    poblacion = models.ForeignKey(
+        escuela_m.EscPoblacion,
+        on_delete=models.PROTECT,
+        related_name='validaciones',
+        null=True)
 
     requisito = models.ManyToManyField(Requisito, blank=True)
 
