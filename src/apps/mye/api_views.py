@@ -1,7 +1,7 @@
 import django_filters
 
 from rest_framework import viewsets, filters
-from django.db.models import Count
+from django.db.models import Count, Sum
 from braces.views import LoginRequiredMixin
 
 from apps.escuela import models as escuela_m
@@ -29,7 +29,7 @@ class ValidacionCalendarViewSet(LoginRequiredMixin, viewsets.ReadOnlyModelViewSe
     filter_class = ValidacionCalendarFilter
 
 
-class MyeFilter(filters.FilterSet):
+class EvaluacionFilter(filters.FilterSet):
 
     """
     Conjunto de filtros para los campos comunes utilizados en
@@ -58,7 +58,7 @@ class MyeFilter(filters.FilterSet):
         return queryset
 
 
-class SolicitudFilter(MyeFilter):
+class SolicitudFilter(EvaluacionFilter):
 
     """Filtros para :class:`SolicitudViewSet`
     """
@@ -78,7 +78,7 @@ class SolicitudViewSet(LoginRequiredMixin, viewsets.ReadOnlyModelViewSet):
     filter_class = SolicitudFilter
 
 
-class ValidacionFilter(MyeFilter):
+class ValidacionFilter(EvaluacionFilter):
 
     """Filtros para :class:`ValidacionViewSet`.
     """
@@ -102,3 +102,43 @@ class ValidacionViewSet(LoginRequiredMixin, viewsets.ReadOnlyModelViewSet):
     serializer_class = mye_s.ValidacionSerializer
     queryset = mye_m.Validacion.objects.all()
     filter_class = ValidacionFilter
+
+
+class CooperanteFilter(filters.FilterSet):
+    equipamientos_min = django_filters.NumberFilter(name='equipamientos_min', method='filter_equipamientos')
+    equipamientos_max = django_filters.NumberFilter(name='equipamientos_max', method='filter_equipamientos')
+    equipo_min = django_filters.NumberFilter(name='equipo_min', method='filter_equipo')
+    equipo_max = django_filters.NumberFilter(name='equipo_max', method='filter_equipo')
+    fecha_min = django_filters.NumberFilter(name='fecha_min', method='filter_fecha')
+    fecha_max = django_filters.NumberFilter(name='fecha_max', method='filter_fecha')
+
+    class Meta:
+        model = mye_m.Cooperante
+        fields = ['equipamientos_min', 'equipamientos_max', 'equipo_min', 'equipo_max', 'fecha_min', 'fecha_max']
+
+    def filter_equipamientos(self, queryset, name, value):
+        if value and name == 'equipamientos_min':
+            queryset = queryset.annotate(cantidad=Count('equipamientos')).filter(cantidad__gte=value)
+        if value and name == 'equipamientos_max':
+            queryset = queryset.annotate(cantidad=Count('equipamientos')).filter(cantidad__lte=value)
+        return queryset
+
+    def filter_equipo(self, queryset, name, value):
+        if value and name == 'equipo_min':
+            queryset = queryset.annotate(cantidad=Sum('equipamientos__cantidad_equipo')).filter(cantidad__gte=value)
+        if value and name == 'equipo_max':
+            queryset = queryset.annotate(cantidad=Sum('equipamientos__cantidad_equipo')).filter(cantidad__lte=value)
+        return queryset
+
+    def filter_fecha(self, queryset, name, value):
+        if value and name == 'fecha_min':
+            queryset = queryset.filter(equipamientos__fecha__gte=value)
+        if value and name == 'fecha_max':
+            queryset = queryset.filter(equipamientos__fecha__lte=value)
+        return queryset
+
+
+class CooperanteViewSet(LoginRequiredMixin, viewsets.ModelViewSet):
+    serializer_class = mye_s.CooperanteSerializer
+    queryset = mye_m.Cooperante.objects.all()
+    filter_class = CooperanteFilter
