@@ -1,6 +1,4 @@
-from datetime import datetime
 from django.shortcuts import reverse
-from django.db import models
 
 from django.views.generic import DetailView, ListView, View
 from django.views.generic.edit import CreateView, UpdateView, FormView
@@ -8,18 +6,16 @@ from django.views.generic.edit import CreateView, UpdateView, FormView
 from django.http import JsonResponse
 from braces.views import LoginRequiredMixin, PermissionRequiredMixin, CsrfExemptMixin, JsonRequestResponseMixin
 
-from apps.main.mixins import InformeMixin
 from apps.mye.forms import (
-    InformeMyeForm, CooperanteForm, ProyectoForm,
+    CooperanteForm, ProyectoForm,
     SolicitudVersionForm, SolicitudForm, SolicitudNuevaForm,
     ValidacionNuevaForm, ValidacionForm, ValidacionListForm,
     SolicitudListForm)
+from apps.mye import forms as mye_f
 from apps.mye.models import (
     Cooperante, Proyecto, SolicitudVersion,
     Solicitud, Validacion, ValidacionComentario)
-from apps.tpe.models import Equipamiento
-from apps.main.models import Municipio
-from apps.escuela.models import Escuela
+
 from apps.escuela.views import EscuelaDetail
 
 
@@ -40,9 +36,10 @@ class CooperanteUpdate(LoginRequiredMixin, UpdateView):
     form_class = CooperanteForm
 
 
-class CooperanteList(LoginRequiredMixin, ListView):
+class CooperanteList(LoginRequiredMixin, FormView):
     model = Cooperante
     template_name = 'mye/cooperante_list.html'
+    form_class = mye_f.CPFilterForm
 
 
 class ProyectoCrear(LoginRequiredMixin, CreateView):

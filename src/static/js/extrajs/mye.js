@@ -188,3 +188,45 @@
 
     }   
 }( window.ValidacionList = window.ValidacionList || {}, jQuery ));
+
+
+(function( CooperanteList, $, undefined ) {
+    var tabla = $('#cooperante-table').DataTable({
+        dom: 'lfrtipB',
+        buttons: ['excel','pdf'],
+        processing: true,
+        ajax: {
+            url: $('#cooperante-list-form').prop('action'),
+            deferRender: true,
+            dataSrc: '',
+            cache: false,
+            data: function () {
+                return $('#cooperante-list-form').serializeObject();
+            }
+        },
+        columns: [
+        {
+            "data": "nombre",
+            render: function (data, type, full) {
+                return '<a href="'+full.url+'">'+full.nombre+'</a>';
+            }
+        },
+        {data: "cantidad_equipamientos", className: "nowrap" },
+        {data: "cantidad_computadoras", className: "nowrap" }
+        ]
+    }).on('xhr.dt', function () {
+         $('#spinner').hide();
+    });;
+
+    // Public
+    CooperanteList.init = function () {
+        $('#spinner').hide();
+        $('#cooperante-list-form').submit(function (e) {
+            e.preventDefault();
+            tabla.clear().draw();
+            $('#spinner').show();
+            tabla.ajax.reload();
+        });
+
+    }   
+}( window.CooperanteList = window.CooperanteList || {}, jQuery ));

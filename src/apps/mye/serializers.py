@@ -7,14 +7,23 @@ from apps.mye import models as mye_m
 
 class CooperanteSerializer(serializers.ModelSerializer):
     url = serializers.URLField(source='get_absolute_url')
+    cantidad_equipamientos = serializers.SerializerMethodField(read_only=True)
+    cantidad_computadoras = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = mye_m.Cooperante
         fields = '__all__'
 
+    def get_cantidad_equipamientos(self, obj):
+        return obj.equipamientos.count()
+
+    def get_cantidad_computadoras(self, obj):
+        return sum(e.cantidad_equipo for e in obj.equipamientos.all())
+
 
 class ProyectoSerializer(serializers.ModelSerializer):
     url = serializers.URLField(source='get_absolute_url')
+    cantidad_equipamientos = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = mye_m.Proyecto

@@ -31,6 +31,10 @@ class Proyecto(models.Model):
     def get_absolute_url(self):
         return reverse_lazy('proyecto_detail', args=[str(self.id)])
 
+    @property
+    def cantidad_equipamientos(self):
+        return self.equipamientos.count()
+
 
 class Requisito(models.Model):
     """

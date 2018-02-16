@@ -6,33 +6,57 @@ from apps.escuela.models import (
     Escuela, EscNivel, EscSector,
     EscPoblacion)
 from apps.main.models import Departamento, Municipio
-from apps.mye.models import (
-    Cooperante, Proyecto,
-    SolicitudVersion, Solicitud,
-    Requisito, ValidacionVersion, Validacion)
+from apps.mye import models as mye_m
 
 
 class CooperanteForm(forms.ModelForm):
     class Meta:
         """Datos del  modelo
         """
-        model = Cooperante
+        model = mye_m.Cooperante
         fields = '__all__'
         widgets = {'nombre': forms.TextInput(attrs={'class': 'form-control'})}
 
 
 class ProyectoForm(forms.ModelForm):
     class Meta:
-        model = Proyecto
+        model = mye_m.Proyecto
         fields = '__all__'
         widgets = {'nombre': forms.TextInput(attrs={'class': 'form-control'})}
+
+
+class CPFilterForm(forms.Form):
+    equipamientos_min = forms.IntegerField(
+        label='Equipamientos (min)',
+        required=False,
+        widget=forms.NumberInput(attrs={'min': 0, 'class': 'form-control'}))
+    equipamientos_max = forms.IntegerField(
+        label='Equipamientos (max)',
+        required=False,
+        widget=forms.NumberInput(attrs={'min': 0, 'class': 'form-control'}))
+    equipo_min = forms.IntegerField(
+        label='Cantidad de computadoras (min)',
+        required=False,
+        widget=forms.NumberInput(attrs={'min': 0, 'class': 'form-control'}))
+    equipo_max = forms.IntegerField(
+        label='Cantidad de computadoras (max)',
+        required=False,
+        widget=forms.NumberInput(attrs={'min': 0, 'class': 'form-control'}))
+    fecha_min = forms.CharField(
+        label='Fecha (min)',
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-control datepicker'}))
+    fecha_max = forms.CharField(
+        label='Fecha (max)',
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-control datepicker'}))
 
 
 class SolicitudVersionForm(forms.ModelForm):
     """Formulario para versiones de solicitudes
     """
     class Meta:
-        model = SolicitudVersion
+        model = mye_m.SolicitudVersion
         fields = '__all__'
         widgets = {
             'requisito': forms.CheckboxSelectMultiple()
@@ -42,7 +66,7 @@ class SolicitudVersionForm(forms.ModelForm):
 class SolicitudNuevaForm(forms.ModelForm):
 
     class Meta:
-        model = Solicitud
+        model = mye_m.Solicitud
         fields = ('escuela', 'version')
         widgets = {
             'escuela': forms.HiddenInput(),
@@ -89,7 +113,7 @@ class SolicitudForm(forms.ModelForm):
         widget=forms.NumberInput(attrs={'min': 0, 'class': 'form-control'}))
 
     class Meta:
-        model = Solicitud
+        model = mye_m.Solicitud
         fields = [
             'fecha', 'formulario', 'version', 'jornada', 'edf', 'lab_actual',
             'alumna', 'alumno', 'total_alumno', 'maestra', 'maestro', 'total_maestro',
@@ -115,8 +139,8 @@ class SolicitudForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(SolicitudForm, self).__init__(*args, **kwargs)
-        version = SolicitudVersion.objects.get(id=self.initial['version'])
-        self.fields['requisito'].queryset = Requisito.objects.filter(id__in=version.requisito.all())
+        version = mye_m.SolicitudVersion.objects.get(id=self.initial['version'])
+        self.fields['requisito'].queryset = mye_m.Requisito.objects.filter(id__in=version.requisito.all())
         if self.instance.poblacion:
             self.fields['alumna'].initial = self.instance.poblacion.alumna
             self.fields['alumno'].initial = self.instance.poblacion.alumno
@@ -188,7 +212,7 @@ class SolicitudListForm(forms.Form):
 
 class ValidacionNuevaForm(forms.ModelForm):
     class Meta:
-        model = Validacion
+        model = mye_m.Validacion
         fields = ('escuela', 'version', 'tipo')
         widgets = {
             'escuela': forms.HiddenInput(),
@@ -233,7 +257,7 @@ class ValidacionForm(forms.ModelForm):
         widget=forms.NumberInput(attrs={'min': 0, 'class': 'form-control'}))
 
     class Meta:
-        model = Validacion
+        model = mye_m.Validacion
         fields = [
             'version', 'tipo', 'jornada', 'fecha_equipamiento',
             'alumna', 'alumno', 'total_alumno', 'maestra', 'maestro', 'total_maestro',
@@ -256,8 +280,8 @@ class ValidacionForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(ValidacionForm, self).__init__(*args, **kwargs)
-        version = ValidacionVersion.objects.get(id=self.initial['version'])
-        self.fields['requisito'].queryset = Requisito.objects.filter(id__in=version.requisito.all())
+        version = mye_m.ValidacionVersion.objects.get(id=self.initial['version'])
+        self.fields['requisito'].queryset = mye_m.Requisito.objects.filter(id__in=version.requisito.all())
         if self.instance.poblacion:
             self.fields['alumna'].initial = self.instance.poblacion.alumna
             self.fields['alumno'].initial = self.instance.poblacion.alumno
@@ -354,12 +378,12 @@ class InformeMyeForm(forms.ModelForm):
         required=False)
     cooperante_tpe = forms.ModelMultipleChoiceField(
         label='Cooperante de equipamiento',
-        queryset=Cooperante.objects.all(),
+        queryset=mye_m.Cooperante.objects.all(),
         widget=forms.SelectMultiple(attrs={'class': 'select2'}),
         required=False)
     proyecto_tpe = forms.ModelMultipleChoiceField(
         label='Proyecto de equipamiento',
-        queryset=Proyecto.objects.all(),
+        queryset=mye_m.Proyecto.objects.all(),
         widget=forms.SelectMultiple(attrs={'class': 'select2'}),
         required=False)
     campos = forms.MultipleChoiceField(
