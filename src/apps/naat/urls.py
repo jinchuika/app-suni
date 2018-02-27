@@ -1,38 +1,14 @@
 from django.conf.urls import url, include
-from apps.naat import api_views
 
-from rest_framework.routers import DefaultRouter
+from apps.naat import views as naat_v
 
-naat_router = DefaultRouter()
-# naat_router.register(r'api/asignacion', api_views.AsignacionNaatViewSet)
-# naat_router.register(r'api/participante', api_views.ParticipanteNaatViewSet)
-# naat_router.register(r'api/facilitador', api_views.FacilitadorNaatViewSet)
 
 urlpatterns = [
+    url(r'^participante/actuales/$', naat_v.AsignacionesActualesListView.as_view(), name='participante_naat_add'),
+    url(r'^participante/add/$', naat_v.ParticipanteNaatCreateView.as_view(), name='participante_naat_add'),
+
+    url(r'^sesion/(?P<pk>\d+)/$', naat_v.SesionPresencialDetailView.as_view(), name='sesion_naat_detail'),
+    url(r'^calendario/$', naat_v.SesionPresencialCalendarView.as_view(), name='sesion_naat_calendar'),
     url(
-        r'api/facilitador/$',
-        api_views.FacilitadorListView.as_view(),
-        name='facilitador_list'),
-    url(
-        r'api/facilitador/(?P<username>\w+)/$',
-        api_views.FacilitadorRetrieveView.as_view(),
-        name='facilitador_detail'),
-    url(
-        r'api/participante/$',
-        api_views.ParticipanteListView.as_view(),
-        name='participante_list'),
-    url(
-        r'api/participante/(?P<dpi>\w+)/$',
-        api_views.ParticipanteRetrieveView.as_view(),
-        name='participante_detail'),
-    url(
-        r'api/participante/(?P<dpi>\w+)/update/$',
-        api_views.ParticipanteUpdateView.as_view(),
-        name='participante_update'),
-    url(
-        r'api/asignacion/$',
-        api_views.AsignacionNaatListView.as_view(),
-        name='asignacion_list'),
-    url(
-        r'', include(naat_router.urls)),
+        r'^api/', include('apps.naat.api_urls', namespace='naat_api')),
 ]

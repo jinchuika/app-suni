@@ -51,7 +51,12 @@ consulta_children = (
         "Listado de solicitudes",
         reverse_lazy("solicitud_list"),
         weight=40,
-        icon="fa-folder-open-o"),)
+        icon="fa-folder-open-o"),
+    ViewMenuItem(
+        "Informe de entregas",
+        reverse_lazy("equipamiento_informe"),
+        weight=50,
+        icon="fa-list-alt"),)
 
 Menu.add_item(
     "user",

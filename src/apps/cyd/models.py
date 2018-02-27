@@ -35,7 +35,7 @@ class Curso(models.Model):
 
 
 class CrAsistencia(models.Model):
-    """Período de asistencia establecido por el :model:`cyd.Curso`."""
+    """Período de asistencia establecido por el :class:`cyd.Curso`."""
     curso = models.ForeignKey(Curso, related_name="asistencias")
     modulo_num = models.IntegerField()
     punteo_max = models.IntegerField()
@@ -50,7 +50,7 @@ class CrAsistencia(models.Model):
 
 
 class CrHito(models.Model):
-    """Hito de :model:`cyd.Curso` (tareas, ejercicios, etc.)."""
+    """Hito de :class:`cyd.Curso` (tareas, ejercicios, etc.)."""
     curso = models.ForeignKey(Curso, related_name="hitos")
     nombre = models.CharField(max_length=40)
     punteo_max = models.IntegerField()
@@ -83,22 +83,24 @@ class Sede(models.Model):
 
     def get_escuelas(self):
         participantes = Participante.objects.filter(asignaciones__grupo__sede__id=self.id)
-        return Escuela.objects.filter(participantes__in=participantes).annotate(cantidad_participantes=Count('participantes')).distinct()
+        return Escuela.objects.filter(
+            participantes__in=participantes).annotate(cantidad_participantes=Count('participantes')).distinct()
 
     def get_participantes(self):
         resultado = {'listado': [], 'resumen': {'roles': {}, 'genero': {}, 'estado': {}}}
         participantes = Participante.objects.filter(
             asignaciones__grupo__sede__id=self.id).annotate(
             cursos_sede=Count('asignaciones'))
-        print(participantes.query)
         for participante in participantes:
             asignaciones = participante.asignaciones.filter(grupo__sede=self)
             resultado['listado'].append({
                 'participante': participante,
                 'nota': sum(a.get_nota_promediada()['nota'] for a in asignaciones),
                 'grupo': asignaciones.first().grupo.numero})
-        resultado['resumen']['roles'] = participantes.annotate(nombre_rol=F('rol__nombre')).values('nombre_rol').annotate(cantidad=Count('id', distinct=True))
-        resultado['resumen']['genero'] = participantes.annotate(nombre_genero=F('genero__genero')).values('nombre_genero').annotate(cantidad=Count('id', distinct=True))
+        resultado['resumen']['roles'] = participantes.annotate(
+            nombre_rol=F('rol__nombre')).values('nombre_rol').annotate(cantidad=Count('id', distinct=True))
+        resultado['resumen']['genero'] = participantes.annotate(
+            nombre_genero=F('genero__genero')).values('nombre_genero').annotate(cantidad=Count('id', distinct=True))
         aprobado = sum(1 for nota in resultado['listado'] if nota['nota'] >= 75)
         nivelar = sum(1 for nota in resultado['listado'] if 70 <= nota['nota'] < 75)
         reprobado = sum(1 for nota in resultado['listado'] if nota['nota'] < 70)
@@ -239,7 +241,7 @@ class ParEscolaridad(models.Model):
 
 
 class ParGenero(models.Model):
-    """Género para el :model:`cyd.Participante`."""
+    """Género para el :class:`cyd.Participante`."""
     genero = models.CharField(max_length=8)
 
     class Meta:
@@ -299,8 +301,8 @@ class Participante(models.Model):
         super(Participante, self).save(*args, **kwargs)
 
     def asignar(self, grupo):
-        """Crea un registro de :model:`cyd.Asignacion` para el :model:`cyd.Participante`
-        actual hacia un :model:`cyd.Grupo` especificado. Las notas son generadas
+        """Crea un registro de :class:`cyd.Asignacion` para el :class:`cyd.Participante`
+        actual hacia un :class:`cyd.Grupo` especificado. Las notas son generadas
         automáticamente mediante `cyd.Asignacion.asignar_notas()`.
         """
         self.asignaciones.create(grupo=grupo)
@@ -328,8 +330,8 @@ class Asignacion(models.Model):
             super(Asignacion, self).save(*args, **kwargs)
 
     def validate_unique(self, *args, **kwargs):
-        """Valida que un :model:`cyd.Participante` no pueda asignarse más
-        de una vez al mismo :model:`cyd.Curso` en la misma :model:`cyd.Sede`.
+        """Valida que un :class:`cyd.Participante` no pueda asignarse más
+        de una vez al mismo :class:`cyd.Curso` en la misma :class:`cyd.Sede`.
         """
         super(Asignacion, self).validate_unique(*args, **kwargs)
         qs = Asignacion.objects.filter(grupo__sede=self.grupo.sede, grupo__curso=self.grupo.curso)
@@ -338,11 +340,11 @@ class Asignacion(models.Model):
                 'grupo': ['No se puede asignar dos veces el mismo curso en la misma sede']})
 
     def get_absolute_url(self):
-        """Se muestra en el perfil del :model:`cyd.Participante`."""
+        """Se muestra en el perfil del :class:`cyd.Participante`."""
         return self.participante.get_absolute_url()
 
     def crear_notas(self):
-        """Crea las notas especificadas en el :model:`cyd.Curso` del :model:`cyd.Grupo`
+        """Crea las notas especificadas en el :class:`cyd.Curso` del :class:`cyd.Grupo`
         relacionado con el objeto actual.
         """
         for calendario in self.grupo.asistencias.all():
@@ -355,19 +357,20 @@ class Asignacion(models.Model):
     nota_final = property(get_nota_final)
 
     def get_aprobado(self):
-        """Indica si la asignación actual alcanza la nota mínima establecida por el :model:`cyd.Curso`."""
+        """Indica si la asignación actual alcanza la nota mínima establecida por el :class:`cyd.Curso`."""
         return self.get_nota_final() >= self.grupo.curso.nota_aprobacion  # type: boolean
     aprobado = property(get_aprobado)
 
     def get_nota_promediada(self):
-        """Devuelve la nota final promediada respecto al porcentaje del :model:`cyd.Curso` relacionado.
+        """Devuelve la nota final promediada respecto al porcentaje del :class:`cyd.Curso` relacionado.
         En caso de que el curso no tenga un porcentaje, devuelve la nota final real.
         """
         if self.grupo.curso.porcentaje:
             nota = self.get_nota_final() * (self.grupo.curso.porcentaje / 100)
             promediada = True
         else:
-            cantidad_asignaciones = Asignacion.objects.filter(grupo__sede=self.grupo.sede, participante=self.participante).count()
+            cantidad_asignaciones = Asignacion.objects.filter(
+                grupo__sede=self.grupo.sede, participante=self.participante).count()
             nota = self.get_nota_final() / cantidad_asignaciones
             promediada = False
         return {'nota': nota, 'promediada': promediada}
@@ -389,7 +392,7 @@ class NotaAsistencia(models.Model):
         return '{} - {}'.format(self.nota, self.gr_calendario)
 
     def clean(self):
-        """Evita que la nota sobrepase el punteo máximo especificado en :model:`CrAsistencia`
+        """Evita que la nota sobrepase el punteo máximo especificado en :class:`CrAsistencia`
 
         Raises:
             ValidationError: La nota no puede exceder el punteo máximo.
@@ -413,7 +416,7 @@ class NotaHito(models.Model):
         return '{} - {}'.format(self.nota, self.cr_hito)
 
     def clean(self):
-        """Evita que la nota sobrepase el punteo máximo especificado en :model:`CrHito`
+        """Evita que la nota sobrepase el punteo máximo especificado en :class:`CrHito`
 
         Raises:
             ValidationError: La nota no puede exceder el punteo máximo.

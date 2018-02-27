@@ -1,9 +1,0 @@
-language: python
-python: 3.5
-services:
-  - mysql
-env:
-  - DJANGO=1.10.1
-
-install:
-  - pip install -r requirements.txt

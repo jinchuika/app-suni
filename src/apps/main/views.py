@@ -1,4 +1,6 @@
 from datetime import datetime, timedelta
+
+from django.db.models import Q
 from django.urls import reverse_lazy
 from braces.views import LoginRequiredMixin
 from django.views.generic import TemplateView
@@ -15,7 +17,7 @@ class IndexView(LoginRequiredMixin, TemplateView):
     def get_widgets(self):
         widgets = []
 
-        if self.request.user.groups.filter(name='tpe').exists():
+        if self.request.user.groups.filter(Q(name='tpe') | Q(name='consulta')).exists():
             today = datetime.now()
             equipamiento_list = Equipamiento.objects.filter(fecha__year=today.year)
             reparaciones = TicketReparacion.objects.filter(fecha_fin__year=today.year).count()
