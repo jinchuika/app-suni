@@ -9,14 +9,8 @@ from django.core.urlresolvers import reverse
 
 from braces.views import LoginRequiredMixin, GroupRequiredMixin, JsonRequestResponseMixin
 
-from apps.cyd.forms import (
-    CursoForm, CrHitoFormSet, CrAsistenciaFormSet,
-    SedeForm, GrupoForm, CalendarioFilterForm,
-    SedeFilterForm, ParticipanteForm, ParticipanteBaseForm, AsesoriaForm,
-    GrupoListForm, ParticipanteBuscarForm, ParticipanteAsignarForm)
-from apps.cyd.models import (
-    Curso, Sede, Grupo, Calendario, Participante, ParRol,
-    ParEtnia, ParEscolaridad, ParGenero)
+from apps.cyd import forms as cyd_f
+from apps.cyd import models as cyd_m
 from apps.escuela.models import Escuela
 from apps.main.models import Coordenada
 
@@ -25,16 +19,16 @@ class CursoCreateView(LoginRequiredMixin, GroupRequiredMixin, CreateView):
     group_required = [u"cyd_admin", ]
     redirect_unauthenticated_users = True
     raise_exception = True
-    model = Curso
+    model = cyd_m.Curso
     template_name = 'cyd/curso_add.html'
-    form_class = CursoForm
+    form_class = cyd_f.CursoForm
 
     def get(self, request, *args, **kwargs):
         self.object = None
         form_class = self.get_form_class()
         form = self.get_form(form_class)
-        hito_formset = CrHitoFormSet()
-        asistencia_formset = CrAsistenciaFormSet()
+        hito_formset = cyd_f.CrHitoFormSet()
+        asistencia_formset = cyd_f.CrAsistenciaFormSet()
         return self.render_to_response(
             self.get_context_data(
                 forrm=form,
@@ -45,8 +39,8 @@ class CursoCreateView(LoginRequiredMixin, GroupRequiredMixin, CreateView):
         self.object = None
         form_class = self.get_form_class()
         form = self.get_form(form_class)
-        hito_formset = CrHitoFormSet(self.request.POST)
-        asistencia_formset = CrAsistenciaFormSet(self.request.POST)
+        hito_formset = cyd_f.CrHitoFormSet(self.request.POST)
+        asistencia_formset = cyd_f.CrAsistenciaFormSet(self.request.POST)
         if form.is_valid() and hito_formset.is_valid() and asistencia_formset.is_valid():
             return self.form_valid(form, formset_list=(hito_formset, asistencia_formset))
         else:
@@ -68,12 +62,12 @@ class CursoCreateView(LoginRequiredMixin, GroupRequiredMixin, CreateView):
 
 
 class CursoDetailView(LoginRequiredMixin, DetailView):
-    model = Curso
+    model = cyd_m.Curso
     template_name = 'cyd/curso_detail.html'
 
 
 class CursoListView(LoginRequiredMixin, ListView):
-    model = Curso
+    model = cyd_m.Curso
     template_name = 'cyd/curso_list.html'
 
 
@@ -82,8 +76,8 @@ class SedeCreateView(LoginRequiredMixin, GroupRequiredMixin, CreateView):
     redirect_unauthenticated_users = True
     raise_exception = True
 
-    model = Sede
-    form_class = SedeForm
+    model = cyd_m.Sede
+    form_class = cyd_f.SedeForm
     template_name = 'cyd/sede_add.html'
 
     def get_form(self, form_class=None):
@@ -104,19 +98,19 @@ class SedeCreateView(LoginRequiredMixin, GroupRequiredMixin, CreateView):
 
 
 class SedeDetailView(LoginRequiredMixin, DetailView):
-    model = Sede
+    model = cyd_m.Sede
     template_name = 'cyd/sede_detail.html'
 
     def get_context_data(self, **kwargs):
         context = super(SedeDetailView, self).get_context_data(**kwargs)
-        context['asesoria_form'] = AsesoriaForm(initial={'sede': self.object})
+        context['asesoria_form'] = cyd_f.AsesoriaForm(initial={'sede': self.object})
         return context
 
 
 class SedeUpdateView(LoginRequiredMixin, UpdateView):
-    model = Sede
+    model = cyd_m.Sede
     template_name = 'cyd/sede_add.html'
-    form_class = SedeForm
+    form_class = cyd_f.SedeForm
 
     def get_form(self, form_class=None):
         form = super(SedeUpdateView, self).get_form(form_class)
@@ -147,28 +141,28 @@ class SedeUpdateView(LoginRequiredMixin, UpdateView):
 
 
 class SedeListView(LoginRequiredMixin, ListView):
-    model = Sede
+    model = cyd_m.Sede
     template_name = 'cyd/sede_list.html'
 
     def get_queryset(self):
         if self.request.user.groups.filter(name="cyd_capacitador").exists():
-            return Sede.objects.filter(capacitador=self.request.user)
+            return cyd_m.Sede.objects.filter(capacitador=self.request.user)
         else:
-            return Sede.objects.all()
+            return cyd_m.Sede.objects.all()
 
 
 class GrupoCreateView(LoginRequiredMixin, GroupRequiredMixin, CreateView):
     group_required = [u"cyd", u"cyd_capacitador", u"cyd_admin", ]
     redirect_unauthenticated_users = True
     raise_exception = True
-    model = Grupo
+    model = cyd_m.Grupo
     template_name = 'cyd/grupo_add.html'
-    form_class = GrupoForm
+    form_class = cyd_f.GrupoForm
 
     def get_form(self, form_class=None):
         form = super(GrupoCreateView, self).get_form(form_class)
         if self.request.user.groups.filter(name="cyd_capacitador").exists():
-            form.fields['sede'].queryset = Sede.objects.filter(capacitador=self.request.user)
+            form.fields['sede'].queryset = cyd_m.Sede.objects.filter(capacitador=self.request.user)
         return form
 
     def form_valid(self, form):
@@ -179,14 +173,15 @@ class GrupoCreateView(LoginRequiredMixin, GroupRequiredMixin, CreateView):
 
 
 class GrupoDetailView(LoginRequiredMixin, DetailView):
-    model = Grupo
+    model = cyd_m.Grupo
     template_name = 'cyd/grupo_detail.html'
 
     def get_context_data(self, **kwargs):
         context = super(GrupoDetailView, self).get_context_data(**kwargs)
-        context['genero_list'] = ParGenero.objects.all()
-        context['grupo_list_form'] = GrupoListForm()
-        context['grupo_list_form'].fields['grupo'].queryset = Grupo.objects.filter(Q(sede=self.object.sede), ~Q(id=self.object.id))
+        context['genero_list'] = cyd_m.ParGenero.objects.all()
+        context['grupo_list_form'] = cyd_f.GrupoListForm()
+        context['grupo_list_form'].fields['grupo'].queryset = cyd_m.Grupo.objects.filter(
+            Q(sede=self.object.sede), ~Q(id=self.object.id))
         return context
 
 
@@ -194,7 +189,7 @@ class GrupoListView(LoginRequiredMixin, GroupRequiredMixin, ListView):
     group_required = [u"cyd", u"cyd_capacitador", u"cyd_admin", ]
     redirect_unauthenticated_users = True
     raise_exception = True
-    model = Grupo
+    model = cyd_m.Grupo
     template_name = 'cyd/grupo_list.html'
     ordering = ['-sede', '-id']
 
@@ -213,12 +208,12 @@ class CalendarioView(LoginRequiredMixin, GroupRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(CalendarioView, self).get_context_data(**kwargs)
-        context['sede_form'] = SedeFilterForm()
-        context['nueva_form'] = CalendarioFilterForm()
+        context['sede_form'] = cyd_f.SedeFilterForm()
+        context['nueva_form'] = cyd_f.CalendarioFilterForm()
         if self.request.user.groups.filter(name="cyd_capacitador").exists():
+            capacitador_qs = context['sede_form'].fields['capacitador'].queryset
             context['nueva_form'].fields['sede'].queryset = self.request.user.sedes.all()
-            context['sede_form'].fields['capacitador'].empty_label = None
-            context['sede_form'].fields['capacitador'].queryset = context['sede_form'].fields['capacitador'].queryset.filter(id=self.request.user.id)
+            context['sede_form'].fields['capacitador'].queryset = capacitador_qs.filter(id=self.request.user.id)
             context['sede_form'].fields['sede'].queryset = self.request.user.sedes.all()
         return context
 
@@ -226,7 +221,7 @@ class CalendarioView(LoginRequiredMixin, GroupRequiredMixin, TemplateView):
 class CalendarioListView(JsonRequestResponseMixin, View):
     def get(self, request, *args, **kwargs):
         response = []
-        calendario_list = Calendario.objects.filter(
+        calendario_list = cyd_m.Calendario.objects.filter(
             fecha__gte=datetime.strptime(self.request.GET.get('start'), '%Y-%m-%d'),
             fecha__lte=datetime.strptime(self.request.GET.get('end'), '%Y-%m-%d'))
         capacitador = self.request.GET.get('capacitador', False)
@@ -256,9 +251,9 @@ class ParticipanteCreateView(LoginRequiredMixin, GroupRequiredMixin, CreateView)
     group_required = [u"cyd", u"cyd_capacitador", u"cyd_admin", ]
     redirect_unauthenticated_users = True
     raise_exception = True
-    model = Participante
+    model = cyd_m.Participante
     template_name = 'cyd/participante_add.html'
-    form_class = ParticipanteForm
+    form_class = cyd_f.ParticipanteForm
 
     def get_form(self, form_class=None):
         form = super(ParticipanteCreateView, self).get_form(form_class)
@@ -271,13 +266,13 @@ class ParticipanteCreateListView(LoginRequiredMixin, GroupRequiredMixin, FormVie
     group_required = [u"cyd", u"cyd_capacitador", u"cyd_admin", ]
     redirect_unauthenticated_users = True
     raise_exception = True
-    model = Participante
+    model = cyd_m.Participante
     template_name = 'cyd/participante_importar.html'
-    form_class = ParticipanteBaseForm
+    form_class = cyd_f.ParticipanteBaseForm
 
     def get_context_data(self, **kwargs):
         context = super(ParticipanteCreateListView, self).get_context_data(**kwargs)
-        context['rol_list'] = ParRol.objects.all()
+        context['rol_list'] = cyd_m.ParRol.objects.all()
         return context
 
     def get_form(self, form_class=None):
@@ -289,16 +284,16 @@ class ParticipanteCreateListView(LoginRequiredMixin, GroupRequiredMixin, FormVie
 
 class ParticipanteJsonCreateView(LoginRequiredMixin, JsonRequestResponseMixin, CreateView):
     require_json = True
-    model = Participante
-    form_class = ParticipanteForm
+    model = cyd_m.Participante
+    form_class = cyd_f.ParticipanteForm
 
     def post(self, request, *args, **kwargs):
         try:
             escuela = Escuela.objects.get(codigo=self.request_json['udi'])
-            grupo = Grupo.objects.get(id=self.request_json['grupo'])
-            rol = ParRol.objects.get(id=self.request_json['rol'])
-            genero = ParGenero.objects.get(id=self.request_json['genero'])
-            participante = Participante.objects.create(
+            grupo = cyd_m.Grupo.objects.get(id=self.request_json['grupo'])
+            rol = cyd_m.ParRol.objects.get(id=self.request_json['rol'])
+            genero = cyd_m.ParGenero.objects.get(id=self.request_json['genero'])
+            participante = cyd_m.Participante.objects.create(
                 dpi=self.request_json['dpi'],
                 nombre=self.request_json['nombre'],
                 apellido=self.request_json['apellido'],
@@ -316,15 +311,15 @@ class ParticipanteJsonCreateView(LoginRequiredMixin, JsonRequestResponseMixin, C
 
 
 class ParticipanteDetailView(LoginRequiredMixin, DetailView):
-    model = Participante
+    model = cyd_m.Participante
     template_name = 'cyd/participante_detail.html'
 
     def get_context_data(self, **kwargs):
         context = super(ParticipanteDetailView, self).get_context_data(**kwargs)
-        context['rol_list'] = ParRol.objects.all()
-        context['etnia_list'] = ParEtnia.objects.all()
-        context['escolaridad_list'] = ParEscolaridad.objects.all()
-        context['genero_list'] = ParGenero.objects.all()
+        context['rol_list'] = cyd_m.ParRol.objects.all()
+        context['etnia_list'] = cyd_m.ParEtnia.objects.all()
+        context['escolaridad_list'] = cyd_m.ParEscolaridad.objects.all()
+        context['genero_list'] = cyd_m.ParGenero.objects.all()
         return context
 
 
@@ -336,7 +331,7 @@ class ParticipanteEscuelaUpdateView(LoginRequiredMixin, JsonRequestResponseMixin
     def patch(self, request, *args, **kwargs):
         try:
             escuela = Escuela.objects.get(codigo=self.request_json['udi'])
-            participante = Participante.objects.get(id=self.kwargs['pk'])
+            participante = cyd_m.Participante.objects.get(id=self.kwargs['pk'])
             participante.escuela = escuela
             participante.save()
         except Exception:
@@ -346,17 +341,17 @@ class ParticipanteEscuelaUpdateView(LoginRequiredMixin, JsonRequestResponseMixin
 
 
 class ParticipanteBuscarView(LoginRequiredMixin, JsonRequestResponseMixin, FormView):
-    form_class = ParticipanteBuscarForm
+    form_class = cyd_f.ParticipanteBuscarForm
     template_name = 'cyd/participante_buscar.html'
 
     def get_form(self, form_class=None):
         form = super(ParticipanteBuscarView, self).get_form(form_class)
-        form.fields['sede'].queryset = Sede.objects.all()
+        form.fields['sede'].queryset = cyd_m.Sede.objects.all()
         return form
 
     def get_context_data(self, **kwargs):
         context = super(ParticipanteBuscarView, self).get_context_data(**kwargs)
-        context['asignar_form'] = ParticipanteAsignarForm()
+        context['asignar_form'] = cyd_f.ParticipanteAsignarForm()
         if self.request.user.groups.filter(name="cyd_capacitador").exists():
             context['asignar_form'].fields['sede'].queryset = self.request.user.sedes.all()
         return context

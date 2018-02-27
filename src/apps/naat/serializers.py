@@ -1,17 +1,19 @@
-from rest_framework import serializers
+from datetime import datetime
 
+from rest_framework import serializers
 from django.contrib.auth.models import User
 
-from apps.cyd.serializers import ParticipanteSerializer, CapacitadorSerializer
+from apps.main import serializers as main_s
+from apps.cyd.serializers import ParticipanteSerializer
 from apps.cyd.models import Participante
-from apps.naat.models import AsignacionNaat
+from apps.naat import models as naat_m
 
 
 class AsignacionNaatSerializer(serializers.ModelSerializer):
     participante = ParticipanteSerializer()
 
     class Meta:
-        model = AsignacionNaat
+        model = naat_m.AsignacionNaat
         fields = ('participante',)
 
 
@@ -23,7 +25,7 @@ class ParticipanteNaatSerializer(serializers.ModelSerializer):
 
 class ParticipanteAsignadoField(serializers.RelatedField):
     def to_representation(self, value):
-        if isinstance(value, AsignacionNaat):
+        if isinstance(value, naat_m.AsignacionNaat):
             serializer = ParticipanteNaatSerializer(value.participante)
             return serializer.data
         else:
@@ -33,12 +35,42 @@ class ParticipanteAsignadoField(serializers.RelatedField):
 class FacilitadorNaatSerializer(serializers.ModelSerializer):
     asignados_naat = serializers.SerializerMethodField('get_asignaciones_activas')
 
-    def get_asignaciones_activas(self, obj):
-        asignaciones_naat = AsignacionNaat.objects.filter(capacitador=obj, activa=True)
-        print(asignaciones_naat)
+    @staticmethod
+    def get_asignaciones_activas(obj):
+        asignaciones_naat = naat_m.AsignacionNaat.objects.filter(capacitador=obj, activa=True)
         serializer = AsignacionNaatSerializer(asignaciones_naat, many=True)
         return serializer.data
 
     class Meta:
         model = User
         fields = ('username', 'first_name', 'last_name', 'asignados_naat')
+
+
+class SesionCalendarSerializer(main_s.CalendarSerializer):
+    start = serializers.SerializerMethodField()
+    end = serializers.SerializerMethodField()
+    tip_title = serializers.StringRelatedField(source='capacitador.get_full_name')
+    tip_text = serializers.SerializerMethodField()
+    color = serializers.CharField(source='capacitador.perfil.color')
+
+    class Meta:
+        model = naat_m.SesionPresencial
+        fields = ('start', 'end', 'title', 'url', 'tip_title', 'tip_text', 'color')
+
+    @staticmethod
+    def get_start(obj):
+        if obj.hora_inicio is not None:
+            return datetime.combine(obj.fecha, obj.hora_inicio)
+        else:
+            return obj.fecha
+
+    @staticmethod
+    def get_end(obj):
+        if obj.hora_fin is not None:
+            return datetime.combine(obj.fecha, obj.hora_fin)
+        else:
+            return obj.fecha
+
+    @staticmethod
+    def get_tip_text(obj):
+        return '{}'.format(obj.escuela.municipio)

@@ -1,0 +1,57 @@
+{% extends "base/base.html" %}
+
+{% block page_title %}
+<title>Sesión presencial</title>
+{% endblock page_title %}
+
+{% block content %}
+<section class="content-header">
+	<h1>Sesión presencial</h1>
+</section>
+
+<section class="content">
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-md-6">
+				<div class="box">
+					<div class="box-header">
+						<h3 class="box-title">Información general</h3>
+					</div>
+					<div class="box-body">
+						<table class="table table-striped">
+							<tr>
+								<th>Fecha</th>
+								<td>{{ sesionpresencial.fecha|date:"Y-m-d" }}</td>
+							</tr>
+							<tr>
+								<th>Hora de inicio</th>
+								<td>{{ sesionpresencial.hora_inicio }}</td>
+							</tr>
+							<tr>
+								<th>Hora de fin</th>
+								<td>{{ sesionpresencial.hora_fin }}</td>
+							</tr>
+						</table>
+					</div>
+				</div>
+			</div>
+
+			<div class="col-md-6">
+				<div class="box box-primary">
+					<div class="box-header">
+						<h3 class="box-title">Asistentes</h3>
+					</div>
+					<div class="box-body">
+						<ul class="list-unstyled">
+						{% for asignacion in sesionpresencial.asistentes.all %}
+							<li>{{ asignacion.participante }}</li>
+						{% endfor %}
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+
+{% endblock content %}

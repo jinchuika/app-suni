@@ -90,7 +90,7 @@ class AsignacionResumenSerializer(DynamicFieldsModelSerializer, serializers.Mode
 
 
 class ParticipanteSerializer(DynamicFieldsModelSerializer, serializers.ModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='participante_detail', lookup_field='pk')
+    url = serializers.URLField(source='get_absolute_url')
     escuela = EscuelaSerializer(read_only=True, fields='codigo,nombre,url')
     asignaciones = AsignacionResumenSerializer(read_only=True, many=True)
 

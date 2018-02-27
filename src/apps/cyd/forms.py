@@ -30,7 +30,8 @@ CrAsistenciaFormSet = inlineformset_factory(
 
 class SedeForm(forms.ModelForm):
     capacitador = forms.ModelChoiceField(
-        queryset=User.objects.filter(groups__name='cyd_capacitador'))
+        queryset=User.objects.filter(groups__name='cyd_capacitador'),
+        empty_label=None)
     lat = forms.CharField(max_length=25, required=False)
     lng = forms.CharField(max_length=25, required=False)
 
@@ -47,7 +48,7 @@ class SedeForm(forms.ModelForm):
         super(SedeForm, self).__init__(*args, **kwargs)
         if capacitador:
             self.fields['capacitador'].queryset = self.fields['capacitador'].queryset.filter(id=capacitador.id)
-        self.fields['capacitador'].label_from_instance = lambda obj: "%s" % obj.get_full_name()
+        self.fields['capacitador'].label_from_instance = lambda obj: '{}'.format(obj.get_full_name())
 
 
 class GrupoForm(forms.ModelForm):
@@ -80,7 +81,29 @@ class CalendarioFilterForm(forms.Form):
         widget=forms.Select(attrs={'class': 'form-control', 'data-url': reverse_lazy('calendario_api_list')}))
 
 
-class ParticipanteBaseForm(forms.Form):
+class ParticipanteBaseForm(forms.ModelForm):
+    """
+    Formulario básico para la creación de un :class:`Participante`
+    """
+    udi = forms.CharField(
+        widget=forms.TextInput(attrs={'data-url': reverse_lazy('escuela_api_list')}))
+
+    class Meta:
+        model = Participante
+        fields = [
+            'udi', 'nombre', 'apellido', 'dpi', 'genero', 'rol',
+            'mail', 'tel_movil']
+        exclude = ('slug',)
+        widgets = {
+            'nombre': forms.TextInput(attrs={'class': 'form-reset'}),
+            'apellido': forms.TextInput(attrs={'class': 'form-reset'}),
+            'dpi': forms.TextInput(attrs={'class': 'form-reset', 'data-url': reverse_lazy('participante_api_list')}),
+            'mail': forms.TextInput(attrs={'class': 'form-reset'}),
+            'tel_movil': forms.TextInput(attrs={'class': 'form-reset'})
+        }
+
+
+class ParticipanteForm(ParticipanteBaseForm):
     """
     Este formulario se usa para crear participantes por listado
     Los campos tienen URL para que se consulte al API desde el template
@@ -91,34 +114,16 @@ class ParticipanteBaseForm(forms.Form):
     grupo = forms.ModelChoiceField(
         queryset=Grupo.objects.none(),
         widget=forms.Select(attrs={'data-url': reverse_lazy('participante_api_list')}))
-    udi = forms.CharField(
-        help_text='escuela_label',
-        widget=forms.TextInput(attrs={'data-url': reverse_lazy('escuela_api_list')}))
 
-
-class ParticipanteForm(ParticipanteBaseForm, forms.ModelForm):
-    """
-    Extiende el ParticipanteBaseForm para usar los mismos campos con URL
-    """
     class Meta:
         model = Participante
         fields = [
             'sede', 'grupo', 'udi', 'nombre', 'apellido', 'dpi', 'genero', 'rol',
             'mail', 'tel_movil']
         exclude = ('slug',)
-        widgets = {
-            'nombre': forms.TextInput(attrs={'class': 'form-reset'}),
-            'apellido': forms.TextInput(attrs={'class': 'form-reset'}),
-            'dpi': forms.TextInput(attrs={'class': 'form-reset', 'data-url': reverse_lazy('participante_api_list')}),
-            'mail': forms.TextInput(attrs={'class': 'form-reset'}),
-            'tel_movil': forms.TextInput(attrs={'class': 'form-reset'})
-        }
-        help_texts = {
-            'dpi': 'dpi_label'
-        }
 
 
-class ParticipanteBuscarForm(ParticipanteBaseForm, GeoForm, forms.ModelForm):
+class ParticipanteBuscarForm(ParticipanteForm, GeoForm, forms.ModelForm):
     nombre = forms.CharField(required=False)
     capacitador = forms.ModelChoiceField(
         queryset=User.objects.filter(groups__name='cyd_capacitador'))
