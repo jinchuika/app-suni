@@ -56,7 +56,7 @@ class SoftwareItem(models.Model):
 class Item(models.Model):
 
     """Producto a ser entregado en los laboratorios. Es el
-    "inventario" de todo el equipo que se puede entregar a
+    "inventario" de la totalidad del equipo que se puede entregar a
     las escuelas.
 
     Attributes:
