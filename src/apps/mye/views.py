@@ -13,51 +13,70 @@ from apps.escuela.views import EscuelaDetail
 
 
 class CooperanteCrear(LoginRequiredMixin, CreateView):
+    """ Vista   para obtener los datos del cooperante mediante un : model : 'mye_m.Cooperante'
+        Funciona solo para recibir los datos de un  'CooperanteForm' mediante el metodo  POST.
+    """
     model = mye_m.Cooperante
     template_name = 'mye/cooperante_form.html'
     form_class = mye_f.CooperanteForm
 
 
 class CooperanteDetalle(LoginRequiredMixin, DetailView):
+    """Esta vista es la encargada de  mostrar los detalles de :class:Cooperante """
     model = mye_m.Cooperante
     template_name = 'mye/cooperante.html'
 
 
 class CooperanteUpdate(LoginRequiredMixin, UpdateView):
+    """Vista encargada de  Actualizar la informacion de un Cooperante  mediante un : model : 'mye_m.Cooperante'
+        Funciona solo para Actualizar los Datos  de un  'CooperanteForm' mediante el metodo POST.
+    """
     model = mye_m.Cooperante
     template_name = 'mye/cooperante_form.html'
     form_class = mye_f.CooperanteForm
 
 
 class CooperanteList(LoginRequiredMixin, FormView):
+    """Vista encargada de mostrar la lista de la :class:'Cooperantes'"""
     model = mye_m.Cooperante
     template_name = 'mye/cooperante_list.html'
     form_class = mye_f.CPFilterForm
 
 
 class ProyectoCrear(LoginRequiredMixin, CreateView):
+    """Vista para obtener los datos del cooperante mediante un :model:'mye_m.Proyecto'
+        Funciona solo para recibir  los datos de un 'ProyectoForm' mediante el metodo POST.
+
+    """
     model = mye_m.Proyecto
     template_name = 'mye/proyecto_form.html'
     form_class = mye_f.ProyectoForm
 
 
 class ProyectoDetalle(LoginRequiredMixin, DetailView):
+    """Vista encargada  de  mostrar los detalles de :class:'Proyecto'"""
     model = mye_m.Proyecto
     template_name = 'mye/proyecto.html'
 
 
 class ProyectoUpdate(LoginRequiredMixin, UpdateView):
+    """Vista Encargada de Actualizar los datos de  proyecto mediante un :model:'mye_m.Proyecto'
+      Funciona solo para recibr los datos de un ''ProyectoForm' mediante el metodo POST
+    """
     model = mye_m.Proyecto
     template_name = 'mye/proyecto_form.html'
     form_class = mye_f.ProyectoForm
 
 
 class ProyectoList(LoginRequiredMixin, ListView):
+    """Vista encarga de gestionar el listado de :class:'Proyecto',obteniendo los datos necesarios"""
     model = mye_m.Proyecto
     template_name = 'mye/proyecto_list.html'
 
 
 class SolicitudVersionCrear(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
+    """Vista  para obtener los datos de la Solicitud mediante  un :model:'SolicitudVersion'
+       Funciona solo para recibir los datos de un 'SolicitudVersionForm' mediante el metodo POST """
     model = mye_m.SolicitudVersion
     template_name = 'mye/solicitud_version_form.html'
     form_class = mye_f.SolicitudVersionForm
@@ -67,6 +86,7 @@ class SolicitudVersionCrear(LoginRequiredMixin, PermissionRequiredMixin, CreateV
 
 
 class SolicitudVersionDetalle(LoginRequiredMixin, DetailView):
+    """Vista Encargada de mostrar los detalles de :class:'SolicitudVersion'"""
     model = mye_m.SolicitudVersion
     template_name = 'mye/solicitud_version.html'
 
@@ -99,6 +119,8 @@ class SolicitudCrearView(LoginRequiredMixin, CreateView):
 
 
 class SolicitudUpdate(LoginRequiredMixin, UpdateView):
+    """Vista Encargada de Actualizar un :model:'mye_m.Solicitud', Solo funciona Para
+    recibir un 'SolicitudForm' mediante POST y actualiza los datos"""
     model = mye_m.Solicitud
     form_class = mye_f.SolicitudForm
     template_name = 'mye/solicitud_form.html'
@@ -135,6 +157,8 @@ class ValidacionCrearView(LoginRequiredMixin, CreateView):
 
 
 class ValidacionUpdate(LoginRequiredMixin, UpdateView):
+    """"Vista Encargada de Actualizar un :model:'mye_m.Validacion', solo funciona Para
+    recibir un 'ValidacionForm', mediante el  metodo POST y actualiza los datos"""
     model = mye_m.Validacion
     form_class = mye_f.ValidacionForm
     template_name = 'mye/solicitud_form.html'
@@ -182,10 +206,12 @@ class ValidacionDetailView(EscuelaDetail):
 
 
 class SolicitudListView(LoginRequiredMixin, FormView):
+    """Vista Encargada de  mostrar el listado de :class:'Solicitud', obteniendo los datos necesarios """
     form_class = mye_f.SolicitudListForm
     template_name = 'mye/solicitud_list.html'
 
 
 class ValidacionListView(LoginRequiredMixin, FormView):
+    """Vista Encargada de mostrar el listado de :class:'Validacion', obteniendo los datos necesarios"""
     form_class = mye_f.ValidacionListForm
     template_name = 'mye/validacion_list.html'
