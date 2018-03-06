@@ -58,7 +58,7 @@ urlpatterns = [
         r'^solicitud/version/add/$',
         SolicitudVersionCrear.as_view(),
         name='solicitud_version_add'),
-    #
+    #Agregar solitud mediante id de la escuela
     url(
     r'^solicitud/add/$',
     SolicitudCrearView.as_view(),
