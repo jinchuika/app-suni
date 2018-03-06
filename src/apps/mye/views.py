@@ -190,8 +190,8 @@ class ValidacionCrearView(LoginRequiredMixin, CreateView):
 
 class ValidacionUpdate(LoginRequiredMixin, UpdateView):
     """"Vista Encargada de Actualizar un :class: `Validacion`, solo funciona Para
-        recibir un 'ValidacionForm', mediante el  metodo POST y actualiza los datos,
-        mediante el metodo GET nos muestra el template solicitud_form.
+    recibir un 'ValidacionForm', mediante el  metodo POST y actualiza los datos,
+    mediante el metodo GET nos muestra el template solicitud_form.
 
     """
     model = mye_m.Validacion
@@ -242,7 +242,7 @@ class ValidacionDetailView(EscuelaDetail):
 
 class SolicitudListView(LoginRequiredMixin, FormView):
     """Vista Encargada de  mostrar el listado de :class: `Solicitud`, obteniendo los datos necesarios , mediante
-       el metodo GET nos muestra el template de solicitud_list.
+    el metodo GET nos muestra el template de solicitud_list.
 
     """
     form_class = mye_f.SolicitudListForm
@@ -251,7 +251,7 @@ class SolicitudListView(LoginRequiredMixin, FormView):
 
 class ValidacionListView(LoginRequiredMixin, FormView):
     """Vista Encargada de mostrar el listado de :class: `Validacion`, obteniendo los datos necesarios, mediante
-       el metodo GET nos muestra el  template validacion_list.
+    el metodo GET nos muestra el  template validacion_list.
 
     """
     form_class = mye_f.ValidacionListForm
