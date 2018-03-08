@@ -13,7 +13,7 @@ from apps.escuela.views import EscuelaDetail
 
 
 class CooperanteCrear(LoginRequiredMixin, CreateView):
-    """Vista   para obtener los datos del cooperante mediante una : class : `Cooperante`
+    """Vista   para obtener los datos del cooperante mediante una :class:`Cooperante`
     Funciona  para recibir los datos de un  'CooperanteForm' mediante el metodo  POST.  y
     nos muestra el template de cooperante mediante el metodo GET.
 
@@ -24,7 +24,7 @@ class CooperanteCrear(LoginRequiredMixin, CreateView):
 
 
 class CooperanteDetalle(LoginRequiredMixin, DetailView):
-    """Esta vista es la encargada de  mostrar los detalles de :class: `Cooperante` y nos muestra el template
+    """Esta vista es la encargada de  mostrar los detalles de :class:`Cooperante` y nos muestra el template
     de cooperante mediate el metodo GET.
 
     """
@@ -33,7 +33,7 @@ class CooperanteDetalle(LoginRequiredMixin, DetailView):
 
 
 class CooperanteUpdate(LoginRequiredMixin, UpdateView):
-    """Vista encargada de  Actualizar la informacion de un Cooperante  mediante una : class : `Cooperante`
+    """Vista encargada de  Actualizar la informacion de un Cooperante  mediante una :class:`Cooperante`
     Funciona  para Actualizar los Datos  de un  'CooperanteForm' mediante el metodo POST  ye nos muestra
     el template de cooperante_form  mediante el  metodo GET.
 
@@ -148,7 +148,7 @@ class SolicitudCrearView(LoginRequiredMixin, CreateView):
 
 
 class SolicitudUpdate(LoginRequiredMixin, UpdateView):
-    """Vista Encargada de Actualizar una :class: `Solicitud`, Solo funciona Para
+    """Vista Encargada de Actualizar una :class:`Solicitud`, Solo funciona Para
     recibir un 'SolicitudForm' mediante POST y actualiza los datos , mediate el metodo GET
     nos muestra el template solicitud_form.
 
@@ -189,9 +189,9 @@ class ValidacionCrearView(LoginRequiredMixin, CreateView):
 
 
 class ValidacionUpdate(LoginRequiredMixin, UpdateView):
-    """"Vista Encargada de Actualizar un :class: `Validacion`, solo funciona Para
-        recibir un 'ValidacionForm', mediante el  metodo POST y actualiza los datos,
-        mediante el metodo GET nos muestra el template solicitud_form.
+    """"Vista Encargada de Actualizar un :class:`Validacion`, solo funciona Para
+    recibir un 'ValidacionForm', mediante el  metodo POST y actualiza los datos,
+    mediante el metodo GET nos muestra el template solicitud_form.
 
     """
     model = mye_m.Validacion
@@ -241,8 +241,8 @@ class ValidacionDetailView(EscuelaDetail):
 
 
 class SolicitudListView(LoginRequiredMixin, FormView):
-    """Vista Encargada de  mostrar el listado de :class: `Solicitud`, obteniendo los datos necesarios , mediante
-       el metodo GET nos muestra el template de solicitud_list.
+    """Vista Encargada de  mostrar el listado de :class:`Solicitud`, obteniendo los datos necesarios , mediante
+    el metodo GET nos muestra el template de solicitud_list.
 
     """
     form_class = mye_f.SolicitudListForm
@@ -250,8 +250,8 @@ class SolicitudListView(LoginRequiredMixin, FormView):
 
 
 class ValidacionListView(LoginRequiredMixin, FormView):
-    """Vista Encargada de mostrar el listado de :class: `Validacion`, obteniendo los datos necesarios, mediante
-       el metodo GET nos muestra el  template validacion_list.
+    """Vista Encargada de mostrar el listado de :class:`Validacion`, obteniendo los datos necesarios, mediante
+    el metodo GET nos muestra el  template validacion_list.
 
     """
     form_class = mye_f.ValidacionListForm
