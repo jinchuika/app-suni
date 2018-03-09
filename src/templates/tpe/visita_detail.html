@@ -1,0 +1,96 @@
+{% extends "base/base.html" %}
+
+{% load staticfiles embed_gdrive_folder %}
+
+{% block page_title %}
+<title>Visita - {{ visitamonitoreo.id }}</title>
+{% endblock page_title %}
+
+{% block content %}
+<section class="content">
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-md-9">
+				<div class="box">
+					<div class="box-header">
+						<h3 class="box-title">Visita No. {{ visitamonitoreo.id }}</h3>
+					</div>
+					<div class="box-body">
+						<table class="table table-condensed">
+							<tr>
+								<th>Encargado	</th>
+								<td>{{ visitamonitoreo.encargado.get_full_name }}</td>
+							</tr>
+							<tr>
+								<th>Escuela</th>
+								<td>
+									<a href="{{ visitamonitoreo.equipamiento.escuela.get_absolute_url }}">
+										{{ visitamonitoreo.equipamiento.escuela }},
+										{{ visitamonitoreo.equipamiento.escuela.direccion }}
+									</a>
+									<br>
+									{{ visitamonitoreo.equipamiento.escuela.municipio }}
+								</td>
+							</tr>
+							<tr>
+								<th>Equipamiento</th>
+								<td>{{ visitamonitoreo.equipamiento }}</td>
+							</tr>
+							<tr>
+								<th>Fecha de Visita</th>
+								<td>{{ visitamonitoreo.fecha_visita }}</td>
+							</tr>
+							<tr>
+								<th>Hora Inicio</th>
+								<td>{{ visitamonitoreo.hora_inicio }}</td>
+							</tr>
+							<tr>
+								<th>Hora Final</th>
+								<td>
+									{{visitamonitoreo.hora_final}}
+								</td>
+							</tr>
+							<tr>
+								<th>Contacato</th>
+								<td>{{ visitamonitoreo.contacto }}</td>
+							</tr>
+							<tr>
+								<th>Otras Personas</th>
+								{%for otrasPersonas  in visitamonitoreo.otras_personas.all%}
+								<td>{{ otrasPersonas.get_full_name }}</td>
+								{% endfor %}
+							</tr>
+						</table>
+					</div>
+				</div>
+			</div>
+			<div class="col-md-3">
+				<div class="info-box">
+					<span class="info-box-icon bg-green"><i class="fa fa-tv"></i></span>
+					<div class="info-box-content">
+						<span class="info-box-text">Comentario</span>
+						<span class="info-box-number">{{ visitamonitoreo.comentario }}</span>
+					</div>
+				</div>
+				<div class="info-box">
+					{{visitamonitoreo.fotos_link|embed_gdrive_folder|safe}}
+
+				</div>
+			</div>
+		</div>
+		{% include "tpe/ticket_list.html" with ticket_list=garantia.tickets.all %}
+	</div>
+</section>
+
+
+{% endblock content %}
+
+{% block extra_js %}
+<script src="{% static "js/pdfmake.min.js" %}"></script>
+<script src="{% static "js/vfs_fonts.js" %}"></script>
+<script src="{% static "js/extrajs/tpe.js" %}"></script>
+<script>
+	DetalleGarantia.init();
+	ReparacionDetalle.init();
+</script>
+{% endblock extra_js %}

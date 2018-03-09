@@ -1,6 +1,6 @@
 {% load embed_gdrive_folder %}
 
-<div class="box box-success box-solid 
+<div class="box box-success box-solid
 	{% if equipamiento_detail != equipamiento.id|stringformat:"s" %}collapsed-box{% endif %}">
 	<div class="box-header with-border">
 		<h3 class="box-title">Entrega {{ equipamiento.id }} • {{ equipamiento.fecha|date:"d/M/Y" }}</h3>
@@ -27,7 +27,7 @@
 				<td>{{ equipamiento.fecha }}</td>
 			</tr>
 			<tr>
-				<th>Cantidad equipo</th>
+				<th>Cantidad de equipo</th>
 				<td>{{ equipamiento.cantidad_equipo }}</td>
 			</tr>
 			<tr>
@@ -106,4 +106,5 @@
 			</tr>
 		</table>
 	</div>
+
 </div>

@@ -21,7 +21,7 @@ class CooperanteCrear(LoginRequiredMixin, CreateView):
     model = mye_m.Cooperante
     template_name = 'mye/cooperante_form.html'
     form_class = mye_f.CooperanteForm
-    permission_required = 'mye.add_solicitud_version'
+    permission_required = 'mye.add_cooperante'
 
 
 class CooperanteDetalle(LoginRequiredMixin, DetailView):

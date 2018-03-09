@@ -176,6 +176,29 @@ urlpatterns = [
         r'^calendario/$',
         tpe_v.CalendarioTPEView.as_view(),
         name='calendario_tpe'),
+    #Visitas a escuelas
+    url(
+    r'^visita/add/$',
+    tpe_v.VisitaInformeView.as_view(),
+    name = 'visita_monitoreo_add'
+    ),
+    #Listado de visitas
+    url(r'visita/list/$',
+    tpe_v.VisitaListView.as_view(),
+    name='visita_list'
+    ),
+    #Detalles de las visitas
+    url(
+    r'visita/(?P<pk>\d+)/$',
+    tpe_v.VisitaDetailView.as_view(),
+    name = 'visita_monitoreo_detail'
+    ),
+    #Detalles de las vistas
+    url(
+    r'visita/(?P<pk>\d+)/editar/$',
+    tpe_v.VisitaUpdateView.as_view(),
+    name = 'visita_monitoreo_update'
+    ),
     # API REST
     url(
         r'^api/',

@@ -262,7 +262,7 @@
 									<div class="tab-pane" id="equipamiento">
 										{% if not equipamiento_form %}
 										{% for equipamiento in escuela.equipamiento.all %}
-										{% include "tpe/equipamiento_detail.html" with equipamiento=equipamiento equipamiento_detail=equipamiento_detail %}
+										{% include "tpe/equipamiento_detail.html" with equipamiento=equipamiento equipamiento_detail=equipamiento_detail form_visita_monitoreo=form_visita_monitoreo %}
 										{% endfor %}
 										{% if perms.tpe.add_equipamiento %}
 										<button class="btn btn-primary" id="btn-equipamiento">Nuevo equipamiento</button>
@@ -273,6 +273,11 @@
 										</form>
 										{% endif %}
 										{% endif %}
+										<form class="forms" action="{% url 'visita_monitoreo_add' %}" method="post">
+											{% csrf_token %}
+											{{ visita_monitoreo_nueva_form.as_p }}
+											<input type="submit" name="" value="Nueva visita de monitoreo">
+										</form>
 										{% if equipamiento_form %}
 										{% include "tpe/equipamiento_form.html" with equipamiento_form=equipamiento_form %}
 										{% endif %}
