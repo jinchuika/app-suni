@@ -391,3 +391,28 @@ class EvaluacionMonitoreo(models.Model):
     def clean(self):
         if not self.pregunta.minimo <= self.punteo <= self.pregunta.maximo:
             raise ValidationError({'punteo': 'El punteo debe estar entre el rango de la pregunta.'})
+
+class VisitaMonitoreo(models.Model):
+    equipamiento = models.ForeignKey(Equipamiento,related_name='visitas_monitoreo')
+    fecha_visita = models.DateField(default=timezone.now, verbose_name = 'Fecha de Visita')
+    hora_inicio = models.TimeField(default=timezone.now)
+    hora_final = models.TimeField(default=timezone.now)
+    comentario = models.TextField(null= True, blank = True)
+    contacto = models.ForeignKey(escuela_m.EscContacto,related_name='visitas_contactos',null=True, blank=True)
+    fotos_link = models.URLField(null = True, blank = True , verbose_name='Link a fotografias')
+    otras_personas =models.ManyToManyField(User, blank = True, related_name='visitas_varias', verbose_name ='Otras personas que visitan')
+    encargado = models.ForeignKey(User, related_name="visitas_encargado")
+    ticket = models.ForeignKey(TicketSoporte, null=True, blank=True, related_name='visitas_soporte');
+
+    class Meta:
+        verbose_name = "Visita de monitoreo"
+        verbose_name_plural = "Visitas de monitoreo"
+
+    def get_absolute_url(self):
+       return reverse_lazy('visita_monitoreo_detail', kwargs={'pk': self.id})
+
+    def  __str__(self):
+        return  str(self.id)
+
+    #def encargado(self):
+    #    return self.encargado.all()

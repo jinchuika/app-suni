@@ -578,3 +578,37 @@ class EvaluacionMonitoreoInformeView(LoginRequiredMixin, FormView):
 class DispositivoReparacionListView(LoginRequiredMixin, FormView):
     form_class = tpe_f.DispositivoReparacionListForm
     template_name = 'tpe/dispositivo_reparacion_list.html'
+
+class VisitaInformeView( LoginRequiredMixin, CreateView ):
+    """Vista   para obtener los datos de la Visitas mediante una :class:`VisitaMonitoreo`
+    Funciona  para recibir los datos de un  'VisitaMonitoreoForm' mediante el metodo  POST.  y
+    nos muestra el template de visitas mediante el metodo GET.
+    """
+    form_class = tpe_f.VisitaMonitoreoCreateForm
+    template_name = 'tpe/visita_add.html'
+
+    def get_success_url(self):
+        return reverse('visita_monitoreo_update', kwargs={'pk': self.object.id})
+
+    def form_valid(self, form):
+        form.instance.encargado = self.request.user
+        form.instance.fecha_visita = datetime.today()
+        form.instance.hora_inicio = datetime.now().time()
+        form.instance.hora_final = datetime.now().time()
+        return super(VisitaInformeView, self).form_valid(form)
+
+class VisitaUpdateView(LoginRequiredMixin, UpdateView):
+    model = tpe_m.VisitaMonitoreo
+    form_class = tpe_f.VisitaMonitoreoForm
+    template_name = 'tpe/visita_add.html'
+
+class VisitaListView(LoginRequiredMixin, ListView):
+    model = tpe_m.VisitaMonitoreo
+    template_name = 'tpe/visita_list.html'
+    raise_exception = True
+    #form_class = tpe_f.VisitaMonitoreoForm
+
+class VisitaDetailView(LoginRequiredMixin, DetailView):
+    model = tpe_m.VisitaMonitoreo
+    template_name = 'tpe/visita_detail.html'
+    #form_class = tpe_f.VisitaMonitoreoForm

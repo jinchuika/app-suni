@@ -3,7 +3,6 @@ from apps.mye.views import *
 from django.views.decorators.cache import cache_page
 
 urlpatterns = [
-    """ Urls de acceso a  informacion de cooperates  """
     # Listado de Cooperantes
     url(
         r'^cooperante/list/$',
@@ -25,7 +24,6 @@ urlpatterns = [
         CooperanteUpdate.as_view(),
         name='cooperante_update'),
 
-    """Urls de acceso a informacion de los proyectos"""
     # Listado de todos los proyecto asignados
     url(
         r'^proyecto/list/$',
@@ -47,7 +45,6 @@ urlpatterns = [
         ProyectoUpdate.as_view(),
         name='proyecto_update'),
 
-    """Urls de acceso a solitudes de seguridad  para  las escuelas"""
     # Detalles de  una solicitud en especifico
     url(
         r'^solicitud/version/(?P<pk>\d+)/$',
@@ -74,7 +71,6 @@ urlpatterns = [
         cache_page(15)(SolicitudListView.as_view()),
         name='solicitud_list'),
 
-    """Urls de acceso para validacion de  la solicitudades  hechas"""
     # Creacion de Validacion
     url(
         r'^validacion/add/$',
@@ -96,7 +92,6 @@ urlpatterns = [
         cache_page(15)(ValidacionListView.as_view()),
         name='validacion_list'),
 
-    """Urls de acceso al API"""
     # Api
     url(r'^api/', include('apps.mye.api_urls', namespace='mye_api')),
 ]
