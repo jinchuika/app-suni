@@ -15,7 +15,7 @@ Menu.add_item(
     "user",
     ViewMenuItem(
         "Dejando Huella",
-        reverse_lazy('list_c'),
+        '#',
         weight=10,
         icon="fa-heart",
         group="dejando_huella",

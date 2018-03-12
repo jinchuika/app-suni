@@ -29,7 +29,7 @@ Menu.add_item(
     "user",
     ViewMenuItem(
         "Evaluación",
-        reverse_lazy('list_c'),
+        '#',
         weight=10,
         icon="fa-search",
         group="mye",
@@ -62,7 +62,7 @@ Menu.add_item(
     "user",
     ViewMenuItem(
         "Evaluación",
-        reverse_lazy('list_c'),
+        '#',
         weight=10,
         icon="fa-search",
         group="consulta",
