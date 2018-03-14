@@ -1,6 +1,7 @@
 from rest_framework import serializers
 
 from apps.main.models import Departamento, Municipio
+from apps.tpe import models as tpe_models
 
 
 class DynamicFieldsModelSerializer(serializers.ModelSerializer):

@@ -413,6 +413,3 @@ class VisitaMonitoreo(models.Model):
 
     def  __str__(self):
         return  str(self.id)
-
-    #def encargado(self):
-    #    return self.encargado.all()

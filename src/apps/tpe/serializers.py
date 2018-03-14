@@ -159,3 +159,29 @@ class DispositivoReparacionSerializar(serializers.ModelSerializer):
     class Meta:
         model = tpe_models.TicketReparacion
         fields = ('tipo_id', 'tipo', 'total')
+
+
+class VisitaMonitoreoCalendarSerializer(serializers.ModelSerializer):
+    url = serializers.URLField(source='get_absolute_url')
+    start = serializers.SerializerMethodField()
+    end = serializers.SerializerMethodField()
+    title = serializers.CharField(source='equipamiento.escuela')
+    tip_title = serializers.CharField(source='equipamiento.escuela.municipio')
+    tip_text = serializers.CharField(source='equipamiento.escuela.direccion')
+    color = serializers.CharField(source='encargado.perfil.color')
+
+    class Meta:
+        model = tpe_models.VisitaMonitoreo
+        fields = ('start', 'end', 'url', 'title', 'tip_title', 'tip_text', 'color')
+
+    def get_start(self, object):
+        if object.hora_inicio is not None:
+            return datetime.combine(object.fecha_visita, object.hora_inicio)
+        else:
+            return object.fecha_visita
+
+    def get_end(self, object):
+        if object.hora_final is not None:
+            return datetime.combine(object.fecha_visita, object.hora_final)
+        else:
+            return object.fecha_visita

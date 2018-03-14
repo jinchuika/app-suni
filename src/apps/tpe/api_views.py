@@ -144,3 +144,25 @@ class DispositivoReparacionViewSet(LoginRequiredMixin, viewsets.ReadOnlyModelVie
         'tipo_dispositivo', 'tipo_dispositivo__tipo').annotate(
         total=Count('id'))
     filter_class = DispositivoReparacionFilter
+
+
+class VisitaMonitoreoFilter(filters.FilterSet):
+
+    """Filtros para usar en el ViewSet de
+    :class:`VisitaMonitoreoViewset`
+    """
+
+    start = django_filters.DateFilter(name='fecha_visita', lookup_expr='gte')
+    end = django_filters.DateFilter(name='fecha_visita', lookup_expr='lte')
+
+    class Meta:
+        model = tpe_m.VisitaMonitoreo
+        fields = ('start', 'end')
+
+
+class VisitaMonitoreoViewset(LoginRequiredMixin, viewsets.ReadOnlyModelViewSet):
+    """Para generar el listado
+    """
+    serializer_class=tpe_serializers.VisitaMonitoreoCalendarSerializer
+    queryset = tpe_m.VisitaMonitoreo.objects.all()
+    filter_class = VisitaMonitoreoFilter

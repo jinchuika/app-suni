@@ -199,6 +199,9 @@ urlpatterns = [
     tpe_v.VisitaUpdateView.as_view(),
     name = 'visita_monitoreo_update'
     ),
+    url(r'visita/calendario/$',
+    tpe_v.CalendarioTPEView.as_view(),
+    name= 'visita_calendario'),
     # API REST
     url(
         r'^api/',
