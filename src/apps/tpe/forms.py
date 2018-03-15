@@ -292,7 +292,6 @@ class TicketReparacionInformeForm(forms.Form):
         super(TicketReparacionInformeForm, self).__init__(*args, **kwargs)
         self.fields['tecnico_asignado'].label_from_instance = lambda obj: "%s" % obj.get_full_name()
 
-
 class EvaluacionMonitoreoCreateForm(forms.ModelForm):
 
     """Este formulario se encarga de enviar la id del :model:`tpe.Monitoreo`
@@ -319,7 +318,6 @@ class EvaluacionMonitoreoForm(forms.ModelForm):
             'pregunta': forms.HiddenInput()
         }
 
-
 class DispositivoReparacionListForm(forms.Form):
     TECNICOS_REPARACION = tpe_m.TicketReparacion.objects.values('tecnico_asignado').distinct()
 
@@ -339,3 +337,37 @@ class DispositivoReparacionListForm(forms.Form):
     def __init__(self, *args, **kwargs):
         super(DispositivoReparacionListForm, self).__init__(*args, **kwargs)
         self.fields['usuario'].label_from_instance = lambda obj: "%s" % (obj.get_full_name())
+
+
+class VisitaMonitoreoCreateForm(forms.ModelForm):
+    """ Aca se crea los campos que necesitemos que se miren cuando  incluimos el  en template
+    el formulario
+    """
+    class Meta:
+        model = tpe_m.VisitaMonitoreo
+        fields = ('equipamiento',)
+
+
+class VisitaMonitoreoForm(forms.ModelForm):
+    """Este Formulario se encarga  de enviar la id de la class:'VisitaMonitoreo'
+    para crear  los campos a mostrar en el template  visita_add
+    """
+    class Meta:
+        model = tpe_m.VisitaMonitoreo
+        fields = '__all__'
+        exclude = ('equipamiento', 'encargado',)
+        widgets = {
+            'fecha_visita': forms.TextInput(attrs={'class': 'datepicker'}),
+            'otras_personas': forms.SelectMultiple(attrs={'class': 'select2'})
+        }
+
+    def __init__(self, *args, **kwargs):
+        super(VisitaMonitoreoForm, self).__init__(*args, **kwargs)
+        qs_actual = self.fields['ticket'].queryset
+        qs_nuevo = qs_actual.filter(garantia__equipamiento=self.instance.equipamiento)
+        self.fields['ticket'].queryset = qs_nuevo
+
+        qs_actual_contacto = self.fields['contacto'].queryset
+        qs_nuevo_contacto = qs_actual_contacto.filter(escuela=self.instance.equipamiento.escuela)
+        self.fields['contacto'].queryset = qs_nuevo_contacto
+        print(qs_nuevo_contacto)

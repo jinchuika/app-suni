@@ -7,6 +7,11 @@ from apps.cyd import models as cyd_m
 
 
 class AsignacionNaatForm(cyd_f.ParticipanteBaseForm):
+    """Formulario para crear un :class:`Participante` y asignarlo a un capacitador por medio
+    de :class:`AsignacionNaat` (esta lógica para en la vista, el formulario únicamente sirve para
+    tomar los datos).
+    La lógica para filtrar al capacitador se realizará en la vista.
+    """
     capacitador = forms.ModelChoiceField(
         queryset=User.objects.filter(groups__name='naat_facilitador'),
         empty_label=None)
@@ -24,6 +29,7 @@ class AsignacionNaatForm(cyd_f.ParticipanteBaseForm):
 
 
 class CalendarFilterForm(forms.Form):
+    """Formulario para filtrar los eventos mostrados en el calendario con base en el capacitador."""
     capacitador = forms.ModelChoiceField(
         queryset=User.objects.filter(id__in=naat_m.SesionPresencial.objects.values('capacitador').distinct()),
         required=False)

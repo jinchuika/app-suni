@@ -34,7 +34,7 @@ Menu.add_item(
     "user",
     ViewMenuItem(
         "Kardex",
-        reverse_lazy('list_c'),
+        '#',
         weight=40,
         icon="fa-cog",
         group="kardex",

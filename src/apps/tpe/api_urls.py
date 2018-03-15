@@ -31,7 +31,7 @@ router.register(r'equipamiento-informe', api_views.EquipamientoFullViewSet, base
 router.register(r'equipamiento-calendar', api_views.EquipamientoCalendarViewSet, base_name='equipamiento-calendar')
 router.register(r'evaluacion-monitoreo', api_views.EvaluacionMonitoreoFullViewSet, base_name='evaluacion-monitoreo')
 router.register(r'dispositivo-reparacion', api_views.DispositivoReparacionViewSet, base_name='dispositivo-reparacion')
-
+router.register(r'visita-monitoreo',api_views.VisitaMonitoreoViewset,base_name='visita-monitoreo')
 urlpatterns = [
     url(r'^reparacion/list/$', reparacion_api_list, name='reparacion_api_list'),
 

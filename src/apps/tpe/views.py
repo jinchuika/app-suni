@@ -1,4 +1,4 @@
-from math import floor
+import math
 from django.shortcuts import reverse
 from django.db.models import Count
 from django.utils.timezone import datetime
@@ -11,16 +11,13 @@ from braces.views import (
 from apps.main.mixins import InformeMixin
 from apps.escuela.views import EscuelaDetail
 from apps.escuela.models import Escuela
-from apps.tpe.models import (
-    Equipamiento, Garantia, TicketSoporte, TicketRegistro,
-    Monitoreo, TicketReparacionEstado, TicketReparacion, TicketReparacionRepuesto,
-    TicketTransporte)
-from apps.tpe import forms as tpe_forms
+from apps.tpe import models as tpe_m
+from apps.tpe import forms as tpe_f
 
 
-class EquipamientoCrearView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
-    model = Equipamiento
-    form_class = tpe_forms.EquipamientoNuevoForm
+class EquipamientoCrearView(PermissionRequiredMixin, CreateView):
+    model = tpe_m.Equipamiento
+    form_class = tpe_f.EquipamientoNuevoForm
     permission_required = 'tpe.add_equipamiento'
     redirect_unauthenticated_users = True
     raise_exception = True
@@ -38,8 +35,8 @@ class EquipamientoUpdateView(LoginRequiredMixin, PermissionRequiredMixin, Update
     pero no muestra ningún template con el método GET.
     """
 
-    model = Equipamiento
-    form_class = tpe_forms.EquipamientoForm
+    model = tpe_m.Equipamiento
+    form_class = tpe_f.EquipamientoForm
     permission_required = 'tpe.change_equipamiento'
     redirect_unauthenticated_users = False
     raise_exception = True
@@ -55,12 +52,16 @@ class EquipamientoDetailView(EscuelaDetail):
 
 
 class EquipamientoListView(LoginRequiredMixin, FormView):
-    form_class = tpe_forms.EquipamientoListForm
+    """Vista para listado de :class:`Equipamiento`. Obtiene los datos usando DRF.
+    """
+    form_class = tpe_f.EquipamientoListForm
     template_name = 'tpe/equipamiento_list.html'
-    queryset = Equipamiento.objects.all()
 
 
 class EquipamientoInformeView(EquipamientoListView):
+    """Informe extendido de :class:`Equipamiento`s. Contiene muchos más datos que la clase de la
+    cual hereda sus atributos, pero reutiliza el mismo formulario para hacer los filtros.
+    """
     template_name = 'tpe/equipamiento_informe.html'
 
 
@@ -70,13 +71,13 @@ class EquipamientoListHomeView(CsrfExemptMixin, JsonRequestResponseMixin, View):
         equipamiento_list = {'equipamiento': [], 'renovacion': []}
         for i in range(1, 13):
             equipamiento_list['equipamiento'].append(
-                Equipamiento.objects.filter(
+                tpe_m.Equipamiento.objects.filter(
                     fecha__year=today.year,
                     fecha__month=i,
                     renovacion=False)
                 .count())
             equipamiento_list['renovacion'].append(
-                Equipamiento.objects.filter(
+                tpe_m.Equipamiento.objects.filter(
                     fecha__year=today.year,
                     fecha__month=i,
                     renovacion=True)
@@ -85,21 +86,28 @@ class EquipamientoListHomeView(CsrfExemptMixin, JsonRequestResponseMixin, View):
 
 
 class EquipamientoMapView(CsrfExemptMixin, JsonRequestResponseMixin, TemplateView):
+    """Vista para mostrar el mapa de los :class:`Equipamiento`s realizados.
+
+    Todo:
+        Esta vista probablemente se cambiará en el futuro para utilizar las nuevas herramientas
+        de dashboards e informes dinámicos. Parecido a `apps.ie.views.MapDashboardView`.
+    """
     template_name = 'tpe/map.html'
 
     def get_context_data(self, **kwargs):
         context = super(EquipamientoMapView, self).get_context_data(**kwargs)
-        context['equipamientos'] = Equipamiento.objects.count()
-        context['escuelas'] = Escuela.objects.annotate(num_equipamiento=Count('equipamiento')).filter(num_equipamiento__gt=0).count()
+        context['equipamientos'] = tpe_m.Equipamiento.objects.count()
+        context['escuelas'] = Escuela.objects.annotate(
+            num_equipamiento=Count('equipamiento')).filter(num_equipamiento__gt=0).count()
         return context
 
     def post(self, request, *args, **kwargs):
         page = 30
-        pages = int(floor(Equipamiento.objects.all().count() / page)) + 1
+        pages = int(math.floor(tpe_m.Equipamiento.objects.all().count() / page)) + 1
         current_page = int(self.request.POST.get('page', 1))
         desde = (current_page - 1) * page
         hasta = current_page * page
-        equipamiento_list = Equipamiento.objects.all()[desde:hasta]
+        equipamiento_list = tpe_m.Equipamiento.objects.all()[desde:hasta]
         response_list = [{
             'info': '{}<br>{}<br>{}'.format(
                 str(equipamiento.escuela),
@@ -116,15 +124,16 @@ class EquipamientoMapView(CsrfExemptMixin, JsonRequestResponseMixin, TemplateVie
 
 
 class GarantiaListView(LoginRequiredMixin, GroupRequiredMixin, ListView):
-    model = Garantia
+    """Listado de las :class:`Garantia`s de los :class:`Equipamiento`s."""
+    model = tpe_m.Garantia
     template_name = 'tpe/garantia_list.html'
     group_required = [u"garantia", u"tpe_admin"]
     raise_exception = True
 
 
 class GarantiaCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
-    model = Garantia
-    form_class = tpe_forms.GarantiaForm
+    model = tpe_m.Garantia
+    form_class = tpe_f.GarantiaForm
     template_name = 'tpe/garantia_add.html'
     permission_required = 'tpe.add_garantia'
     redirect_unauthenticated_users = False
@@ -136,19 +145,19 @@ class GarantiaCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView
 
 
 class GarantiaDetailView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
-    model = Garantia
+    model = tpe_m.Garantia
     template_name = 'tpe/garantia_detail.html'
     group_required = [u"garantia", u"tpe_admin"]
     raise_exception = True
 
     def get_context_data(self, **kwargs):
         context = super(GarantiaDetailView, self).get_context_data(**kwargs)
-        context['ticket_form'] = tpe_forms.TicketSoporteForm(initial={'garantia': self.object})
-        context['ticket_cerrado_form'] = tpe_forms.TicketCierreForm(initial={'cerrado': True})
-        context['ticket_registro_form'] = tpe_forms.TicketRegistroForm()
-        context['ticket_registro_update_form'] = tpe_forms.TicketRegistroUpdateForm()
-        context['ticket_reparacion_form'] = tpe_forms.TicketReparacionForm()
-        context['ticket_transporte_form'] = tpe_forms.TicketTransporteForm()
+        context['ticket_form'] = tpe_f.TicketSoporteForm(initial={'garantia': self.object})
+        context['ticket_cerrado_form'] = tpe_f.TicketCierreForm(initial={'cerrado': True})
+        context['ticket_registro_form'] = tpe_f.TicketRegistroForm()
+        context['ticket_registro_update_form'] = tpe_f.TicketRegistroUpdateForm()
+        context['ticket_reparacion_form'] = tpe_f.TicketReparacionForm()
+        context['ticket_transporte_form'] = tpe_f.TicketTransporteForm()
 
         if 'ticket_id' in self.kwargs:
             context['ticket_detail'] = self.kwargs['ticket_id']
@@ -157,7 +166,7 @@ class GarantiaDetailView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
 
 class GarantiaPrintDetalle(CsrfExemptMixin, JsonRequestResponseMixin, View):
     def post(self, request, *args, **kwargs):
-        ticket = TicketSoporte.objects.get(id=self.request.POST.get('ticket_id'))
+        ticket = tpe_m.TicketSoporte.objects.get(id=self.request.POST.get('ticket_id'))
         return self.render_json_response({
             'escuela': "{}, {}, ({})".format(
                 ticket.garantia.equipamiento.escuela,
@@ -182,7 +191,7 @@ class GarantiaPrintDetalle(CsrfExemptMixin, JsonRequestResponseMixin, View):
 
 class TicketVisitaPrintDetalle(CsrfExemptMixin, JsonRequestResponseMixin, View):
     def post(self, request, *args, **kwargs):
-        ticket = TicketSoporte.objects.get(id=self.request.POST.get('ticket_id'))
+        ticket = tpe_m.TicketSoporte.objects.get(id=self.request.POST.get('ticket_id'))
         return self.render_json_response({
             'escuela': "{}, {}, ({})".format(
                 ticket.garantia.equipamiento.escuela,
@@ -195,8 +204,8 @@ class TicketVisitaPrintDetalle(CsrfExemptMixin, JsonRequestResponseMixin, View):
 
 
 class TicketCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
-    model = TicketSoporte
-    form_class = tpe_forms.TicketSoporteForm
+    model = tpe_m.TicketSoporte
+    form_class = tpe_f.TicketSoporteForm
     permission_required = 'tpe.add_ticketsoporte'
     raise_exception = True
 
@@ -207,8 +216,8 @@ class TicketCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
 
 
 class TicketCierreView(LoginRequiredMixin, UpdateView):
-    model = TicketSoporte
-    form_class = tpe_forms.TicketCierreForm
+    model = tpe_m.TicketSoporte
+    form_class = tpe_f.TicketCierreForm
 
     def form_valid(self, form):
         form.instance.cerrado_por = self.request.user
@@ -217,39 +226,39 @@ class TicketCierreView(LoginRequiredMixin, UpdateView):
 
 
 class TicketRegistroCreateView(LoginRequiredMixin, CreateView):
-    model = TicketRegistro
-    form_class = tpe_forms.TicketRegistroForm
+    model = tpe_m.TicketRegistro
+    form_class = tpe_f.TicketRegistroForm
 
     def form_valid(self, form):
-        form.instance.ticket = TicketSoporte.objects.get(id=self.kwargs['ticket_id'])
+        form.instance.ticket = tpe_m.TicketSoporte.objects.get(id=self.kwargs['ticket_id'])
         form.instance.fecha = datetime.today()
         form.instance.creado_por = self.request.user
         return super(TicketRegistroCreateView, self).form_valid(form)
 
 
 class TicketRegistroUpdateView(LoginRequiredMixin, UpdateView):
-    model = TicketRegistro
-    form_class = tpe_forms.TicketRegistroUpdateForm
+    model = tpe_m.TicketRegistro
+    form_class = tpe_f.TicketRegistroUpdateForm
 
 
 class TicketReparacionCreateView(LoginRequiredMixin, CreateView):
-    model = TicketReparacion
-    form_class = tpe_forms.TicketReparacionForm
+    model = tpe_m.TicketReparacion
+    form_class = tpe_f.TicketReparacionForm
 
     def form_valid(self, form):
-        form.instance.ticket = TicketSoporte.objects.get(id=self.kwargs['ticket_id'])
+        form.instance.ticket = tpe_m.TicketSoporte.objects.get(id=self.kwargs['ticket_id'])
         form.instance.fecha_inicio = datetime.today()
-        form.instance.estado = TicketReparacionEstado.objects.first()
+        form.instance.estado = tpe_m.TicketReparacionEstado.objects.first()
         return super(TicketReparacionCreateView, self).form_valid(form)
 
 
 class ReparacionListView(InformeMixin):
-    form_class = tpe_forms.TicketReparacionListForm
+    form_class = tpe_f.TicketReparacionListForm
     template_name = 'tpe/reparacion_list.html'
     filter_list = {
         'estado': 'estado',
     }
-    queryset = TicketReparacion.objects.all()
+    queryset = tpe_m.TicketReparacion.objects.all()
 
     def create_response(self, queryset):
         var = [
@@ -270,18 +279,18 @@ class ReparacionListView(InformeMixin):
 
 
 class ReparacionUpdateView(LoginRequiredMixin, UpdateView):
-    model = TicketReparacion
-    form_class = tpe_forms.TicketReparacionUpdateForm
+    model = tpe_m.TicketReparacion
+    form_class = tpe_f.TicketReparacionUpdateForm
     template_name = 'tpe/reparacion_update.html'
 
     def get_context_data(self, **kwargs):
         context = super(ReparacionUpdateView, self).get_context_data(**kwargs)
-        context['repuesto_form'] = tpe_forms.TicketReparacionRepuestoForm(
+        context['repuesto_form'] = tpe_f.TicketReparacionRepuestoForm(
             initial={'reparacion': self.object})
         if self.request.user.groups.filter(name='tpe_admin').exists():
-            context['repuesto_auth_form'] = tpe_forms.TicketReparacionRepuestoAuthForm(
+            context['repuesto_auth_form'] = tpe_f.TicketReparacionRepuestoAuthForm(
                 initial={'autorizado': True, 'rechazado': False})
-            context['repuesto_reject_form'] = tpe_forms.TicketReparacionRepuestoAuthForm(
+            context['repuesto_reject_form'] = tpe_f.TicketReparacionRepuestoAuthForm(
                 initial={'autorizado': False, 'rechazado': True})
         return context
 
@@ -290,23 +299,23 @@ class ReparacionUpdateView(LoginRequiredMixin, UpdateView):
         if solucion_tipo is not None:
             form.instance.fecha_fin = datetime.today()
         if solucion_tipo is not None and solucion_tipo.id != 1:
-            form.instance.estado = TicketReparacionEstado.objects.get(id=2)
+            form.instance.estado = tpe_m.TicketReparacionEstado.objects.get(id=2)
         else:
-            form.instance.estado = TicketReparacionEstado.objects.get(id=3)
+            form.instance.estado = tpe_m.TicketReparacionEstado.objects.get(id=3)
         return super(ReparacionUpdateView, self).form_valid(form)
 
 
 class ReparacionRepuestoCreateView(CreateView):
-    model = TicketReparacionRepuesto
-    form_class = tpe_forms.TicketReparacionRepuestoForm
+    model = tpe_m.TicketReparacionRepuesto
+    form_class = tpe_f.TicketReparacionRepuestoForm
 
     def get_success_url(self):
         return reverse('reparacion_update', kwargs={'pk': self.object.reparacion.id})
 
 
 class ReparacionRepuestoUpdateView(GroupRequiredMixin, UpdateView):
-    model = TicketReparacionRepuesto
-    form_class = tpe_forms.TicketReparacionRepuestoAuthForm
+    model = tpe_m.TicketReparacionRepuesto
+    form_class = tpe_f.TicketReparacionRepuestoAuthForm
     group_required = [u"tpe_admin", ]
     raise_exception = True
 
@@ -320,11 +329,11 @@ class ReparacionRepuestoUpdateView(GroupRequiredMixin, UpdateView):
 
 
 class TicketTransporteCreateView(LoginRequiredMixin, CreateView):
-    model = TicketTransporte
-    form_class = tpe_forms.TicketTransporteForm
+    model = tpe_m.TicketTransporte
+    form_class = tpe_f.TicketTransporteForm
 
     def form_valid(self, form):
-        form.instance.ticket = TicketSoporte.objects.get(id=self.kwargs['ticket_id'])
+        form.instance.ticket = tpe_m.TicketSoporte.objects.get(id=self.kwargs['ticket_id'])
         return super(TicketTransporteCreateView, self).form_valid(form)
 
 
@@ -334,14 +343,14 @@ class MonitoreoCreateView(CsrfExemptMixin, JsonRequestResponseMixin, View):
     def post(self, request, *args, **kwargs):
         try:
             equipamiento_id = self.kwargs["equipamiento_id"]
-            equipamiento = Equipamiento.objects.filter(id=equipamiento_id)
+            equipamiento = tpe_m.Equipamiento.objects.filter(id=equipamiento_id)
             comentario = self.request_json["comentario"]
             if not len(comentario) or len(equipamiento) == 0:
                 raise KeyError
         except KeyError:
             error_dict = {u"message": u"Sin comentario"}
             return self.render_bad_request_response(error_dict)
-        monitoreo = Monitoreo(
+        monitoreo = tpe_m.Monitoreo(
             equipamiento=equipamiento[0],
             creado_por=self.request.user,
             comentario=comentario)
@@ -355,9 +364,9 @@ class MonitoreoCreateView(CsrfExemptMixin, JsonRequestResponseMixin, View):
 
 
 class MonitoreoListView(InformeMixin):
-    form_class = tpe_forms.MonitoreoListForm
+    form_class = tpe_f.MonitoreoListForm
     template_name = 'tpe/monitoreo_list.html'
-    queryset = Monitoreo.objects.all().order_by('equipamiento', 'fecha')
+    queryset = tpe_m.Monitoreo.objects.all().order_by('equipamiento', 'fecha')
     filter_list = {
         'fecha_min': 'fecha__gte',
         'fecha_max': 'fecha__lte',
@@ -382,7 +391,7 @@ class MonitoreoListView(InformeMixin):
 
 
 class TicketInformeView(InformeMixin):
-    form_class = tpe_forms.TicketInformeForm
+    form_class = tpe_f.TicketInformeForm
     template_name = 'tpe/ticket_informe.html'
     filter_list = {
         'estado': 'cerrado',
@@ -391,7 +400,7 @@ class TicketInformeView(InformeMixin):
         'fecha_cierre_min': 'fecha_cierre__gte',
         'fecha_cierre_max': 'fecha_cierre__lte'
     }
-    queryset = TicketSoporte.objects.all()
+    queryset = tpe_m.TicketSoporte.objects.all()
 
     def create_response(self, queryset):
         var = [
@@ -417,7 +426,7 @@ class TicketInformeView(InformeMixin):
 
 
 class TicketReparacionInformeView(InformeMixin):
-    form_class = tpe_forms.TicketReparacionInformeForm
+    form_class = tpe_f.TicketReparacionInformeForm
     template_name = 'tpe/ticket_reparacion_informe.html'
     filter_list = {
         'estado': 'estado',
@@ -426,7 +435,7 @@ class TicketReparacionInformeView(InformeMixin):
         'triage': 'triage',
         'tecnico_asignado': 'tecnico_asignado'
     }
-    queryset = TicketReparacion.objects.all()
+    queryset = tpe_m.TicketReparacion.objects.all()
 
     def create_response(self, queryset):
         var = [
@@ -464,9 +473,9 @@ class TicketCalendarView(CsrfExemptMixin, JsonRequestResponseMixin, View):
         response = []
         inicio_filtro = self.request.GET.get('start')
         fin_filtro = self.request.GET.get('end')
-        ticket_abierto_list = TicketSoporte.objects.filter(
+        ticket_abierto_list = tpe_m.TicketSoporte.objects.filter(
             fecha_abierto__range=[inicio_filtro, fin_filtro])
-        ticket_cerrado_list = TicketSoporte.objects.filter(
+        ticket_cerrado_list = tpe_m.TicketSoporte.objects.filter(
             fecha_cierre__range=[inicio_filtro, fin_filtro], cerrado=True)
         for ticket in ticket_abierto_list:
             response.append({
@@ -497,7 +506,7 @@ class TicketRecepcionPrintView(LoginRequiredMixin, DetailView):
     a un :model:`tpe.TicketSoporte`.
     """
 
-    model = TicketSoporte
+    model = tpe_m.TicketSoporte
     template_name = 'tpe/ticket_recepcion_print.html'
 
     def get_context_data(self, **kwargs):
@@ -515,7 +524,7 @@ class TicketEntregaPrintView(LoginRequiredMixin, DetailView):
     a un :model:`tpe.TicketSoporte`.
     """
 
-    model = TicketSoporte
+    model = tpe_m.TicketSoporte
     template_name = 'tpe/ticket_entrega_print.html'
 
     def get_context_data(self, **kwargs):
@@ -533,21 +542,21 @@ class MonitoreoDetailView(LoginRequiredMixin, DetailView):
     administrar los :model:`tpe.EvaluacionMonitoreo`.
     """
 
-    model = Monitoreo
+    model = tpe_m.Monitoreo
     template_name = 'tpe/monitoreo_detail.html'
 
     def get_context_data(self, **kwargs):
         context = super(MonitoreoDetailView, self).get_context_data(**kwargs)
         if self.object.evaluaciones.count() == 0:
-            context['evaluacion_form'] = tpe_forms.EvaluacionMonitoreoCreateForm(
+            context['evaluacion_form'] = tpe_f.EvaluacionMonitoreoCreateForm(
                 instance=self.object,
                 initial={'evaluacion': True})
         return context
 
 
 class MonitoreoUpdateView(LoginRequiredMixin, UpdateView):
-    form_class = tpe_forms.EvaluacionMonitoreoCreateForm
-    model = Monitoreo
+    form_class = tpe_f.EvaluacionMonitoreoCreateForm
+    model = tpe_m.Monitoreo
 
     def form_valid(self, form):
         if form.cleaned_data['evaluacion'] is True:
@@ -562,10 +571,46 @@ class EvaluacionMonitoreoInformeView(LoginRequiredMixin, FormView):
     Realiza una conexión a DRF para funcionar.
     """
 
-    form_class = tpe_forms.MonitoreoListForm
+    form_class = tpe_f.MonitoreoListForm
     template_name = 'tpe/evaluacionmonitoreo_informe.html'
 
 
 class DispositivoReparacionListView(LoginRequiredMixin, FormView):
-    form_class = tpe_forms.DispositivoReparacionListForm
+    form_class = tpe_f.DispositivoReparacionListForm
     template_name = 'tpe/dispositivo_reparacion_list.html'
+
+class VisitaInformeView( LoginRequiredMixin, CreateView ):
+    """Vista   para obtener los datos de la Visitas mediante una :class:`VisitaMonitoreo`
+    Funciona  para recibir los datos de un  'VisitaMonitoreoForm' mediante el metodo  POST.  y
+    nos muestra el template de visitas mediante el metodo GET.
+    """
+    form_class = tpe_f.VisitaMonitoreoCreateForm
+    template_name = 'tpe/visita_add.html'
+
+    def get_success_url(self):
+        return reverse('visita_monitoreo_update', kwargs={'pk': self.object.id})
+
+
+    def form_valid(self, form):
+        form.instance.encargado = self.request.user
+        form.instance.fecha_visita = datetime.today()
+        form.instance.hora_inicio = datetime.now().time()
+        form.instance.hora_final = datetime.now().time()
+        return super(VisitaInformeView, self).form_valid(form)
+
+class VisitaUpdateView(LoginRequiredMixin, UpdateView):
+    model = tpe_m.VisitaMonitoreo
+    form_class = tpe_f.VisitaMonitoreoForm
+    template_name = 'tpe/visita_add.html'
+
+
+class VisitaListView(LoginRequiredMixin, ListView):
+    model = tpe_m.VisitaMonitoreo
+    template_name = 'tpe/visita_list.html'
+    raise_exception = True
+    #form_class = tpe_f.VisitaMonitoreoForm
+
+class VisitaDetailView(LoginRequiredMixin, DetailView):
+    model = tpe_m.VisitaMonitoreo
+    template_name = 'tpe/visita_detail.html'
+    #form_class = tpe_f.VisitaMonitoreoForm

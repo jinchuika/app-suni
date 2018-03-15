@@ -13,7 +13,7 @@ from apps.mye.forms import (
     SolicitudNuevaForm, SolicitudForm,
     ValidacionNuevaForm, ValidacionForm)
 from apps.tpe.models import Equipamiento
-from apps.tpe.forms import EquipamientoForm, EquipamientoNuevoForm
+from apps.tpe.forms import EquipamientoForm, EquipamientoNuevoForm, VisitaMonitoreoCreateForm
 from apps.kalite.forms import VisitaForm
 
 from apps.ie.forms import LaboratorioCreateForm, IEValidacionCreateForm
@@ -75,6 +75,11 @@ class EscuelaDetail(LoginRequiredMixin, DetailView):
         context['equipamiento_nuevo_form'] = EquipamientoNuevoForm(initial={'escuela': self.object.pk})
         context['validacion_nueva_form'] = ValidacionNuevaForm(initial={'escuela': self.object.pk})
         context['visita_kalite_nueva_form'] = VisitaForm(initial={'escuela': self.object.pk})
+        context['visita_monitoreo_nueva_form'] = VisitaMonitoreoCreateForm()
+
+        qs_actual = context['visita_monitoreo_nueva_form'].fields['equipamiento'].queryset
+        qs_nueva = qs_actual.filter(escuela=self.object.pk)
+        context['visita_monitoreo_nueva_form'].fields['equipamiento'].queryset = qs_nueva
 
         if self.object.poblaciones.count() > 0:
             context['laboratorio_form'] = LaboratorioCreateForm(initial={'escuela': self.object.pk})

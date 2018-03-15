@@ -39,7 +39,7 @@ Menu.add_item(
     "user",
     ViewMenuItem(
         "Equipamiento",
-        reverse_lazy('list_c'),
+        '#',
         weight=10,
         icon="fa-desktop",
         group="tpe",
@@ -72,7 +72,7 @@ Menu.add_item(
     "user",
     ViewMenuItem(
         "Garantías",
-        reverse_lazy('list_c'),
+        '#',
         weight=10,
         icon="fa-wrench",
         group="garantia",

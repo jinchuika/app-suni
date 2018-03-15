@@ -76,11 +76,16 @@ class AsignacionesActualesListView(BaseNaatPermission, ListView):
 
 
 class SesionPresencialDetailView(BaseNaatPermission, DetailView):
+    """Vista de detalle de una :class:`SesionPresencial`.
+    """
     template_name = 'naat/sesionpresencial_detail.html'
     model = naat_m.SesionPresencial
 
 
 class SesionPresencialCalendarView(BaseNaatPermission, FormView):
+    """Calendario de las :class:`SesionPresencial` de Naat.
+    Obtiene los datos de los eventos del calendario desdela url `naat_api:calendario_api_list`.
+    """
     template_name = 'naat/calendario.html'
     form_class = naat_f.CalendarFilterForm
 

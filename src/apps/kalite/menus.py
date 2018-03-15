@@ -35,7 +35,7 @@ Menu.add_item(
     "user",
     ViewMenuItem(
         "KA Lite",
-        reverse_lazy('list_c'),
+        '#',
         weight=35,
         icon="fa-leaf",
         group="kalite",
