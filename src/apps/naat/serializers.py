@@ -9,18 +9,18 @@ from apps.cyd.models import Participante
 from apps.naat import models as naat_m
 
 
+class ParticipanteNaatSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Participante
+        exclude = ('slug', 'avatar',)
+
+
 class AsignacionNaatSerializer(serializers.ModelSerializer):
-    participante = ParticipanteSerializer()
+    participante = ParticipanteNaatSerializer()
 
     class Meta:
         model = naat_m.AsignacionNaat
         fields = ('participante',)
-
-
-class ParticipanteNaatSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Participante
-        fields = '__all__'
 
 
 class ParticipanteAsignadoField(serializers.RelatedField):
