@@ -340,6 +340,9 @@ class DispositivoReparacionListForm(forms.Form):
 
 
 class VisitaMonitoreoCreateForm(forms.ModelForm):
+    """ Aca se crea los campos que necesitemos que se miren cuando  incluimos el  en template
+    el formulario
+    """
     class Meta:
         model = tpe_m.VisitaMonitoreo
         fields = ('equipamiento',)
@@ -357,3 +360,14 @@ class VisitaMonitoreoForm(forms.ModelForm):
             'fecha_visita': forms.TextInput(attrs={'class': 'datepicker'}),
             'otras_personas': forms.SelectMultiple(attrs={'class': 'select2'})
         }
+
+    def __init__(self, *args, **kwargs):
+        super(VisitaMonitoreoForm, self).__init__(*args, **kwargs)
+        qs_actual = self.fields['ticket'].queryset
+        qs_nuevo = qs_actual.filter(garantia__equipamiento=self.instance.equipamiento)
+        self.fields['ticket'].queryset = qs_nuevo
+
+        qs_actual_contacto = self.fields['contacto'].queryset
+        qs_nuevo_contacto = qs_actual_contacto.filter(escuela=self.instance.equipamiento.escuela)
+        self.fields['contacto'].queryset = qs_nuevo_contacto
+        print(qs_nuevo_contacto)

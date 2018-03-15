@@ -273,10 +273,11 @@
 										</form>
 										{% endif %}
 										{% endif %}
-										<form class="forms" action="{% url 'visita_monitoreo_add' %}" method="post">
+										<button class="btn btn-primary" id="btn-equipamiento2">Nueva visita monitoreo</button>
+										<form class="forms" action="{% url "visita_monitoreo_add" %}" method="post" id="form-nueva-visita">
 											{% csrf_token %}
 											{{ visita_monitoreo_nueva_form.as_p }}
-											<input type="submit" name="" value="Nueva visita de monitoreo">
+											<input type="submit" name="" class="btn btn-success" value="Nueva visita de monitoreo">
 										</form>
 										{% if equipamiento_form %}
 										{% include "tpe/equipamiento_form.html" with equipamiento_form=equipamiento_form %}

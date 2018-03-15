@@ -75,7 +75,7 @@
         $('#equipamiento-list-form #id_departamento').on('change', function () {
             listar_municipio_departamento('#equipamiento-list-form #id_departamento', '#equipamiento-list-form #id_municipio', true);
         });
-    } 
+    }
 }( window.EquipamientoList = window.EquipamientoList || {}, jQuery ));
 
 (function( EquipamientoInforme, $, undefined ) {
@@ -152,7 +152,7 @@
         $('#equipamiento-list-form #id_departamento').on('change', function () {
             listar_municipio_departamento('#equipamiento-list-form #id_departamento', '#equipamiento-list-form #id_municipio', true);
         });
-    } 
+    }
 }( window.EquipamientoInforme = window.EquipamientoInforme || {}, jQuery ));
 
 (function( MonitoreoList, $, undefined ) {
@@ -223,13 +223,13 @@
 
         });
 
-    }   
+    }
 }( window.MonitoreoList = window.MonitoreoList || {}, jQuery ));
 
 (function( EquipamientoMapa, $, undefined ) {
     var map;
     var icono =  'http://funsepa.net/suni/media/ico3.png';
-    
+
     var nuevo_marcador = function(lat, lng, info_text) {
         var marker = new google.maps.Marker({
             position: new google.maps.LatLng(lat,lng),
@@ -304,7 +304,7 @@
         map = new google.maps.Map(document.getElementById("map"), mapOptions);
         map.setOptions({styles: styles});
         buscar_equipamiento();
-    }   
+    }
 }( window.EquipamientoMapa = window.EquipamientoMapa || {}, jQuery ));
 
 (function( DetalleGarantia, $, undefined ) {
@@ -412,7 +412,7 @@
             });
 }
 
-    
+
     var imprimir_registro = function (url, ticket_id) {
         $.post(
             url,
@@ -505,7 +505,7 @@
         $('.btn-print-registro').on('click', function () {
             imprimir_registro($(this).data('url'), $(this).data('ticket'));
         })
-    }   
+    }
 }( window.DetalleGarantia = window.DetalleGarantia || {}, jQuery ));
 
 
@@ -546,8 +546,8 @@
             tabla.clear().draw();
             tabla.ajax.reload();
         });
-        
-    } 
+
+    }
 }( window.ReparacionList = window.ReparacionList || {}, jQuery ));
 
 
@@ -596,7 +596,7 @@
             tabla.ajax.reload();
         });
 
-    } 
+    }
 }( window.TicketInforme = window.TicketInforme || {}, jQuery ));
 
 (function( TicketReparacionInforme, $, undefined ) {
@@ -659,7 +659,7 @@
             tabla.ajax.reload();
         });
 
-    } 
+    }
 }( window.TicketReparacionInforme = window.TicketReparacionInforme || {}, jQuery ));
 
 
@@ -677,7 +677,8 @@
                 element.qtip({
                     content: {
                         title: event.tip_title,
-                        text: event.tip_text
+                        text: event.tip_text,
+                        
                     },
                 });
             },
@@ -698,7 +699,13 @@
                 url: $('#tpe-calendario').data('url-ticket'),
                 type: 'GET',
                 cache: true,
-            }
+            },
+            {
+                url: $('#tpe-calendario').data('url-visita'),
+                type: 'GET',
+                color: 'red',
+                cache: true,
+            },
             ]
         });
     }
@@ -707,7 +714,7 @@
     CalendarioTPE.init = function () {
         $('#spinner').hide();
         crear_equipamiento_calendario();
-    } 
+    }
 }( window.CalendarioTPE = window.CalendarioTPE || {}, jQuery ));
 
 
@@ -782,7 +789,7 @@
             tabla.clear().draw();
             tabla.ajax.reload();
         });
-    }   
+    }
 }( window.EvaluacionMonitoreoList = window.EvaluacionMonitoreoList || {}, jQuery ));
 
 
@@ -821,5 +828,5 @@
             tabla.clear().draw();
             tabla.ajax.reload();
         });
-    }   
+    }
 }( window.DispositivoReparacion = window.DispositivoReparacion || {}, jQuery ));

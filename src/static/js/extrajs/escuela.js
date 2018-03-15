@@ -49,6 +49,12 @@
         $('#btn-equipamiento').click(function () {
             $('#form-nuevo-equipamiento').toggle();
         });
+        //aca comienza nuevo Formulario
+        $('#form-nueva-visita').hide();
+        $('#btn-equipamiento2').click(function () {
+          $('#form-nueva-visita').toggle();
+          //alert("Esto es un boton");
+        });
         $('#form-nueva-validacion').hide();
         $('#form-nueva-visita-kalite').hide();
         $('#form-nueva-poblacion').hide();
@@ -92,7 +98,7 @@
                 }
             });
         });
-    }   
+    }
 }( window.PerfilEscuela = window.PerfilEscuela || {}, jQuery ));
 
 (function( EscuelaBuscar, $, undefined ) {
@@ -168,7 +174,7 @@
                     EscuelaBuscar.filtro_list.push($("label[for='"+$(this).attr('id')+"']").text());
                 }
             });
-            
+
             if (EscuelaBuscar.filtro_list.length > 0) {
                 EscuelaBuscar.tablaHabilitada = true;
                 $('#filtros-collapse').hide();
@@ -186,12 +192,12 @@
         $('#escuela-list-form #id_departamento').on('change', function () {
             listar_municipio_departamento('#escuela-list-form #id_departamento', '#escuela-list-form #id_municipio', true);
         });
-    }   
+    }
 }( window.EscuelaBuscar = window.EscuelaBuscar || {}, jQuery ));
 
 (function( EscuelaContacto, $, undefined ) {
     // Public
     EscuelaContacto.init = function () {
 
-    }   
+    }
 }( window.EscuelaContacto = window.EscuelaContacto || {}, jQuery ));

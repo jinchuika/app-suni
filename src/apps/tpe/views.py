@@ -590,6 +590,7 @@ class VisitaInformeView( LoginRequiredMixin, CreateView ):
     def get_success_url(self):
         return reverse('visita_monitoreo_update', kwargs={'pk': self.object.id})
 
+
     def form_valid(self, form):
         form.instance.encargado = self.request.user
         form.instance.fecha_visita = datetime.today()
@@ -601,6 +602,7 @@ class VisitaUpdateView(LoginRequiredMixin, UpdateView):
     model = tpe_m.VisitaMonitoreo
     form_class = tpe_f.VisitaMonitoreoForm
     template_name = 'tpe/visita_add.html'
+
 
 class VisitaListView(LoginRequiredMixin, ListView):
     model = tpe_m.VisitaMonitoreo
