@@ -206,7 +206,7 @@
                 render: function ( data, type, full, meta ) {
                     return full.inventario_entrada - full.inventario_salida;
                 }
-            },            
+            },
             { "data": "existencia" },
             ]
         }).on('xhr.dt', function (e, settings, json, xhr) {
@@ -220,8 +220,8 @@
             tabla.clear().draw();
             tabla.ajax.reload();
         });
-        
-    } 
+
+    }
 }( window.KardexInforme = window.KardexInforme || {}, jQuery ));
 
 (function( SalidaDetail, $, undefined ) {

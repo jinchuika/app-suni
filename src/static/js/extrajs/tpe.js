@@ -308,6 +308,7 @@
 }( window.EquipamientoMapa = window.EquipamientoMapa || {}, jQuery ));
 
 (function( DetalleGarantia, $, undefined ) {
+  var tabla;
     var form_footer = [{
         style: 'tableExample',
         table: {
@@ -333,6 +334,7 @@
             url,
             {ticket_id: ticket_id},
             function (data) {
+
                 var reparacion_table = [[{text: 'Triage', style: 'tableHeader'}, {text: 'Dispositivo', style: 'tableHeader'}, {text: 'Problema reportado', style: 'tableHeader'}, {text: 'Problema encontrado', style: 'tableHeader'}]];
                 for (var i = 0; i < data.reparaciones.length; i++) {
                     reparacion_table.push([
@@ -349,6 +351,7 @@
                         data.registros[i].usuario]);
                 }
                 var dd = {
+
                     content: [
                     {text: 'Detalle de garantía', style: 'header', alignment: 'center'},
                     {
@@ -488,7 +491,6 @@
             }
             );
     }
-
     // Public
     DetalleGarantia.init = function () {
         $('#form-nuevo-ticket').hide();
@@ -505,6 +507,8 @@
         $('.btn-print-registro').on('click', function () {
             imprimir_registro($(this).data('url'), $(this).data('ticket'));
         })
+
+
     }
 }( window.DetalleGarantia = window.DetalleGarantia || {}, jQuery ));
 
@@ -678,7 +682,7 @@
                     content: {
                         title: event.tip_title,
                         text: event.tip_text,
-                        
+
                     },
                 });
             },

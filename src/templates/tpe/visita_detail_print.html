@@ -1,0 +1,114 @@
+{% extends "base/base-print.html" %}
+{% load static %}
+{% block content %}
+<section class="invoice">
+	<div class="row">
+		<div class="col-xs-6">
+			<h2 class="page-header">
+				<i class="fa fa-sign-in"></i> Visita de Monitoreo No. {{ visitamonitoreo.id }}
+			</h2>
+		</div>
+		<div class="col-xs-6">
+				<img src="{% static "image/funsepalogo.png" %}" class="pull-right img-responsive">
+		</div>
+	</div>
+	<div class="row invoice-info">
+		<div class="col-md-3 col-sm-3 invoice-col">
+			<b>Encargado</b>
+			<address>
+				{{ visitamonitoreo.encargado.get_full_name}}
+			</address>
+		</div>
+		<div class="col-md-3 col-sm-3 invoice-col">
+			<b>Escuela</b>
+			<address>
+				{{ visitamonitoreo.equipamiento.escuela  }}
+			</br>
+				{{visitamonitoreo.equipamiento.escuela.codigo}}
+			</address>
+		</div>
+		<div class="col-md-3 col-sm-3 invoice-col">
+			<b>Direccion</b>
+			<address>
+				{{ visitamonitoreo.equipamiento.escuela.direccion|default_if_none:"" }}
+			</br>
+			{{visitamonitoreo.equipamiento.escuela.municipio.departamento}},
+			{{visitamonitoreo.equipamiento.escuela.municipio.nombre}}
+			</address>
+		</div>
+		<div class="col-md-3 col-sm-3 invoice-col">
+			<b>Equipamiento</b>
+			<address>
+				{{ visitamonitoreo.equipamiento }}
+			</address>
+		</div>
+		<div class="col-md-3 col-sm-3 invoice-col">
+			<b>Cooperante</b>
+			<address>
+				{{ visitamonitoreo.equipamiento.cooperante.nombre}}
+			</address>
+		</div>
+		<div class="col-md-3 col-sm-3 invoice-col">
+			<b>Fecha del equipamiento</b>
+			<address>
+						{{ visitamonitoreo.equipamiento.fecha }}
+			</address>
+
+		</div>
+		<div class="col-md-3 col-sm-3 invoice-col">
+			<b>Hora de Inicio</b>
+			<address>
+					{{ visitamonitoreo.hora_inicio }}
+			</address>
+
+		</div>
+		<div class="col-md-3 col-sm-3 invoice-col">
+			<b>Hora Final</b>
+			<address>
+						{{visitamonitoreo.hora_final}}
+			</address>
+
+		</div>
+		<div class="col-md-3 col-sm-3 invoice-col">
+			<b>Contacto de Escuela </b>
+			<address>
+				{{ visitamonitoreo.contacto }}
+			</address>
+
+		</div>
+		<div class="col-md-3 col-sm-3 invoice-col">
+			<b>Otras Personas</b>
+			{%for otrasPersonas  in visitamonitoreo.otras_personas.all%}
+			<address>
+			{{ otrasPersonas.get_full_name }}
+		</address>
+
+			{% endfor %}
+		</div>
+
+	</div>
+	<div class="row">
+		<div class="col-xs-6">
+			<p class="lead">Comentario:</p>
+
+			<p class="well well-sm no-shadow" style="margin-top: 10px;">
+				{{visitamonitoreo.comentario }}
+			</p>
+		</div>
+	</div>
+<div>
+	</br>
+	</br>
+	</br>
+   </br>
+<b>f._____________________________________________</b></br>
+<b>Encargado del escuela<b></br>
+	</br>
+	</br>
+	</br>
+	</br>
+<b>f._____________________________________________</b></br>
+<b>FUNSEPA</b></br>
+</div>
+</section>
+{% endblock content %}

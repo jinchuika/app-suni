@@ -18,6 +18,7 @@ SECRET_KEY = 'c$+1+y$)19w80c$a_%$15ic6w#&82$31+lza90a56=4o(g&e)o'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
+
 DEBUG_TOOLBAR = False
 
 ALLOWED_HOSTS = []
