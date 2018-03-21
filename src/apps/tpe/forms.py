@@ -358,7 +358,8 @@ class VisitaMonitoreoForm(forms.ModelForm):
         exclude = ('equipamiento', 'encargado',)
         widgets = {
             'fecha_visita': forms.TextInput(attrs={'class': 'datepicker'}),
-            'otras_personas': forms.SelectMultiple(attrs={'class': 'select2'})
+            'otras_personas': forms.SelectMultiple(attrs={'class': 'select2'}),
+            'comentario':forms.Textarea(attrs={'class':'form-control'})
         }
 
     def __init__(self, *args, **kwargs):
@@ -371,3 +372,4 @@ class VisitaMonitoreoForm(forms.ModelForm):
         qs_nuevo_contacto = qs_actual_contacto.filter(escuela=self.instance.equipamiento.escuela)
         self.fields['contacto'].queryset = qs_nuevo_contacto
         print(qs_nuevo_contacto)
+        self.fields['otras_personas'].label_from_instance = lambda obj: "%s" % obj.get_full_name()

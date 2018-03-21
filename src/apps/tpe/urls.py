@@ -202,6 +202,11 @@ urlpatterns = [
     url(r'visita/calendario/$',
     tpe_v.CalendarioTPEView.as_view(),
     name= 'visita_calendario'),
+    url(
+    r'visita/print_detalle/(?P<pk>\d+)/$',
+    tpe_v.VisitaPrintDetalle.as_view(),
+    name = 'visita_monitoreo_print'
+    ),
     # API REST
     url(
         r'^api/',

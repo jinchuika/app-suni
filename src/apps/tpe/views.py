@@ -613,4 +613,8 @@ class VisitaListView(LoginRequiredMixin, ListView):
 class VisitaDetailView(LoginRequiredMixin, DetailView):
     model = tpe_m.VisitaMonitoreo
     template_name = 'tpe/visita_detail.html'
+    #form_class = tpe_f.VisitaMonitoreoFilter
     #form_class = tpe_f.VisitaMonitoreoForm
+class VisitaPrintDetalle(LoginRequiredMixin,DetailView):
+    model = tpe_m.VisitaMonitoreo
+    template_name = 'tpe/visita_detail_print.html'

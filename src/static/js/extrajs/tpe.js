@@ -308,6 +308,7 @@
 }( window.EquipamientoMapa = window.EquipamientoMapa || {}, jQuery ));
 
 (function( DetalleGarantia, $, undefined ) {
+  var tabla;
     var form_footer = [{
         style: 'tableExample',
         table: {
@@ -333,6 +334,7 @@
             url,
             {ticket_id: ticket_id},
             function (data) {
+
                 var reparacion_table = [[{text: 'Triage', style: 'tableHeader'}, {text: 'Dispositivo', style: 'tableHeader'}, {text: 'Problema reportado', style: 'tableHeader'}, {text: 'Problema encontrado', style: 'tableHeader'}]];
                 for (var i = 0; i < data.reparaciones.length; i++) {
                     reparacion_table.push([
@@ -349,6 +351,7 @@
                         data.registros[i].usuario]);
                 }
                 var dd = {
+
                     content: [
                     {text: 'Detalle de garantía', style: 'header', alignment: 'center'},
                     {
@@ -408,7 +411,7 @@
                         }
                     }
                 }
-                pdfMake.createPdf(dd).download();
+                //pdfMake.createPdf(dd).download();
             });
 }
 
@@ -489,6 +492,48 @@
             );
     }
 
+    //var imprimir_monitoreo_visitas = function (url, id_visita){
+      var imprimir_monitoreo_visitas = function (){
+
+    /*  $.post(
+        url,
+        {id_visita : id_visita},
+        function (data){
+
+          var cuerpo ={
+            content: [
+              {
+                text:'Detalle de Visitas Monitoreadas', style: 'header', alignment:'center'
+              },
+              {
+                style:'tableExample',
+                table:{
+                  headerRows:1,
+                  body:[
+                    [
+                      {text: 'Encargado'},data.Encargado,
+                      {text: 'Escuela'},data.Escuela,
+                      {text: 'Direccion'},data.Direccion,
+                      {text: 'Equipamiento'},data.Equipamiento,
+                      {text: 'Fecha de Visita'},data.FechaDeVisita,
+                      {text: 'Hora de Inicio'},data.HorarioInicial,
+                      {text: 'Hora Final'},data.HorarioFinal,
+                      {text: 'Contacto'},data.Contacto,
+
+
+                    ]
+                  ]
+                }
+              }
+            ]
+          }
+
+            pdfMake.createPdf(cuerpo).download();
+        }
+
+      );*/
+    }
+
     // Public
     DetalleGarantia.init = function () {
         $('#form-nuevo-ticket').hide();
@@ -505,6 +550,15 @@
         $('.btn-print-registro').on('click', function () {
             imprimir_registro($(this).data('url'), $(this).data('ticket'));
         })
+         tabla = $('#visita-table').DataTable({
+          dom: 'lfrtipB',
+          buttons: ['excel', 'pdf'],
+          processing:true,          
+        }).on('xhr.dt',function(e, settings, json, xhr){
+          $('#spinner').hide();
+        });
+        $('spinner').hide();
+
     }
 }( window.DetalleGarantia = window.DetalleGarantia || {}, jQuery ));
 
@@ -678,7 +732,7 @@
                     content: {
                         title: event.tip_title,
                         text: event.tip_text,
-                        
+
                     },
                 });
             },
