@@ -6,14 +6,30 @@ from apps.cyd import forms as cyd_f
 from apps.cyd import models as cyd_m
 
 
+class ProcesoNaatForm(forms.ModelForm):
+    """Formulario para crear un :class:`ProcesoNaat`
+    """
+    udi = forms.CharField(
+        label='UDI de la escuela',
+        widget=forms.TextInput(attrs={'class': 'form-control'}))
+
+    class Meta:
+        model = naat_m.ProcesoNaat
+        fields = ('udi', 'fecha_inicio', 'fecha_fin')
+        widgets = {
+            'fecha_inicio': forms.TextInput(attrs={'class': 'form-control datepicker'}),
+            'fecha_fin': forms.TextInput(attrs={'class': 'form-control datepicker'}),
+        }
+
+
 class AsignacionNaatForm(cyd_f.ParticipanteBaseForm):
     """Formulario para crear un :class:`Participante` y asignarlo a un capacitador por medio
     de :class:`AsignacionNaat` (esta lógica para en la vista, el formulario únicamente sirve para
     tomar los datos).
     La lógica para filtrar al capacitador se realizará en la vista.
     """
-    capacitador = forms.ModelChoiceField(
-        queryset=User.objects.filter(groups__name='naat_facilitador'),
+    proceso = forms.ModelChoiceField(
+        queryset=naat_m.ProcesoNaat.objects.all(),
         empty_label=None)
 
     class Meta:
@@ -23,17 +39,42 @@ class AsignacionNaatForm(cyd_f.ParticipanteBaseForm):
             'mail', 'tel_movil']
         exclude = ('slug',)
 
-    def __init__(self, *args, **kwargs):
-        super(AsignacionNaatForm, self).__init__(*args, **kwargs)
-        self.fields['capacitador'].label_from_instance = lambda obj: '{}'.format(obj.get_full_name())
-
 
 class CalendarFilterForm(forms.Form):
     """Formulario para filtrar los eventos mostrados en el calendario con base en el capacitador."""
     capacitador = forms.ModelChoiceField(
-        queryset=User.objects.filter(id__in=naat_m.SesionPresencial.objects.values('capacitador').distinct()),
+        queryset=User.objects.filter(id__in=naat_m.SesionPresencial.objects.values('proceso__capacitador').distinct()),
         required=False)
 
     def __init__(self, *args, **kwargs):
         super(CalendarFilterForm, self).__init__(*args, **kwargs)
         self.fields['capacitador'].label_from_instance = lambda obj: '{}'.format(obj.get_full_name())
+
+
+class SesionPresencialCreateForm(forms.ModelForm):
+    udi = forms.CharField(
+        label='UDI de la escuela',
+        widget=forms.TextInput(attrs={'class': 'form-control'}))
+
+    class Meta:
+        model = naat_m.SesionPresencial
+        fields = ('udi', 'fecha', 'hora_inicio', 'hora_fin', 'proceso')
+        widgets = {
+            'fecha': forms.TextInput(attrs={'class': 'form-control datepicker'}),
+            'hora_inicio': forms.TimeInput(attrs={'class': 'form-control'}),
+            'hora_fin': forms.TimeInput(attrs={'class': 'form-control'}),
+            'proceso': forms.Select(attrs={'class': 'form-control'})
+        }
+
+
+class SesionPresencialForm(forms.ModelForm):
+    class Meta:
+        model = naat_m.SesionPresencial
+        fields = ('fecha', 'hora_inicio', 'hora_fin', 'observaciones', 'asistentes')
+        widgets = {
+            'fecha': forms.TextInput(attrs={'class': 'form-control datepicker'}),
+            'hora_inicio': forms.TimeInput(attrs={'class': 'form-control'}),
+            'hora_fin': forms.TimeInput(attrs={'class': 'form-control'}),
+            'observaciones': forms.Textarea(attrs={'class': 'form-control'}),
+            'asistentes': forms.SelectMultiple(attrs={'class': 'form-control select2'})
+        }

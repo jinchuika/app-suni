@@ -15,7 +15,7 @@
 					{
 						label: 'Renovaciones',
 						data: data.renovacion,
-						backgroundColor: 'rgba(243, 156, 18, 0.8)',
+						backgroundColor: 'rgba(0, 31, 63, 0.8)',
 						borderWidth: 1
 					}]
 				},
