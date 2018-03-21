@@ -12,7 +12,7 @@ from apps.mye import models as mye_m
 from apps.escuela.views import EscuelaDetail
 
 
-class CooperanteCrear(LoginRequiredMixin, CreateView):
+class CooperanteCrear(LoginRequiredMixin,PermissionRequiredMixin,CreateView):
     """Vista   para obtener los datos del cooperante mediante una :class:`Cooperante`
     Funciona  para recibir los datos de un  'CooperanteForm' mediante el metodo  POST.  y
     nos muestra el template de cooperante mediante el metodo GET.
@@ -22,6 +22,7 @@ class CooperanteCrear(LoginRequiredMixin, CreateView):
     template_name = 'mye/cooperante_form.html'
     form_class = mye_f.CooperanteForm
     permission_required = 'mye.add_cooperante'
+    raise_exception = True
 
 
 class CooperanteDetalle(LoginRequiredMixin, DetailView):
@@ -33,7 +34,7 @@ class CooperanteDetalle(LoginRequiredMixin, DetailView):
     template_name = 'mye/cooperante.html'
 
 
-class CooperanteUpdate(LoginRequiredMixin, UpdateView):
+class CooperanteUpdate(LoginRequiredMixin,PermissionRequiredMixin, UpdateView):
     """Vista encargada de  Actualizar la informacion de un Cooperante  mediante una :class:`Cooperante`
     Funciona  para Actualizar los Datos  de un  'CooperanteForm' mediante el metodo POST  ye nos muestra
     el template de cooperante_form  mediante el  metodo GET.
@@ -42,6 +43,8 @@ class CooperanteUpdate(LoginRequiredMixin, UpdateView):
     model = mye_m.Cooperante
     template_name = 'mye/cooperante_form.html'
     form_class = mye_f.CooperanteForm
+    permission_required = 'mye.change_cooperante'
+    raise_exception = True
 
 
 class CooperanteList(LoginRequiredMixin, FormView):
@@ -54,7 +57,7 @@ class CooperanteList(LoginRequiredMixin, FormView):
     form_class = mye_f.CPFilterForm
 
 
-class ProyectoCrear(LoginRequiredMixin, CreateView):
+class ProyectoCrear(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     """Vista para obtener los datos del cooperante mediante un :class:`Proyecto`
     Funciona solo para recibir  los datos de un 'ProyectoForm' mediante el metodo POST,
     por medio del metodo GET nos  muestra el template de  proyecto .
@@ -63,6 +66,8 @@ class ProyectoCrear(LoginRequiredMixin, CreateView):
     model = mye_m.Proyecto
     template_name = 'mye/proyecto_form.html'
     form_class = mye_f.ProyectoForm
+    permission_required = 'mye.add_proyecto'
+    raise_exception = True
 
 
 class ProyectoDetalle(LoginRequiredMixin, DetailView):
@@ -74,7 +79,7 @@ class ProyectoDetalle(LoginRequiredMixin, DetailView):
     template_name = 'mye/proyecto.html'
 
 
-class ProyectoUpdate(LoginRequiredMixin, UpdateView):
+class ProyectoUpdate(LoginRequiredMixin,PermissionRequiredMixin,UpdateView):
     """Vista Encargada de Actualizar los datos de  proyecto mediante una :class:`Proyecto`
     Funciona solo para recibr los datos de un ''ProyectoForm' mediante el metodo POST, por Medio
     del metodo GET nos muestra el template de proyecto_form.
@@ -83,6 +88,8 @@ class ProyectoUpdate(LoginRequiredMixin, UpdateView):
     model = mye_m.Proyecto
     template_name = 'mye/proyecto_form.html'
     form_class = mye_f.ProyectoForm
+    permission_required = 'mye.change_proyecto'
+    raise_exception = True
 
 
 class ProyectoList(LoginRequiredMixin, ListView):
@@ -94,7 +101,7 @@ class ProyectoList(LoginRequiredMixin, ListView):
     template_name = 'mye/proyecto_list.html'
 
 
-class SolicitudVersionCrear(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
+class SolicitudVersionCrear(LoginRequiredMixin,PermissionRequiredMixin,CreateView):
     """Vista  para obtener los datos de la Solicitud mediante  una :class:`SolicitudVersion`
     Funciona solo para recibir los datos de un 'SolicitudVersionForm' mediante el metodo POST,
     el metodo GET nos muestra el template solicitud_version_form.
@@ -117,13 +124,15 @@ class SolicitudVersionDetalle(LoginRequiredMixin, DetailView):
     template_name = 'mye/solicitud_version.html'
 
 
-class SolicitudCrearView(LoginRequiredMixin, CreateView):
+class SolicitudCrearView(LoginRequiredMixin,PermissionRequiredMixin, CreateView):
     """
     TODO:
             refactorizar  esta vista
     """
     model = mye_m.Solicitud
     form_class = mye_f.SolicitudNuevaForm
+    permission_required = 'mye.add_solicitud'
+    raise_exception = True
 
     def form_valid(self, form):
         response = super(SolicitudCrearView, self).form_valid(form)
@@ -148,7 +157,7 @@ class SolicitudCrearView(LoginRequiredMixin, CreateView):
             kwargs={'pk': self.object.escuela.id, 'id_solicitud': self.object.id})
 
 
-class SolicitudUpdate(LoginRequiredMixin, UpdateView):
+class SolicitudUpdate(LoginRequiredMixin,PermissionRequiredMixin,UpdateView):
     """Vista Encargada de Actualizar una :class:`Solicitud`, Solo funciona Para
     recibir un 'SolicitudForm' mediante POST y actualiza los datos , mediate el metodo GET
     nos muestra el template solicitud_form.
@@ -157,14 +166,18 @@ class SolicitudUpdate(LoginRequiredMixin, UpdateView):
     model = mye_m.Solicitud
     form_class = mye_f.SolicitudForm
     template_name = 'mye/solicitud_form.html'
+    permission_required = 'mye.change_solicitud'
+    raise_exception = True
 
     def get_success_url(self):
         return reverse('escuela_detail', kwargs={'pk': self.object.escuela.id})
 
 
-class ValidacionCrearView(LoginRequiredMixin, CreateView):
+class ValidacionCrearView(LoginRequiredMixin,PermissionRequiredMixin, CreateView):
     model = mye_m.Validacion
     form_class = mye_f.ValidacionNuevaForm
+    permission_required = 'mye.add_validacion'
+    raise_exception = True
 
     def form_valid(self, form):
         response = super(ValidacionCrearView, self).form_valid(form)
@@ -189,7 +202,7 @@ class ValidacionCrearView(LoginRequiredMixin, CreateView):
             kwargs={'pk': self.object.escuela.id, 'id_validacion': self.object.id})
 
 
-class ValidacionUpdate(LoginRequiredMixin, UpdateView):
+class ValidacionUpdate(LoginRequiredMixin,PermissionRequiredMixin, UpdateView):
     """"Vista Encargada de Actualizar un :class:`Validacion`, solo funciona Para
     recibir un 'ValidacionForm', mediante el  metodo POST y actualiza los datos,
     mediante el metodo GET nos muestra el template solicitud_form.
@@ -198,6 +211,8 @@ class ValidacionUpdate(LoginRequiredMixin, UpdateView):
     model = mye_m.Validacion
     form_class = mye_f.ValidacionForm
     template_name = 'mye/solicitud_form.html'
+    permission_required = 'mye.change_validacion'
+    raise_exception = True
 
     def get_success_url(self):
         return reverse('escuela_detail', kwargs={'pk': self.object.escuela.id})

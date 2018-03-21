@@ -579,13 +579,15 @@ class DispositivoReparacionListView(LoginRequiredMixin, FormView):
     form_class = tpe_f.DispositivoReparacionListForm
     template_name = 'tpe/dispositivo_reparacion_list.html'
 
-class VisitaInformeView( LoginRequiredMixin, CreateView ):
+class VisitaInformeView( LoginRequiredMixin,PermissionRequiredMixin, CreateView ):
     """Vista   para obtener los datos de la Visitas mediante una :class:`VisitaMonitoreo`
     Funciona  para recibir los datos de un  'VisitaMonitoreoForm' mediante el metodo  POST.  y
     nos muestra el template de visitas mediante el metodo GET.
     """
     form_class = tpe_f.VisitaMonitoreoCreateForm
     template_name = 'tpe/visita_add.html'
+    permission_required = 'tpe.add_visitamonitoreo'
+    raise_exception = True
 
     def get_success_url(self):
         return reverse('visita_monitoreo_update', kwargs={'pk': self.object.id})
@@ -598,19 +600,21 @@ class VisitaInformeView( LoginRequiredMixin, CreateView ):
         form.instance.hora_final = datetime.now().time()
         return super(VisitaInformeView, self).form_valid(form)
 
-class VisitaUpdateView(LoginRequiredMixin, UpdateView):
+class VisitaUpdateView(LoginRequiredMixin,PermissionRequiredMixin, UpdateView):
     """Vista para editar una :class:`VisitaMonitoreo`. Solo funciona para
     recibir un `VisitaMonitoreoForm` mediante POST y actualizar los datos,
-     muestra  template `visita_add con el método GET.
+    muestra el template `visita_add con el método GET.
     """
     model = tpe_m.VisitaMonitoreo
     form_class = tpe_f.VisitaMonitoreoForm
+    permission_required = 'tpe.change_visitamonitoreo'
+    raise_exception = True
     template_name = 'tpe/visita_add.html'
 
 
 class VisitaListView(LoginRequiredMixin, ListView):
-    """Vista para mostrar una lista de  una :class:`VisitaMonitoreo`. y nos
-    muestra  template `visita_list` con el método GET.
+    """Vista para mostrar un informe de  una :class:`VisitaMonitoreo`. y nos
+    muestra el template `visita_list` con el método GET.
     """
     model = tpe_m.VisitaMonitoreo
     template_name = 'tpe/visita_list.html'
@@ -618,15 +622,15 @@ class VisitaListView(LoginRequiredMixin, ListView):
 
 class VisitaDetailView(LoginRequiredMixin, DetailView):
     """Vista para mostrar una lista de  una :class:`VisitaMonitoreo`. pero en
-    especifico la vistia antes seleccionada y nos muestra  template `visita_detail` con el método GET.
+    especifico la visita antes seleccionada y nos muestra el template `visita_detail` con el método GET.
     """
     model = tpe_m.VisitaMonitoreo
     template_name = 'tpe/visita_detail.html'
 
 class VisitaDetallePrintView(LoginRequiredMixin,DetailView):
     """Vista para mostrar una lista de  una :class:`VisitaMonitoreo`. pero en
-    especifico la vistia antes seleccionada y nos muestra  template `visita_detail_print` con el método GET.
-    el cual nos muestra como se vera el informe antes de ser imprimido o guarado como un archivo pdf
+    especifico la visita antes seleccionada y nos muestra  template `visita_detail_print` con el método GET.
+    el cual nos muestra como se vera el informe antes de ser imprimido o guardado como un archivo pdf
     """
     model = tpe_m.VisitaMonitoreo
     template_name = 'tpe/visita_detail_print.html'
