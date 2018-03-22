@@ -22,6 +22,7 @@
 									<tr>
 										<th>No.</th>
 										<th>Equipamiento</th>
+										<th>Escuela</th>
 										<th>Encargado</th>
 										<th>Fecha</th>
 
@@ -37,11 +38,14 @@
 												<p> {{ visita.equipamiento }}</p>
 											</td>
 											<td>
-												<p> {{ visita.encargado }}</p>
+												<p> {{ visita.equipamiento.escuela }}</p>
 											</td>
 											<td>
-												<p> {{ visita.fecha_visita }}</p>
-											</td>											
+												<p> {{ visita.encargado.get_full_name }}</p>
+											</td>
+											<td>
+												<p> {{ visita.fecha_visita |date:"d-m-Y"  }}</p>
+											</td>
 										</tr>
 									{% endfor %}
 								</tbody>

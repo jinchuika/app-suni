@@ -13,25 +13,79 @@
 	<div class="container-fluid">
 		<div class="row">
 			<div class="col-md-6">
-				<div class="box">
-					<div class="box-header">
-						<h3 class="box-title">Información general</h3>
+				<div class="row">
+					<div class="col-md-12">
+						<div class="box">
+							<div class="box-header">
+								<h3 class="box-title">Información general</h3>
+								{% if perms.change_sesionpresencial %}
+								<div class="box-tools pull-right">
+									<a href="{% url 'sesion_naat_update' pk=sesionpresencial.id %}" class="btn btn-xs btn-primary">
+										<i class="fa fa-pencil"></i> Editar
+									</a>
+								</div>
+								{% endif %}
+							</div>
+							<div class="box-body">
+								<table class="table table-striped">
+									<tr>
+										<th>Escuela</th>
+										<td>
+											<a href="{{ sesionpresencial.proceso.escuela.get_absolute_url }}">
+												{{ sesionpresencial.proceso.escuela }}
+											</a> 
+											({{ sesionpresencial.proceso.escuela.codigo }})
+										</td>
+									</tr>
+									<tr>
+										<th>Dirección</th>
+										<td>
+											{{ sesionpresencial.proceso.escuela.direccion }} <br>
+											{{ sesionpresencial.proceso.escuela.municipio }}
+										</td>
+									</tr>
+									<tr>
+										<th>Fecha</th>
+										<td>{{ sesionpresencial.fecha|date:"Y-m-d" }}</td>
+									</tr>
+									<tr>
+										<th>Hora de inicio</th>
+										<td>{{ sesionpresencial.hora_inicio }}</td>
+									</tr>
+									<tr>
+										<th>Hora de fin</th>
+										<td>{{ sesionpresencial.hora_fin }}</td>
+									</tr>
+									<tr>
+										<th>Observaciones</th>
+										<td>{{ sesionpresencial.observaciones|default_if_none:"" }}</td>
+									</tr>
+								</table>
+							</div>
+						</div>
 					</div>
-					<div class="box-body">
-						<table class="table table-striped">
-							<tr>
-								<th>Fecha</th>
-								<td>{{ sesionpresencial.fecha|date:"Y-m-d" }}</td>
-							</tr>
-							<tr>
-								<th>Hora de inicio</th>
-								<td>{{ sesionpresencial.hora_inicio }}</td>
-							</tr>
-							<tr>
-								<th>Hora de fin</th>
-								<td>{{ sesionpresencial.hora_fin }}</td>
-							</tr>
-						</table>
+				</div>
+				<div class="row">
+					<div class="col-md-6 col-sm-6 col-xs-12">
+						<div class="info-box">
+							<span class="info-box-icon bg-aqua"><i class="fa fa-user" aria-hidden="true"></i></span>
+
+							<div class="info-box-content">
+								<span class="info-box-text">Facilitador</span>
+								<span class="info-box-number">{{ sesionpresencial.proceso.capacitador.get_full_name }}</span>
+							</div>
+						</div>
+					</div>
+
+					<div class="col-md-6 col-sm-6 col-xs-12">
+						<div class="info-box">
+							<span class="info-box-icon bg-red"><i class="fa fa-user" aria-hidden="true"></i></span>
+
+							<div class="info-box-content">
+								<span class="info-box-text">Participantes</span>
+								<span class="info-box-number">{{ sesionpresencial.asistentes.count }}</span>
+							</div>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -43,9 +97,9 @@
 					</div>
 					<div class="box-body">
 						<ul class="list-unstyled">
-						{% for asignacion in sesionpresencial.asistentes.all %}
+							{% for asignacion in sesionpresencial.asistentes.all %}
 							<li>{{ asignacion.participante }}</li>
-						{% endfor %}
+							{% endfor %}
 						</ul>
 					</div>
 				</div>

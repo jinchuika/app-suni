@@ -68,7 +68,7 @@ class CalendarioFilter(filters.FilterSet):
 
     class Meta:
         model = naat_m.SesionPresencial
-        fields = ['capacitador', 'escuela', 'fecha', 'start', 'end']
+        fields = ['fecha', 'start', 'end']
 
 
 class SesionPresencialCalendarViewSet(BaseNaatPermission, viewsets.ModelViewSet):

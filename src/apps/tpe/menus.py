@@ -33,7 +33,12 @@ tpe_children = (
         "Evaluación",
         reverse_lazy("evaluacionmonitoreo_list"),
         weight=95,
-        icon="fa-check"),)
+        icon="fa-check"),
+    ViewMenuItem(
+        "Monitoreo de Visitas",
+        reverse_lazy("visita_list"),
+        weight=95,
+        icon="fa-laptop"),)
 
 Menu.add_item(
     "user",
