@@ -76,5 +76,9 @@ class SesionPresencialForm(forms.ModelForm):
             'hora_inicio': forms.TimeInput(attrs={'class': 'form-control'}),
             'hora_fin': forms.TimeInput(attrs={'class': 'form-control'}),
             'observaciones': forms.Textarea(attrs={'class': 'form-control'}),
-            'asistentes': forms.SelectMultiple(attrs={'class': 'form-control select2'})
+            'asistentes': forms.CheckboxSelectMultiple()
         }
+
+    def __init__(self, *args, **kwargs):
+        super(SesionPresencialForm, self).__init__(*args, **kwargs)
+        self.fields['asistentes'].label_from_instance = lambda obj: '{}'.format(obj.participante)

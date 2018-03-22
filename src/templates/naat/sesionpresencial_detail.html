@@ -18,23 +18,30 @@
 						<div class="box">
 							<div class="box-header">
 								<h3 class="box-title">Información general</h3>
+								{% if perms.change_sesionpresencial %}
+								<div class="box-tools pull-right">
+									<a href="{% url 'sesion_naat_update' pk=sesionpresencial.id %}" class="btn btn-xs btn-primary">
+										<i class="fa fa-pencil"></i> Editar
+									</a>
+								</div>
+								{% endif %}
 							</div>
 							<div class="box-body">
 								<table class="table table-striped">
 									<tr>
 										<th>Escuela</th>
 										<td>
-											<a href="{{ sesionpresencial.escuela.get_absolute_url }}">
-												{{ sesionpresencial.escuela }}
+											<a href="{{ sesionpresencial.proceso.escuela.get_absolute_url }}">
+												{{ sesionpresencial.proceso.escuela }}
 											</a> 
-											({{ sesionpresencial.escuela.codigo }})
+											({{ sesionpresencial.proceso.escuela.codigo }})
 										</td>
 									</tr>
 									<tr>
 										<th>Dirección</th>
 										<td>
-											{{ sesionpresencial.escuela.direccion }} <br>
-											{{ sesionpresencial.escuela.municipio }}
+											{{ sesionpresencial.proceso.escuela.direccion }} <br>
+											{{ sesionpresencial.proceso.escuela.municipio }}
 										</td>
 									</tr>
 									<tr>
@@ -51,7 +58,7 @@
 									</tr>
 									<tr>
 										<th>Observaciones</th>
-										<td>{{ observaciones|default_if_none:"" }}</td>
+										<td>{{ sesionpresencial.observaciones|default_if_none:"" }}</td>
 									</tr>
 								</table>
 							</div>
@@ -65,7 +72,7 @@
 
 							<div class="info-box-content">
 								<span class="info-box-text">Facilitador</span>
-								<span class="info-box-number">{{ sesionpresencial.capacitador.get_full_name }}</span>
+								<span class="info-box-number">{{ sesionpresencial.proceso.capacitador.get_full_name }}</span>
 							</div>
 						</div>
 					</div>

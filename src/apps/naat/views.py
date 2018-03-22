@@ -143,7 +143,7 @@ class SesionPresencialUpdateView(BaseNaatPermission, UpdateView):
 
     def get_form(self, form_class=None):
         form = super(SesionPresencialUpdateView, self).get_form(form_class)
-        form.fields['asistentes'].queryset = cyd_m.Participante.objects.filter(escuela=form.instance.escuela)
+        form.fields['asistentes'].queryset = naat_m.AsignacionNaat.objects.filter(proceso=form.instance.proceso)
         return form
 
 
@@ -175,5 +175,14 @@ class ProcesoNaatCreateView(BaseNaatPermission, CreateView):
 
 
 class ProcesoNaatDetailView(BaseNaatPermission, DetailView):
+    """Vista de detalle de un :class:`ProcesoNaat`"""
     model = naat_m.ProcesoNaat
     template_name = 'naat/proceso_detail.html'
+
+
+class ProcesoNaatListView(BaseNaatPermission, ListView):
+    """Vista para mostrar un listado de :class:`ProcesosNaat`.
+    Eventualmente puede que esta vista cambie para generar un informe completo
+    utilizando DRF."""
+    model = naat_m.ProcesoNaat
+    template_name = 'naat/proceso_list.html'
