@@ -52,13 +52,13 @@ class CalendarFilterForm(forms.Form):
 
 
 class SesionPresencialCreateForm(forms.ModelForm):
-    udi = forms.CharField(
-        label='UDI de la escuela',
-        widget=forms.TextInput(attrs={'class': 'form-control'}))
+
+    """Formulario para crear una nueva :class:`SesionPresencial`
+    """
 
     class Meta:
         model = naat_m.SesionPresencial
-        fields = ('udi', 'fecha', 'hora_inicio', 'hora_fin', 'proceso')
+        fields = ('fecha', 'hora_inicio', 'hora_fin', 'proceso')
         widgets = {
             'fecha': forms.TextInput(attrs={'class': 'form-control datepicker'}),
             'hora_inicio': forms.TimeInput(attrs={'class': 'form-control'}),

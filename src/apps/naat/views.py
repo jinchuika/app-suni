@@ -104,8 +104,7 @@ class SesionPresencialCalendarView(BaseNaatPermission, FormView):
 
 class SesionPresencialCreateView(BaseNaatPermission, CreateView):
     """Creación de :class:`SesionPresencial` de Naat.
-    Filtra el campo `capacitador` del formulario en caso de que un usuario del tipo `naat_facilitador`
-    sea quien ingrese los datos.
+    Filtra los datos del campo `proceso` para que muestre solo los del usuario que consulta actualmente.
     """
 
     template_name = 'naat/sesionpresencial_add.html'
@@ -117,20 +116,9 @@ class SesionPresencialCreateView(BaseNaatPermission, CreateView):
         """
         form = super(SesionPresencialCreateView, self).get_form(form_class)
         if self.request.user.groups.filter(name="naat_facilitador").exists():
-            form.fields['capacitador'].queryset = form.fields['capacitador'].queryset.filter(id=self.request.user.id)
-            form.fields['capacitador'].empty_label = None
+            form.fields['proceso'].queryset = form.fields['proceso'].queryset.filter(capacitador=self.request.user.id)
+            form.fields['proceso'].empty_label = None
         return form
-
-    def form_valid(self, form):
-        """
-        Verifica que el UDI de la :class:`Escuela` sea válido.
-        """
-        try:
-            form.instance.escuela = escuela_m.Escuela.objects.get(codigo=form.cleaned_data['udi'])
-        except ObjectDoesNotExist:
-            form.add_error('udi', 'El UDI no es válido o no existe.')
-            return self.form_invalid(form)
-        return super(SesionPresencialCreateView, self).form_valid(form)
 
 
 class SesionPresencialUpdateView(BaseNaatPermission, UpdateView):

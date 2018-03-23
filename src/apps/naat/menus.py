@@ -7,13 +7,18 @@ naat_children = (
     ViewMenuItem(
         "Crear participante",
         reverse_lazy("participante_naat_add"),
-        weight=20,
+        weight=30,
         icon="fa-user"),
     ViewMenuItem(
         "Calendario",
         reverse_lazy("sesion_naat_calendar"),
         weight=10,
-        icon="fa-calendar"),)
+        icon="fa-calendar"),
+    ViewMenuItem(
+        "Procesos de Naat",
+        reverse_lazy("proceso_naat_list"),
+        weight=20,
+        icon="fa-cubes"),)
 
 Menu.add_item(
     "user",
