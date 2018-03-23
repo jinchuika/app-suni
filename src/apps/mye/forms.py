@@ -51,6 +51,12 @@ class CPFilterForm(forms.Form):
         required=False,
         widget=forms.TextInput(attrs={'class': 'form-control datepicker'}))
 
+class PYFilterForm(forms.Form):
+        cantidad_equipamientos = forms.IntegerField(
+            label='Equipamientos (min)',
+            required=False,
+            widget=forms.NumberInput(attrs={'min': 0, 'class': 'form-control'}))
+
 
 class SolicitudVersionForm(forms.ModelForm):
     """Formulario para versiones de solicitudes

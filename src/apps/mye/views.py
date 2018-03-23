@@ -92,13 +92,15 @@ class ProyectoUpdate(LoginRequiredMixin,PermissionRequiredMixin,UpdateView):
     raise_exception = True
 
 
-class ProyectoList(LoginRequiredMixin, ListView):
+class ProyectoList(LoginRequiredMixin, FormView):
     """Vista encarga de gestionar el listado de :class:`Proyecto`,obteniendo los datos necesarios
     por medio del metodo GET nos muestra el template proyecto_list.
 
     """
     model = mye_m.Proyecto
+    form_class = mye_f.PYFilterForm
     template_name = 'mye/proyecto_list.html'
+
 
 
 class SolicitudVersionCrear(LoginRequiredMixin,PermissionRequiredMixin,CreateView):

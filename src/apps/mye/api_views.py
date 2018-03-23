@@ -142,3 +142,21 @@ class CooperanteViewSet(LoginRequiredMixin, viewsets.ModelViewSet):
     serializer_class = mye_s.CooperanteSerializer
     queryset = mye_m.Cooperante.objects.all()
     filter_class = CooperanteFilter
+
+class ProyectoFilter(filters.FilterSet):
+    cantidad_equipamientos = django_filters.NumberFilter(name='cantidad_equipamientos', method='filter_equipamiento')
+    class Meta:
+        model = mye_m.Proyecto
+        fields = ['cantidad_equipamientos']
+
+    def filter_equipamiento(self, queryset, name, value):
+        if value and name =='cantidad_equipamientos':
+            queryset = queryset.annotate(cantidad=Count('equipamientos')).filter(cantidad__gte=value)
+        if value and name == 'equipamientos_max':
+            queryset = queryset.annotate(cantidad=Count('equipamientos')).filter(cantidad__lte=value)
+        return queryset
+
+class ProyectoViewSet(LoginRequiredMixin, viewsets.ModelViewSet):
+    serializer_class = mye_s.ProyectoSerializer
+    queryset = mye_m.Proyecto.objects.all()
+    filter_class = ProyectoFilter
