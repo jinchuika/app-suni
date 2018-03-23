@@ -10,6 +10,13 @@
 <section class="content-header">
 	<h1>
 		Calendario de Naat
+		{% if perms.add_sesionpresencial %}
+		<div class="pull-right">
+			<a href="{% url 'sesion_naat_add' %}" class="btn btn-sm btn-primary">
+				<i class="fa fa-plus"></i> Nueva sesión
+			</a>
+		</div>
+		{% endif %}
 	</h1>
 </section>
 <section class="content">
