@@ -109,8 +109,8 @@ class CooperanteFilter(filters.FilterSet):
     equipamientos_max = django_filters.NumberFilter(name='equipamientos_max', method='filter_equipamientos')
     equipo_min = django_filters.NumberFilter(name='equipo_min', method='filter_equipo')
     equipo_max = django_filters.NumberFilter(name='equipo_max', method='filter_equipo')
-    fecha_min = django_filters.NumberFilter(name='fecha_min', method='filter_fecha')
-    fecha_max = django_filters.NumberFilter(name='fecha_max', method='filter_fecha')
+    fecha_min = django_filters.DateFilter(name='fecha_min', method='filter_fecha')
+    fecha_max = django_filters.DateFilter(name='fecha_max', method='filter_fecha')
 
     class Meta:
         model = mye_m.Cooperante
@@ -143,18 +143,33 @@ class CooperanteViewSet(LoginRequiredMixin, viewsets.ModelViewSet):
     queryset = mye_m.Cooperante.objects.all()
     filter_class = CooperanteFilter
 
+
 class ProyectoFilter(filters.FilterSet):
     cantidad_equipamientos = django_filters.NumberFilter(name='cantidad_equipamientos', method='filter_equipamiento')
+    fecha_min = django_filters.DateFilter(name='fecha_min', method='filter_fecha')
+    fecha_max = django_filters.DateFilter(name='fecha_max', method='filter_fecha')
+
     class Meta:
         model = mye_m.Proyecto
-        fields = ['cantidad_equipamientos']
+        fields = ['cantidad_equipamientos', 'fecha_min', 'fecha_max']
 
     def filter_equipamiento(self, queryset, name, value):
-        if value and name =='cantidad_equipamientos':
+        if value and name == 'cantidad_equipamientos':
             queryset = queryset.annotate(cantidad=Count('equipamientos')).filter(cantidad__gte=value)
         if value and name == 'equipamientos_max':
             queryset = queryset.annotate(cantidad=Count('equipamientos')).filter(cantidad__lte=value)
         return queryset
+
+    def filter_fecha(self, queryset, name, value):
+
+        if value and name == 'fecha_min':
+
+            queryset = queryset.filter(equipamientos__fecha__gte=value)
+
+        if value and name == 'fecha_max':
+            queryset = queryset.filter(equipamientos__fecha__lte=value)
+        return queryset
+
 
 class ProyectoViewSet(LoginRequiredMixin, viewsets.ModelViewSet):
     serializer_class = mye_s.ProyectoSerializer

@@ -198,3 +198,17 @@ class ValidacionComentario(models.Model):
 
     def __str__(self):
         return str(self.validacion) + self.comentario[:15] + '...'
+
+
+class SolicitudComentario(models.Model):
+    solicitud = models.ForeignKey(Solicitud, related_name='comentarios_solicitud')
+    comentario = models.TextField()
+    usuario = models.ForeignKey(User)
+    fecha = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        verbose_name = "Comentario de Solicitud"
+        verbose_name_plural = "Comentarios de Solicitud"
+
+    def __str__(self):
+        return str(self.validacion) + self.comentario[:15]+'...'
