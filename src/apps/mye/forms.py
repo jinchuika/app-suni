@@ -52,6 +52,21 @@ class CPFilterForm(forms.Form):
         widget=forms.TextInput(attrs={'class': 'form-control datepicker'}))
 
 
+class PYFilterForm(forms.Form):
+        cantidad_equipamientos = forms.IntegerField(
+            label='Equipamientos (min)',
+            required=False,
+            widget=forms.NumberInput(attrs={'min': 0, 'class': 'form-control'}))
+        fecha_min = forms.CharField(
+            label='Fecha (min)',
+            required=False,
+            widget=forms.TextInput(attrs={'class': 'form-control datepicker'}))
+        fecha_max = forms.CharField(
+            label='Fecha (max)',
+            required=False,
+            widget=forms.TextInput(attrs={'class': 'form-control datepicker'}))
+
+
 class SolicitudVersionForm(forms.ModelForm):
     """Formulario para versiones de solicitudes
     """

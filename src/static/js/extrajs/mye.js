@@ -1,7 +1,7 @@
 (function( InformeMye, $, undefined ) {
     var get_extra_campos = function () {
         var lista = [];
-        $.each($("input[name='campos']:checked"), function(){            
+        $.each($("input[name='campos']:checked"), function(){
             lista.push($(this).val());
         });
         return lista;
@@ -73,7 +73,7 @@
                 }
             });
         });
-    }   
+    }
 }( window.InformeMye = window.InformeMye || {}, jQuery ));
 
 
@@ -127,7 +127,7 @@
             tabla.clear().draw();
             tabla.ajax.reload();
         });
-    }   
+    }
 }( window.SolicitudList = window.SolicitudList || {}, jQuery ));
 
 
@@ -186,7 +186,7 @@
             tabla.ajax.reload();
         });
 
-    }   
+    }
 }( window.ValidacionList = window.ValidacionList || {}, jQuery ));
 
 
@@ -228,5 +228,48 @@
             tabla.ajax.reload();
         });
 
-    }   
+    }
 }( window.CooperanteList = window.CooperanteList || {}, jQuery ));
+
+(function( ProyectoList, $, undefined) {
+  var tabla = $('#projecto-table').DataTable({
+      dom: 'lfrtipB',
+      buttons: ['excel','pdf'],
+      processing: true,
+      ajax: {
+          url: $('#projectos-list-form').prop('action'),
+          deferRender: true,
+          dataSrc: '',
+          cache: false,
+          data: function () {
+              return $('#projectos-list-form').serializeObject();
+          }
+      },
+      columns: [
+      {
+          "data": "nombre",
+          render: function (data, type, full) {
+              return '<a href="'+full.url+'">'+full.nombre+'</a>';
+          }
+      },
+      {
+        data:"cantidad_equipamientos",className:"nowrap"
+      }
+      ]
+  }).on('xhr.dt', function () {
+       $('#spinner').hide();
+  });;
+
+  // Public
+  ProyectoList.init = function () {
+      $('#spinner').hide();
+      $('#projectos-list-form').submit(function (e) {
+          e.preventDefault();
+          tabla.clear().draw();
+          $('#spinner').show();
+          tabla.ajax.reload();
+      });
+
+  }
+
+}( window.ProyectoList = window.ProyectoList || {}, jQuery ));

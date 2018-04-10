@@ -261,26 +261,27 @@
 
 									<div class="tab-pane" id="equipamiento">
 										{% if not equipamiento_form %}
-										{% for equipamiento in escuela.equipamiento.all %}
-										{% include "tpe/equipamiento_detail.html" with equipamiento=equipamiento equipamiento_detail=equipamiento_detail form_visita_monitoreo=form_visita_monitoreo %}
-										{% endfor %}
-										{% if perms.tpe.add_equipamiento %}
-										<button class="btn btn-primary" id="btn-equipamiento">Nuevo equipamiento</button>
-										<form method="post" role="form" action="{% url "equipamiento_add" %}" id="form-nuevo-equipamiento">
-											{% csrf_token %}
-											{{ equipamiento_nuevo_form.as_p }}
-											<input type="submit" class="btn btn-success" value="Crear">
-										</form>
+											{% for equipamiento in escuela.equipamiento.all %}
+											{% include "tpe/equipamiento_detail.html" with equipamiento=equipamiento equipamiento_detail=equipamiento_detail form_visita_monitoreo=form_visita_monitoreo %}
+											{% endfor %}
+											{% if perms.tpe.add_equipamiento %}
+												<button class="btn btn-primary" id="btn-equipamiento">Nuevo equipamiento</button>
+												<form method="post" role="form" action="{% url "equipamiento_add" %}" id="form-nuevo-equipamiento">
+													{% csrf_token %}
+													{{ equipamiento_nuevo_form.as_p }}
+													<input type="submit" class="btn btn-success" value="Crear">
+												</form>
+												<button class="btn btn-primary" id="btn-equipamiento2">Nueva visita monitoreo</button>
+												<form class="forms" action="{% url "visita_monitoreo_add" %}" method="post" id="form-nueva-visita">
+													{% csrf_token %}
+													{{ visita_monitoreo_nueva_form.as_p }}
+													<input type="submit" name="" class="btn btn-success" value="Nueva visita de monitoreo">
+												</form>
+											{% endif %}
 										{% endif %}
-										{% endif %}
-										<button class="btn btn-primary" id="btn-equipamiento2">Nueva visita monitoreo</button>
-										<form class="forms" action="{% url "visita_monitoreo_add" %}" method="post" id="form-nueva-visita">
-											{% csrf_token %}
-											{{ visita_monitoreo_nueva_form.as_p }}
-											<input type="submit" name="" class="btn btn-success" value="Nueva visita de monitoreo">
-										</form>
+
 										{% if equipamiento_form %}
-										{% include "tpe/equipamiento_form.html" with equipamiento_form=equipamiento_form %}
+											{% include "tpe/equipamiento_form.html" with equipamiento_form=equipamiento_form %}
 										{% endif %}
 									</div>
 

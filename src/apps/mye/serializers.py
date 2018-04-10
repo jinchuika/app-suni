@@ -40,6 +40,12 @@ class ValidacionCalendarSerializer(CalendarSerializer):
         fields = ('start', 'title', 'url', 'tip_title', 'tip_text')
 
 
+class SolicitudComentarioSerializer(DynamicFieldsModelSerializer):
+    class Meta:
+        model = mye_m.SolicitudComentario
+        fields = '__all__'
+
+
 class SolicitudSerializer(serializers.ModelSerializer):
     departamento = serializers.StringRelatedField(source='escuela.municipio.departamento')
     municipio = serializers.StringRelatedField(source='escuela.municipio.nombre')
@@ -48,6 +54,7 @@ class SolicitudSerializer(serializers.ModelSerializer):
     alumnos = serializers.IntegerField(source='poblacion.total_alumno')
     maestros = serializers.IntegerField(source='poblacion.total_maestro')
     equipada = serializers.BooleanField(source='escuela.equipada')
+    comentarios_solicitud = SolicitudComentarioSerializer(many=True, fields='comentario')
 
     class Meta:
         model = mye_m.Solicitud
@@ -59,7 +66,8 @@ class SolicitudSerializer(serializers.ModelSerializer):
             'alumnos',
             'maestros',
             'equipada',
-            'fecha')
+            'fecha',
+            'comentarios_solicitud')
 
 
 class ValidacionComentarioSerializer(DynamicFieldsModelSerializer):
@@ -82,12 +90,13 @@ class ValidacionSerializer(serializers.ModelSerializer):
     estado = serializers.SerializerMethodField()
     fecha = serializers.DateField(source='fecha_inicio')
     comentarios = ValidacionComentarioSerializer(many=True, fields='comentario')
+    observacion = serializers.StringRelatedField()
 
     class Meta:
         model = mye_m.Validacion
         fields = (
             'departamento', 'municipio', 'escuela', 'requisitos',
-            'estado', 'fecha', 'fecha_equipamiento', 'comentarios')
+            'estado', 'fecha', 'fecha_equipamiento', 'comentarios', 'observacion')
 
     def get_estado(self, obj):
         """Devuelve un texto indicando si la :class:`Validacion`

@@ -26,20 +26,61 @@ dispositivoreparacion_api = api_views.DispositivoReparacionViewSet.as_view({
     'get': 'list'})
 
 router = routers.DefaultRouter()
-router.register(r'equipamiento', api_views.EquipamientoViewSet, base_name='equipamiento')
-router.register(r'equipamiento-informe', api_views.EquipamientoFullViewSet, base_name='equipamiento-informe')
-router.register(r'equipamiento-calendar', api_views.EquipamientoCalendarViewSet, base_name='equipamiento-calendar')
-router.register(r'evaluacion-monitoreo', api_views.EvaluacionMonitoreoFullViewSet, base_name='evaluacion-monitoreo')
-router.register(r'dispositivo-reparacion', api_views.DispositivoReparacionViewSet, base_name='dispositivo-reparacion')
-router.register(r'visita-monitoreo',api_views.VisitaMonitoreoViewset,base_name='visita-monitoreo')
+
+# Acceso al api de equipamietno
+router.register(r'equipamiento',
+                api_views.EquipamientoViewSet,
+                base_name='equipamiento')
+
+# Listado de equipamientos
+router.register(r'equipamiento-informe',
+                api_views.EquipamientoFullViewSet,
+                base_name='equipamiento-informe')
+
+# Acceso al api de equipamiento para mostrar en el calendario las fechas
+router.register(r'equipamiento-calendar',
+                api_views.EquipamientoCalendarViewSet,
+                base_name='equipamiento-calendar')
+
+# Acceso al api de evaluacion de monitoreo
+router.register(r'evaluacion-monitoreo',
+                api_views.EvaluacionMonitoreoFullViewSet,
+                base_name='evaluacion-monitoreo')
+
+# Acceso al api de repacion de dispositivo nos muestra la lista de los Dispositivos
+router.register(r'dispositivo-reparacion',
+                api_views.DispositivoReparacionViewSet,
+                base_name='dispositivo-reparacion')
+
+# Acceso a las  visitas de monitoreo que se han hecho para el calendario
+router.register(r'visita-monitoreo-calendar',
+                api_views.VisitaMonitoreoCalendarViewset,
+                base_name='visita-monitoreo-calendar')
+
+# Acceso  para crear los reportes de las visitas de monitoreo
+router.register(r'visita-monitoreo',
+                api_views.VisitaMonitoreoViewset,
+                base_name='visita-monitoreo')
 urlpatterns = [
-    url(r'^reparacion/list/$', reparacion_api_list, name='reparacion_api_list'),
+    url(r'^reparacion/list/$',
+        reparacion_api_list,
+        name='reparacion_api_list'),
 
-    url(r'^monitoreo/$', monitoreo_api, name='monitoreo_api'),
-    url(r'^monitoreo/(?P<pk>\d+)/$', monitoreo_api_detail, name='monitoreo_api_detail'),
+    url(r'^monitoreo/$',
+        monitoreo_api,
+        name='monitoreo_api'),
 
-    url(r'^evaluacionmonitoreo/$', evaluacionmonitoreo_api, name='evaluacionmonitoreo_api'),
-    url(r'^evaluacionmonitoreo/(?P<pk>\d+)/$', evaluacionmonitoreo_api_detail, name='evaluacionmonitoreo_api_detail'),
+    url(r'^monitoreo/(?P<pk>\d+)/$',
+        monitoreo_api_detail,
+        name='monitoreo_api_detail'),
+
+    url(r'^evaluacionmonitoreo/$',
+        evaluacionmonitoreo_api,
+        name='evaluacionmonitoreo_api'),
+
+    url(r'^evaluacionmonitoreo/(?P<pk>\d+)/$',
+        evaluacionmonitoreo_api_detail,
+        name='evaluacionmonitoreo_api_detail'),
 ]
 
 urlpatterns += router.urls
