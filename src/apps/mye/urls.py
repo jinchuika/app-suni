@@ -116,5 +116,5 @@ urlpatterns = [
         ),
 
     # Api
-    url(r'^api/', include('apps.mye.api_urls', namespace='mye_api')),
+    url(r'^api/', include(('apps.mye.api_urls', 'mye'), namespace='mye_api')),
 ]

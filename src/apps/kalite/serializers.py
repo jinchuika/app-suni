@@ -3,14 +3,14 @@ from rest_framework import serializers
 from apps.main.serializers import DynamicFieldsModelSerializer
 from apps.escuela.serializers import EscuelaSerializer
 
-from apps.kalite.models import Punteo, Evaluacion, Visita, Grado, EjerciciosGrado
+from apps.kalite import models as kalite_m
 
 
 class PunteoSerializer(DynamicFieldsModelSerializer):
     multiplicador = serializers.IntegerField(read_only=True)
 
     class Meta:
-        model = Punteo
+        model = kalite_m.Punteo
         fields = '__all__'
         read_only_fields = ('id', 'evaluacion', 'indicador', 'multiplicador')
 
@@ -19,7 +19,7 @@ class EvaluacionSerializer(DynamicFieldsModelSerializer):
     promedio = serializers.FloatField(read_only=True)
 
     class Meta:
-        model = Evaluacion
+        model = kalite_m.Evaluacion
         fields = '__all__'
         read_only_fields = ('id', 'visita', 'rubrica')
 
@@ -34,7 +34,7 @@ class VisitaSerializer(DynamicFieldsModelSerializer):
     departamento = serializers.StringRelatedField(source='escuela.municipio.departamento')
 
     class Meta:
-        model = Visita
+        model = kalite_m.Visita
         fields = '__all__'
         read_only_fields = ('id', 'escuela')
 
@@ -49,7 +49,7 @@ class VisitaCalendarSerializer(DynamicFieldsModelSerializer):
     color = serializers.CharField(source='capacitador.perfil.color')
 
     class Meta:
-        model = Visita
+        model = kalite_m.Visita
         fields = ('id', 'start', 'end', 'url', 'title', 'tip_title', 'tip_text', 'color')
 
     def get_start(self, object):
@@ -76,7 +76,7 @@ class EjerciciosGradoSerializer(DynamicFieldsModelSerializer):
     grado_url = serializers.CharField(source='grado.get_api_url', read_only=True)
 
     class Meta:
-        model = EjerciciosGrado
+        model = kalite_m.EjerciciosGrado
         fields = '__all__'
 
 
@@ -90,5 +90,5 @@ class GradoSerializer(DynamicFieldsModelSerializer):
     promedio_alcanzados = serializers.FloatField(read_only=True)
 
     class Meta:
-        model = Grado
+        model = kalite_m.Grado
         fields = '__all__'

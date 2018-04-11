@@ -4,7 +4,7 @@ from django.db import models
 from django.db.models import Count, F
 from django.utils.text import slugify
 from django.core.exceptions import ValidationError
-from django.core.urlresolvers import reverse
+from django.urls import reverse_lazy
 from django.contrib.auth.models import User
 
 from easy_thumbnails.fields import ThumbnailerImageField
@@ -23,7 +23,7 @@ class Curso(models.Model):
         return self.nombre
 
     def get_absolute_url(self):
-        return reverse('curso_detail', kwargs={"pk": self.id})
+        return reverse_lazy('curso_detail', kwargs={"pk": self.id})
 
     def get_total_asistencia(self):
         """Obtiene el total de puntos asignados a las asistencias."""
@@ -36,7 +36,7 @@ class Curso(models.Model):
 
 class CrAsistencia(models.Model):
     """Período de asistencia establecido por el :class:`cyd.Curso`."""
-    curso = models.ForeignKey(Curso, related_name="asistencias")
+    curso = models.ForeignKey(Curso, related_name="asistencias", on_delete=models.CASCADE)
     modulo_num = models.IntegerField()
     punteo_max = models.IntegerField()
 
@@ -51,7 +51,7 @@ class CrAsistencia(models.Model):
 
 class CrHito(models.Model):
     """Hito de :class:`cyd.Curso` (tareas, ejercicios, etc.)."""
-    curso = models.ForeignKey(Curso, related_name="hitos")
+    curso = models.ForeignKey(Curso, related_name="hitos", on_delete=models.CASCADE)
     nombre = models.CharField(max_length=40)
     punteo_max = models.IntegerField()
 
@@ -65,11 +65,11 @@ class CrHito(models.Model):
 
 class Sede(models.Model):
     nombre = models.CharField(max_length=150)
-    capacitador = models.ForeignKey(User, related_name='sedes')
-    municipio = models.ForeignKey(Municipio)
+    capacitador = models.ForeignKey(User, related_name='sedes', on_delete=models.CASCADE)
+    municipio = models.ForeignKey(Municipio, on_delete=models.CASCADE)
     direccion = models.CharField(max_length=150, verbose_name='Dirección')
     observacion = models.TextField(null=True, blank=True, verbose_name='Observaciones')
-    mapa = models.ForeignKey(Coordenada, null=True, blank=True)
+    mapa = models.ForeignKey(Coordenada, null=True, blank=True, on_delete=models.CASCADE)
 
     class Meta:
         verbose_name = "Sede"
@@ -79,7 +79,7 @@ class Sede(models.Model):
         return self.nombre
 
     def get_absolute_url(self):
-        return reverse('sede_detail', kwargs={'pk': self.id})
+        return reverse_lazy('sede_detail', kwargs={'pk': self.id})
 
     def get_escuelas(self):
         participantes = Participante.objects.filter(asignaciones__grupo__sede__id=self.id)
@@ -120,7 +120,7 @@ class Asesoria(models.Model):
     """Período en el que el capacitador está en la sede
     sin dar un módulo o asistencia.
     """
-    sede = models.ForeignKey(Sede, related_name='asesorias')
+    sede = models.ForeignKey(Sede, related_name='asesorias', on_delete=models.CASCADE)
     fecha = models.DateField(null=True, blank=True)
     hora_inicio = models.TimeField(null=True, blank=True)
     hora_fin = models.TimeField(null=True, blank=True)
@@ -136,9 +136,9 @@ class Asesoria(models.Model):
 
 class Grupo(models.Model):
     """Grupo de capacitación"""
-    sede = models.ForeignKey(Sede, related_name='grupos')
+    sede = models.ForeignKey(Sede, related_name='grupos', on_delete=models.CASCADE)
     numero = models.IntegerField(verbose_name='Número')
-    curso = models.ForeignKey(Curso)
+    curso = models.ForeignKey(Curso, on_delete=models.CASCADE)
     comentario = models.TextField(null=True, blank=True)
 
     class Meta:
@@ -150,7 +150,7 @@ class Grupo(models.Model):
         return '{} - {}'.format(self.numero, self.curso)
 
     def get_absolute_url(self):
-        return reverse('grupo_detail', kwargs={'pk': self.id})
+        return reverse_lazy('grupo_detail', kwargs={'pk': self.id})
 
     def get_hombres(self):
         return self.asignados.filter(participante__genero__id=1).count()
@@ -176,8 +176,8 @@ class Grupo(models.Model):
 
 
 class Calendario(models.Model):
-    cr_asistencia = models.ForeignKey(CrAsistencia, verbose_name='Asistencia del curso')
-    grupo = models.ForeignKey(Grupo, related_name='asistencias')
+    cr_asistencia = models.ForeignKey(CrAsistencia, verbose_name='Asistencia del curso', on_delete=models.CASCADE)
+    grupo = models.ForeignKey(Grupo, related_name='asistencias', on_delete=models.CASCADE)
     fecha = models.DateField(null=True, blank=True)
     hora_inicio = models.TimeField(null=True, blank=True, verbose_name='Hora de inicio')
     hora_fin = models.TimeField(null=True, blank=True, verbose_name='Hora de fin')
@@ -198,7 +198,7 @@ class Calendario(models.Model):
         super(Calendario, self).save(*args, **kwargs)
 
     def get_api_url(self):
-        return reverse('calendario_api_detail', kwargs={'pk': self.id})
+        return reverse_lazy('calendario_api_detail', kwargs={'pk': self.id})
 
     def count_asistentes(self):
         """Cuenta cuantos participantes asistieron."""
@@ -257,7 +257,7 @@ class Participante(models.Model):
     dpi = models.CharField(max_length=21, unique=True, null=True, blank=True, db_index=True)
     nombre = models.CharField(max_length=100)
     apellido = models.CharField(max_length=100)
-    genero = models.ForeignKey(ParGenero, null=True)
+    genero = models.ForeignKey(ParGenero, null=True, on_delete=models.CASCADE)
     rol = models.ForeignKey(ParRol, on_delete=models.PROTECT)
     escuela = models.ForeignKey(Escuela, on_delete=models.PROTECT, related_name='participantes')
     direccion = models.TextField(null=True, blank=True, verbose_name='Dirección')
@@ -270,8 +270,8 @@ class Participante(models.Model):
         null=True,
         blank=True,
         editable=True,)
-    etnia = models.ForeignKey(ParEtnia, null=True, blank=True)
-    escolaridad = models.ForeignKey(ParEscolaridad, null=True, blank=True)
+    etnia = models.ForeignKey(ParEtnia, null=True, blank=True, on_delete=models.CASCADE)
+    escolaridad = models.ForeignKey(ParEscolaridad, null=True, blank=True, on_delete=models.CASCADE)
 
     slug = models.SlugField(max_length=20, null=True, blank=True)
 
@@ -283,7 +283,7 @@ class Participante(models.Model):
         return '{} {}'.format(self.nombre, self.apellido)
 
     def get_absolute_url(self):
-        return reverse('participante_detail', kwargs={'pk': self.id})
+        return reverse_lazy('participante_detail', kwargs={'pk': self.id})
 
     def save(self, *args, **kwargs):
         """En caso de que el participante no tenga DPI, se le asigna uno temporal.
@@ -309,9 +309,9 @@ class Participante(models.Model):
 
 
 class Asignacion(models.Model):
-    """Asignación de un participante a un grupo."""
-    participante = models.ForeignKey(Participante, related_name='asignaciones')
-    grupo = models.ForeignKey(Grupo, related_name='asignados')
+    """Asignación de un :class:`Participante` a un :class:`Grupo`."""
+    participante = models.ForeignKey(Participante, related_name='asignaciones', on_delete=models.CASCADE)
+    grupo = models.ForeignKey(Grupo, related_name='asignados', on_delete=models.CASCADE)
 
     class Meta:
         verbose_name = "Asignación"
@@ -353,7 +353,9 @@ class Asignacion(models.Model):
             self.notas_hitos.create(cr_hito=hito)
 
     def get_nota_final(self):
-        return sum(nota.nota for nota in self.notas_asistencias.all()) + sum(nota.nota for nota in self.notas_hitos.all())
+        notas_asistencias = self.notas_asistencias.all()
+        notas_hitos = self.notas_hitos.all()
+        return sum(nota.nota for nota in notas_asistencias) + sum(nota.nota for nota in notas_hitos)
     nota_final = property(get_nota_final)
 
     def get_aprobado(self):
@@ -378,8 +380,8 @@ class Asignacion(models.Model):
 
 class NotaAsistencia(models.Model):
     """Nota obtenida por el participante al llenar una asistencia."""
-    asignacion = models.ForeignKey(Asignacion, related_name='notas_asistencias')
-    gr_calendario = models.ForeignKey(Calendario, related_name='notas_asociadas')
+    asignacion = models.ForeignKey(Asignacion, related_name='notas_asistencias', on_delete=models.CASCADE)
+    gr_calendario = models.ForeignKey(Calendario, related_name='notas_asociadas', on_delete=models.CASCADE)
     nota = models.IntegerField(default=0)
 
     class Meta:
@@ -402,8 +404,8 @@ class NotaAsistencia(models.Model):
 
 
 class NotaHito(models.Model):
-    asignacion = models.ForeignKey(Asignacion, related_name='notas_hitos')
-    cr_hito = models.ForeignKey(CrHito)
+    asignacion = models.ForeignKey(Asignacion, related_name='notas_hitos', on_delete=models.CASCADE)
+    cr_hito = models.ForeignKey(CrHito, on_delete=models.CASCADE)
     nota = models.IntegerField(default=0)
 
     class Meta:

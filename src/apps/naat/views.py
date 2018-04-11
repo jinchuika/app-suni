@@ -1,7 +1,7 @@
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.utils import IntegrityError
 from django.views.generic import ListView, DetailView
-from django.views.generic.edit import CreateView, FormView
+from django.views.generic.edit import CreateView, FormView, UpdateView
 
 from braces.views import GroupRequiredMixin
 
@@ -33,11 +33,13 @@ class ParticipanteNaatCreateView(BaseNaatPermission, CreateView):
 
     def get_form(self, form_class=None):
         """
-        Para filtra las opciones disponibles para elegir a `capacitador` en el formulario
+        Para filtra las opciones disponibles para elegir a `proceso` en el formulario
         """
         form = super(ParticipanteNaatCreateView, self).get_form(form_class)
         if self.request.user.groups.filter(name="naat_facilitador").exists():
-            form.fields['capacitador'].queryset = form.fields['capacitador'].queryset.filter(id=self.request.user.id)
+            qs_proceso = form.fields['proceso'].queryset
+            qs_proceso = qs_proceso.filter(capacitador=self.request.user)
+            form.fields['proceso'].queryset = qs_proceso
         return form
 
     def form_valid(self, form):
@@ -55,7 +57,7 @@ class ParticipanteNaatCreateView(BaseNaatPermission, CreateView):
         if form.instance.pk:
             try:
                 form.instance.asignaciones_naat.create(
-                    capacitador=form.cleaned_data['capacitador'])
+                    proceso=form.cleaned_data['proceso'])
             except IntegrityError:
                 # Valida en caso de que la :class:`AsignacionNaat` no pueda ser creada
                 form.instance.delete()
@@ -98,3 +100,77 @@ class SesionPresencialCalendarView(BaseNaatPermission, FormView):
             form.fields['capacitador'].queryset = form.fields['capacitador'].queryset.filter(id=self.request.user.id)
             form.fields['capacitador'].empty_label = None
         return form
+
+
+class SesionPresencialCreateView(BaseNaatPermission, CreateView):
+    """Creación de :class:`SesionPresencial` de Naat.
+    Filtra los datos del campo `proceso` para que muestre solo los del usuario que consulta actualmente.
+    """
+
+    template_name = 'naat/sesionpresencial_add.html'
+    form_class = naat_f.SesionPresencialCreateForm
+
+    def get_form(self, form_class=None):
+        """
+        Para filtrar el formulario si el usuario pertenece al grupo 'naat_facilitador`
+        """
+        form = super(SesionPresencialCreateView, self).get_form(form_class)
+        if self.request.user.groups.filter(name="naat_facilitador").exists():
+            form.fields['proceso'].queryset = form.fields['proceso'].queryset.filter(capacitador=self.request.user.id)
+            form.fields['proceso'].empty_label = None
+        return form
+
+
+class SesionPresencialUpdateView(BaseNaatPermission, UpdateView):
+    """Vista para edición de :class:`SesionPresencial` de Naat.
+    Filtra el campo de `asistentes` para que muestre únicamente los de la :class:`Escuela`.
+    """
+    template_name = 'naat/sesionpresencial_edit.html'
+    form_class = naat_f.SesionPresencialForm
+    model = naat_m.SesionPresencial
+
+    def get_form(self, form_class=None):
+        form = super(SesionPresencialUpdateView, self).get_form(form_class)
+        form.fields['asistentes'].queryset = naat_m.AsignacionNaat.objects.filter(proceso=form.instance.proceso)
+        return form
+
+
+class ProcesoNaatCreateView(BaseNaatPermission, CreateView):
+    """Vista para la creación de :class:`ProcesoNaat`.
+    """
+    template_name = 'naat/proceso_add.html'
+    form_class = naat_f.ProcesoNaatForm
+    model = naat_m.ProcesoNaat
+
+    def get_context_data(self, **kwargs):
+        """Crea un listado de :class:`ProcesoNaat` asignados al usuario actual.
+        """
+        context = super(ProcesoNaatCreateView, self).get_context_data(**kwargs)
+        context['proceso_list'] = naat_m.ProcesoNaat.objects.filter(capacitador=self.request.user)
+        return context
+
+    def form_valid(self, form):
+        """
+        Asigna al usuario actual como `capacitador` del objeto.
+        """
+        try:
+            form.instance.escuela = escuela_m.Escuela.objects.get(codigo=form.cleaned_data['udi'])
+        except ObjectDoesNotExist:
+            form.add_error('udi', 'El UDI no es válido o no existe.')
+            return self.form_invalid(form)
+        form.instance.capacitador = self.request.user
+        return super(ProcesoNaatCreateView, self).form_valid(form)
+
+
+class ProcesoNaatDetailView(BaseNaatPermission, DetailView):
+    """Vista de detalle de un :class:`ProcesoNaat`"""
+    model = naat_m.ProcesoNaat
+    template_name = 'naat/proceso_detail.html'
+
+
+class ProcesoNaatListView(BaseNaatPermission, ListView):
+    """Vista para mostrar un listado de :class:`ProcesosNaat`.
+    Eventualmente puede que esta vista cambie para generar un informe completo
+    utilizando DRF."""
+    model = naat_m.ProcesoNaat
+    template_name = 'naat/proceso_list.html'

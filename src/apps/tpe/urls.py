@@ -250,5 +250,5 @@ urlpatterns = [
     # API REST
     url(
         r'^api/',
-        include('apps.tpe.api_urls', namespace='tpe_api')),
+        include(('apps.tpe.api_urls', 'tpe'), namespace='tpe_api')),
 ]

@@ -1,6 +1,6 @@
 from datetime import date
 from django import forms
-from django.core.urlresolvers import reverse_lazy
+from django.urls import reverse_lazy
 
 from apps.escuela.models import (
     Escuela, EscNivel, EscSector,

@@ -37,7 +37,7 @@ class FacilitadorNaatSerializer(serializers.ModelSerializer):
 
     @staticmethod
     def get_asignaciones_activas(obj):
-        asignaciones_naat = naat_m.AsignacionNaat.objects.filter(capacitador=obj, activa=True)
+        asignaciones_naat = naat_m.AsignacionNaat.objects.filter(proceso__capacitador=obj, activa=True)
         serializer = AsignacionNaatSerializer(asignaciones_naat, many=True)
         return serializer.data
 
@@ -47,11 +47,12 @@ class FacilitadorNaatSerializer(serializers.ModelSerializer):
 
 
 class SesionCalendarSerializer(main_s.CalendarSerializer):
+    title = serializers.StringRelatedField(source='proceso.escuela')
     start = serializers.SerializerMethodField()
     end = serializers.SerializerMethodField()
-    tip_title = serializers.StringRelatedField(source='capacitador.get_full_name')
+    tip_title = serializers.StringRelatedField(source='proceso.capacitador.get_full_name')
     tip_text = serializers.SerializerMethodField()
-    color = serializers.CharField(source='capacitador.perfil.color')
+    color = serializers.CharField(source='proceso.capacitador.perfil.color')
 
     class Meta:
         model = naat_m.SesionPresencial
@@ -73,4 +74,4 @@ class SesionCalendarSerializer(main_s.CalendarSerializer):
 
     @staticmethod
     def get_tip_text(obj):
-        return '{}'.format(obj.escuela.municipio)
+        return '{}'.format(obj.proceso.escuela.municipio)

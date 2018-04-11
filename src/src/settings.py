@@ -40,6 +40,8 @@ THIRD_PARTY_APPS = (
     'braces',
     'easy_thumbnails',
     'dynamic_preferences',
+    'dynamic_preferences.users.apps.UserPreferencesConfig',
+
     'widget_tweaks',
     'menu',
     'mixer',

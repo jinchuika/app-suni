@@ -1,0 +1,69 @@
+{% extends "base/base.html" %}
+
+{% block page_title %}
+<title>Listado de procesos</title>
+{% endblock page_title %}
+
+{% block content %}
+<section class="content-header">
+	<h1>
+		Listado de procesos
+		{% if perms.naat.add_procesonaat %}
+		<div class="pull-right">
+			<a href="{% url 'proceso_naat_add' %}" class="btn btn-sm btn-primary">
+				<i class="fa fa-plus"></i> Nuevo
+			</a>
+		</div>
+		{% endif %}
+	</h1>
+</section>
+
+<section class="content">
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-md-12">
+				<div class="box">
+					
+					<div class="box-body">
+						<table class="table table-striped table-hover table-datatables">
+							<thead>
+								<tr>
+									<th>Número</th>
+									<th>Escuela</th>
+									<th>Municipio</th>
+									<th>Departamento</th>
+									<th>Facilitador</th>
+									<th>Fecha de inicio</th>
+									<th>Fecha de fin</th>
+								</tr>
+							</thead>
+							<tbody>
+								{% for proceso in procesonaat_list %}
+								<tr>
+									<td>
+										<a href="{{ proceso.get_absolute_url }}" class="btn btn-block">
+											{{ proceso.id }}
+										</a>
+									</td>
+									<td>
+										<a href="{{ proceso.escuela.get_absolute_url }}">
+											{{ proceso.escuela }}
+										</a>
+									</td>
+									<td>{{ proceso.escuela.municipio.nombre }}</td>
+									<td>{{ proceso.escuela.municipio.departamento }}</td>
+									<td>{{ proceso.capacitador.get_full_name }}</td>
+									<td>{{ proceso.fecha_inicio|date:"Y-m-d" }}</td>
+									<td>{{ proceso.fecha_fin|date:"Y-m-d" }}</td>
+								</tr>
+								{% endfor %}
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+
+{% endblock content %}

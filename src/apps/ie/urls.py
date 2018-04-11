@@ -23,5 +23,5 @@ urlpatterns = [
     url(r'^dashboard/mapa/$', MapDashboardView.as_view(), name='ie_dashboard_mapa'),
     url(r'^dashboard/geo/$', GeoDashboardView.as_view(), name='ie_dashboard_geo'),
 
-    url(r'^api/', include(api_router.urls, namespace='ie_api'))
+    url(r'^api/', include((api_router.urls, 'ie'), namespace='ie_api'))
 ]
