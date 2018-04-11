@@ -1,5 +1,5 @@
-from dynamic_preferences.types import BooleanPreference, StringPreference, Section, ChoicePreference
-from dynamic_preferences.registries import user_preferences_registry, global_preferences_registry
+from dynamic_preferences.types import BooleanPreference, Section, ChoicePreference
+from dynamic_preferences.users.registries import user_preferences_registry
 
 ui = Section('ui')
 homepage = Section('homepage')
@@ -24,6 +24,7 @@ class ThemeSkin(ChoicePreference):
     section = "ui"
     name = "skin"
     default = "skin-blue"
+
 
 @user_preferences_registry.register
 class ThemeSkin(BooleanPreference):

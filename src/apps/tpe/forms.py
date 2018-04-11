@@ -127,7 +127,9 @@ class TicketReparacionListForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(TicketReparacionListForm, self).__init__(*args, **kwargs)
         self.fields['estado'].required = False
-        self.fields['tecnico_asignado'].queryset = Perfil.objects.filter(user__in=tpe_m.TicketReparacion.objects.values('tecnico_asignado').distinct())
+        self.fields['tecnico_asignado'].queryset = Perfil.objects.filter(
+            user__in=tpe_m.TicketReparacion.objects.values('tecnico_asignado').distinct()
+            )
         self.fields['tecnico_asignado'].required = False
 
 
@@ -292,6 +294,7 @@ class TicketReparacionInformeForm(forms.Form):
         super(TicketReparacionInformeForm, self).__init__(*args, **kwargs)
         self.fields['tecnico_asignado'].label_from_instance = lambda obj: "%s" % obj.get_full_name()
 
+
 class EvaluacionMonitoreoCreateForm(forms.ModelForm):
 
     """Este formulario se encarga de enviar la id del :model:`tpe.Monitoreo`
@@ -317,6 +320,7 @@ class EvaluacionMonitoreoForm(forms.ModelForm):
             'monitoreo': forms.HiddenInput(),
             'pregunta': forms.HiddenInput()
         }
+
 
 class DispositivoReparacionListForm(forms.Form):
     TECNICOS_REPARACION = tpe_m.TicketReparacion.objects.values('tecnico_asignado').distinct()
@@ -359,7 +363,7 @@ class VisitaMonitoreoForm(forms.ModelForm):
         widgets = {
             'fecha_visita': forms.TextInput(attrs={'class': 'datepicker'}),
             'otras_personas': forms.SelectMultiple(attrs={'class': 'select2'}),
-            'comentario':forms.Textarea(attrs={'class':'form-control'})
+            'comentario': forms.Textarea(attrs={'class': 'form-control'})
         }
 
     def __init__(self, *args, **kwargs):
@@ -373,3 +377,17 @@ class VisitaMonitoreoForm(forms.ModelForm):
         self.fields['contacto'].queryset = qs_nuevo_contacto
         print(qs_nuevo_contacto)
         self.fields['otras_personas'].label_from_instance = lambda obj: "%s" % obj.get_full_name()
+
+
+class VisitaMonitoreoInformeForm(forms.ModelForm):
+    """Este Formulario se encarga de enviar los filtros para  su respectivo informe
+    """
+    class Meta:
+        model = tpe_m.VisitaMonitoreo
+        fields = '__all__'
+        widgets = {
+            'fecha_visita': forms.TextInput(attrs={'class': 'datepicker'}),
+            'encargado': forms.Textarea(attrs={'class': 'form-control'})
+
+
+        }

@@ -161,8 +161,8 @@ class Entrada(models.Model):
 
 
 class EntradaDetalle(models.Model):
-    entrada = models.ForeignKey(Entrada, related_name='detalles')
-    equipo = models.ForeignKey(Equipo, related_name='detalles_entrada')
+    entrada = models.ForeignKey(Entrada, related_name='detalles', on_delete=models.CASCADE)
+    equipo = models.ForeignKey(Equipo, related_name='detalles_entrada', on_delete=models.CASCADE)
     cantidad = models.PositiveIntegerField()
     precio = models.DecimalField(max_digits=7, decimal_places=2, null=True, blank=True, default=0.0)
 
@@ -204,7 +204,7 @@ class Salida(models.Model):
 
 
 class SalidaDetalle(models.Model):
-    salida = models.ForeignKey(Salida, related_name='detalles', null=True)
+    salida = models.ForeignKey(Salida, related_name='detalles', null=True, on_delete=models.CASCADE)
     equipo = models.ForeignKey(Equipo, on_delete=models.PROTECT, related_name='detalles_salida')
     cantidad = models.PositiveIntegerField()
 

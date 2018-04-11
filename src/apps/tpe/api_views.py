@@ -160,9 +160,17 @@ class VisitaMonitoreoFilter(filters.FilterSet):
         fields = ('start', 'end')
 
 
+class VisitaMonitoreoCalendarViewset(LoginRequiredMixin, viewsets.ReadOnlyModelViewSet):
+    """Vista encargada de  manipular el calendario
+    """
+    serializer_class = tpe_serializers.VisitaMonitoreoCalendarSerializer
+    queryset = tpe_m.VisitaMonitoreo.objects.all()
+    filter_class = VisitaMonitoreoFilter
+
+
 class VisitaMonitoreoViewset(LoginRequiredMixin, viewsets.ReadOnlyModelViewSet):
     """Para generar el listado
     """
-    serializer_class=tpe_serializers.VisitaMonitoreoCalendarSerializer
+    serializer_class = tpe_serializers.VisitaMonitoreoSerializer
     queryset = tpe_m.VisitaMonitoreo.objects.all()
     filter_class = VisitaMonitoreoFilter

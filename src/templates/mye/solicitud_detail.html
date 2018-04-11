@@ -91,6 +91,17 @@
 								</ul>
 							</td>
 						</tr>
+						<tr>
+							<th colspan="4">Histórico</th>
+						</tr>
+						{% for comentario in solicitud.comentarios_solicitud.all %}
+						<tr>
+							<td>
+								{{ comentario.comentario }}
+							</td>
+								<td><small>{{ comentario.fecha|date:'d/m/Y' }}, {{ comentario.usuario.perfil }}</small></td>
+						</tr>
+						{% endfor %}
 					</table>
 				</div>
 			</div>

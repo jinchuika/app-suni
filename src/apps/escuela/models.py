@@ -120,7 +120,7 @@ class Escuela(models.Model):
     modalidad = models.ForeignKey(EscModalidad, on_delete=models.PROTECT)
     jornada = models.ForeignKey(EscJornada, on_delete=models.PROTECT)
     plan = models.ForeignKey(EscPlan, on_delete=models.PROTECT)
-    mapa = models.ForeignKey(Coordenada, null=True, blank=True)
+    mapa = models.ForeignKey(Coordenada, null=True, blank=True, on_delete=models.CASCADE)
 
     class Meta:
         verbose_name = "Escuela"
@@ -198,7 +198,7 @@ class EscContactoRol(models.Model):
 
 
 class EscContacto(models.Model):
-    escuela = models.ForeignKey(Escuela, related_name="contacto")
+    escuela = models.ForeignKey(Escuela, related_name="contacto", on_delete=models.CASCADE)
     nombre = models.CharField(max_length=100)
     apellido = models.CharField(max_length=100)
     rol = models.ForeignKey(EscContactoRol, on_delete=models.PROTECT)
@@ -212,7 +212,7 @@ class EscContacto(models.Model):
 
 
 class EscContactoTelefono(models.Model):
-    contacto = models.ForeignKey(EscContacto, related_name="telefono", null=True)
+    contacto = models.ForeignKey(EscContacto, related_name="telefono", null=True, on_delete=models.CASCADE)
     telefono = models.IntegerField()
 
     def get_empresa(self):
@@ -227,7 +227,7 @@ class EscContactoMail(models.Model):
     """
     Description: Correo de contacto
     """
-    contacto = models.ForeignKey(EscContacto, related_name="mail", null=True)
+    contacto = models.ForeignKey(EscContacto, related_name="mail", null=True, on_delete=models.CASCADE)
     mail = models.EmailField(max_length=125)
 
     def __str__(self):
@@ -235,7 +235,7 @@ class EscContactoMail(models.Model):
 
 
 class EscPoblacion(models.Model):
-    escuela = models.ForeignKey(Escuela, related_name="poblaciones")
+    escuela = models.ForeignKey(Escuela, related_name="poblaciones", on_delete=models.CASCADE)
     fecha = models.DateField(default=timezone.now)
 
     alumna = models.PositiveIntegerField(
@@ -282,7 +282,7 @@ class EscMatricula(models.Model):
     """Registro histórico de la matrícula de la escuela.
     Cuántos promovidos, retirados y reprobados.
     """
-    escuela = models.ForeignKey(Escuela, related_name='matriculas')
+    escuela = models.ForeignKey(Escuela, related_name='matriculas', on_delete=models.CASCADE)
     ano = models.PositiveIntegerField(verbose_name='Año')
     m_promovido = models.PositiveIntegerField(default=0, verbose_name='Mujeres promovidas')
     m_no_promovido = models.PositiveIntegerField(default=0, verbose_name='Mujeres no promovidas')
@@ -373,8 +373,8 @@ class EscRendimientoAcademico(models.Model):
     """Pruebas estandarizadas del rendimiento académico de la escuela.
     """
 
-    escuela = models.ForeignKey(Escuela, related_name='rendimientos')
-    materia = models.ForeignKey(EscRendimientoMateria, related_name='registros')
+    escuela = models.ForeignKey(Escuela, related_name='rendimientos', on_delete=models.CASCADE)
+    materia = models.ForeignKey(EscRendimientoMateria, related_name='registros', on_delete=models.CASCADE)
     ano = models.PositiveIntegerField(verbose_name='Año')
     insatisfactorio = models.DecimalField(max_digits=5, decimal_places=2)
     debe_mejorar = models.DecimalField(max_digits=5, decimal_places=2)

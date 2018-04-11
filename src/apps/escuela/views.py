@@ -52,8 +52,7 @@ class EscuelaDetail(LoginRequiredMixin, DetailView):
     model = Escuela
 
     def get_template_names(self):
-        if (self.request.user.groups.filter(name='nacion_digital').exists()
-            and not self.request.user.is_superuser):
+        if (self.request.user.groups.filter(name='nacion_digital').exists() and not self.request.user.is_superuser):
             return ['ie/escuela_detail.html']
         else:
             return ['escuela/detail.html']

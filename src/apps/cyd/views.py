@@ -4,8 +4,7 @@ from django.db.models import Q
 from django.http import HttpResponseRedirect
 from django.views.generic import DetailView, ListView, View, TemplateView
 from django.views.generic.edit import CreateView, UpdateView, FormView
-
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 from braces.views import LoginRequiredMixin, GroupRequiredMixin, JsonRequestResponseMixin
 

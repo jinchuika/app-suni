@@ -1,6 +1,6 @@
 from datetime import date
 from django import forms
-from django.core.urlresolvers import reverse_lazy
+from django.urls import reverse_lazy
 
 from apps.escuela.models import (
     Escuela, EscNivel, EscSector,
@@ -50,6 +50,21 @@ class CPFilterForm(forms.Form):
         label='Fecha (max)',
         required=False,
         widget=forms.TextInput(attrs={'class': 'form-control datepicker'}))
+
+
+class PYFilterForm(forms.Form):
+        cantidad_equipamientos = forms.IntegerField(
+            label='Equipamientos (min)',
+            required=False,
+            widget=forms.NumberInput(attrs={'min': 0, 'class': 'form-control'}))
+        fecha_min = forms.CharField(
+            label='Fecha (min)',
+            required=False,
+            widget=forms.TextInput(attrs={'class': 'form-control datepicker'}))
+        fecha_max = forms.CharField(
+            label='Fecha (max)',
+            required=False,
+            widget=forms.TextInput(attrs={'class': 'form-control datepicker'}))
 
 
 class SolicitudVersionForm(forms.ModelForm):

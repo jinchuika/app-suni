@@ -1,5 +1,5 @@
 from django.db import models
-from django.core.urlresolvers import reverse
+from django.urls import reverse_lazy
 from django.contrib.auth.models import User
 from django.utils import timezone
 from datetime import timedelta
@@ -20,13 +20,13 @@ class TipoEvento(models.Model):
 
 
 class EventoDH(models.Model):
-    tipo_evento = models.ForeignKey(TipoEvento, verbose_name="Tipo de evento")
+    tipo_evento = models.ForeignKey(TipoEvento, verbose_name="Tipo de evento", on_delete=models.CASCADE)
     titulo = models.TextField(verbose_name="Título")
     fecha = models.DateField(default=timezone.now)
     hora_inicio = models.TimeField(null=True, blank=True, verbose_name="Hora de inicio")
     hora_fin = models.TimeField(null=True, blank=True, verbose_name="Hora de fin")
     ubicacion = models.TextField(null=True, blank=True, verbose_name="Ubicación")
-    creado_por = models.ForeignKey(User, related_name="eventos_dh")
+    creado_por = models.ForeignKey(User, related_name="eventos_dh", on_delete=models.CASCADE)
     descripcion = models.TextField(null=True, blank=True, verbose_name='Descripción')
 
     asistentes = models.ManyToManyField(User, blank=True)
@@ -47,4 +47,4 @@ class EventoDH(models.Model):
         super(EventoDH, self).save(*args, **kwargs)
 
     def get_absolute_url(self):
-        return reverse('evento_dh_detail', kwargs={'pk': self.id})
+        return reverse_lazy('evento_dh_detail', kwargs={'pk': self.id})

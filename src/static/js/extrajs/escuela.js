@@ -14,6 +14,21 @@
             alert("Error al crear datos");
         });
     }
+    var crear_comentario_solicitud = function (url, id_solicitud,comentario){
+      var data = {
+        "id_solicitud":id_solicitud,
+        "comentario":comentario
+      }
+      $.post(url, JSON.stringify(data)).then(function (response){
+        var fecha = new Date(response.fecha);
+        var td_data = $('<td><td>').text(fecha.getDate()+"/"+(fecha.getMonth()+1)+"/"+fecha.getFullYear()+","+response.usuario);
+        var td = $('<td><td>').text(response.comentario);
+        var tr = $('<tr><tr>').append(td).append(td_data);
+        $('#body-solicitud-' + id_solicitud).append(tr);
+      },function(response){
+        alert("Error al crear datos");
+      });
+    }
 
     var crear_monitoreo = function (url, comentario, equipamiento) {
         var data = {
@@ -98,6 +113,20 @@
                 }
             });
         });
+      $('.comentarioSolicitud-btn').click(function (){
+        var id_solicitud = $(this).data('id');
+        var url = $(this).data('url');
+        bootbox.prompt({
+          title: "Nuevo Registro para Solicitud",
+          inputType: 'textarea',
+          callback: function (result){
+            if(result){
+              crear_comentario_solicitud(url, id_solicitud, result);
+            }
+            console.log(result+ id_solicitud);
+          }
+        });
+      });
     }
 }( window.PerfilEscuela = window.PerfilEscuela || {}, jQuery ));
 

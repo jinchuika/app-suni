@@ -11,8 +11,8 @@ class ProcesoNaat(models.Model):
     """Cohorte de un proceso de facilitación de Naat.
     Por este medio se asigna una :class:`Escuela` a un :class:`User` del grupo `naat_facilitador`.
     """
-    capacitador = models.ForeignKey(User, related_name='procesos_naat')
-    escuela = models.ForeignKey(escuela_m.Escuela, related_name='procesos_naat')
+    capacitador = models.ForeignKey(User, related_name='procesos_naat', on_delete=models.CASCADE)
+    escuela = models.ForeignKey(escuela_m.Escuela, related_name='procesos_naat', on_delete=models.CASCADE)
     fecha_inicio = models.DateField(default=timezone.now)
     fecha_fin = models.DateField(default=timezone.now)
 
@@ -34,8 +34,8 @@ class AsignacionNaat(models.Model):
     Asignación de un :class:`Participante` a un facilitador de Naat.
     La asignación a un :class:`Proceso` es opcional
     """
-    participante = models.ForeignKey(cyd_m.Participante, related_name='asignaciones_naat')
-    proceso = models.ForeignKey(ProcesoNaat, related_name='asignaciones', null=True)
+    participante = models.ForeignKey(cyd_m.Participante, related_name='asignaciones_naat', on_delete=models.CASCADE)
+    proceso = models.ForeignKey(ProcesoNaat, related_name='asignaciones', null=True, on_delete=models.CASCADE)
     fecha_asignacion = models.DateField(default=timezone.now)
     activa = models.BooleanField(default=True)
 
@@ -52,7 +52,7 @@ class AsignacionNaat(models.Model):
 
 
 class SesionPresencial(models.Model):
-    proceso = models.ForeignKey(ProcesoNaat, related_name='sesiones', null=True)
+    proceso = models.ForeignKey(ProcesoNaat, related_name='sesiones', null=True, on_delete=models.CASCADE)
     fecha = models.DateField()
     hora_inicio = models.TimeField(verbose_name='Hora de inicio')
     hora_fin = models.TimeField(verbose_name='Hora de fin')

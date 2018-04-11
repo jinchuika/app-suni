@@ -79,7 +79,7 @@ class Etiqueta(models.Model):
 
 
 class Contacto(models.Model):
-    empresa = models.ForeignKey(Empresa, related_name='contacto')
+    empresa = models.ForeignKey(Empresa, related_name='contacto', on_delete=models.CASCADE)
     nombre = models.CharField(max_length=70)
     apellido = models.CharField(max_length=70)
     direccion = models.CharField(max_length=150, null=True, blank=True)
@@ -98,7 +98,7 @@ class Contacto(models.Model):
 
 class ContactoMail(models.Model):
     mail = models.EmailField(max_length=100)
-    contacto = models.ForeignKey(Contacto, related_name='mail', null=True)
+    contacto = models.ForeignKey(Contacto, related_name='mail', null=True, on_delete=models.CASCADE)
 
     class Meta:
         verbose_name = 'Mail de contacto'
@@ -110,7 +110,7 @@ class ContactoMail(models.Model):
 
 class ContactoTelefono(models.Model):
     telefono = models.CharField(max_length=12)
-    contacto = models.ForeignKey(Contacto, related_name='telefono', null=True)
+    contacto = models.ForeignKey(Contacto, related_name='telefono', null=True, on_delete=models.CASCADE)
 
     class Meta:
         verbose_name = 'Teléfono de contacto'

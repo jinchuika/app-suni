@@ -56,12 +56,12 @@ class Visita(models.Model):
     recibido la capacitación.
     """
 
-    escuela = models.ForeignKey(Escuela, related_name='visitas_kalite')
-    tipo_visita = models.ForeignKey(TipoVisita)
+    escuela = models.ForeignKey(Escuela, related_name='visitas_kalite', on_delete=models.CASCADE)
+    tipo_visita = models.ForeignKey(TipoVisita, on_delete=models.CASCADE)
     fecha = models.DateField()
     hora_inicio = models.TimeField(null=True, blank=True, verbose_name='Hora de inicio')
     hora_fin = models.TimeField(null=True, blank=True, verbose_name='Hora de fin')
-    capacitador = models.ForeignKey(User, related_name='visitas_kalite')
+    capacitador = models.ForeignKey(User, related_name='visitas_kalite', on_delete=models.CASCADE)
     numero = models.PositiveIntegerField(default=1)
     observaciones = models.TextField(null=True, blank=True)
 
@@ -115,7 +115,7 @@ class Visita(models.Model):
 
 class Indicador(models.Model):
     """Indicador a evaluar de la :class:`kalite.Rubrica`."""
-    rubrica = models.ForeignKey(Rubrica, related_name='indicadores')
+    rubrica = models.ForeignKey(Rubrica, related_name='indicadores', on_delete=models.CASCADE)
     indicador = models.TextField()
 
     class Meta:
@@ -134,8 +134,8 @@ class Evaluacion(models.Model):
     a una :class:`kalite.Rubrica`.
     """
 
-    visita = models.ForeignKey(Visita, related_name='evaluaciones')
-    rubrica = models.ForeignKey(Rubrica)
+    visita = models.ForeignKey(Visita, related_name='evaluaciones', on_delete=models.CASCADE)
+    rubrica = models.ForeignKey(Rubrica, on_delete=models.CASCADE)
     observaciones = models.TextField(null=True, blank=True)
 
     class Meta:
@@ -196,8 +196,8 @@ class Punteo(models.Model):
         (NOTA_4, '{}%'.format(MULTIPLICADOR * NOTA_4)),
         (NOTA_5, '{}%'.format(MULTIPLICADOR * NOTA_5)))
 
-    evaluacion = models.ForeignKey(Evaluacion, related_name='notas')
-    indicador = models.ForeignKey(Indicador)
+    evaluacion = models.ForeignKey(Evaluacion, related_name='notas', on_delete=models.CASCADE)
+    indicador = models.ForeignKey(Indicador, on_delete=models.CASCADE)
     nota = models.IntegerField(choices=NOTA_CHOICES, default=NOTA_1)
 
     class Meta:
@@ -226,7 +226,7 @@ class Punteo(models.Model):
 class Grado(models.Model):
     """Registro de grado (con sección) durante una :class:`kalite.Visita`."""
 
-    visita = models.ForeignKey(Visita, related_name='grados')
+    visita = models.ForeignKey(Visita, related_name='grados', on_delete=models.CASCADE)
     grado = models.IntegerField()
     seccion = models.CharField(max_length=2, null=True, blank=True, verbose_name='Sección')
     minimo_esperado = models.PositiveIntegerField(verbose_name='Mínimo esperado', default=1)
@@ -275,7 +275,7 @@ class EjerciciosGrado(models.Model):
     ejercicios en un :class:`kalite.Grado`.
     """
 
-    grado = models.ForeignKey(Grado, related_name='ejercicios')
+    grado = models.ForeignKey(Grado, related_name='ejercicios', on_delete=models.CASCADE)
     estudiantes = models.PositiveIntegerField(default=0)
     ejercicios = models.PositiveIntegerField()
 

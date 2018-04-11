@@ -15,8 +15,30 @@
 					<table class="table table-hover table-condensed table-striped">
 						{{ solicitud_form.as_table }}
 						<tr>
+							<th colspan="2">
+								Histórico
+								<a href="javascript:void" class=" btn btn-primary btn-mini comentarioSolicitud-btn" data-url="{% url 'solicitud_comentario_add' %}" data-id="{{ solicitud_form.instance.id }}">+</a>
+							</th>
+						</tr>
+						<tbody id="body-solicitud-{{solicitud_form.instance.id}}">
+						{% for comentario in solicitud_form.instance.comentarios_solicitud.all %}
+						<tr>
 							<td>
-								<input type="submit" class="btn btn-success" value="Guardar">  
+								{{ comentario.comentario }}
+							</td>
+								<td><small>{{ comentario.fecha|date:'d/m/Y' }}, {{ comentario.usuario.perfil }}</small></td>
+						</tr>
+						{% endfor %}
+						</tbody>
+						<tr>
+							<td colspan="2">
+								<ul class="list-unstyled">
+								</ul>
+							</td>
+						</tr>
+						<tr>
+							<td colspan="2" aling="center">
+								<input type="submit" class="btn btn-success" value="Guardar">
 								<a href="{% url "escuela_detail" pk=solicitud_form.instance.escuela.id %}" class="btn btn-danger">Cancelar</a>
 							</td>
 						</tr>
