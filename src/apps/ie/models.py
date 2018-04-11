@@ -104,18 +104,37 @@ class Laboratorio(models.Model):
         red (bool): Indica si la escuela tiene red de área local
     """
 
-    escuela = models.ForeignKey(Escuela, related_name='laboratorios')
-    organizacion = models.ForeignKey(Organizacion, related_name='laboratorios', verbose_name='Organización')
+    escuela = models.ForeignKey(Escuela, related_name='laboratorios', on_delete=models.CASCADE)
+    organizacion = models.ForeignKey(
+        Organizacion,
+        related_name='laboratorios',
+        verbose_name='Organización',
+        on_delete=models.CASCADE)
     fecha = models.DateField(default=timezone.now)
     observaciones = models.TextField(null=True, blank=True)
     red = models.BooleanField(default=False, blank=True)
     internet = models.BooleanField(default=False, blank=True)
     fotos_link = models.URLField(null=True, blank=True, verbose_name='Link a fotos (GDrive)')
-    marca_equipo = models.ForeignKey(MarcaItem, related_name='laboratorios', null=True, blank=True)
-    tipo_equipo = models.ForeignKey(TipoItem, related_name='laboratorios', null=True, blank=True, on_delete=models.PROTECT, verbose_name='Tipo de equipo')
+    marca_equipo = models.ForeignKey(
+        MarcaItem,
+        related_name='laboratorios',
+        null=True,
+        blank=True,
+        on_delete=models.CASCADE)
+    tipo_equipo = models.ForeignKey(
+        TipoItem,
+        related_name='laboratorios',
+        null=True,
+        blank=True,
+        on_delete=models.PROTECT,
+        verbose_name='Tipo de equipo')
     equipo_uniforme = models.BooleanField(default=True, blank=True, verbose_name='El equipo es uniforme')
     servidor_local = models.BooleanField(default=False, blank=True, verbose_name='Posee servidor local')
-    poblacion = models.ForeignKey(EscPoblacion, related_name='laboratorios', verbose_name='Población')
+    poblacion = models.ForeignKey(
+        EscPoblacion,
+        related_name='laboratorios',
+        verbose_name='Población',
+        on_delete=models.CASCADE)
     cantidad_computadoras = models.PositiveIntegerField(default=0, verbose_name='Cantidad de computadoras')
 
     class Meta:
@@ -130,7 +149,7 @@ class Laboratorio(models.Model):
 
 
 class Computadora(models.Model):
-    laboratorio = models.ForeignKey(Laboratorio, related_name='computadoras')
+    laboratorio = models.ForeignKey(Laboratorio, related_name='computadoras', on_delete=models.CASCADE)
     items = models.ManyToManyField(Item, through='Serie', related_name='computadoras')
     completa = models.BooleanField(default=False, blank=True)
 
@@ -146,8 +165,8 @@ class Computadora(models.Model):
 
 
 class Serie(models.Model):
-    computadora = models.ForeignKey(Computadora, related_name='series')
-    item = models.ForeignKey(Item)
+    computadora = models.ForeignKey(Computadora, related_name='series', on_delete=models.CASCADE)
+    item = models.ForeignKey(Item, on_delete=models.CASCADE)
 
     class Meta:
         verbose_name = "Serie"
@@ -186,15 +205,15 @@ class ValidacionVersion(models.Model):
 
 
 class Validacion(models.Model):
-    escuela = models.ForeignKey(Escuela, related_name='ie_validaciones')
-    version = models.ForeignKey(ValidacionVersion)
+    escuela = models.ForeignKey(Escuela, related_name='ie_validaciones', on_delete=models.CASCADE)
+    version = models.ForeignKey(ValidacionVersion, on_delete=models.CASCADE)
     fecha_inicio = models.DateField(default=timezone.now, verbose_name='Fecha de inicio')
     fotos_link = models.URLField(null=True, blank=True, verbose_name='Link a fotos')
     observaciones = models.TextField(null=True, blank=True)
     completada = models.BooleanField(default=False, blank=True)
     fecha_fin = models.DateField(verbose_name='Fecha de fin', null=True, blank=True)
-    organizacion = models.ForeignKey(Organizacion, null=True, blank=True)
-    creada_por = models.ForeignKey(User, null=True, blank=True)
+    organizacion = models.ForeignKey(Organizacion, null=True, blank=True, on_delete=models.CASCADE)
+    creada_por = models.ForeignKey(User, null=True, blank=True, on_delete=models.CASCADE)
 
     requerimientos = models.ManyToManyField(Requerimiento, blank=True)
 

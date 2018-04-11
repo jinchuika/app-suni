@@ -20,13 +20,13 @@ class TipoEvento(models.Model):
 
 
 class EventoDH(models.Model):
-    tipo_evento = models.ForeignKey(TipoEvento, verbose_name="Tipo de evento")
+    tipo_evento = models.ForeignKey(TipoEvento, verbose_name="Tipo de evento", on_delete=models.CASCADE)
     titulo = models.TextField(verbose_name="Título")
     fecha = models.DateField(default=timezone.now)
     hora_inicio = models.TimeField(null=True, blank=True, verbose_name="Hora de inicio")
     hora_fin = models.TimeField(null=True, blank=True, verbose_name="Hora de fin")
     ubicacion = models.TextField(null=True, blank=True, verbose_name="Ubicación")
-    creado_por = models.ForeignKey(User, related_name="eventos_dh")
+    creado_por = models.ForeignKey(User, related_name="eventos_dh", on_delete=models.CASCADE)
     descripcion = models.TextField(null=True, blank=True, verbose_name='Descripción')
 
     asistentes = models.ManyToManyField(User, blank=True)
