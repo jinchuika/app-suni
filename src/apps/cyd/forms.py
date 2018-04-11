@@ -1,6 +1,6 @@
 from django import forms
 from django.forms.models import inlineformset_factory
-from django.core.urlresolvers import reverse_lazy
+from django.urls import reverse_lazy
 from django.contrib.auth.models import User
 
 from apps.main.forms import GeoForm

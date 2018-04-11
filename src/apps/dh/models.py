@@ -1,5 +1,5 @@
 from django.db import models
-from django.core.urlresolvers import reverse
+from django.urls import reverse_lazy
 from django.contrib.auth.models import User
 from django.utils import timezone
 from datetime import timedelta
@@ -47,4 +47,4 @@ class EventoDH(models.Model):
         super(EventoDH, self).save(*args, **kwargs)
 
     def get_absolute_url(self):
-        return reverse('evento_dh_detail', kwargs={'pk': self.id})
+        return reverse_lazy('evento_dh_detail', kwargs={'pk': self.id})

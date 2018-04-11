@@ -55,5 +55,5 @@ urlpatterns = [
         name='sesion_naat_calendar'),
     url(
         r'^api/',
-        include('apps.naat.api_urls', namespace='naat_api')),
+        include(('apps.naat.api_urls', 'naat'), namespace='naat_api')),
 ]

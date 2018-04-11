@@ -142,8 +142,8 @@ class ValidacionTipo(models.Model):
 
 
 class Validacion(models.Model):
-    version = models.ForeignKey(ValidacionVersion)
-    tipo = models.ForeignKey(ValidacionTipo)
+    version = models.ForeignKey(ValidacionVersion, on_delete=models.CASCADE)
+    tipo = models.ForeignKey(ValidacionTipo, on_delete=models.CASCADE)
     escuela = models.ForeignKey('escuela.Escuela', on_delete=models.PROTECT, related_name='validacion')
     fecha_inicio = models.DateField(default=timezone.now)
     fecha_final = models.DateField(null=True, blank=True)
@@ -187,9 +187,9 @@ class Validacion(models.Model):
 
 
 class ValidacionComentario(models.Model):
-    validacion = models.ForeignKey(Validacion, related_name='comentarios')
+    validacion = models.ForeignKey(Validacion, related_name='comentarios', on_delete=models.CASCADE)
     comentario = models.TextField()
-    usuario = models.ForeignKey(User)
+    usuario = models.ForeignKey(User, on_delete=models.CASCADE)
     fecha = models.DateTimeField(default=timezone.now)
 
     class Meta:
@@ -201,9 +201,9 @@ class ValidacionComentario(models.Model):
 
 
 class SolicitudComentario(models.Model):
-    solicitud = models.ForeignKey(Solicitud, related_name='comentarios_solicitud')
+    solicitud = models.ForeignKey(Solicitud, related_name='comentarios_solicitud', on_delete=models.CASCADE)
     comentario = models.TextField()
-    usuario = models.ForeignKey(User)
+    usuario = models.ForeignKey(User, on_delete=models.CASCADE)
     fecha = models.DateTimeField(default=timezone.now)
 
     class Meta:

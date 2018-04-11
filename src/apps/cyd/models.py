@@ -4,7 +4,7 @@ from django.db import models
 from django.db.models import Count, F
 from django.utils.text import slugify
 from django.core.exceptions import ValidationError
-from django.core.urlresolvers import reverse
+from django.urls import reverse_lazy
 from django.contrib.auth.models import User
 
 from easy_thumbnails.fields import ThumbnailerImageField
@@ -23,7 +23,7 @@ class Curso(models.Model):
         return self.nombre
 
     def get_absolute_url(self):
-        return reverse('curso_detail', kwargs={"pk": self.id})
+        return reverse_lazy('curso_detail', kwargs={"pk": self.id})
 
     def get_total_asistencia(self):
         """Obtiene el total de puntos asignados a las asistencias."""
@@ -79,7 +79,7 @@ class Sede(models.Model):
         return self.nombre
 
     def get_absolute_url(self):
-        return reverse('sede_detail', kwargs={'pk': self.id})
+        return reverse_lazy('sede_detail', kwargs={'pk': self.id})
 
     def get_escuelas(self):
         participantes = Participante.objects.filter(asignaciones__grupo__sede__id=self.id)
@@ -150,7 +150,7 @@ class Grupo(models.Model):
         return '{} - {}'.format(self.numero, self.curso)
 
     def get_absolute_url(self):
-        return reverse('grupo_detail', kwargs={'pk': self.id})
+        return reverse_lazy('grupo_detail', kwargs={'pk': self.id})
 
     def get_hombres(self):
         return self.asignados.filter(participante__genero__id=1).count()
@@ -198,7 +198,7 @@ class Calendario(models.Model):
         super(Calendario, self).save(*args, **kwargs)
 
     def get_api_url(self):
-        return reverse('calendario_api_detail', kwargs={'pk': self.id})
+        return reverse_lazy('calendario_api_detail', kwargs={'pk': self.id})
 
     def count_asistentes(self):
         """Cuenta cuantos participantes asistieron."""
@@ -283,7 +283,7 @@ class Participante(models.Model):
         return '{} {}'.format(self.nombre, self.apellido)
 
     def get_absolute_url(self):
-        return reverse('participante_detail', kwargs={'pk': self.id})
+        return reverse_lazy('participante_detail', kwargs={'pk': self.id})
 
     def save(self, *args, **kwargs):
         """En caso de que el participante no tenga DPI, se le asigna uno temporal.

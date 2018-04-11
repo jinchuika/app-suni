@@ -2,12 +2,12 @@ from django.shortcuts import redirect
 from django.views.generic import UpdateView, ListView, RedirectView
 from django.views.generic.edit import CreateView
 from django.contrib.auth.models import User
-from django.core.urlresolvers import reverse_lazy
+from django.urls import reverse_lazy
 
 from braces.views import LoginRequiredMixin, GroupRequiredMixin
 from allauth.account.views import LoginView
-from dynamic_preferences.forms import user_preference_form_builder
-from dynamic_preferences.views import UserPreferenceFormView
+from dynamic_preferences.users.forms import user_preference_form_builder
+from dynamic_preferences.users.views import UserPreferenceFormView
 
 from apps.users.forms import *
 from apps.users.mixins import PublicPerfilMixin
