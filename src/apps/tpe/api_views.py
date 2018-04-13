@@ -160,6 +160,24 @@ class VisitaMonitoreoFilter(filters.FilterSet):
         fields = ('start', 'end')
 
 
+class VisitaMonitoreoInformeFilter(filters.FilterSet):
+    """ Filtros para la busqueda en visitas
+    """
+    fecha_visita = django_filters.DateFilter(name='fecha', method='filter_fecha')
+    departamento = django_filters.NumberFilter(name='equipamiento__escuela__municipio__departamento')
+
+    class Meta:
+        model = tpe_m.VisitaMonitoreo
+        fields = ('fecha_visita', 'departamento')
+
+    """def filter_fecha(self, queryset, name, value):
+        if value and name == 'fecha_visita':
+            queryset = queryset.filter(fecha_visita__gte=value)
+        if value and name == 'fecha_visita':
+            queryset = queryset.filter(fecha_visita__lte=value)
+        return queryset"""
+
+
 class VisitaMonitoreoCalendarViewset(LoginRequiredMixin, viewsets.ReadOnlyModelViewSet):
     """Vista encargada de  manipular el calendario
     """
@@ -173,4 +191,4 @@ class VisitaMonitoreoViewset(LoginRequiredMixin, viewsets.ReadOnlyModelViewSet):
     """
     serializer_class = tpe_serializers.VisitaMonitoreoSerializer
     queryset = tpe_m.VisitaMonitoreo.objects.all()
-    filter_class = VisitaMonitoreoFilter
+    filter_class = VisitaMonitoreoInformeFilter

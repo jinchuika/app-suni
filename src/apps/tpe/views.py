@@ -613,20 +613,20 @@ class VisitaUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
     template_name = 'tpe/visita_add.html'
 
 
-class VisitaListView(LoginRequiredMixin, ListView):
+class VisitaListView(LoginRequiredMixin, FormView):
     """Vista para mostrar un informe de  una :class:`VisitaMonitoreo`. y nos
     muestra el template `visita_list` con el método GET.
     """
     model = tpe_m.VisitaMonitoreo
+    form_class = tpe_f.VisitaMonitoreoInformeForm
     template_name = 'tpe/visita_list.html'
     raise_exception = True
 
 
-class VisitaDetailView(LoginRequiredMixin, FormView):
+class VisitaDetailView(LoginRequiredMixin, DetailView):
     """Vista para mostrar una lista de  una :class:`VisitaMonitoreo`. pero en
     especifico la visita antes seleccionada y nos muestra el template `visita_detail` con el método GET.
     """
-    form_class = tpe_f.VisitaMonitoreoInformeForm
     model = tpe_m.VisitaMonitoreo
     template_name = 'tpe/visita_detail.html'
 

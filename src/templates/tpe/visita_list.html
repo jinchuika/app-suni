@@ -1,5 +1,4 @@
 {% extends "base/base.html" %}
-
 {% load staticfiles widget_tweaks %}
 
 {% block page_title %}
@@ -47,31 +46,13 @@
 										<th>No.</th>
 										<th>Equipamiento</th>
 										<th>Escuela</th>
+										<th>Departamento</th>
+										<th>Municipio</th>
 										<th>Encargado</th>
 										<th>Fecha</th>
-
 									</tr>
 								</thead>
-								<tbody>
-									{% for visita in visitamonitoreo_list %}
-										<tr>
-											<td>
-												<p><a href="{{ visita.get_absolute_url }}"> {{ visita }}</a></p>
-											</td>
-											<td>
-												<p> {{ visita.equipamiento }}</p>
-											</td>
-											<td>
-												<p> {{ visita.equipamiento.escuela }}</p>
-											</td>
-											<td>
-												<p> {{ visita.encargado.get_full_name }}</p>
-											</td>
-											<td>
-												<p> {{ visita.fecha_visita |date:"d-m-Y"  }}</p>
-											</td>
-										</tr>
-									{% endfor %}
+								<tbody id="visita-monitoreo-table-body">
 								</tbody>
 							</table>
 					<!--	</div> -->

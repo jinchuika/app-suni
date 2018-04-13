@@ -1,6 +1,8 @@
 from django import forms
+from django.urls import reverse_lazy
 from django.forms import ModelForm
 from django.db.models import Count
+from apps.main.models import Departamento, Municipio
 from django.contrib.auth.models import User
 
 from apps.tpe import models as tpe_m
@@ -375,19 +377,34 @@ class VisitaMonitoreoForm(forms.ModelForm):
         qs_actual_contacto = self.fields['contacto'].queryset
         qs_nuevo_contacto = qs_actual_contacto.filter(escuela=self.instance.equipamiento.escuela)
         self.fields['contacto'].queryset = qs_nuevo_contacto
-        print(qs_nuevo_contacto)
         self.fields['otras_personas'].label_from_instance = lambda obj: "%s" % obj.get_full_name()
 
 
-class VisitaMonitoreoInformeForm(forms.ModelForm):
+class VisitaMonitoreoInformeForm(forms.Form):
     """Este Formulario se encarga de enviar los filtros para  su respectivo informe
     """
-    class Meta:
-        model = tpe_m.VisitaMonitoreo
-        fields = '__all__'
-        widgets = {
-            'fecha_visita': forms.TextInput(attrs={'class': 'datepicker'}),
-            'encargado': forms.Textarea(attrs={'class': 'form-control'})
+    Departamento = forms.ModelChoiceField(
+        queryset=Departamento.objects.all(),
+        widget=forms.Select(attrs={'class': 'form-control', 'data-url': reverse_lazy('municipio_api_list')}),
+        required=False)
+    Municipio = forms.ModelChoiceField(
+        queryset=Municipio.objects.all(),
+        widget=forms.Select(attrs={'class': 'form-control'}),
+        required=False)
+    Encargado = forms.CharField(
+        label='Encargado',
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-control'}))
 
-
-        }
+    cantidad_equipamientos = forms.IntegerField(
+        label='Equipamientos (min)',
+        required=False,
+        widget=forms.NumberInput(attrs={'min': 0, 'class': 'form-control'}))
+    fecha_min = forms.CharField(
+        label='Fecha (min)',
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-control datepicker'}))
+    fecha_max = forms.CharField(
+        label='Fecha (max)',
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-control datepicker'}))

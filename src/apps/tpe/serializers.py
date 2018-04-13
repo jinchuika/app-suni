@@ -188,14 +188,17 @@ class VisitaMonitoreoCalendarSerializer(serializers.ModelSerializer):
 
 
 class VisitaMonitoreoSerializer(serializers.ModelSerializer):
+        id = serializers.CharField(source='__str__')
+        equipamientos = serializers.StringRelatedField(source='equipamiento', read_only=True)
         municipio = serializers.CharField(source='equipamiento.escuela.municipio.nombre')
-        departamento = serializers.StringRelatedField(source='equipamiento.escuela.municipio.departamento')
+        escuela = serializers.CharField(source='equipamiento.escuela')
+        departamento = serializers.StringRelatedField(source='equipamiento.escuela.municipio.departamento.nombre')
         fecha = serializers.SerializerMethodField()
         encargado = serializers.SerializerMethodField()
 
         class Meta:
             model = tpe_models.VisitaMonitoreo
-            fields = ('fecha', 'departamento', 'municipio', 'encargado')
+            fields = ('id', 'equipamientos', 'escuela', 'fecha', 'departamento', 'municipio', 'encargado')
 
         def get_fecha(self, object):
             return object.fecha_visita

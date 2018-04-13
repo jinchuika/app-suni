@@ -843,19 +843,24 @@
       ajax: {
           url: $('#visita-monitoreo-list-form').prop('action'),
           deferRender: true,
-          cache: false,
           dataSrc: '',
+          cache: false,
           data: function () {
+
                 return $('#visita-monitoreo-list-form').serializeObject();
         }
+
       },
       columns: [
-        {data:"fecha", className:"nowrap"},
+        {data:"id",className:"nowrap"},
+        {data:"equipamientos",className:"nowrap"},
+        {data:"escuela",className:"nowrap"},
         {data:"departamento",className:"nowrap"},
         {data:"municipio",className:"nowrap"},
-        {data:"encargado",className:"nowrap"}
+        {data:"encargado",className:"nowrap"},
+        {data:"fecha", className:"nowrap"}
       ]
-    }).on('xhr.dt', function () {
+    }).on('xhr.dt', function (e, settings, json, xhr) {
       $('#spinner').hide();
     });
 //Public
