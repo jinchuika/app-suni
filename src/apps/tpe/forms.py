@@ -373,7 +373,6 @@ class VisitaMonitoreoForm(forms.ModelForm):
         qs_actual = self.fields['ticket'].queryset
         qs_nuevo = qs_actual.filter(garantia__equipamiento=self.instance.equipamiento)
         self.fields['ticket'].queryset = qs_nuevo
-
         qs_actual_contacto = self.fields['contacto'].queryset
         qs_nuevo_contacto = qs_actual_contacto.filter(escuela=self.instance.equipamiento.escuela)
         self.fields['contacto'].queryset = qs_nuevo_contacto
