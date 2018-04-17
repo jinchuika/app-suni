@@ -162,6 +162,9 @@ class DispositivoReparacionSerializar(serializers.ModelSerializer):
 
 
 class VisitaMonitoreoCalendarSerializer(serializers.ModelSerializer):
+    """ Serializer para :class:`VisitaMonitoreo` encargada de mostrar los datos
+    con DRF para el calendario de visitas
+    """
     url = serializers.URLField(source='get_absolute_url')
     start = serializers.SerializerMethodField()
     end = serializers.SerializerMethodField()
@@ -188,20 +191,23 @@ class VisitaMonitoreoCalendarSerializer(serializers.ModelSerializer):
 
 
 class VisitaMonitoreoSerializer(serializers.ModelSerializer):
-        id = serializers.CharField(source='__str__')
-        equipamientos = serializers.StringRelatedField(source='equipamiento', read_only=True)
-        municipio = serializers.CharField(source='equipamiento.escuela.municipio.nombre')
-        escuela = serializers.CharField(source='equipamiento.escuela')
-        departamento = serializers.StringRelatedField(source='equipamiento.escuela.municipio.departamento.nombre')
-        fecha = serializers.SerializerMethodField()
-        encargado = serializers.SerializerMethodField()
+    """ Serializer para :class:`VisitaMonitoreo` encargada de mostrar los datos
+    con DRF para los informes que se necesita
+    """
+    id = serializers.IntegerField(source='__str__')
+    equipamientos = serializers.StringRelatedField(source='equipamiento', read_only=True)
+    municipio = serializers.CharField(source='equipamiento.escuela.municipio.nombre')
+    escuela = serializers.CharField(source='equipamiento.escuela')
+    departamento = serializers.StringRelatedField(source='equipamiento.escuela.municipio.departamento.nombre')
+    fecha = serializers.SerializerMethodField()
+    encargado = serializers.SerializerMethodField()
 
-        class Meta:
-            model = tpe_models.VisitaMonitoreo
-            fields = ('id', 'equipamientos', 'escuela', 'fecha', 'departamento', 'municipio', 'encargado')
+    class Meta:
+        model = tpe_models.VisitaMonitoreo
+        fields = ('id', 'equipamientos', 'escuela', 'fecha', 'departamento', 'municipio', 'encargado')
 
-        def get_fecha(self, object):
-            return object.fecha_visita
+    def get_fecha(self, object):
+        return object.fecha_visita
 
-        def get_encargado(self, obj):
-            return obj.encargado.get_full_name()
+    def get_encargado(self, obj):
+        return obj.encargado.get_full_name()

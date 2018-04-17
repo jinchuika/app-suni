@@ -860,7 +860,7 @@
         {data:"encargado",className:"nowrap"},
         {data:"fecha", className:"nowrap"}
       ]
-    }).on('xhr.dt', function (e, settings, json, xhr) {
+    }).on('xhr.dt', function () {
       $('#spinner').hide();
     });
 //Public

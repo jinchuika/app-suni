@@ -381,25 +381,23 @@ class VisitaMonitoreoForm(forms.ModelForm):
 
 
 class VisitaMonitoreoInformeForm(forms.Form):
-    """Este Formulario se encarga de enviar los filtros para  su respectivo informe
+    """Este Formulario se encarga de enviar los filtros para  su respectivo informe de visitas de monitoreo
     """
-    Departamento = forms.ModelChoiceField(
+    departamento = forms.ModelChoiceField(
         queryset=Departamento.objects.all(),
         widget=forms.Select(attrs={'class': 'form-control', 'data-url': reverse_lazy('municipio_api_list')}),
         required=False)
-    Municipio = forms.ModelChoiceField(
+    municipio = forms.ModelChoiceField(
         queryset=Municipio.objects.all(),
         widget=forms.Select(attrs={'class': 'form-control'}),
         required=False)
-    Encargado = forms.CharField(
+    encargado = forms.ModelChoiceField(
+        queryset=User.objects.filter(groups__name='tpe'),
+
         label='Encargado',
         required=False,
-        widget=forms.TextInput(attrs={'class': 'form-control'}))
+        widget=forms.Select(attrs={'class': 'form-control'}))
 
-    cantidad_equipamientos = forms.IntegerField(
-        label='Equipamientos (min)',
-        required=False,
-        widget=forms.NumberInput(attrs={'min': 0, 'class': 'form-control'}))
     fecha_min = forms.CharField(
         label='Fecha (min)',
         required=False,
@@ -408,3 +406,7 @@ class VisitaMonitoreoInformeForm(forms.Form):
         label='Fecha (max)',
         required=False,
         widget=forms.TextInput(attrs={'class': 'form-control datepicker'}))
+
+    def __init__(self, *args, **kwargs):
+        super(VisitaMonitoreoInformeForm, self).__init__(*args, **kwargs)
+        self.fields['encargado'].label_from_instance = lambda obj: "%s" % (obj.get_full_name())
