@@ -21,9 +21,9 @@
       }
       $.post(url, JSON.stringify(data)).then(function (response){
         var fecha = new Date(response.fecha);
-        var td_data = $('<td><td>').text(fecha.getDate()+"/"+(fecha.getMonth()+1)+"/"+fecha.getFullYear()+","+response.usuario);
-        var td = $('<td><td>').text(response.comentario);
-        var tr = $('<tr><tr>').append(td).append(td_data);
+        var td_data = $('<td></td>').text(fecha.getDate()+"/"+(fecha.getMonth()+1)+"/"+fecha.getFullYear()+","+response.usuario);
+        var td = $('<td></td>').text(response.comentario);
+        var tr = $('<tr></tr>').append(td).append(td_data);
         $('#body-solicitud-' + id_solicitud).append(tr);
       },function(response){
         alert("Error al crear datos");
@@ -44,7 +44,6 @@
             type: 'post',
             dataType: 'json',
             success: function (respuesta) {
-                console.log(respuesta);
                 var fecha = new Date(respuesta.fecha);
                 var fecha_text = fecha.getFullYear() + "-" + (fecha.getMonth()+1) + "-" + fecha.getDate();
                 var btn = '<a href="'+respuesta.url+'" class="btn btn-xs btn-warning pull-right"><i class="fa fa-external-link p"></i></a>';
@@ -94,7 +93,6 @@
                     if (result) {
                         crear_comentario(url, id_validacion, result);
                     }
-                    console.log(result + id_validacion);
                 }
             });
         });
@@ -113,6 +111,7 @@
                 }
             });
         });
+
       $('.comentarioSolicitud-btn').click(function (){
         var id_solicitud = $(this).data('id');
         var url = $(this).data('url');
@@ -123,7 +122,6 @@
             if(result){
               crear_comentario_solicitud(url, id_solicitud, result);
             }
-            console.log(result+ id_solicitud);
           }
         });
       });
@@ -134,7 +132,6 @@
     EscuelaBuscar.tablaHabilitada = false;
     EscuelaBuscar.tabla = null;
     EscuelaBuscar.filtro_list = [];
-
     EscuelaBuscar.iniciar_tabla = function () {
         let tabla = $('#escuela-table').DataTable({
             dom: 'lfrtipB',
