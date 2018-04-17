@@ -392,8 +392,7 @@ class VisitaMonitoreoInformeForm(forms.Form):
         widget=forms.Select(attrs={'class': 'form-control'}),
         required=False)
     encargado = forms.ModelChoiceField(
-        queryset=User.objects.filter(groups__name='tpe'),
-
+        queryset=User.objects.all(),
         label='Encargado',
         required=False,
         widget=forms.Select(attrs={'class': 'form-control'}))
@@ -409,4 +408,7 @@ class VisitaMonitoreoInformeForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         super(VisitaMonitoreoInformeForm, self).__init__(*args, **kwargs)
+        qs_encargado = self.fields['encargado'].queryset
+        qs_encargado = qs_encargado.annotate(total_visitas=Count('visitas_encargado')).filter(total_visitas__gte=1)
+        self.fields['encargado'].queryset = qs_encargado
         self.fields['encargado'].label_from_instance = lambda obj: "%s" % (obj.get_full_name())
