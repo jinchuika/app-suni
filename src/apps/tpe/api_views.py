@@ -160,6 +160,28 @@ class VisitaMonitoreoFilter(filters.FilterSet):
         fields = ('start', 'end')
 
 
+class VisitaMonitoreoInformeFilter(filters.FilterSet):
+    """ Filtros para la busqueda en monitoreo de visitas
+    """
+    fecha_visita = django_filters.DateFilter(name='fecha_visita')
+    departamento = django_filters.NumberFilter(name='equipamiento__escuela__municipio__departamento',)
+    municipio = django_filters.NumberFilter(name='equipamiento__escuela__municipio')
+    encargado = django_filters.CharFilter(name='encargado')
+    fecha_min = django_filters.DateFilter(name='fecha_min', method='filter_fecha')
+    fecha_max = django_filters.DateFilter(name='fecha_max', method='filter_fecha')
+
+    class Meta:
+        model = tpe_m.VisitaMonitoreo
+        fields = ['fecha_visita', 'municipio', 'departamento', 'encargado', 'fecha_min', 'fecha_max']
+
+    def filter_fecha(self, queryset, name, value):
+        if value and name == 'fecha_min':
+            queryset = queryset.filter(fecha_visita__gte=value)
+        if value and name == 'fecha_max':
+            queryset = queryset.filter(fecha_visita__lte=value)
+        return queryset
+
+
 class VisitaMonitoreoCalendarViewset(LoginRequiredMixin, viewsets.ReadOnlyModelViewSet):
     """Vista encargada de  manipular el calendario
     """
@@ -168,9 +190,9 @@ class VisitaMonitoreoCalendarViewset(LoginRequiredMixin, viewsets.ReadOnlyModelV
     filter_class = VisitaMonitoreoFilter
 
 
-class VisitaMonitoreoViewset(LoginRequiredMixin, viewsets.ReadOnlyModelViewSet):
-    """Para generar el listado
+class VisitaMonitoreoViewset(LoginRequiredMixin, viewsets.ModelViewSet):
+    """Para generar el listado del monitoreo de visitas
     """
     serializer_class = tpe_serializers.VisitaMonitoreoSerializer
     queryset = tpe_m.VisitaMonitoreo.objects.all()
-    filter_class = VisitaMonitoreoFilter
+    filter_class = VisitaMonitoreoInformeFilter

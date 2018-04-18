@@ -66,7 +66,8 @@ LOCAL_APPS = (
     'apps.dh',
     'apps.naat',
     'apps.kalite',
-    'apps.ie')
+    'apps.ie',
+    'apps.crm')
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 

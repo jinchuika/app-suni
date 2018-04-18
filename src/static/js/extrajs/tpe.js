@@ -835,37 +835,42 @@
     }
 }( window.DispositivoReparacion = window.DispositivoReparacion || {}, jQuery ));
 
-(function(MonitoreoVisita, $, undefined){
-var tabla = $('#visita-monitoreo-table').DataTable({
-  dom: 'lfrtipB',
-  button:['excel','pdf'],
-  processing: true,
-  ajax:{
-    url:$('#visita-monitoreo-list-form').prop('action'),
-    deferRender: true,
-    cache: false,
-    dataSrc: '',
-    data: function(){
-      return $('#visita-monitoreo-list-form').serializeObject();
-    }
-  },
-  columns: [
-    {data:"fecha", className:"nowrap"},
-    {data:"departamento",className:"nowrap"},
-    {data:"municipio",className:"nowrap"},
-    {data:"encargado",className:"nowrap"}
-  ]
-})on('xhr.dt',function(){
-  $('#spiner').hide();
-});;
+(function( MonitoreoVisitaInforme, $, undefined ) {
+  var tabla = $('#visita-monitoreo-table').DataTable({
+      dom: 'lfrtipB',
+      buttons: ['excel','pdf'],
+      processing: true,
+      ajax: {
+          url: $('#visita-monitoreo-list-form').prop('action'),
+          deferRender: true,
+          dataSrc: '',
+          cache: false,
+          data: function () {
+
+                return $('#visita-monitoreo-list-form').serializeObject();
+        }
+
+      },
+      columns: [
+        {data:"id",className:"nowrap"},
+        {data:"equipamientos",className:"nowrap"},
+        {data:"escuela",className:"nowrap"},
+        {data:"departamento",className:"nowrap"},
+        {data:"municipio",className:"nowrap"},
+        {data:"encargado",className:"nowrap"},
+        {data:"fecha", className:"nowrap"}
+      ]
+    }).on('xhr.dt', function () {
+      $('#spinner').hide();
+    });
 //Public
-MonitoreoVisita.init = function(){
-  $('#spiner').hide();
+MonitoreoVisitaInforme.init = function () {
+  $('#spinner').hide();
   $('#visita-monitoreo-list-form').submit(function (e) {
     e.preventDefault();
     tabla.clear().draw();
     $('#spinner').show();
     tabla.ajax.reload();
-  });
-}
-}(window.MonitoreoVisita = window.MonitoreoVisita || {}, jQuery ));
+    });
+  }
+}( window.MonitoreoVisitaInforme = window.MonitoreoVisitaInforme || {}, jQuery ));
