@@ -1,5 +1,5 @@
 from django.db import models
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 from django.utils import timezone
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
@@ -17,6 +17,9 @@ class DonanteTipo(models.Model):
     def __str__(self):
         return self.tipo
 
+    def get_absolute_url(self):
+        return reverse_lazy('donante_update', kwargs={'pk': self.donante.id})
+
 
 class OfertaTipo(models.Model):
     """ Tipo de oferta que se va a utilizar
@@ -29,6 +32,9 @@ class OfertaTipo(models.Model):
 
     def __str__(self):
         return self.oferta_tipo
+
+    def get_absolute_url(self):
+        return reverse_lazy('donante_update', kwargs={'pk': self.id})
 
 
 class Donante(models.Model):
@@ -49,6 +55,9 @@ class Donante(models.Model):
 
     def __str__(self):
         return self.nombre
+
+    def get_absolute_url(self):
+        return reverse_lazy('donante_update', kwargs={'pk': self.id})
 
 
 class Oferta(models.Model):
@@ -75,13 +84,16 @@ class Oferta(models.Model):
         verbose_name_plural = "Ofertas"
 
     def __str__(self):
-        return self.fecha_inicio
+        return str(self.fecha_inicio)
+
+    def get_absolute_url(self):
+        return reverse_lazy('donante_update', kwargs={'pk': self.donante.id})
 
 
 class OfertaHistorico(models.Model):
     """ Seguimiento de los comentario historicos que se haran en cada oferta
     """
-    comentario = models.TextField(null=True, blank=True, verbose_name="Histórico de Ofertas")
+    comentario = models.TextField()
     oferta = models.ForeignKey(Oferta, on_delete=models.CASCADE)
     usuario = models.ForeignKey(User, on_delete=models.CASCADE)
     fecha = models.DateTimeField(default=timezone.now)
@@ -91,7 +103,7 @@ class OfertaHistorico(models.Model):
         verbose_name_plural = "Históricos de Ofertas"
 
     def __str__(self):
-        return self.comentario
+        return str(self.oferta) + self.comentario[:15]
 
 
 class DonanteContacto(models.Model):
@@ -106,6 +118,9 @@ class DonanteContacto(models.Model):
 
     def __str__(self):
         return self.nombre
+
+    def get_absolute_url(self):
+        return reverse_lazy('donante_detail', kwargs={'pk': self.donante.id})
 
 
 class TelefonoCrm(models.Model):
@@ -124,6 +139,9 @@ class TelefonoCrm(models.Model):
     def __str__(self):
         return self.numero
 
+    def get_absolute_url(self):
+        return reverse_lazy('donante_update', kwargs={'pk': self.donante.id})
+
 
 class MailCrm(models.Model):
     """  Gestionamiento los correos electronicos de los donantes y contactos
@@ -138,3 +156,6 @@ class MailCrm(models.Model):
 
     def __str__(self):
         return self.mail
+
+    def get_absolute_url(self):
+        return reverse_lazy('donante_update', kwargs={'pk': self.donante.id})

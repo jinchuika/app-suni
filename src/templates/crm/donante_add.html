@@ -1,0 +1,85 @@
+{% extends "base/base.html" %}
+{%load staticfiles widget_tweaks %}
+{% block page_title %}
+<title>Donantes</title>
+{% endblock page_title %}
+{% block content %}
+
+
+<section class="content">
+  <div class="container-fluid">
+    <div class="row">
+
+      <div class="col-md-6 ">
+        <div class="box">
+        <div class="box-header">
+          <span class="info-box-text" >Donante</span>
+        </div>
+        <div class="box-body">
+          <table class="table table-condensed">
+            <form action="{{action}}" method="post">
+              {%csrf_token%}
+              <table>
+                {{ form.as_table }}
+                <tr>
+                  <td>
+                    <input type="submit" class="btn btn-success" value="Guardar"/>
+                  </td>
+                </tr>
+              </table>
+            </form>
+          </table>
+            </div>
+        </div>
+
+  </div>
+      <div class="col-md-6">
+          {% if ContactoForm %}
+        <div class="box">
+          <div class="box-header">
+            <h3 class="box-title">Contacto</h3>
+          </div>
+          <div class="box-body">
+
+            {% include "crm/contacto_add.html" %}
+
+          </div>
+        </div>
+        {%endif%}
+          {% if TelefonoForm %}
+        <div class="box">
+          <div class="box-header">
+            <span class="info-box-text">Telefono Contacto </span>
+          </div>
+          <div class="box-body">
+
+            {% include "crm/telefono_contacto_add.html" %}
+
+          </div>
+        </div>
+          {%endif%}
+          {% if CorreoForm %}
+        <div class="box">
+          <div class="box-header">
+              <span class="info-box-text" >Correo de Contacto</span>
+          </div>
+          <div class="box-body">
+
+            {% include "crm/correo_contacto_add.html" %}
+
+          </div>
+        </div>
+          {%endif%}
+      </div>
+
+  </div>
+</div>
+</section>
+{% endblock content %}
+
+	{% block extra_js %}
+	<script src="{% static "js/extrajs/crm.js" %}"></script>
+	<script>
+	HistoricoOfertas.init();
+	</script>
+	{% endblock extra_js %}

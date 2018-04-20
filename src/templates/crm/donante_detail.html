@@ -1,0 +1,80 @@
+{% extends "base/base.html" %}
+
+{% load staticfiles  %}
+
+{% block page_title %}
+<title>Donacion - {{ donante.id }}</title>
+{% endblock page_title %}
+
+{% block content %}
+<section class="content">
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-md-9">
+				<div class="box">
+					<div class="box-header">
+						<div class="row">
+						 	<div class="col-md-9"><h3 class="box-title">Donacion No. {{ donante.id }}</h3></div>
+
+						</div>
+					</div>
+					<div class="box-body">
+						<table class="table table-condensed">
+							<tr>
+								<th>Nombre del Donante	</th>
+								<td>{{ donante.nombre }}</td>
+							</tr>
+							<tr>
+								<th>Pagina Web</th>
+								<td>
+									<a href="{{ donante.pagina_web }}">
+										{{ donante.pagina_web }}
+									</a>
+									<br>
+								</td>
+							</tr>
+							<tr>
+								<th>Dirección	</th>
+								<td>{{ donante.direccion }}</td>
+							</tr>
+
+								<th>Fax</th>
+								<td>{{ donante.fax }}</td>
+							</tr>
+							<tr>
+								<th>Referido</th>
+								<td>{{ donante.referido }}</td>
+							</tr>
+							<tr>
+								<th>Comentario</th>
+								<td>{{ donante.comentario }}</td>
+							</tr>
+							<tr>
+								<th>Tipo de Donante</th>
+								<td>
+									{{donante.tipo_donante}}
+								</td>
+							</tr>
+							<tr>
+								<th>Nit</th>
+								<td>{{ donante.nit }}</td>
+							</tr>
+						</table>
+					</div>
+				</div>
+			</div>
+
+</section>
+
+
+{% endblock content %}
+
+{% block extra_js %}
+<script src="{% static "js/pdfmake.min.js" %}"></script>
+<script src="{% static "js/vfs_fonts.js" %}"></script>
+<script src="{% static "js/extrajs/tpe.js" %}"></script>
+<script>
+	DetalleGarantia.init();
+	ReparacionDetalle.init();
+</script>
+{% endblock extra_js %}

@@ -1,0 +1,28 @@
+{%load widget_tweaks %}
+{% block page_title %}
+<title>Donantes</title>
+{% endblock page_title %}
+{% block content %}
+
+<section class="content">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-md-6">
+        <table class="table table-condensed">
+          <form action="{% url 'correo_add' %}" method="post">
+            {%csrf_token%}
+            <table>
+              {{ CorreoForm.as_table }}
+              <tr>
+                <td>
+                  <input type="submit" class="btn btn-success" value="Guardar"/>
+                </td>
+              </tr>
+            </table>
+          </form>
+        </table>
+    </div>
+  </div>
+  </div>
+</section>
+{% endblock content %}
