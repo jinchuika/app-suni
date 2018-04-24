@@ -74,7 +74,11 @@ class Oferta(models.Model):
         verbose_name="Fecha de Creación de Carta",
         null=True,
         blank=True)
-    recibido_por = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Recibido por")
+    recibido_por = models.ForeignKey(
+                                    User,
+                                    on_delete=models.CASCADE,
+                                    verbose_name="Recibido por",
+                                    related_name="recibido")
     recibo_contable = models.BooleanField(verbose_name="Se entrego Recibo Contable")
     tipo_oferta = models.ForeignKey(OfertaTipo, on_delete=models.CASCADE)
     donante = models.ForeignKey(Donante, on_delete=models.CASCADE, verbose_name="Donante")
@@ -94,7 +98,7 @@ class OfertaHistorico(models.Model):
     """ Seguimiento de los comentario historicos que se haran en cada oferta
     """
     comentario = models.TextField()
-    oferta = models.ForeignKey(Oferta, on_delete=models.CASCADE)
+    oferta = models.ForeignKey(Oferta, on_delete=models.CASCADE, related_name='comentarios')
     usuario = models.ForeignKey(User, on_delete=models.CASCADE)
     fecha = models.DateTimeField(default=timezone.now)
 
@@ -110,7 +114,7 @@ class DonanteContacto(models.Model):
     """ Contacto del donante
     """
     nombre = models.CharField(max_length=125, verbose_name='Nombre')
-    donante = models.ForeignKey(Donante, on_delete=models.CASCADE)
+    donante = models.ForeignKey(Donante, on_delete=models.CASCADE, related_name='contactos')
 
     class Meta:
         verbose_name = "Contacto"

@@ -14,8 +14,8 @@ escuela_children = (
         reverse_lazy("escuela_add"),
         weight=12,
         icon="fa-plus-square-o",
-        perm='escuela.add_escuela'),)
-
+        perm='escuela.add_escuela'),
+        )
 Menu.add_item(
     "user",
     ViewMenuItem(

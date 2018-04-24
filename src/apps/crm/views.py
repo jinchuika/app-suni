@@ -47,6 +47,28 @@ class OfertaCreateView(LoginRequiredMixin, CreateView):
     template_name = 'crm/oferta_add.html'
     form_class = crm_f.OfertaForm
 
+    def get_success_url(self):
+        return reverse_lazy('oferta_edit', kwargs={'pk': self.object.id})
+
+
+class OfertaDetailView(LoginRequiredMixin, DetailView):
+    model = crm_m.Oferta
+    template_name = 'crm/oferta_detail.html'
+
+
+class OfertaUpdateView(LoginRequiredMixin, UpdateView):
+    """Vista encargada de Actulizar de :class:'Oferta' con sus respectivos campos
+    """
+    model = crm_m.Oferta
+    template_name = 'crm/oferta_add.html'
+    form_class = crm_f.OfertaForm
+
+
+class OfertaInformeView(LoginRequiredMixin, FormView):
+    model = crm_m.Oferta
+    template_name = 'crm/oferta_list.html'
+    form_class = crm_f.OfertaInformeForm
+
 
 class ContactoCreateView(LoginRequiredMixin, CreateView):
     """Vista   para obtener los datos del contacto  mediante una :class:`DonanteContacto`
@@ -98,11 +120,6 @@ class HistoricoOfertaCrear(CsrfExemptMixin, JsonRequestResponseMixin, View):
             id_historico = self.request_json["id_historico"]
             oferta = crm_m.Oferta.objects.filter(id=id_historico)
             comentario = self.request_json["comentario"]
-            print("*******")
-            print(id_historico)
-            print(oferta)
-            print(comentario)
-            print("*******")
             if not len(comentario) or len(oferta) == 0:
                 raise KeyError
         except KeyError:

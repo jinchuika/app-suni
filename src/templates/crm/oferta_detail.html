@@ -1,0 +1,68 @@
+{% extends "base/base.html" %}
+
+{% load staticfiles  %}
+
+{% block page_title %}
+<title>Oferta - {{ oferta.id }}</title>
+{% endblock page_title %}
+
+{% block content %}
+<section class="content">
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-md-9">
+				<div class="box">
+					<div class="box-header">
+						<div class="row">
+						 	<div class="col-md-9"><h3 class="box-title">Oferta No. {{ oferta.id }}</h3></div>
+
+						</div>
+					</div>
+					<div class="box-body">
+						<table class="table table-condensed">
+							<tr>
+								<th>Nombre del Donante	</th>
+								<td>{{ oferta.donante.nombre }}</td>
+							</tr>
+							<tr>
+								<th>Fecha de Inicio</th>
+								<td>
+									<a href="{{ donante.pagina_web }}">
+										{{ oferta.fecha_inicio }}
+									</a>
+									<br>
+								</td>
+							</tr>
+							<tr>
+								<th>Fecha Ingreso a Bodega	</th>
+								<td>{{ oferta.fecha_bodega }}</td>
+							</tr>
+
+								<th>Creacion de Carta de Agredecimiento</th>
+								<td>{{ oferta.fecha_carta }}</td>
+							</tr>
+							<tr>
+								<th>Recibido Por</th>
+								<td>{{ oferta.recibido_por.get_full_name }}</td>
+							</tr>
+							<tr>
+								<th>Recibo Contable</th>
+                {% if oferta.recibo_contable %}
+								<td>Si</td>
+                {%else%}
+                <td>No</td>
+                {%endif%}
+							</tr>
+							<tr>
+								<th>Tipo de Oferta</th>
+								<td>
+									{{oferta.tipo_oferta}}
+								</td>
+							</tr>
+						</table>
+					</div>
+				</div>
+			</div>
+
+</section>
+{% endblock content %}

@@ -22,6 +22,28 @@
           </form>
         </table>
     </div>
+    <div class="col-md-6">
+        <div class="box">
+          <div class="box-header">
+              <h3 class="box-title"><b>Contacto Existentes</b></h3>
+              <table>
+                {%for personas in donante.contactos.all %}
+                <tr>
+                  <td>
+                    {{personas}}
+                  </td>
+                </tr>
+                {%endfor%}
+              </table>
+
+
+          </div>
+          <div class="box-body">
+
+          </div>
+
+        </div>
+    </div>
   </div>
   </div>
 </section>
