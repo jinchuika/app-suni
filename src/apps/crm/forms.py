@@ -7,6 +7,8 @@ from apps.crm import models as crm_m
 
 
 class DonanteForm(forms.ModelForm):
+    """Formulario para la  :class:`DonanteCreateView` y :class:`DonanteUpdateView`
+    """
     class Meta:
         model = crm_m.Donante
         fields = '__all__'
@@ -16,19 +18,27 @@ class DonanteForm(forms.ModelForm):
 
 
 class ContactoForm(forms.ModelForm):
+    """Formulario para la  :class:`ContactoCreateView` y :class:`ContactoDetailView`
+    """
     class Meta:
         model = crm_m.DonanteContacto
         fields = '__all__'
         widgets = {
-            'donante': forms.HiddenInput(attrs={'class': 'form-control'})
+             'donante': forms.HiddenInput(attrs={'class': 'form-control'})
         }
 
 
 class OfertaForm(forms.ModelForm):
+    """Formulario para la :class:`OfertaCreateView` y :class:`OfertaUpdateView`
+    """
     class Meta:
         model = crm_m.Oferta
         fields = '__all__'
         widgets = {
+            'fecha_inicio': forms.TextInput({'class': 'form-control datepicker'}),
+            'fecha_bodega': forms.TextInput({'class': 'form-control datepicker'}),
+            'fecha_carta': forms.TextInput({'class': 'form-control datepicker'})
+
         }
 
     def __init__(self, *args, **kwargs):
@@ -37,7 +47,7 @@ class OfertaForm(forms.ModelForm):
 
 
 class OfertaInformeForm(forms.Form):
-    """Este Formulario se encarga de enviar los filtros para  su respectivo informe de visitas de monitoreo
+    """Este Formulario se encarga de enviar los filtros para  su respectivo informe de Ofertas
     """
     donante = forms.ModelChoiceField(
         queryset=crm_m.Donante.objects.all(),
@@ -61,6 +71,8 @@ class OfertaInformeForm(forms.Form):
 
 
 class TelefonoForm(forms.ModelForm):
+    """Formulario para la Creacion de Telefonos de la :class:`TelefonoCreateView`
+    """
     class Meta:
         model = crm_m.TelefonoCrm
         fields = '__all__'
@@ -70,6 +82,8 @@ class TelefonoForm(forms.ModelForm):
 
 
 class CorreoForm(forms.ModelForm):
+    """Formulario para la Creacion de Correos de la :class:`CorreoCreateView`
+    """
     class Meta:
         model = crm_m.MailCrm
         fields = '__all__'

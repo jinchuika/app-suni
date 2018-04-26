@@ -1,0 +1,61 @@
+{% extends "base/base.html" %} {% load staticfiles %} {% block page_title %}
+<title>Donante </title>
+{% endblock page_title %} {% block content %}
+<section class="content">
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-md-9">
+				<div class="box">
+					<div class="box-header">
+						<div class="row">
+							<div class="col-md-9">
+								<h3 class="box-title">Donantes</h3></div>
+						</div>
+					</div>
+					<div class="box-body">
+						<table class="table table-datatables table-striped table-hover table-bordered">
+							<thead>
+								<th>Nombre del Donante</th>
+								<th>Pagina Web</th>
+								<th>Dirección </th>
+								<th>Fax</th>
+								<th>Referido</th>
+								<th>Comentario</th>
+								<th>Tipo de Donante</th>
+								<th>Nit</th>
+							</thead>
+							<tbody>
+								{% for donante in donante_list%}
+								<tr>
+									<td>
+										<a href="{% url 'donante_detail' pk=donante.id%}">{{ donante.nombre }}</a>
+									</td>
+									<td>
+										<a href="{{ donante.pagina_web }}">
+  										{{ donante.pagina_web }}
+  									</a>
+										<br>
+									</td>
+									<td>{{ donante.direccion }}</td>
+									<td>{{ donante.fax }}</td>
+									<td>{{ donante.referido }}</td>
+									<td>{{ donante.comentario }}</td>
+									<td>
+										{{donante.tipo_donante}}
+									</td>
+									<td>{{ donante.nit }}</td>
+								</tr>
+								{%endfor%}
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+{% endblock content %} {% block extra_js %}
+<script src="{% static "js/pdfmake.min.js" %}"></script>
+<script src="{% static "js/vfs_fonts.js" %}"></script>
+<script src="{% static "js/extrajs/tpe.js" %}"></script>
+{% endblock extra_js %}

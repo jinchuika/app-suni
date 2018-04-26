@@ -14,9 +14,15 @@ urlpatterns = [
         name='donante_detail'),
     # Actualizacion de los datos del Donantes
     url(
-        r'^donante/(?P<pk>\d+)/update/$',
+        r'^donante/(?P<pk>\d+)/edit/$',
         crm_v.DonanteUpdateView.as_view(),
-        name='donante_update'
+        name='donante_edit'
+    ),
+    # Listado de donantes
+    url(
+        r'^donante/list/$',
+        crm_v.DonanteListView.as_view(),
+        name='donante_list'
     ),
     # Creacion de Oferta de los Donantes
     url(

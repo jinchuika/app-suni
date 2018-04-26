@@ -18,7 +18,7 @@ class DonanteTipo(models.Model):
         return self.tipo
 
     def get_absolute_url(self):
-        return reverse_lazy('donante_update', kwargs={'pk': self.donante.id})
+        return reverse_lazy('donante_edit', kwargs={'pk': self.donante.id})
 
 
 class OfertaTipo(models.Model):
@@ -34,7 +34,7 @@ class OfertaTipo(models.Model):
         return self.oferta_tipo
 
     def get_absolute_url(self):
-        return reverse_lazy('donante_update', kwargs={'pk': self.id})
+        return reverse_lazy('donante_edit', kwargs={'pk': self.id})
 
 
 class Donante(models.Model):
@@ -57,20 +57,18 @@ class Donante(models.Model):
         return self.nombre
 
     def get_absolute_url(self):
-        return reverse_lazy('donante_update', kwargs={'pk': self.id})
+        return reverse_lazy('donante_detail', kwargs={'pk': self.id})
 
 
 class Oferta(models.Model):
     """Datos de la oferta que se utilizaran
     """
-    fecha_inicio = models.DateField(default=timezone.now, verbose_name="Fecha de Contacto")
+    fecha_inicio = models.DateField(default=timezone.now().date(), verbose_name="Fecha de Contacto")
     fecha_bodega = models.DateField(
-        default=timezone.now,
         verbose_name="Fecha de Ingreso a Bodega",
         null=True,
         blank=True)
     fecha_carta = models.DateField(
-        default=timezone.now,
         verbose_name="Fecha de Creación de Carta",
         null=True,
         blank=True)
@@ -78,10 +76,12 @@ class Oferta(models.Model):
                                     User,
                                     on_delete=models.CASCADE,
                                     verbose_name="Recibido por",
-                                    related_name="recibido")
+                                    related_name="recibido",
+                                    null=True,
+                                    blank=True)
     recibo_contable = models.BooleanField(verbose_name="Se entrego Recibo Contable")
     tipo_oferta = models.ForeignKey(OfertaTipo, on_delete=models.CASCADE)
-    donante = models.ForeignKey(Donante, on_delete=models.CASCADE, verbose_name="Donante")
+    donante = models.ForeignKey(Donante, on_delete=models.CASCADE, verbose_name="Donante", related_name='ofertas')
 
     class Meta:
         verbose_name = "Oferta"
@@ -91,13 +91,13 @@ class Oferta(models.Model):
         return str(self.fecha_inicio)
 
     def get_absolute_url(self):
-        return reverse_lazy('donante_update', kwargs={'pk': self.donante.id})
+        return reverse_lazy('oferta_detail', kwargs={'pk': self.id})
 
 
 class OfertaHistorico(models.Model):
     """ Seguimiento de los comentario historicos que se haran en cada oferta
     """
-    comentario = models.TextField()
+    comentario = models.TextField(null=True, blank=True, verbose_name="Historico de Ofertas")
     oferta = models.ForeignKey(Oferta, on_delete=models.CASCADE, related_name='comentarios')
     usuario = models.ForeignKey(User, on_delete=models.CASCADE)
     fecha = models.DateTimeField(default=timezone.now)
@@ -133,26 +133,26 @@ class TelefonoCrm(models.Model):
     numero = models.IntegerField(verbose_name="Número Telefónico")
     codigo = models.IntegerField(null=True, blank=True, verbose_name="Código de País")
     area = models.IntegerField(null=True, blank=True, verbose_name="Código de Área")
-    donante = models.ForeignKey(Donante, on_delete=models.CASCADE, null=True)
-    contacto = models.ForeignKey(DonanteContacto, on_delete=models.CASCADE,)
+    donante = models.ForeignKey(Donante, on_delete=models.CASCADE, null=True, related_name='telefonos')
+    contacto = models.ForeignKey(DonanteContacto, on_delete=models.CASCADE, related_name='telefonos')
 
     class Meta:
         verbose_name = "Telefono"
         verbose_name_plural = "Telefonos"
 
     def __str__(self):
-        return self.numero
+        return str(self.numero)
 
     def get_absolute_url(self):
-        return reverse_lazy('donante_update', kwargs={'pk': self.donante.id})
+        return reverse_lazy('donante_detail', kwargs={'pk': self.donante.id})
 
 
 class MailCrm(models.Model):
     """  Gestionamiento los correos electronicos de los donantes y contactos
     """
     mail = models.EmailField(max_length=25, verbose_name="Correo Electrónico")
-    contacto = models.ForeignKey(DonanteContacto, on_delete=models.CASCADE)
-    donante = models.ForeignKey(Donante, on_delete=models.CASCADE, null=True)
+    contacto = models.ForeignKey(DonanteContacto, on_delete=models.CASCADE,related_name='correos')
+    donante = models.ForeignKey(Donante, on_delete=models.CASCADE, null=True, related_name='correos')
 
     class Meta:
         verbose_name = "Correo  Electrónico"
@@ -162,4 +162,4 @@ class MailCrm(models.Model):
         return self.mail
 
     def get_absolute_url(self):
-        return reverse_lazy('donante_update', kwargs={'pk': self.donante.id})
+        return reverse_lazy('donante_detail', kwargs={'pk': self.donante.id})

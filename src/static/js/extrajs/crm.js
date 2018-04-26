@@ -20,10 +20,6 @@
 
     // Public
     HistoricoOfertas.init = function () {
-      $('#id_fecha_bodega').val(" ")
-      $('#id_fecha_carta').val(" ")
-
-
       $('.ofertaHistorico-btn').click(function (){
         var id_solicitud = $(this).data('id');
         var url = $(this).data('url');
@@ -56,7 +52,11 @@
             }
         },
         columns: [
-          {data:"id",className:"nowrap"},
+          //{data:"id",className:"nowrap"},
+          {data:"id",
+          render: function(data, type, full, meta){
+            return '<a href="'+full.url+'">'+data +'</a>'
+          }},
           {data:"fecha_inicio",className:"nowrap"},
           {data:"donante",className:"nowrap"},
           {data:"recibido",className:"nowrap"},

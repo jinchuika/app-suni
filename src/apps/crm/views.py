@@ -1,5 +1,6 @@
 # from django.shortcuts import render
 from django.urls import reverse_lazy
+from django.utils import timezone
 from braces.views import (
     LoginRequiredMixin, PermissionRequiredMixin, GroupRequiredMixin,
     CsrfExemptMixin, JsonRequestResponseMixin)
@@ -17,6 +18,9 @@ class DonanteCreateView(LoginRequiredMixin, CreateView):
     model = crm_m.Donante
     template_name = 'crm/donante_add.html'
     form_class = crm_f.DonanteForm
+
+    def get_success_url(self):
+        return reverse_lazy('donante_detail', kwargs={'pk': self.object.id})
 
 
 class DonanteDetailView(LoginRequiredMixin, DetailView):
@@ -42,16 +46,29 @@ class DonanteUpdateView(LoginRequiredMixin, UpdateView):
         return context
 
 
+class DonanteListView(LoginRequiredMixin, ListView):
+    """Vista para Los listados de :class:`Donante`. con sus respectivos datos
+    """
+    model = crm_m.Donante
+    template_name = 'crm/donante_list.html'
+
+
 class OfertaCreateView(LoginRequiredMixin, CreateView):
+    """Vista   para obtener los datos de los Donantes mediante una :class:`Oferta`
+    Funciona  para recibir los datos de un  'OfertaForm' mediante el metodo  POST.  y
+    nos muestra el template de visitas mediante el metodo GET.
+    """
     model = crm_m.Oferta
     template_name = 'crm/oferta_add.html'
     form_class = crm_f.OfertaForm
 
     def get_success_url(self):
-        return reverse_lazy('oferta_edit', kwargs={'pk': self.object.id})
+        return reverse_lazy('oferta_detail', kwargs={'pk': self.object.id})
 
 
 class OfertaDetailView(LoginRequiredMixin, DetailView):
+    """Vista Encargada de Mostrar Los Detalles de  una oferta seleccionada
+    """
     model = crm_m.Oferta
     template_name = 'crm/oferta_detail.html'
 
@@ -65,6 +82,9 @@ class OfertaUpdateView(LoginRequiredMixin, UpdateView):
 
 
 class OfertaInformeView(LoginRequiredMixin, FormView):
+    """Vista Encargada de crear los informes de  las ofertas obteniendo los datos
+    desde el DRF
+    """
     model = crm_m.Oferta
     template_name = 'crm/oferta_list.html'
     form_class = crm_f.OfertaInformeForm
@@ -80,7 +100,7 @@ class ContactoCreateView(LoginRequiredMixin, CreateView):
     form_class = crm_f.ContactoForm
 
     def get_success_url(self):
-        return reverse_lazy('donante_update', kwargs={'pk': self.object.donante.id})
+        return reverse_lazy('donante_edit', kwargs={'pk': self.object.donante.id})
 
 
 class ContactoDetailView(LoginRequiredMixin, DetailView):
@@ -100,6 +120,9 @@ class TelefonoCreateView(LoginRequiredMixin, CreateView):
     template_name = 'crm/telefono_contacto_add.html'
     form_class = crm_f.TelefonoForm
 
+    def get_success_url(self):
+        return reverse_lazy('donante_edit', kwargs={'pk': self.object.donante.id})
+
 
 class CorreoCreateView(LoginRequiredMixin, CreateView):
     """Vista   para obtener los datos del contacto  mediante una :class:`CorreoCrm`
@@ -110,9 +133,14 @@ class CorreoCreateView(LoginRequiredMixin, CreateView):
     template_name = 'crm/correo_contacto_add.html'
     form_class = crm_f.CorreoForm
 
+    def get_success_url(self):
+        return reverse_lazy('donante_edit', kwargs={'pk': self.object.donante.id})
+
 
 class HistoricoOfertaCrear(CsrfExemptMixin, JsonRequestResponseMixin, View):
-    """"""
+    """Vista Encargada de obtener los Historicos de las ofertas mediante el metodo
+    POST y gurdarlos en la :class:`HistoricoOfertas`
+    """
     require_json = True
 
     def post(self, request, *args, **kwargs):

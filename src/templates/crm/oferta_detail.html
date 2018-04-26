@@ -1,45 +1,39 @@
-{% extends "base/base.html" %}
-
-{% load staticfiles  %}
-
-{% block page_title %}
+{% extends "base/base.html" %} {% load staticfiles %} {% block page_title %}
 <title>Oferta - {{ oferta.id }}</title>
-{% endblock page_title %}
-
-{% block content %}
+{% endblock page_title %} {% block content %}
 <section class="content">
 	<div class="container-fluid">
 		<div class="row">
-			<div class="col-md-9">
+			<div class="col-md-5">
 				<div class="box">
 					<div class="box-header">
 						<div class="row">
-						 	<div class="col-md-9"><h3 class="box-title">Oferta No. {{ oferta.id }}</h3></div>
+							<div class="col-md-9">
+								<h3 class="box-title">Oferta No. {{ oferta.id }}</h3></div>
+							<div class="col-md-3"><a href="{% url 'oferta_edit' pk=oferta.id%}" class="btn btn-info">Editar</a></div>
 
 						</div>
 					</div>
 					<div class="box-body">
 						<table class="table table-condensed">
 							<tr>
-								<th>Nombre del Donante	</th>
-								<td>{{ oferta.donante.nombre }}</td>
+								<th>Nombre del Donante </th>
+								<td><a href="{%url 'donante_detail' pk=oferta.donante.id%}">{{ oferta.donante.nombre }}</a></td>
 							</tr>
 							<tr>
 								<th>Fecha de Inicio</th>
 								<td>
-									<a href="{{ donante.pagina_web }}">
-										{{ oferta.fecha_inicio }}
-									</a>
+									{{ oferta.fecha_inicio }}
 									<br>
 								</td>
 							</tr>
 							<tr>
-								<th>Fecha Ingreso a Bodega	</th>
+								<th>Fecha Ingreso a Bodega </th>
 								<td>{{ oferta.fecha_bodega }}</td>
 							</tr>
 
-								<th>Creacion de Carta de Agredecimiento</th>
-								<td>{{ oferta.fecha_carta }}</td>
+							<th>Creacion de Carta de Agredecimiento</th>
+							<td>{{ oferta.fecha_carta }}</td>
 							</tr>
 							<tr>
 								<th>Recibido Por</th>
@@ -47,11 +41,11 @@
 							</tr>
 							<tr>
 								<th>Recibo Contable</th>
-                {% if oferta.recibo_contable %}
+								{% if oferta.recibo_contable %}
 								<td>Si</td>
-                {%else%}
-                <td>No</td>
-                {%endif%}
+								{%else%}
+								<td>No</td>
+								{%endif%}
 							</tr>
 							<tr>
 								<th>Tipo de Oferta</th>
@@ -59,6 +53,21 @@
 									{{oferta.tipo_oferta}}
 								</td>
 							</tr>
+							<tr>
+								<th>
+									Historico
+								</th>
+							</tr>
+							{%for comentario in oferta.comentarios.all%}
+							<tr>
+								<td>
+									{{comentario.comentario}}
+								</td>
+								<td>
+									<small>{{comentario.fecha|date:'d/m/y'}}, {{comentario.usuario.perfil}}</small>
+								</td>
+							</tr>
+							{%endfor%}
 						</table>
 					</div>
 				</div>

@@ -1,27 +1,22 @@
-{% extends "base/base.html" %}
-
-{% load staticfiles  %}
-
-{% block page_title %}
-<title>Donacion - {{ donante.id }}</title>
-{% endblock page_title %}
-
-{% block content %}
+{% extends "base/base.html" %} {% load staticfiles %} {% block page_title %}
+<title>Donante - {{ donante.id }}</title>
+{% endblock page_title %} {% block content %}
 <section class="content">
 	<div class="container-fluid">
 		<div class="row">
-			<div class="col-md-9">
+			<div class="col-md-7">
 				<div class="box">
 					<div class="box-header">
 						<div class="row">
-						 	<div class="col-md-9"><h3 class="box-title">Donacion No. {{ donante.id }}</h3></div>
-
+							<div class="col-md-9">
+								<h3 class="box-title">Donante No. {{ donante.id }}</h3></div>
+							<div class="col-md-3"><a href="{% url 'donante_edit' pk=donante.id%}" class="btn btn-info">Editar</a></div>
 						</div>
 					</div>
 					<div class="box-body">
 						<table class="table table-condensed">
 							<tr>
-								<th>Nombre del Donante	</th>
+								<th>Nombre del Donante </th>
 								<td>{{ donante.nombre }}</td>
 							</tr>
 							<tr>
@@ -34,12 +29,12 @@
 								</td>
 							</tr>
 							<tr>
-								<th>Dirección	</th>
+								<th>Dirección </th>
 								<td>{{ donante.direccion }}</td>
 							</tr>
 
-								<th>Fax</th>
-								<td>{{ donante.fax }}</td>
+							<th>Fax</th>
+							<td>{{ donante.fax }}</td>
 							</tr>
 							<tr>
 								<th>Referido</th>
@@ -63,18 +58,71 @@
 					</div>
 				</div>
 			</div>
-
+			<div class="col-md-5">
+				<div class="box">
+					<div class="box-header">
+						<h3 class="box-title">Contactos</h3>
+					</div>
+					<div class="box-body">
+						<!---->
+						<table class="table table-condensed">
+							<tr>
+								<th>Nombre</th>
+								<th>Telefono</th>
+								<th>Correo</th>
+							</tr>
+							{%for contacto in donante.contactos.all%}
+							<tr>
+								<td>{{contacto}}</td>
+								<td>
+									{%for telefono in contacto.telefonos.all%} {{telefono}}
+									<br> {%endfor%}
+								</td>
+								<td>
+									{%for correo in contacto.correos.all%} {{correo}}
+									<br> {%endfor%}
+								</td>
+							</tr>
+							{%endfor%}
+						</table>
+						<!---->
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-md-7">
+			<div class="box">
+				<div class="box-header">
+					<h3 class="box-title">Ofertas Del Donante</h3>
+				</div>
+				<div class="box-body">
+					<table class="table table-datatables table-striped table-hover table-bordered">
+						<thead>
+							<tr>
+								<th>Id</th>
+								<th>Fecha Inicio</th>
+								<th>Recibido Por</th>
+							</tr>
+						</thead>
+						<tbody>
+							{%for ofertas in donante.ofertas.all %}
+							<tr>
+								<td><a href="{{ofertas.get_absolute_url}}">{{ofertas.id}}</a></td>
+								<td>{{ofertas}}</td>
+								<td>{{ofertas.recibido_por.get_full_name}}</td>
+							</tr>
+							{%endfor%}
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
 </section>
-
-
-{% endblock content %}
-
-{% block extra_js %}
+{% endblock content %} {% block extra_js %}
 <script src="{% static "js/pdfmake.min.js" %}"></script>
 <script src="{% static "js/vfs_fonts.js" %}"></script>
 <script src="{% static "js/extrajs/tpe.js" %}"></script>
-<script>
-	DetalleGarantia.init();
-	ReparacionDetalle.init();
-</script>
 {% endblock extra_js %}
