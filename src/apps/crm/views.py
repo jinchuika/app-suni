@@ -133,6 +133,10 @@ class CorreoCreateView(LoginRequiredMixin, CreateView):
     template_name = 'crm/correo_contacto_add.html'
     form_class = crm_f.CorreoForm
 
+    def form_invalid(self, form):
+        print(form.errors)
+        return super(CorreoCreateView, self).form_invalid(form)
+
     def get_success_url(self):
         return reverse_lazy('donante_edit', kwargs={'pk': self.object.donante.id})
 

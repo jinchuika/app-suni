@@ -9,7 +9,11 @@
 					<div class="box-header">
 						<div class="row">
 							<div class="col-md-9">
-								<h3 class="box-title">Donantes</h3></div>
+								<h3 class="box-title">Donantes</h3>
+							</div>
+							<div class="col-md-3">
+								<a href="{% url 'donantes_add'%}" class="btn btn-success">Crear</a>
+							</div>
 						</div>
 					</div>
 					<div class="box-body">
@@ -32,18 +36,18 @@
 									</td>
 									<td>
 										<a href="{{ donante.pagina_web }}">
-  										{{ donante.pagina_web }}
+  										{{ donante.pagina_web|default_if_none:"" }}
   									</a>
 										<br>
 									</td>
-									<td>{{ donante.direccion }}</td>
-									<td>{{ donante.fax }}</td>
-									<td>{{ donante.referido }}</td>
-									<td>{{ donante.comentario }}</td>
+									<td>{{ donante.direccion|default_if_none:"" }}</td>
+									<td>{{ donante.fax|default_if_none:"" }}</td>
+									<td>{{ donante.referido|default_if_none:"" }}</td>
+									<td>{{ donante.comentario|default_if_none:"" }}</td>
 									<td>
-										{{donante.tipo_donante}}
+										{{donante.tipo_donante|default_if_none:""}}
 									</td>
-									<td>{{ donante.nit }}</td>
+									<td>{{ donante.nit|default_if_none:"" }}</td>
 								</tr>
 								{%endfor%}
 							</tbody>

@@ -52,13 +52,16 @@
             }
         },
         columns: [
-          //{data:"id",className:"nowrap"},
           {data:"id",
           render: function(data, type, full, meta){
             return '<a href="'+full.url+'">'+data +'</a>'
           }},
           {data:"fecha_inicio",className:"nowrap"},
-          {data:"donante",className:"nowrap"},
+          {data:"donante",
+          className:"nowrap",
+          render:function(data, type, full, meta){
+            return '<a href="'+full.urlDonante+'">'+data+'</a>'
+          }},
           {data:"recibido",className:"nowrap"},
           {data:"fecha_bodega",className:"nowrap"},
           {data:"tipo_oferta",className:"nowrap"},

@@ -1,6 +1,9 @@
-{% extends "base/base.html" %} {% load staticfiles %} {% block page_title %}
+{% extends "base/base.html" %}
+{% load staticfiles %}
+{% block page_title %}
 <title>Donante - {{ donante.id }}</title>
-{% endblock page_title %} {% block content %}
+{% endblock page_title %}
+{% block content %}
 <section class="content">
 	<div class="container-fluid">
 		<div class="row">
@@ -54,6 +57,23 @@
 								<th>Nit</th>
 								<td>{{ donante.nit }}</td>
 							</tr>
+							<tr>
+								<th>Telefonos</th>
+								<td>
+									{%for telephone in donante.lista_telefonos.all %}
+										{{ telephone }}
+										<br />
+									{%endfor%}
+								</td>
+							</tr>
+							<tr>
+								<th>Correos</th>
+								<td>
+									{%for email in donante.lista_correos.all%}
+									{{ email }}
+									{%endfor%}
+								</td>
+							</tr>
 						</table>
 					</div>
 				</div>
@@ -75,12 +95,16 @@
 							<tr>
 								<td>{{contacto}}</td>
 								<td>
-									{%for telefono in contacto.telefonos.all%} {{telefono}}
-									<br> {%endfor%}
+									{%for telefono in contacto.telefonos.all%}
+									 {{telefono}}
+									 <br>
+									 {%endfor%}
 								</td>
 								<td>
-									{%for correo in contacto.correos.all%} {{correo}}
-									<br> {%endfor%}
+									{%for correo in contacto.correos.all%}
+									 {{correo}}
+									 <br>
+									 {%endfor%}
 								</td>
 							</tr>
 							{%endfor%}
@@ -115,13 +139,14 @@
 							</tr>
 							{%endfor%}
 						</tbody>
-					</table>
+					</table>				
 				</div>
 			</div>
 		</div>
 	</div>
 </section>
-{% endblock content %} {% block extra_js %}
+{% endblock content %}
+{% block extra_js %}
 <script src="{% static "js/pdfmake.min.js" %}"></script>
 <script src="{% static "js/vfs_fonts.js" %}"></script>
 <script src="{% static "js/extrajs/tpe.js" %}"></script>

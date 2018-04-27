@@ -6,24 +6,24 @@ from apps.main.menus import ViewMenuItem
 crm_children = (
     ViewMenuItem(
         "Ingresar Donante",
-        reverse_lazy("donantes_add"),
+        reverse_lazy("donante_list"),
         weight=12,
-        icon="fa-list"
+        icon="fa fa-user-o"
     ),
     ViewMenuItem(
-        "Ingresar Oferta",
-        reverse_lazy("oferta_add"),
+        "Ofertas",
+        reverse_lazy("oferta_list"),
         weight=12,
-        icon="fa-wrench"
+        icon="fa fa-recycle"
     )
 )
 Menu.add_item(
     "user",
     ViewMenuItem(
         "Donantes",
-        reverse_lazy('donantes_add'),
+        reverse_lazy('donante_list'),
         weight=10,
-        icon="fa-desktop",
+        icon="fa fa-truck",
         children=crm_children
     )
 )

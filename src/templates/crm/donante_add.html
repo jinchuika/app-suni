@@ -1,6 +1,9 @@
-{% extends "base/base.html" %} {%load staticfiles widget_tweaks %} {% block page_title %}
+{% extends "base/base.html" %}
+{%load staticfiles widget_tweaks %}
+{% block page_title %}
 <title>Donantes</title>
-{% endblock page_title %} {% block content %}
+{% endblock page_title %}
+{% block content %}
 <section class="content">
   <div class="container-fluid">
     <div class="row">
@@ -39,7 +42,8 @@
             {% include "crm/contacto_add.html" with donante=donante %}
           </div>
         </div>
-        {%endif%} {% if TelefonoForm %}
+        {%endif%}
+        {% if TelefonoForm %}
         <div class="box">
           <div class="box-header">
             <span class="info-box-text">Telefono Contacto </span>
@@ -48,7 +52,8 @@
             {% include "crm/telefono_contacto_add.html" %}
           </div>
         </div>
-        {%endif%} {% if CorreoForm %}
+        {%endif%}
+        {% if CorreoForm %}
         <div class="box">
           <div class="box-header">
             <span class="info-box-text">Correo de Contacto</span>
@@ -62,7 +67,8 @@
     </div>
   </div>
 </section>
-{% endblock content %} {% block extra_js %}
+{% endblock content %}
+{% block extra_js %}
 <script src="{% static "js/extrajs/crm.js" %}"></script>
 <script>
   HistoricoOfertas.init();

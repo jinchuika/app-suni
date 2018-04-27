@@ -9,6 +9,7 @@ class ofertaSerializer(serializers.ModelSerializer):
     """Serializer para generar informes completos de :class:`Oferta`
     """
     url = serializers.URLField(source='get_absolute_url', read_only=True)
+    urlDonante = serializers.URLField(source='donante.get_absolute_url')
     id = serializers.IntegerField()
     recibido = serializers.SerializerMethodField()
     fecha_inicio = serializers.DateField()
@@ -22,6 +23,7 @@ class ofertaSerializer(serializers.ModelSerializer):
         model = crm_m.Oferta
         fields = (
             'url',
+            'urlDonante',
             'id',
             'contable',
             'recibido',
