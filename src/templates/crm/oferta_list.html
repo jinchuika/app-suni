@@ -1,0 +1,75 @@
+{% extends "base/base.html" %}
+{% load staticfiles widget_tweaks %}
+{% block page_title %}
+<title>Listado de Ofertas</title>
+{% endblock page_title %} {% block content %}
+<section class="content-header">
+	<h1>Listado de Ofertas<i id="spinner" class="fa fa-spinner fa-spin fa-fw"></i></h1>
+</section>
+<section class="content">
+	<div class="container-fluid">
+		<div class="row">
+			<!-- Comienza el formulario -->
+			<div class="col-md-3 col-sm-3">
+				<div class="box">
+					<form action="{% url 'crm_api:ofertas-list'%}" id="ofertas-list-form">
+						<div class="box-header">
+							<input type="submit" class="btn btn-primary col-md-12" value="Generar Informe" /><br />
+							<h3 class="box-title">Filtros</h3>
+						</div>
+						<div class="box-body">
+							{% csrf_token %} {% for field in form %}
+							<div class="form-group">
+								{{field.label_tag}} {{field}}
+							</div>
+							{% endfor %}
+						</div>
+					</form>
+				</div>
+			</div>
+			<!--Aca termina el formulario-->
+			<div class="col-md-9 col-sm-9">
+				<div class="box box-primary">
+					<div class="box-header">
+						<div class="row">
+							<div class="col-md-9">
+									<h3 class="box-title">Listado de Ofertas</h3>
+							</div>
+							<div class="col-md-3">
+								<a href="{% url 'oferta_add'%}" class="btn btn-success">Crear</a>
+							</div>
+						</div>
+					</div>
+					<div class="box-body  table-responsive">
+						<!--	<div class="col-md-12 table-responsive"> -->
+						<table id="ofertas-table" class="table table-striped table-hover table-bordered table-condensed">
+							<thead>
+								<tr>
+									<th>No.</th>
+									<th>Fecha Inicio</th>
+									<th>Donante</th>
+									<th>Recibido por</th>
+									<th>Fecha en Bodega</th>
+									<th>Tipo de Oferta</th>
+									<th>Carta de Agradecimiento</th>
+									<th>Recibo Contable</th>
+								</tr>
+							</thead>
+							<tbody id="ofertas-table-body">
+							</tbody>
+						</table>
+						<!--	</div> -->
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+{% endblock content %}
+{% block extra_js %}
+{% include "base/dataTables.html" %}
+<script src="{% static "js/extrajs/crm.js" %}"></script>
+<script>
+	OfertasList.init();
+</script>
+{% endblock extra_js %}

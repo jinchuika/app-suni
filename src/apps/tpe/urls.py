@@ -215,34 +215,34 @@ urlpatterns = [
 
     # Listado de visitas
     url(
-        r'visita/list/$',
+        r'^visita/list/$',
         tpe_v.VisitaListView.as_view(),
         name='visita_list'
         ),
 
     # Detalles de las visitas
     url(
-        r'visita/(?P<pk>\d+)/$',
+        r'^visita/(?P<pk>\d+)/$',
         tpe_v.VisitaDetailView.as_view(),
         name='visita_monitoreo_detail'
         ),
 
     # Detalles de las vistas
     url(
-        r'visita/(?P<pk>\d+)/editar/$',
+        r'^visita/(?P<pk>\d+)/editar/$',
         tpe_v.VisitaUpdateView.as_view(),
         name='visita_monitoreo_update'
         ),
 
     # Calendario de visitas
     url(
-        r'visita/calendario/$',
+        r'^visita/calendario/$',
         tpe_v.CalendarioTPEView.as_view(),
         name='visita_calendario'),
 
     # Impresion de reportes de visita
     url(
-        r'visita/print_detalle/(?P<pk>\d+)/$',
+        r'^visita/print_detalle/(?P<pk>\d+)/$',
         tpe_v.VisitaDetallePrintView.as_view(),
         name='visita_monitoreo_print'
         ),
