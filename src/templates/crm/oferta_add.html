@@ -19,6 +19,9 @@
           </div>
           <div class="box-body">
             <table class="table table-condensed">
+              {%if form.instance.id%}
+                <form action="{% url 'oferta_edit' pk=form.instance.id%}" method="post">
+              {%endif%}
               <form action="{% url 'oferta_add' %}" method="post">
                 {%csrf_token%}
                 <table>

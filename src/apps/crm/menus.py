@@ -5,7 +5,7 @@ from apps.main.menus import ViewMenuItem
 # Donantes`
 crm_children = (
     ViewMenuItem(
-        "Ingresar Donante",
+        "Donantes",
         reverse_lazy("donante_list"),
         weight=12,
         icon="fa fa-user-o"
@@ -24,6 +24,7 @@ Menu.add_item(
         reverse_lazy('donante_list'),
         weight=10,
         icon="fa fa-truck",
+        group="crm",
         children=crm_children
     )
 )

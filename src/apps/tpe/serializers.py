@@ -195,6 +195,9 @@ class VisitaMonitoreoSerializer(serializers.ModelSerializer):
     con DRF para los informes que se necesita
     """
     id = serializers.IntegerField(source='__str__')
+    urlequipamiento = serializers.URLField(source='equipamiento.get_absolute_url')
+    urlvisita = serializers.URLField(source='get_absolute_url')
+    urlescuela = serializers.URLField(source='equipamiento.escuela.get_absolute_url')
     equipamientos = serializers.StringRelatedField(source='equipamiento', read_only=True)
     municipio = serializers.CharField(source='equipamiento.escuela.municipio.nombre')
     escuela = serializers.CharField(source='equipamiento.escuela')
@@ -204,7 +207,18 @@ class VisitaMonitoreoSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = tpe_models.VisitaMonitoreo
-        fields = ('id', 'equipamientos', 'escuela', 'fecha', 'departamento', 'municipio', 'encargado')
+        fields = (
+                'id',
+                'urlvisita',
+                'urlescuela',
+                'urlequipamiento',
+                'equipamientos',
+                'escuela',
+                'fecha',
+                'departamento',
+                'municipio',
+                'encargado'
+                )
 
     def get_fecha(self, object):
         return object.fecha_visita

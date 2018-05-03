@@ -20,48 +20,48 @@
 						<table class="table table-condensed">
 							<tr>
 								<th>Nombre del Donante </th>
-								<td>{{ donante.nombre }}</td>
+								<td>{{ donante.nombre|default_if_none:"" }}</td>
 							</tr>
 							<tr>
 								<th>Pagina Web</th>
 								<td>
 									<a href="{{ donante.pagina_web }}">
-										{{ donante.pagina_web }}
+										{{ donante.pagina_web |default_if_none:""}}
 									</a>
 									<br>
 								</td>
 							</tr>
 							<tr>
 								<th>Dirección </th>
-								<td>{{ donante.direccion }}</td>
+								<td>{{ donante.direccion |default_if_none:""}}</td>
 							</tr>
 
 							<th>Fax</th>
-							<td>{{ donante.fax }}</td>
+							<td>{{ donante.fax |default_if_none:""}}</td>
 							</tr>
 							<tr>
 								<th>Referido</th>
-								<td>{{ donante.referido }}</td>
+								<td>{{ donante.referido|default_if_none:"" }}</td>
 							</tr>
 							<tr>
 								<th>Comentario</th>
-								<td>{{ donante.comentario }}</td>
+								<td>{{ donante.comentario |default_if_none:""}}</td>
 							</tr>
 							<tr>
 								<th>Tipo de Donante</th>
 								<td>
-									{{donante.tipo_donante}}
+									{{donante.tipo_donante|default_if_none:""}}
 								</td>
 							</tr>
 							<tr>
 								<th>Nit</th>
-								<td>{{ donante.nit }}</td>
+								<td>{{ donante.nit|default_if_none:"" }}</td>
 							</tr>
 							<tr>
 								<th>Telefonos</th>
 								<td>
 									{%for telephone in donante.lista_telefonos.all %}
-										{{ telephone }}
+										{{ telephone |default_if_none:""}}
 										<br />
 									{%endfor%}
 								</td>
@@ -70,7 +70,7 @@
 								<th>Correos</th>
 								<td>
 									{%for email in donante.lista_correos.all%}
-									{{ email }}
+									{{ email|default_if_none:"" }}
 									{%endfor%}
 								</td>
 							</tr>
@@ -93,16 +93,16 @@
 							</tr>
 							{%for contacto in donante.contactos.all%}
 							<tr>
-								<td>{{contacto}}</td>
+								<td>{{contacto|default_if_none:""}}</td>
 								<td>
 									{%for telefono in contacto.telefonos.all%}
-									 {{telefono}}
+									 {{telefono|default_if_none:""}}
 									 <br>
 									 {%endfor%}
 								</td>
 								<td>
 									{%for correo in contacto.correos.all%}
-									 {{correo}}
+									 {{correo|default_if_none:""}}
 									 <br>
 									 {%endfor%}
 								</td>
@@ -134,12 +134,12 @@
 							{%for ofertas in donante.ofertas.all %}
 							<tr>
 								<td><a href="{{ofertas.get_absolute_url}}">{{ofertas.id}}</a></td>
-								<td>{{ofertas}}</td>
-								<td>{{ofertas.recibido_por.get_full_name}}</td>
+								<td>{{ofertas|default_if_none:""}}</td>
+								<td>{{ofertas.recibido_por.get_full_name|default_if_none:""}}</td>
 							</tr>
 							{%endfor%}
 						</tbody>
-					</table>				
+					</table>
 				</div>
 			</div>
 		</div>

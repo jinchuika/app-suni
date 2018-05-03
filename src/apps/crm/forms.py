@@ -43,6 +43,7 @@ class OfertaForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(OfertaForm, self).__init__(*args, **kwargs)
+        self.fields['recibido_por'].queryset = User.objects.filter(groups__name='tpe')
         self.fields['recibido_por'].label_from_instance = lambda obj: "%s" % obj.get_full_name()
 
 
@@ -80,6 +81,13 @@ class TelefonoForm(forms.ModelForm):
             'donante': forms.HiddenInput()
         }
 
+    def __init__(self, *args, **kwargs):
+        super(TelefonoForm, self).__init__(*args, **kwargs)
+        if "donante" in self.initial:
+            qs_contacto = self.fields['contacto'].queryset
+            qs_telefono_contacto = qs_contacto.filter(donante=self.initial['donante'])
+            self.fields['contacto'].queryset = qs_telefono_contacto
+
 
 class CorreoForm(forms.ModelForm):
     """Formulario para la Creacion de Correos de la :class:`CorreoCreateView`
@@ -90,3 +98,10 @@ class CorreoForm(forms.ModelForm):
         widgets = {
             'donante': forms.HiddenInput()
         }
+
+    def __init__(self, *args, **kwargs):
+        super(CorreoForm, self).__init__(*args, **kwargs)
+        if "donante" in self.initial:
+            qs_contacto = self.fields['contacto'].queryset
+            qs_correo_contacto = qs_contacto.filter(donante=self.initial['donante'])
+            self.fields['contacto'].queryset = qs_correo_contacto
