@@ -101,6 +101,7 @@ class CorreoForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(CorreoForm, self).__init__(*args, **kwargs)
-        qs_contacto = self.fields['contacto'].queryset
-        qs_correo_contacto = qs_contacto.filter(donante=self.initial['donante'])
-        self.fields['contacto'].queryset = qs_correo_contacto
+        if "donante" in self.initial:
+            qs_contacto = self.fields['contacto'].queryset
+            qs_correo_contacto = qs_contacto.filter(donante=self.initial['donante'])
+            self.fields['contacto'].queryset = qs_correo_contacto
