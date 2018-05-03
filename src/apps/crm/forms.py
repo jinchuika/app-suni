@@ -43,7 +43,7 @@ class OfertaForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(OfertaForm, self).__init__(*args, **kwargs)
-        self.fields['recibido_por'].queryset = User.objects.filter(groups__name='crm')
+        self.fields['recibido_por'].queryset = User.objects.filter(groups__name='tpe')
         self.fields['recibido_por'].label_from_instance = lambda obj: "%s" % obj.get_full_name()
 
 
