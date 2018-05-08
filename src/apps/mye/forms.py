@@ -298,7 +298,7 @@ class ValidacionForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(ValidacionForm, self).__init__(*args, **kwargs)
-        version = mye_m.ValidacionVersion.objects.get(id=self.initial['version'])
+        version = mye_m.ValidacionVersion.objects.get(id=self.initial['version'])        
         self.fields['requisito'].queryset = mye_m.Requisito.objects.filter(id__in=version.requisito.all())
         if self.instance.poblacion:
             self.fields['alumna'].initial = self.instance.poblacion.alumna

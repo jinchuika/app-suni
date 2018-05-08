@@ -852,9 +852,21 @@
 
       },
       columns: [
-        {data:"id",className:"nowrap"},
-        {data:"equipamientos",className:"nowrap"},
-        {data:"escuela",className:"nowrap"},
+        {data:"id",
+        className:"nowrap",
+        render:function(data, type, full, meta){
+          return '<a href="'+full.urlvisita+'">'+data+'</a>'
+        }},
+        {data:"equipamientos",
+        className:"nowrap",
+        render:function(data, type, full, meta){
+          return '<a href="'+full.urlequipamiento+'">'+data+'</a>'
+        }},
+        {data:"escuela",
+        className:"nowrap",
+        render:function(data, type, full, meta){
+          return '<a href="'+full.urlescuela+'">'+data+'</a>'
+        }},
         {data:"departamento",className:"nowrap"},
         {data:"municipio",className:"nowrap"},
         {data:"encargado",className:"nowrap"},
