@@ -100,6 +100,10 @@ urlpatterns = [
         r'^naat/',
         include('apps.naat.urls')),
 
+    # Contine las direcciones de aceso al inventario
+    url(
+        r'^i/',
+        include('apps.inventario.urls')),
     # Contiene el acceso  al api del main
     url(
         r'^',

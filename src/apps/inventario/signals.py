@@ -4,6 +4,10 @@ from apps.inventario import models as inventario_m
 
 
 def calcular_triage(sender, instance, **kwargs):
+    """Se encarga de calcular el triage para los :class:`Dispositivo`.
+    El triage sigue el formato SLUG-indice de cada modelo. Por ejemplo,
+    el Monitor con `indice` 854 tiene un triage `M-854`.
+    """
     if not instance.pk:
         if sender.objects.all().count() == 0:
             instance.indice = 1
@@ -18,7 +22,8 @@ for dispositivo in inventario_m.Dispositivo.__subclasses__():
 
 
 def calcular_precio_unitario(sender, instance, **kwargs):
-    print("pre")
+    """Calcula el `precio_unitario` para los :class:`EntradaDetalle` que tienen `precio_subtotal`.
+    """
     if instance.precio_subtotal:
         instance.precio_unitario = instance.precio_subtotal / instance.total
 
@@ -42,7 +47,9 @@ pre_save.connect(calcular_precio_unitario, sender=inventario_m.EntradaDetalle)
 
 
 def calcular_precio_descontado(sender, instance, **kwargs):
-    print("post")
+    """Actualiza el `precio_unitario` de todos los :class:`EntradaDetalle` despues de agregar un
+    :class:`DescuentoEntrada` a la :class:`Entrada`.
+    """
     for detalle in instance.entrada.detalles.all():
         detalle.save()
 

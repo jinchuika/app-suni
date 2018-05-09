@@ -78,6 +78,8 @@ class Entrada(models.Model):
 class DispositivoTipo(models.Model):
 
     """Tipo de un :class:`Dispositivo`s
+    En caso de que se marque `usa_triage` como `True`, el `slug` debe coincidir con
+    los SLUG disponibles en los modelos que heredan :class:`Dispositivo`.
     """
 
     tipo = models.CharField(max_length=20)
@@ -93,6 +95,17 @@ class DispositivoTipo(models.Model):
 
     def __str__(self):
         return self.tipo
+
+    def save(self, *args, **kwargs):
+        """Valida que los los :class:`DispositivoTipo` que `usa_triage` tengan un `slug` valido.
+        """
+        if self.usa_triage:
+            lista_slug = [m.SLUG_TIPO for m in Dispositivo.__subclasses__()]
+            if self.slug not in lista_slug:
+                raise ValidationError(
+                    ('El slug ingresado no coincide con los disponibles. Las opciones son: {}'.format(lista_slug)),
+                    code='entrada_precio_total')
+        super(DispositivoTipo, self).save(*args, **kwargs)
 
 
 class EntradaDetalle(models.Model):
