@@ -1,0 +1,49 @@
+{% extends "base/base.html" %}
+{% load staticfiles %}
+{% block page_title %}
+<title>Listado de Software</title>
+{% endblock page_title %}
+{% block content %}
+<section class="content">
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-md-9">
+				<div class="box">
+					<div class="box-header">
+						<div class="row">
+							<div class="col-md-9">
+								<h3 class="box-title">Listado de Software</h3>
+              </div>
+              <div class="col-md-3">
+                <a href="{% url 'software_add'%}" class="btn btn-success">Crear</a>
+              </div>
+						</div>
+					</div>
+					<div class="box-body">
+						<table class="table table-datatables table-striped table-hover table-bordered">
+              <thead>
+                <th>Nombre </th>
+                <th>Tipo</th>
+                <th>Descripcion</th>
+              </thead>
+              <tbody>
+                  {%for software in software_list%}
+                  <tr>
+                    <td>
+												<a href="{% url 'software_detail' pk=software.id%}">  {{software.nombre}}</a>
+                    </td>
+                    <td>
+                      {{software.tipo}}
+                    </td>
+                    <td>
+                      {{software.descripcion}}
+                    </td>
+                  </tr>
+                  {%endfor%}
+              </tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+</section>
+{% endblock content %}

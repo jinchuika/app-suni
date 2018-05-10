@@ -1,0 +1,51 @@
+{% extends "base/base.html" %}
+{% load staticfiles %}
+{% block page_title %}
+<title>Version sistema</title>
+{% endblock page_title %}
+{% block content %}
+<section class="content">
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-md-9">
+				<div class="box">
+					<div class="box-header">
+						<div class="row">
+							<div class="col-md-9">
+								<h3 class="box-title">Version Sistema</h3>
+              </div>
+              <div class="col-md-3">
+                <a href="{% url 'versionsistema_add'%}" class="btn btn-success">Crear</a>
+              </div>
+						</div>
+					</div>
+					<div class="box-body">
+						<table class="table table-datatables table-striped table-hover table-bordered">
+              <thead>
+                <th>Nombre </th>
+                <th>Sistema operativo</th>
+                <th>Software</th>
+              </thead>
+              <tbody>
+                  {%for version in versionsistema_list%}
+                  <tr>
+                    <td>
+												<a href="{% url 'versionsistema_detail' pk=version.id%}">  {{version.nombre}}</a>
+                    </td>
+                    <td>
+                      {{version.so}}
+                    </td>
+                    <td>
+                       {%for soft in version.software.all%}
+                      {{soft}}
+                      {%endfor%}
+                    </td>
+                  </tr>
+                  {%endfor%}
+              </tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+</section>
+{% endblock content %}

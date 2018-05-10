@@ -7,7 +7,9 @@ from .archivo import urlpatterns as archivo_urls
 
 y luego debe ser "incluido" en el `urlpatterns` del app
 """
+
 from .dispositivo import urlpatterns as dispositivo_urls
 from .entrada import urlpatterns as entrada_urls
+from .software import software_urls
 
-urlpatterns = dispositivo_urls + entrada_urls
+urlpatterns = dispositivo_urls + entrada_urls + software_urls
