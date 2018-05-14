@@ -21,7 +21,7 @@ DEBUG = True
 
 DEBUG_TOOLBAR = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -67,7 +67,8 @@ LOCAL_APPS = (
     'apps.naat',
     'apps.kalite',
     'apps.ie',
-    'apps.crm')
+    'apps.crm',
+    'apps.inventario')
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 

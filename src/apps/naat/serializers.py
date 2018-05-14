@@ -10,6 +10,7 @@ from apps.naat import models as naat_m
 
 
 class ParticipanteNaatSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = Participante
         exclude = ('slug', 'avatar',)

@@ -1,0 +1,50 @@
+{% extends "base/base.html" %}
+{% load staticfiles %}
+ {% block page_title %}
+<title>Version Sistema: {{ versionsistema.nombre }}</title>
+{% endblock page_title %}
+{% block content %}
+<section class="content">
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-md-5">
+				<div class="box">
+					<div class="box-header">
+						<div class="row">
+							<div class="col-md-9">
+								<h3 class="box-title">Version Sistema : {{ versionsistema.nombre }}</h3></div>
+							<div class="col-md-3">
+
+								 <a href="{% url 'versionsistema_list'%}" class="btn btn-success">Listado</a>
+							</div>
+						</div>
+					</div>
+					<div class="box-body">
+						<table class="table table-condensed">
+							<tr>
+								<th>Nombre </th>
+                <td>{{versionsistema.nombre}} </td>
+							</tr>
+							<tr>
+								<th>Sistema Operativo</th>
+								<td>
+									{{ versionsistema.so }}
+									<br>
+								</td>
+							</tr>
+							<tr>
+								<th>Software</th>
+                <td>
+                  {%for software2 in versionsistema.software.all%}
+                    {{software2}}
+                  {%endfor%}
+                </td>
+							</tr>
+              <tr>
+							</tr>
+						</table>
+					</div>
+				</div>
+			</div>
+</section>
+{% endblock content %}
