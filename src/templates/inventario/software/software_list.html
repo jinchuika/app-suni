@@ -30,7 +30,8 @@
                   {%for software in software_list%}
                   <tr>
                     <td>
-												<a href="{% url 'software_detail' pk=software.id%}">  {{software.nombre}}</a>
+												<a href="{{software.get_absolute_url}}">  {{software.nombre}}</a>
+
                     </td>
                     <td>
                       {{software.tipo}}

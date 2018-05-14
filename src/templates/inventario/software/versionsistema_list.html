@@ -30,14 +30,15 @@
                   {%for version in versionsistema_list%}
                   <tr>
                     <td>
-												<a href="{% url 'versionsistema_detail' pk=version.id%}">  {{version.nombre}}</a>
+												<a href="	{{version.get_absolute_url}}">  {{version.nombre}}</a>
+
                     </td>
                     <td>
                       {{version.so}}
                     </td>
                     <td>
                        {%for soft in version.software.all%}
-                      {{soft}}
+										<a href="{{soft.get_absolute_url}}">  {{soft}}</a>
                       {%endfor%}
                     </td>
                   </tr>

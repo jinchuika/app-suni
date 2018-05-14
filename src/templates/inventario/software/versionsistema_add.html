@@ -19,10 +19,7 @@
             </div>
           </div>
           <div class="box-body">
-            <table class="table table-condensed">
-              {%if form.instance.id%}
-                <form action="{% url 'versionsistema_edit' pk=form.instance.id%}" method="post">
-              {%endif%}
+            <table class="table table-condensed">              
               <form action="{% url 'versionsistema_add' %}" method="post">
                 {%csrf_token%}
                 <table>

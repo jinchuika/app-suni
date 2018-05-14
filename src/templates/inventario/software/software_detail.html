@@ -1,7 +1,7 @@
 {% extends "base/base.html" %}
 {% load staticfiles %}
  {% block page_title %}
-<title>Software - {{ software.id }}</title>
+<title>Software: {{ software.nombre }}</title>
 {% endblock page_title %}
 {% block content %}
 <section class="content">
@@ -12,7 +12,7 @@
 					<div class="box-header">
 						<div class="row">
 							<div class="col-md-9">
-								<h3 class="box-title">Software No. {{ software.id }}</h3></div>
+								<h3 class="box-title">Software: {{ software.nombre }}</h3></div>
 							<div class="col-md-3">
 							<!--	<a href="{% url 'oferta_edit' pk=software.id%}" class="btn btn-info">Editar</a> -->
 								 <a href="{% url 'software_list'%}" class="btn btn-success">Listado</a>

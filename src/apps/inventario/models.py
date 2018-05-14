@@ -338,11 +338,11 @@ class Software(models.Model):
         verbose_name = "Software"
         verbose_name_plural = "Software"
 
-    def __str__(self):        
+    def __str__(self):
         return self.nombre
 
     def get_absolute_url(self):
-        return reverse_lazy('software_detail')
+        return reverse_lazy('software_detail', kwargs={'pk': self.id})
 
 
 class VersionSistema(models.Model):
@@ -363,7 +363,7 @@ class VersionSistema(models.Model):
         return self.nombre
 
     def get_absolute_url(self):
-        return reverse_lazy('versionsistema_detail')
+        return reverse_lazy('versionsistema_detail', kwargs={'pk': self.id})
 
 
 class PuertoTipo(models.Model):

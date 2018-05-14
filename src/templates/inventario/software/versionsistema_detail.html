@@ -1,7 +1,7 @@
 {% extends "base/base.html" %}
 {% load staticfiles %}
  {% block page_title %}
-<title>Version Sistema - {{ versionsistema.id }}</title>
+<title>Version Sistema: {{ versionsistema.nombre }}</title>
 {% endblock page_title %}
 {% block content %}
 <section class="content">
@@ -12,7 +12,7 @@
 					<div class="box-header">
 						<div class="row">
 							<div class="col-md-9">
-								<h3 class="box-title">Version Sistema No. {{ versionsistema.id }}</h3></div>
+								<h3 class="box-title">Version Sistema : {{ versionsistema.nombre }}</h3></div>
 							<div class="col-md-3">
 
 								 <a href="{% url 'versionsistema_list'%}" class="btn btn-success">Listado</a>
