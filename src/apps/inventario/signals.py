@@ -15,6 +15,8 @@ def calcular_triage(sender, instance, **kwargs):
             ultimo = sender.objects.only('indice').latest('indice')
             instance.indice = ultimo.indice + 1
         instance.triage = '{}-{}'.format(instance.tipo.slug, instance.indice)
+    if not instance.codigo_qr:
+        instance.generate_qrcode()
 
 
 for dispositivo in inventario_m.Dispositivo.__subclasses__():
