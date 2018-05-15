@@ -1,9 +1,6 @@
-{% extends "base/base.html" %}
-{% load staticfiles %}
- {% block page_title %}
-<title>Software: {{ software.nombre }}</title>
-{% endblock page_title %}
-{% block content %}
+{% extends "base/base.html" %} {% load staticfiles %} {% block page_title %}
+<title>Teclado - {{ teclado.triage }}</title>
+{% endblock page_title %} {% block content %}
 <section class="content">
 	<div class="container-fluid">
 		<div class="row">
@@ -12,7 +9,7 @@
 					<div class="box-header">
 						<div class="row">
 							<div class="col-md-9">
-								<h3 class="box-title">Software: {{ software.nombre }}</h3></div>
+								<h3 class="box-title">Teclado. {{ teclado.triage }}</h3></div>
 							<div class="col-md-3">
 							</div>
 						</div>
@@ -20,31 +17,31 @@
 					<div class="box-body">
 						<table class="table table-condensed">
 							<tr>
-								<th>Nombre </th>
-                <td>{{software.nombre}} </td>
+								<th>Marca </th>
+                <td>
+                  {{ teclado.marca }}
+                  <br>
+                </td>
 							</tr>
 							<tr>
-								<th>Tipo</th>
+								<th>Modelo</th>
 								<td>
-									{{ software.tipo }}
+									{{ teclado.modelo }}
 									<br>
 								</td>
 							</tr>
 							<tr>
-								<th>descripcion</th>
-								<td>{{ software.descripcion }}</td>
+								<th>Serie </th>
+								<td>{{ teclado.serie }}</td>
 							</tr>
-              <tr>
-							<th>Version del Sistemas</th>
-              {%for software2 in software.versiones.all%}
-              <td>{{software2}}</td>
-              <br />
-              {%endfor%}
-
+							<th>Codigo Qr</th>
+							<td>{{ teclado.codigo_qr }}</td>
 							</tr>
-
+							<tr>
+								<th>Puerto</th>
+								<td>{{ teclado.puerto }}</td>
+							</tr>
 						</table>
-
 					</div>
 				</div>
 			</div>
