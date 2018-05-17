@@ -212,3 +212,28 @@ class SolicitudComentario(models.Model):
 
     def __str__(self):
         return str(self.validacion) + self.comentario[:15]+'...'
+
+
+class UsuarioCooperante(models.Model):
+    cooperante = models.ForeignKey(Cooperante, on_delete=models.CASCADE)
+    usuario = models.ForeignKey(User, on_delete=models.CASCADE, related_name='cooperantes')
+
+    class Meta:
+        verbose_name = "Usuario de cooperante"
+        verbose_name_plural = "Usuarios de cooperantes"
+
+    def __str__(self):
+        return '{} - {}'.format(self.cooperante, self.usuario)
+
+    @property
+    def estadistica(self):
+        return self.cooperante.equipamientos.aggregate(
+            total_alumno=models.Sum(
+                'poblacion__total_alumno',
+                filter=models.Q(poblacion__isnull=False)),
+            total_maestro=models.Sum(
+                'poblacion__total_maestro',
+                filter=models.Q(poblacion__isnull=False)),
+            cantidad_equipo=models.Sum('cantidad_equipo'),
+            equipamientos=models.Count('id')
+            )

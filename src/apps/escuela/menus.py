@@ -2,6 +2,10 @@ from django.core.urlresolvers import reverse_lazy
 from menu import Menu
 from apps.main.menus import ViewMenuItem
 
+
+def prueba_externo(user):
+    return not user.perfil.externo
+
 # Escuelas
 escuela_children = (
     ViewMenuItem(
@@ -23,4 +27,5 @@ Menu.add_item(
         reverse_lazy('escuela_crear'),
         weight=10,
         icon="fa-building-o",
+        test=prueba_externo,
         children=escuela_children))
