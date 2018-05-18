@@ -20,6 +20,12 @@ software_urls = [
         inventario_v.SoftwareDetailView.as_view(),
         name='software_detail'
     ),
+    # Actualizacion de datos de software
+    url(
+        r'^software/(?P<pk>\d+)/edit/$',
+        inventario_v.SoftwareUptadeView.as_view(),
+        name='software_update'
+    ),
     # Listado de las versioes de sistemas que exiten
     url(
         r'^software/versionsistema/list/$',
@@ -37,6 +43,11 @@ software_urls = [
         r'^software/versionsistema/(?P<pk>\d+)/detail/$',
         inventario_v.VersionSistemaDetailView.as_view(),
         name='versionsistema_detail'
-    )
-
-]
+    ),
+    # Actualizacion de version de sistema
+    url(
+        r'^software/(?P<pk>\d+)/edit/$',
+        inventario_v.VersionSistemaUpdateView.as_view(),
+        name='software_update'
+        )
+    ]

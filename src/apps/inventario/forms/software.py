@@ -10,6 +10,11 @@ class SoftwareCreateForm(forms.ModelForm):
     class Meta:
         model = inv_m.Software
         fields = '__all__'
+        widgets = {
+            'nombre': forms.TextInput(attrs={'class': 'form-control'}),
+            'tipo': forms.Select(attrs={'class': 'form-control select2'}),
+            'descripcion': forms.Textarea(attrs={'class': 'form-control'})
+            }
 
 
 class VersionSistemaForm(forms.ModelForm):
@@ -18,3 +23,8 @@ class VersionSistemaForm(forms.ModelForm):
     class Meta:
         model = inv_m.VersionSistema
         fields = '__all__'
+        widgets = {
+            'nombre': forms.TextInput(attrs={'class': 'form-control'}),
+            'so': forms.Select(attrs={'class': 'form-control select2'}),
+            'software': forms.SelectMultiple(attrs={'class': 'form-control select2'})
+            }
