@@ -1,9 +1,14 @@
 import uuid
+import qrcode
+from io import BytesIO
 from django.db import models
 from django.urls import reverse_lazy
 from django.utils import timezone
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
+from django.core.files.uploadedfile import InMemoryUploadedFile
+
+from easy_thumbnails import fields as et_fields
 
 from apps.crm import models as crm_m
 
@@ -283,6 +288,7 @@ class Dispositivo(models.Model):
     marca = models.ForeignKey(DispositivoMarca, on_delete=models.CASCADE, null=True, blank=True)
     modelo = models.ForeignKey(DispositivoModelo, on_delete=models.CASCADE, null=True, blank=True)
     serie = models.CharField(max_length=80, null=True, blank=True)
+    codigo_qr = et_fields.ThumbnailerImageField(upload_to='qr_dispositivo', blank=True, null=True)
 
     class Meta:
         verbose_name = "Dispositivo"
@@ -295,19 +301,37 @@ class Dispositivo(models.Model):
         return str(self.triage)
 
     def get_absolute_url(self):
-        # print([
-        #     f.related_model for f in self._meta.get_fields()
-        #     if f.one_to_one and f.related_model.SLUG_TIPO == self.tipo.slug
-        # ])
-        modelo = [
-            f.related_model for f in self._meta.get_fields()
-            if f.one_to_one and f.related_model.SLUG_TIPO == self.tipo.slug
-        ]
-        modelo = modelo[0]
-        print(modelo)
-        # if modelo.get_absolute_url:
-        #     return modelo.objects.get(dispositivo_ptr_id=self.pk).get_absolute_url()
-        return reverse_lazy('dispositivo_detail', kwargs={'pk': self.pk})
+        return self.cast().get_absolute_url()
+
+    def cast(self):
+        """Se encarga de obtener el dispositivo del modelo que ha heredado este objeto.
+        Por ejemplo, el CPU-1, M-3, etc.
+        """
+        for name in dir(self):
+            try:
+                attr = getattr(self, name)
+                if isinstance(attr, self.__class__) and type(attr) != type(self):
+                    return attr
+            except:
+                pass
+
+    def crear_qrcode(self):
+        """Genera le código QR para apuntar a la id del dispositivo
+        """
+        qr = qrcode.QRCode(
+            version=1,
+            error_correction=qrcode.constants.ERROR_CORRECT_L,
+            box_size=6,
+            border=1,
+        )
+        qr.add_data(self.id)
+        img = qr.make(fit=True)
+        img = qr.make_image()
+        buffer = BytesIO()
+        img.save(buffer)
+        filename = 'dispositivo-%s.png' % (self.id)
+        filebuffer = InMemoryUploadedFile(buffer, None, filename, 'image/png', buffer.getbuffer().nbytes, None)
+        self.codigo_qr.save(filename, filebuffer)
 
 
 class SoftwareTipo(models.Model):

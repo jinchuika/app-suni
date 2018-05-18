@@ -19,7 +19,7 @@
 <section class="content">
 	<div class="container-fluid">
 		<div class="row">
-			<div class="col-md-7">
+			<div class="col-md-12">
 				<div class="box box-success">
 					<div class="box-header">
 						<h3 class="box-title">Escuelas equipadas</h3>
@@ -30,7 +30,10 @@
 								<tr>
 									<th>Entrega</th>
 									<th>Escuela</th>
+									<th>Departamento</th>
+									<th>Municipio</th>
 									<th>Fecha</th>
+									<th>Niños beneficiados</th>
 								</tr>
 							</thead>
 							<tbody>
@@ -38,7 +41,10 @@
 									<tr>
 										<td><a href="{{ equipamiento.get_absolute_url }}">{{ equipamiento }}</a></td>
 										<td><a href="{{ equipamiento.escuela.get_absolute_url }}">{{ equipamiento.escuela }}</a></td>
+										<td>{{ equipamiento.escuela.municipio.nombre }}</td>
+										<td>{{ equipamiento.escuela.municipio.departamento }}</td>
 										<td>{{ equipamiento.fecha|date:"Y-m-d"}}</td>
+										<td>{{ equipamiento.poblacion.total_alumno }}</td>
 									</tr>
 								{% endfor %}
 							</tbody>
@@ -47,43 +53,6 @@
 				</div>
 			</div>
 
-			<div class="col-md-5">
-				<div class="box box-info">
-					<div class="box-header">
-						<h3 class="box-title">Reservaciones</h3>
-					</div>
-					<div class="box-body">
-						<table class="table table-hover table-striped">
-							<thead>
-								<tr>
-									<th>Escuela</th>
-									<th>Fecha de asignación</th>
-									<th>Estado</th>
-								</tr>
-							</thead>
-							{% for asignacion in cooperante.escuela_asignada.all %}
-							<tr>
-								<td>
-									<a href="{{ asignacion.escuela.get_absolute_url }}">
-										{{asignacion.escuela}}
-									</a>
-								</td>
-								<td>
-									{{ asignacion.fecha_activacion|date:"Y-m-d" }}
-								</td>
-								<td>
-									{% if asignacion.activa %}
-										Vigente
-									{% else %}
-										Terminada
-									{% endif %}
-								</td>
-							</tr>
-							{% endfor %}
-						</table>
-					</div>
-				</div>
-			</div>
 		</div>
 	</div>
 </section>

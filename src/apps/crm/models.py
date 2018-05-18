@@ -69,7 +69,7 @@ class Donante(models.Model):
 class Oferta(models.Model):
     """Datos de la oferta que se utilizaran
     """
-    fecha_inicio = models.DateField(default=timezone.now().date(), verbose_name="Fecha de Contacto")
+    fecha_inicio = models.DateField(default=timezone.now, verbose_name="Fecha de Contacto")
     fecha_bodega = models.DateField(
         verbose_name="Fecha de Ingreso a Bodega",
         null=True,

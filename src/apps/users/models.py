@@ -61,6 +61,8 @@ class Perfil(models.Model):
         null=True,
         blank=True)
 
+    externo = models.BooleanField(default=False)
+
     def get_nombre(self):
         return self.user.first_name
     nombre = property(get_nombre)

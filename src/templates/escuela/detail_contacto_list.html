@@ -3,9 +3,11 @@
 	<div class="box-header">
 		<h3 class="box-title"><i class="fa fa-user"></i> Contactos</h3>
 		<div class="box-tools pull-right">
+			{% if perms.escuela.add_esccontacto %}
 			<a class="btn btn-info btn-xs" href="{% url "escuela_contacto_add" id_escuela=escuela.id %}">
 				<i class="fa fa-plus" aria-hidden="true"></i> Nuevo
 			</a>
+			{% endif %}
 		</div>
 		<div class="box-tools"></div>
 	</div>
@@ -43,9 +45,11 @@
 						{% endfor %}
 					</td>
 					<td>
+						{% if perms.escuela.add_esccontacto %}
 						<a href="{% url 'escuela_contacto_edit' id_escuela=contacto.escuela.id pk=contacto.id%}" class="badge">
 							<i class="fa fa-pencil"></i>
 						</a>
+						{% endif %}
 					</td>
 				</tr>
 				{% endfor %}

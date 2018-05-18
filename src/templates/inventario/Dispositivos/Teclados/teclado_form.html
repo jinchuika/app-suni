@@ -1,7 +1,7 @@
 {% extends "base/base.html" %}
 {%load staticfiles widget_tweaks %}
 {% block page_title %}
-<title>Version sistema</title>
+<title>Software</title>
 {% endblock page_title %}
 {% block content %}
 <section class="content">
@@ -12,7 +12,7 @@
           <div class="box-header">
             <div class="row">
               <div class="col-md-9">
-                <h3 class="box-title">Version sistema</h3>
+                <h3 class="box-title">Software</h3>
               </div>
               <div class="col-md-3">
               </div>
@@ -20,10 +20,7 @@
           </div>
           <div class="box-body">
             <table class="table table-condensed">
-              {%if form.instance.id%}
-              <form action="{% url 'versionsistema_update' pk=form.instance.id%}" method="post">	
-             {%endif%}
-              <form action="{% url 'versionsistema_add' %}" method="post">
+              <form action="{% url 'teclado_update' triage=form.instance.triage%}" method="post"> 
                 {%csrf_token%}
                 <table>
                   {{ form.as_table }}

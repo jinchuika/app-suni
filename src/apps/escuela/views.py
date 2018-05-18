@@ -67,6 +67,8 @@ class EscuelaDetail(LoginRequiredMixin, DetailView):
             list: Variables de contexto para el template
         """
         context = super(EscuelaDetail, self).get_context_data(**kwargs)
+        if self.request.user.cooperantes.count() > 0:
+            return context
         context['poblacion_form'] = EscPoblacionForm(initial={'escuela': self.object.pk})
         context['matricula_form'] = EscMatriculaForm(initial={'escuela': self.object.pk})
         context['rendimiento_form'] = EscRendimientoAcademicoForm(initial={'escuela': self.object.pk})

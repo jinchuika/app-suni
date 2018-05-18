@@ -105,6 +105,37 @@ class IndexView(LoginRequiredMixin, TemplateView):
                     'url_evento_dh': reverse_lazy('evento_dh_calendario_home'),
                 }
             })
+        if self.request.user.cooperantes.count() > 0:
+            widgets.append({
+                'queryset': '',
+                'template_name': 'widgets/mye_cooperante_home.html',
+                'media_css': [
+                    'css/fullcalendar.min.css',
+                ],
+                'media_js': [
+                    'js/distributed/moment.min.js',
+                    'js/distributed/fullcalendar.min.js',
+                    'js/distributed/fullcalendar.es.js',
+                ],
+                'extra': {
+                    'url_evento_dh': reverse_lazy('evento_dh_calendario_home'),
+                }
+            })
+            widgets.append({
+                'queryset': '',
+                'template_name': 'widgets/mye_cooperante_stats.html',
+                'media_css': [
+                    'css/fullcalendar.min.css',
+                ],
+                'media_js': [
+                    'js/distributed/moment.min.js',
+                    'js/distributed/fullcalendar.min.js',
+                    'js/distributed/fullcalendar.es.js',
+                ],
+                'extra': {
+                    'url_evento_dh': reverse_lazy('evento_dh_calendario_home'),
+                }
+            })
         return widgets
 
     def get_context_data(self, **kwargs):

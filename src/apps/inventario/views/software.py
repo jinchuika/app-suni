@@ -1,5 +1,5 @@
 from django.shortcuts import reverse
-from django.views.generic import DetailView, ListView
+from django.views.generic import DetailView, ListView, UpdateView
 from django.views.generic.edit import CreateView
 from braces.views import (
     LoginRequiredMixin, PermissionRequiredMixin
@@ -36,6 +36,12 @@ class SoftwareDetailView(LoginRequiredMixin, DetailView):
     template_name = 'inventario/software/software_detail.html'
 
 
+class SoftwareUptadeView(LoginRequiredMixin, UpdateView):
+    model = inv_m.Software
+    form_class = inv_f.SoftwareCreateForm
+    template_name = 'inventario/software/software_add.html'
+
+
 class VersionSistemaListView(LoginRequiredMixin, ListView):
     """Listado del :Model:`Version` con sus respectivos datos.
     """
@@ -60,3 +66,9 @@ class VersionSistemaDetailView(LoginRequiredMixin, DetailView):
     """
     model = inv_m.VersionSistema
     template_name = 'inventario/software/versionsistema_detail.html'
+
+
+class VersionSistemaUpdateView(LoginRequiredMixin, UpdateView):
+    model = inv_m.VersionSistema
+    form_class = inv_f.VersionSistemaForm
+    template = 'inventario/software/versionsistema_add.html'
