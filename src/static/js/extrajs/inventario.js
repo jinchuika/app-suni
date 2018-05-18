@@ -5,7 +5,7 @@
       if($("#id_en_creacion").is(':checked')){
         bootbox.alert("esta activado");
       }else {
-        bootbox.alert("No esta activado");
+        bootbox.alert("Esta Seguro que quiere Terminara la Creacion de la Entrada");
       }
     });
 
