@@ -1,6 +1,7 @@
 import django_filters
+from django_filters import rest_framework as filters
 from django.db.models import Count
-from rest_framework import viewsets, filters
+from rest_framework import viewsets
 
 from braces.views import LoginRequiredMixin
 

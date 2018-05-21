@@ -2,7 +2,11 @@ import django_filters
 from datetime import datetime
 from django.db.models import Count
 
-from rest_framework import viewsets, filters
+from django_filters import rest_framework as filters
+from rest_framework.response import Response
+from rest_framework.decorators import action
+from rest_framework.filters import SearchFilter
+from rest_framework import viewsets
 from braces.views import LoginRequiredMixin
 
 from apps.mye import models as mye_m
@@ -90,14 +94,14 @@ class EquipamientoViewSet(LoginRequiredMixin, viewsets.ReadOnlyModelViewSet):
     serializer_class = tpe_serializers.EquipamientoSerializer
     queryset = tpe_m.Equipamiento.objects.all()
     filter_class = EquipamientoFilter
-    filter_backends = (filters.SearchFilter, filters.DjangoFilterBackend)
+    filter_backends = (SearchFilter, filters.DjangoFilterBackend)
 
 
 class EquipamientoFullViewSet(LoginRequiredMixin, viewsets.ReadOnlyModelViewSet):
     serializer_class = tpe_serializers.EquipamientoFullSerializer
     queryset = tpe_m.Equipamiento.objects.all()
     filter_class = EquipamientoFilter
-    filter_backends = (filters.SearchFilter, filters.DjangoFilterBackend)
+    filter_backends = (SearchFilter, filters.DjangoFilterBackend)
 
 
 class EquipamientoCalendarFilter(filters.FilterSet):
@@ -196,3 +200,10 @@ class VisitaMonitoreoViewset(LoginRequiredMixin, viewsets.ModelViewSet):
     serializer_class = tpe_serializers.VisitaMonitoreoSerializer
     queryset = tpe_m.VisitaMonitoreo.objects.all()
     filter_class = VisitaMonitoreoInformeFilter
+
+
+class EquipamientoMapaViewSet(LoginRequiredMixin, viewsets.ReadOnlyModelViewSet):
+    """Para mostrar los equipamientos en un mapa por coordenadas"""
+    serializer_class = tpe_serializers.EquipamientoMapaSerializer
+    queryset = tpe_m.Equipamiento.objects.filter(escuela__mapa__isnull=False)
+    filter_fields = ('cooperante',)
