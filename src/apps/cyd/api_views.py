@@ -1,6 +1,8 @@
 import django_filters
 from braces.views import CsrfExemptMixin
-from rest_framework import generics, viewsets, filters
+from rest_framework import generics, viewsets
+from rest_framework.filters import SearchFilter
+from django_filters import rest_framework as filters
 
 from apps.main.mixins import APIFilterMixin
 from apps.cyd.serializers import (
@@ -53,7 +55,7 @@ class ParticipanteViewSet(CsrfExemptMixin, viewsets.ModelViewSet):
     serializer_class = ParticipanteSerializer
     queryset = Participante.objects.all()
     filter_class = ParticipanteFilter
-    filter_backends = (filters.SearchFilter, filters.DjangoFilterBackend)
+    filter_backends = (SearchFilter, filters.DjangoFilterBackend)
     search_fields = ('nombre', 'apellido')
     lookup_field = 'pk'
 

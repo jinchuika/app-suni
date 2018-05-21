@@ -22,7 +22,7 @@
 					<td><a href="{{ equipamiento.escuela.get_absolute_url }}">{{ equipamiento.escuela }}</a></td>
 					<td>{{ equipamiento.escuela.municipio.nombre }}</td>
 					<td>{{ equipamiento.escuela.municipio.departamento }}</td>
-					<td>{{ equipamiento.fecha|date:"Y-m-d"}}</td>
+					<td class="nowrap">{{ equipamiento.fecha|date:"Y-m-d"}}</td>
 					<td>{{ equipamiento.poblacion.total_alumno }}</td>
 				</tr>
 				{% endfor %}

@@ -1,0 +1,21 @@
+{% load staticfiles %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static "css/dashboard/dc.css" %}">
+<link rel="stylesheet" href="{% static "css/dashboard/leaflet.css" %}">
+<link rel="stylesheet" href="{% static "css/dashboard/MarkerCluster.css" %}">
+<link rel="stylesheet" href="{% static "css/dashboard/MarkerCluster.Default.css" %}">
+<link rel="stylesheet" href="{% static "css/dashboard/leaflet.tooltip.css" %}">
+{% endblock extra_css %}
+
+{% block extra_js %}
+<script src="{% static "ie/lib/js/underscore-min.js" %}"></script>
+<script src="{% static "js/dashboard/crossfilter.js" %}"></script>
+<script src="{% static "js/dashboard/d3.js" %}"></script>
+<script src="{% static "js/dashboard/dc.js" %}"></script>
+<script src="{% static "js/dashboard/queue.js" %}"></script>
+<script src="{% static "js/dashboard/leaflet.js" %}"></script>
+<script src="{% static "js/dashboard/leaflet-heat.js" %}"></script>
+<script src="{% static "js/dashboard/leaflet.markercluster.js" %}"></script>
+<script src="{% static "js/dashboard/leaflet.tooltip.js" %}"></script>
+{% endblock extra_js %}

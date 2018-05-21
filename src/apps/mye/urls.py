@@ -27,6 +27,12 @@ urlpatterns = [
         CooperanteUpdate.as_view(),
         name='cooperante_update'
         ),
+    # Mapa de escuelas equipadas por un cooperante
+    url(
+        r'^cooperante/(?P<pk>\d+)/mapa/$',
+        CooperanteMapaView.as_view(),
+        name='cooperante_mapa'
+        ),
 
     # Listado de todos los proyecto asignados
     url(

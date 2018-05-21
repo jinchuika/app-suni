@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from apps.main.models import Departamento, Municipio
+from apps.main.models import Departamento, Municipio, Coordenada
 from apps.tpe import models as tpe_models
 
 
@@ -48,3 +48,9 @@ class CalendarSerializer(serializers.ModelSerializer):
 
     class Meta:
         fields = ('start', 'title', 'url', 'tip_title', 'tip_text')
+
+
+class CoordenadaSerializer(DynamicFieldsModelSerializer):
+    class Meta:
+        model = Coordenada
+        fields = '__all__'
