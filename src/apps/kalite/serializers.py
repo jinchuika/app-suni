@@ -32,11 +32,16 @@ class VisitaSerializer(DynamicFieldsModelSerializer):
     tipo_visita = serializers.StringRelatedField()
     municipio = serializers.StringRelatedField(source='escuela.municipio.nombre')
     departamento = serializers.StringRelatedField(source='escuela.municipio.departamento')
+    poblacion = serializers.SerializerMethodField()
 
     class Meta:
         model = kalite_m.Visita
         fields = '__all__'
         read_only_fields = ('id', 'escuela')
+
+    def get_poblacion(self, obj):
+        poblacion = obj.escuela.poblaciones.last()
+        return poblacion.total_maestro if poblacion else 0
 
 
 class VisitaCalendarSerializer(DynamicFieldsModelSerializer):
@@ -52,23 +57,23 @@ class VisitaCalendarSerializer(DynamicFieldsModelSerializer):
         model = kalite_m.Visita
         fields = ('id', 'start', 'end', 'url', 'title', 'tip_title', 'tip_text', 'color')
 
-    def get_start(self, object):
-        if object.hora_inicio is not None:
-            return datetime.combine(object.fecha, object.hora_inicio)
+    def get_start(self, obj):
+        if obj.hora_inicio is not None:
+            return datetime.combine(obj.fecha, obj.hora_inicio)
         else:
-            return object.fecha
+            return obj.fecha
 
-    def get_end(self, object):
-        if object.hora_fin is not None:
-            return datetime.combine(object.fecha, object.hora_fin)
+    def get_end(self, obj):
+        if obj.hora_fin is not None:
+            return datetime.combine(obj.fecha, obj.hora_fin)
         else:
-            return object.fecha
+            return obj.fecha
 
-    def get_tip_title(self, object):
-        return 'Visita {} - {}'.format(object.numero, object.capacitador.get_full_name())
+    def get_tip_title(self, obj):
+        return 'Visita {} - {}'.format(obj.numero, obj.capacitador.get_full_name())
 
-    def get_tip_text(self, object):
-        return str(object.escuela.municipio)
+    def get_tip_text(self, obj):
+        return str(obj.escuela.municipio)
 
 
 class EjerciciosGradoSerializer(DynamicFieldsModelSerializer):

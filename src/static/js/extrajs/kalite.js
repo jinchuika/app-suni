@@ -381,7 +381,8 @@
         {data: "numero"},
         {data: "promedio"},
         {data: "alcance"},
-        {data: "fecha", class: 'nowrap'}
+        {data: "fecha", class: 'nowrap'},
+        {data: "poblacion"},
         ]
     })
     .on('xhr.dt', function (e, settings, json, xhr) {
