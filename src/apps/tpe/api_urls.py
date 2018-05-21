@@ -61,6 +61,12 @@ router.register(r'visita-monitoreo-calendar',
 router.register(r'visita-monitoreo',
                 api_views.VisitaMonitoreoViewset,
                 base_name='visita-monitoreo')
+
+# Acceso  para equipamientos con coordenadas
+router.register(r'equipamiento-mapa',
+                api_views.EquipamientoMapaViewSet,
+                base_name='equipamiento-mapa')
+
 urlpatterns = [
     url(r'^reparacion/list/$',
         reparacion_api_list,

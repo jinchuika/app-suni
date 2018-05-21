@@ -5,7 +5,7 @@ from apps.escuela.serializers import EscuelaSerializer
 from apps.mye import models as mye_m
 
 
-class CooperanteSerializer(serializers.ModelSerializer):
+class CooperanteSerializer(DynamicFieldsModelSerializer):
     url = serializers.URLField(source='get_absolute_url')
     cantidad_equipamientos = serializers.SerializerMethodField(read_only=True)
     cantidad_computadoras = serializers.SerializerMethodField(read_only=True)
@@ -21,7 +21,7 @@ class CooperanteSerializer(serializers.ModelSerializer):
         return sum(e.cantidad_equipo for e in obj.equipamientos.all())
 
 
-class ProyectoSerializer(serializers.ModelSerializer):
+class ProyectoSerializer(DynamicFieldsModelSerializer):
     url = serializers.URLField(source='get_absolute_url')
     cantidad_equipamientos = serializers.IntegerField(read_only=True)
 

@@ -1,14 +1,15 @@
+from django.http import JsonResponse
+from django.urls import reverse_lazy
 from django.shortcuts import reverse
-
-from django.views.generic import DetailView, ListView, View
+from django.views.generic import DetailView, ListView, View, TemplateView
 from django.views.generic.edit import CreateView, UpdateView, FormView
 
-from django.http import JsonResponse
-from braces.views import LoginRequiredMixin, PermissionRequiredMixin, CsrfExemptMixin, JsonRequestResponseMixin
+from braces.views import (
+    LoginRequiredMixin, PermissionRequiredMixin, CsrfExemptMixin,
+    JsonRequestResponseMixin, UserPassesTestMixin)
 
 from apps.mye import forms as mye_f
 from apps.mye import models as mye_m
-
 from apps.escuela.views import EscuelaDetail
 
 
@@ -304,3 +305,18 @@ class ValidacionListView(LoginRequiredMixin, FormView):
     """
     form_class = mye_f.ValidacionListForm
     template_name = 'mye/validacion_list.html'
+
+
+class CooperanteMapaView(UserPassesTestMixin, TemplateView):
+    template_name = 'mye/cooperante_mapa.html'
+    raise_exception = True
+
+    def test_func(self, user):
+        return not user.perfil.externo or user.cooperantes.filter(cooperante__id=self.kwargs['pk']).exists()
+
+    def get_context_data(self, **kwargs):
+        context = super(CooperanteMapaView, self).get_context_data(**kwargs)
+        context['data_url'] = '{}?cooperante={}'.format(
+            reverse_lazy('tpe_api:equipamiento-mapa-list'),
+            kwargs['pk'])
+        return context

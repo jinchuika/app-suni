@@ -1,10 +1,10 @@
 from datetime import datetime
 from rest_framework import serializers
 
-from apps.main.serializers import DynamicFieldsModelSerializer, CalendarSerializer
+from apps.main import serializers as main_s
 from apps.tpe import models as tpe_models
 from apps.mye import serializers as mye_serializers
-from apps.escuela.serializers import EscuelaSerializer
+from apps.escuela import serializers as escuela_s
 
 
 class GarantiaSerializer(serializers.ModelSerializer):
@@ -58,13 +58,13 @@ class EvaluacionMonitoreoFullSerializer(EvaluacionMonitoreoSerializer):
     equipamiento = serializers.StringRelatedField(source='monitoreo.equipamiento', read_only=True)
     fecha = serializers.DateField(source='monitoreo.fecha', read_only=True)
     fecha_equipamiento = serializers.DateField(source='monitoreo.equipamiento.fecha', read_only=True)
-    escuela = EscuelaSerializer(
+    escuela = escuela_s.EscuelaSerializer(
         source='monitoreo.equipamiento.escuela',
         fields='id,nombre,codigo',
         read_only=True)
 
 
-class EquipamientoSerializer(DynamicFieldsModelSerializer, serializers.ModelSerializer):
+class EquipamientoSerializer(main_s.DynamicFieldsModelSerializer, serializers.ModelSerializer):
     entrega_url = serializers.URLField(source='get_absolute_url')
     entrega = serializers.IntegerField(source='id')
     escuela = serializers.StringRelatedField()
@@ -126,7 +126,7 @@ class EquipamientoFullSerializer(EquipamientoSerializer):
             'maestras', 'maestros', 'total_maestros')
 
 
-class EquipamientoCalendarSerializer(CalendarSerializer):
+class EquipamientoCalendarSerializer(main_s.CalendarSerializer):
     tip_title = serializers.CharField(source='escuela.municipio')
     tip_text = serializers.CharField(source='escuela.direccion')
 
@@ -135,7 +135,7 @@ class EquipamientoCalendarSerializer(CalendarSerializer):
         fields = ('start', 'title', 'url', 'tip_text', 'tip_title')
 
 
-class DispositivoTipoSerializer(DynamicFieldsModelSerializer):
+class DispositivoTipoSerializer(main_s.DynamicFieldsModelSerializer):
 
     """Serializer para :class:`DispositivoTipo`.
     Usado de forma interna, por ahora no tiene vista ni endpoint expuesto
@@ -225,3 +225,17 @@ class VisitaMonitoreoSerializer(serializers.ModelSerializer):
 
     def get_encargado(self, obj):
         return obj.encargado.get_full_name()
+
+
+class EquipamientoMapaSerializer(serializers.ModelSerializer):
+    escuela = serializers.StringRelatedField()
+    coordenadas = main_s.CoordenadaSerializer(fields='lat,lng', source='escuela.mapa')
+    cooperante = mye_serializers.CooperanteSerializer(many=True, fields='nombre')
+    proyecto = mye_serializers.ProyectoSerializer(many=True, fields='nombre')
+    municipio = serializers.StringRelatedField(source='escuela.municipio')
+    departamento = serializers.StringRelatedField(source='escuela.municipio.departamento')
+    poblacion = escuela_s.EscPoblacionSerializer(fields='total_alumno,total_maestro')
+
+    class Meta:
+        model = tpe_models.Equipamiento
+        fields = ('poblacion', 'fecha', 'escuela', 'cooperante', 'proyecto', 'coordenadas', 'municipio', 'departamento',)

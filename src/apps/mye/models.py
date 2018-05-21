@@ -15,6 +15,9 @@ class Cooperante(models.Model):
     def get_absolute_url(self):
         return reverse_lazy('cooperante_detail', args=[str(self.id)])
 
+    def get_mapa_url(self):
+        return reverse_lazy('cooperante_mapa', kwargs={'pk': self.id})
+
     def __str__(self):
         return self.nombre
 

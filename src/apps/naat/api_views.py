@@ -2,8 +2,9 @@ from django.db.models import Count
 from django.contrib.auth.models import User
 
 import django_filters
+from django_filters import rest_framework as filters
 from braces.views import CsrfExemptMixin
-from rest_framework import viewsets, filters, generics
+from rest_framework import viewsets, generics
 
 from apps.cyd.models import Participante
 from apps.naat import models as naat_m

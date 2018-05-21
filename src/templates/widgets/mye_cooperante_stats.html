@@ -36,11 +36,38 @@
 
 	<div class="col-md-6 col-sm-6 col-xs-12">
 		<div class="info-box">
-			<span class="info-box-icon bg-red"><i class="fa fa-user" aria-hidden="true"></i></span>
+			<span class="info-box-icon bg-red"><i class="fa fa-users" aria-hidden="true"></i></span>
 
 			<div class="info-box-content">
 				<span class="info-box-text">Maestros<br>beneficiados</span>
 				<span class="info-box-number">{{ cooperante.estadistica.total_maestro }}</span>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="row">
+	<div class="col-md-6 col-sm-6 col-xs-12">
+		<div class="info-box">
+			<span class="info-box-icon bg-navy"><i class="fa fa-map" aria-hidden="true"></i></span>
+
+			<div class="info-box-content">
+				<span class="info-box-text">Ubicación de <br>escuelas</span>
+				<span class="info-box-number">
+					<a href="{{ cooperante.cooperante.get_mapa_url }}">Var mapa</a>
+				</span>
+			</div>
+		</div>
+	</div>
+
+	<div class="col-md-6 col-sm-6 col-xs-12">
+		<div class="info-box">
+			<span class="info-box-icon bg-orange"><i class="fa fa-user" aria-hidden="true"></i></span>
+
+			<div class="info-box-content">
+				<span class="info-box-text">{{ cooperante.cooperante }}</span>
+				<span class="info-box-number">
+					<a href="{{ cooperante.cooperante.get_absolute_url }}">Ver perfil</a>
+				</span>
 			</div>
 		</div>
 	</div>
