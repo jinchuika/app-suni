@@ -1,0 +1,21 @@
+{%load widget_tweaks %}
+{% block page_title %}
+<title>Detalles de Entrada</title>
+{% endblock page_title %}
+{% block content %}
+<section class="content">
+  <div class="container-fluid">
+          <form id="detalleForm" action="{% url 'inventario_api:api_detalles-list' %}" method="post">
+            {%csrf_token%}
+            <table class="table table-condensed">
+              {{ EntradaDetalleForm.as_table }}
+              <tr>
+                <td>
+                  <input id="detallebtn"type="submit" class="btn btn-success" value="Agregar" />
+                </td>
+              </tr>
+            </table>
+          </form>
+  </div>
+</section>
+{% endblock content %}

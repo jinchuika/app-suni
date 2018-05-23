@@ -37,6 +37,8 @@ class SoftwareDetailView(LoginRequiredMixin, DetailView):
 
 
 class SoftwareUptadeView(LoginRequiredMixin, UpdateView):
+    """Vista para actualizar de :class:`Software`. con sus respectivos campos
+    """
     model = inv_m.Software
     form_class = inv_f.SoftwareCreateForm
     template_name = 'inventario/software/software_add.html'
@@ -69,6 +71,8 @@ class VersionSistemaDetailView(LoginRequiredMixin, DetailView):
 
 
 class VersionSistemaUpdateView(LoginRequiredMixin, UpdateView):
+    """Vista para actualizar de :class:`VersionSistema`. con sus respectivos campos
+    """
     model = inv_m.VersionSistema
     form_class = inv_f.VersionSistemaForm
     template = 'inventario/software/versionsistema_add.html'

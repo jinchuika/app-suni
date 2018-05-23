@@ -29,6 +29,23 @@ class EntradaCreateView(LoginRequiredMixin, CreateView):
 
 
 class EntradaUpdateView(LoginRequiredMixin, UpdateView):
+    """Vista para actualizar de :class:`Entrada`. con sus respectivos campos
+    """
     model = inv_m.Entrada
     form_class = inv_f.EntradaUpdateForm
     template_name = 'inventario/entrada/entrada_add.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(EntradaUpdateView, self).get_context_data(**kwargs)
+        context['EntradaDetalleForm'] = inv_f.EntradaDetalleForm(initial={'entrada': self.object})
+        return context
+
+
+class EntradaDetalleView(LoginRequiredMixin, CreateView):
+    """Vista   para obtener los datos de los Detalles de Entrada mediante una :class:`EntradaDetalle`
+    Funciona  para recibir los datos de un  'EntradaDetalleForm' mediante el metodo  POST.  y
+    nos muestra el template de visitas mediante el metodo GET.
+    """
+    model = inv_m.EntradaDetalle
+    form_class = inv_f.EntradaDetalleForm
+    template_name = 'inventario/entrada/entradaDetalle_add.html'
