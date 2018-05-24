@@ -1,7 +1,6 @@
-from datetime import datetime
 from rest_framework import serializers
 
-from apps.main.serializers import DynamicFieldsModelSerializer, CalendarSerializer
+from apps.main.serializers import DynamicFieldsModelSerializer
 from apps.crm import models as crm_m
 
 

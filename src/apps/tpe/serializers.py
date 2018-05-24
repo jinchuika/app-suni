@@ -110,12 +110,12 @@ class EquipamientoFullSerializer(EquipamientoSerializer):
     departamento = serializers.StringRelatedField(source='escuela.municipio.departamento')
     municipio = serializers.StringRelatedField(source='escuela.municipio.nombre')
     direccion = serializers.CharField(source='escuela.direccion')
-    alumnas = serializers.IntegerField(source='poblacion.alumna')
-    alumnos = serializers.IntegerField(source='poblacion.alumno')
-    total_alumnos = serializers.IntegerField(source='poblacion.total_alumno')
-    maestras = serializers.IntegerField(source='poblacion.maestra')
-    maestros = serializers.IntegerField(source='poblacion.maestro')
-    total_maestros = serializers.IntegerField(source='poblacion.total_maestro')
+    alumnas = serializers.IntegerField(source='poblacion.alumna', default=None)
+    alumnos = serializers.IntegerField(source='poblacion.alumno', default=None)
+    total_alumnos = serializers.IntegerField(source='poblacion.total_alumno', default=None)
+    maestras = serializers.IntegerField(source='poblacion.maestra', default=None)
+    maestros = serializers.IntegerField(source='poblacion.maestro', default=None)
+    total_maestros = serializers.IntegerField(source='poblacion.total_maestro', default=None)
 
     class Meta:
         model = tpe_models.Equipamiento
