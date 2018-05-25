@@ -9,7 +9,7 @@ router.register(
     base_name='api_detalles'
     ),
 router.register(
-    r'entrada',
+    r'entrada-detalles',
     api_views.EntradaViewSet,
     base_name='api_entrada'
     )

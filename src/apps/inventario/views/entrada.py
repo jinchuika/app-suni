@@ -29,12 +29,16 @@ class EntradaCreateView(LoginRequiredMixin, CreateView):
 
 
 class EntradaDetailView(LoginRequiredMixin, DetailView):
+    """Para generar detalles de la :class:`entrada`   con sus respectivos campos.
+    """
     model = inv_m.Entrada
     template_name = 'inventario/entrada/entrada_detail.html'
 
 
 class EntradaListView(LoginRequiredMixin, FormView):
-    """docstring for EntradaListView."""
+    """Vista Encargada para mostrar las Lista de la :class:'Entrada' con su respectivo
+    formulario de busqueda de filtros
+    """
     model = inv_m.Entrada
     template_name = 'inventario/entrada/entrada_list.html'
     form_class = inv_f.EntradaInformeForm
@@ -50,7 +54,6 @@ class EntradaUpdateView(LoginRequiredMixin, UpdateView):
     def get_context_data(self, **kwargs):
         context = super(EntradaUpdateView, self).get_context_data(**kwargs)
         context['EntradaDetalleForm'] = inv_f.EntradaDetalleForm(initial={'entrada': self.object})
-        context['DispositivoForm'] = inv_f.DispositivoForm(initial={'entrada': self.object})
         return context
 
 
@@ -61,4 +64,4 @@ class EntradaDetalleView(LoginRequiredMixin, CreateView):
     """
     model = inv_m.EntradaDetalle
     form_class = inv_f.EntradaDetalleForm
-    template_name = 'inventario/entrada/entradaDetalle_add.html'
+    template_name = 'inventario/entrada/entradadetalle_add.html'

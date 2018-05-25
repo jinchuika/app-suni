@@ -53,6 +53,7 @@ class EntradaDetalleForm(forms.ModelForm):
     class Meta:
         model = inv_m.EntradaDetalle
         fields = '__all__'
+        exclude = {'precio_unitario', 'precio_total', 'precio_descontado', 'creado_por'}
         widgets = {
             'entrada': forms.HiddenInput(),
             'tipo_dispositivo': forms.Select(attrs={'class': 'form-control select2'}),
@@ -61,10 +62,7 @@ class EntradaDetalleForm(forms.ModelForm):
             'desecho': forms.TextInput({'class': 'form-control '}),
             'total': forms.TextInput({'class': 'form-control r'}),
             'precio_subtotal': forms.TextInput({'class': 'form-control'}),
-            'precio_unitario': forms.HiddenInput(),
-            'precio_total': forms.HiddenInput(),
-            'precio_descontado': forms.HiddenInput(),
-            'creado_por': forms.HiddenInput(),
+            
         }
 
 

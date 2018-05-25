@@ -1,5 +1,5 @@
-(function( EnCreacion, $, undefined ) {
-  EnCreacion.init = function () {
+(function( AlertaEnCreacion, $, undefined ) {
+  AlertaEnCreacion.init = function () {
     var mensaje = document.getElementById("id_en_creacion");
     $('#id_en_creacion').click(function(){
       if($("#id_en_creacion").is(':checked')){
@@ -12,16 +12,15 @@
 
   }
 
-}(window.EnCreacion = window.EnCreacion || {}, jQuery ));
+}(window.AlertaEnCreacion = window.AlertaEnCreacion || {}, jQuery ));
 
-(function(DetalleList, $, undefined){
+(function(EntradaDetalleList, $, undefined){
   var valor = $('#entrada-table').data("api");
   var pk = $('#entrada-table').data("pk");
   var urlapi = valor + "?entrada="+ pk;
-  /***/
   var tabla = $('#entrada-table').DataTable( {
     searching: false,
-    paging: false,
+    paging: true,
     ordering:  false,
     processing: true,
     ajax:{
@@ -48,7 +47,7 @@
     ]
   });
 
-  DetalleList.init = function() {
+  EntradaDetalleList.init = function() {
     /** Uso de DRF**/
     $('#detalleForm').submit( function (e){
     e.preventDefault()
@@ -67,8 +66,8 @@
       document.getElementById("detalleForm").reset();
     });
   }
-}(window.DetalleList =  window.DetalleList || {}, jQuery));
-/****/
+}(window.EntradaDetalleList =  window.EntradaDetalleList || {}, jQuery));
+
 (function( EntradaList, $, undefined ) {
  var tabla = $('#entrada2-table').DataTable({
       dom: 'lfrtipB',
@@ -84,6 +83,7 @@
           }
       },
       columns: [
+
         {data:"tipo",className:"nowrap"},
         {data:"fecha",className:"nowrap"},
         {data:"en_creacion",className:"nowrap"},
