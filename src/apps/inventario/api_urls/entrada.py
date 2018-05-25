@@ -7,6 +7,11 @@ router.register(
     r'detalles',
     api_views.EntradaDetalleViewSet,
     base_name='api_detalles'
+    ),
+router.register(
+    r'entrada',
+    api_views.EntradaViewSet,
+    base_name='api_entrada'
     )
 urlpatterns = []
 urlpatterns += router.urls

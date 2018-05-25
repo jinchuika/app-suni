@@ -66,10 +66,44 @@
       tabla.ajax.reload();
       document.getElementById("detalleForm").reset();
     });
-
-
-
-
-
   }
 }(window.DetalleList =  window.DetalleList || {}, jQuery));
+/****/
+(function( EntradaList, $, undefined ) {
+ var tabla = $('#entrada2-table').DataTable({
+      dom: 'lfrtipB',
+      buttons: ['excel','pdf'],
+      processing: true,
+      ajax: {
+          url: $('#entrada2-list-form').attr('action'),
+          deferRender: true,
+          dataSrc: '',
+          cache:true,
+          data: function () {
+              return $('#entrada2-list-form').serializeObject(true);
+          }
+      },
+      columns: [
+        {data:"tipo",className:"nowrap"},
+        {data:"fecha",className:"nowrap"},
+        {data:"en_creacion",className:"nowrap"},
+        {data:"creada_por",className:"nowrap"},
+        {data:"recibida_por",className:"nowrap"},
+        {data:"proveedor", className:"nowrap"}
+
+      ]
+
+  }).on('xhr.dt', function (e, settings, json, xhr) {
+      $('#spinner').hide();
+  });
+
+  EntradaList.init = function () {
+      $('#spinner').hide();
+      $('#entrada2-list-form').submit(function (e) {
+          e.preventDefault();
+          $('#spinner').show();
+          tabla.clear().draw();
+          tabla.ajax.reload();
+      });
+  }
+}( window.EntradaList = window.EntradaList || {}, jQuery ));

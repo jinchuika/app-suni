@@ -37,3 +37,42 @@ class EntradaDetalleSerializer(serializers.ModelSerializer):
 
     def get_tdispositivo(self, object):
         return object.tipo_dispositivo.__str__()
+
+
+class EntradaSerializer(serializers.ModelSerializer):
+    """ Serializer para generar el infome de la `class`:`Entrada`
+    """
+    creada_por = serializers.SerializerMethodField()
+    recibida_por = serializers.SerializerMethodField()
+    proveedor = serializers.SerializerMethodField()
+    en_creacion = serializers.SerializerMethodField()
+
+    class Meta:
+        model = inv_m.Entrada
+        fields = (
+            'tipo',
+            'fecha',
+            'en_creacion',
+            'creada_por',
+            'recibida_por',
+            'proveedor'
+        )
+
+    def get_creada_por(self, object):
+        return object.creada_por.get_full_name()
+
+    def get_recibida_por(self, object):
+        return object.recibida_por.get_full_name()
+
+    def get_proveedor(self, object):
+        return object.proveedor.__str__()
+
+    def get_en_creacion(sel, object):
+        respuesta = object.en_creacion
+        responder = ""
+        if respuesta:
+            responder = "Si"
+        else:
+            responder = "No"
+
+        return responder

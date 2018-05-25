@@ -14,4 +14,5 @@ urlpatterns = [
         inventario_v.TecladoDetailView.as_view(),
         name='teclado_detail')
 
+
 ]

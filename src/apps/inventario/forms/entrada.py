@@ -1,6 +1,8 @@
 from django import forms
 from django.forms import ModelForm
+from django.contrib.auth.models import User
 from apps.inventario import models as inv_m
+from apps.crm import models as crm_m
 
 
 class EntradaForm(forms.ModelForm):
@@ -30,7 +32,6 @@ class EntradaUpdateForm(forms.ModelForm):
     class Meta:
         model = inv_m.Entrada
         fields = '__all__'
-        # exclude = {'creada_por', 'tipo', 'proveedor'}
         widgets = {
                 'recibida_por': forms.Select(attrs={'class': 'form-control select2'}),
                 'fecha': forms.TextInput({'class': 'form-control datepicker'}),
@@ -64,5 +65,38 @@ class EntradaDetalleForm(forms.ModelForm):
             'precio_total': forms.HiddenInput(),
             'precio_descontado': forms.HiddenInput(),
             'creado_por': forms.HiddenInput(),
-
         }
+
+
+class EntradaInformeForm(forms.Form):
+    """Este Formulario se encarga de enviar los filtros para  su respectivo informe de Entradas
+    """
+    proveedor = forms.ModelChoiceField(
+        queryset=crm_m.Donante.objects.all(),
+        label='Proveedor',
+        widget=forms.Select(attrs={'class': 'form-control'}),
+        required=False)
+    tipo = forms.ModelChoiceField(
+        queryset=inv_m.EntradaTipo.objects.all(),
+        label='Tipo',
+        required=False,
+        widget=forms.Select(attrs={'class': 'form-control'}))
+
+    recibida_por = forms.ModelChoiceField(
+        queryset=User.objects.all(),
+        label='Persona Que Recibe',
+        required=False,
+        widget=forms.Select(attrs={'class': 'form-control'}))
+
+    fecha_min = forms.CharField(
+        label='Fecha (min)',
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-control datepicker'}))
+    fecha_max = forms.CharField(
+        label='Fecha (max)',
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-control datepicker'}))
+
+    def __init__(self, *args, **kwargs):
+        super(EntradaInformeForm, self).__init__(*args, **kwargs)
+        self.fields['recibida_por'].label_from_instance = lambda obj: "%s" % (obj.get_full_name())

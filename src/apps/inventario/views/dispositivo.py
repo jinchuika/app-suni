@@ -1,5 +1,5 @@
 from django.shortcuts import reverse
-from django.views.generic import DetailView, UpdateView
+from django.views.generic import DetailView, UpdateView, CreateView
 from braces.views import (
     LoginRequiredMixin, PermissionRequiredMixin
 )

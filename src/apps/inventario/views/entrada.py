@@ -1,5 +1,5 @@
 from django.shortcuts import reverse
-from django.views.generic import CreateView,  UpdateView
+from django.views.generic import CreateView,  UpdateView, DetailView, FormView
 from braces.views import (
     LoginRequiredMixin
 )
@@ -19,13 +19,25 @@ class EntradaCreateView(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         form.instance.creada_por = self.request.user
-        print(self.request.user)
         return super(EntradaCreateView, self).form_valid(form)
 
     def get_context_data(self, **kwargs):
         context = super(EntradaCreateView, self).get_context_data(**kwargs)
         context['listado'] = inv_m.Entrada.objects.filter(en_creacion='True')
+
         return context
+
+
+class EntradaDetailView(LoginRequiredMixin, DetailView):
+    model = inv_m.Entrada
+    template_name = 'inventario/entrada/entrada_detail.html'
+
+
+class EntradaListView(LoginRequiredMixin, FormView):
+    """docstring for EntradaListView."""
+    model = inv_m.Entrada
+    template_name = 'inventario/entrada/entrada_list.html'
+    form_class = inv_f.EntradaInformeForm
 
 
 class EntradaUpdateView(LoginRequiredMixin, UpdateView):
@@ -38,6 +50,7 @@ class EntradaUpdateView(LoginRequiredMixin, UpdateView):
     def get_context_data(self, **kwargs):
         context = super(EntradaUpdateView, self).get_context_data(**kwargs)
         context['EntradaDetalleForm'] = inv_f.EntradaDetalleForm(initial={'entrada': self.object})
+        context['DispositivoForm'] = inv_f.DispositivoForm(initial={'entrada': self.object})
         return context
 
 
