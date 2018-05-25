@@ -77,7 +77,7 @@ class Entrada(models.Model):
         return sum(d.precio_total for d in self.detalles.all())
 
     def get_absolute_url(self):
-        return reverse_lazy('entrada_update', kwargs={'pk': self.id})
+        return reverse_lazy('entrada_detail', kwargs={'pk': self.id})
 
 
 class DispositivoTipo(models.Model):

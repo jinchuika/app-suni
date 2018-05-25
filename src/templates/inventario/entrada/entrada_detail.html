@@ -1,0 +1,69 @@
+{% extends "base/base.html" %}
+{% load staticfiles %}
+{% block page_title %}
+<title>Entrada - {{ entrada.id }}</title>
+{% endblock page_title %}
+{% block content %}
+<section class="content">
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-md-9">
+				<div class="box">
+					<div class="box-header">
+						<div class="row">
+							<div class="col-md-9">
+								<h3 class="box-title">Entrada No. {{ entrada.id }}</h3></div>
+						</div>
+					</div>
+					<div class="box-body">
+						<table class="table table-condensed">
+							<tr>
+								<th>Tipo</th>
+								<td>{{ entrada.tipo }}</td>
+							</tr>
+							<tr>
+								<th>Fecha</th>
+								<td>
+									{{entrada.fecha}}
+									<br>
+								</td>
+							</tr>
+              <tr>
+								<th>En Creacion</th>
+								<td>
+                  {%if entrada.en_creacion == True%}
+                  SI
+                  {%else%}
+                  	NO
+                  {%endif%}
+
+									<br>
+								</td>
+							</tr>
+              <tr>
+								<th>Creada por</th>
+								<td>
+									{{entrada.creada_por.get_full_name}}
+									<br>
+								</td>
+							</tr>
+              <tr>
+								<th>Recibida por</th>
+								<td>
+									{{entrada.recibida_por.get_full_name}}
+									<br>
+								</td>
+							</tr>
+              <tr>
+								<th>Proveedor</th>
+								<td>
+									{{entrada.proveedor}}
+									<br>
+								</td>
+							</tr>
+						</table>
+					</div>
+				</div>
+			</div>    
+</section>
+{% endblock content %}
