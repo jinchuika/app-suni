@@ -1,6 +1,6 @@
 import django_filters
 from django_filters import rest_framework as filters
-from rest_framework import viewsets
+from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from braces.views import LoginRequiredMixin
@@ -29,6 +29,13 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(creado_por=self.request.user)
+
+    @action(methods=['post'], detail=True)
+    def crear_dispositivos(self, request, pk=None):
+        entrada_detalle = self.get_object()
+        entrada_detalle.crear_dispositivos()
+        print(entrada_detalle)
+        return Response({'status': 'ok'})
 
 
 class EntradaFilter(filters.FilterSet):

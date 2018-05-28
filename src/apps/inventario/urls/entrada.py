@@ -26,6 +26,12 @@ urlpatterns = [
         inventario_v.EntradaListView.as_view(),
         name='entrada_list'
     ),
+    # url para actualziacion de  los detalles de entrada
+    url(
+        r'^entradadetalle/(?P<pk>\d+)/edit/$',
+        inventario_v.EntradaDetalleUpdateView.as_view(),
+        name='entradadetalle_update'
+    ),
     # Api
     url(r'^api/', include(('apps.inventario.api_urls', 'inventario'), namespace='inventario_api')),
 

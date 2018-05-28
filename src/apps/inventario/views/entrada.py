@@ -65,3 +65,20 @@ class EntradaDetalleView(LoginRequiredMixin, CreateView):
     model = inv_m.EntradaDetalle
     form_class = inv_f.EntradaDetalleForm
     template_name = 'inventario/entrada/entradadetalle_add.html'
+
+
+class EntradaDetalleUpdateView(LoginRequiredMixin, UpdateView):
+    """Vista Encargada de actualizar los datos mediante la :class:`EntradaDetalle`.
+    """
+    model = inv_m.EntradaDetalle
+    form_class = inv_f.EntradaDetalleUpdateForm
+    template_name = 'inventario/entrada/entradadetalle_detail.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(EntradaDetalleUpdateView, self).get_context_data(**kwargs)
+        context['datos'] = inv_m.EntradaDetalle.objects.get(id=self.object.id)
+        print(inv_m.EntradaDetalle.objects.get(id=self.object.id))
+        return context
+
+    def get_success_url(self):
+        return reverse('entrada_update', kwargs={'pk': self.object.entrada.id})
