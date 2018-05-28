@@ -11,6 +11,13 @@ urlpatterns = [
     url(
         r'^teclado/(?P<triage>[\w\d-]+)/$',
         inventario_v.TecladoDetailView.as_view(),
-        name='teclado_detail')
+        name='teclado_detail'),
+
+    # Creación de fallas de dispositivos
+    url(
+        r'^falla/add/$',
+        inventario_v.DispositivoFallaCreateView.as_view(),
+        name='dispositivofalla_add'
+    )
 
 ]

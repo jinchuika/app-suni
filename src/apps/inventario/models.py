@@ -161,7 +161,7 @@ class EntradaDetalle(models.Model):
         """
         if self.entrada.tipo.contable and not self.precio_subtotal:
             raise ValidationError(
-                ('El tipo de entrada requiere un precio total'), code='entrada_precio_total')
+                'El tipo de entrada requiere un precio total', code='entrada_precio_total')
         super(EntradaDetalle, self).save(*args, **kwargs)
 
     def crear_dispositivos(self, util=None):
@@ -279,10 +279,10 @@ class Pasillo(models.Model):
         return str(self.id)
 
     def tarimas(self):
-        return  Tarima.objects.filter(sector__nivel__pasillo=self)
+        return Tarima.objects.filter(sector__nivel__pasillo=self)
 
     def dispositivo(self):
-        return  Dispositivo.objects.filter(tarima__sector__nivel__pasillo=self)
+        return Dispositivo.objects.filter(tarima__sector__nivel__pasillo=self)
 
 
 class Nivel(models.Model):
@@ -295,6 +295,7 @@ class Nivel(models.Model):
     def tarimas(self):
         return Tarima.objects.filter(sector__nivel=self)
 
+
 class Sector(models.Model):
     sector = models.IntegerField(null=False)
     nivel = models.ForeignKey(Nivel, related_name='sectores')
@@ -303,8 +304,7 @@ class Sector(models.Model):
         return '{nivel}-{sector}'.format(nivel=self.nivel, sector=self.sector)
 
     def get_absolute_url(self):
-        return reverse_lazy('sector_update', kwargs={'pk':self.id})
-
+        return reverse_lazy('sector_update', kwargs={'pk': self.id})
 
 
 class Tarima(models.Model):
@@ -381,6 +381,29 @@ class Dispositivo(models.Model):
         filename = 'dispositivo-%s.png' % (self.id)
         filebuffer = InMemoryUploadedFile(buffer, None, filename, 'image/png', buffer.getbuffer().nbytes, None)
         self.codigo_qr.save(filename, filebuffer)
+
+
+class DispositivoFalla(models.Model):
+    dispositivo = models.ForeignKey(Dispositivo, on_delete=models.CASCADE, related_name='fallas')
+    descripcion_falla = models.TextField(verbose_name='Descripción de la falla')
+    descripcion_solucion = models.TextField(null=True, blank=True, verbose_name='Descripción de la solución')
+    fecha_inicio = models.DateTimeField(default=timezone.now, verbose_name='Fecha de inicio')
+    fecha_fin = models.DateTimeField(blank=True, verbose_name='Fecha de fin', null=True)
+    terminada = models.BooleanField(default=False, blank=True)
+    reportada_por = models.ForeignKey(User, on_delete=models.PROTECT, related_name='fallas_reportadas')
+    reparada_por = models.ForeignKey(
+        User,
+        on_delete=models.PROTECT,
+        related_name='fallas_reparadas',
+        null=True,
+        blank=True)
+
+    class Meta:
+        verbose_name = "DispositivoFalla"
+        verbose_name_plural = "DispositivoFallas"
+
+    def __str__(self):
+        return 'F-{pk}'.format(pk=self.id)
 
 
 class SoftwareTipo(models.Model):
@@ -773,12 +796,57 @@ class DispositivoRepuesto(models.Model):
     asignado_por = models.ForeignKey(User, on_delete=models.PROTECT)
 
     class Meta:
-        verbose_name = "DispositivoRepuesto"
-        verbose_name_plural = "DispositivoRepuestos"
+        verbose_name = "Repuesto de dispositivo"
+        verbose_name_plural = "Repuestos de dispositivo"
 
     def __str__(self):
         return '{} -> {}'.format(self.repuesto, self.dispositivo)
 
+
+class DesechoEmpresa(models.Model):
+    nombre = models.CharField(max_length=50)
+
+    class Meta:
+        verbose_name = "Empresa de desecho"
+        verbose_name_plural = "Empresas de desecho"
+
+    def __str__(self):
+        return self.nombre
+
+
+class DesechoSalida(models.Model):
+    fecha = models.DateField(default=timezone.now)
+    empresa = models.ForeignKey(DesechoEmpresa, on_delete=models.PROTECT)
+    precio_total = models.DecimalField(max_digits=12, decimal_places=2)
+    peso = models.DecimalField(max_digits=12, decimal_places=2, verbose_name='Peso (libras)')
+    creado_por = models.ForeignKey(User, on_delete=models.PROTECT)
+    observaciones = models.TextField(null=True, blank=True)
+
+    class Meta:
+        verbose_name = "Salida de desecho"
+        verbose_name_plural = "Salidas de desecho"
+
+    def __str__(self):
+        return str(self.id)
+
+
+class DesechoDetalle(models.Model):
+    desecho = models.ForeignKey(DesechoSalida, on_delete=models.PROTECT, related_name='detalles')
+    entrada_detalle = models.ForeignKey(
+        EntradaDetalle,
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True)
+    cantidad = models.DecimalField(max_digits=12, decimal_places=2)
+
+    class Meta:
+        verbose_name = "Salida de desecho"
+        verbose_name_plural = "Salidas de desecho"
+
+    def __str__(self):
+        return '{desecho} {entrada}'.format(
+            desecho=self.desecho,
+            entrada=self.entrada_detalle)
 
 # class Paquete(models.Model):
 #     salida = models.PositiveIntegerField()
