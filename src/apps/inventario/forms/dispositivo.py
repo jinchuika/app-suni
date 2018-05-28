@@ -4,8 +4,6 @@ from apps.inventario import models as inv_m
 
 
 class TecladoForm(forms.ModelForm):
-    """ Formulario para la :class:`TecladoUpdateView`
-    """
     class Meta:
         model = inv_m.Teclado
         fields = '__all__'
