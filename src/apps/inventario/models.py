@@ -77,7 +77,7 @@ class Entrada(models.Model):
         return sum(d.precio_total for d in self.detalles.all())
 
     def get_absolute_url(self):
-        return reverse_lazy('entrada_detail', kwargs={'pk': self.id})
+        return reverse_lazy('entrada_update', kwargs={'pk': self.id})
 
 
 class DispositivoTipo(models.Model):
@@ -272,6 +272,54 @@ class DispositivoModelo(models.Model):
         return self.modelo
 
 
+class Pasillo(models.Model):
+    pass
+
+    def __str__(self):
+        return str(self.id)
+
+    def tarimas(self):
+        return  Tarima.objects.filter(sector__nivel__pasillo=self)
+
+    def dispositivo(self):
+        return  Dispositivo.objects.filter(tarima__sector__nivel__pasillo=self)
+
+
+class Nivel(models.Model):
+    nivel = models.CharField(max_length=1)
+    pasillo = models.ForeignKey(Pasillo, on_delete=models.PROTECT, related_name='niveles')
+
+    def __str__(self):
+        return '{}{}'.format(self.pasillo, self.nivel)
+
+    def tarimas(self):
+        return Tarima.objects.filter(sector__nivel=self)
+
+class Sector(models.Model):
+    sector = models.IntegerField(null=False)
+    nivel = models.ForeignKey(Nivel, related_name='sectores')
+
+    def __str__(self):
+        return '{nivel}-{sector}'.format(nivel=self.nivel, sector=self.sector)
+
+    def get_absolute_url(self):
+        return reverse_lazy('sector_update', kwargs={'pk':self.id})
+
+
+
+class Tarima(models.Model):
+    sector = models.ForeignKey(
+        Sector,
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name='tarimas'
+    )
+
+    def __str__(self):
+        return str(self.id)
+
+
 class Dispositivo(models.Model):
 
     """Cualquier elemento almacenado en la base de datos de inventario que puede ser entregado a una escuela.
@@ -289,6 +337,7 @@ class Dispositivo(models.Model):
     modelo = models.ForeignKey(DispositivoModelo, on_delete=models.CASCADE, null=True, blank=True)
     serie = models.CharField(max_length=80, null=True, blank=True)
     codigo_qr = et_fields.ThumbnailerImageField(upload_to='qr_dispositivo', blank=True, null=True)
+    tarima = models.ForeignKey(Tarima, on_delete=models.PROTECT, blank=True, null=True, related_name='dispositivos')
 
     class Meta:
         verbose_name = "Dispositivo"
@@ -765,3 +814,5 @@ class DispositivoRepuesto(models.Model):
 
 #     def __str__(self):
 #         return '{} -> {}'.format(self.dispositivo, self.paquete)
+
+
