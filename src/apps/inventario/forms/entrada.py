@@ -62,7 +62,30 @@ class EntradaDetalleForm(forms.ModelForm):
             'desecho': forms.TextInput({'class': 'form-control '}),
             'total': forms.TextInput({'class': 'form-control r'}),
             'precio_subtotal': forms.TextInput({'class': 'form-control'}),
-            
+
+        }
+
+
+class EntradaDetalleUpdateForm(forms.ModelForm):
+    """docstring for EntradaDetalleUpdateForm.
+    """
+    class Meta:
+        model = inv_m.EntradaDetalle
+        fields = '__all__'
+        exclude = {
+                    'entrada',
+                    'tipo_dispositivo',
+                    'precio_unitario',
+                    'precio_total',
+                    'precio_descontado',
+                    'creado_por',
+                    'precio_subtotal'}
+        widgets = {
+            'util': forms.TextInput({'class': 'form-control '}),
+            'repuesto': forms.TextInput({'class': 'form-control'}),
+            'desecho': forms.TextInput({'class': 'form-control '}),
+            'total': forms.TextInput({'class': 'form-control r'}),
+
         }
 
 

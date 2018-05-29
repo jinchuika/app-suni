@@ -42,18 +42,43 @@
       {data:"precio_subtotal"},
       {data:"precio_descontado"},
       {data:"precio_total"},
-      {data:"creado_por"}
+      {data:"creado_por"},
+      {data:"",defaultContent:"<button class='btn btn-info'>Editar</button>",targets: -1},
+      {data:"",defaultContent:"<button class='btn btn-primary'>Crear Disp</button>",targets: -1},
+
+
 
     ]
   });
 
   EntradaDetalleList.init = function() {
+  $('#entrada-table tbody').on( 'click', '.btn-info', function () {
+       var data = tabla.row( $(this).parents('tr') ).data();
+       location.href =data.update_url;
+   } );
+
+   $('#entrada-table tbody').on( 'click', '.btn-primary', function () {
+        //alert("Si funciona este boton2");
+         var data = tabla.row( $(this).parents('tr') ).data();
+        var valordispositivo = $('#entrada-table').data("api");
+        var urldispositivo = valor +data.id+"/crear_dispositivos/";
+         console.log(urldispositivo);
+        $.ajax({
+           type: 'POST',
+           url:urldispositivo,
+           data: {csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val()},
+           success: function(response){
+             console.log("dispositivos creados exitosamente");
+           },
+
+         });
+    } );
     /** Uso de DRF**/
     $('#detalleForm').submit( function (e){
     e.preventDefault()
 
      $.ajax({
-        type: 'POST',
+        type: "POST",
         url: $('#detalleForm').attr('action'),
         data:$('#detalleForm').serialize(),
         success: function (response) {
@@ -84,20 +109,22 @@
       },
       columns: [
 
-        {data:"tipo",className:"nowrap"},
+        {data:"tipo"},
         {data:"fecha",className:"nowrap"},
         {data:"en_creacion",className:"nowrap"},
         {data:"creada_por",className:"nowrap"},
         {data:"recibida_por",className:"nowrap"},
-        {data:"proveedor", className:"nowrap"}
-
+        {data:"proveedor", className:"nowrap"},
+        {data:"",defaultContent:"<button>Edit</button>",targets: -1}
       ]
+
 
   }).on('xhr.dt', function (e, settings, json, xhr) {
       $('#spinner').hide();
   });
 
   EntradaList.init = function () {
+
       $('#spinner').hide();
       $('#entrada2-list-form').submit(function (e) {
           e.preventDefault();
@@ -105,5 +132,12 @@
           tabla.clear().draw();
           tabla.ajax.reload();
       });
+
+      $('#entrada2-table tbody').on( 'click', 'button', function () {
+         var data = tabla.row( $(this).parents('tr') ).data();
+         alert("Si funciona este boton");
+         console.log(data.fecha);
+     } );
+
   }
 }( window.EntradaList = window.EntradaList || {}, jQuery ));
