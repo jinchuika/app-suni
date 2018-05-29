@@ -173,11 +173,14 @@ class EntradaDetalle(models.Model):
                 if f.one_to_one and f.related_model.SLUG_TIPO == self.tipo_dispositivo.slug
             ]
             modelo = modelo[0]
+            total = 0
             for _ in range(0, util):
                 nuevo = modelo(entrada=self.entrada, tipo=self.tipo_dispositivo)
                 nuevo.save()
+                total = total + 1
         except KeyError as e:
             raise e
+        return total
 
     def get_absolute_url(self):
         return self.entrada.get_absolute_url()
@@ -299,12 +302,37 @@ class Nivel(models.Model):
 class Sector(models.Model):
     sector = models.IntegerField(null=False)
     nivel = models.ForeignKey(Nivel, related_name='sectores')
+    codigo_qr = et_fields.ThumbnailerImageField(upload_to='qr_sector', blank=True, null=True, editable=False)
 
     def __str__(self):
         return '{nivel}-{sector}'.format(nivel=self.nivel, sector=self.sector)
 
     def get_absolute_url(self):
         return reverse_lazy('sector_update', kwargs={'pk': self.id})
+
+    def save(self, *args, **kwargs):
+        super(Sector, self).save(*args, **kwargs)
+        if not self.codigo_qr:
+            self.crear_qrcode()
+            super(Sector, self).save(*args, **kwargs)
+
+    def crear_qrcode(self):
+        """Genera le código QR para apuntar a la id del sector
+        """
+        qr = qrcode.QRCode(
+            version=1,
+            error_correction=qrcode.constants.ERROR_CORRECT_L,
+            box_size=6,
+            border=1,
+        )
+        qr.add_data(self.id)
+        qr.make(fit=True)
+        img = qr.make_image()
+        buffer = BytesIO()
+        img.save(buffer)
+        filename = 'sector-{}.png'.format(self.id)
+        filebuffer = InMemoryUploadedFile(buffer, None, filename, 'image/png', buffer.getbuffer().nbytes, None)
+        self.codigo_qr.save(filename, filebuffer)
 
 
 class Tarima(models.Model):
@@ -315,9 +343,34 @@ class Tarima(models.Model):
         blank=True,
         related_name='tarimas'
     )
+    codigo_qr = et_fields.ThumbnailerImageField(upload_to='qr_tarima', blank=True, null=True)
 
     def __str__(self):
         return str(self.id)
+
+    def save(self, *args, **kwargs):
+        super(Tarima, self).save(*args, **kwargs)
+        if not self.codigo_qr:
+            self.crear_qrcode()
+            super(Tarima, self).save(*args, **kwargs)
+
+    def crear_qrcode(self):
+        """Genera le código QR para apuntar a la id de la tarima
+        """
+        qr = qrcode.QRCode(
+            version=1,
+            error_correction=qrcode.constants.ERROR_CORRECT_L,
+            box_size=6,
+            border=1,
+        )
+        qr.add_data(self.id)
+        qr.make(fit=True)
+        img = qr.make_image()
+        buffer = BytesIO()
+        img.save(buffer)
+        filename = 'tarima-{}.png'.format(self.id)
+        filebuffer = InMemoryUploadedFile(buffer, None, filename, 'image/png', buffer.getbuffer().nbytes, None)
+        self.codigo_qr.save(filename, filebuffer)
 
 
 class Dispositivo(models.Model):
@@ -362,7 +415,7 @@ class Dispositivo(models.Model):
                 if isinstance(attr, self.__class__) and type(attr) != type(self):
                     return attr
             except:
-                pass
+                print("a")
 
     def crear_qrcode(self):
         """Genera le código QR para apuntar a la id del dispositivo
@@ -374,11 +427,10 @@ class Dispositivo(models.Model):
             border=1,
         )
         qr.add_data(self.id)
-        img = qr.make(fit=True)
-        img = qr.make_image()
+        img = qr.make(fit=True).make_image()
         buffer = BytesIO()
         img.save(buffer)
-        filename = 'dispositivo-%s.png' % (self.id)
+        filename = 'dispositivo-{}.png'.format(self.id)
         filebuffer = InMemoryUploadedFile(buffer, None, filename, 'image/png', buffer.getbuffer().nbytes, None)
         self.codigo_qr.save(filename, filebuffer)
 
@@ -816,11 +868,12 @@ class DesechoEmpresa(models.Model):
 
 class DesechoSalida(models.Model):
     fecha = models.DateField(default=timezone.now)
-    empresa = models.ForeignKey(DesechoEmpresa, on_delete=models.PROTECT)
+    empresa = models.ForeignKey(DesechoEmpresa, on_delete=models.PROTECT, related_name='salidas')
     precio_total = models.DecimalField(max_digits=12, decimal_places=2)
     peso = models.DecimalField(max_digits=12, decimal_places=2, verbose_name='Peso (libras)')
     creado_por = models.ForeignKey(User, on_delete=models.PROTECT)
     observaciones = models.TextField(null=True, blank=True)
+    en_creacion = models.BooleanField(default=True, blank=True, verbose_name='En creación')
 
     class Meta:
         verbose_name = "Salida de desecho"
@@ -840,8 +893,8 @@ class DesechoDetalle(models.Model):
     cantidad = models.DecimalField(max_digits=12, decimal_places=2)
 
     class Meta:
-        verbose_name = "Salida de desecho"
-        verbose_name_plural = "Salidas de desecho"
+        verbose_name = "Detalle de salida de desecho"
+        verbose_name_plural = "Detalles de salida de desecho"
 
     def __str__(self):
         return '{desecho} {entrada}'.format(
