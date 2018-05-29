@@ -34,9 +34,7 @@
                     </td>
 
                     <td>
-                      {%for numeroSalidas in empresa.salidas.all%}
-                        {{numeroSalidas.count}}
-                      {%endfor%}
+                      {{ empresa.salidas.count }}
                     </td>
                   </tr>
                   {%endfor%}
@@ -45,5 +43,7 @@
 					</div>
 				</div>
 			</div>
+    </div>
+  </div>    
 </section>
 {% endblock content %}

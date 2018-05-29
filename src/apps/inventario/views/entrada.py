@@ -24,7 +24,6 @@ class EntradaCreateView(LoginRequiredMixin, CreateView):
     def get_context_data(self, **kwargs):
         context = super(EntradaCreateView, self).get_context_data(**kwargs)
         context['listado'] = inv_m.Entrada.objects.filter(en_creacion='True')
-
         return context
 
 
@@ -77,7 +76,6 @@ class EntradaDetalleUpdateView(LoginRequiredMixin, UpdateView):
     def get_context_data(self, **kwargs):
         context = super(EntradaDetalleUpdateView, self).get_context_data(**kwargs)
         context['datos'] = inv_m.EntradaDetalle.objects.get(id=self.object.id)
-        print(inv_m.EntradaDetalle.objects.get(id=self.object.id))
         return context
 
     def get_success_url(self):

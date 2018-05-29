@@ -29,3 +29,18 @@ class DesechoEmpresaListView(LoginRequiredMixin, ListView):
     """
     model = inv_m.DesechoEmpresa
     template_name = 'inventario/desecho/desechoempresa_list.html'
+
+
+class DesechoSalidaCreateView(LoginRequiredMixin, CreateView):
+    """Vista   para obtener los datos de Entrada mediante una :class:`DesechoSalida`
+    Funciona  para recibir los datos de un  'DesechoSalidaForm' mediante el metodo  POST.  y
+    nos muestra el template de visitas mediante el metodo GET.
+    """
+    model = inv_m.DesechoSalida
+    form_class = inv_f.DesechoSalidaForm
+    template_name = 'inventario/desecho/desechosalida_add.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(DesechoSalidaCreateView, self).get_context_data(**kwargs)
+        context['desechosalida'] = inv_m.DesechoSalida.objects.filter(en_creacion='True')        
+        return context
