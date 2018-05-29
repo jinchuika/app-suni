@@ -11,5 +11,6 @@ y luego debe ser "incluido" en el `urlpatterns` del app
 from .dispositivo import urlpatterns as dispositivo_urls
 from .entrada import urlpatterns as entrada_urls
 from .software import software_urls
+from .bodega import urlpatterns as bodega_urls
 
-urlpatterns = dispositivo_urls + entrada_urls + software_urls
+urlpatterns = dispositivo_urls + entrada_urls + software_urls + bodega_urls

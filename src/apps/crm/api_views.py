@@ -1,7 +1,5 @@
 import django_filters
 from django_filters import rest_framework as filters
-from datetime import datetime
-from django.db.models import Count
 
 from rest_framework import viewsets
 from braces.views import LoginRequiredMixin
