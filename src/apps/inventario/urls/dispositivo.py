@@ -18,6 +18,11 @@ urlpatterns = [
         r'^falla/add/$',
         inventario_v.DispositivoFallaCreateView.as_view(),
         name='dispositivofalla_add'
-    )
+    ),
+    # Listado de Monitores
+    url(
+        r'^monitor/(?P<triage>[\w\d-]+)/$',
+        inventario_v.MonitorDetailView.as_view(),
+        name='monitor_detail')
 
 ]

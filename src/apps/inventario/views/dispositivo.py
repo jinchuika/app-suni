@@ -45,3 +45,13 @@ class TecladoDetailView(LoginRequiredMixin, DispositivoDetailView):
     slug_url_kwarg = "triage"
     query_pk_and_slug = True
 
+
+class MonitorDetailView(LoginRequiredMixin, DispositivoDetailView):
+    """Esta clase sirve para ver los detalles de :class:`Monitor`
+     mostrando los datos necesarios
+    """
+    model = inv_m.Monitor
+    template_name = 'inventario/dispositivo/monitor/monitor_detail.html'
+    slug_field = "triage"
+    slug_url_kwarg = "triage"
+    query_pk_and_slug = True

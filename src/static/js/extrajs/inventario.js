@@ -58,7 +58,6 @@
    } );
 
    $('#entrada-table tbody').on( 'click', '.btn-primary', function () {
-        //alert("Si funciona este boton2");
          var data = tabla.row( $(this).parents('tr') ).data();
         var valordispositivo = $('#entrada-table').data("api");
         var urldispositivo = valor +data.id+"/crear_dispositivos/";
@@ -141,3 +140,56 @@
 
   }
 }( window.EntradaList = window.EntradaList || {}, jQuery ));
+
+(function(SalidaDetalleList, $, undefined){
+  var valor = $('#salida-table').data("api");
+  var pk = $('#salida-table').data("pk");
+  var urlapi = valor + "?entrada="+ pk;
+  var tabla = $('#salida-table').DataTable( {
+    searching: false,
+    paging: true,
+    ordering:  false,
+    processing: true,
+    ajax:{
+      url:urlapi,
+      dataSrc: '',
+      cache:true,
+      data: function () {
+        var cont = $('#salida-table').data("api");
+          return cont;
+      }
+    },
+    columns:[
+      {data:"tdispositivo"},
+      {data:"cantidad"},
+      {data:"desecho"},
+      {data:"entrada_detalle"},
+    ]
+  });
+
+  SalidaDetalleList.init = function() {
+    $('#btn-terminar').click(function(){
+      bootbox.alert("Esta Seguro que quiere Terminara la Creacion de la Entrada");
+      document.getElementById("id_en_creacion").checked = false;
+      document.getElementById("desechosalida-form").submit()
+      });
+
+    /** Uso de DRF**/
+    $('#detalleForm').submit( function (e){
+    e.preventDefault()
+
+     $.ajax({
+        type: "POST",
+        url: $('#detalleForm').attr('action'),
+        data:$('#detalleForm').serialize(),
+        success: function (response) {
+          console.log("datos ingresados correctamente");
+
+        },
+      });
+      tabla.clear().draw();
+      tabla.ajax.reload();
+      document.getElementById("detalleForm").reset();
+    });
+  }
+}(window.SalidaDetalleList =  window.SalidaDetalleList || {}, jQuery));

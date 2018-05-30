@@ -1,5 +1,5 @@
 from django.shortcuts import reverse
-from django.views.generic import CreateView, DetailView, ListView
+from django.views.generic import CreateView, DetailView, ListView, UpdateView
 from braces.views import (
     LoginRequiredMixin
 )
@@ -42,5 +42,21 @@ class DesechoSalidaCreateView(LoginRequiredMixin, CreateView):
 
     def get_context_data(self, **kwargs):
         context = super(DesechoSalidaCreateView, self).get_context_data(**kwargs)
-        context['desechosalida'] = inv_m.DesechoSalida.objects.filter(en_creacion='True')        
+        context['desechosalida'] = inv_m.DesechoSalida.objects.filter(en_creacion='True')
         return context
+
+
+class DesechoSalidaUpdateView(LoginRequiredMixin, UpdateView):
+    """Vista para actualizar la :class:`DesechoSalida`. con sus respectios Campos
+    """
+    model = inv_m.DesechoSalida
+    form_class = inv_f.DesechoSalidaUpdateForm
+    template_name = 'inventario/desecho/desechosalida_form.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(DesechoSalidaUpdateView, self).get_context_data(**kwargs)
+        context['DesechoDetalleForm'] = inv_f.DesechoDetalleForm(initial={'desecho': self.object})
+        return context
+
+    def get_success_url(self):
+        return reverse('desechosalida_update', kwargs={'pk': self.object.id})

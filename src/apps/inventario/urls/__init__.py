@@ -7,6 +7,7 @@ from .archivo import urlpatterns as archivo_urls
 
 y luego debe ser "incluido" en el `urlpatterns` del app
 """
+from django.conf.urls import url, include
 
 from .dispositivo import urlpatterns as dispositivo_urls
 from .entrada import urlpatterns as entrada_urls
@@ -15,3 +16,7 @@ from .bodega import urlpatterns as bodega_urls
 from .desecho import urlpatterns as desecho_urls
 
 urlpatterns = dispositivo_urls + entrada_urls + software_urls + bodega_urls + desecho_urls
+
+urlpatterns.append(
+    url(r'^api/', include(('apps.inventario.api_urls', 'inventario'), namespace='inventario_api')),
+)
