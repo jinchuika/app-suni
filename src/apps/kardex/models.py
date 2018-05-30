@@ -164,7 +164,7 @@ class EntradaDetalle(models.Model):
     entrada = models.ForeignKey(Entrada, related_name='detalles', on_delete=models.CASCADE)
     equipo = models.ForeignKey(Equipo, related_name='detalles_entrada', on_delete=models.CASCADE)
     cantidad = models.PositiveIntegerField()
-    precio = models.DecimalField(max_digits=7, decimal_places=2, null=True, blank=True, default=0.0)
+    precio = models.DecimalField(max_digits=9, decimal_places=4, null=True, blank=True, default=0.0)
 
     class Meta:
         verbose_name = 'Detalle de entrada'

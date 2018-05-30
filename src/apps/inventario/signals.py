@@ -1,3 +1,4 @@
+from django.db import IntegrityError
 from django.db.models.signals import pre_save, post_save
 
 from apps.inventario import models as inventario_m
@@ -14,7 +15,10 @@ def calcular_triage(sender, instance, **kwargs):
         else:
             ultimo = sender.objects.only('indice').latest('indice')
             instance.indice = ultimo.indice + 1
-        instance.triage = '{}-{}'.format(instance.tipo.slug, instance.indice)
+        try:
+            instance.triage = '{}-{}'.format(instance.tipo.slug, instance.indice)
+        except IntegrityError as e:
+            instance.triage = '{}-{}'.format(instance.tipo.slug, instance.indice + 1)
     if not instance.codigo_qr:
         instance.crear_qrcode()
 
