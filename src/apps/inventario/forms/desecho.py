@@ -16,8 +16,8 @@ class DesechoSalidaForm(forms.ModelForm):
 
     class Meta:
         model = inv_m.DesechoSalida
-        fields = '__all__'
-        exclude = {'precio_total', 'peso', 'creado_por', 'en_creacion'}
+        fields = ('fecha', 'empresa', 'observaciones')
+        exclude = ('precio_total', 'peso', 'creado_por', 'en_creacion')
 
 
 class DesechoSalidaUpdateForm(forms.ModelForm):
@@ -27,7 +27,7 @@ class DesechoSalidaUpdateForm(forms.ModelForm):
     class Meta:
         model = inv_m.DesechoSalida
         fields = '__all__'
-        exclude = ['creado_por']
+        exclude = ('creado_por',)
         widgets = {
                 'en_creacion': forms.HiddenInput(),
                 'empresa': forms.Select(attrs={'class': 'form-control select2'}),
@@ -49,5 +49,5 @@ class DesechoDetalleForm(forms.ModelForm):
         widgets = {
                 'desecho': forms.HiddenInput(),
                 'fecha': forms.TextInput({'class': 'form-control datepicker'}),
-                'precio_total': forms.TextInput({'class': 'form-control'}),
+                'precio_total': forms.NumberInput({'class': 'form-control'}),
                 }

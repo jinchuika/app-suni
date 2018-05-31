@@ -169,9 +169,28 @@
 
   SalidaDetalleList.init = function() {
     $('#btn-terminar').click(function(){
-      bootbox.alert("Esta Seguro que quiere Terminara la Creacion de la Entrada");
-      document.getElementById("id_en_creacion").checked = false;
-      document.getElementById("desechosalida-form").submit()
+      bootbox.confirm({
+            message: "¿Esta Seguro que quiere Terminara la Creacion de la Entrada?",
+            buttons: {
+              confirm: {
+                label: 'Yes',
+                className: 'btn-success'
+              },
+              cancel: {
+                label: 'No',
+                className: 'btn-danger'
+              }
+            },
+            callback: function (result) {
+                if(result == true){
+                  document.getElementById("id_en_creacion").checked = false;
+                  document.getElementById("desechosalida-form").submit();
+                }
+
+            }
+      });
+
+
       });
 
     /** Uso de DRF**/

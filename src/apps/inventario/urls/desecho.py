@@ -3,31 +3,31 @@ from apps.inventario import views as inventario_v
 
 
 urlpatterns = [
-    # url para la creacion de Desechos
+    #  Creacion de Desechos
     url(
         r'^desechoempresa/add/$',
         inventario_v.DesechoEmpresaCreateView.as_view(),
         name='desechoempresa_add'
     ),
-    # url para detalles de desecho
+    # Ver los detalles de desecho
     url(
         r'^desechoempresa/(?P<pk>\d+)/$',
         inventario_v.DesechoEmpresaDetailView.as_view(),
         name='desechoempresa_detail'
     ),
-    # url para listado de desecho
+    # Mostrar el listado de desecho
     url(
         r'^desechoempresa/$',
         inventario_v.DesechoEmpresaListView.as_view(),
         name='desechoempresa_list'
     ),
-    # url para agregar desechos
+    # Creacion de salidas de desecho
     url(
         r'^desecho/add/$',
         inventario_v.DesechoSalidaCreateView.as_view(),
         name='desechosalida_add'
     ),
-    # url para editr desechos
+    # Edicion de la salida de desecho
     url(
         r'^desecho/(?P<pk>\d+)/edit/$',
         inventario_v.DesechoSalidaUpdateView.as_view(),

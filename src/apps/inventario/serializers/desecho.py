@@ -14,4 +14,4 @@ class DesechoDetalleSerializer(serializers.ModelSerializer):
         fields = ['desecho', 'entrada_detalle', 'cantidad', 'tdispositivo']
 
     def get_tdispositivo(self, object):
-        return object.tipo_dispositivo.__str__()
+        return str(object.tipo_dispositivo)
