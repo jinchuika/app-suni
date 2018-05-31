@@ -427,7 +427,8 @@ class Dispositivo(models.Model):
             border=1,
         )
         qr.add_data(self.id)
-        img = qr.make(fit=True).make_image()
+        img = qr.make(fit=True)
+        img = qr.make_image()
         buffer = BytesIO()
         img.save(buffer)
         filename = 'dispositivo-{}.png'.format(self.id)
@@ -865,6 +866,9 @@ class DesechoEmpresa(models.Model):
     def __str__(self):
         return self.nombre
 
+    def get_absolute_url(self):
+        return reverse_lazy('desechoempresa_detail', kwargs={'pk': self.id})
+
 
 class DesechoSalida(models.Model):
     fecha = models.DateField(default=timezone.now)
@@ -882,6 +886,9 @@ class DesechoSalida(models.Model):
     def __str__(self):
         return str(self.id)
 
+    """def get_absolute_url(self):
+        return reverse_lazy('desechosalida_update', kwargs={'pk': self.id})"""
+
 
 class DesechoDetalle(models.Model):
     desecho = models.ForeignKey(DesechoSalida, on_delete=models.PROTECT, related_name='detalles')
@@ -891,6 +898,7 @@ class DesechoDetalle(models.Model):
         null=True,
         blank=True)
     cantidad = models.DecimalField(max_digits=12, decimal_places=2)
+    tipo_dispositivo = models.ForeignKey(DispositivoTipo, on_delete=models.PROTECT, related_name='salidas_desecho')
 
     class Meta:
         verbose_name = "Detalle de salida de desecho"
@@ -935,5 +943,3 @@ class DesechoDetalle(models.Model):
 
 #     def __str__(self):
 #         return '{} -> {}'.format(self.dispositivo, self.paquete)
-
-

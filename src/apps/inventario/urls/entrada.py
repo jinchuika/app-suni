@@ -33,7 +33,5 @@ urlpatterns = [
         inventario_v.EntradaDetalleUpdateView.as_view(),
         name='entradadetalle_update'
     ),
-    # Api
-    url(r'^api/', include(('apps.inventario.api_urls', 'inventario'), namespace='inventario_api')),
 
 ]
