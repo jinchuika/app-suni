@@ -112,3 +112,12 @@ class VisitaInformeView(LoginRequiredMixin, FormView):
 
 class VisitaDashboardView(LoginRequiredMixin, TemplateView):
     template_name = 'kalite/visita_dashboard.html'
+
+
+class VisitaEscuelaInformeView(LoginRequiredMixin, FormView):
+
+    """Vista para generar un informe de listado de :class:`Visita`
+    """
+
+    form_class = kalite_forms.VisitaEscuelaForm
+    template_name = 'kalite/escuela_informe.html'

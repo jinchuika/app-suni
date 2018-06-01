@@ -1,0 +1,62 @@
+{% extends "base/base.html" %}
+{% load staticfiles %}
+{% block page_title %}
+{% load thumbnail %}
+    <title>Teclado - {{ monitor.triage }}</title>
+{% endblock page_title %}
+{% block content %}
+    <section class="content">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-5">
+                    <div class="box">
+                        <div class="box-header">
+                            <div class="row">
+                                <div class="col-md-9">
+                                    <h3 class="box-title">Monitor. {{ monitor.triage }}</h3></div>
+                                <div class="col-md-3">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="box-body">
+                            <table class="table table-condensed">
+                                <tr>
+                                    <th>Marca </th>
+                                    <td>
+                                        {{ monitor.marca }}
+                                        <br>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Modelo</th>
+                                    <td>
+                                        {{ monitor.modelo }}
+                                        <br>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Serie </th>
+                                    <td>{{ monitor.serie }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Codigo Qr</th>
+                                    <td>
+                                      	<img class="profile-user-img img-responsive img-thumbnail" src="{{ monitor.codigo_qr|thumbnail_url:'avatar-lg' }}" alt="Foto QR">
+                                      
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Puerto</th>
+                                    <td>{{ monitor.puerto }}</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    {% include "inventario/dispositivo/snp_falla_list.html" with dispositivo=monitor %}
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock content %}

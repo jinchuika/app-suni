@@ -12,7 +12,7 @@ class EntradaForm(forms.ModelForm):
     class Meta:
         model = inv_m.Entrada
         fields = '__all__'
-        exclude = {'en_creacion', 'creada_por'}
+        exclude = ['en_creacion', 'creada_por']
         widgets = {
             'tipo': forms.Select(attrs={'class': 'form-control select2'}),
             'fecha': forms.TextInput({'class': 'form-control datepicker'}),
@@ -53,7 +53,7 @@ class EntradaDetalleForm(forms.ModelForm):
     class Meta:
         model = inv_m.EntradaDetalle
         fields = '__all__'
-        exclude = {'precio_unitario', 'precio_total', 'precio_descontado', 'creado_por'}
+        exclude = ['precio_unitario', 'precio_total', 'precio_descontado', 'creado_por']
         widgets = {
             'entrada': forms.HiddenInput(),
             'tipo_dispositivo': forms.Select(attrs={'class': 'form-control select2'}),
@@ -72,14 +72,14 @@ class EntradaDetalleUpdateForm(forms.ModelForm):
     class Meta:
         model = inv_m.EntradaDetalle
         fields = '__all__'
-        exclude = {
+        exclude = [
                     'entrada',
                     'tipo_dispositivo',
                     'precio_unitario',
                     'precio_total',
                     'precio_descontado',
                     'creado_por',
-                    'precio_subtotal'}
+                    'precio_subtotal']
         widgets = {
             'util': forms.TextInput({'class': 'form-control '}),
             'repuesto': forms.TextInput({'class': 'form-control'}),

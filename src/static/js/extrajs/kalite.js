@@ -349,9 +349,62 @@
     } 
 }( window.CalendarioKalite = window.CalendarioKalite || {}, jQuery ));
 
+(function( VisitaEscuelaInforme, $, undefined ) {
+    VisitaEscuelaInforme.tabla = $('#visita-escuela-table').DataTable({
+        dom: 'lfrtipB',
+        buttons: ['excel','pdf'],
+        processing: true,
+        ajax: {
+            url: $('#visita-list-form').prop('action'),
+            deferRender: true,
+            cache: false,
+            dataSrc: '',
+            data: function () {
+                return $('#visita-list-form').serializeObject();
+            }
+        },
+        columns: [
+        {
+            data: "escuela",
+            render: function (data, type, full, meta) {
+                return '<a href="' + data.url + '">' + data.nombre + '</a>';
+            }
+        },
+        {
+            data: 'escuela.codigo',
+            "class": 'nowrap'
+        },
+        {data: "municipio"},
+        {data: "departamento"},
+        {data: "capacitador"},
+        {data: "numero"},
+        {data: "promedio"},
+        {data: "alcance"},
+        {data: "fecha", "class": 'nowrap'},
+        {data: "poblacion"},
+        ]
+    })
+    .on('xhr.dt', function (e, settings, json, xhr) {
+        $('#visita-escuela-table tbody tr').each(function(index, item){
+            $(item).find('td:eq(5)').attr('nowrap', 'nowrap');
+        });
+         $('#spinner').hide();
+    });
+
+    // Public
+    VisitaEscuelaInforme.init = function () {
+        $('#spinner').hide();
+        $('#visita-list-form').submit(function (e) {
+            e.preventDefault();
+            $('#spinner').show();
+            VisitaEscuelaInforme.tabla.clear().draw();
+            VisitaEscuelaInforme.tabla.ajax.reload();
+        });
+    }
+}( window.VisitaEscuelaInforme = window.VisitaEscuelaInforme || {}, jQuery ));
 
 (function( VisitaInforme, $, undefined ) {
-    var tabla = $('#visita-table').DataTable({
+    VisitaInforme.tabla = $('#visita-table').DataTable({
         dom: 'lfrtipB',
         buttons: ['excel','pdf'],
         processing: true,
@@ -398,8 +451,8 @@
         $('#visita-list-form').submit(function (e) {
             e.preventDefault();
             $('#spinner').show();
-            tabla.clear().draw();
-            tabla.ajax.reload();
+            VisitaInforme.tabla.clear().draw();
+            VisitaInforme.tabla.ajax.reload();
         });
     }   
 }( window.VisitaInforme = window.VisitaInforme || {}, jQuery ));

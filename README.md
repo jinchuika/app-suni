@@ -80,3 +80,10 @@ De forma ideal, las carpetas del sistema se verán así
 ├── README.md
 └── requirements.txt
 ```
+## En producción
+
+### Preparar `settings`
+En la carpeta `src/src/` se debe crear un archivo con los settings para utilizar en producción (por conveniencia `setttings_prod.py`). Al inicio de ese archivo se deben incluir todos los valores del `settings.py` por default y sobreescribir los valores específicos.
+
+### Agregar el cron de backups
+Se debe ejecutar `python src/manage.py crontab add` con los settings adecuado.

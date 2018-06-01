@@ -42,6 +42,9 @@ ejerciciosgrado_api_detail = api_views.EjerciciosGradoViewSet.as_view({
     'post': 'update',
     'patch': 'partial_update'})
 
+escuelavisita_api = api_views.EscuelaVisitaViewSet.as_view({
+    'get': 'list'})
+
 
 urlpatterns = [
     url(r'^api/punteo/$', punteo_api_list, name='punteo_api_list'),
@@ -53,6 +56,8 @@ urlpatterns = [
     url(r'^api/visita/$', visita_api_list, name='visita_api_list'),
     url(r'^api/calendario/$', calendario_api_list, name='kalite_api_calendario'),
     url(r'^api/visita/(?P<pk>\d+)/$', visita_api_detail, name='visita_api_detail'),
+
+    url(r'^api/escuela/$', escuelavisita_api, name='kalite_escuela_api_list'),
 
     url(r'^api/grado/$', grado_api, name='grado_api'),
     url(r'^api/grado/(?P<pk>\d+)/$', grado_api_detail, name='grado_api_detail'),
