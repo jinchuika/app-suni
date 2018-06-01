@@ -1,14 +1,17 @@
 import django_filters
+from django.db.models import Count, Avg
 from django_filters import rest_framework as filters
 from rest_framework import viewsets
 
 from apps.kalite.serializers import (
     PunteoSerializer, EvaluacionSerializer, VisitaSerializer,
     GradoSerializer, EjerciciosGradoSerializer,
-    VisitaCalendarSerializer)
+    VisitaCalendarSerializer, EscuelaVisitadaSerializer)
 
 from apps.kalite.models import (
     Punteo, Evaluacion, Visita, Grado, EjerciciosGrado)
+
+from apps.escuela.models import Escuela
 
 
 class PunteoViewSet(viewsets.ModelViewSet):
@@ -72,3 +75,22 @@ class VisitaCalendarViewSet(viewsets.ModelViewSet):
     queryset = Visita.objects.all()
     serializer_class = VisitaCalendarSerializer
     filter_class = CalendarioFilter
+
+
+class EscuelaVisitaFilter(filters.FilterSet):
+    """Filtros para :class:`EscuelaVisitaViewSet`."""
+    class Meta:
+        model = Escuela
+        fields = ['municipio', 'municipio__departamento']
+
+
+class EscuelaVisitaViewSet(viewsets.ModelViewSet):
+    """ViewSet para mostrar las escuelas que han recibido :class:`KaliteVisita`
+    """
+    serializer_class = EscuelaVisitadaSerializer
+    queryset = Escuela.objects\
+        .annotate(
+            cantidad=Count('visitas_kalite'),
+            promedio=Avg('visitas_kalite__evaluaciones__notas__nota')
+        ).filter(cantidad__gt=0)
+    filter_class = EscuelaVisitaFilter

@@ -1,6 +1,7 @@
 from django import forms
 from django.contrib.auth.models import User
 
+from apps.main import models as main_m
 from apps.main.forms import GeoDateForm
 
 from apps.kalite import models as kalite_models
@@ -71,3 +72,14 @@ class CalendarFilterForm(forms.Form):
     def __init__(self, *args, **kwargs):
         super(CalendarFilterForm, self).__init__(*args, **kwargs)
         self.fields['capacitador'].label_from_instance = lambda obj: "%s" % obj.get_full_name()
+
+
+class VisitaEscuelaForm(forms.Form):
+    departamento = forms.ModelChoiceField(
+        queryset=main_m.Departamento.objects.all(),
+        required=False
+    )
+    municipio = forms.ModelChoiceField(
+        queryset=main_m.Municipio.objects.all(),
+        required=False
+    )

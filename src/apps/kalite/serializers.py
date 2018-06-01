@@ -1,9 +1,11 @@
 from datetime import datetime
 from rest_framework import serializers
+from django.db.models import Avg
 from apps.main.serializers import DynamicFieldsModelSerializer
 from apps.escuela.serializers import EscuelaSerializer
 
 from apps.kalite import models as kalite_m
+from apps.escuela.models import Escuela
 
 
 class PunteoSerializer(DynamicFieldsModelSerializer):
@@ -97,3 +99,47 @@ class GradoSerializer(DynamicFieldsModelSerializer):
     class Meta:
         model = kalite_m.Grado
         fields = '__all__'
+
+
+class EscuelaVisitadaSerializer(DynamicFieldsModelSerializer):
+    """Serializer para mostrar las escuelas que  han recibido :class:`KaliteVisita`"""
+    nombre = serializers.CharField()
+    codigo = serializers.CharField()
+    municipio = serializers.StringRelatedField(source='municipio.nombre')
+    departamento = serializers.StringRelatedField(source='municipio.departamento')
+    url = serializers.URLField(source='get_absolute_url')
+    fecha_primera_visita = serializers.SerializerMethodField()
+    fecha_ultima_visita = serializers.SerializerMethodField()
+    cantidad = serializers.IntegerField(source='visitas_kalite.count')
+    lapso = serializers.SerializerMethodField()
+    promedio = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Escuela
+        fields = (
+            'nombre',
+            'codigo',
+            'municipio',
+            'departamento',
+            'lapso',
+            'cantidad',
+            'fecha_primera_visita',
+            'fecha_ultima_visita',
+            'url',
+            'promedio'
+        )
+
+    def get_fecha_primera_visita(self, obj):
+        return obj.visitas_kalite.order_by('fecha').first().fecha
+
+    def get_fecha_ultima_visita(self, obj):
+        return obj.visitas_kalite.order_by('fecha').last().fecha
+
+    def get_lapso(self, obj):
+        ultima = obj.visitas_kalite.order_by('fecha').last().fecha
+        primera =obj.visitas_kalite.order_by('fecha').first().fecha
+        return (ultima.year - primera.year) * 12 + (ultima.month - primera.month)
+
+    def get_promedio(self, obj):
+        resultado = obj.visitas_kalite.order_by('fecha').last()
+        return round(resultado.promedio, 2)
