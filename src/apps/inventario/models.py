@@ -873,8 +873,8 @@ class DesechoEmpresa(models.Model):
 class DesechoSalida(models.Model):
     fecha = models.DateField(default=timezone.now)
     empresa = models.ForeignKey(DesechoEmpresa, on_delete=models.PROTECT, related_name='salidas')
-    precio_total = models.DecimalField(max_digits=12, decimal_places=2)
-    peso = models.DecimalField(max_digits=12, decimal_places=2, verbose_name='Peso (libras)')
+    precio_total = models.DecimalField(max_digits=12, decimal_places=2, default=0.0)
+    peso = models.DecimalField(max_digits=12, decimal_places=2, verbose_name='Peso (libras)', default=0.0)
     creado_por = models.ForeignKey(User, on_delete=models.PROTECT)
     observaciones = models.TextField(null=True, blank=True)
     en_creacion = models.BooleanField(default=True, blank=True, verbose_name='En creación')

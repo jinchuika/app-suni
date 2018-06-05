@@ -48,7 +48,7 @@ class EntradaUpdateView(LoginRequiredMixin, UpdateView):
     """
     model = inv_m.Entrada
     form_class = inv_f.EntradaUpdateForm
-    template_name = 'inventario/entrada/entrada_add.html'
+    template_name = 'inventario/entrada/entrada_edit.html'
 
     def get_context_data(self, **kwargs):
         context = super(EntradaUpdateView, self).get_context_data(**kwargs)
