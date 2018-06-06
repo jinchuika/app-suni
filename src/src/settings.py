@@ -68,7 +68,9 @@ LOCAL_APPS = (
     'apps.kalite',
     'apps.ie',
     'apps.crm',
-    'apps.inventario')
+    'apps.inventario',
+    'apps.legacy'
+)
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 
@@ -117,13 +119,18 @@ WSGI_APPLICATION = 'src.wsgi.application'
 
 
 # Database
-# https://docs.djangoproject.com/en/1.10/ref/settings/#databases
+
+DATABASE_ROUTERS = ['apps.legacy.dbrouters.LegacyRouter', ]
 
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    }
+    },
+    'legacy': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'legacy.sqlite3'),
+    },
 }
 
 
@@ -236,6 +243,8 @@ CRONJOBS = [
 LEGACY_URL = {
     'cyd_informe': ''
 }
+LEGACY_CONNECTION = False
+LEGACY_TESTING = True
 
 GOOGLE_ANALYTICS_PROPERTY_ID = ''
 GOOGLE_ANALYTICS_DOMAIN = ''

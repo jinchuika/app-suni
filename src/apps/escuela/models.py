@@ -6,6 +6,7 @@ from django.conf import settings
 
 from apps.main.models import Municipio, Coordenada
 from apps.main.utils import get_telefonica
+from apps.legacy import  models as legacy_m
 
 
 class EscArea(models.Model):
@@ -169,6 +170,14 @@ class Escuela(models.Model):
             return resp.json()
         else:
             return [[], []]
+
+    @property
+    def info_capacitacion(self):
+        try:
+            qs = legacy_m.EscuelaSede.objects.filter(udi=self.codigo)
+        except:
+            qs = []
+        return qs
 
     @property
     def capacitacion(self):

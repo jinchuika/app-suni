@@ -26,14 +26,6 @@
 					<div class="col-md-12">
 						<div class="nav-tabs-custom">
 							<ul class="nav nav-tabs nav-justified">
-								{% if request.user|has_group:"nacion_digital" %}
-								<li class="active">
-									<a href="#info-nacion" data-toggle="tab"><i class="fa fa-info" aria-hidden="true"></i> Información</a>
-								</li>
-								<li>
-									<a href="#nacion-digital" data-toggle="tab"><i class="fa fa-info" aria-hidden="true"></i> Nación digital</a>
-								</li>
-								{% else %}
 								<li class="active">
 									<a href="#info" data-toggle="tab"><i class="fa fa-info" aria-hidden="true"></i> Información</a>
 								</li>
@@ -52,14 +44,9 @@
 								<li>
 									<a href="#estadistica" data-toggle="tab"><i class="fa fa-bar-chart" aria-hidden="true"></i> Estadística</a>
 								</li>
-								{% endif %}
 							</ul>
 							<div class="tab-content">
-								{% if request.user|has_group:"nacion_digital" %}
-								{{ laboratorio_form.as_p }}
-								{% include "ie/escuela_detail.html" with escuela=escuela laboratorio_form=laboratorio_form %}
-								{% endif %}
-								<div class="tab-pane {% if not request.user|has_group:"nacion_digital" %} active{% endif %}" id="info">
+								<div class="tab-pane active" id="info">
 									<div class="row">
 										<div class="col-md-3 col-sm-6 col-xs-12">
 											<div class="info-box bg-aqua">
@@ -149,36 +136,7 @@
 									</div>
 								</div>
 								<div class="tab-pane" id="capacitacion">
-									<div class="box-group" id="accordion">
-										<div class="panel box box-danger">
-											<div class="box-header with-border">
-												<h4 class="box-title">
-													<a data-toggle="collapse" data-parent="#accordion" href="#participantes_list" aria-expanded="false" class="collapsed">
-														Participantes
-													</a>
-												</h4>
-											</div>
-											<div id="participantes_list" class="panel-collapse collapse" aria-expanded="false" style="height: 0px;">
-												<div class="box-body">
-													{% include "cyd/participante_escuela_list.html" with participante_list=escuela.capacitacion.participantes %}
-												</div>
-											</div>
-										</div>
-										<div class="panel box box-success">
-											<div class="box-header with-border">
-												<h4 class="box-title">
-													<a data-toggle="collapse" data-parent="#accordion" href="#kalite_visitas" class="collapsed" aria-expanded="false">
-														Seguimiento KA Lite
-													</a>
-												</h4>
-											</div>
-											<div id="kalite_visitas" class="panel-collapse collapse" aria-expanded="false" style="height: 0px;">
-												<div class="box-body">
-													{% include "kalite/visita_list.html" with visita_list=escuela.visitas_kalite.all visita_kalite_nueva_form=visita_kalite_nueva_form %}
-												</div>
-											</div>
-										</div>
-									</div>
+                                    {% include "escuela/detail_capacitacion.html" with escuela=escuela %}
 								</div>
 
 								<div class="tab-pane" id="evaluacion">
@@ -261,27 +219,27 @@
 
 									<div class="tab-pane" id="equipamiento">
 										{% if not equipamiento_form %}
-											{% for equipamiento in escuela.equipamiento.all %}
-											{% include "tpe/equipamiento_detail.html" with equipamiento=equipamiento equipamiento_detail=equipamiento_detail form_visita_monitoreo=form_visita_monitoreo %}
-											{% endfor %}
-											{% if perms.tpe.add_equipamiento %}
-												<button class="btn btn-primary" id="btn-equipamiento">Nuevo equipamiento</button>
-												<form method="post" role="form" action="{% url "equipamiento_add" %}" id="form-nuevo-equipamiento">
-													{% csrf_token %}
-													{{ equipamiento_nuevo_form.as_p }}
-													<input type="submit" class="btn btn-success" value="Crear">
-												</form>
-												<button class="btn btn-primary" id="btn-equipamiento2">Nueva visita monitoreo</button>
-												<form class="forms" action="{% url "visita_monitoreo_add" %}" method="post" id="form-nueva-visita">
-													{% csrf_token %}
-													{{ visita_monitoreo_nueva_form.as_p }}
-													<input type="submit" name="" class="btn btn-success" value="Nueva visita de monitoreo">
-												</form>
-											{% endif %}
+										{% for equipamiento in escuela.equipamiento.all %}
+										{% include "tpe/equipamiento_detail.html" with equipamiento=equipamiento equipamiento_detail=equipamiento_detail form_visita_monitoreo=form_visita_monitoreo %}
+										{% endfor %}
+										{% if perms.tpe.add_equipamiento %}
+										<button class="btn btn-primary" id="btn-equipamiento">Nuevo equipamiento</button>
+										<form method="post" role="form" action="{% url "equipamiento_add" %}" id="form-nuevo-equipamiento">
+											{% csrf_token %}
+											{{ equipamiento_nuevo_form.as_p }}
+											<input type="submit" class="btn btn-success" value="Crear">
+										</form>
+										<button class="btn btn-primary" id="btn-equipamiento2">Nueva visita monitoreo</button>
+										<form class="forms" action="{% url "visita_monitoreo_add" %}" method="post" id="form-nueva-visita">
+											{% csrf_token %}
+											{{ visita_monitoreo_nueva_form.as_p }}
+											<input type="submit" name="" class="btn btn-success" value="Nueva visita de monitoreo">
+										</form>
+										{% endif %}
 										{% endif %}
 
 										{% if equipamiento_form %}
-											{% include "tpe/equipamiento_form.html" with equipamiento_form=equipamiento_form %}
+										{% include "tpe/equipamiento_form.html" with equipamiento_form=equipamiento_form %}
 										{% endif %}
 									</div>
 
