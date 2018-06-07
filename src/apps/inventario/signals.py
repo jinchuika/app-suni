@@ -4,6 +4,8 @@ from django.db.models.signals import pre_save, post_save
 from apps.inventario import models as inventario_m
 
 
+# Para dispositivos
+
 def calcular_triage(sender, instance, **kwargs):
     """Se encarga de calcular el triage para los :class:`Dispositivo`.
     El triage sigue el formato SLUG-indice de cada modelo. Por ejemplo,
@@ -17,15 +19,15 @@ def calcular_triage(sender, instance, **kwargs):
             instance.indice = ultimo.indice + 1
         try:
             instance.triage = '{}-{}'.format(instance.tipo.slug, instance.indice)
-        except IntegrityError as e:
+        except IntegrityError:
             instance.triage = '{}-{}'.format(instance.tipo.slug, instance.indice + 1)
-    if not instance.codigo_qr:
-        instance.crear_qrcode()
 
 
 for dispositivo in inventario_m.Dispositivo.__subclasses__():
     pre_save.connect(calcular_triage, sender=dispositivo)
 
+
+# Para entradas
 
 def calcular_precio_unitario(sender, instance, **kwargs):
     """Calcula el `precio_unitario` para los :class:`EntradaDetalle` que tienen `precio_subtotal`.

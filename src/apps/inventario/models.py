@@ -11,6 +11,7 @@ from django.core.files.uploadedfile import InMemoryUploadedFile
 from easy_thumbnails import fields as et_fields
 
 from apps.crm import models as crm_m
+from apps.escuela import models as escuela_m
 
 
 class EntradaTipo(models.Model):
@@ -168,11 +169,10 @@ class EntradaDetalle(models.Model):
         if util is None:
             util = self.util
         try:
-            modelo = [
+            modelo = next(
                 f.related_model for f in Dispositivo._meta.get_fields()
                 if f.one_to_one and f.related_model.SLUG_TIPO == self.tipo_dispositivo.slug
-            ]
-            modelo = modelo[0]
+            )
             total = 0
             for _ in range(0, util):
                 nuevo = modelo(entrada=self.entrada, tipo=self.tipo_dispositivo)
@@ -391,6 +391,7 @@ class Dispositivo(models.Model):
     serie = models.CharField(max_length=80, null=True, blank=True)
     codigo_qr = et_fields.ThumbnailerImageField(upload_to='qr_dispositivo', blank=True, null=True)
     tarima = models.ForeignKey(Tarima, on_delete=models.PROTECT, blank=True, null=True, related_name='dispositivos')
+    valido = models.BooleanField(default=True, blank=True, verbose_name='Válido')
 
     class Meta:
         verbose_name = "Dispositivo"
@@ -401,6 +402,12 @@ class Dispositivo(models.Model):
 
     def __str__(self):
         return str(self.triage)
+
+    def save(self, *args, **kwargs):
+        super(Dispositivo, self).save(*args, **kwargs)
+        if not self.codigo_qr:
+            self.crear_qrcode()
+            super(Dispositivo, self).save(*args, **kwargs)
 
     def get_absolute_url(self):
         return self.cast().get_absolute_url()
@@ -833,6 +840,9 @@ class Repuesto(models.Model):
     estado = models.ForeignKey(RepuestoEstado, on_delete=models.PROTECT)
     descripcion = models.TextField(null=True, blank=True)
     disponible = models.BooleanField(default=False)
+    codigo_qr = et_fields.ThumbnailerImageField(upload_to='qr_repuestos', blank=True, null=True)
+    tarima = models.ForeignKey(Tarima, on_delete=models.PROTECT, blank=True, null=True, related_name='repuestos')
+    valido = models.BooleanField(default=True, blank=True, verbose_name='Válido')
 
     class Meta:
         verbose_name = "Repuesto"
@@ -840,6 +850,30 @@ class Repuesto(models.Model):
 
     def __str__(self):
         return 'R-{}'.format(self.id)
+
+    def save(self, *args, **kwargs):
+        super(Repuesto, self).save(*args, **kwargs)
+        if not self.codigo_qr:
+            self.crear_qrcode()
+            super(Repuesto, self).save(*args, **kwargs)
+
+    def crear_qrcode(self):
+        """Genera le código QR para apuntar a la id del repuesto
+        """
+        qr = qrcode.QRCode(
+            version=1,
+            error_correction=qrcode.constants.ERROR_CORRECT_L,
+            box_size=6,
+            border=1,
+        )
+        qr.add_data(self.id)
+        qr.make(fit=True)
+        img = qr.make_image()
+        buffer = BytesIO()
+        img.save(buffer)
+        filename = 'repuesto-{}.png'.format(self.id)
+        filebuffer = InMemoryUploadedFile(buffer, None, filename, 'image/png', buffer.getbuffer().nbytes, None)
+        self.codigo_qr.save(filename, filebuffer)
 
 
 class DispositivoRepuesto(models.Model):
@@ -873,8 +907,8 @@ class DesechoEmpresa(models.Model):
 class DesechoSalida(models.Model):
     fecha = models.DateField(default=timezone.now)
     empresa = models.ForeignKey(DesechoEmpresa, on_delete=models.PROTECT, related_name='salidas')
-    precio_total = models.DecimalField(max_digits=12, decimal_places=2)
-    peso = models.DecimalField(max_digits=12, decimal_places=2, verbose_name='Peso (libras)')
+    precio_total = models.DecimalField(max_digits=12, decimal_places=2, default=0.0)
+    peso = models.DecimalField(max_digits=12, decimal_places=2, verbose_name='Peso (libras)', default=0.0)
     creado_por = models.ForeignKey(User, on_delete=models.PROTECT)
     observaciones = models.TextField(null=True, blank=True)
     en_creacion = models.BooleanField(default=True, blank=True, verbose_name='En creación')
@@ -909,37 +943,87 @@ class DesechoDetalle(models.Model):
             desecho=self.desecho,
             entrada=self.entrada_detalle)
 
-# class Paquete(models.Model):
-#     salida = models.PositiveIntegerField()
-#     indice = models.PositiveIntegerField()
-#     creado_por = models.ForeignKey(User, on_delete=models.PROTECT)
-#     equipo = models.BooleanField(default=True)
 
-#     class Meta:
-#         verbose_name = "Paquete"
-#         verbose_name_plural = "Paquetes"
+class SalidaTipo(models.Model):
+    nombre = models.CharField(max_length=30)
 
-#     def __str__(self):
-#         return str(self.salida)
+    class Meta:
+        verbose_name = "Tipo de salida"
+        verbose_name_plural = "Tipos de salida"
+
+    def __str__(self):
+        return self.nombre
 
 
-# class DispositivoPaquete(models.Model):
-#     dispositivo = models.ForeignKey(Dispositivo, on_delete=models.PROTECT)
-#     paquete = models.ForeignKey(Paquete, on_delete=models.PROTECT)
-#     fecha_creacion = models.DateTimeField(default=timezone.now)
-#     asignado_por = models.ForeignKey(User, on_delete=models.PROTECT, related_name='paquetes_asignados')
-#     fecha_aprobacion = models.DateTimeField(null=True, blank=True)
-#     aprobado = models.BooleanField(default=False)
-#     aprobado_por = models.ForeignKey(
-#         User,
-#         on_delete=models.PROTECT,
-#         null=True,
-#         blank=True,
-#         related_name='paquetes_aprobados')
+class Salida(models.Model):
+    tipo_salida = models.ForeignKey(SalidaTipo, on_delete=models.PROTECT)
+    fecha = models.DateField(default=timezone.now)
+    creada_por = models.ForeignKey(User, on_delete=models.PROTECT, related_name='salidas')
+    en_creacion = models.BooleanField(default=True, verbose_name='En creación')
+    entrega = models.BooleanField(default=True, verbose_name="Es entrega", blank=True)
+    escuela = models.ForeignKey(
+        escuela_m.Escuela,
+        on_delete=models.PROTECT,
+        related_name='entregas',
+        null=True,
+        blank=True)
+    observaciones = models.TextField(null=True, blank=True)
 
-#     class Meta:
-#         verbose_name = "DispositivoPaquete"
-#         verbose_name_plural = "DispositivoPaquetes"
+    class Meta:
+        verbose_name = "Salida"
+        verbose_name_plural = "Salidas"
 
-#     def __str__(self):
-#         return '{} -> {}'.format(self.dispositivo, self.paquete)
+    def __str__(self):
+        return str(self.id)
+
+    def crear_paquetes(self, cantidad, usuario):
+        creados = 0
+        for i in range(cantidad):
+            paquete = Paquete(salida=self, indice=i+1, creado_por=usuario)
+            paquete.save()
+            creados += 1
+        return creados
+
+
+class Paquete(models.Model):
+    """Un conjunto de :class:`Dispositivo` que se descargan del inventario.
+    Por default, debería ser una computadora que contenga Mouse, Monitor, CPU, etc.
+    Puede ser cualquier otro tipo de paquetes de dispositivos. Por ejemplo, un servidor
+    puede tener además de los dipositivos básicos, un dispositivo de red."""
+    salida = models.ForeignKey(Salida, on_delete=models.PROTECT, related_name="paquetes")
+    fecha_creacion = models.DateTimeField(default=timezone.now)
+    creado_por = models.ForeignKey(User, on_delete=models.PROTECT)
+    indice = models.PositiveIntegerField()
+    dispositivos = models.ManyToManyField(Dispositivo, through='DispositivoPaquete', related_name='paquetes')
+
+    class Meta:
+        verbose_name = "Paquete de salida"
+        verbose_name_plural = "Paquetes de salida"
+        unique_together = ('salida', 'indice')
+
+    def __str__(self):
+        return '{salida}-{indice}'.format(salida=self.salida, indice=self.indice)
+
+
+class DispositivoPaquete(models.Model):
+    """La asignación de un :class:`Dispositivo` a un :class:`Paquete`. Sirve para ser utilizado en control de calidad.
+    Cada dispositivo de un paquete debe ser aprobado por control de calidad."""
+    dispositivo = models.ForeignKey(Dispositivo, on_delete=models.PROTECT, related_name='asignacion')
+    paquete = models.ForeignKey(Paquete, on_delete=models.PROTECT, related_name='asignacion')
+    fecha_creacion = models.DateTimeField(default=timezone.now)
+    asignado_por = models.ForeignKey(User, on_delete=models.PROTECT, related_name='paquetes_asignados')
+    fecha_aprobacion = models.DateTimeField(null=True, blank=True)
+    aprobado = models.BooleanField(default=False)
+    aprobado_por = models.ForeignKey(
+        User,
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name='paquetes_aprobados')
+
+    class Meta:
+        verbose_name = "DispositivoPaquete"
+        verbose_name_plural = "DispositivoPaquetes"
+
+    def __str__(self):
+        return '{} -> {}'.format(self.dispositivo, self.paquete)

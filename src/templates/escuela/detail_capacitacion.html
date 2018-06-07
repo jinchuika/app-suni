@@ -1,0 +1,69 @@
+<div class="row">
+    <div class="col-md-4">
+        {% for capacitacion in escuela.info_capacitacion.all %}
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="box box-info box-solid">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">{{ capacitacion.sede|upper }}</h3>
+                        </div>
+                        <div class="box-body no-padding">
+                            <table class="table table-condensed table-hover">
+                                <tr>
+                                    <th>Capacitador</th>
+                                    <td>{{ capacitacion.capacitador }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Fecha de inicio</th>
+                                    <td>{{ capacitacion.inicio }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Fecha de fin</th>
+                                    <td>{{ capacitacion.fin }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Docentes capacitados</th>
+                                    <td>{{ capacitacion.participantes }}</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+    <div class="col-md-8">
+        <div class="box-group" id="accordion">
+            <div class="panel box box-danger">
+                <div class="box-header with-border">
+                    <h4 class="box-title">
+                        <a data-toggle="collapse" data-parent="#accordion" href="#participantes_list"
+                           aria-expanded="false" class="collapsed">
+                            Participantes
+                        </a>
+                    </h4>
+                </div>
+                <div id="participantes_list" class="panel-collapse collapse" aria-expanded="false" style="height: 0px;">
+                    <div class="box-body">
+                        {% include "cyd/participante_escuela_list.html" with participante_list=escuela.capacitacion.participantes %}
+                    </div>
+                </div>
+            </div>
+            <div class="panel box box-success">
+                <div class="box-header with-border">
+                    <h4 class="box-title">
+                        <a data-toggle="collapse" data-parent="#accordion" href="#kalite_visitas" class="collapsed"
+                           aria-expanded="false">
+                            Seguimiento KA Lite
+                        </a>
+                    </h4>
+                </div>
+                <div id="kalite_visitas" class="panel-collapse collapse" aria-expanded="false" style="height: 0px;">
+                    <div class="box-body">
+                        {% include "kalite/visita_list.html" with visita_list=escuela.visitas_kalite.all visita_kalite_nueva_form=visita_kalite_nueva_form %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -206,6 +206,10 @@ class SolicitudListForm(forms.Form):
         label='Dirección',
         widget=forms.TextInput(),
         required=False)
+    nivel = forms.ModelChoiceField(
+        label='Nivel',
+        queryset=EscNivel.objects.all(),
+        required=False)
     fecha_min = forms.CharField(
         label='Fecha mínima',
         widget=forms.TextInput(attrs={'class': 'datepicker'}),

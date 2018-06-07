@@ -51,12 +51,6 @@ class EscuelaDetail(LoginRequiredMixin, DetailView):
     template_name = 'escuela/detail.html'
     model = Escuela
 
-    def get_template_names(self):
-        if (self.request.user.groups.filter(name='nacion_digital').exists() and not self.request.user.is_superuser):
-            return ['ie/escuela_detail.html']
-        else:
-            return ['escuela/detail.html']
-
     def get_context_data(self, **kwargs):
         """Obtiene las variables de contexto para enviar al template
 
@@ -67,8 +61,11 @@ class EscuelaDetail(LoginRequiredMixin, DetailView):
             list: Variables de contexto para el template
         """
         context = super(EscuelaDetail, self).get_context_data(**kwargs)
+
+        # Para no adjuntar nada al contexto si el usuario es un cooperante
         if self.request.user.cooperantes.count() > 0:
             return context
+
         context['poblacion_form'] = EscPoblacionForm(initial={'escuela': self.object.pk})
         context['matricula_form'] = EscMatriculaForm(initial={'escuela': self.object.pk})
         context['rendimiento_form'] = EscRendimientoAcademicoForm(initial={'escuela': self.object.pk})
