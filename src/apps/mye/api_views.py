@@ -64,9 +64,11 @@ class SolicitudFilter(EvaluacionFilter):
     """Filtros para :class:`SolicitudViewSet`
     """
 
+    nivel = django_filters.ModelChoiceFilter(queryset=escuela_m.EscNivel.objects.all(), name='escuela__nivel')
+
     class Meta:
         model = mye_m.Solicitud
-        fields = ('escuela', 'codigo', 'departamento',)
+        fields = ('escuela', 'codigo', 'departamento', 'nivel')
 
 
 class SolicitudViewSet(LoginRequiredMixin, viewsets.ReadOnlyModelViewSet):

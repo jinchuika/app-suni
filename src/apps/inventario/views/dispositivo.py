@@ -15,7 +15,7 @@ class DispositivoDetailView(DetailView):
 
     def get_context_data(self, *args, **kwargs):
         context = super(DispositivoDetailView, self).get_context_data(*args, **kwargs)
-        context['form_falla'] = inv_f.DispositivoFallaForm(initial={'dispositivo': self.object})
+        context['form_falla'] = inv_f.DispositivoFallaForm(initial={'repuesto': self.object})
         return context
 
 

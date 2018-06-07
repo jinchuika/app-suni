@@ -10,7 +10,7 @@ Sistema encargado de gestionar toda la información relacionada con las operacio
 
 - Python 3
 - pip
-- Django 1.10
+- Django 1.11
 - MySQL
 - virtualenv
 
