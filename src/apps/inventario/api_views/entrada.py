@@ -1,3 +1,5 @@
+from django.db.utils import OperationalError
+
 import django_filters
 from django_filters import rest_framework as filters
 from rest_framework import status, viewsets
@@ -33,9 +35,30 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
     @action(methods=['post'], detail=True)
     def crear_dispositivos(self, request, pk=None):
         entrada_detalle = self.get_object()
-        entrada_detalle.crear_dispositivos()
-        print(entrada_detalle)
-        return Response({'status': 'ok'})
+        try:
+            creacion = entrada_detalle.crear_dispositivos()
+            return Response(
+                creacion,
+                status=status.HTTP_200_OK)
+        except OperationalError as e:
+            return Response(
+                {'mensaje': str(e)},
+                status=status.HTTP_400_BAD_REQUEST)
+
+    @action(methods=['post'], detail=True)
+    def crear_repuestos(self, request, pk=None):
+        entrada_detalle = self.get_object()
+        try:
+            creacion = entrada_detalle.crear_repuestos()
+            return Response(
+                creacion,
+                status=status.HTTP_200_OK
+            )
+        except OperationalError as e:
+            return Response(
+                {'mensaje': str(e)},
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
 
 class EntradaFilter(filters.FilterSet):
