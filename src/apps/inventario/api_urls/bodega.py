@@ -8,10 +8,9 @@ bodega_routers.register(
     r'tarima',
     api_views.TarimaViewSet,
     base_name='api_bodega'
-),
+)
 bodega_routers.register(
-    r'sector',
-    api_views.SectorViewSet,
+    r'sector', api_views.SectorViewSet,
     base_name='api_sector'
 
 )

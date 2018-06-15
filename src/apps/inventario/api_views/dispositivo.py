@@ -15,4 +15,4 @@ class DispositivoViewSet(viewsets.ModelViewSet):
     """
     serializer_class = inv_s.DispositivoSerializer
     queryset = inv_m.Dispositivo.objects.all()
-    filter_fields = ('tarima',)
+    filter_fields = ('tarima', 'id')

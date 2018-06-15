@@ -1,6 +1,5 @@
 from rest_framework import serializers
 from django.urls import reverse_lazy
-
 from apps.inventario import models as inv_m
 
 
@@ -44,6 +43,14 @@ class TarimaSerializer(serializers.ModelSerializer):
 class SectorSerializer(serializers.ModelSerializer):
     """ Serializer para  generar los datos para app de la :class:`Sector`
     """
+    id = serializers.StringRelatedField(source='__str__')
+    dispositivos = serializers.SerializerMethodField()
+
     class Meta:
         model = inv_m.Sector
-        fields = '__all__'
+        fields = ['id', 'sector', 'nivel', 'dispositivos']
+
+    def get_dispositivos(self, obj, pk=None):
+        lista_dispositivos = inv_m.Dispositivo.objects.filter(tarima__sector=obj)
+        dispositivos_s = DispositivoSerializer(lista_dispositivos, many=True)
+        return dispositivos_s.data
