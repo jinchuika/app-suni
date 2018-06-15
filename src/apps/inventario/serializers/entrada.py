@@ -62,7 +62,6 @@ class EntradaSerializer(serializers.ModelSerializer):
             'recibida_por',
             'proveedor',
             'boton'
-
         )
 
     def get_en_creacion(sel, object):

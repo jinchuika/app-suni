@@ -14,83 +14,121 @@
 
 }(window.AlertaEnCreacion = window.AlertaEnCreacion || {}, jQuery ));
 
-(function(EntradaDetalleList, $, undefined){
-  var valor = $('#entrada-table').data("api");
-  var pk = $('#entrada-table').data("pk");
-  var urlapi = valor + "?entrada="+ pk;
-  var tabla = $('#entrada-table').DataTable( {
-    searching: false,
-    paging: true,
-    ordering:  false,
-    processing: true,
-    ajax:{
-      url:urlapi,
-      dataSrc: '',
-      cache:true,
-      data: function () {
-        var cont = $('#entrada-table').data("api");
-          return cont;
-      }
-    },
-    columns:[
-      {data:"tdispositivo"},
-      {data:"util"},
-      {data:"repuesto"},
-      {data:"desecho"},
-      {data:"total"},
-      {data:"precio_unitario"},
-      {data:"precio_subtotal"},
-      {data:"precio_descontado"},
-      {data:"precio_total"},
-      {data:"creado_por"},
-      {data:"",defaultContent:"<button class='btn btn-info'>Editar</button>",targets: -1},
-      {data:"",defaultContent:"<button class='btn btn-primary'>Crear Disp</button>",targets: -1},
+class EntradaUpdate {
+    constructor (){
+        let entrada_table = $('#entrada-table');
 
+        this.api_url = entrada_table.data("api");
+        this.pk = entrada_table.data("pk");
+        this.url_filtrada = this.api_url + "?entrada=" + this.pk;
+        this.tabla = entrada_table.DataTable({
+            searching: false,
+            paging: true,
+            ordering: false,
+            processing: true,
+            ajax: {
+                url: this.url_filtrada,
+                dataSrc: '',
+                cache: true,
+                data: this.api_url
+            },
+            columns: [
+                {data: "tdispositivo"},
+                {data: "util"},
+                {data: "repuesto"},
+                {data: "desecho"},
+                {data: "total"},
+                {data: "precio_unitario"},
+                {data: "precio_subtotal"},
+                {data: "precio_descontado"},
+                {data: "precio_total"},
+                {data: "creado_por"},
+                {
+                    data: "",
+                    defaultContent: "<button class='btn btn-info btn-editar'>Editar</button>", targets: -1
+                },
+                {
+                    data: "",
+                    defaultContent: "<button class='btn btn-primary btn-dispositivo'>Crear Disp</button>", targets: -1
+                },
+                {
+                    data: "",
+                    defaultContent: "<button class='btn btn-warning btn-repuesto'>Crear Rep</button>", targets: -1
+                },
+            ]
+        });
 
+        let tablabody = $('#entrada-table tbody');
+        let tabla_temp = this;
 
-    ]
-  });
+        tablabody.on('click', '.btn-editar', function () {
+            let data_fila = this.tabla.row($(this).parents('tr')).data();
+            location.href = data_fila.update_url;
+        });
 
-  EntradaDetalleList.init = function() {
-  $('#entrada-table tbody').on( 'click', '.btn-info', function () {
-       var data = tabla.row( $(this).parents('tr') ).data();
-       location.href =data.update_url;
-   } );
+        tablabody.on('click', '.btn-dispositivo', function () {
+            let data_fila = tabla_temp.tabla.row($(this).parents('tr')).data();
+            let urldispositivo = tabla_temp.api_url + data_fila.id + "/crear_dispositivos/";
+            EntradaUpdate.crear_dispositivos(urldispositivo);
+        });
 
-   $('#entrada-table tbody').on( 'click', '.btn-primary', function () {
-         var data = tabla.row( $(this).parents('tr') ).data();
-        var valordispositivo = $('#entrada-table').data("api");
-        var urldispositivo = valor +data.id+"/crear_dispositivos/";
-         console.log(urldispositivo);
+        tablabody.on('click', '.btn-repuesto', function () {
+            let data_fila = tabla_temp.tabla.row($(this).parents('tr')).data();
+            let urldispositivo = tabla_temp.api_url + data_fila.id + "/crear_repuestos/";
+            EntradaUpdate.crear_repuestos(urldispositivo);
+        });
+
+        /** Uso de DRF**/
+        let detalle_form = $('#detalleForm');
+        detalle_form.submit(function (e) {
+            e.preventDefault();
+
+            $.ajax({
+                type: "POST",
+                url: detalle_form.attr('action'),
+                data: detalle_form.serialize(),
+                success: function (response) {
+                    console.log("datos ingresados correctamente");
+
+                },
+            });
+            this.tabla.clear().draw();
+            this.tabla.ajax.reload();
+            document.getElementById("detalleForm").reset();
+        });
+    }
+
+    static crear_dispositivos(urldispositivo){
         $.ajax({
-           type: 'POST',
-           url:urldispositivo,
-           data: {csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val()},
-           success: function(response){
-             console.log("dispositivos creados exitosamente");
-           },
+            type: 'POST',
+            url: urldispositivo,
+            dataType: 'json',
+            data: {
+                csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val()
+            },
+            success: function (response) {
+                console.log("dispositivos creados exitosamente");
+            },
+            error: function (response) {
+                alert(response.mensaje);
+            }
+        });
+    }
 
-         });
-    } );
-    /** Uso de DRF**/
-    $('#detalleForm').submit( function (e){
-    e.preventDefault()
+    static crear_repuestos(url_repuestos){
+        $.ajax({
+            type: 'POST',
+            url: url_repuestos,
+            data: {
+                csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val()
+            },
+            success: function (response) {
+                console.log("repuestos creados exitosamente");
+            },
+        });
+    }
+}
 
-     $.ajax({
-        type: "POST",
-        url: $('#detalleForm').attr('action'),
-        data:$('#detalleForm').serialize(),
-        success: function (response) {
-          console.log("datos ingresados correctamente");
-
-        },
-      });
-      tabla.clear().draw();
-      tabla.ajax.reload();
-      document.getElementById("detalleForm").reset();
-    });
-  }
-}(window.EntradaDetalleList =  window.EntradaDetalleList || {}, jQuery));
 
 (function( EntradaList, $, undefined ) {
  var tabla = $('#entrada2-table').DataTable({

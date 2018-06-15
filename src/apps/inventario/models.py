@@ -1,7 +1,10 @@
+#!/usr/bin/env python
+# -*- coding: UTF-8 -*-
 import uuid
 import qrcode
 from io import BytesIO
 from django.db import models
+from django.db.utils import OperationalError
 from django.urls import reverse_lazy
 from django.utils import timezone
 from django.contrib.auth.models import User
@@ -10,6 +13,7 @@ from django.core.files.uploadedfile import InMemoryUploadedFile
 
 from easy_thumbnails import fields as et_fields
 
+from apps.inventario import transacciones
 from apps.crm import models as crm_m
 from apps.escuela import models as escuela_m
 
@@ -71,7 +75,7 @@ class Entrada(models.Model):
 
     @property
     def subtotal(self):
-        return sum(d.precio_subtotal for d in self.detalles.all())
+        return sum(d.precio_subtotal for d in self.detalles.all() if d.precio_subtotal)
 
     @property
     def total(self):
@@ -168,19 +172,41 @@ class EntradaDetalle(models.Model):
     def crear_dispositivos(self, util=None):
         if util is None:
             util = self.util
-        try:
-            modelo = next(
-                f.related_model for f in Dispositivo._meta.get_fields()
-                if f.one_to_one and f.related_model.SLUG_TIPO == self.tipo_dispositivo.slug
-            )
-            total = 0
-            for _ in range(0, util):
-                nuevo = modelo(entrada=self.entrada, tipo=self.tipo_dispositivo)
-                nuevo.save()
-                total = total + 1
-        except KeyError as e:
-            raise e
-        return total
+        # Busca el modelo del `tipo_dispositivo` del objeto actual
+        modelo = Dispositivo.obtener_modelo_hijo(self.tipo_dispositivo)
+        creados = 0
+        errores = 0
+        for _ in range(0, util):
+            try:
+                transacciones.ingresar_dispositivo(
+                    entrada=self.entrada,
+                    modelo=modelo,
+                    tipo=self.tipo_dispositivo,
+                    precio=self.precio_unitario)
+                creados = creados + 1
+            except OperationalError:
+                errores = errores + 1
+        return {'creados': creados, 'errores': errores}
+
+    def crear_repuestos(self, repuesto=None):
+        if repuesto is None:
+            repuesto = self.repuesto
+        creados = 0
+        errores = 0
+        estado_repuesto = RepuestoEstado.objects.first()
+        for _ in range(0, repuesto):
+            try:
+                transacciones.ingresar_repuesto(
+                    entrada=self.entrada,
+                    modelo_repuesto=Repuesto,
+                    estado=estado_repuesto,
+                    tipo=self.tipo_dispositivo,
+                    precio=self.precio_unitario
+                )
+                creados = creados + 1
+            except OperationalError:
+                errores = errores + 1
+        return {'creados': creados, 'errores': errores}
 
     def get_absolute_url(self):
         return self.entrada.get_absolute_url()
@@ -434,13 +460,27 @@ class Dispositivo(models.Model):
             border=1,
         )
         qr.add_data(self.id)
-        img = qr.make(fit=True)
+        qr.make(fit=True)
         img = qr.make_image()
         buffer = BytesIO()
         img.save(buffer)
         filename = 'dispositivo-{}.png'.format(self.id)
         filebuffer = InMemoryUploadedFile(buffer, None, filename, 'image/png', buffer.getbuffer().nbytes, None)
         self.codigo_qr.save(filename, filebuffer)
+
+    @classmethod
+    def obtener_modelo_hijo(cls, tipo_dispositivo):
+        """Obitne el modelo hijo de `Dispositivo` a partir de un `DispositivoTipo`"""
+        modelo = next(
+            (
+                f.related_model for f in cls._meta.get_fields()
+                if f.one_to_one and f.related_model.SLUG_TIPO == tipo_dispositivo.slug
+            ),
+            None
+        )
+        if modelo is None:
+            raise OperationalError('No es un dispositivo')
+        return modelo
 
 
 class DispositivoFalla(models.Model):
@@ -955,7 +995,7 @@ class SalidaTipo(models.Model):
         return self.nombre
 
 
-class Salida(models.Model):
+class SalidaInventario(models.Model):
     tipo_salida = models.ForeignKey(SalidaTipo, on_delete=models.PROTECT)
     fecha = models.DateField(default=timezone.now)
     creada_por = models.ForeignKey(User, on_delete=models.PROTECT, related_name='salidas')
@@ -968,6 +1008,7 @@ class Salida(models.Model):
         null=True,
         blank=True)
     observaciones = models.TextField(null=True, blank=True)
+    necesita_revision = models.BooleanField(default=True, blank=True)
 
     class Meta:
         verbose_name = "Salida"
@@ -979,7 +1020,7 @@ class Salida(models.Model):
     def crear_paquetes(self, cantidad, usuario):
         creados = 0
         for i in range(cantidad):
-            paquete = Paquete(salida=self, indice=i+1, creado_por=usuario)
+            paquete = Paquete(salida=self, indice=i + 1, creado_por=usuario)
             paquete.save()
             creados += 1
         return creados
@@ -990,7 +1031,7 @@ class Paquete(models.Model):
     Por default, debería ser una computadora que contenga Mouse, Monitor, CPU, etc.
     Puede ser cualquier otro tipo de paquetes de dispositivos. Por ejemplo, un servidor
     puede tener además de los dipositivos básicos, un dispositivo de red."""
-    salida = models.ForeignKey(Salida, on_delete=models.PROTECT, related_name="paquetes")
+    salida = models.ForeignKey(SalidaInventario, on_delete=models.PROTECT, related_name="paquetes")
     fecha_creacion = models.DateTimeField(default=timezone.now)
     creado_por = models.ForeignKey(User, on_delete=models.PROTECT)
     indice = models.PositiveIntegerField()
@@ -1027,3 +1068,32 @@ class DispositivoPaquete(models.Model):
 
     def __str__(self):
         return '{} -> {}'.format(self.dispositivo, self.paquete)
+
+
+class RevisionSalida(models.Model):
+    salida = models.ForeignKey(SalidaInventario, on_delete=models.PROTECT, related_name='revisiones')
+    revisado_por = models.ForeignKey(User, on_delete=models.PROTECT)
+    fecha_revision = models.DateTimeField(default=timezone.now)
+    anotaciones = models.TextField(null=True, blank=True)
+    aprobada = models.BooleanField(default=False, blank=True)
+
+    class Meta:
+        verbose_name = 'Revisión de salida'
+        verbose_name_plural = 'Revisiones de salida'
+
+    def __str__(self):
+        return str(self.salida)
+
+
+class RevisionComentario(models.Model):
+    revision = models.ForeignKey(RevisionSalida, on_delete=models.CASCADE, related_name='comentarios')
+    comentario = models.TextField()
+    fecha_revision = models.DateTimeField(default=timezone.now)
+    creado_por = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    class Meta:
+        verbose_name = 'Comentario de revisión'
+        verbose_name_plural = 'Comentarios de revisión'
+
+    def __str__(self):
+        return '{}'.format(self.comentario[15:])
