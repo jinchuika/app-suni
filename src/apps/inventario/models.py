@@ -236,6 +236,10 @@ class DispositivoEstado(models.Model):
         - Desechado: ha sido desechado por un técnico
         - Entregado: enviado a una escuela
     """
+    PD = 1
+    BN = 2
+    DS = 3
+    EN = 4
 
     estado = models.CharField(max_length=20)
 
@@ -249,16 +253,23 @@ class DispositivoEstado(models.Model):
 
 class DispositivoEtapa(models.Model):
 
-    """Etapa de un :class:`Dispositivo`. Indica la parte del proceso de manufactura por la que puede pasar el dispositivo:
-        - Almacenado en bodega
-        - Tránsito
-        - Control de calidad
-        - Desechado
-        - Listo
-        - Entregado
+    """Etapa de un :class:`Dispositivo`. Indica la parte del proceso de manufactura por la que puede pasar el dispositivo.
+    A continuación se detalla la etapa y los estados que admite:
+        - Almacenado en bodega: almacenamiento sin importar el estado (pendiente, bueno)
+        - Tránsito: en reparación (pendiente, bueno)
+        - Control de calidad: listo para asignación para ser enviado a una escuela (bueno)
+        - Desechado: enviado a desecho (desechado)
+        - Listo: aprobado por control de calidad (bueno)
+        - Entregado: uubicado en una escuela después de una salida aprobada (entregado)
 
     El campo de estados disponibles indica qué :class:`DispositivoEstado` admite este proceso.
     """
+    AB = 1  # Almacenado
+    TR = 2  # Tránsito
+    CC = 3  # Control de calidad
+    DS = 4  # Desecho
+    LS = 5  # Listo
+    EN = 6  # Entregado
 
     proceso = models.CharField(max_length=30)
     estados_disponibles = models.ManyToManyField(DispositivoEstado)
@@ -409,8 +420,20 @@ class Dispositivo(models.Model):
     triage = models.SlugField(unique=True, blank=True, editable=False)
     tipo = models.ForeignKey(DispositivoTipo, on_delete=models.CASCADE)
     entrada = models.ForeignKey(Entrada, on_delete=models.PROTECT, related_name='dispositivos')
-    estado = models.ForeignKey(DispositivoEstado, on_delete=models.CASCADE, null=True, editable=False)
-    etapa = models.ForeignKey(DispositivoEtapa, on_delete=models.PROTECT, null=True, editable=False)
+    estado = models.ForeignKey(
+        DispositivoEstado,
+        on_delete=models.CASCADE,
+        null=True,
+        editable=False,
+        default=DispositivoEstado.PD
+    )
+    etapa = models.ForeignKey(
+        DispositivoEtapa,
+        on_delete=models.PROTECT,
+        null=True,
+        editable=False,
+        default=DispositivoEtapa.AB
+    )
 
     marca = models.ForeignKey(DispositivoMarca, on_delete=models.CASCADE, null=True, blank=True)
     modelo = models.ForeignKey(DispositivoModelo, on_delete=models.CASCADE, null=True, blank=True)
@@ -1019,11 +1042,24 @@ class SalidaInventario(models.Model):
 
     def crear_paquetes(self, cantidad, usuario):
         creados = 0
+        indice_actual = self.paquetes.count()
         for i in range(cantidad):
-            paquete = Paquete(salida=self, indice=i + 1, creado_por=usuario)
+            paquete = Paquete(salida=self, indice=(i + 1 + indice_actual), creado_por=usuario)
             paquete.save()
             creados += 1
         return creados
+
+
+class PaqueteTipo(models.Model):
+    nombre = models.CharField(max_length=35, verbose_name='Nombre del tipo')
+    tipo_dispositivo = models.ManyToManyField(DispositivoTipo, verbose_name='Tipos de dispositivo')
+
+    class Meta:
+        verbose_name = "Tipo de paquete"
+        verbose_name_plural = "Tipos de paquete"
+
+    def __str__(self):
+        return self.nombre
 
 
 class Paquete(models.Model):
@@ -1035,6 +1071,14 @@ class Paquete(models.Model):
     fecha_creacion = models.DateTimeField(default=timezone.now)
     creado_por = models.ForeignKey(User, on_delete=models.PROTECT)
     indice = models.PositiveIntegerField()
+    tipo_paquete = models.ForeignKey(
+        PaqueteTipo,
+        on_delete=models.PROTECT,
+        related_name='paquetes',
+        null=True,
+        blank=True)
+    aprobado = models.BooleanField(default=False, blank=True)
+
     dispositivos = models.ManyToManyField(Dispositivo, through='DispositivoPaquete', related_name='paquetes')
 
     class Meta:
@@ -1043,7 +1087,13 @@ class Paquete(models.Model):
         unique_together = ('salida', 'indice')
 
     def __str__(self):
-        return '{salida}-{indice}'.format(salida=self.salida, indice=self.indice)
+        return 'P{salida}-{indice}'.format(salida=self.salida, indice=self.indice)
+
+    def aprobar(self, usuario):
+        for paquete in self.asignacion.all():
+            paquete.aprobado = True
+            paquete.aprobado_por = usuario
+            paquete.save()
 
 
 class DispositivoPaquete(models.Model):
@@ -1063,11 +1113,13 @@ class DispositivoPaquete(models.Model):
         related_name='paquetes_aprobados')
 
     class Meta:
-        verbose_name = "DispositivoPaquete"
-        verbose_name_plural = "DispositivoPaquetes"
+        verbose_name = "Asignación Dispositivo - Paquete"
+        verbose_name_plural = "Asignaciones Dispositivo - Paquete"
 
     def __str__(self):
-        return '{} -> {}'.format(self.dispositivo, self.paquete)
+        return '{paquete} -> {dispositivo}'.format(
+            paquete=self.paquete,
+            dispositivo=self.dispositivo)
 
 
 class RevisionSalida(models.Model):
@@ -1097,3 +1149,82 @@ class RevisionComentario(models.Model):
 
     def __str__(self):
         return '{}'.format(self.comentario[15:])
+
+
+class SolicitudMovimiento(models.Model):
+    """Solicitud de un técnico de área para cambiar cierta cantidad de dispositivos de la etapa. Por ejemplo:
+    Un técnico solicitua cambiar 5 monitores de 'Almacenaje en bodega' a 'Tránsito'"""
+
+    etapa_inicial = models.ForeignKey(DispositivoEtapa, on_delete=models.PROTECT, related_name='solicitudes_inicial')
+    etapa_final = models.ForeignKey(DispositivoEtapa, on_delete=models.PROTECT, related_name='solicitudes_final')
+    fecha_creacion = models.DateField(default=timezone.now)
+    creada_por = models.ForeignKey(User, on_delete=models.PROTECT, related_name='solicitudes_movimiento')
+    autorizada_por = models.ForeignKey(User, on_delete=models.PROTECT, related_name='autorizaciones_movimiento', null=True)
+    tipo_dispositivo = models.ForeignKey(DispositivoTipo, on_delete=models.PROTECT)
+    cantidad = models.PositiveIntegerField()
+    terminada = models.BooleanField(default=False)
+
+    class Meta:
+        verbose_name = 'Solicitud de movimiento'
+        verbose_name_plural = 'Solicitudes de movimiento'
+
+    def __str__(self):
+        return str(self.id)
+
+    def cambiar_etapa(self, lista_dispositivos, usuario):
+        """Cambia el campo `etapa` de la lista de dispositivos recibida.
+        En caso de que la solicitud ya haya sido terminada, no se puede volver a realizar esta operación.
+        En el ciclo for se realiza la validación para no hacer cambios en dispositivos que no sean del tipo de
+        que se está solicitando.
+        """
+        if not self.terminada:
+            for dispositivo in lista_dispositivos:
+                if dispositivo.tipo == self.tipo_dispositivo:
+                    dispositivo.etapa = self.etapa_final
+                    dispositivo.save()
+                    self.cambios.create(
+                        dispositivo=dispositivo,
+                        etapa_inicial=self.etapa_inicial,
+                        etapa_final=self.etapa_final,
+                        creado_por=usuario
+                    )
+            self.terminada = True
+            self.save()
+        else:
+            raise OperationalError('La solicitud ya fue terminada')
+
+
+class CambioEtapa(models.Model):
+    """Registra un movimiento de cambio de etapa en un :class:`Dispositivo`"""
+    solicitud = models.ForeignKey(SolicitudMovimiento, on_delete=models.PROTECT, related_name='cambios')
+    dispositivo = models.ForeignKey(Dispositivo, on_delete=models.PROTECT)
+    etapa_inicial = models.ForeignKey(DispositivoEtapa, models.PROTECT, related_name='cambios_inicio')
+    etapa_final = models.ForeignKey(DispositivoEtapa, models.PROTECT, related_name='cambios_final')
+    fechahora = models.DateTimeField(default=timezone.now)
+    creado_por = models.ForeignKey(User, on_delete=models.PROTECT)
+
+    class Meta:
+        verbose_name = 'Cambio de etapa'
+        verbose_name_plural = 'Cambios de etapa'
+
+    def __str__(self):
+        return '{dispositivo} -> {final}'.format(
+            dispositivo=self.dispositivo,
+            final=self.etapa_final)
+
+    def save(self, *args, **kwargs):
+        if self.etapa_inicial != self.etapa_final:
+            super(CambioEtapa, self).save(*args, **kwargs)
+
+
+class AsignacionTecnico(models.Model):
+    """Registra qué dispositivos puede manipular un técnico"""
+    usuario = models.OneToOneField(User, on_delete=models.CASCADE, unique=True)
+    tipos = models.ManyToManyField(DispositivoTipo, related_name='tipos_disponibles', blank=True)
+
+    class Meta:
+        verbose_name = 'Asignacion de técnico'
+        verbose_name_plural = 'Asignaciones de técnicos'
+
+    def __str__(self):
+        return str(self.usuario)
