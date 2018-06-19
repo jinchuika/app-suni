@@ -7,5 +7,17 @@ urlpatterns = [
         r'^salida/add/$',
         inventario_v.SalidaInventarioCreateView.as_view(),
         name='salidainventario_add'
+    ),
+    url(
+    # Actualizacion de inventario
+        r'^salida/(?P<pk>\d+)/edit/$',
+        inventario_v.SalidaInventarioUpdateView.as_view(),
+        name='salidainventario_edit'
+    ),
+    url(
+    # Creacion de Paquetes
+        r'^salida/(?P<pk>\d+)/crear_paquetes/$',
+        inventario_v.SalidaPaqueteUpdateView.as_view(),
+        name='paquete_update'
     )
 ]

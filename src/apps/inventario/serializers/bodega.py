@@ -35,8 +35,7 @@ class TarimaSerializer(serializers.ModelSerializer):
     cantidad_dispositivos = serializers.IntegerField(source='dispositivos.count')
 
     class Meta:
-        model = inv_m.Tarima
-        # fields = ['sector', 'codigo_qr', 'cantidad_dispositivos']
+        model = inv_m.Tarima        
         fields = ['sector', 'codigo_qr', 'dispositivos', 'cantidad_dispositivos']
 
 

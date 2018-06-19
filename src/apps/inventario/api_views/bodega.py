@@ -23,7 +23,3 @@ class SectorViewSet(viewsets.ModelViewSet):
     serializer_class = inv_s.SectorSerializer
     queryset = inv_m.Sector.objects.all()
     filter_fields = ('id', 'nivel',)
-
-    """def partial_update(self, request, *args, **kwargs):
-        print(request.data)
-        return Response({'status': "Ingreso"})"""

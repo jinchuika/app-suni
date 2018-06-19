@@ -11,7 +11,7 @@ from apps.inventario import (
 
 
 class DesechoDetalleViewSet(viewsets.ModelViewSet):
-    """ ViewSet para generar los detalles de la :class:`DesechoDetail`
+    """ ViewSet para generar los detalles de la :class:`DesechoDetalle`
     """
     serializer_class = inv_s.DesechoDetalleSerializer
     queryset = inv_m.DesechoDetalle.objects.all()
