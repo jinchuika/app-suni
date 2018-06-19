@@ -1,3 +1,4 @@
+{%if perms.inventario.salidainventario_change%}
 {%load widget_tweaks %}
 {% block page_title %}
 <title>Cantidad de Paquetes</title>
@@ -11,7 +12,7 @@
           <form action="{% url 'paquete_update' pk=salidainventario.id %}" method="post">
             {%csrf_token%}
             <table>
-              {{ PaqueteCantidadForm.as_table }}
+              {{ cantidad_paquetes.as_table }}
               <tr>
                 <td>
                   <input type="submit" class="btn btn-success"  value="Agregar" />
@@ -25,3 +26,4 @@
   </div>
 </section>
 {% endblock content %}
+{%endif%}

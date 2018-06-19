@@ -30,7 +30,7 @@ class SalidaInventarioCreateView(LoginRequiredMixin, CreateView):
         super(SalidaInventarioCreateView, self).form_valid(form)
 
 
-class SalidaInventarioUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
+class SalidaInventarioUpdateView(LoginRequiredMixin, UpdateView):
     """ Vista   para obtener los datos de Salida mediante una :class:`SalidaInventario`
     Funciona  para recibir los datos de un  'SalidaInventarioForm' mediante el metodo  POST.  y
     nos muestra el template de visitas mediante el metodo GET.
@@ -40,10 +40,10 @@ class SalidaInventarioUpdateView(LoginRequiredMixin, PermissionRequiredMixin, Up
     template_name = 'inventario/salida/salida_edit.html'
     permission_required = 'inventario.salidainventario_change'
 
-    def get_context_data(self,*args, **kwargs):
+    def get_context_data(self, *args, **kwargs):
         context = super(SalidaInventarioUpdateView, self).get_context_data(*args, **kwargs)
-        if(self.request.user.has_perm("inventario.salidainventario_change")):
-            context['PaqueteCantidadForm'] = inv_f.PaqueteCantidadForm()
+        if self.request.user.has_perm("inventario.salidainventario_change"):
+            context['cantidad_paquetes'] = inv_f.PaqueteCantidadForm()
         return context
 
 
@@ -60,7 +60,6 @@ class SalidaPaqueteUpdateView(LoginRequiredMixin, UpdateView):
         return reverse_lazy('salidainventario_edit', kwargs={'pk': self.object.id})
 
     def form_valid(self, form):
-
         form.instance.crear_paquetes(form.cleaned_data['cantidad'], self.request.user)
         return super(SalidaPaqueteUpdateView, self).form_valid(form)
 
