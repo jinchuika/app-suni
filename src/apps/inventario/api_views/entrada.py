@@ -23,7 +23,7 @@ class DetalleInformeFilter(filters.FilterSet):
 
 
 class EntradaDetalleViewSet(viewsets.ModelViewSet):
-    """ Serializer para generar las tablas de la :class:'EntradaDetalle'
+    """ ViewSet para generar las tablas de la :class:'EntradaDetalle'
     """
     serializer_class = inv_s.EntradaDetalleSerializer
     queryset = inv_m.EntradaDetalle.objects.all()

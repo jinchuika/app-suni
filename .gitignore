@@ -103,3 +103,5 @@ src/entregas.json
 *.sqlite3
 src/.idea/
 live.wsgi.py
+.idea/
+
