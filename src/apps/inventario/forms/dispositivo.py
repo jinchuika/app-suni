@@ -23,15 +23,17 @@ class DispositivoFallaForm(forms.ModelForm):
 
 
 class SolicitudMovimientoCreateForm(forms.ModelForm):
+    """Formulario para el control de las Solicitud de Movimiento de la empresa.
+    """
     class Meta:
         model = inv_m.SolicitudMovimiento
         exclude = ['autorizada_por', 'terminada', 'creada_por']
         widgets = {
-            'etapa_inicial': forms.Select(attrs={'class': 'form-control select2'}),
-            'etapa_final': forms.Select(attrs={'class': 'form-control select2'}),
+            'etapa_inicial': forms.Select(attrs={'class': 'form-control '}),
+            'etapa_final': forms.Select(attrs={'class': 'form-control '}),
             'tipo_dispositivo': forms.Select(attrs={'class': 'form-control'}),
             'cantidad': forms.TextInput({'class': 'form-control'}),
-            'fecha_creacion': forms.TextInput({'class': 'form-control datepicker'}),
+            'fecha_creacion': forms.DateInput(attrs={'class': 'form-control datepicker', 'format': '%d/%m/%Y'}),
         }
 
     def __init__(self, *args, **kwargs):

@@ -58,6 +58,10 @@ class MonitorDetailView(LoginRequiredMixin, DispositivoDetailView):
 
 
 class SolicitudMovimientoCreateView(LoginRequiredMixin, CreateView):
+    """Vista   para obtener los datos de SolicitudMovimiento mediante una :class:`SolicitudMovimiento`
+    Funciona  para recibir los datos de un  'SolicitudMovimientoCreateForm' mediante el metodo  POST.  y
+    nos muestra el template de visitas mediante el metodo GET.
+    """
     model = inv_m.SolicitudMovimiento
     template_name = 'inventario/dispositivo/solicitudmovimiento_add.html'
     form_class = inv_f.SolicitudMovimientoCreateForm
