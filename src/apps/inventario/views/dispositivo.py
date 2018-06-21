@@ -55,3 +55,17 @@ class MonitorDetailView(LoginRequiredMixin, DispositivoDetailView):
     slug_field = "triage"
     slug_url_kwarg = "triage"
     query_pk_and_slug = True
+
+
+class SolicitudMovimientoCreateView(LoginRequiredMixin, CreateView):
+    """Vista   para obtener los datos de SolicitudMovimiento mediante una :class:`SolicitudMovimiento`
+    Funciona  para recibir los datos de un  'SolicitudMovimientoCreateForm' mediante el metodo  POST.  y
+    nos muestra el template de visitas mediante el metodo GET.
+    """
+    model = inv_m.SolicitudMovimiento
+    template_name = 'inventario/dispositivo/solicitudmovimiento_add.html'
+    form_class = inv_f.SolicitudMovimientoCreateForm
+
+    def form_valid(self, form):
+        form.instance.creada_por = self.request.user
+        return super(SolicitudMovimientoCreateView, self).form_valid(form)
