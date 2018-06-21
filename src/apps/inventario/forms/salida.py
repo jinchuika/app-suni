@@ -24,20 +24,20 @@ class SalidaInventarioForm(forms.ModelForm):
 
 
 class SalidaInventarioUpdateForm(forms.ModelForm):
-    """docstring for SalidaInventarioUpdateForm."""
+    """ Formulario para  la actualizacion de las salidas de inventario.
+    """
     class Meta:
         model = inv_m.SalidaInventario
         fields = ('fecha', 'observaciones')
         widgets = {
-
             'fecha': forms.TextInput({'class': 'form-control datepicker'}),
             'observaciones': forms.Textarea({'class': 'form-control'})
-
-
         }
 
 
 class PaqueteCantidadForm(forms.ModelForm):
+    """ Formulario para  la creacion de la cantidad de paquetes.
+        """
     cantidad = forms.IntegerField(
         widget=forms.TextInput(attrs={'class': 'form-control'}))
 
