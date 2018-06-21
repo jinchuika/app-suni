@@ -25,7 +25,7 @@ class SalidaInventarioCreateView(LoginRequiredMixin, CreateView):
         return context
 
     def form_valid(self, form):
-        form.instance.escuela = escuela_m.Escuela.objects.get(codigo=form.cleaned_data['codigo'])
+        form.instance.escuela = escuela_m.Escuela.objects.get(codigo=form.cleaned_data['udi'])
         form.instance.creada_por = self.request.user
         super(SalidaInventarioCreateView, self).form_valid(form)
 

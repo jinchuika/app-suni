@@ -5,4 +5,8 @@
         <th>Puerto</th>
         <td>{{ object.puerto|default_if_none:"" }}</td>
     </tr>
+    <tr>
+        <th>Capacidad</th>
+        <td>{{ object.ram|default_if_none:"" }} {{ object.ram_medida|default_if_none:"" }}</td>
+    </tr>
 {% endblock info_dispositivo %}

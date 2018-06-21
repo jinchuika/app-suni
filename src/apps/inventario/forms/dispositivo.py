@@ -20,3 +20,22 @@ class DispositivoFallaForm(forms.ModelForm):
             'dispositivo': forms.HiddenInput(),
             'descripcion_falla': forms.Textarea(attrs={'class': 'form-control'})
         }
+
+
+class AsignacionTecnicoForm(forms.ModelForm):
+    """Formulario para manipulación de :class:`AsignacionTecnico`"""
+    tipos = forms.ModelMultipleChoiceField(
+        queryset=inv_m.DispositivoTipo.objects.filter(usa_triage=True),
+        widget=forms.CheckboxSelectMultiple()
+    )
+
+    class Meta:
+        model = inv_m.AsignacionTecnico
+        fields = '__all__'
+        widgets = {
+            'usuario': forms.Select(attrs={'class': 'select2 form-control'})
+        }
+
+    def __init__(self, *args, **kwargs):
+        super(AsignacionTecnicoForm, self).__init__(*args, **kwargs)
+        self.fields['usuario'].label_from_instance = lambda usuario: usuario.get_full_name()

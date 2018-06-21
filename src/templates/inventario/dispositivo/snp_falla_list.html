@@ -8,7 +8,8 @@
                 <div class="panel box {% if falla.terminada %}box-success{% else %}box-danger{% endif %}">
                     <div class="box-header with-border">
                         <h4 class="box-title">
-                            <a data-toggle="collapse" data-parent="#accordion" href="#f{{ falla.id }}" aria-expanded="false" class="collapsed">
+                            <a data-toggle="collapse" data-parent="#accordion" href="#f{{ falla.id }}"
+                               aria-expanded="false" class="collapsed">
                                 {{ falla }}
                             </a>
                         </h4>
@@ -25,24 +26,30 @@
                     </div>
                 </div>
             {% endfor %}
-            <div class="panel box box-primary">
-                <div class="box-header with-border">
-                    <h4 class="box-title">
-                        <a data-toggle="collapse" data-parent="#accordion" href="#collapseTwo" class="collapsed" aria-expanded="false">
-                            Nueva falla
-                        </a>
-                    </h4>
-                </div>
-                <div id="collapseTwo" class="panel-collapse collapse" aria-expanded="false" style="height: 0px;">
-                    <div class="box-body">
-                        <form action="{% url 'dispositivofalla_add' %}" method="post">
-                            {% csrf_token %}
-                            {{ form_falla.as_p }}
-                            <input type="submit" class="btn btn-primary pull-right" value="Crear">
-                        </form>
+
+            {% if form_falla %}
+                <div class="panel box box-primary">
+                    <div class="box-header with-border">
+                        <h4 class="box-title">
+                            <a data-toggle="collapse" data-parent="#accordion" href="#collapse-form" class="collapsed"
+                               aria-expanded="false">
+                                Nueva falla
+                            </a>
+                        </h4>
                     </div>
+
+                    <div id="collapse-form" class="panel-collapse collapse" aria-expanded="false" style="height: 0px;">
+                        <div class="box-body">
+                            <form action="{% url 'dispositivofalla_add' %}" method="post">
+                                {% csrf_token %}
+                                {{ form_falla.as_p }}
+                                <input type="submit" class="btn btn-primary pull-right" value="Crear">
+                            </form>
+                        </div>
+                    </div>
+
                 </div>
-            </div>
+            {% endif %}
         </div>
     </div>
 </div>

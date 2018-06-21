@@ -5,4 +5,8 @@
         <th>Puerto</th>
         <td>{{ object.puerto|default_if_none:"" }}</td>
     </tr>
+    <tr>
+        <th>Tipo</th>
+        <td>{{ object.tipo_mouse|default_if_none:"" }}</td>
+    </tr>
 {% endblock info_dispositivo %}

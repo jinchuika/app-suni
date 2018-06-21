@@ -6,11 +6,11 @@
         <td>{{ object.puerto|default_if_none:"" }}</td>
     </tr>
     <tr>
-        <th>Tipo</th>
-        <td>{{ object.tipo_monitor|default_if_none:"" }}</td>
+        <th>Cantidad de puertos</th>
+        <td>{{ object.cantidad_puertos|default_if_none:"" }}</td>
     </tr>
     <tr>
-        <th>Pulgadas</th>
-        <td>{{ object.pulgadas }}</td>
+        <th>Velocidad</th>
+        <td>{{ object.velocidad|default_if_none:"" }} {{ object.velocidad_medida|default_if_none:"" }}</td>
     </tr>
 {% endblock info_dispositivo %}

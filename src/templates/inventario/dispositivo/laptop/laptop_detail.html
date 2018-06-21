@@ -1,0 +1,24 @@
+{% extends "inventario/dispositivo/base_detail.html" %}
+
+{% block info_dispositivo %}
+    <tr>
+        <th>Procesador</th>
+        <td>{{ object.procesador|default_if_none:"" }}</td>
+    </tr>
+    <tr>
+        <th>Versión de sistema</th>
+        <td>{{ object.version_sistema|default_if_none:"" }}</td>
+    </tr>
+    <tr>
+        <th>Disco duro</th>
+        <td>{{ object.disco_duro|default_if_none:"" }}</td>
+    </tr>
+    <tr>
+        <th>RAM</th>
+        <td>{{ object.ram|default_if_none:"" }} {{ object.ram_medida|default_if_none:"" }}</td>
+    </tr>
+    <tr>
+        <th>Pulgadas</th>
+        <td>{{ object.pulgadas }}</td>
+    </tr>
+{% endblock info_dispositivo %}

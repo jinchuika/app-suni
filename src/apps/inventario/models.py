@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
+
 import uuid
 import qrcode
 from io import BytesIO
@@ -649,6 +650,9 @@ class Teclado(Dispositivo):
     def __str__(self):
         return self.triage
 
+    def get_absolute_url(self):
+        return reverse_lazy('teclado_detail', kwargs={'triage': self.triage})
+
 
 class MouseTipo(models.Model):
 
@@ -688,6 +692,9 @@ class Mouse(Dispositivo):
     def __str__(self):
         return self.triage
 
+    def get_absolute_url(self):
+        return reverse_lazy('mouse_detail', kwargs={'triage': self.triage})
+
 
 class HDD(Dispositivo):
     SLUG_TIPO = 'HDD'
@@ -712,6 +719,9 @@ class HDD(Dispositivo):
 
     def __str__(self):
         return self.triage
+
+    def get_absolute_url(self):
+        return reverse_lazy('hdd_detail', kwargs={'triage': self.triage})
 
     @property
     def en_uso(self):
@@ -762,6 +772,9 @@ class Tablet(Dispositivo):
 
     def __str__(self):
         return self.triage
+
+    def get_absolute_url(self):
+        return reverse_lazy('tablet_detail', kwargs={'triage': self.triage})
 
 
 class MonitorTipo(models.Model):
@@ -828,6 +841,9 @@ class CPU(Dispositivo):
     def __str__(self):
         return self.triage
 
+    def get_absolute_url(self):
+        return reverse_lazy('cpu_detail', kwargs={'triage': self.triage})
+
 
 class Laptop(Dispositivo):
     SLUG_TIPO = 'L'
@@ -850,6 +866,9 @@ class Laptop(Dispositivo):
 
     def __str__(self):
         return self.triage
+
+    def get_absolute_url(self):
+        return reverse_lazy('laptop_detail', kwargs={'triage': self.triage})
 
 
 class TipoRed(models.Model):
@@ -877,6 +896,9 @@ class DispositivoRed(Dispositivo):
 
     def __str__(self):
         return self.triage
+
+    def get_absolute_url(self):
+        return reverse_lazy('red_detail', kwargs={'triage': self.triage})
 
 
 class RepuestoEstado(models.Model):
@@ -1051,6 +1073,9 @@ class SalidaInventario(models.Model):
 
 
 class PaqueteTipo(models.Model):
+    """Tipos de :class:`Paquete` a entregar. Puede incluir las partes básicas de una computadora, como CPU, Teclado,
+    etc. o tipos más específicos como componentes de red
+    """
     nombre = models.CharField(max_length=35, verbose_name='Nombre del tipo')
     tipo_dispositivo = models.ManyToManyField(DispositivoTipo, verbose_name='Tipos de dispositivo')
 
@@ -1159,7 +1184,11 @@ class SolicitudMovimiento(models.Model):
     etapa_final = models.ForeignKey(DispositivoEtapa, on_delete=models.PROTECT, related_name='solicitudes_final')
     fecha_creacion = models.DateField(default=timezone.now)
     creada_por = models.ForeignKey(User, on_delete=models.PROTECT, related_name='solicitudes_movimiento')
-    autorizada_por = models.ForeignKey(User, on_delete=models.PROTECT, related_name='autorizaciones_movimiento', null=True)
+    autorizada_por = models.ForeignKey(
+        User,
+        on_delete=models.PROTECT,
+        related_name='autorizaciones_movimiento',
+        null=True)
     tipo_dispositivo = models.ForeignKey(DispositivoTipo, on_delete=models.PROTECT)
     cantidad = models.PositiveIntegerField()
     terminada = models.BooleanField(default=False)
@@ -1197,7 +1226,7 @@ class SolicitudMovimiento(models.Model):
 class CambioEtapa(models.Model):
     """Registra un movimiento de cambio de etapa en un :class:`Dispositivo`"""
     solicitud = models.ForeignKey(SolicitudMovimiento, on_delete=models.PROTECT, related_name='cambios')
-    dispositivo = models.ForeignKey(Dispositivo, on_delete=models.PROTECT)
+    dispositivo = models.ForeignKey(Dispositivo, on_delete=models.PROTECT, related_name='cambios_etapa')
     etapa_inicial = models.ForeignKey(DispositivoEtapa, models.PROTECT, related_name='cambios_inicio')
     etapa_final = models.ForeignKey(DispositivoEtapa, models.PROTECT, related_name='cambios_final')
     fechahora = models.DateTimeField(default=timezone.now)
@@ -1219,7 +1248,7 @@ class CambioEtapa(models.Model):
 
 class AsignacionTecnico(models.Model):
     """Registra qué dispositivos puede manipular un técnico"""
-    usuario = models.OneToOneField(User, on_delete=models.CASCADE, unique=True)
+    usuario = models.OneToOneField(User, on_delete=models.CASCADE, unique=True, related_name='tipos_dispositivos')
     tipos = models.ManyToManyField(DispositivoTipo, related_name='tipos_disponibles', blank=True)
 
     class Meta:
@@ -1228,3 +1257,6 @@ class AsignacionTecnico(models.Model):
 
     def __str__(self):
         return str(self.usuario)
+
+    def get_absolute_url(self):
+        return reverse_lazy('asignaciontecnico_update', kwargs={'pk': self.id})
