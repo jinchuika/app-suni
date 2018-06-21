@@ -25,6 +25,12 @@ urlpatterns = [
         r'^monitor/(?P<triage>[\w\d-]+)/$',
         inventario_v.MonitorDetailView.as_view(),
         name='monitor_detail'
-        )
+        ),
+    # Creacion de Solicitudes de Equipo
+    url(
+        r'^dispositivo/solicitudmovimiento/add/$',
+        inventario_v.SolicitudMovimientoCreateView.as_view(),
+        name='movimiento_add'
+    )
 
 ]
