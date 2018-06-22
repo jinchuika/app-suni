@@ -529,6 +529,9 @@ class DispositivoFalla(models.Model):
     def __str__(self):
         return 'F-{pk}'.format(pk=self.id)
 
+    def get_absolute_url(self):
+        return self.dispositivo.get_absolute_url()
+
 
 class SoftwareTipo(models.Model):
 
@@ -1053,7 +1056,7 @@ class SalidaInventario(models.Model):
         null=True,
         blank=True)
     observaciones = models.TextField(null=True, blank=True)
-    necesita_revision = models.BooleanField(default=True, blank=True)
+    necesita_revision = models.BooleanField(default=True, blank=True, verbose_name='Necesita revisión')
 
     class Meta:
         verbose_name = "Salida"
@@ -1150,8 +1153,8 @@ class DispositivoPaquete(models.Model):
 class RevisionSalida(models.Model):
     salida = models.ForeignKey(SalidaInventario, on_delete=models.PROTECT, related_name='revisiones')
     revisado_por = models.ForeignKey(User, on_delete=models.PROTECT)
-    fecha_revision = models.DateTimeField(default=timezone.now)
-    anotaciones = models.TextField(null=True, blank=True)
+    fecha_revision = models.DateTimeField(default=timezone.now, verbose_name='Fecha de revisión')
+    anotaciones = models.TextField(null=True, blank=True, verbose_name='Anotaciones generales')
     aprobada = models.BooleanField(default=False, blank=True)
 
     class Meta:

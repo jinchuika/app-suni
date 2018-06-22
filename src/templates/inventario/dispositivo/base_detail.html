@@ -1,20 +1,59 @@
-{% extends "inventario/dispositivo/base_detail.html" %}
+{% extends "base/base.html" %}
+{% load staticfiles thumbnail %}
 
-{% block info_dispositivo %}
-    <tr>
-        <th>Procesador</th>
-        <td>{{ object.procesador|default_if_none:"" }}</td>
-    </tr>
-    <tr>
-        <th>Versión de sistema</th>
-        <td>{{ object.version_sistema|default_if_none:"" }}</td>
-    </tr>
-    <tr>
-        <th>Disco duro</th>
-        <td>{{ object.disco_duro|default_if_none:"" }}</td>
-    </tr>
-    <tr>
-        <th>RAM</th>
-        <td>{{ object.ram|default_if_none:"" }} {{ object.ram_medida|default_if_none:"" }}</td>
-    </tr>
-{% endblock info_dispositivo %}
+{% block page_title %}
+    <title>{{ object }}</title>
+{% endblock page_title %}
+
+{% block content %}
+    <section class="content">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-5">
+                    <div class="box box-primary">
+                        <div class="box-header">
+                            <h3 class="box-title">{{ object.triage }}</h3>
+                        </div>
+                        <div class="box-body">
+                            <table class="table table-condensed table-striped">
+                                <tr>
+                                    <th>Entrada</th>
+                                    <td>
+                                        <a href="{{ object.entrada.get_absolute_url }}" class="btn-block">
+                                            {{ object.entrada }}
+                                        </a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Marca</th>
+                                    <td>
+                                        {{ object.marca|default_if_none:"" }}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Modelo</th>
+                                    <td>
+                                        {{ object.modelo|default_if_none:"" }}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Serie</th>
+                                    <td>{{ object.serie|default_if_none:"" }}</td>
+                                </tr>
+                                {% block info_dispositivo %}
+
+                                {% endblock %}
+                            </table>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="col-md-6">
+                    {% block fallas_dispositivo %}
+                        {% include "inventario/dispositivo/snp_falla_list.html" with dispositivo=object %}
+                    {% endblock %}
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock content %}

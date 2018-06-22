@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 
+from django.utils import timezone
+
+from django.urls import reverse_lazy
 from django.views.generic import DetailView, UpdateView, CreateView, ListView
 from braces.views import (
     LoginRequiredMixin, PermissionRequiredMixin
@@ -41,18 +44,43 @@ class DispositivoDetailView(DetailView):
 
     def get_context_data(self, *args, **kwargs):
         context = super(DispositivoDetailView, self).get_context_data(*args, **kwargs)
-        context['form_falla'] = inv_f.DispositivoFallaForm(initial={'dispositivo': self.object})
+        context['form_falla'] = inv_f.DispositivoFallaCreateForm(initial={'dispositivo': self.object})
         return context
 
+
+##########################
+# FALLAS DE DISPOSITIVOS #
+##########################
 
 class DispositivoFallaCreateView(LoginRequiredMixin, CreateView):
     """Creación de :class:`DispositivoFalla`, no admite el método GET"""
     model = inv_m.DispositivoFalla
-    form_class = inv_f.DispositivoFallaForm
+    form_class = inv_f.DispositivoFallaCreateForm
 
     def form_valid(self, form):
         form.instance.reportada_por = self.request.user
         return super(DispositivoFallaCreateView, self).form_valid(form)
+
+    def get_success_url(self):
+        return reverse_lazy('dispositivofalla_update', kwargs={'pk': self.object.id})
+
+
+class DispositivoFallaUpdateView(LoginRequiredMixin, UpdateView):
+    model = inv_m.DispositivoFalla
+    form_class = inv_f.DispositivoFallaUpdateForm
+    template_name = 'inventario/dispositivo/falla/dispositivofalla_update.html'
+
+    def form_valid(self, form):
+        if form.cleaned_data['terminada']:
+            form.instance.reparada_por = self.request.user
+            form.instance.fecha_fin = timezone.now()
+        return super(DispositivoFallaUpdateView, self).form_valid(form)
+
+    def get_success_url(self):
+        if self.object.terminada:
+            return self.object.get_absolute_url()
+        else:
+            return reverse_lazy('dispositivofalla_update', kwargs={'pk': self.object.id})
 
 
 ######################################
@@ -116,3 +144,23 @@ class DispositivoRedDetailView(LoginRequiredMixin, DispositivoDetailView):
     """Vista de detalle de dispositivos tipo :class:`DispositivoRed`"""
     model = inv_m.DispositivoRed
     template_name = 'inventario/dispositivo/red/red_detail.html'
+
+
+class SolicitudMovimientoCreateView(LoginRequiredMixin, CreateView):
+    """Vista   para obtener los datos de SolicitudMovimiento mediante una :class:`SolicitudMovimiento`
+    Funciona  para recibir los datos de un  'SolicitudMovimientoCreateForm' mediante el metodo  POST.  y
+    nos muestra el template de visitas mediante el metodo GET.
+    """
+    model = inv_m.SolicitudMovimiento
+    template_name = 'inventario/dispositivo/solicitudmovimiento_add.html'
+    form_class = inv_f.SolicitudMovimientoCreateForm
+
+    def form_valid(self, form):
+        form.instance.creada_por = self.request.user
+        return super(SolicitudMovimientoCreateView, self).form_valid(form)
+
+    def get_initial(self):
+        return {
+            'fecha_creacion': None
+        }
+

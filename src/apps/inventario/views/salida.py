@@ -64,3 +64,24 @@ class SalidaPaqueteUpdateView(LoginRequiredMixin, UpdateView):
         return super(SalidaPaqueteUpdateView, self).form_valid(form)
 
 
+class RevisionSalidaCreateView(LoginRequiredMixin, CreateView):
+    """Vista para creación de :class:`RevisionSalida`"""
+    model = inv_m.RevisionSalida
+    form_class = inv_f.RevisionSalidaCreateForm
+    template_name = 'inventario/salida/revisionsalida_add.html'
+
+    def get_initial(self):
+        return {
+            'fecha_revision': None
+        }
+
+    def form_valid(self, form):
+        form.instance.revisado_por = self.request.user
+        super(RevisionSalidaCreateView, self).form_valid(form)
+
+
+class RevisionSalidaUpdateView(LoginRequiredMixin, UpdateView):
+    """Vista para edición de :class:`RevisionSalida`"""
+    model = inv_m.RevisionSalida
+    form_class = inv_f.RevisionSalidaUpdateForm
+    template_name = 'inventario/salida/revisionsalida_update.html'

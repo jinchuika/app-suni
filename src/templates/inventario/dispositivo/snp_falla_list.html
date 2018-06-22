@@ -13,6 +13,13 @@
                                 {{ falla }}
                             </a>
                         </h4>
+                        {% if not falla.terminada %}
+                        <div class="box-tools">
+                            <a href="{% url 'dispositivofalla_update' pk=falla.id %}" class="btn btn-danger btn-xs">
+                                <i class="fa fa-pencil"></i> Editar
+                            </a>
+                        </div>
+                        {% endif %}
                     </div>
                     <div id="f{{ falla.id }}" class="panel-collapse collapse" aria-expanded="false" style="height: 0px;">
                         <div class="box-body">
@@ -21,6 +28,20 @@
                                     <th>Reporte</th>
                                     <td>{{ falla.descripcion_falla }}</td>
                                 </tr>
+                                <tr>
+                                    <th>Creación</th>
+                                    <td>{{ falla.fecha_inicio|date:"Y-m-d (H)" }}, por {{ falla.reportada_por.get_full_name }}</td>
+                                </tr>
+                                {% if falla.terminada %}
+                                <tr>
+                                    <th>Solución</th>
+                                    <td>{{ falla.descripcion_solucion|default_if_none:"" }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Reparación</th>
+                                    <td>{{ falla.fecha_fin|default_if_none:""|date:"Y-m-d (H)" }}, por {{ falla.reparada_por.get_full_name|default_if_none:"" }}</td>
+                                </tr>
+                                {% endif %}
                             </table>
                         </div>
                     </div>

@@ -20,6 +20,13 @@ urlpatterns = [
         inventario_v.AsignacionTecnicoUpdateView.as_view(),
         name='asignaciontecnico_update'
     ),
+    # Edición de falla de dispositivo
+    url(
+        r'^falla/(?P<pk>\d+)/edit/$',
+        inventario_v.DispositivoFallaUpdateView.as_view(),
+        name='dispositivofalla_update'
+    ),
+
     # Listado de Teclados
     url(
         r'^teclado/(?P<triage>[\w\d-]+)/edit/$',
@@ -80,4 +87,10 @@ urlpatterns = [
         inventario_v.TabletDetailView.as_view(),
         name='tablet_detail'
     ),
+    # Creacion de Solicitudes de Equipo
+    url(
+        r'^dispositivo/solicitudmovimiento/add/$',
+        inventario_v.SolicitudMovimientoCreateView.as_view(),
+        name='movimiento_add'
+    )
 ]
