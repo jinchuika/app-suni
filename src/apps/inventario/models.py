@@ -3,6 +3,7 @@
 
 import uuid
 import qrcode
+import json
 from io import BytesIO
 from django.db import models
 from django.db.utils import OperationalError
@@ -363,7 +364,11 @@ class Sector(models.Model):
             box_size=6,
             border=1,
         )
-        qr.add_data(self.id)
+        data_qr = {
+            'tipo': 'sector',
+            'id': self.id
+        }
+        qr.add_data(json.dumps(data_qr, ensure_ascii=False))
         qr.make(fit=True)
         img = qr.make_image()
         buffer = BytesIO()
@@ -401,7 +406,11 @@ class Tarima(models.Model):
             box_size=6,
             border=1,
         )
-        qr.add_data(self.id)
+        data_qr = {
+            'tipo': 'tarima',
+            'id': self.id
+        }
+        qr.add_data(json.dumps(data_qr, ensure_ascii=False))
         qr.make(fit=True)
         img = qr.make_image()
         buffer = BytesIO()
@@ -483,7 +492,12 @@ class Dispositivo(models.Model):
             box_size=6,
             border=1,
         )
-        qr.add_data(self.id)
+        data_qr = {
+            'id': str(self.id),
+            'triage': self.triage,
+            'tipo': str(self.tipo)
+        }
+        qr.add_data(json.dumps(data_qr, ensure_ascii=False))
         qr.make(fit=True)
         img = qr.make_image()
         buffer = BytesIO()
@@ -954,7 +968,11 @@ class Repuesto(models.Model):
             box_size=6,
             border=1,
         )
-        qr.add_data(self.id)
+        data_qr = {
+            'id': str(self.id),
+            'tipo': str(self.tipo)
+        }
+        qr.add_data(json.dumps(data_qr, ensure_ascii=False))
         qr.make(fit=True)
         img = qr.make_image()
         buffer = BytesIO()
