@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 
+from django import forms
 from django.utils import timezone
 
 from django.urls import reverse_lazy
@@ -10,6 +11,11 @@ from braces.views import (
 )
 from apps.inventario import models as inv_m
 from apps.inventario import forms as inv_f
+
+
+#################################################
+# MOVIMIENTOS Y GESTIÓN GENERAL DE DISPOSITIVOS #
+#################################################
 
 
 class AsignacionTecnicoCreateView(LoginRequiredMixin, CreateView):
@@ -46,6 +52,69 @@ class DispositivoDetailView(DetailView):
         context = super(DispositivoDetailView, self).get_context_data(*args, **kwargs)
         context['form_falla'] = inv_f.DispositivoFallaCreateForm(initial={'dispositivo': self.object})
         return context
+
+
+class SolicitudMovimientoCreateView(LoginRequiredMixin, CreateView):
+    """Vista   para obtener los datos de SolicitudMovimiento mediante una :class:`SolicitudMovimiento`
+    Funciona  para recibir los datos de un  'SolicitudMovimientoCreateForm' mediante el metodo  POST.  y
+    nos muestra el template de visitas mediante el metodo GET.
+    """
+    model = inv_m.SolicitudMovimiento
+    template_name = 'inventario/dispositivo/solicitudmovimiento_add.html'
+    form_class = inv_f.SolicitudMovimientoCreateForm
+
+    def form_valid(self, form):
+        form.instance.creada_por = self.request.user
+        return super(SolicitudMovimientoCreateView, self).form_valid(form)
+
+    def get_initial(self):
+        return {
+            'fecha_creacion': None
+        }
+
+    def get_form(self, form_class=None):
+        form = super(SolicitudMovimientoCreateView, self).get_form(form_class)
+        print(self.request.user.tipos_dispositivos.tipos.all())
+        form.fields['tipo_dispositivo'].queryset = self.request.user.tipos_dispositivos.tipos.all()
+        return form
+
+
+class SolicitudMovimientoUpdateView(LoginRequiredMixin, UpdateView):
+    """Vista para crear `CambioDispositivo` a partir de una `SolicitudMovimiento`"""
+    model = inv_m.SolicitudMovimiento
+    form_class = inv_f.SolicitudMovimientoUpdateForm
+    template_name = 'inventario/dispositivo/solicitudmovimiento_update.html'
+
+    def get_form(self, form_class=None):
+        form = super(SolicitudMovimientoUpdateView, self).get_form(form_class)
+        form.fields['dispositivos'].widget = forms.SelectMultiple(attrs={
+            'data-api-url': reverse_lazy('inventario_api:api_dispositivo-list'),
+            'data-etapa-inicial': self.object.etapa_inicial.id,
+            'data-tipo-dispositivo': self.object.tipo_dispositivo.id,
+            'data-slug': self.object.tipo_dispositivo.slug,
+        })
+        form.fields['dispositivos'].queryset = inv_m.Dispositivo.objects.filter(
+            etapa=self.object.etapa_inicial,
+            tipo=self.object.tipo_dispositivo
+        )
+        return form
+
+    def form_valid(self, form):
+        form.instance.cambiar_etapa(
+            lista_dispositivos=form.cleaned_data['dispositivos'],
+            usuario=self.request.user
+        )
+        return super(SolicitudMovimientoUpdateView, self).form_valid(form)
+
+
+class SolicitudMovimientoDetailView(LoginRequiredMixin, DetailView):
+    model = inv_m.SolicitudMovimiento
+    template_name = 'inventario/dispositivo/solicitudmovimiento_detail.html'
+
+
+class SolicitudMovimientoListView(LoginRequiredMixin, ListView):
+    model = inv_m.SolicitudMovimiento
+    template_name = 'inventario/dispositivo/solicitudmovimiento_list.html'
 
 
 ##########################
@@ -145,22 +214,4 @@ class DispositivoRedDetailView(LoginRequiredMixin, DispositivoDetailView):
     model = inv_m.DispositivoRed
     template_name = 'inventario/dispositivo/red/red_detail.html'
 
-
-class SolicitudMovimientoCreateView(LoginRequiredMixin, CreateView):
-    """Vista   para obtener los datos de SolicitudMovimiento mediante una :class:`SolicitudMovimiento`
-    Funciona  para recibir los datos de un  'SolicitudMovimientoCreateForm' mediante el metodo  POST.  y
-    nos muestra el template de visitas mediante el metodo GET.
-    """
-    model = inv_m.SolicitudMovimiento
-    template_name = 'inventario/dispositivo/solicitudmovimiento_add.html'
-    form_class = inv_f.SolicitudMovimientoCreateForm
-
-    def form_valid(self, form):
-        form.instance.creada_por = self.request.user
-        return super(SolicitudMovimientoCreateView, self).form_valid(form)
-
-    def get_initial(self):
-        return {
-            'fecha_creacion': None
-        }
 

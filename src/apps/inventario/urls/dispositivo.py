@@ -87,10 +87,28 @@ urlpatterns = [
         inventario_v.TabletDetailView.as_view(),
         name='tablet_detail'
     ),
-    # Creacion de Solicitudes de Equipo
+    # Creacion de Solicitudes de movimiento
     url(
         r'^dispositivo/solicitudmovimiento/add/$',
         inventario_v.SolicitudMovimientoCreateView.as_view(),
-        name='movimiento_add'
+        name='solicitudmovimiento_add'
+    ),
+    # Actualización de Solicitudes de movimiento
+    url(
+        r'^dispositivo/solicitudmovimiento/(?P<pk>\d+)/edit/$',
+        inventario_v.SolicitudMovimientoUpdateView.as_view(),
+        name='solicitudmovimiento_update'
+    ),
+    # Detalle de Solicitudes de movimiento
+    url(
+        r'^dispositivo/solicitudmovimiento/(?P<pk>\d+)/$',
+        inventario_v.SolicitudMovimientoDetailView.as_view(),
+        name='solicitudmovimiento_detail'
+    ),
+    # Lista de Solicitudes de movimiento
+    url(
+        r'^dispositivo/solicitudmovimiento/list/$',
+        inventario_v.SolicitudMovimientoListView.as_view(),
+        name='solicitudmovimiento_list'
     )
 ]

@@ -1,0 +1,61 @@
+{% extends "base/base.html" %}
+
+{% block page_title %}
+    <title>Solicitudes de movimiento</title>
+{% endblock page_title %}
+
+{% block content %}
+    <section class="content">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="box box-primary">
+                        <div class="box-header">
+                            <h3 class="box-title">Listado de solicitudes</h3>
+                        </div>
+                        <div class="box-body">
+                            <table class="table table-condensed table-striped table-datatables">
+                                <thead>
+                                <tr>
+                                    <th>Fecha</th>
+                                    <th>Dispositivo</th>
+                                    <th>Cantidad</th>
+                                    <th>Solicitud por</th>
+                                    <th>Estado</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for solicitud in solicitudmovimiento_list %}
+                                    <tr>
+                                        <td>
+                                            <a href="{{ solicitud.get_absolute_url }}" class="btn btn-block">
+                                                {{ solicitud.fecha_creacion|date:"Y-m-d" }}
+                                            </a>
+                                        </td>
+                                        <td>
+                                            {{ solicitud.tipo_dispositivo }}
+                                        </td>
+                                        <td>
+                                            {{ solicitud.cantidad}}
+                                        </td>
+                                        <td>
+                                            {{ solicitud.creada_por.get_full_name }}
+                                        </td>
+                                        <td>
+                                            {% if solicitud.terminada %}
+                                                <span class="label label-success">Terminada</span>
+                                            {% else %}
+                                                <span class="label label-danger">Pendiente</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock content %}

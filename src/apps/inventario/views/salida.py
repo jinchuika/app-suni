@@ -43,7 +43,7 @@ class SalidaInventarioUpdateView(LoginRequiredMixin, UpdateView):
     def get_context_data(self, *args, **kwargs):
         context = super(SalidaInventarioUpdateView, self).get_context_data(*args, **kwargs)
         if self.request.user.has_perm("inventario.salidainventario_change"):
-            context['cantidad_paquetes'] = inv_f.PaqueteCantidadForm()
+            context['paquetes_form'] = inv_f.PaqueteCantidadForm()
         return context
 
 
@@ -60,7 +60,11 @@ class SalidaPaqueteUpdateView(LoginRequiredMixin, UpdateView):
         return reverse_lazy('salidainventario_edit', kwargs={'pk': self.object.id})
 
     def form_valid(self, form):
-        form.instance.crear_paquetes(form.cleaned_data['cantidad'], self.request.user)
+        form.instance.crear_paquetes(
+            cantidad=form.cleaned_data['cantidad'],
+            usuario=self.request.user,
+            tipo_paquete=form.cleaned_data['tipo_paquete']
+        )
         return super(SalidaPaqueteUpdateView, self).form_valid(form)
 
 
@@ -85,3 +89,19 @@ class RevisionSalidaUpdateView(LoginRequiredMixin, UpdateView):
     model = inv_m.RevisionSalida
     form_class = inv_f.RevisionSalidaUpdateForm
     template_name = 'inventario/salida/revisionsalida_update.html'
+
+
+class SalidaPaqueteView(LoginRequiredMixin, DetailView):
+    model = inv_m.SalidaInventario
+    template_name = 'inventario/salida/dispositivo_paquete.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(SalidaPaqueteView, self).get_context_data(**kwargs)
+        paquete_form = inv_f.DispositivoPaqueteCreateForm()
+        paquete_form.fields['tipo'].queryset = inv_m.DispositivoTipo.objects.filter(
+            id__in=self.request.user.tipos_dispositivos.tipos.all()
+        )
+        paquete_form.fields['paquete'].queryset = inv_m.Paquete.objects.filter(salida=self.object)
+        context['paquete_form'] = paquete_form
+        return context
+

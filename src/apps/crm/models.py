@@ -6,7 +6,10 @@ from django.core.exceptions import ValidationError
 
 
 class DonanteTipo(models.Model):
-    """Tipos de Donante que pueden existir Grande, mediano ,individual
+    """Tipos de Donante que pueden existir:
+    - Empresa grande
+    - Empresa mediana
+    - Individual
     """
     tipo = models.CharField(max_length=20, verbose_name="Tipo de Donante")
 
@@ -16,9 +19,6 @@ class DonanteTipo(models.Model):
 
     def __str__(self):
         return self.tipo
-
-    def get_absolute_url(self):
-        return reverse_lazy('donante_edit', kwargs={'pk': self.donante.id})
 
 
 class OfertaTipo(models.Model):
@@ -32,9 +32,6 @@ class OfertaTipo(models.Model):
 
     def __str__(self):
         return self.oferta_tipo
-
-    def get_absolute_url(self):
-        return reverse_lazy('donante_edit', kwargs={'pk': self.id})
 
 
 class Donante(models.Model):
@@ -61,7 +58,7 @@ class Donante(models.Model):
 
     def lista_telefonos(self):
         return self.telefonos.filter(contacto=None)
-        
+
     def lista_correos(self):
         return self.correos.filter(contacto=None)
 

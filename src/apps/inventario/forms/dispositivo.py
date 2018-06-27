@@ -2,6 +2,7 @@ from django import forms
 # from django.core.exceptions import ValidationError
 
 from apps.inventario import models as inv_m
+from django.urls import reverse_lazy
 
 
 class TecladoForm(forms.ModelForm):
@@ -78,3 +79,23 @@ class SolicitudMovimientoCreateForm(forms.ModelForm):
         cleaned_data = super(SolicitudMovimientoCreateForm, self).clean()
         if cleaned_data['etapa_inicial'] == cleaned_data['etapa_final']:
             raise forms.ValidationError('Las etapas no pueden ser iguales.')
+
+
+class SolicitudMovimientoUpdateForm(forms.ModelForm):
+    """Formulario para actualizar una `SolicitudMovimiento`, usado principalmente para autorizar movimientos.
+    El campo `dispositivos` sirve para crear un listado de dispositivos que serán cambiados.
+    Los datos agregados al widget son para hacer filtros sobre el tipo de dispositivo y la etapa donde se encuentran,
+    serán modificados en la vista para adaptarse a la solicitud de movimiento.
+    """
+    dispositivos = forms.ModelMultipleChoiceField(
+        queryset=inv_m.Dispositivo.objects.none(),
+        widget=forms.SelectMultiple(attrs={
+            'data-api-url': reverse_lazy('inventario_api:api_dispositivo-list'),
+            'data-etapa-inicial': '',
+            'data-tipo-dispositivo': ''
+        })
+    )
+
+    class Meta:
+        model = inv_m.SolicitudMovimiento
+        fields = ('dispositivos', 'terminada')

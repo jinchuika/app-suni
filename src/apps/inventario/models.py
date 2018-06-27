@@ -481,7 +481,7 @@ class Dispositivo(models.Model):
                 if isinstance(attr, self.__class__) and type(attr) != type(self):
                     return attr
             except:
-                print("a")
+                print("Error al cargar el modelo de {}".format(self.tipo))
 
     def crear_qrcode(self):
         """Genera le código QR para apuntar a la id del dispositivo
@@ -1083,11 +1083,16 @@ class SalidaInventario(models.Model):
     def __str__(self):
         return str(self.id)
 
-    def crear_paquetes(self, cantidad, usuario):
+    def crear_paquetes(self, cantidad, usuario, tipo_paquete=None):
         creados = 0
         indice_actual = self.paquetes.count()
         for i in range(cantidad):
-            paquete = Paquete(salida=self, indice=(i + 1 + indice_actual), creado_por=usuario)
+            paquete = Paquete(
+                salida=self,
+                indice=(i + 1 + indice_actual),
+                creado_por=usuario,
+                tipo_paquete=tipo_paquete
+            )
             paquete.save()
             creados += 1
         return creados
@@ -1221,6 +1226,9 @@ class SolicitudMovimiento(models.Model):
     def __str__(self):
         return str(self.id)
 
+    def get_absolute_url(self):
+        return reverse_lazy('solicitudmovimiento_detail', kwargs={'pk': self.id})
+
     def cambiar_etapa(self, lista_dispositivos, usuario):
         """Cambia el campo `etapa` de la lista de dispositivos recibida.
         En caso de que la solicitud ya haya sido terminada, no se puede volver a realizar esta operación.
@@ -1230,14 +1238,14 @@ class SolicitudMovimiento(models.Model):
         if not self.terminada:
             for dispositivo in lista_dispositivos:
                 if dispositivo.tipo == self.tipo_dispositivo:
-                    dispositivo.etapa = self.etapa_final
-                    dispositivo.save()
-                    self.cambios.create(
+                    cambio = CambioEtapa(
+                        solicitud=self,
                         dispositivo=dispositivo,
                         etapa_inicial=self.etapa_inicial,
                         etapa_final=self.etapa_final,
                         creado_por=usuario
                     )
+                    cambio.save()
             self.terminada = True
             self.save()
         else:
@@ -1265,6 +1273,9 @@ class CambioEtapa(models.Model):
     def save(self, *args, **kwargs):
         if self.etapa_inicial != self.etapa_final:
             super(CambioEtapa, self).save(*args, **kwargs)
+            self.dispositivo.etapa = self.etapa_final
+            self.dispositivo.save()
+            print(self.dispositivo.etapa)
 
 
 class AsignacionTecnico(models.Model):
@@ -1281,3 +1292,38 @@ class AsignacionTecnico(models.Model):
 
     def get_absolute_url(self):
         return reverse_lazy('asignaciontecnico_update', kwargs={'pk': self.id})
+
+
+class CambioEstado(models.Model):
+    dispositivo = models.ForeignKey(Dispositivo, on_delete=models.CASCADE, related_name='cambios_estado')
+    estado = models.ForeignKey(DispositivoEstado, on_delete=models.PROTECT, related_name='cambios')
+    fecha_hora = models.DateTimeField(default=timezone.now)
+    creado_por = models.ForeignKey(User, on_delete=models.CASCADE)
+    
+    class Meta:
+        verbose_name = 'Cambio de estado'
+        verbose_name_plural = 'Cambios de estado'
+    
+    def __str__(self):
+        return '{} -> {}'.format(self.dispositivo, self.estado)
+    
+    def save(self, **kwargs):
+        super(CambioEstado, self).save(**kwargs)
+        self.dispositivo.estado = self.estado
+        self.dispositivo.save()
+
+
+class Prestamo(models.Model):
+    dispositivo = models.ForeignKey(Dispositivo, on_delete=models.CASCADE, related_name='prestamos')
+    fecha_inicio = models.DateField()
+    fecha_fin = models.DateField(null=True, blank=True)
+    creado_por = models.ForeignKey(User, on_delete=models.CASCADE, related_name='prestamos_creados')
+    prestado_a = models.ForeignKey(User, on_delete=models.CASCADE, related_name='prestamos')
+    devuelto = models.BooleanField(default=False, blank=True)
+    
+    class Meta:
+        verbose_name = 'Préstamo'
+        verbose_name_plural = 'Préstamos'
+    
+    def __str__(self):
+        return '{} - {}'.format(self.fecha_inicio, self.dispositivo)

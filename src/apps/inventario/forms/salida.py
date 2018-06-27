@@ -43,10 +43,14 @@ class PaqueteCantidadForm(forms.ModelForm):
         """
     cantidad = forms.IntegerField(
         widget=forms.TextInput(attrs={'class': 'form-control'}))
+    tipo_paquete = forms.ModelChoiceField(
+        queryset=inv_m.PaqueteTipo.objects.all(),
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
 
     class Meta:
         model = inv_m.SalidaInventario
-        fields = ('cantidad', )
+        fields = ('cantidad', 'tipo_paquete', )
 
 
 class RevisionSalidaCreateForm(forms.ModelForm):
@@ -77,3 +81,23 @@ class RevisionSalidaUpdateForm(forms.ModelForm):
         widgets = {
             'anotaciones': forms.Textarea(attrs={'class': 'form-control'})
         }
+
+
+class DispositivoPaqueteCreateForm(forms.ModelForm):
+    tipo = forms.ModelChoiceField(
+        queryset=inv_m.DispositivoTipo.objects.filter(usa_triage=True),
+        label='Tipo de dispositivo',
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+    paquete = forms.ModelChoiceField(
+        queryset=inv_m.Paquete.objects.none(),
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+    dispositivo = forms.ModelChoiceField(
+        queryset=inv_m.Dispositivo.objects.none(),
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+
+    class Meta:
+        model = inv_m.DispositivoPaquete
+        fields = ('tipo', 'paquete', 'dispositivo')

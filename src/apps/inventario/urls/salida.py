@@ -32,4 +32,10 @@ urlpatterns = [
         inv_v.RevisionSalidaUpdateView.as_view(),
         name='revisionsalida_update'
     ),
+    # Asignación de dispositivos a paquetes
+    url(
+        r'^salida/(?P<pk>\d+)/paquetes/$',
+        inv_v.SalidaPaqueteView.as_view(),
+        name='salida_paquete'
+    ),
 ]
