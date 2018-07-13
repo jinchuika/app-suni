@@ -17,7 +17,6 @@
 class EntradaUpdate {
     constructor() {
         let entrada_table = $('#entrada-table');
-
         this.api_url = entrada_table.data("api");
         this.pk = entrada_table.data("pk");
         this.url_filtrada = this.api_url + "?entrada=" + this.pk;
@@ -88,12 +87,12 @@ class EntradaUpdate {
                 url: detalle_form.attr('action'),
                 data: detalle_form.serialize(),
                 success: function (response) {
-                    console.log("datos ingresados correctamente");
+                    console.log("datos ingresados correctamente2");
+                    tabla_temp.tabla.ajax.reload();
 
                 },
             });
-            this.tabla.clear().draw();
-            this.tabla.ajax.reload();
+
             document.getElementById("detalleForm").reset();
         });
     }
@@ -286,4 +285,111 @@ class SolicitudMovimientoUpdate {
             width : '100%'
         });
     }
+}
+
+class SolicitudEstadoTipo {
+  constructor() {
+    /**Uso de tablas **/
+    let paquete_tabla = $('#paquetes-table');
+    let api_urlpaquete =$('#asignarDispositivo').data('urlpaquete');
+    let salidapk = $('#asignarDispositivo').data('pk');
+    let url_filtrada = api_urlpaquete + salidapk;
+
+    /****/
+
+
+
+
+    this.asignarDispositivo = $('#asignarDispositivo');
+    var tablaSignar = paquete_tabla.DataTable({
+     processing:true,
+     retrieve:true,
+     ajax:{
+       url:api_urlpaquete,
+       dataSrc:'',
+       cache:false,
+       deferRender:true,
+       processing: true,
+       data: function () {
+         return {
+           salida: salidapk,
+           tipo_dispositivo: $('#id_tipo').val()
+         }
+       }
+     },
+     columns:[
+       {data:"id"},
+       {data:"tipo_paquete"},
+       {data:"asignacion",render: function( data, type, full, meta ){
+            for(var i = 0; i<(full.asignacion.length);i++){
+                 var asignacionDispositivos = full.asignacion[i].dispositivo.triage;
+           }
+
+           if(asignacionDispositivos==undefined){
+             asignacionDispositivos = "No cuenta con dispositivos";
+           }
+           return asignacionDispositivos;
+         }},
+       {data:"aprobado", render:function(data, type, full, meta){
+         if(full.aprobado == false){
+           return "Pendiente";
+         }else{
+           return "Aprobado"
+         }
+       }}
+     ]
+   });
+    var api_url = this.asignarDispositivo.data('url');
+    $('#id_tipo').change(function() {
+      if($('#id_tipo').val()==""){
+          $('#cuerpoPaquetes').css({"display":"none"});
+      }else{
+        /****/
+        $('#cuerpoPaquetes').css({"display":"block"});
+          var tipo = $(this).val();
+          var urlDispositivo = api_url+"?buscador=&tipo="+tipo+"&estado=2&etapa=2&asignaciones=0";
+          tablaSignar.clear().draw();
+          tablaSignar.ajax.reload();
+          $.ajax({
+            url:urlDispositivo,
+            dataType:'json',
+            data:{
+              format:'json'
+            },
+            error:function(){
+              console.log("Error");
+            },
+            success:function(data){
+                $('#id_dispositivo').empty();
+                $('#id_dispositivo').append('<option value=""'+'>'+"---------"+'</option>');
+                for (var i in data){
+                  $('#id_dispositivo').append('<option value='+data[i].triage + '>'+data[i].triage+'</option>');
+              }
+             $('#id_dispositivo').val();
+            },
+            type: 'GET'
+          }
+        );
+        /****/
+
+      }
+
+    });
+    /***/
+    let dispositivoPaqueteForm = $('#dispositivoPaqueteForm');
+    dispositivoPaqueteForm.submit(function (e) {
+      e.preventDefault();
+      $.ajax({
+        type: "POST",
+        url: dispositivoPaqueteForm.attr('action'),
+        data:dispositivoPaqueteForm.serialize(),
+        success: function (response){
+          bootbox.alert("Asignacion correctamente");
+          tablaSignar.ajax.reload();
+        },
+      });
+    });
+    /***/
+  }
+
 }
