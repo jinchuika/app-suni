@@ -434,14 +434,14 @@ class Dispositivo(models.Model):
         DispositivoEstado,
         on_delete=models.CASCADE,
         null=True,
-        editable=False,
+        editable=True,
         default=DispositivoEstado.PD
     )
     etapa = models.ForeignKey(
         DispositivoEtapa,
         on_delete=models.PROTECT,
         null=True,
-        editable=False,
+        editable=True,
         default=DispositivoEtapa.AB
     )
 
@@ -1299,14 +1299,14 @@ class CambioEstado(models.Model):
     estado = models.ForeignKey(DispositivoEstado, on_delete=models.PROTECT, related_name='cambios')
     fecha_hora = models.DateTimeField(default=timezone.now)
     creado_por = models.ForeignKey(User, on_delete=models.CASCADE)
-    
+
     class Meta:
         verbose_name = 'Cambio de estado'
         verbose_name_plural = 'Cambios de estado'
-    
+
     def __str__(self):
         return '{} -> {}'.format(self.dispositivo, self.estado)
-    
+
     def save(self, **kwargs):
         super(CambioEstado, self).save(**kwargs)
         self.dispositivo.estado = self.estado
@@ -1320,10 +1320,10 @@ class Prestamo(models.Model):
     creado_por = models.ForeignKey(User, on_delete=models.CASCADE, related_name='prestamos_creados')
     prestado_a = models.ForeignKey(User, on_delete=models.CASCADE, related_name='prestamos')
     devuelto = models.BooleanField(default=False, blank=True)
-    
+
     class Meta:
         verbose_name = 'Préstamo'
         verbose_name_plural = 'Préstamos'
-    
+
     def __str__(self):
         return '{} - {}'.format(self.fecha_inicio, self.dispositivo)

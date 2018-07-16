@@ -103,5 +103,5 @@ class SalidaPaqueteView(LoginRequiredMixin, DetailView):
         )
         paquete_form.fields['paquete'].queryset = inv_m.Paquete.objects.filter(salida=self.object)
         context['paquete_form'] = paquete_form
+        context['paquete_id'] = self.object.id
         return context
-

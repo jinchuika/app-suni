@@ -8,11 +8,13 @@ from apps.inventario import (
     serializers as inv_s,
     models as inv_m
 )
+from django.db.models import Count
 
 
 class DispositivoFilter(filters.FilterSet):
-    """Filtros para el ViewSet de Disositivo"""
+    """Filtros para el ViewSet de Dispositivo"""
     buscador = filters.CharFilter(name='buscador', method='filter_buscador')
+    asignaciones = filters.NumberFilter(name='asignacion', method='filter_asignacion')
 
     class Meta:
         model = inv_m.Dispositivo
@@ -20,6 +22,9 @@ class DispositivoFilter(filters.FilterSet):
 
     def filter_buscador(self, qs, name, value):
         return qs.filter(triage__istartswith=value)
+
+    def filter_asignacion(self, qs, name, value):
+        return qs.annotate(asignaciones=Count('asignacion')).filter(asignaciones=value)
 
 
 class DispositivoViewSet(viewsets.ModelViewSet):
@@ -35,6 +40,36 @@ class DispositivoViewSet(viewsets.ModelViewSet):
         queryset = inv_m.Dispositivo.objects.filter(
             estado=inv_m.DispositivoEstado.BN,
             etapa=inv_m.DispositivoEtapa.TR
+
         )
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
+
+
+class PaquetesFilter(filters.FilterSet):
+    """ Filtros par el ViewSet de Paquete
+    """
+
+    tipo_paquete = django_filters.NumberFilter(name='tipo_paquete')
+    tipo_dispositivo = django_filters.ModelChoiceFilter(
+        queryset=inv_m.DispositivoTipo.objects.filter(usa_triage=True),
+        name='tipo dispositivo',
+        method='filter_tipo_dispositivo',
+        )
+
+    class Meta:
+        model = inv_m.Paquete
+        fields = ['tipo_paquete', 'salida']
+
+    def filter_tipo_dispositivo(self, qs, name, value):
+        qs = qs.filter(tipo_paquete__tipo_dispositivo__tipo=value)
+        return qs
+
+
+class PaquetesViewSet(viewsets.ModelViewSet):
+    """ ViewSet para generar informe de  :class:`Paquete`
+    """
+
+    serializer_class = inv_s.PaqueteSerializer
+    queryset = inv_m.Paquete.objects.all()
+    filter_class = PaquetesFilter

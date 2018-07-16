@@ -87,9 +87,8 @@ class EntradaUpdate {
                 url: detalle_form.attr('action'),
                 data: detalle_form.serialize(),
                 success: function (response) {
-                    console.log("datos ingresados correctamente2");
+                    console.log("datos ingresados correctamente");
                     tabla_temp.tabla.ajax.reload();
-
                 },
             });
 
