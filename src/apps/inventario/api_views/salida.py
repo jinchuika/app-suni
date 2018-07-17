@@ -29,7 +29,7 @@ class SalidaInventarioViewSet(viewsets.ModelViewSet):
             """
             if self.get_object() != paquete.salida:
                 return Response(
-                    {'mensaje': 'No sea mudo'},
+                    {'mensaje': 'Paquete no existe'},
                     status=status.HTTP_400_BAD_REQUEST
                 )
             dispositivo_id = request.data['dispositivo']
@@ -68,3 +68,20 @@ class SalidaInventarioViewSet(viewsets.ModelViewSet):
                 'mensaje': "Paquete creado "
             },
             status=status.HTTP_200_OK)
+
+    @action(methods=['post'], detail=True)
+    def cambios_etapa(self, request, pk=None):
+        id_paquete = request.data["paquete"]
+        paquete = inv_m.DispositivoPaquete.objects.get(paquete=id_paquete)
+        print(paquete.aprobado)
+        print(paquete.dispositivo)
+        paquete.aprobado = True
+        paquete.dispositivo.etapa = inv_m.DispositivoEtapa.objects.get(id=inv_m.DispositivoEtapa.CC)
+        paquete.dispositivo.save()
+        paquete.save()
+        return Response(
+            {
+                'mensaje': 'Actualizacion completa'
+            },
+            status=status.HTTP_200_OK
+        )

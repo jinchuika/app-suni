@@ -6,7 +6,7 @@
 
 {% block content %}
     <section class="content">
-        <div id="asignarDispositivo"class="row" data-url="{% url 'inventario_api:api_dispositivo-list' %}" data-pk="{{paquete_id}}" data-urlpaquete="{%url 'inventario_api:api_paquete-list'%}">
+        <div id="asignarDispositivo"class="row" data-url="{% url 'inventario_api:api_dispositivo-list' %}" data-pk="{{paquete_id}}" data-urlpaquete="{%url 'inventario_api:api_paquete-list'%}" data-urlMovimiento="{%url 'inventario_api:api_inventariosalidas-cambios-etapa'  pk=paquete_id%}">
             <div class="col-md-3">
                 <div class="box">
                     <div class="box-header">
@@ -40,6 +40,8 @@
           									<th>Tipo</th>
           									<th>Dispositivo asignado</th>
           									<th>Estado</th>
+                            <th><th>
+                            <th><th>
           								</tr>
           							</thead>
           							<tbody id="paquetes-table-body">

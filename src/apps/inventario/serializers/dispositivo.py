@@ -17,11 +17,13 @@ class PaqueteSerializer(serializers.ModelSerializer):
     """
     asignacion = DispositivoPaqueteSerializer(many=True)
     id = serializers.StringRelatedField(source='__str__')
+    id_paquete = serializers.StringRelatedField(source='id')
     tipo_paquete = serializers.StringRelatedField()
 
     class Meta:
         model = inv_m.Paquete
         fields = (
+            'id_paquete',
             'id',
             'fecha_creacion',
             'indice',

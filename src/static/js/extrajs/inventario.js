@@ -293,13 +293,10 @@ class SolicitudEstadoTipo {
     let api_urlpaquete =$('#asignarDispositivo').data('urlpaquete');
     let salidapk = $('#asignarDispositivo').data('pk');
     let url_filtrada = api_urlpaquete + salidapk;
-
+    var cambios_etapa =$('#asignarDispositivo').data('urlmovimiento');
+    //console.log(cambios_etapa);
     /****/
-
-
-
-
-    this.asignarDispositivo = $('#asignarDispositivo');
+    this.asignarDispositivo = $('#asignarDispositivo');    
     var tablaSignar = paquete_tabla.DataTable({
      processing:true,
      retrieve:true,
@@ -329,14 +326,54 @@ class SolicitudEstadoTipo {
            }
            return asignacionDispositivos;
          }},
-       {data:"aprobado", render:function(data, type, full, meta){
-         if(full.aprobado == false){
-           return "Pendiente";
+       {data:"aprobado", render: function( data, type, full, meta){
+        if(full.aprobado == true){
+           return "Aprobado";
          }else{
-           return "Aprobado"
+           return "Pendiente"
          }
-       }}
+       }},
+       {data:"id_paquete",
+       render:function(data, type, full, name){
+         return "<button id='buttonAsignar'"+"data-buttonSignar='"+full.id_paquete+"'class='btn btn-info btn-aprovar'>Aprovar</button>";
+
+       }
+      },
      ]
+   });
+   tablaSignar.on('click','.btn-aprovar', function () {
+     let data_fila = tablaSignar.row($(this).parents('tr')).data();
+     bootbox.confirm({
+        message: "Esta Seguro de aprovar estos dispositivos",
+        buttons: {
+            confirm: {
+                label: 'Si',
+                className: 'btn-success'
+            },
+            cancel: {
+                label: 'No',
+                className: 'btn-danger'
+            }
+        },
+        callback: function (result) {
+          if(result==true){
+            $.ajax({
+              type: "POST",
+              url: cambios_etapa,
+              data:{
+                csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
+                paquete:data_fila.id_paquete
+              },
+              success: function (response){
+                  bootbox.alert("Dispositivos aprovados");
+              },
+            });
+          }
+
+            console.log('This was logged in the callback: ' + result);
+        }
+      });
+
    });
     var api_url = this.asignarDispositivo.data('url');
     $('#id_tipo').change(function() {
