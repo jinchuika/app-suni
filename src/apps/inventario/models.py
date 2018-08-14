@@ -7,7 +7,7 @@ import json
 from io import BytesIO
 from django.db import models
 from django.db.utils import OperationalError
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 from django.utils import timezone
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
@@ -1080,6 +1080,9 @@ class SalidaInventario(models.Model):
         verbose_name = "Salida"
         verbose_name_plural = "Salidas"
 
+    def get_absolute_url(self):
+        return reverse_lazy('revisionsalida_add')
+
     def __str__(self):
         return str(self.id)
 
@@ -1146,6 +1149,9 @@ class Paquete(models.Model):
             paquete.aprobado_por = usuario
             paquete.save()
 
+    def get_absolute_url(self):
+        return reverse_lazy('detalle_paquete', kwargs={'pk': self.id})
+
 
 class DispositivoPaquete(models.Model):
     """La asignación de un :class:`Dispositivo` a un :class:`Paquete`. Sirve para ser utilizado en control de calidad.
@@ -1186,6 +1192,9 @@ class RevisionSalida(models.Model):
 
     def __str__(self):
         return str(self.salida)
+
+    def get_absolute_url(self):
+        return reverse_lazy('revisionsalida_update', kwargs={'pk': self.id})
 
 
 class RevisionComentario(models.Model):

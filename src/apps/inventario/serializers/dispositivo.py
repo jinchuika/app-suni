@@ -19,10 +19,12 @@ class PaqueteSerializer(serializers.ModelSerializer):
     id = serializers.StringRelatedField(source='__str__')
     id_paquete = serializers.StringRelatedField(source='id')
     tipo_paquete = serializers.StringRelatedField()
+    urlPaquet = serializers.StringRelatedField(source='get_absolute_url')
 
     class Meta:
         model = inv_m.Paquete
         fields = (
+            'urlPaquet',
             'id_paquete',
             'id',
             'fecha_creacion',

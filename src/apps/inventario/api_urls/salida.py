@@ -7,5 +7,10 @@ salida_router.register(
     api_views.SalidaInventarioViewSet,
     base_name='api_inventariosalidas'
 )
+salida_router.register(
+    r'revisionsalidas',
+    api_views.RevisionSalidaViewSet,
+    base_name='api_revisionsalidas'
+)
 salida_urlpatterns = []
 salida_urlpatterns += salida_router.urls

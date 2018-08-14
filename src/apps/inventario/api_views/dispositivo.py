@@ -59,7 +59,7 @@ class PaquetesFilter(filters.FilterSet):
 
     class Meta:
         model = inv_m.Paquete
-        fields = ['tipo_paquete', 'salida']
+        fields = ['tipo_paquete', 'salida', 'aprobado']
 
     def filter_tipo_dispositivo(self, qs, name, value):
         qs = qs.filter(tipo_paquete__tipo_dispositivo__tipo=value)

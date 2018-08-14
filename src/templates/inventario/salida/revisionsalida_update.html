@@ -1,5 +1,5 @@
 {% extends 'base/base.html' %}
-
+{% load staticfiles widget_tweaks %}
 
 {% block page_title %}
     <title>Revisión de la salida {{ object.salida }}</title>
@@ -8,10 +8,19 @@
 {% block content %}
     <section class="content">
         <div class="row">
-            <div class="col-md-8">
+            <div class="col-md-5">
                 <div class="box">
                     <div class="box-header">
-                        <h3 class="box-title">Revisión de la salida {{ object.salida }}</h3>
+                      <div class="row">
+                        <div class="col-md-8">
+                            <h3 class="box-title">Revisión de la salida {{ object.salida }}</h3>
+                        </div>
+                        <div class="col-md-4">
+                            <button id="rechazar-btn" class='btn btn-warning btn-rechazar' >Rechazar</button>
+                            <button id="aprobar-btn" class="btn btn-danger"  data-url="{% url 'inventario_api:api_revisionsalidas-list' %}">Finalizar</button>
+                        </div>
+                      </div>
+
                     </div>
                     <div class="box-body">
                         <form action="{{ action }}" method="post">
@@ -31,11 +40,55 @@
                                         <input type="submit" value="Guardar" class="btn btn-success pull-right">
                                     </td>
                                 </tr>
+                                <tr>
+                                  <th colspan="2">
+                                    Histórico
+                                  </th>
+                                </tr>
+                                <tbody id="body-salidas-{{form.instance.id}}">
+                                  {%for comentario in revisionsalida.comentarios.all%}
+                                 <tr>
+                                   <td>
+                                     {{comentario.comentario}}
+                                   </td>
+                                   <td>
+                                     <small>{{comentario.fecha|date:'d/m/y'}}, {{comentario.usuario.perfil}}</small>
+                                   </td>
+                                 </tr>
+                                 {%endfor%}
+                                </tbody>
                             </table>
                         </form>
                     </div>
                 </div>
             </div>
+            <div class="col-md-7">
+              <div class="box">
+                <div class="box-header">
+                    <h3 class="box-title">Paquetes Aprobados de la Salida</h3>
+                </div>
+                <div  id="paquetes-revision" class="box-body  table-responsive" data-url="{% url 'inventario_api:api_paquete-list' %}" data-id="{{ object.salida }}">
+                  <table id="salida-paquetes-revision" class="table table-striped table-hover table-bordered table-condensed">
+                      <thead>
+                        <tr>
+                          <th>Paquete</th>
+                          <th>Fecha</th>
+                          <th>Tipo Paquete</th>
+                        </tr>
+                      </thead>
+                      <tbody id="paquetes-revision-table-body">
+                      </tbody>
+                    </table>
+                </div>
+              </div>
+            </div>
         </div>
     </section>
-{% endblock %}
+{% endblock content%}
+{% block extra_js %}
+{% include "base/dataTables.html" %}
+<script src="{% static "js/extrajs/inventario.js" %}"></script>
+<script>
+ let PaquetesRevision = new PaquetesRevisionList();
+</script>
+{% endblock extra_js %}

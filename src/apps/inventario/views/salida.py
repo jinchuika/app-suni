@@ -1,8 +1,10 @@
-from django.shortcuts import reverse
+from django.shortcuts import reverse, render
 from django.urls import reverse_lazy
-from django.views.generic import CreateView, DetailView, ListView, UpdateView, FormView
+from django.utils import timezone
+from django.http import HttpResponse, HttpResponseRedirect
+from django.views.generic import CreateView, DetailView, ListView, UpdateView, FormView, View
 from braces.views import (
-    LoginRequiredMixin,PermissionRequiredMixin
+    LoginRequiredMixin, PermissionRequiredMixin, JsonRequestResponseMixin, CsrfExemptMixin
 )
 
 from apps.escuela import models as escuela_m
@@ -19,6 +21,9 @@ class SalidaInventarioCreateView(LoginRequiredMixin, CreateView):
     form_class = inv_f.SalidaInventarioForm
     template_name = 'inventario/salida/salida_add.html'
 
+    def get_success_url(self):
+        return reverse_lazy('revisionsalida_add')
+
     def get_context_data(self, **kwargs):
         context = super(SalidaInventarioCreateView, self).get_context_data(**kwargs)
         context['salidainventario_list'] = inv_m.SalidaInventario.objects.filter(en_creacion=True)
@@ -27,7 +32,7 @@ class SalidaInventarioCreateView(LoginRequiredMixin, CreateView):
     def form_valid(self, form):
         form.instance.escuela = escuela_m.Escuela.objects.get(codigo=form.cleaned_data['udi'])
         form.instance.creada_por = self.request.user
-        super(SalidaInventarioCreateView, self).form_valid(form)
+        return super(SalidaInventarioCreateView, self).form_valid(form)
 
 
 class SalidaInventarioUpdateView(LoginRequiredMixin, UpdateView):
@@ -68,11 +73,19 @@ class SalidaPaqueteUpdateView(LoginRequiredMixin, UpdateView):
         return super(SalidaPaqueteUpdateView, self).form_valid(form)
 
 
+class SalidaPaqueteDetailView(LoginRequiredMixin, DetailView):
+    model = inv_m.Paquete
+    template_name = 'inventario/salida/paquetes_detail.html'
+    
+
 class RevisionSalidaCreateView(LoginRequiredMixin, CreateView):
     """Vista para creación de :class:`RevisionSalida`"""
     model = inv_m.RevisionSalida
     form_class = inv_f.RevisionSalidaCreateForm
     template_name = 'inventario/salida/revisionsalida_add.html'
+
+    def get_success_url(self):
+        return reverse_lazy('revisionsalida_list')
 
     def get_initial(self):
         return {
@@ -81,7 +94,7 @@ class RevisionSalidaCreateView(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         form.instance.revisado_por = self.request.user
-        super(RevisionSalidaCreateView, self).form_valid(form)
+        return super(RevisionSalidaCreateView, self).form_valid(form)
 
 
 class RevisionSalidaUpdateView(LoginRequiredMixin, UpdateView):
@@ -101,7 +114,41 @@ class SalidaPaqueteView(LoginRequiredMixin, DetailView):
         paquete_form.fields['tipo'].queryset = inv_m.DispositivoTipo.objects.filter(
             id__in=self.request.user.tipos_dispositivos.tipos.all()
         )
-        paquete_form.fields['paquete'].queryset = inv_m.Paquete.objects.filter(salida=self.object)
+        paquete_form.fields['paquete'].queryset = inv_m.Paquete.objects.filter(salida=self.object,
+                                                                               aprobado=False)
         context['paquete_form'] = paquete_form
         context['paquete_id'] = self.object.id
         return context
+
+
+class RevisionSalidaListView(LoginRequiredMixin, ListView):
+    model = inv_m.RevisionSalida
+    template_name = 'inventario/salida/revisionsalida_list.html'
+
+
+class RevisionComentarioCreate(CsrfExemptMixin, JsonRequestResponseMixin, View):
+    """docstring for RevisionComentario."""
+
+    require_json = True
+
+    def post(self, request, *args, **kwargs):
+        try:
+            id_comentario = self.request_json["id_comentario"]
+            revision_salida = inv_m.RevisionSalida.objects.filter(salida=id_comentario)
+            comentario = self.request_json["comentario"]
+            print()
+            if not len(comentario) or len(revision_salida) == 0:
+                raise KeyError
+        except KeyError:
+            error_dict = {u"message": u"Sin Comentario"}
+            return self.render_bad_request_response(error_dict)
+        comentario_revision = inv_m.RevisionComentario(
+            revision=revision_salida[0],
+            comentario=comentario,
+            creado_por=self.request.user)
+        comentario_revision.save()
+        return self.render_json_response({
+            "comentario": comentario_revision.comentario,
+            "fecha": str(comentario_revision.fecha_revision),
+            "usuario": str(comentario_revision.creado_por.perfil)
+            })

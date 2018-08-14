@@ -32,10 +32,30 @@ urlpatterns = [
         inv_v.RevisionSalidaUpdateView.as_view(),
         name='revisionsalida_update'
     ),
+    # Listado de revision de salida
+    url(
+        r'salida/revision/list/$',
+        inv_v.RevisionSalidaListView.as_view(),
+        name='revisionsalida_list'
+    ),
     # Asignación de dispositivos a paquetes
     url(
         r'^salida/(?P<pk>\d+)/paquetes/$',
         inv_v.SalidaPaqueteView.as_view(),
         name='salida_paquete'
     ),
+    # Detalles de Paquete
+    url(
+        r'^salida/paquetes/(?P<pk>\d+)/$',
+        inv_v.SalidaPaqueteDetailView.as_view(),
+        name='detalle_paquete'
+    ),
+
+    # Creación de Historicos de paquetes
+    url(
+        r'^salida/historico/add/$',
+        inv_v.RevisionComentarioCreate.as_view(),
+        name='historico_salida'
+    ),
+
 ]
