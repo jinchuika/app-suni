@@ -4,3 +4,4 @@ from .entrada import *
 from .desecho import *
 from .bodega import *
 from .salida import *
+from .repuesto import *

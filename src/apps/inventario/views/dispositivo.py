@@ -5,7 +5,7 @@ from django import forms
 from django.utils import timezone
 
 from django.urls import reverse_lazy
-from django.views.generic import DetailView, UpdateView, CreateView, ListView
+from django.views.generic import DetailView, UpdateView, CreateView, ListView, FormView
 from braces.views import (
     LoginRequiredMixin, PermissionRequiredMixin
 )
@@ -52,6 +52,16 @@ class DispositivoDetailView(DetailView):
         context = super(DispositivoDetailView, self).get_context_data(*args, **kwargs)
         context['form_falla'] = inv_f.DispositivoFallaCreateForm(initial={'dispositivo': self.object})
         return context
+
+
+class DispositivoListView(LoginRequiredMixin, FormView):
+    """Vista   para obtener los datos de Dispositivos mediante una :class:`Dispositivo`
+    Funciona  para recibir los datos de un  'DispositivoForm' mediante el metodo  POST.  y
+    nos muestra el template de visitas mediante el metodo GET.
+    """
+    model = inv_m.Dispositivo
+    template_name = 'inventario/dispositivo/dispositivos_list.html'
+    form_class = inv_f.DispositivoInformeForm
 
 
 class SolicitudMovimientoCreateView(LoginRequiredMixin, CreateView):
@@ -215,3 +225,15 @@ class DispositivoRedDetailView(LoginRequiredMixin, DispositivoDetailView):
     template_name = 'inventario/dispositivo/red/red_detail.html'
 
 
+class DispositivoTipoCreateView(LoginRequiredMixin, CreateView):
+    """Creacion de tipos por medio la :class:`DispositivoTipo`
+    """
+
+    model = inv_m.DispositivoTipo
+    template_name = 'inventario/dispositivo/dispositivotipo_add.html'
+    form_class = inv_f.DispositivoTipoForm
+
+    def get_context_data(self, **kwargs):
+        context = super(DispositivoTipoCreateView, self).get_context_data(**kwargs)
+        context['dispositivotipo_list'] = inv_m.DispositivoTipo.objects.all()
+        return context

@@ -142,14 +142,22 @@ class EntradaUpdate {
             }
         },
         columns: [
-
+            {data: "id"},
             {data: "tipo"},
             {data: "fecha", className: "nowrap"},
             {data: "en_creacion", className: "nowrap"},
             {data: "creada_por", className: "nowrap"},
             {data: "recibida_por", className: "nowrap"},
             {data: "proveedor", className: "nowrap"},
-            {data: "", defaultContent: "<button>Edit</button>", targets: -1}
+            {data: "urlSi", render: function(data, type, full, meta){
+              if(full.en_creacion== "Si"){
+                return "<a href="+data+" class='btn btn-block btn-success'>Abrir</a>";
+
+              }else{
+                return "<a href="+full.urlNo+" class='btn btn-block btn-success'>Abrir</a>";
+              }
+
+            }}
         ]
 
 
@@ -171,6 +179,7 @@ class EntradaUpdate {
             var data = tabla.row($(this).parents('tr')).data();
             alert("Si funciona este boton");
             console.log(data.fecha);
+            console.log(data.en_creacion);
         });
 
     }
@@ -231,7 +240,6 @@ class EntradaUpdate {
         /** Uso de DRF**/
         $('#detalleForm').submit(function (e) {
             e.preventDefault()
-
             $.ajax({
                 type: "POST",
                 url: $('#detalleForm').attr('action'),
@@ -293,7 +301,6 @@ class SolicitudEstadoTipo {
     let salidapk = $('#asignarDispositivo').data('pk');
     let url_filtrada = api_urlpaquete + salidapk;
     var cambios_etapa =$('#asignarDispositivo').data('urlmovimiento');
-    //console.log(cambios_etapa);
     /****/
     this.asignarDispositivo = $('#asignarDispositivo');
     var tablaSignar = paquete_tabla.DataTable({
@@ -316,7 +323,6 @@ class SolicitudEstadoTipo {
      columns:[
        {data:"id",
           render: function(data, type, full, meta){
-            console.log(full.urlPaquet)
             return '<a href="'+full.urlPaquet+'">'+data+'</a>'
 
           }},
@@ -341,7 +347,6 @@ class SolicitudEstadoTipo {
        {data:"id_paquete",
        render:function(data, type, full, name){
          return "<button id='buttonAsignar'"+"data-buttonSignar='"+full.id_paquete+"'class='btn btn-info btn-aprovar'>Aprovar</button>";
-
        }
       },
      ]
@@ -349,7 +354,7 @@ class SolicitudEstadoTipo {
    tablaSignar.on('click','.btn-aprovar', function () {
      let data_fila = tablaSignar.row($(this).parents('tr')).data();
      bootbox.confirm({
-        message: "Esta Seguro de aprovar estos dispositivos",
+        message: "Esta Seguro de aprovar este paquete",
         buttons: {
             confirm: {
                 label: 'Si',
@@ -370,7 +375,9 @@ class SolicitudEstadoTipo {
                 paquete:data_fila.id_paquete
               },
               success: function (response){
-                  bootbox.alert("Dispositivos aprovados");
+                  bootbox.alert("Paquete y Dispositivos aprovados");
+                  tablaSignar.clear().draw();
+                  tablaSignar.ajax.reload();
               },
             });
           }
@@ -418,6 +425,7 @@ class SolicitudEstadoTipo {
     });
     /***/
     let dispositivoPaqueteForm = $('#dispositivoPaqueteForm');
+    let tipo = $('#id_tipo').val();
     dispositivoPaqueteForm.submit(function (e) {
       e.preventDefault();
       $.ajax({
@@ -552,19 +560,6 @@ class PaquetesRevisionList {
            }
        },
        callback: function (result) {
-         if(result==true){
-          /* $.ajax({
-             type: "POST",
-             url: cambios_etapa,
-             data:{
-               csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
-               paquete:data_fila.id_paquete
-             },
-             success: function (response){
-                 bootbox.alert("Dispositivos aprovados");
-             },
-           });*/
-         }
 
            console.log('This was logged in the callback: ' + result);
        }
@@ -613,7 +608,7 @@ class PaqueteDetail {
     var urlCambio = $("#salida-id").data('url');
     tablabodyRechazar.on('click','.btn-rechazar', function () {
       let data_triage = $(this).attr("data-triage");
-      let data_paquete=$(this).attr("data-paquete");       
+      let data_paquete=$(this).attr("data-paquete");
       bootbox.confirm({
          message: "Esta seguro de rechazar el dispositivo",
          buttons: {
@@ -675,5 +670,106 @@ class PaqueteDetail {
     });
     }
     /****/
+  }
+}
+class RepuestosList {
+  constructor() {
+    var url_repuestos = $("#repuesto-list").attr('action');
+    let repuesto_tabla = $("#repuesto-table");
+    $("#id_tipo").change(function() {
+      var tipo = $(this).val();
+      var tabla = repuesto_tabla.DataTable({
+        destroy:true,
+        searching:true,
+        paging:true,
+        ordering:true,
+        processing:true,
+        ajax:{
+          url:url_repuestos,
+          dataSrc:'',
+          cache:true,
+          data: function() {
+            return{
+              tipo:tipo,
+              estado:1
+            }
+          }
+        },
+        columns:[
+          {data:"No"},
+          {data:"tipo"},
+          {data:"descripcion"},
+          {data:"tarima"},
+          {
+                data: "",
+                defaultContent: "<button  id='button-repuesto' class='btn btn-info repuesto-btn'>Asignar</button>"
+            }
+        ]
+      });
+      tabla.clear().draw();
+      tabla.ajax.reload();
+      var tablabodyRepuesto = $("#repuesto-table tbody");
+      tabla.on('click','.repuesto-btn',function () {
+        let repuesto = tabla.row($(this).parents('tr')).data();
+        bootbox.prompt("Ingrese el Triage del Dispositivo", function(result){
+            $.ajax({
+             type: "POST",
+             url:url_repuestos +"asignar_repuesto/",
+             data:{
+               csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
+               repuesto:repuesto.id,
+               triage:result
+             },
+             success:function (response){
+               tabla.ajax.reload();
+             }
+           });
+         });
+      });
+    });
+   }
+}
+class DispositivoList {
+  constructor() {
+
+    $('#dispositivo-list-form').submit(function (e) {
+        e.preventDefault();
+        /**/
+        var tablaDispositivos = $('#dispositivo-table').DataTable({
+           dom: 'lfrtipB',
+           destroy:true,
+           buttons: ['excel', 'pdf'],
+           processing: true,
+           ajax: {
+               url: $('#dispositivo-list-form').attr('action'),
+               deferRender: true,
+               dataSrc: '',
+               cache: true,
+               data: function () {
+                   return $('#dispositivo-list-form').serializeObject(true);
+               }
+           },
+           columns: [
+
+               {data: "triage", render: function(data, type, full, meta){
+                 return '<a href="'+full.url+'">'+data+'</a>'
+
+               }},
+               {data: "tipo", className: "nowrap"},
+               {data: "marca", className: "nowrap"},
+               {data: "modelo", className: "nowrap"},
+               {data: "serie", className: "nowrap"},
+               {data: "tarima", className: "nowrap"},
+               {data: "estado", className: "nowrap"},
+               {data: "etapa", className: "nowrap"}
+           ]
+              });
+        /**/
+        tablaDispositivos.clear().draw();
+        tablaDispositivos.ajax.reload();
+
+
+    });
+
   }
 }

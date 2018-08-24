@@ -4,6 +4,7 @@
 import uuid
 import qrcode
 import json
+import sys
 from io import BytesIO
 from django.db import models
 from django.db.utils import OperationalError
@@ -1081,7 +1082,7 @@ class SalidaInventario(models.Model):
         verbose_name_plural = "Salidas"
 
     def get_absolute_url(self):
-        return reverse_lazy('revisionsalida_add')
+        return reverse_lazy('salidainventario_add')
 
     def __str__(self):
         return str(self.id)

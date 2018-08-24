@@ -5,6 +5,8 @@ from .bodega import DispositivoSerializer
 
 
 class DispositivoPaqueteSerializer(serializers.ModelSerializer):
+    """ Serializer para generar los datos que se mostraran de la :class:`DispositivoPaquete`
+    """
     dispositivo = DispositivoSerializer()
 
     class Meta:

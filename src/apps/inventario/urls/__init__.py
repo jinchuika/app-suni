@@ -15,8 +15,9 @@ from .software import software_urls
 from .bodega import urlpatterns as bodega_urls
 from .desecho import urlpatterns as desecho_urls
 from .salida import urlpatterns as salida_urls
+from .repuesto import urlpatterns as repuesto_urls
 
-urlpatterns = dispositivo_urls + entrada_urls + software_urls + bodega_urls + desecho_urls + salida_urls
+urlpatterns = dispositivo_urls + entrada_urls + software_urls + bodega_urls + desecho_urls + salida_urls + repuesto_urls
 
 urlpatterns.append(
     url(r'^api/', include(('apps.inventario.api_urls', 'inventario'), namespace='inventario_api')),

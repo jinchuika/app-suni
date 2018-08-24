@@ -110,5 +110,17 @@ urlpatterns = [
         r'^dispositivo/solicitudmovimiento/list/$',
         inventario_v.SolicitudMovimientoListView.as_view(),
         name='solicitudmovimiento_list'
+    ),
+    # Listado de Dispositivos
+    url(
+        r'^dispositivo/list/$',
+        inventario_v.DispositivoListView.as_view(),
+        name='dispositivo_list'
+    ),
+    # Tipo de Dispositivo
+    url(
+        r'^dispositivo/tipo/$',
+        inventario_v.DispositivoTipoCreateView.as_view(),
+        name='dispositivotipo_add'
     )
 ]

@@ -34,7 +34,7 @@ urlpatterns = [
     ),
     # Listado de revision de salida
     url(
-        r'salida/revision/list/$',
+        r'^salida/revision/list/$',
         inv_v.RevisionSalidaListView.as_view(),
         name='revisionsalida_list'
     ),
@@ -56,6 +56,12 @@ urlpatterns = [
         r'^salida/historico/add/$',
         inv_v.RevisionComentarioCreate.as_view(),
         name='historico_salida'
+    ),
+    # Control de Calidad
+    url(
+        r'^salida/controlcalidad/$',
+        inv_v.ControlCalidadListView.as_view(),
+        name='controlcalidad_list'
     ),
 
 ]

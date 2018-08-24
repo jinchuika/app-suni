@@ -11,7 +11,9 @@ from apps.inventario import (
     serializers as inv_s,
     models as inv_m
 )
+from apps.conta import models as conta_m
 from django.db.models import Count
+from decimal import Decimal
 
 
 class SalidaInventarioViewSet(viewsets.ModelViewSet):
@@ -122,18 +124,17 @@ class RevisionSalidaViewSet(viewsets.ModelViewSet):
 
     @action(methods=['post'], detail=True)
     def aprobado(self, request, pk=None):
-        print("Se cambio el estatus a Aprobado")
+        """ Metodo para aprobar la salida
+        """
         id_salida = request.data["salida"]
         finalizar_salida = inv_m.SalidaInventario.objects.get(id=id_salida)
         salida = inv_m.RevisionSalida.objects.get(id=id_salida)
         paquetes = inv_m.Paquete.objects.filter(salida=id_salida,
                                                 aprobado=True)
         for paquete in paquetes:
-            # print(str(paquete)+"<-- Paquetes")
             dispositivosPaquetes = inv_m.DispositivoPaquete.objects.filter(paquete=paquete.id,
                                                                            aprobado=True)
             for dispositivos in dispositivosPaquetes:
-                # print(str(dispositivos.dispositivo)+"Etapa -->"+str(dispositivos.dispositivo.estado))
                 dispositivos.dispositivo.etapa = inv_m.DispositivoEtapa.objects.get(id=inv_m.DispositivoEtapa.EN)
                 try:
                     cambios_etapa = inv_m.CambioEtapa.objects.get(dispositivo__triage=dispositivos.dispositivo)
@@ -142,16 +143,32 @@ class RevisionSalidaViewSet(viewsets.ModelViewSet):
                     cambios_etapa.save()
                 except ObjectDoesNotExist as e:
                     print("EL DISPOSITIVO NO EXISTE")
-                    # print(cambios_etapa)
+                    """ Metodo para movimiento de dispositivos
+                    """
+                    periodo_actual = conta_m.PeriodoFiscal.objects.get(actual=True)
+                    """precio_estadar = conta_m.PrecioEstandar.objects.get(
+                        tipo_dispositivo=dispositivos.dispositivo.tipo,
+                        periodo=periodo_actual,
+                        inventario=conta_m.PrecioEstandar.DISPOSITIVO
+                    )
+                    print(precio_estadar)"""
+                    salida = dispositivos.paquete.salida
+                    precio_dispositivo = conta_m.MovimientoDispositivo.objects.get(dispositivo__triage=dispositivos.dispositivo)
+                    print(precio_dispositivo.precio)
+                    movimiento = conta_m.MovimientoDispositivo(
+                        dispositivo=dispositivos.dispositivo,
+                        periodo_fiscal=periodo_actual,
+                        tipo_movimiento=conta_m.MovimientoDispositivo.BAJA,
+                        referencia='Salida {}'.format(salida),
+                        precio=precio_dispositivo.precio)
+                    print(movimiento)
+                    movimiento.save()
                 dispositivos.dispositivo.save()
         salida.aprobada = True
         salida.save()
         finalizar_salida.en_creacion = False
         finalizar_salida.necesita_revision = False
         finalizar_salida.save()
-        print(finalizar_salida.en_creacion)
-        print(finalizar_salida.necesita_revision)
-
         return Response(
             {
                 'mensaje': 'El estatus a sido Aprobado'
@@ -160,8 +177,9 @@ class RevisionSalidaViewSet(viewsets.ModelViewSet):
 
     @action(methods=['post'], detail=True)
     def rechazar(self, request, pk=None):
+        """ Metodo para rechazar los dispositivos
+        """
         triage = request.data["triage"]
-        print(request.data["csrfmiddlewaretoken"])
         id_paquete = request.data["paquete"]
         paquete = inv_m.Paquete.objects.get(id=id_paquete)
         paquete.aprobado = False

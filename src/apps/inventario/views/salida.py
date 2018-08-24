@@ -1,7 +1,6 @@
 from django.shortcuts import reverse, render
 from django.urls import reverse_lazy
 from django.utils import timezone
-from django.http import HttpResponse, HttpResponseRedirect
 from django.views.generic import CreateView, DetailView, ListView, UpdateView, FormView, View
 from braces.views import (
     LoginRequiredMixin, PermissionRequiredMixin, JsonRequestResponseMixin, CsrfExemptMixin
@@ -74,9 +73,11 @@ class SalidaPaqueteUpdateView(LoginRequiredMixin, UpdateView):
 
 
 class SalidaPaqueteDetailView(LoginRequiredMixin, DetailView):
+    """Vista para detalle de :class:`Paquete`.
+    """
     model = inv_m.Paquete
     template_name = 'inventario/salida/paquetes_detail.html'
-    
+
 
 class RevisionSalidaCreateView(LoginRequiredMixin, CreateView):
     """Vista para creación de :class:`RevisionSalida`"""
@@ -105,6 +106,8 @@ class RevisionSalidaUpdateView(LoginRequiredMixin, UpdateView):
 
 
 class SalidaPaqueteView(LoginRequiredMixin, DetailView):
+    """Vista para detalle de :class:`SalidaInventario`.on sus respectivos filtros
+    """
     model = inv_m.SalidaInventario
     template_name = 'inventario/salida/dispositivo_paquete.html'
 
@@ -122,12 +125,16 @@ class SalidaPaqueteView(LoginRequiredMixin, DetailView):
 
 
 class RevisionSalidaListView(LoginRequiredMixin, ListView):
+    """Vista para Los listados de :class:`RevisionSalida`. con sus respectivos datos
+    """
     model = inv_m.RevisionSalida
     template_name = 'inventario/salida/revisionsalida_list.html'
 
 
 class RevisionComentarioCreate(CsrfExemptMixin, JsonRequestResponseMixin, View):
-    """docstring for RevisionComentario."""
+    """Vista Encargada de obtener las Revision de Comentario de las ofertas mediante el metodo
+    POST y gurdarlos en la :class:`RevisionComentario`
+    """
 
     require_json = True
 
@@ -152,3 +159,15 @@ class RevisionComentarioCreate(CsrfExemptMixin, JsonRequestResponseMixin, View):
             "fecha": str(comentario_revision.fecha_revision),
             "usuario": str(comentario_revision.creado_por.perfil)
             })
+
+
+class ControlCalidadListView(LoginRequiredMixin, ListView):
+    """Vista para Los listados de :class:`SalidaInventario`. con sus respectivos datos
+    """
+    model = inv_m.SalidaInventario
+    template_name = 'inventario/salida/controlcalidad_list.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(ControlCalidadListView, self).get_context_data(**kwargs)
+        context['controlcalidad_list'] = inv_m.SalidaInventario.objects.filter(en_creacion=True)
+        return context

@@ -51,17 +51,23 @@ class EntradaSerializer(serializers.ModelSerializer):
     proveedor = serializers.StringRelatedField()
     en_creacion = serializers.SerializerMethodField()
     boton = serializers.StringRelatedField(source='creada_por.get_full_name')
+    tipo = serializers.StringRelatedField()
+    urlSi = serializers.StringRelatedField(source='get_absolute_url')
+    urlNo = serializers.SerializerMethodField()
 
     class Meta:
         model = inv_m.Entrada
         fields = (
+            'id',
             'tipo',
             'fecha',
             'en_creacion',
             'creada_por',
             'recibida_por',
             'proveedor',
-            'boton'
+            'boton',
+            'urlSi',
+            'urlNo',
         )
 
     def get_en_creacion(sel, object):
@@ -69,3 +75,6 @@ class EntradaSerializer(serializers.ModelSerializer):
             return "Si"
         else:
             return "No"
+
+    def get_urlNo(self, object):
+        return reverse_lazy('entrada_detail', kwargs={'pk': object.id})
