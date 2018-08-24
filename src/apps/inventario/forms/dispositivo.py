@@ -6,6 +6,8 @@ from django.urls import reverse_lazy
 
 
 class TecladoForm(forms.ModelForm):
+    """Formulario para la creación de :class:`Teclado`.
+    Se utiliza desde la vistas de teclado."""
     class Meta:
         model = inv_m.Teclado
         fields = '__all__'
@@ -28,7 +30,8 @@ class DispositivoFallaCreateForm(forms.ModelForm):
 
 
 class DispositivoFallaUpdateForm(forms.ModelForm):
-    """Formulario para edición de :class:`DispositivoFalla`"""
+    """Formulario para edición de :class:`DispositivoFalla`
+    """
     class Meta:
         model = inv_m.DispositivoFalla
         fields = ('descripcion_falla', 'descripcion_solucion', 'terminada')
@@ -38,8 +41,25 @@ class DispositivoFallaUpdateForm(forms.ModelForm):
         }
 
 
+class DispositivoInformeForm(forms.Form):
+    """Este Formulario se encarga de enviar los filtros para  su respectivo informe de Entradas
+    """
+
+    triage = forms.CharField(
+        label='Triage',
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-control'}))
+
+    tipo = forms.ModelChoiceField(
+        queryset=inv_m.DispositivoTipo.objects.all(),
+        label='Tipo',
+        required=False,
+        widget=forms.Select(attrs={'class': 'form-control'}))
+
+
 class AsignacionTecnicoForm(forms.ModelForm):
-    """Formulario para manipulación de :class:`AsignacionTecnico`"""
+    """Formulario para manipulación de :class:`AsignacionTecnico`
+    """
     tipos = forms.ModelMultipleChoiceField(
         queryset=inv_m.DispositivoTipo.objects.filter(usa_triage=True),
         widget=forms.CheckboxSelectMultiple()
@@ -99,3 +119,14 @@ class SolicitudMovimientoUpdateForm(forms.ModelForm):
     class Meta:
         model = inv_m.SolicitudMovimiento
         fields = ('dispositivos', 'terminada')
+
+
+class DispositivoTipoForm(forms.ModelForm):
+    """Formulario para  crear  tipos de dispositivos usando la :class:`DispositivoTipoForm`."""
+    class Meta:
+        model = inv_m.DispositivoTipo
+        fields = '__all__'
+        widgets = {
+            'tipo': forms.TextInput({'class': 'form-control'}),
+            'slug': forms.TextInput({'class': 'form-control'}),
+            }

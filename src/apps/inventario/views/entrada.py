@@ -1,4 +1,5 @@
 from django.shortcuts import reverse
+from django.contrib.auth.mixins import UserPassesTestMixin
 from django.views.generic import CreateView,  UpdateView, DetailView, FormView
 from braces.views import (
     LoginRequiredMixin

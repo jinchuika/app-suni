@@ -4,10 +4,11 @@
 import uuid
 import qrcode
 import json
+import sys
 from io import BytesIO
 from django.db import models
 from django.db.utils import OperationalError
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 from django.utils import timezone
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
@@ -434,14 +435,14 @@ class Dispositivo(models.Model):
         DispositivoEstado,
         on_delete=models.CASCADE,
         null=True,
-        editable=False,
+        editable=True,
         default=DispositivoEstado.PD
     )
     etapa = models.ForeignKey(
         DispositivoEtapa,
         on_delete=models.PROTECT,
         null=True,
-        editable=False,
+        editable=True,
         default=DispositivoEtapa.AB
     )
 
@@ -1080,6 +1081,9 @@ class SalidaInventario(models.Model):
         verbose_name = "Salida"
         verbose_name_plural = "Salidas"
 
+    def get_absolute_url(self):
+        return reverse_lazy('salidainventario_add')
+
     def __str__(self):
         return str(self.id)
 
@@ -1146,6 +1150,9 @@ class Paquete(models.Model):
             paquete.aprobado_por = usuario
             paquete.save()
 
+    def get_absolute_url(self):
+        return reverse_lazy('detalle_paquete', kwargs={'pk': self.id})
+
 
 class DispositivoPaquete(models.Model):
     """La asignación de un :class:`Dispositivo` a un :class:`Paquete`. Sirve para ser utilizado en control de calidad.
@@ -1186,6 +1193,9 @@ class RevisionSalida(models.Model):
 
     def __str__(self):
         return str(self.salida)
+
+    def get_absolute_url(self):
+        return reverse_lazy('revisionsalida_update', kwargs={'pk': self.id})
 
 
 class RevisionComentario(models.Model):
@@ -1299,14 +1309,14 @@ class CambioEstado(models.Model):
     estado = models.ForeignKey(DispositivoEstado, on_delete=models.PROTECT, related_name='cambios')
     fecha_hora = models.DateTimeField(default=timezone.now)
     creado_por = models.ForeignKey(User, on_delete=models.CASCADE)
-    
+
     class Meta:
         verbose_name = 'Cambio de estado'
         verbose_name_plural = 'Cambios de estado'
-    
+
     def __str__(self):
         return '{} -> {}'.format(self.dispositivo, self.estado)
-    
+
     def save(self, **kwargs):
         super(CambioEstado, self).save(**kwargs)
         self.dispositivo.estado = self.estado
@@ -1320,10 +1330,10 @@ class Prestamo(models.Model):
     creado_por = models.ForeignKey(User, on_delete=models.CASCADE, related_name='prestamos_creados')
     prestado_a = models.ForeignKey(User, on_delete=models.CASCADE, related_name='prestamos')
     devuelto = models.BooleanField(default=False, blank=True)
-    
+
     class Meta:
         verbose_name = 'Préstamo'
         verbose_name_plural = 'Préstamos'
-    
+
     def __str__(self):
         return '{} - {}'.format(self.fecha_inicio, self.dispositivo)

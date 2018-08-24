@@ -48,11 +48,13 @@
                     </div>
 
                 </div>
+                {%if perms.inventario.add_asignaciontecnico%}
                 <div class="col-md-6">
                     {% block fallas_dispositivo %}
                         {% include "inventario/dispositivo/snp_falla_list.html" with dispositivo=object %}
                     {% endblock %}
                 </div>
+                {%endif%}
             </div>
         </div>
     </section>

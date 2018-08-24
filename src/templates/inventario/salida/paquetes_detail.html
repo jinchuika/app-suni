@@ -1,0 +1,129 @@
+{% extends "base/base.html" %}
+{% load staticfiles %}
+{% block page_title %}
+<title>Paquete - {{ paquete.id }}</title>
+{% endblock page_title %} {% block content %}
+<section class="content">
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-md-6">
+				<div class="box">
+					<div class="box-header">
+						<div class="row">
+							<div class="col-md-9">
+								<h3 class="box-title">Paquete No. {{ paquete }}</h3>
+								{% csrf_token %}
+							</div>
+						</div>
+						<div class="col-md-3">
+
+					</div>
+					</div>
+					<div class="box-body">
+						<table class="table table-condensed">
+							<tr>
+								<th>Salida </th>
+								<td id="salida-id" data-url="{% url 'inventario_api:api_revisionsalidas-rechazar' pk=paquete.salida%}" data-urlhistorico="{% url 'historico_salida' %}" data-id="{{  paquete.salida }}" >{{ paquete.salida }}</td>
+							</tr>
+							<tr >
+								<th>Fecha Creación</th>
+								<td>
+									{{paquete.fecha_creacion}}
+									<br>
+								</td>
+							</tr>
+              <tr>
+                <th>Creado por</th>
+                <td>
+                  {{paquete.creado_por.get_full_name}}
+                  <br>
+                </td>
+              </tr>
+              <tr>
+                <th>Tipo de Paquete</th>
+                <td>
+                  {{paquete.tipo_paquete}}
+                  <br>
+                </td>
+              </tr>
+              <tr>
+                <th>Aprobado</th>
+                <td>
+                  {%if paquete.aprobado %}
+										Si
+									{%else%}
+										No
+									{%endif%}
+                  <br>
+                </td>
+              </tr>
+							<tr>
+								<th colspan="2">
+									Histórico
+								</th>
+							</tr>
+							<tbody id="body-salidas-{{paquete.salida}}">
+								{%for comentario in revisionsalida.comentarios.all%}
+							 <tr>
+								 <td>
+									 {{comentario.comentario}}
+								 </td>
+								 <td>
+									 <small>{{comentario.fecha|date:'d/m/y'}}, {{comentario.usuario.perfil}}</small>
+								 </td>
+							 </tr>
+							 {%endfor%}
+              </tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+				<div class="col-md-6">
+					<div class="box">
+						<div class="box-header" >
+								<h3 class="box-title">Dispositivos Asignados</h3>
+						</div>
+					<table  id="rechazar-dispositivo" class="table table-condensed">
+						<thead>
+							<th>Tipo</th>
+							<th>Triage</th>
+							<th>Marca</th>
+							<th>Modelo</th>
+							<th></th>
+						</thead>
+						<tbody>
+							{%for dispositivo in paquete.dispositivos.all%}
+							<tr>
+								<td>
+										{{dispositivo.tipo}}
+								</td>
+								<td>
+										{{dispositivo}}
+								</td>
+								<td>
+										{{dispositivo.marca}}
+								</td>
+								<td>
+										{{dispositivo.modelo}}
+								</td>
+								 <td>
+									<button  id="id-rechazar" class="btn btn-warning btn-rechazar" data-triage="{{dispositivo}}" data-paquete={{paquete.salida}} data-idpaquete={{paquete}}>Rechazar</button>
+
+								</td>
+							</tr>
+							{%endfor%}
+						</tbody>
+					</table>
+				</div>
+				</div>
+		</div>
+	</div>
+</section>
+{% endblock content %}
+{% block extra_js %}
+<script src="{% static "js/extrajs/inventario.js" %}"></script>
+<script>
+  let Rechazado = new PaqueteDetail();
+</script>
+
+{% endblock extra_js %}

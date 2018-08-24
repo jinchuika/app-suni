@@ -12,6 +12,7 @@ class DispositivoSerializer(serializers.ModelSerializer):
     marca = serializers.StringRelatedField()
     modelo = serializers.StringRelatedField()
     serie = serializers.StringRelatedField()
+    url = serializers.StringRelatedField(source='get_absolute_url')
 
     class Meta:
         model = inv_m.Dispositivo
@@ -25,7 +26,8 @@ class DispositivoSerializer(serializers.ModelSerializer):
             'marca',
             'modelo',
             'serie',
-            'tarima']
+            'tarima',
+            'url']
 
 
 class TarimaSerializer(serializers.ModelSerializer):
@@ -35,7 +37,7 @@ class TarimaSerializer(serializers.ModelSerializer):
     cantidad_dispositivos = serializers.IntegerField(source='dispositivos.count')
 
     class Meta:
-        model = inv_m.Tarima        
+        model = inv_m.Tarima
         fields = ['sector', 'codigo_qr', 'dispositivos', 'cantidad_dispositivos']
 
 
