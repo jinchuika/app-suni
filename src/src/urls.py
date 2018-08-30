@@ -113,6 +113,11 @@ urlpatterns = [
     url(
         r'^$',
         include('apps.main.urls')),
+
+    # Contine las direcciones de aceso al main
+    url(
+        r'^conta/',
+        include('apps.conta.urls')),
 ]
 
 if settings.DEBUG and settings.DEBUG_TOOLBAR:

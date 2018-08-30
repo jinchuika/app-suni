@@ -84,6 +84,8 @@ class RevisionSalidaUpdateForm(forms.ModelForm):
 
 
 class DispositivoPaqueteCreateForm(forms.ModelForm):
+    """ Formulario para la asignacion de dispositivos a  paquetes
+    """
     tipo = forms.ModelChoiceField(
         queryset=inv_m.DispositivoTipo.objects.filter(usa_triage=True),
         label='Tipo de dispositivo',
