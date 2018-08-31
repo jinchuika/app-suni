@@ -22,7 +22,7 @@ urlpatterns = [
  ),
  # Actualizacion de  periodos fiscales
  url(
-    r'^periodo/(?P<pk>\d+)/edit$',
+    r'^periodo/(?P<pk>\d+)/edit/$',
     conta_v.PeriodoFiscalUpdateView.as_view(),
     name='periodo_edit'
  ),
