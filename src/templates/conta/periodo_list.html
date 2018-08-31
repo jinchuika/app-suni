@@ -1,0 +1,49 @@
+{% extends "base/base.html" %}
+{% load staticfiles %}
+{% block page_title %}
+<title>Periodo Fiscal </title>
+{% endblock page_title %}
+{% block content %}
+<section class="content">
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-md-9">
+				<div class="box">
+					<div class="box-header">
+						<div class="row">
+							<div class="col-md-9">
+								<h3 class="box-title">Periodo Fiscal</h3>
+							</div>
+							<div class="col-md-3">
+								<a href="{% url 'periodo_add'%}" class="btn btn-success">Crear</a>
+							</div>
+						</div>
+					</div>
+					<div class="box-body">
+						<table class="table table-datatables table-striped table-hover table-bordered">
+							<thead>
+								<th>No.</th>
+								<th>Fecha Inicio</th>
+								<th>Fecha Final</th>
+								<th>Uso Actual</th>
+							</thead>
+							<tbody>
+								{% for periodos in periodofiscal_list%}
+								<tr>
+									<td>
+										<a href="{% url 'periodo_detail' pk=periodos.id%}">{{ periodos.id }}</a>
+									</td>
+									<td>{{ periodos.fecha_inicio|default_if_none:"" }}</td>
+                  <td>{{ periodos.fecha_fin|default_if_none:"" }}</td>
+                  <td>{{ periodos.actual|default_if_none:"" }}</td>
+								</tr>
+								{%endfor%}
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+{% endblock content %}

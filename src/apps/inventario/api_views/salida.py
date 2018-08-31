@@ -136,6 +136,7 @@ class RevisionSalidaViewSet(viewsets.ModelViewSet):
                                                                            aprobado=True)
             for dispositivos in dispositivosPaquetes:
                 dispositivos.dispositivo.etapa = inv_m.DispositivoEtapa.objects.get(id=inv_m.DispositivoEtapa.EN)
+                dispositivos.dispositivo.valido = False
                 try:
                     cambios_etapa = inv_m.CambioEtapa.objects.get(dispositivo__triage=dispositivos.dispositivo)
                     cambios_etapa.etapa_final = inv_m.DispositivoEtapa.objects.get(id=inv_m.DispositivoEtapa.EN)
@@ -146,22 +147,14 @@ class RevisionSalidaViewSet(viewsets.ModelViewSet):
                     """ Metodo para movimiento de dispositivos
                     """
                     periodo_actual = conta_m.PeriodoFiscal.objects.get(actual=True)
-                    """precio_estadar = conta_m.PrecioEstandar.objects.get(
-                        tipo_dispositivo=dispositivos.dispositivo.tipo,
-                        periodo=periodo_actual,
-                        inventario=conta_m.PrecioEstandar.DISPOSITIVO
-                    )
-                    print(precio_estadar)"""
                     salida = dispositivos.paquete.salida
                     precio_dispositivo = conta_m.MovimientoDispositivo.objects.get(dispositivo__triage=dispositivos.dispositivo)
-                    print(precio_dispositivo.precio)
                     movimiento = conta_m.MovimientoDispositivo(
                         dispositivo=dispositivos.dispositivo,
                         periodo_fiscal=periodo_actual,
                         tipo_movimiento=conta_m.MovimientoDispositivo.BAJA,
                         referencia='Salida {}'.format(salida),
                         precio=precio_dispositivo.precio)
-                    print(movimiento)
                     movimiento.save()
                 dispositivos.dispositivo.save()
         salida.aprobada = True

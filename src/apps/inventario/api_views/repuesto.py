@@ -28,7 +28,7 @@ class RepuestoInventarioViewSet(viewsets.ModelViewSet):
 
     @action(methods=['post'], detail=False)
     def asignar_repuesto(self, request, pk=None):
-        """ Metodo para asignar repuestos 
+        """ Metodo para asignar repuestos
         """
         periodo_actual = conta_m.PeriodoFiscal.objects.get(actual=True)
 
