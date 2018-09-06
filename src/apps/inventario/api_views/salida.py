@@ -128,7 +128,7 @@ class RevisionSalidaViewSet(viewsets.ModelViewSet):
         """
         id_salida = request.data["salida"]
         finalizar_salida = inv_m.SalidaInventario.objects.get(id=id_salida)
-        salida = inv_m.RevisionSalida.objects.get(id=id_salida)
+        salida = inv_m.RevisionSalida.objects.get(salida=id_salida)
         paquetes = inv_m.Paquete.objects.filter(salida=id_salida,
                                                 aprobado=True)
         for paquete in paquetes:
@@ -148,7 +148,8 @@ class RevisionSalidaViewSet(viewsets.ModelViewSet):
                     """
                     periodo_actual = conta_m.PeriodoFiscal.objects.get(actual=True)
                     salida = dispositivos.paquete.salida
-                    precio_dispositivo = conta_m.MovimientoDispositivo.objects.get(dispositivo__triage=dispositivos.dispositivo)
+                    triage = dispositivos.dispositivo
+                    precio_dispositivo = conta_m.MovimientoDispositivo.objects.get(dispositivo__triage=triage)
                     movimiento = conta_m.MovimientoDispositivo(
                         dispositivo=dispositivos.dispositivo,
                         periodo_fiscal=periodo_actual,

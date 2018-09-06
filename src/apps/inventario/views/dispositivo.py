@@ -65,7 +65,9 @@ class DispositivoListView(LoginRequiredMixin, FormView):
 
 
 class SolicitudMovimientoCreateView(LoginRequiredMixin, CreateView):
-    """Vista   para obtener los datos de SolicitudMovimiento mediante una :class:`SolicitudMovimiento`
+    """Vista   para obtener los datos de Solicitudslug_field = "triage"
+    slug_url_kwarg = "triage"
+    query_pk_and_slug = TrueMovimiento mediante una :class:`SolicitudMovimiento`
     Funciona  para recibir los datos de un  'SolicitudMovimientoCreateForm' mediante el metodo  POST.  y
     nos muestra el template de visitas mediante el metodo GET.
     """
@@ -237,3 +239,13 @@ class DispositivoTipoCreateView(LoginRequiredMixin, CreateView):
         context = super(DispositivoTipoCreateView, self).get_context_data(**kwargs)
         context['dispositivotipo_list'] = inv_m.DispositivoTipo.objects.all()
         return context
+
+
+class DispositivoQRprint(LoginRequiredMixin, DetailView):
+    """ Esta vista sirve para imprimir los codigos QR a
+    """
+    model = inv_m.Dispositivo
+    template_name = 'inventario/dispositivo/dispositivo_print.html'
+    slug_field = "triage"
+    slug_url_kwarg = "triage"
+    query_pk_and_slug = True

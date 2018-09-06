@@ -117,6 +117,7 @@
             </table>
           </div>
         </div>
+
         <!--Fin de Entrada-->
           {%if  form.instance.id%}
           <div class="box">
@@ -169,8 +170,13 @@
 {% endblock content %}
 {% block extra_js %}
 <script src="{% static "js/extrajs/inventario.js" %}"></script>
+{%if form.instance.id%}
 <script>
-  AlertaEnCreacion.init();
   EntradaDetalleList.init();
 </script>
+{%else%}
+<script>
+ AlertaEnCreacion.init();
+</script>
+{%endif%}
 {% endblock extra_js %}

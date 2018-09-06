@@ -107,7 +107,7 @@ class EntradaUpdate {
                 console.log("dispositivos creados exitosamente");
             },
             error: function (response) {
-                alert(response.mensaje);
+                alert( "Error al crear los dispositivo:" + response.mensaje);
             }
         });
     }
@@ -122,6 +122,10 @@ class EntradaUpdate {
             success: function (response) {
                 console.log("repuestos creados exitosamente");
             },
+            error: function (response) {
+                alert( "Error al crear los Repuestos:" + response.mensaje);
+            }
+
         });
     }
 }
