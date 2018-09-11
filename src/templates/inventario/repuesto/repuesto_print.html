@@ -1,0 +1,8 @@
+{% load staticfiles %}
+<img src="{{object.codigo_qr.url}}" class="img-thumbnail" alt="" width="85" height="85"></td>
+<h5>{{object}} </h5>
+{% block extra_js %}
+<script>
+window.onload= function () { window.print();window.close();   }
+</script>
+{% endblock extra_js %}

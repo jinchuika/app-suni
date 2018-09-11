@@ -20,6 +20,7 @@ class EntradaCreateView(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         form.instance.creada_por = self.request.user
+        form.instance.recibida_por = self.request.user
         return super(EntradaCreateView, self).form_valid(form)
 
     def get_context_data(self, **kwargs):
@@ -51,6 +52,9 @@ class EntradaUpdateView(LoginRequiredMixin, UpdateView):
     form_class = inv_f.EntradaUpdateForm
     template_name = 'inventario/entrada/entrada_edit.html'
 
+    def get_success_url(self):
+        return reverse('entrada_detail', kwargs={'pk': self.object.id})
+
     def get_context_data(self, **kwargs):
         context = super(EntradaUpdateView, self).get_context_data(**kwargs)
         context['EntradaDetalleForm'] = inv_f.EntradaDetalleForm(initial={'entrada': self.object})
@@ -81,3 +85,23 @@ class EntradaDetalleUpdateView(LoginRequiredMixin, UpdateView):
 
     def get_success_url(self):
         return reverse('entrada_update', kwargs={'pk': self.object.entrada.id})
+
+
+class EntradaDescuentoCreateView(LoginRequiredMixin, CreateView):
+    """
+    """
+    model = inv_m.DescuentoEntrada
+    template_name = 'inventario/entrada/descuento_add.html'
+
+
+class EntradaDescuentoDetailView(LoginRequiredMixin, DetailView):
+    """docstring forEntradaDescuentoDetailView."""
+    model = inv_m.DescuentoEntrada
+    template_name = 'inventario/entrada/descuento_detail.html'
+
+
+class EntradaDescuentoUpdateView(LoginRequiredMixin, UpdateView):
+    """
+    """
+    model = inv_m.DescuentoEntrada
+    template_name = 'inventario/entrada/descuento_update.html'

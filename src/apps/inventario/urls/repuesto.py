@@ -20,4 +20,10 @@ urlpatterns = [
         inv_v.RepuestosUpdateView.as_view(),
         name='repuesto_edit'
     ),
+    # Imprimir Qr de RepuestosList
+    url(
+        r'^repuesto/reporteqr/(?P<pk>\d+)/$',
+        inv_v.RepuestosQRprint.as_view(),
+        name='repuestoqr_print'
+    )
 ]

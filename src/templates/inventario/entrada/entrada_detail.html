@@ -12,11 +12,12 @@
 					<div class="box-header">
 						<div class="row">
 							<div class="col-md-9">
-								<h3 class="box-title">Entrada No. {{ entrada.id }}</h3></div>
+								<h3 class="box-title">Entrada No. {{ entrada.id }}</h3>
+							</div>
 						</div>
 					</div>
 					<div class="box-body">
-						<table class="table table-condensed">
+						<table class="table table-condensed table-responsive">
 							<tr>
 								<th>Tipo</th>
 								<td>{{ entrada.tipo }}</td>
@@ -61,9 +62,56 @@
 									<br>
 								</td>
 							</tr>
+							<tr>
+								<th>Observaciones</th>
+								<td>
+									{{entrada.observaciones|default_if_none:"No Existe Observaciones"}}
+								</td>
+							</tr>
 						</table>
 					</div>
 				</div>
-			</div>    
+			</div>
+		</div>
+	</div>
 </section>
+<section>
+	<div class="box">
+			<div class="box-header">
+					<div class="box-title">
+							<h3 class="box-title">Detalle del equipo</h3>
+					</div>
+			</div>
+			<div class="box-body table-responsive">
+					<table id="entrada-table" class="table table-condensed"
+								 data-api="{% url 'inventario_api:api_detalles-list' %}"
+								 data-pk="{{ entrada.id }}">
+							<thead>
+							<tr>
+									<th>Tipo de dispositivo</th>
+									<th>Útil</th>
+									<th>Repuesto</th>
+									<th>Desecho</th>
+									<th>Cantidad total</th>
+									<th>Precio Unitario</th>
+									<th>Precio Subtotal</th>
+									<th>Precio Descontado</th>
+									<th>Precio Total</th>
+									<th>Descripcion</th>
+									<th>Creado Por</th>
+
+							</tr>
+							</thead>
+					</table>
+			</div>
+	</div>
+</section>
+
 {% endblock content %}
+{% block extra_js %}
+<script src="{% static "js/extrajs/inventario.js" %}"></script>
+<script>
+    AlertaEnCreacion.init();
+    let pagina = new EntradaDetail();
+</script>
+{% endblock extra_js %}
