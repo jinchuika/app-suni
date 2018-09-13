@@ -83,6 +83,11 @@ class EntradaDetalleUpdateView(LoginRequiredMixin, UpdateView):
         context['datos'] = inv_m.EntradaDetalle.objects.get(id=self.object.id)
         return context
 
+    def get_initial(self):
+        initial = super(EntradaDetalleUpdateView, self).get_initial()
+        initial['creado_por'] = self.request.user
+        return initial
+
     def get_success_url(self):
         return reverse('entrada_update', kwargs={'pk': self.object.entrada.id})
 

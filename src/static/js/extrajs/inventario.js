@@ -58,7 +58,7 @@ class EntradaUpdate {
                           if(full.dispositivos_creados == false){
                               return "<button class='btn btn-primary btn-dispositivo'>Crear Disp</button>";
                           }else{
-                              return "";
+                              return "<button class='btn btn-primary btn-Qrdispositivo'>QR Dispositivo</button>";
                           }
                       }else{
                         return "";
@@ -72,7 +72,7 @@ class EntradaUpdate {
                         if(full.repuestos_creados == false){
                           return "<button class='btn btn-warning btn-repuesto'>Crear Rep</button>";
                         }else{
-                          return ""
+                          return "<button class='btn btn-primary btn-Qrepuesto'>QR Repuestos</button>"
                         }
                       }else{
                         return "";
@@ -170,7 +170,7 @@ class EntradaUpdate {
                 csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val()
             },
             success: function (response) {
-                console.log("dispositivos creados exitosamente");              
+                console.log("dispositivos creados exitosamente");
                 bootbox.confirm("dispositivos creados exitosamente!",
                 function(result){
                    location.reload();

@@ -188,7 +188,9 @@ class EntradaDetalle(models.Model):
                     entrada=self.entrada,
                     modelo=modelo,
                     tipo=self.tipo_dispositivo,
-                    precio=self.precio_unitario)
+                    entrada_detalle=self,
+                    precio=self.precio_unitario
+                    )
                 creados = creados + 1
             except OperationalError:
                 errores = errores + 1
@@ -434,6 +436,7 @@ class Dispositivo(models.Model):
     triage = models.SlugField(unique=True, blank=True, editable=False)
     tipo = models.ForeignKey(DispositivoTipo, on_delete=models.CASCADE)
     entrada = models.ForeignKey(Entrada, on_delete=models.PROTECT, related_name='dispositivos')
+    entrada_detalle = models.ForeignKey(EntradaDetalle, on_delete=models.PROTECT, null=True, related_name='detalle_dispositivos')
     estado = models.ForeignKey(
         DispositivoEstado,
         on_delete=models.CASCADE,
@@ -942,6 +945,7 @@ class RepuestoEstado(models.Model):
 
 class Repuesto(models.Model):
     entrada = models.ForeignKey(Entrada, on_delete=models.CASCADE, related_name='repuestos')
+    entrada_detalle = models.ForeignKey(EntradaDetalle, on_delete=models.PROTECT, null=True, related_name='detalle_repuesto')
     tipo = models.ForeignKey(DispositivoTipo, on_delete=models.PROTECT, related_name='repuestos')
     estado = models.ForeignKey(RepuestoEstado, on_delete=models.PROTECT)
     descripcion = models.TextField(null=True, blank=True)
