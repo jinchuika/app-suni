@@ -93,7 +93,7 @@ class EntradaDetalleUpdateView(LoginRequiredMixin, UpdateView):
 
 
 class EntradaDescuentoCreateView(LoginRequiredMixin, CreateView):
-    """
+    """ 
     """
     model = inv_m.DescuentoEntrada
     template_name = 'inventario/entrada/descuento_add.html'
