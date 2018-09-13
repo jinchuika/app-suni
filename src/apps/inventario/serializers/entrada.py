@@ -9,6 +9,7 @@ class EntradaDetalleSerializer(serializers.ModelSerializer):
     """
 
     tdispositivo = serializers.SerializerMethodField()
+    tipo_entrada = serializers.StringRelatedField(source='entrada.tipo')
     # Campos contabilidad
     precio_unitario = serializers.DecimalField(max_digits=8, decimal_places=2, default=None)
     precio_descontado = serializers.DecimalField(max_digits=8, decimal_places=2, default=None)
@@ -33,7 +34,11 @@ class EntradaDetalleSerializer(serializers.ModelSerializer):
             'precio_total',
             'creado_por',
             'tdispositivo',
-            'update_url'
+            'update_url',
+            'tipo_entrada',
+            'dispositivos_creados',
+            'repuestos_creados',
+            'descripcion'
         )
 
     def get_tdispositivo(self, object):

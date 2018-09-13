@@ -9,4 +9,8 @@
         <th>Tipo</th>
         <td>{{ object.tipo_mouse|default_if_none:"" }}</td>
     </tr>
+    <tr>
+      <th>QR</th>
+      <td><img src="{{object.codigo_qr.url}}" class="img-thumbnail" alt=""></td>
+    </tr>
 {% endblock info_dispositivo %}

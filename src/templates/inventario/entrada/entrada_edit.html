@@ -47,15 +47,7 @@
                                 <td>
                                     {{ form.instance.tipo }}
                                 </td>
-                            </tr>
-                            <tr>
-                                <th>
-                                    Creada por:
-                                </th>
-                                <td>
-                                    {{ form.instance.creada_por.get_full_name }}
-                                </td>
-                            </tr>
+                            </tr>                  
 
                             <tr>
                                 <th>
@@ -67,6 +59,22 @@
                                     </a>
                                 </td>
                             </tr>
+                            <tr>
+                              <th>
+                                Recibido por:
+                              </th>
+                              <td>
+                                {{form.instance.recibida_por.get_full_name}}
+                              </td>
+                            </tr>
+                            <tr>
+                              <th>
+                                Observaciones:
+                              </th>
+                              <td>
+                                {{form.instance.observaciones |default_if_none:"No Existe Observaciones"}}
+                              </td>
+                            </tr>
                         </table>
                     </div>
                 </div>
@@ -75,7 +83,7 @@
                     <div class="box-header">
                         <div class="row">
                             <div class="col-md-9">
-                                <h3 class="box-title">Editar informaicón</h3>
+                                <h3 class="box-title">Editar información</h3>
                             </div>
                         </div>
                     </div>
@@ -129,6 +137,7 @@
                                 <th>Precio Subtotal</th>
                                 <th>Precio Descontado</th>
                                 <th>Precio Total</th>
+                                <th>Descripcion</th>
                                 <th>Creado Por</th>
                                 <th></th>
                                 <th></th>

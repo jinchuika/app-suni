@@ -122,5 +122,11 @@ urlpatterns = [
         r'^dispositivo/tipo/$',
         inventario_v.DispositivoTipoCreateView.as_view(),
         name='dispositivotipo_add'
+    ),
+    # Impresion de QR
+    url(
+        r'^dispositivo/reporteqr/(?P<triage>[\w\d-]+)/$',
+        inventario_v.DispositivoQRprint.as_view(),
+        name='reportedispositivo_qr'
     )
 ]

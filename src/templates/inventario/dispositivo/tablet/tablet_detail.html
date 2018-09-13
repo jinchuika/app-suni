@@ -21,6 +21,10 @@
         <th>RAM</th>
         <td>{{ object.ram|default_if_none:"" }} {{ object.ram_medida|default_if_none:"" }}</td>
     </tr>
+    <tr>
+      <th>QR</th>
+      <td><img src="{{object.codigo_qr.url}}" class="img-thumbnail" alt=""></td>
+    </tr>
 
 
 {% endblock info_dispositivo %}

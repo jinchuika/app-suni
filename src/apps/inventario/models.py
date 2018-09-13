@@ -64,6 +64,7 @@ class Entrada(models.Model):
     creada_por = models.ForeignKey(User, on_delete=models.PROTECT, related_name='entradas_creadas')
     recibida_por = models.ForeignKey(User, on_delete=models.PROTECT, related_name='entradas_recibidas')
     proveedor = models.ForeignKey(crm_m.Donante, on_delete=models.PROTECT, related_name='entradas')
+    observaciones = models.TextField(null=True, blank=True)
 
     class Meta:
         verbose_name = "Entrada"
@@ -139,7 +140,9 @@ class EntradaDetalle(models.Model):
     repuesto = models.PositiveIntegerField(default=0)
     desecho = models.PositiveIntegerField(default=0)
     total = models.PositiveIntegerField()
-
+    descripcion = models.CharField(max_length=50)
+    dispositivos_creados = models.BooleanField(default=False, blank=True, verbose_name='Dispositivos creados')
+    repuestos_creados = models.BooleanField(default=False, blank=True, verbose_name='Repuestos creados')
     # Campos sobre contabilidad
     precio_unitario = models.DecimalField(max_digits=8, decimal_places=2, blank=True, null=True)
     precio_subtotal = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)

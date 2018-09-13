@@ -44,7 +44,7 @@ class PrecioEstandar(models.Model):
     creado_por = models.ForeignKey(User, on_delete=models.PROTECT)
 
     class Meta:
-        unique_together = ('periodo', 'tipo_dispositivo')
+        unique_together = ('periodo', 'tipo_dispositivo', 'inventario')
         verbose_name = 'Precio estándar'
         verbose_name_plural = 'Precios estándar'
         indexes = [
@@ -114,11 +114,11 @@ class MovimientoDispositivo(models.Model):
     precio = models.DecimalField(max_digits=14, decimal_places=2, default=0.0)
     referencia = models.CharField(max_length=30, null=True, blank=True)
     observaciones = models.TextField(null=True, blank=True)
-    
+
     class Meta:
         verbose_name = 'Movimiento de dispositivo'
         verbose_name_plural = 'Movimientos de dispositivos'
-    
+
     def __str__(self):
         return '{} - {}'.format(self.tipo_movimiento, self.dispositivo)
 

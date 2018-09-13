@@ -12,17 +12,13 @@ class EntradaForm(forms.ModelForm):
     class Meta:
         model = inv_m.Entrada
         fields = '__all__'
-        exclude = ['en_creacion', 'creada_por']
+        exclude = ['en_creacion', 'creada_por', 'recibida_por']
         widgets = {
             'tipo': forms.Select(attrs={'class': 'form-control select2'}),
             'fecha': forms.TextInput({'class': 'form-control datepicker'}),
-            'recibida_por': forms.Select(attrs={'class': 'form-control select2'}),
-            'proveedor': forms.Select(attrs={'class': 'form-control select2'})
+            'proveedor': forms.Select(attrs={'class': 'form-control select2'}),
+            'observaciones': forms.Textarea({'class': 'form-control'}),
         }
-
-    def __init__(self, *args, **kwargs):
-        super(EntradaForm, self).__init__(*args, **kwargs)
-        self.fields['recibida_por'].label_from_instance = lambda obj: "%s" % obj.get_full_name()
 
 
 class EntradaUpdateForm(forms.ModelForm):
@@ -32,12 +28,13 @@ class EntradaUpdateForm(forms.ModelForm):
     class Meta:
         model = inv_m.Entrada
         fields = '__all__'
+        exclude = ['observaciones']
         widgets = {
-                'recibida_por': forms.Select(attrs={'class': 'form-control select2'}),
-                'fecha': forms.TextInput({'class': 'form-control datepicker'}),
+                'recibida_por': forms.HiddenInput(),
+                'fecha': forms.HiddenInput(),
                 'tipo': forms.HiddenInput(),
                 'creada_por': forms.HiddenInput(),
-                'proveedor': forms.HiddenInput()
+                'proveedor': forms.HiddenInput(),
 
             }
 
@@ -53,7 +50,7 @@ class EntradaDetalleForm(forms.ModelForm):
     class Meta:
         model = inv_m.EntradaDetalle
         fields = '__all__'
-        exclude = ['precio_unitario', 'precio_total', 'precio_descontado', 'creado_por']
+        exclude = ['precio_unitario', 'precio_total', 'precio_descontado', 'creado_por', 'dispositivos_creados', 'repuestos_creados']
         widgets = {
             'entrada': forms.HiddenInput(),
             'tipo_dispositivo': forms.Select(attrs={'class': 'form-control select2'}),
@@ -62,6 +59,7 @@ class EntradaDetalleForm(forms.ModelForm):
             'desecho': forms.TextInput({'class': 'form-control '}),
             'total': forms.TextInput({'class': 'form-control r'}),
             'precio_subtotal': forms.TextInput({'class': 'form-control'}),
+            'descripcion': forms.TextInput({'class': 'form-control'}),
 
         }
 
@@ -78,15 +76,23 @@ class EntradaDetalleUpdateForm(forms.ModelForm):
                     'precio_unitario',
                     'precio_total',
                     'precio_descontado',
-                    'creado_por',
-                    'precio_subtotal']
+                    'precio_subtotal'
+                    ]
         widgets = {
             'util': forms.TextInput({'class': 'form-control '}),
             'repuesto': forms.TextInput({'class': 'form-control'}),
             'desecho': forms.TextInput({'class': 'form-control '}),
             'total': forms.TextInput({'class': 'form-control r'}),
+            'descripcion': forms.TextInput({'class': 'form-control'}),
+            'dispositivos_creados': forms.HiddenInput(),
+            'repuestos_creados': forms.HiddenInput(),
+            'creado_por': forms.HiddenInput(),
 
         }
+
+        def __init__(self, *args, **kwargs):
+            super(EntradaDetalleUpdateForm, self).__init__(*args, **kwargs)
+            self.fields['creado_por'].label_from_instance = lambda obj: "%s" % obj.get_full_name()
 
 
 class EntradaInformeForm(forms.Form):

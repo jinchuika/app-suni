@@ -41,19 +41,205 @@ class EntradaUpdate {
                 {data: "precio_subtotal"},
                 {data: "precio_descontado"},
                 {data: "precio_total"},
+                {data:"descripcion"},
                 {data: "creado_por"},
                 {
-                    data: "",
-                    defaultContent: "<button class='btn btn-info btn-editar'>Editar</button>", targets: -1
+                    data: "",render: function(data, type, full, meta){
+                      if(full.dispositivos_creados == true & full.repuestos_creados == true){
+                        return "";
+                      }else{
+                        return "<a href="+full.update_url+" class='btn btn-info btn-editar'>Editar</a>";
+                      }
+                    }
                 },
                 {
-                    data: "",
-                    defaultContent: "<button class='btn btn-primary btn-dispositivo'>Crear Disp</button>", targets: -1
+                    data: "", render: function(data, type, full, meta){
+                      if(full.tipo_entrada != "Especial"){
+                          if(full.dispositivos_creados == false){
+                              return "<button class='btn btn-primary btn-dispositivo'>Crear Disp</button>";
+                          }else{
+                              return "";
+                          }
+                      }else{
+                        return "";
+                      }
+
+                    }
                 },
                 {
-                    data: "",
-                    defaultContent: "<button class='btn btn-warning btn-repuesto'>Crear Rep</button>", targets: -1
+                    data: "", render: function(data, type, full, meta){
+                      if(full.tipo_entrada != "Especial"){
+                        if(full.repuestos_creados == false){
+                          return "<button class='btn btn-warning btn-repuesto'>Crear Rep</button>";
+                        }else{
+                          return ""
+                        }
+                      }else{
+                        return "";
+                      }
+                    }
                 },
+            ]
+        });
+
+        let tablabody = $('#entrada-table tbody');
+        let tabla_temp = this;
+
+        tablabody.on('click', '.btn-editar', function () {
+            let data_fila = this.tabla.row($(this).parents('tr')).data();
+            location.href = data_fila.update_url;
+        });
+
+        tablabody.on('click', '.btn-dispositivo', function () {
+            let data_fila = tabla_temp.tabla.row($(this).parents('tr')).data();
+            bootbox.confirm({
+                        message: "Esta seguro que desea crear estos dispositivos",
+                        buttons: {
+                            confirm: {
+                                label: 'Si',
+                                className: 'btn-success'
+                            },
+                            cancel: {
+                                label: 'No',
+                                className: 'btn-danger'
+                            }
+                        },
+                        callback: function (result) {
+                            if(result == true){
+                              /**/
+
+                                let urldispositivo = tabla_temp.api_url + data_fila.id + "/crear_dispositivos/";
+                                EntradaUpdate.crear_dispositivos(urldispositivo);
+                            }
+                        }
+                      });
+
+
+        });
+
+        tablabody.on('click', '.btn-repuesto', function () {
+            let data_fila = tabla_temp.tabla.row($(this).parents('tr')).data();
+          bootbox.confirm({
+                      message: "Esta seguro que desea crear estos repuestos",
+                      buttons: {
+                          confirm: {
+                              label: 'Si',
+                              className: 'btn-success'
+                          },
+                          cancel: {
+                              label: 'No',
+                              className: 'btn-danger'
+                          }
+                      },
+                      callback: function (result) {
+                          if(result == true){
+                            /**/
+
+                              let urldispositivo = tabla_temp.api_url + data_fila.id + "/crear_repuestos/";
+                              EntradaUpdate.crear_repuestos(urldispositivo);
+                          }
+                      }
+                    });
+
+        });
+
+        /** Uso de DRF**/
+        let detalle_form = $('#detalleForm');
+        detalle_form.submit(function (e) {
+            e.preventDefault();
+
+            $.ajax({
+                type: "POST",
+                url: detalle_form.attr('action'),
+                data: detalle_form.serialize(),
+                success: function (response) {
+                    console.log("datos ingresados correctamente");
+                    tabla_temp.tabla.ajax.reload();
+                },
+            });
+            document.getElementById("detalleForm").reset();
+        });
+    }
+
+    static crear_dispositivos(urldispositivo) {
+        $.ajax({
+            type: 'POST',
+            url: urldispositivo,
+            dataType: 'json',
+            data: {
+                csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val()
+            },
+            success: function (response) {
+                console.log("dispositivos creados exitosamente");              
+                bootbox.confirm("dispositivos creados exitosamente!",
+                function(result){
+                   location.reload();
+                  });
+            },
+            error: function (response) {
+                alert( "Error al crear los dispositivo:" + response.mensaje);
+            }
+        });
+    }
+
+    static crear_repuestos(url_repuestos) {
+        $.ajax({
+            type: 'POST',
+            url: url_repuestos,
+            data: {
+                csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val()
+            },
+            success: function (response) {
+                console.log("repuestos creados exitosamente");
+                bootbox.confirm("repuestos creados exitosamente!",
+                function(result){
+                   location.reload();
+                  });
+
+            },
+            error: function (response) {
+                alert( "Error al crear los Repuestos:" + response.mensaje);
+            }
+
+        });
+    }
+}
+
+class EntradaDetail {
+    constructor() {
+        let entrada_table = $('#entrada-table');
+        var pk = entrada_table.data("pk");
+        this.api_url = entrada_table.data("api");
+        this.pk = entrada_table.data("pk");
+        this.url_filtrada = this.api_url + "?entrada=" + this.pk;
+        this.tabla = entrada_table.DataTable({
+            searching: false,
+            paging: true,
+            ordering: false,
+            processing: true,
+            ajax: {
+                url: this.url_filtrada,
+                dataSrc: '',
+                cache: true,
+                data: function (params)
+                {
+                   return {
+                     entrada: pk
+                   };
+                }
+            },
+            columns: [
+                {data: "tdispositivo"},
+                {data: "util"},
+                {data: "repuesto"},
+                {data: "desecho"},
+                {data: "total"},
+                {data: "precio_unitario"},
+                {data: "precio_subtotal"},
+                {data: "precio_descontado"},
+                {data: "precio_total"},
+                {data:"descripcion"},
+                {data: "creado_por"},
             ]
         });
 
@@ -107,7 +293,7 @@ class EntradaUpdate {
                 console.log("dispositivos creados exitosamente");
             },
             error: function (response) {
-                alert(response.mensaje);
+                alert( "Error al crear los dispositivo:" + response.mensaje);
             }
         });
     }
@@ -122,6 +308,10 @@ class EntradaUpdate {
             success: function (response) {
                 console.log("repuestos creados exitosamente");
             },
+            error: function (response) {
+                alert( "Error al crear los Repuestos:" + response.mensaje);
+            }
+
         });
     }
 }
@@ -184,6 +374,20 @@ class EntradaUpdate {
 
     }
 }(window.EntradaList = window.EntradaList || {}, jQuery));
+
+class EntradaDetalleDetail {
+  constructor() {
+       var validarDispositivos = $("#id_dispositivos_creados").val();
+      var validarRepuestos = $("#id_repuestos_creados").val();
+      if(validarDispositivos == "True"){
+        document.getElementById("id_util").disabled = true;
+      }
+      if(validarRepuestos == "True"){
+        document.getElementById("id_repuesto").disabled = true;
+      }
+
+  }
+}
 
 (function (SalidaDetalleList, $, undefined) {
     var valor = $('#salida-table').data("api");

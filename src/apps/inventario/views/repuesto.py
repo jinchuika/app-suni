@@ -44,3 +44,10 @@ class RepuestosUpdateView(LoginRequiredMixin, UpdateView):
 
     def get_success_url(self):
         return reverse_lazy('repuesto_detail', kwargs={'pk': self.object.id})
+
+
+class RepuestosQRprint(LoginRequiredMixin, DetailView):
+    """
+    """
+    model = inv_m.Repuesto
+    template_name = 'inventario/repuesto/repuesto_print.html'

@@ -1,10 +1,8 @@
 {% extends "base/base.html" %}
 {% load staticfiles thumbnail %}
-
 {% block page_title %}
     <title>{{ object }}</title>
 {% endblock page_title %}
-
 {% block content %}
     <section class="content">
         <div class="container-fluid">
@@ -12,7 +10,14 @@
                 <div class="col-md-5">
                     <div class="box box-primary">
                         <div class="box-header">
-                            <h3 class="box-title">{{ object.triage }}</h3>
+                            <div class="row">
+                							<div class="col-md-9">
+                						       <h3 class="box-title">{{ object.triage }}</h3>
+                							</div>
+                              <div class="col-md-3">
+                                <a href="{%url 'reportedispositivo_qr' triage=object.triage %}" class="btn btn-block btn-success">Imprimir QR</a>
+                            </div>
+                						</div>
                         </div>
                         <div class="box-body">
                             <table class="table table-condensed table-striped">

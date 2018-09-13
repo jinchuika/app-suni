@@ -21,4 +21,8 @@
         <th>Pulgadas</th>
         <td>{{ object.pulgadas }}</td>
     </tr>
+    <tr>
+      <th>QR</th>
+      <td><img src="{{object.codigo_qr.url}}" class="img-thumbnail" alt=""></td>
+    </tr>
 {% endblock info_dispositivo %}

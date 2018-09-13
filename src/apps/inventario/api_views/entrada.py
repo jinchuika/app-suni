@@ -37,6 +37,9 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
         entrada_detalle = self.get_object()
         try:
             creacion = entrada_detalle.crear_dispositivos()
+            validar_dispositivos = inv_m.EntradaDetalle.objects.get(id=pk)
+            validar_dispositivos.dispositivos_creados = True
+            validar_dispositivos.save()
             return Response(
                 creacion,
                 status=status.HTTP_200_OK)
@@ -50,6 +53,9 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
         entrada_detalle = self.get_object()
         try:
             creacion = entrada_detalle.crear_repuestos()
+            validar_dispositivos = inv_m.EntradaDetalle.objects.get(id=pk)
+            validar_dispositivos.repuestos_creados = True
+            validar_dispositivos.save()
             return Response(
                 creacion,
                 status=status.HTTP_200_OK
