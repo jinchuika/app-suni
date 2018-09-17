@@ -1,11 +1,51 @@
 (function (AlertaEnCreacion, $, undefined) {
     AlertaEnCreacion.init = function () {
         var mensaje = document.getElementById("id_en_creacion");
+        var urldispositivo = $("#entrada-detalle-form").data("api");
+        var primary_key = $("#entrada-detalle-form").data("key");
         $('#id_en_creacion').click(function () {
             if ($("#id_en_creacion").is(':checked')) {
                 bootbox.alert("esta activado");
             } else {
-                bootbox.alert("Esta Seguro que quiere Terminara la Creacion de la Entrada");
+                bootbox.confirm({
+                            message: "Esta Seguro que quiere Terminar la Creacion de la Entrada",
+                            buttons: {
+                                confirm: {
+                                    label: 'Si',
+                                    className: 'btn-success'
+                                },
+                                cancel: {
+                                    label: 'No',
+                                    className: 'btn-danger'
+                                }
+                            },
+                            callback: function (result) {
+                                if(result == true){
+                                  /**/
+                                  $.ajax({
+                                      type: 'POST',
+                                      url: urldispositivo,
+                                      dataType: 'json',
+                                      data: {
+                                          csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
+                                          primary_key :primary_key
+                                      },
+                                      success: function (response) {
+                                          console.log("dispositivos creados exitosamente");
+                                          bootbox.confirm("dispositivos creados exitosamente!",
+                                          function(result){
+                                             location.reload();
+                                            });
+                                      },
+                                      error: function (response) {
+                                          alert( "Error al crear los dispositivo:" + response.mensaje);
+                                      }
+                                  });
+                                  /**/
+
+                                }
+                            }
+                          });
             }
         });
 
@@ -55,7 +95,7 @@ class EntradaUpdate {
                 {
                     data: "", render: function(data, type, full, meta){
                       if(full.tipo_entrada != "Especial"){
-                          if(full.dispositivos_creados == false){
+                          if(full.dispositivos_creados == false & full.usa_triage == true){
                               return "<button class='btn btn-primary btn-dispositivo'>Crear Disp</button>";
                           }else{
                               return "<button class='btn btn-primary btn-Qrdispositivo'>QR Dispositivo</button>";
@@ -69,7 +109,7 @@ class EntradaUpdate {
                 {
                     data: "", render: function(data, type, full, meta){
                       if(full.tipo_entrada != "Especial"){
-                        if(full.repuestos_creados == false){
+                        if(full.repuestos_creados == false & full.usa_triage == true){
                           return "<button class='btn btn-warning btn-repuesto'>Crear Rep</button>";
                         }else{
                           return "<button class='btn btn-primary btn-Qrepuesto'>QR Repuestos</button>"

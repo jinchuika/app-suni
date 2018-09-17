@@ -32,6 +32,43 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(creado_por=self.request.user)
 
+    @action(methods=['post'], detail=False)
+    def cuadrar_salida(self, request, pk=None):
+        entrad_id = request.data['primary_key']
+        entrada = inv_m.EntradaDetalle.objects.filter(entrada=entrad_id)
+        dispositivo_repuestos = inv_m.EntradaDetalle.objects.filter(entrada=entrad_id).count()
+        validar_dispositivos = inv_m.EntradaDetalle.objects.filter(entrada=entrad_id,
+                                                                   dispositivos_creados=True).count()
+        validar_repuestos = inv_m.EntradaDetalle.objects.filter(entrada=entrad_id,
+                                                                repuestos_creados=True).count()
+        print("Total detalles:" + str(dispositivo_repuestos))
+        print("Total repuestos creados:" + str(validar_repuestos))
+        print("Total dispositivos creados:" + str(validar_dispositivos))
+        for detalles in entrada:
+            total_detalle = detalles.util + detalles.repuesto + detalles.desecho
+            print("total acumulado :" + str(total_detalle))
+            print("total:" + str(detalles.total))
+            if(detalles.total != total_detalle):
+                print("La entrada no esta cuadrada")
+                return Response(
+                    {'mensaje': 'La entrada no esta cuadrada'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            else:
+                print("La entrada esta cuadrada")
+                if(dispositivo_repuestos != validar_dispositivos or dispositivo_repuestos != validar_repuestos):
+                    print("Los Dispositivos no han sido creados")
+                    return Response(
+                        {'mensaje': 'Los dispositivos o repuestos no  han sido creados'},
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+                else:
+                    print("Los dispositivos o repuesto han sido creados ")
+        return Response(
+            {'mensaje': 'Entrada Cuadrada'},
+            status=status.HTTP_200_OK
+        )
+
     @action(methods=['post'], detail=True)
     def crear_dispositivos(self, request, pk=None):
         entrada_detalle = self.get_object()

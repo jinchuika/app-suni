@@ -47,7 +47,7 @@
                                 <td>
                                     {{ form.instance.tipo }}
                                 </td>
-                            </tr>                  
+                            </tr>
 
                             <tr>
                                 <th>
@@ -89,7 +89,7 @@
                     </div>
                     <div class="box-body table-responsive">
                         <table class="table table-condensed">
-                            <form action="{% url 'entrada_update' pk=form.instance.id %}" method="post">
+                            <form id="entrada-detalle-form" action="{% url 'entrada_update' pk=form.instance.id %}" method="post" data-api="{% url 'inventario_api:api_detalles-cuadrar-salida'%}" data-key="{{form.instance.id}}">
                                 {% csrf_token %}
                                 <table class="table table-condensed">
                                     {{ form.as_table }}

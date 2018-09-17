@@ -143,6 +143,7 @@ class EntradaDetalle(models.Model):
     descripcion = models.CharField(max_length=50)
     dispositivos_creados = models.BooleanField(default=False, blank=True, verbose_name='Dispositivos creados')
     repuestos_creados = models.BooleanField(default=False, blank=True, verbose_name='Repuestos creados')
+    impreso = models.BooleanField(default=False, blank=True, verbose_name='Impreso')
     # Campos sobre contabilidad
     precio_unitario = models.DecimalField(max_digits=8, decimal_places=2, blank=True, null=True)
     precio_subtotal = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
@@ -437,6 +438,7 @@ class Dispositivo(models.Model):
     tipo = models.ForeignKey(DispositivoTipo, on_delete=models.CASCADE)
     entrada = models.ForeignKey(Entrada, on_delete=models.PROTECT, related_name='dispositivos')
     entrada_detalle = models.ForeignKey(EntradaDetalle, on_delete=models.PROTECT, null=True, related_name='detalle_dispositivos')
+    impreso = models.BooleanField(default=False, blank=True, verbose_name='Impreso')
     estado = models.ForeignKey(
         DispositivoEstado,
         on_delete=models.CASCADE,
@@ -946,6 +948,7 @@ class RepuestoEstado(models.Model):
 class Repuesto(models.Model):
     entrada = models.ForeignKey(Entrada, on_delete=models.CASCADE, related_name='repuestos')
     entrada_detalle = models.ForeignKey(EntradaDetalle, on_delete=models.PROTECT, null=True, related_name='detalle_repuesto')
+    impreso = models.BooleanField(default=False, blank=True, verbose_name='Impreso')
     tipo = models.ForeignKey(DispositivoTipo, on_delete=models.PROTECT, related_name='repuestos')
     estado = models.ForeignKey(RepuestoEstado, on_delete=models.PROTECT)
     descripcion = models.TextField(null=True, blank=True)

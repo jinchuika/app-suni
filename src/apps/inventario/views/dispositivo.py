@@ -5,6 +5,7 @@ from django import forms
 from django.utils import timezone
 
 from django.urls import reverse_lazy
+from django.shortcuts import reverse
 from django.views.generic import DetailView, UpdateView, CreateView, ListView, FormView
 from braces.views import (
     LoginRequiredMixin, PermissionRequiredMixin
@@ -239,6 +240,9 @@ class DispositivoTipoCreateView(LoginRequiredMixin, CreateView):
         context = super(DispositivoTipoCreateView, self).get_context_data(**kwargs)
         context['dispositivotipo_list'] = inv_m.DispositivoTipo.objects.all()
         return context
+
+    def get_success_url(self):
+        return reverse('dispositivo_list')
 
 
 class DispositivoQRprint(LoginRequiredMixin, DetailView):
