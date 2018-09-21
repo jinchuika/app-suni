@@ -31,14 +31,14 @@
                                           primary_key :primary_key
                                       },
                                       success: function (response) {
-                                          console.log("dispositivos creados exitosamente");
-                                          bootbox.confirm("dispositivos creados exitosamente!",
+                                          bootbox.confirm("Entrada Cuadrada",
                                           function(result){
                                              location.reload();
                                             });
                                       },
                                       error: function (response) {
-                                          alert( "Error al crear los dispositivo:" + response.mensaje);
+                                           var jsonResponse = JSON.parse(response.responseText);
+                                           bootbox.alert(jsonResponse["mensaje"]);
                                       }
                                   });
                                   /**/
@@ -57,6 +57,7 @@
 class EntradaUpdate {
     constructor() {
         let entrada_table = $('#entrada-table');
+        var url_qr = $('#entrada-detalle-form').data("apiqr");
         this.api_url = entrada_table.data("api");
         this.pk = entrada_table.data("pk");
         this.url_filtrada = this.api_url + "?entrada=" + this.pk;
@@ -85,8 +86,13 @@ class EntradaUpdate {
                 {data: "creado_por"},
                 {
                     data: "",render: function(data, type, full, meta){
-                      if(full.dispositivos_creados == true & full.repuestos_creados == true){
-                        return "";
+                      if(full.dispositivos_creados == true ){
+                          if(full.usa_triage == "False"){
+                            return "<a href="+full.update_url+" class='btn btn-info btn-editar'>Editar</a>";
+                          }else{
+                              return "";
+                          }
+
                       }else{
                         return "<a href="+full.update_url+" class='btn btn-info btn-editar'>Editar</a>";
                       }
@@ -95,10 +101,27 @@ class EntradaUpdate {
                 {
                     data: "", render: function(data, type, full, meta){
                       if(full.tipo_entrada != "Especial"){
-                          if(full.dispositivos_creados == false & full.usa_triage == true){
+                          if(full.dispositivos_creados == false){
+                            if(full.usa_triage == "True"){
                               return "<button class='btn btn-primary btn-dispositivo'>Crear Disp</button>";
+                            }else{
+                              return "";
+                            }
                           }else{
-                              return "<button class='btn btn-primary btn-Qrdispositivo'>QR Dispositivo</button>";
+                              if(full.qr_dispositivo == true){
+                                if(full.usa_triage == "True"){
+                                    return "<a target='_blank' rel='noopener noreferrer' href="+full.dispositivo_list+" class='btn btn-success'>Listado Dispositivo</a>";
+                                }else{
+                                  return " ";
+                                }
+
+                              }else{
+                                if(full.usa_triage == "True"){
+                                    return "<a target='_blank' rel='noopener noreferrer' href="+full.dispositivo_qr+" class='btn btn-primary btn-Qrdispositivo'>QR Dispositivo</a>";
+                                }else {
+                                  return " ";
+                                }
+                            }
                           }
                       }else{
                         return "";
@@ -109,10 +132,26 @@ class EntradaUpdate {
                 {
                     data: "", render: function(data, type, full, meta){
                       if(full.tipo_entrada != "Especial"){
-                        if(full.repuestos_creados == false & full.usa_triage == true){
-                          return "<button class='btn btn-warning btn-repuesto'>Crear Rep</button>";
+                        if(full.repuestos_creados == false){
+                          if(full.usa_triage == "True"){
+                              return "<button class='btn btn-warning btn-repuesto'>Crear Rep</button>";
+                          }else{
+                            return " ";
+                          }
                         }else{
-                          return "<button class='btn btn-primary btn-Qrepuesto'>QR Repuestos</button>"
+                          if(full.qr_repuestos == true){
+                            if(full.usa_triage=="True"){
+                                  return "<a target='_blank' rel='noopener noreferrer' href="+full.repuesto_list+" class='btn btn-success'>Listado Repuestos</a>";
+                            }else{
+                              return " ";
+                            }
+                          }else{
+                            if(full.usa_triage=="True"){
+                                return "<a target='_blank' rel='noopener noreferrer' href="+full.repuesto_qr+" class='btn btn-primary btn-Qrepuesto'>QR Repuestos</a>";
+                            }else{
+                              return " ";
+                            }                          
+                          }
                         }
                       }else{
                         return "";
@@ -128,6 +167,46 @@ class EntradaUpdate {
         tablabody.on('click', '.btn-editar', function () {
             let data_fila = this.tabla.row($(this).parents('tr')).data();
             location.href = data_fila.update_url;
+        });
+
+        tablabody.on('click', '.btn-Qrdispositivo', function () {
+          let data_fila = tabla_temp.tabla.row($(this).parents('tr')).data();
+        $.ajax({
+              type: "POST",
+              url: url_qr,
+              dataType: 'json',
+              data: {
+                csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
+                detalles_id:data_fila.id,
+                tipo:"dispositivo"
+              },
+              success: function (response) {
+                   location.reload();
+                  console.log("Qr Dispositivos imprimidos");
+
+              },
+          });
+
+        });
+
+        tablabody.on('click', '.btn-Qrepuesto', function () {
+          let data_fila = tabla_temp.tabla.row($(this).parents('tr')).data();
+        $.ajax({
+              type: "POST",
+              url: url_qr,
+              dataType: 'json',
+              data: {
+                csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
+                detalles_id:data_fila.id,
+                tipo:"repuestos"
+              },
+              success: function (response) {
+                 location.reload();
+                  console.log("Qr Repuestos imprimidos");
+
+              },
+          });
+
         });
 
         tablabody.on('click', '.btn-dispositivo', function () {
@@ -280,6 +359,13 @@ class EntradaDetail {
                 {data: "precio_total"},
                 {data:"descripcion"},
                 {data: "creado_por"},
+                {data:" ",render: function(data, type, full, meta){
+                    return "<a target='_blank' rel='noopener noreferrer' href="+full.dispositivo_list+" class='btn btn-success'>Listado Dispositivo</a>";
+                }},
+                {data:" " ,render: function(data, type, full, meta){
+                    return "<a target='_blank' rel='noopener noreferrer' href="+full.repuesto_list+" class='btn btn-primary'>Listado Repuestos</a>";
+                }}
+
             ]
         });
 

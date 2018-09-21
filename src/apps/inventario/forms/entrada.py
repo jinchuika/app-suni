@@ -17,6 +17,7 @@ class EntradaForm(forms.ModelForm):
             'tipo': forms.Select(attrs={'class': 'form-control select2'}),
             'fecha': forms.TextInput({'class': 'form-control datepicker'}),
             'proveedor': forms.Select(attrs={'class': 'form-control select2'}),
+            'factura': forms.TextInput({'class': 'form-control'}),
             'observaciones': forms.Textarea({'class': 'form-control'}),
         }
 
@@ -28,7 +29,7 @@ class EntradaUpdateForm(forms.ModelForm):
     class Meta:
         model = inv_m.Entrada
         fields = '__all__'
-        exclude = ['observaciones']
+        exclude = ['observaciones', 'factura']
         widgets = {
                 'recibida_por': forms.HiddenInput(),
                 'fecha': forms.HiddenInput(),
@@ -50,7 +51,17 @@ class EntradaDetalleForm(forms.ModelForm):
     class Meta:
         model = inv_m.EntradaDetalle
         fields = '__all__'
-        exclude = ['precio_unitario', 'precio_total', 'precio_descontado', 'creado_por', 'dispositivos_creados', 'repuestos_creados']
+        exclude = [
+            'precio_unitario',
+            'precio_total',
+            'precio_descontado',
+            'creado_por',
+            'dispositivos_creados',
+            'repuestos_creados',
+            'qr_repuestos',
+            'qr_dispositivo',
+            'impreso'
+            ]
         widgets = {
             'entrada': forms.HiddenInput(),
             'tipo_dispositivo': forms.Select(attrs={'class': 'form-control select2'}),
@@ -65,7 +76,8 @@ class EntradaDetalleForm(forms.ModelForm):
 
 
 class EntradaDetalleUpdateForm(forms.ModelForm):
-    """docstring for EntradaDetalleUpdateForm.
+    """ Formulario para la :`class`:`EntradaDetalleView` que es la encargada de actualizar  los datos
+    de los detalles de entrada
     """
     class Meta:
         model = inv_m.EntradaDetalle
@@ -76,7 +88,12 @@ class EntradaDetalleUpdateForm(forms.ModelForm):
                     'precio_unitario',
                     'precio_total',
                     'precio_descontado',
-                    'precio_subtotal'
+                    'precio_subtotal',
+                    'dispositivos_creados',
+                    'repuestos_creados',
+                    'qr_repuestos',
+                    'qr_dispositivo',
+                    'impreso'
                     ]
         widgets = {
             'util': forms.TextInput({'class': 'form-control '}),

@@ -1,0 +1,42 @@
+{% extends "base/base.html" %}
+{% load staticfiles %} {% block page_title %}
+<title>Repuestos creados en esta entrada </title>
+{% endblock page_title %}
+{% block content %}
+<section class="content">
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-md-6">
+				<div class="box">
+					<div class="box-header">
+            <div class="box-title">
+              <h3>Repuestos Creados</h3>
+            </div>
+          </div>
+					<div class="box-body">
+					<table class="table table-condensed">
+							<thead>
+                <th> Triage</th>
+                <th> Tipo</th>
+              </thead>
+              <tbody>
+                {%for repuesto in repuesto_qr%}
+                <tr>
+                  <td>
+                  <a href="{{repuesto.get_absolute_url}}">{{repuesto}}</a>
+                  </td>
+                  <td>
+                    {{repuesto.tipo}}
+                  </td>
+
+                </tr>
+                {%endfor%}
+              </tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+{% endblock content %}

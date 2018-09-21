@@ -37,7 +37,7 @@ def ingresar_dispositivo(entrada, modelo, tipo, entrada_detalle, precio=None):
         movimiento.save()
 
 
-def ingresar_repuesto(entrada, modelo_repuesto, estado, tipo, precio=None):
+def ingresar_repuesto(entrada, modelo_repuesto, estado, tipo, entrada_detalle, precio=None):
     with transaction.atomic():
         periodo_actual = conta_m.PeriodoFiscal.objects.get(actual=True)
         if not precio or precio == 0.0:
@@ -49,6 +49,7 @@ def ingresar_repuesto(entrada, modelo_repuesto, estado, tipo, precio=None):
         nuevo_repuesto = modelo_repuesto(
             entrada=entrada,
             tipo=tipo,
+            entrada_detalle=entrada_detalle,
             disponible=True,
             estado=estado
         )
