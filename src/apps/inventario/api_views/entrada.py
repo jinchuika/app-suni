@@ -33,43 +33,73 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
         serializer.save(creado_por=self.request.user)
 
     @action(methods=['post'], detail=False)
+    def imprimir_qr(self, request, pk=None):
+        """
+        """
+        diferenciar = request.data['tipo']
+        detalles_id = request.data['detalles_id']
+        if(diferenciar == "dispositivo"):
+            entrada_detalle = inv_m.EntradaDetalle.objects.get(id=detalles_id)
+            entrada_detalle.qr_dispositivo = True
+            entrada_detalle.save()
+            print(entrada_detalle)
+        else:
+            entrada_detalle = inv_m.EntradaDetalle.objects.get(id=detalles_id)
+            entrada_detalle.qr_repuestos = True
+            entrada_detalle.save()
+            print(entrada_detalle)
+        return Response(
+            {'mensaje': 'Dispositivos impresos'},
+            status=status.HTTP_200_OK
+        )
+
+    @action(methods=['post'], detail=False)
+    """ Metodo para cuadrar los dispositivos de la :class:`EntradaDetalle`
+    """
     def cuadrar_salida(self, request, pk=None):
+        mensaje_cuadrar = ""
         entrad_id = request.data['primary_key']
-        entrada = inv_m.EntradaDetalle.objects.filter(entrada=entrad_id)
         dispositivo_repuestos = inv_m.EntradaDetalle.objects.filter(entrada=entrad_id).count()
         validar_dispositivos = inv_m.EntradaDetalle.objects.filter(entrada=entrad_id,
                                                                    dispositivos_creados=True).count()
         validar_repuestos = inv_m.EntradaDetalle.objects.filter(entrada=entrad_id,
                                                                 repuestos_creados=True).count()
-        print("Total detalles:" + str(dispositivo_repuestos))
-        print("Total repuestos creados:" + str(validar_repuestos))
-        print("Total dispositivos creados:" + str(validar_dispositivos))
-        for detalles in entrada:
-            total_detalle = detalles.util + detalles.repuesto + detalles.desecho
-            print("total acumulado :" + str(total_detalle))
-            print("total:" + str(detalles.total))
-            if(detalles.total != total_detalle):
-                print("La entrada no esta cuadrada")
+
+        tipo_dispositivo = inv_m.EntradaDetalle.objects.filter(entrada=entrad_id).values('tipo_dispositivo').distinct()
+
+        for tipo in tipo_dispositivo:
+            acumulado_totales = 0
+            acumulador_total = 0
+            cuadrar_dispositivo = inv_m.EntradaDetalle.objects.filter(
+                entrada=entrad_id,
+                tipo_dispositivo=tipo['tipo_dispositivo'])
+            print(tipo)
+            for datos in cuadrar_dispositivo:
+                print(datos.util)
+                acumulado_totales = acumulado_totales + datos.util + datos.repuesto + datos.desecho
+                acumulador_total = acumulador_total + datos.total
+                mensaje_cuadrar = datos.tipo_dispositivo
+            if(acumulador_total != acumulado_totales):
                 return Response(
-                    {'mensaje': 'La entrada no esta cuadrada'},
+                    {'mensaje': 'La entrada no esta cuadrada revisar:  ' + str(mensaje_cuadrar)},
                     status=status.HTTP_400_BAD_REQUEST
                 )
             else:
-                print("La entrada esta cuadrada")
                 if(dispositivo_repuestos != validar_dispositivos or dispositivo_repuestos != validar_repuestos):
-                    print("Los Dispositivos no han sido creados")
                     return Response(
                         {'mensaje': 'Los dispositivos o repuestos no  han sido creados'},
                         status=status.HTTP_400_BAD_REQUEST
                     )
                 else:
-                    print("Los dispositivos o repuesto han sido creados ")
+                    print("Todo en orden")
         return Response(
             {'mensaje': 'Entrada Cuadrada'},
             status=status.HTTP_200_OK
         )
 
     @action(methods=['post'], detail=True)
+    """ Metodo para la Creacion de Dispositivos
+    """
     def crear_dispositivos(self, request, pk=None):
         entrada_detalle = self.get_object()
         try:
@@ -86,6 +116,8 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST)
 
     @action(methods=['post'], detail=True)
+    """ Metodo para la creacion de Repuestos
+    """
     def crear_repuestos(self, request, pk=None):
         entrada_detalle = self.get_object()
         try:

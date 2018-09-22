@@ -33,5 +33,40 @@ urlpatterns = [
         inventario_v.EntradaDetalleUpdateView.as_view(),
         name='entradadetalle_update'
     ),
-
+    # url de Carta de Agradecimiento
+    url(
+        r'^entradadetalle/reporte/carta/(?P<pk>\d+)/$',
+        inventario_v.CartaAgradecimiento.as_view(),
+        name='carta_agradecimiento'
+    ),
+    # url Informe Sucio
+    url(
+        r'^entradadetalle/constacia/(?P<pk>\d+)/$',
+        inventario_v.ConstanciaEntrada.as_view(),
+        name='reporte_sucio'
+    ),
+    # url impresion de QR de dispositivos por detalle de entrada
+    url(
+        r'^entrada/(?P<pk>\d+)/reporteqr/(?P<detalle>\d+)/$',
+        inventario_v.ImprimirQr.as_view(),
+        name='imprimir_qr'
+    ),
+    # url impresion de QR de repuestos por detallle de entrada
+    url(
+        r'^entrada/(?P<pk>\d+)/reporterepuestosqr/(?P<detalle>\d+)/$',
+        inventario_v.ReporteRepuestosQr.as_view(),
+        name='imprimir_repuesto'
+    ),
+    # url para detalles de dispositivos de entradas
+    url(
+        r'^entrada/(?P<pk>\d+)/listadodispositivo/(?P<detalle>\d+)/$',
+        inventario_v. EntradaDetalleDispositivos.as_view(),
+        name='detalles_dispositivos'
+    ),
+    # url para detalles de repuesto de entradas
+    url(
+        r'^entrada/(?P<pk>\d+)/listadorepuesto/(?P<detalle>\d+)/$',
+        inventario_v. EntradaDetalleRepuesto.as_view(),
+        name='detalles_repuesto'
+    ),
 ]

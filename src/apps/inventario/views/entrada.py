@@ -1,6 +1,7 @@
 from django.shortcuts import reverse
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.views.generic import CreateView,  UpdateView, DetailView, FormView
+from django.db.models import Sum
 from braces.views import (
     LoginRequiredMixin
 )
@@ -92,8 +93,132 @@ class EntradaDetalleUpdateView(LoginRequiredMixin, UpdateView):
         return reverse('entrada_update', kwargs={'pk': self.object.entrada.id})
 
 
+class CartaAgradecimiento(LoginRequiredMixin, DetailView):
+    """Muestra la carta agradecimiento
+    """
+    model = inv_m.Entrada
+    template_name = 'inventario/entrada/carta_agradecimiento.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(CartaAgradecimiento, self).get_context_data(**kwargs)
+        context['dispositivotipo_list'] = inv_m.EntradaDetalle.objects.filter(entrada=self.object.id)
+        return context
+
+
+class ConstanciaEntrada(LoginRequiredMixin, DetailView):
+    """Muestra informe de la entrada en sucio
+    """
+    model = inv_m.Entrada
+    template_name = 'inventario/entrada/informe_sucio.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(ConstanciaEntrada, self).get_context_data(**kwargs)
+        context['dispositivotipo_list'] = inv_m.EntradaDetalle.objects.filter(entrada=self.object.id)
+        tipo_dispositivo = inv_m.EntradaDetalle.objects.filter(
+            entrada=self.object.id).values('tipo_dispositivo').distinct()
+        lista = []
+        util = []
+        total = []
+        contador = 0
+        for tipo in tipo_dispositivo:
+            acumulado_util = 0
+            dispositivo_tipo = inv_m.EntradaDetalle.objects.filter(
+                entrada=self.object.id,
+                tipo_dispositivo=tipo['tipo_dispositivo']
+                )
+            contador = contador + 1
+            for datos in dispositivo_tipo:
+                acumulado_util = acumulado_util + datos.total
+            nuevo_dispositivo = inv_m.DispositivoTipo.objects.get(id=tipo['tipo_dispositivo'])
+            suma_util = inv_m.EntradaDetalle.objects.filter(
+                                                            entrada=self.object.id,
+                                                            tipo_dispositivo=tipo['tipo_dispositivo']).aggregate(
+                                                            total_util=Sum('util')
+                                                            )
+            suma_repuesto = inv_m.EntradaDetalle.objects.filter(
+                entrada=self.object.id,
+                tipo_dispositivo=tipo['tipo_dispositivo']).aggregate(total_repuesto=Sum('repuesto'))
+            suma_desecho = inv_m.EntradaDetalle.objects.filter(
+                entrada=self.object.id,
+                tipo_dispositivo=tipo['tipo_dispositivo']).aggregate(total_desecho=Sum('desecho'))
+            suma_total = inv_m.EntradaDetalle.objects.filter(
+                entrada=self.object.id,
+                tipo_dispositivo=tipo['tipo_dispositivo']).aggregate(total_cantidad=Sum('total'))
+            index = contador % 2
+            diccionario = {
+                'tipo_dipositivo': nuevo_dispositivo,
+                'util': suma_util,
+                'repuesto': suma_repuesto,
+                'desecho': suma_desecho,
+                'total': suma_total,
+                'index': index}
+            util.append(suma_util)
+            lista.append(diccionario)
+            total.append(acumulado_util)
+        context['dispositivo_tipo'] = lista
+        context['suma_util'] = util
+        context['suma_total'] = total
+        return context
+
+                
+class ImprimirQr(LoginRequiredMixin, DetailView):
+    """
+    """
+    model = inv_m.Entrada
+    template_name = 'inventario/entrada/imprimir_qr.html'
+
+    def get_context_data(self, **kwargs):
+        print(self.kwargs['detalle'])
+        context = super(ImprimirQr, self).get_context_data(**kwargs)
+        context['dispositivo_qr'] = inv_m.Dispositivo.objects.filter(entrada=self.object.id,
+                                                                     entrada_detalle=self.kwargs['detalle'])
+        return context
+
+
+class ReporteRepuestosQr(LoginRequiredMixin, DetailView):
+    """
+    """
+    model = inv_m.Entrada
+    template_name = 'inventario/entrada/imprimir_qr.html'
+
+    def get_context_data(self, **kwargs):
+        print(self.kwargs['detalle'])
+        context = super(ReporteRepuestosQr, self).get_context_data(**kwargs)
+        context['dispositivo_qr'] = inv_m.Repuesto.objects.filter(entrada=self.object.id,
+                                                                  entrada_detalle=self.kwargs['detalle'])
+        return context
+
+
+class EntradaDetalleDispositivos(LoginRequiredMixin, DetailView):
+    """
+    """
+    model = inv_m.Entrada
+    template_name = 'inventario/entrada/entradadetalle_dispositivos.html'
+
+    def get_context_data(self, **kwargs):
+        print(self.kwargs['detalle'])
+        context = super(EntradaDetalleDispositivos, self).get_context_data(**kwargs)
+        context['dispositivo_qr'] = inv_m.Dispositivo.objects.filter(entrada=self.object.id,
+                                                                     entrada_detalle=self.kwargs['detalle'])
+        return context
+
+
+class EntradaDetalleRepuesto(LoginRequiredMixin, DetailView):
+    """
+    """
+    model = inv_m.Entrada
+    template_name = 'inventario/entrada/entradadetalle_repuesto.html'
+
+    def get_context_data(self, **kwargs):
+        print(self.kwargs['detalle'])
+        context = super(EntradaDetalleRepuesto, self).get_context_data(**kwargs)
+        context['repuesto_qr'] = inv_m.Repuesto.objects.filter(entrada=self.object.id,
+                                                               entrada_detalle=self.kwargs['detalle'])
+        return context
+
+
 class EntradaDescuentoCreateView(LoginRequiredMixin, CreateView):
-    """ 
+    """
     """
     model = inv_m.DescuentoEntrada
     template_name = 'inventario/entrada/descuento_add.html'
