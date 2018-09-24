@@ -78,6 +78,12 @@ class SolicitudMovimientoCreateView(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         form.instance.creada_por = self.request.user
+        form.instance.etapa_inicial = inv_m.DispositivoEtapa.objects.get(
+            id=inv_m.DispositivoEtapa.AB
+            )
+        form.instance.etapa_final = inv_m.DispositivoEtapa.objects.get(
+            id=inv_m.DispositivoEtapa.TR
+            )
         return super(SolicitudMovimientoCreateView, self).form_valid(form)
 
     def get_initial(self):

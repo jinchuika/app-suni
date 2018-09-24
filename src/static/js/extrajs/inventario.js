@@ -150,7 +150,7 @@ class EntradaUpdate {
                                 return "<a target='_blank' rel='noopener noreferrer' href="+full.repuesto_qr+" class='btn btn-primary btn-Qrepuesto'>QR Repuestos</a>";
                             }else{
                               return " ";
-                            }                          
+                            }
                           }
                         }
                       }else{
@@ -585,6 +585,16 @@ class EntradaDetalleDetail {
         });
     }
 }(window.SalidaDetalleList = window.SalidaDetalleList || {}, jQuery));
+
+class SolicitudMovimiento {
+  constructor() {
+    $('#movimientos-table-body').DataTable({
+      dom: 'lfrtipB',
+      buttons: ['excel','pdf']
+    });
+
+  }
+}
 
 
 class SolicitudMovimientoUpdate {

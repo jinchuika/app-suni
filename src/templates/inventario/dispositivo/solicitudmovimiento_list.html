@@ -17,18 +17,23 @@
                             <table class="table table-condensed table-striped table-datatables">
                                 <thead>
                                 <tr>
+                                    <th>No.</th>
                                     <th>Fecha</th>
                                     <th>Dispositivo</th>
                                     <th>Cantidad</th>
                                     <th>Solicitud por</th>
+                                    <th>Recibido por</th>
                                     <th>Estado</th>
                                 </tr>
                                 </thead>
                                 <tbody>
                                 {% for solicitud in solicitudmovimiento_list %}
                                     <tr>
+                                      <td>
+                                        {{solicitud}}
+                                      </td>
                                         <td>
-                                            <a href="{{ solicitud.get_absolute_url }}" class="btn btn-block">
+                                            <a href="{{ solicitud.get_absolute_url }}">
                                                 {{ solicitud.fecha_creacion|date:"Y-m-d" }}
                                             </a>
                                         </td>
@@ -40,6 +45,9 @@
                                         </td>
                                         <td>
                                             {{ solicitud.creada_por.get_full_name }}
+                                        </td>
+                                        <td>
+                                            {{ solicitud.autorizada_por.get_full_name }}
                                         </td>
                                         <td>
                                             {% if solicitud.terminada %}

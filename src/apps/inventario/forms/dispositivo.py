@@ -82,23 +82,27 @@ class SolicitudMovimientoCreateForm(forms.ModelForm):
     """
     class Meta:
         model = inv_m.SolicitudMovimiento
-        exclude = ['autorizada_por', 'terminada', 'creada_por']
+        exclude = [
+            'autorizada_por',
+            'terminada',
+            'creada_por',
+            'fecha_creacion',
+            'etapa_inicial',
+            'etapa_final'
+            ]
         widgets = {
-            'etapa_inicial': forms.Select(attrs={'class': 'form-control '}),
-            'etapa_final': forms.Select(attrs={'class': 'form-control '}),
             'tipo_dispositivo': forms.Select(attrs={'class': 'form-control'}),
             'cantidad': forms.TextInput({'class': 'form-control'}),
-            'fecha_creacion': forms.DateInput(attrs={'class': 'form-control datepicker'}),
         }
 
     def __init__(self, *args, **kwargs):
         super(SolicitudMovimientoCreateForm, self).__init__(*args, **kwargs)
         self.fields['tipo_dispositivo'].queryset = inv_m.DispositivoTipo.objects.filter(usa_triage=True)
 
-    def clean(self):
+    """def clean(self):
         cleaned_data = super(SolicitudMovimientoCreateForm, self).clean()
         if cleaned_data['etapa_inicial'] == cleaned_data['etapa_final']:
-            raise forms.ValidationError('Las etapas no pueden ser iguales.')
+            raise forms.ValidationError('Las etapas no pueden ser iguales.')"""
 
 
 class SolicitudMovimientoUpdateForm(forms.ModelForm):
@@ -118,7 +122,7 @@ class SolicitudMovimientoUpdateForm(forms.ModelForm):
 
     class Meta:
         model = inv_m.SolicitudMovimiento
-        fields = ('dispositivos', 'terminada')
+        fields = ('dispositivos', )
 
 
 class DispositivoTipoForm(forms.ModelForm):

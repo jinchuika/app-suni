@@ -34,7 +34,8 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
 
     @action(methods=['post'], detail=False)
     def imprimir_qr(self, request, pk=None):
-        """
+        """Metodo para imprimir los qr de dispositivo y repuestos por medio del detalle
+        de entrada
         """
         diferenciar = request.data['tipo']
         detalles_id = request.data['detalles_id']
@@ -54,9 +55,9 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
         )
 
     @action(methods=['post'], detail=False)
-    """ Metodo para cuadrar los dispositivos de la :class:`EntradaDetalle`
-    """
     def cuadrar_salida(self, request, pk=None):
+        """ Metodo para cuadrar los dispositivos de la :class:`EntradaDetalle`
+        """
         mensaje_cuadrar = ""
         entrad_id = request.data['primary_key']
         dispositivo_repuestos = inv_m.EntradaDetalle.objects.filter(entrada=entrad_id).count()
@@ -98,9 +99,9 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
         )
 
     @action(methods=['post'], detail=True)
-    """ Metodo para la Creacion de Dispositivos
-    """
     def crear_dispositivos(self, request, pk=None):
+        """ Metodo para la Creacion de Dispositivos
+        """
         entrada_detalle = self.get_object()
         try:
             creacion = entrada_detalle.crear_dispositivos()
@@ -116,9 +117,9 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST)
 
     @action(methods=['post'], detail=True)
-    """ Metodo para la creacion de Repuestos
-    """
     def crear_repuestos(self, request, pk=None):
+        """ Metodo para la creacion de Repuestos
+        """
         entrada_detalle = self.get_object()
         try:
             creacion = entrada_detalle.crear_repuestos()
