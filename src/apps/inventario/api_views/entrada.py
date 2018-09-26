@@ -16,10 +16,15 @@ class DetalleInformeFilter(filters.FilterSet):
     """ Filtro para generar los informes de Detalles de Entrada
     """
     tipo = django_filters.CharFilter(name='entrada')
+    asignacion = filters.NumberFilter(name='asignacion', method='filter_asignacion')
 
     class Meta:
         model = inv_m.EntradaDetalle
         fields = ['entrada']
+
+    def filter_asignacion(self, qs, name, value):
+        tipo_dis = self.request.user.tipos_dispositivos.tipos.all()
+        return qs.filter(entrada=value, tipo_dispositivo__in=tipo_dis)
 
 
 class EntradaDetalleViewSet(viewsets.ModelViewSet):
@@ -32,8 +37,76 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(creado_por=self.request.user)
 
+    @action(methods=['post'], detail=False)
+    def imprimir_qr(self, request, pk=None):
+        """Metodo para imprimir los qr de dispositivo y repuestos por medio del detalle
+        de entrada
+        """
+        diferenciar = request.data['tipo']
+        detalles_id = request.data['detalles_id']
+        if(diferenciar == "dispositivo"):
+            entrada_detalle = inv_m.EntradaDetalle.objects.get(id=detalles_id)
+            entrada_detalle.qr_dispositivo = True
+            entrada_detalle.save()
+            print(entrada_detalle)
+        else:
+            entrada_detalle = inv_m.EntradaDetalle.objects.get(id=detalles_id)
+            entrada_detalle.qr_repuestos = True
+            entrada_detalle.save()
+            print(entrada_detalle)
+        return Response(
+            {'mensaje': 'Dispositivos impresos'},
+            status=status.HTTP_200_OK
+        )
+
+    @action(methods=['post'], detail=False)
+    def cuadrar_salida(self, request, pk=None):
+        """ Metodo para cuadrar los dispositivos de la :class:`EntradaDetalle`
+        """
+        mensaje_cuadrar = ""
+        entrad_id = request.data['primary_key']
+        dispositivo_repuestos = inv_m.EntradaDetalle.objects.filter(entrada=entrad_id).count()
+        validar_dispositivos = inv_m.EntradaDetalle.objects.filter(entrada=entrad_id,
+                                                                   dispositivos_creados=True).count()
+        validar_repuestos = inv_m.EntradaDetalle.objects.filter(entrada=entrad_id,
+                                                                repuestos_creados=True).count()
+
+        tipo_dispositivo = inv_m.EntradaDetalle.objects.filter(entrada=entrad_id).values('tipo_dispositivo').distinct()
+
+        for tipo in tipo_dispositivo:
+            acumulado_totales = 0
+            acumulador_total = 0
+            cuadrar_dispositivo = inv_m.EntradaDetalle.objects.filter(
+                entrada=entrad_id,
+                tipo_dispositivo=tipo['tipo_dispositivo'])
+            print(tipo)
+            for datos in cuadrar_dispositivo:
+                print(datos.util)
+                acumulado_totales = acumulado_totales + datos.util + datos.repuesto + datos.desecho
+                acumulador_total = acumulador_total + datos.total
+                mensaje_cuadrar = datos.tipo_dispositivo
+            if(acumulador_total != acumulado_totales):
+                return Response(
+                    {'mensaje': 'La entrada no esta cuadrada revisar:  ' + str(mensaje_cuadrar)},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            else:
+                if(dispositivo_repuestos != validar_dispositivos or dispositivo_repuestos != validar_repuestos):
+                    return Response(
+                        {'mensaje': 'Los dispositivos o repuestos no  han sido creados'},
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+                else:
+                    print("Todo en orden")
+        return Response(
+            {'mensaje': 'Entrada Cuadrada'},
+            status=status.HTTP_200_OK
+        )
+
     @action(methods=['post'], detail=True)
     def crear_dispositivos(self, request, pk=None):
+        """ Metodo para la Creacion de Dispositivos
+        """
         entrada_detalle = self.get_object()
         try:
             creacion = entrada_detalle.crear_dispositivos()
@@ -50,6 +123,8 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
 
     @action(methods=['post'], detail=True)
     def crear_repuestos(self, request, pk=None):
+        """ Metodo para la creacion de Repuestos
+        """
         entrada_detalle = self.get_object()
         try:
             creacion = entrada_detalle.crear_repuestos()

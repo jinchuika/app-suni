@@ -10,6 +10,7 @@ class EntradaDetalleSerializer(serializers.ModelSerializer):
 
     tdispositivo = serializers.SerializerMethodField()
     tipo_entrada = serializers.StringRelatedField(source='entrada.tipo')
+    usa_triage = serializers.StringRelatedField(source='tipo_dispositivo.usa_triage')
     # Campos contabilidad
     precio_unitario = serializers.DecimalField(max_digits=8, decimal_places=2, default=None)
     precio_descontado = serializers.DecimalField(max_digits=8, decimal_places=2, default=None)
@@ -17,6 +18,10 @@ class EntradaDetalleSerializer(serializers.ModelSerializer):
     # Registro
     creado_por = serializers.StringRelatedField(source='creado_por.get_full_name')
     update_url = serializers.SerializerMethodField(read_only=True)
+    dispositivo_list = serializers.SerializerMethodField(read_only=True)
+    repuesto_list = serializers.SerializerMethodField(read_only=True)
+    dispositivo_qr = serializers.SerializerMethodField(read_only=True)
+    repuesto_qr = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = inv_m.EntradaDetalle
@@ -38,7 +43,15 @@ class EntradaDetalleSerializer(serializers.ModelSerializer):
             'tipo_entrada',
             'dispositivos_creados',
             'repuestos_creados',
-            'descripcion'
+            'descripcion',
+            'usa_triage',
+            'dispositivo_qr',
+            'repuesto_qr',
+            'qr_repuestos',
+            'qr_dispositivo',
+            'dispositivo_list',
+            'repuesto_list'
+
         )
 
     def get_tdispositivo(self, object):
@@ -46,6 +59,18 @@ class EntradaDetalleSerializer(serializers.ModelSerializer):
 
     def get_update_url(self, object):
         return reverse_lazy('entradadetalle_update', kwargs={'pk': object.id})
+
+    def get_dispositivo_qr(self, object):
+        return reverse_lazy('imprimir_qr', kwargs={'pk': object.entrada, 'detalle': object.id})
+
+    def get_repuesto_qr(self, object):
+        return reverse_lazy('imprimir_repuesto', kwargs={'pk': object.entrada, 'detalle': object.id})
+
+    def get_dispositivo_list(self, object):
+        return reverse_lazy('detalles_dispositivos', kwargs={'pk': object.entrada, 'detalle': object.id})
+
+    def get_repuesto_list(self, object):
+        return reverse_lazy('detalles_repuesto', kwargs={'pk': object.entrada, 'detalle': object.id})
 
 
 class EntradaSerializer(serializers.ModelSerializer):

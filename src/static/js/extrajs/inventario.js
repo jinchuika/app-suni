@@ -1,11 +1,51 @@
 (function (AlertaEnCreacion, $, undefined) {
     AlertaEnCreacion.init = function () {
         var mensaje = document.getElementById("id_en_creacion");
+        var urldispositivo = $("#entrada-detalle-form").data("api");
+        var primary_key = $("#entrada-detalle-form").data("key");
         $('#id_en_creacion').click(function () {
             if ($("#id_en_creacion").is(':checked')) {
                 bootbox.alert("esta activado");
             } else {
-                bootbox.alert("Esta Seguro que quiere Terminara la Creacion de la Entrada");
+                bootbox.confirm({
+                            message: "Esta Seguro que quiere Terminar la Creacion de la Entrada",
+                            buttons: {
+                                confirm: {
+                                    label: 'Si',
+                                    className: 'btn-success'
+                                },
+                                cancel: {
+                                    label: 'No',
+                                    className: 'btn-danger'
+                                }
+                            },
+                            callback: function (result) {
+                                if(result == true){
+                                  /**/
+                                  $.ajax({
+                                      type: 'POST',
+                                      url: urldispositivo,
+                                      dataType: 'json',
+                                      data: {
+                                          csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
+                                          primary_key :primary_key
+                                      },
+                                      success: function (response) {
+                                          bootbox.confirm("Entrada Cuadrada",
+                                          function(result){
+                                             location.reload();
+                                            });
+                                      },
+                                      error: function (response) {
+                                           var jsonResponse = JSON.parse(response.responseText);
+                                           bootbox.alert(jsonResponse["mensaje"]);
+                                      }
+                                  });
+                                  /**/
+
+                                }
+                            }
+                          });
             }
         });
 
@@ -17,9 +57,10 @@
 class EntradaUpdate {
     constructor() {
         let entrada_table = $('#entrada-table');
+        var url_qr = $('#entrada-detalle-form').data("apiqr");
         this.api_url = entrada_table.data("api");
         this.pk = entrada_table.data("pk");
-        this.url_filtrada = this.api_url + "?entrada=" + this.pk;
+        this.url_filtrada = this.api_url + "?asignacion=" + this.pk;
         this.tabla = entrada_table.DataTable({
             searching: false,
             paging: true,
@@ -45,8 +86,13 @@ class EntradaUpdate {
                 {data: "creado_por"},
                 {
                     data: "",render: function(data, type, full, meta){
-                      if(full.dispositivos_creados == true & full.repuestos_creados == true){
-                        return "";
+                      if(full.dispositivos_creados == true ){
+                          if(full.usa_triage == "False"){
+                            return "<a href="+full.update_url+" class='btn btn-info btn-editar'>Editar</a>";
+                          }else{
+                              return "";
+                          }
+
                       }else{
                         return "<a href="+full.update_url+" class='btn btn-info btn-editar'>Editar</a>";
                       }
@@ -56,9 +102,26 @@ class EntradaUpdate {
                     data: "", render: function(data, type, full, meta){
                       if(full.tipo_entrada != "Especial"){
                           if(full.dispositivos_creados == false){
+                            if(full.usa_triage == "True"){
                               return "<button class='btn btn-primary btn-dispositivo'>Crear Disp</button>";
-                          }else{
+                            }else{
                               return "";
+                            }
+                          }else{
+                              if(full.qr_dispositivo == true){
+                                if(full.usa_triage == "True"){
+                                    return "<a target='_blank' rel='noopener noreferrer' href="+full.dispositivo_list+" class='btn btn-success'>Listado Dispositivo</a>";
+                                }else{
+                                  return " ";
+                                }
+
+                              }else{
+                                if(full.usa_triage == "True"){
+                                    return "<a target='_blank' rel='noopener noreferrer' href="+full.dispositivo_qr+" class='btn btn-primary btn-Qrdispositivo'>QR Dispositivo</a>";
+                                }else {
+                                  return " ";
+                                }
+                            }
                           }
                       }else{
                         return "";
@@ -70,9 +133,25 @@ class EntradaUpdate {
                     data: "", render: function(data, type, full, meta){
                       if(full.tipo_entrada != "Especial"){
                         if(full.repuestos_creados == false){
-                          return "<button class='btn btn-warning btn-repuesto'>Crear Rep</button>";
+                          if(full.usa_triage == "True"){
+                              return "<button class='btn btn-warning btn-repuesto'>Crear Rep</button>";
+                          }else{
+                            return " ";
+                          }
                         }else{
-                          return ""
+                          if(full.qr_repuestos == true){
+                            if(full.usa_triage=="True"){
+                                  return "<a target='_blank' rel='noopener noreferrer' href="+full.repuesto_list+" class='btn btn-success'>Listado Repuestos</a>";
+                            }else{
+                              return " ";
+                            }
+                          }else{
+                            if(full.usa_triage=="True"){
+                                return "<a target='_blank' rel='noopener noreferrer' href="+full.repuesto_qr+" class='btn btn-primary btn-Qrepuesto'>QR Repuestos</a>";
+                            }else{
+                              return " ";
+                            }
+                          }
                         }
                       }else{
                         return "";
@@ -88,6 +167,42 @@ class EntradaUpdate {
         tablabody.on('click', '.btn-editar', function () {
             let data_fila = this.tabla.row($(this).parents('tr')).data();
             location.href = data_fila.update_url;
+        });
+
+        tablabody.on('click', '.btn-Qrdispositivo', function () {
+          let data_fila = tabla_temp.tabla.row($(this).parents('tr')).data();
+        $.ajax({
+              type: "POST",
+              url: url_qr,
+              dataType: 'json',
+              data: {
+                csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
+                detalles_id:data_fila.id,
+                tipo:"dispositivo"
+              },
+              success: function (response) {
+                   location.reload();
+              },
+          });
+
+        });
+
+        tablabody.on('click', '.btn-Qrepuesto', function () {
+          let data_fila = tabla_temp.tabla.row($(this).parents('tr')).data();
+        $.ajax({
+              type: "POST",
+              url: url_qr,
+              dataType: 'json',
+              data: {
+                csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
+                detalles_id:data_fila.id,
+                tipo:"repuestos"
+              },
+              success: function (response) {
+                 location.reload();
+              },
+          });
+
         });
 
         tablabody.on('click', '.btn-dispositivo', function () {
@@ -153,7 +268,6 @@ class EntradaUpdate {
                 url: detalle_form.attr('action'),
                 data: detalle_form.serialize(),
                 success: function (response) {
-                    console.log("datos ingresados correctamente");
                     tabla_temp.tabla.ajax.reload();
                 },
             });
@@ -170,7 +284,6 @@ class EntradaUpdate {
                 csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val()
             },
             success: function (response) {
-                console.log("dispositivos creados exitosamente");              
                 bootbox.confirm("dispositivos creados exitosamente!",
                 function(result){
                    location.reload();
@@ -190,7 +303,6 @@ class EntradaUpdate {
                 csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val()
             },
             success: function (response) {
-                console.log("repuestos creados exitosamente");
                 bootbox.confirm("repuestos creados exitosamente!",
                 function(result){
                    location.reload();
@@ -240,6 +352,13 @@ class EntradaDetail {
                 {data: "precio_total"},
                 {data:"descripcion"},
                 {data: "creado_por"},
+                {data:" ",render: function(data, type, full, meta){
+                    return "<a target='_blank' rel='noopener noreferrer' href="+full.dispositivo_list+" class='btn btn-success'>Listado Dispositivo</a>";
+                }},
+                {data:" " ,render: function(data, type, full, meta){
+                    return "<a target='_blank' rel='noopener noreferrer' href="+full.repuesto_list+" class='btn btn-primary'>Listado Repuestos</a>";
+                }}
+
             ]
         });
 
@@ -273,7 +392,6 @@ class EntradaDetail {
                 url: detalle_form.attr('action'),
                 data: detalle_form.serialize(),
                 success: function (response) {
-                    console.log("datos ingresados correctamente");
                     tabla_temp.tabla.ajax.reload();
                 },
             });
@@ -368,8 +486,6 @@ class EntradaDetail {
         $('#entrada2-table tbody').on('click', 'button', function () {
             var data = tabla.row($(this).parents('tr')).data();
             alert("Si funciona este boton");
-            console.log(data.fecha);
-            console.log(data.en_creacion);
         });
 
     }
@@ -460,6 +576,55 @@ class EntradaDetalleDetail {
     }
 }(window.SalidaDetalleList = window.SalidaDetalleList || {}, jQuery));
 
+class SolicitudMovimiento {
+  constructor() {
+
+    $('#movimientos-table-body').DataTable({
+      dom: 'lfrtipB',
+      buttons: ['excel','pdf']
+    });
+
+    $('#btn-recibido').click(function (e) {
+       e.preventDefault();
+        bootbox.confirm({
+            message: "¿Esta Seguro que quiere recibir esta Solicitud de Movimiento?",
+            buttons: {
+                confirm: {
+                    label: 'Yes',
+                    className: 'btn-success'
+                },
+                cancel: {
+                    label: 'No',
+                    className: 'btn-danger'
+                }
+            },
+            callback: function (result) {
+                if (result == true) {
+                  $.ajax({
+                      type: "POST",
+                      url: $('#btn-recibido').attr('href'),
+                      dataType: 'json',
+                      data: {
+                        csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
+                        id: $('#btn-recibido').data("id")
+
+                      },
+                      success: function (response) {
+                          location.reload();
+
+                      },
+                  });
+                }
+
+            }
+        });
+
+
+    });
+
+  }
+}
+
 
 class SolicitudMovimientoUpdate {
     constructor() {
@@ -468,8 +633,10 @@ class SolicitudMovimientoUpdate {
         let etapa_inicial = this.sel_dispositivos.data('etapa-inicial');
         let tipo_dipositivo = this.sel_dispositivos.data('tipo-dispositivo');
         let slug = this.sel_dispositivos.data('slug');
+        let cantidad = $("#solicitud-table").data("cantidad");
 
         this.sel_dispositivos.select2({
+            maximumSelectionLength : cantidad,
             debug: true,
             placeholder: "Ingrese los triage",
             ajax: {
@@ -494,6 +661,19 @@ class SolicitudMovimientoUpdate {
             },
             width : '100%'
         });
+        let cantidad_dispositivos = this.sel_dispositivos;
+        $('form').on('submit', function(e){
+           let restante  = cantidad - cantidad_dispositivos.select2('data').length;
+
+          if(cantidad_dispositivos.select2('data').length < cantidad){
+
+            bootbox.alert("Aun faltan  "+ restante  +" dispositivos por ingresar");
+            e.preventDefault();
+          }
+        });
+
+
+
     }
 }
 
@@ -966,6 +1146,72 @@ class DispositivoList {
                {data: "tarima", className: "nowrap"},
                {data: "estado", className: "nowrap"},
                {data: "etapa", className: "nowrap"}
+           ]
+              });
+        /**/
+        tablaDispositivos.clear().draw();
+        tablaDispositivos.ajax.reload();
+
+
+    });
+
+  }
+}
+class DispositivosQR {
+  constructor() {
+    let url =   $("#qr-botton").data("url");
+    let triage =   $("#qr-botton").data("dispositivo");
+    $("#qr-botton").click( function(){
+      $.ajax({
+       type: "POST",
+       url:url,
+       data:{
+         csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
+         triage:triage
+       },
+       success:function (response){
+         location.reload();
+
+       }
+     });
+    })
+
+  }
+}
+class DispositivosTarimaList {
+  constructor() {
+    $('#dispositivo-tarima-list-form').submit(function (e) {
+        e.preventDefault();
+        /**/
+
+         let tarima  = $("#id_tarima").val();
+         let url = $("#qr-botton").data("url")+"?tarima="+tarima;
+         document.getElementById("qr-botton").setAttribute("href", url);
+         $('#qr-botton').css({"display":"block"});
+        var tablaDispositivos = $('#dispositivo-tarima-table').DataTable({
+           dom: 'lfrtipB',
+           destroy:true,
+           buttons: ['excel', 'pdf'],
+           processing: true,
+           ajax: {
+               url: $('#dispositivo-tarima-list-form').attr('action'),
+               deferRender: true,
+               dataSrc: '',
+               cache: true,
+               data: function () {
+                   return $('#dispositivo-tarima-list-form').serializeObject(true);
+               }
+           },
+           columns: [
+
+               {data: "triage", render: function(data, type, full, meta){
+                 return '<a href="'+full.url+'">'+data+'</a>'
+               }},
+               {data: "tipo", className: "nowrap"},
+               {data: "marca", className: "nowrap"},
+               {data: "modelo", className: "nowrap"},
+               {data: "serie", className: "nowrap"},
+               {data: "tarima", className: "nowrap"}
            ]
               });
         /**/

@@ -64,6 +64,7 @@ class Entrada(models.Model):
     creada_por = models.ForeignKey(User, on_delete=models.PROTECT, related_name='entradas_creadas')
     recibida_por = models.ForeignKey(User, on_delete=models.PROTECT, related_name='entradas_recibidas')
     proveedor = models.ForeignKey(crm_m.Donante, on_delete=models.PROTECT, related_name='entradas')
+    factura = models.PositiveIntegerField(default=0)
     observaciones = models.TextField(null=True, blank=True)
 
     class Meta:
@@ -143,6 +144,9 @@ class EntradaDetalle(models.Model):
     descripcion = models.CharField(max_length=50)
     dispositivos_creados = models.BooleanField(default=False, blank=True, verbose_name='Dispositivos creados')
     repuestos_creados = models.BooleanField(default=False, blank=True, verbose_name='Repuestos creados')
+    qr_repuestos = models.BooleanField(default=False, blank=True, verbose_name='Imprimir Qr Repuesto')
+    qr_dispositivo = models.BooleanField(default=False, blank=True, verbose_name='Imprimir Qr Dispositivo')
+    impreso = models.BooleanField(default=False, blank=True, verbose_name='Impreso')
     # Campos sobre contabilidad
     precio_unitario = models.DecimalField(max_digits=8, decimal_places=2, blank=True, null=True)
     precio_subtotal = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
@@ -170,6 +174,9 @@ class EntradaDetalle(models.Model):
         los descuentos que hayan sido aplicados a la entrada.
         El cálculo de todos los campos se realiza desde las funciones definidas en `signals.py`.
         """
+        if self.tipo_dispositivo.usa_triage is False:
+            self.dispositivos_creados = True
+            self.repuestos_creados = True
         if self.entrada.tipo.contable and not self.precio_subtotal:
             raise ValidationError(
                 'El tipo de entrada requiere un precio total', code='entrada_precio_total')
@@ -188,7 +195,9 @@ class EntradaDetalle(models.Model):
                     entrada=self.entrada,
                     modelo=modelo,
                     tipo=self.tipo_dispositivo,
-                    precio=self.precio_unitario)
+                    entrada_detalle=self,
+                    precio=self.precio_unitario
+                    )
                 creados = creados + 1
             except OperationalError:
                 errores = errores + 1
@@ -207,6 +216,7 @@ class EntradaDetalle(models.Model):
                     modelo_repuesto=Repuesto,
                     estado=estado_repuesto,
                     tipo=self.tipo_dispositivo,
+                    entrada_detalle=self,
                     precio=self.precio_unitario
                 )
                 creados = creados + 1
@@ -434,6 +444,8 @@ class Dispositivo(models.Model):
     triage = models.SlugField(unique=True, blank=True, editable=False)
     tipo = models.ForeignKey(DispositivoTipo, on_delete=models.CASCADE)
     entrada = models.ForeignKey(Entrada, on_delete=models.PROTECT, related_name='dispositivos')
+    entrada_detalle = models.ForeignKey(EntradaDetalle, on_delete=models.PROTECT, null=True, related_name='detalle_dispositivos')
+    impreso = models.BooleanField(default=False, blank=True, verbose_name='Impreso')
     estado = models.ForeignKey(
         DispositivoEstado,
         on_delete=models.CASCADE,
@@ -942,6 +954,8 @@ class RepuestoEstado(models.Model):
 
 class Repuesto(models.Model):
     entrada = models.ForeignKey(Entrada, on_delete=models.CASCADE, related_name='repuestos')
+    entrada_detalle = models.ForeignKey(EntradaDetalle, on_delete=models.PROTECT, null=True, related_name='detalle_repuesto')
+    impreso = models.BooleanField(default=False, blank=True, verbose_name='Impreso')
     tipo = models.ForeignKey(DispositivoTipo, on_delete=models.PROTECT, related_name='repuestos')
     estado = models.ForeignKey(RepuestoEstado, on_delete=models.PROTECT)
     descripcion = models.TextField(null=True, blank=True)
@@ -962,6 +976,9 @@ class Repuesto(models.Model):
         if not self.codigo_qr:
             self.crear_qrcode()
             super(Repuesto, self).save(*args, **kwargs)
+
+    def get_absolute_url(self):
+        return reverse_lazy('repuesto_detail', kwargs={'pk': self.id})
 
     def crear_qrcode(self):
         """Genera le código QR para apuntar a la id del repuesto
@@ -1223,6 +1240,7 @@ class SolicitudMovimiento(models.Model):
     etapa_final = models.ForeignKey(DispositivoEtapa, on_delete=models.PROTECT, related_name='solicitudes_final')
     fecha_creacion = models.DateField(default=timezone.now)
     creada_por = models.ForeignKey(User, on_delete=models.PROTECT, related_name='solicitudes_movimiento')
+    recibida_por = models.ForeignKey(User, on_delete=models.PROTECT, related_name='recibida_por', null=True)
     autorizada_por = models.ForeignKey(
         User,
         on_delete=models.PROTECT,
@@ -1231,6 +1249,7 @@ class SolicitudMovimiento(models.Model):
     tipo_dispositivo = models.ForeignKey(DispositivoTipo, on_delete=models.PROTECT)
     cantidad = models.PositiveIntegerField()
     terminada = models.BooleanField(default=False)
+    recibida = models.BooleanField(default=False)
 
     class Meta:
         verbose_name = 'Solicitud de movimiento'

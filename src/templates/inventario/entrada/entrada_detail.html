@@ -14,6 +14,9 @@
 							<div class="col-md-9">
 								<h3 class="box-title">Entrada No. {{ entrada.id }}</h3>
 							</div>
+							<div class="col-md-3">
+									<a href="{% url 'carta_agradecimiento' pk=object.id%}" class="btn btn-success">Carta Agradecimiento</a>
+							</div>
 						</div>
 					</div>
 					<div class="box-body">
@@ -63,6 +66,13 @@
 								</td>
 							</tr>
 							<tr>
+								<th>Factura</th>
+								<td>
+									{{entrada.factura}}
+									<br>
+								</td>
+							</tr>
+							<tr>
 								<th>Observaciones</th>
 								<td>
 									{{entrada.observaciones|default_if_none:"No Existe Observaciones"}}
@@ -98,7 +108,9 @@
 									<th>Precio Descontado</th>
 									<th>Precio Total</th>
 									<th>Descripcion</th>
-									<th>Creado Por</th>
+									<th>Tecnico</th>
+									<th></th>
+									<th></th>
 
 							</tr>
 							</thead>

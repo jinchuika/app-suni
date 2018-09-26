@@ -5,6 +5,7 @@ from django import forms
 from django.utils import timezone
 
 from django.urls import reverse_lazy
+from django.shortcuts import reverse
 from django.views.generic import DetailView, UpdateView, CreateView, ListView, FormView
 from braces.views import (
     LoginRequiredMixin, PermissionRequiredMixin
@@ -77,6 +78,12 @@ class SolicitudMovimientoCreateView(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         form.instance.creada_por = self.request.user
+        form.instance.etapa_inicial = inv_m.DispositivoEtapa.objects.get(
+            id=inv_m.DispositivoEtapa.AB
+            )
+        form.instance.etapa_final = inv_m.DispositivoEtapa.objects.get(
+            id=inv_m.DispositivoEtapa.TR
+            )
         return super(SolicitudMovimientoCreateView, self).form_valid(form)
 
     def get_initial(self):
@@ -87,6 +94,10 @@ class SolicitudMovimientoCreateView(LoginRequiredMixin, CreateView):
     def get_form(self, form_class=None):
         form = super(SolicitudMovimientoCreateView, self).get_form(form_class)
         print(self.request.user.tipos_dispositivos.tipos.all())
+        tipo_dis = self.request.user.tipos_dispositivos.tipos.all()
+        for datos in tipo_dis:
+            print(datos)
+            print(inv_m.EntradaDetalle.objects.filter(entrada=22, tipo_dispositivo=datos))
         form.fields['tipo_dispositivo'].queryset = self.request.user.tipos_dispositivos.tipos.all()
         return form
 
@@ -112,6 +123,7 @@ class SolicitudMovimientoUpdateView(LoginRequiredMixin, UpdateView):
         return form
 
     def form_valid(self, form):
+        form.instance.autorizada_por = self.request.user
         form.instance.cambiar_etapa(
             lista_dispositivos=form.cleaned_data['dispositivos'],
             usuario=self.request.user
@@ -191,10 +203,34 @@ class MonitorDetailView(LoginRequiredMixin, DispositivoDetailView):
     template_name = 'inventario/dispositivo/monitor/monitor_detail.html'
 
 
+class MonitorUptadeView(LoginRequiredMixin, UpdateView):
+    """ Esta clase sirve para actualizar la  :class:`Monitor`
+     mostrando los datos necesarios
+    """
+    model = inv_m.Monitor
+    form_class = inv_f.MonitorForm
+    slug_field = "triage"
+    slug_url_kwarg = "triage"
+    query_pk_and_slug = True
+    template_name = 'inventario/dispositivo/monitor/monitor_edit.html'
+
+
 class MouseDetailView(LoginRequiredMixin, DispositivoDetailView):
     """Vista de detalle de dispositivos tipo :class:`Mouse`"""
     model = inv_m.Mouse
     template_name = 'inventario/dispositivo/mouse/mouse_detail.html'
+
+
+class MouseUptadeView(LoginRequiredMixin, UpdateView):
+    """ Esta clase sirve para actualizar la  :class:`Mouse`
+     mostrando los datos necesarios
+    """
+    model = inv_m.Mouse
+    form_class = inv_f.MouseForm
+    slug_field = "triage"
+    slug_url_kwarg = "triage"
+    query_pk_and_slug = True
+    template_name = 'inventario/dispositivo/mouse/mouse_edit.html'
 
 
 class CPUDetailView(LoginRequiredMixin, DispositivoDetailView):
@@ -203,10 +239,34 @@ class CPUDetailView(LoginRequiredMixin, DispositivoDetailView):
     template_name = 'inventario/dispositivo/cpu/cpu_detail.html'
 
 
+class CPUptadeView(LoginRequiredMixin, UpdateView):
+    """ Esta clase sirve para actualizar la  :class:`CPU`
+     mostrando los datos necesarios
+    """
+    model = inv_m.CPU
+    form_class = inv_f.CPUForm
+    slug_field = "triage"
+    slug_url_kwarg = "triage"
+    query_pk_and_slug = True
+    template_name = 'inventario/dispositivo/cpu/cpu_edit.html'
+
+
 class LaptopDetailView(LoginRequiredMixin, DispositivoDetailView):
     """Vista de detalle de dispositivos tipo :class:`Laptop`"""
     model = inv_m.Laptop
     template_name = 'inventario/dispositivo/laptop/laptop_detail.html'
+
+
+class LaptopUptadeView(LoginRequiredMixin, UpdateView):
+    """ Esta clase sirve para actualizar la  :class:`Laptop`
+     mostrando los datos necesarios
+    """
+    model = inv_m.Laptop
+    form_class = inv_f.LaptopForm
+    slug_field = "triage"
+    slug_url_kwarg = "triage"
+    query_pk_and_slug = True
+    template_name = 'inventario/dispositivo/laptop/laptop_edit.html'
 
 
 class TabletDetailView(LoginRequiredMixin, DispositivoDetailView):
@@ -215,16 +275,51 @@ class TabletDetailView(LoginRequiredMixin, DispositivoDetailView):
     template_name = 'inventario/dispositivo/tablet/tablet_detail.html'
 
 
+class TabletUptadeView(LoginRequiredMixin, UpdateView):
+    """ Esta clase sirve para actualizar la  :class:`Tablet`
+     mostrando los datos necesarios
+    """
+    model = inv_m.Tablet
+    form_class = inv_f.TabletForm
+    slug_field = "triage"
+    slug_url_kwarg = "triage"
+    query_pk_and_slug = True
+    template_name = 'inventario/dispositivo/tablet/tablet_edit.html'
+
+
 class HDDDetailView(LoginRequiredMixin, DispositivoDetailView):
     """Vista de detalle de dispositivos tipo :class:`HDD`"""
     model = inv_m.HDD
     template_name = 'inventario/dispositivo/hdd/hdd_detail.html'
 
 
+class HDDUptadeView(LoginRequiredMixin, UpdateView):
+    """ Esta clase sirve para actualizar la  :class:`HDD`
+     mostrando los datos necesarios
+    """
+    model = inv_m.HDD
+    form_class = inv_f.HDDForm
+    slug_field = "triage"
+    slug_url_kwarg = "triage"
+    query_pk_and_slug = True
+    template_name = 'inventario/dispositivo/hdd/hdd_edit.html'
+
+
 class DispositivoRedDetailView(LoginRequiredMixin, DispositivoDetailView):
     """Vista de detalle de dispositivos tipo :class:`DispositivoRed`"""
     model = inv_m.DispositivoRed
     template_name = 'inventario/dispositivo/red/red_detail.html'
+
+
+class DispositivoRedUptadeView(LoginRequiredMixin, UpdateView):
+    """ Vista actualizar los  dispositivos tipo :class:`DispositivoRed`
+    """
+    model = inv_m.DispositivoRed
+    form_class = inv_f.DispositivoRedForm
+    slug_field = "triage"
+    slug_url_kwarg = "triage"
+    query_pk_and_slug = True
+    template_name = 'inventario/dispositivo/red/red_edit.html'
 
 
 class DispositivoTipoCreateView(LoginRequiredMixin, CreateView):
@@ -240,12 +335,40 @@ class DispositivoTipoCreateView(LoginRequiredMixin, CreateView):
         context['dispositivotipo_list'] = inv_m.DispositivoTipo.objects.all()
         return context
 
+    def get_success_url(self):
+        return reverse('dispositivo_list')
+
 
 class DispositivoQRprint(LoginRequiredMixin, DetailView):
-    """ Esta vista sirve para imprimir los codigos QR a
+    """ Vista encargada de imprimir los codigos qr de  la class `Dispositivo`
     """
     model = inv_m.Dispositivo
     template_name = 'inventario/dispositivo/dispositivo_print.html'
     slug_field = "triage"
     slug_url_kwarg = "triage"
     query_pk_and_slug = True
+
+
+class DispositivosTarimaListView(LoginRequiredMixin, FormView):
+    """ Vista Encargada de crear los informes de  las Dispositivo obteniendo los datos
+    desde el DRF
+    """
+    model = inv_m.Dispositivo
+    template_name = 'inventario/dispositivo/dispositivo_tarima_list.html'
+    form_class = inv_f.DispositivosTarimaForm
+
+
+class DispositivosTarimaQr(LoginRequiredMixin, DetailView):
+    """Vista encargada de imprimir la lista de codigos qr generada por `DispositivosTarimaListView`
+    """
+    model = inv_m.Tarima
+    template_name = 'inventario/entrada/imprimir_qr.html'
+
+    def get_context_data(self, **kwargs):
+        tarima = self.request.GET['tarima']
+        context = super(DispositivosTarimaQr, self).get_context_data(**kwargs)
+        context['dispositivo_qr'] = inv_m.Dispositivo.objects.filter(tarima=tarima,
+                                                                     estado=inv_m.DispositivoEstado.PD,
+                                                                     etapa=inv_m.DispositivoEtapa.AB)
+        print(context['dispositivo_qr'])
+        return context

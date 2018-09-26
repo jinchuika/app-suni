@@ -51,11 +51,23 @@ urlpatterns = [
         inventario_v.MonitorDetailView.as_view(),
         name='monitor_detail'
     ),
+    #  Actualizacion de cada monitor
+    url(
+        r'^monitor/(?P<triage>[\w\d-]+)/edit/$',
+        inventario_v.MonitorUptadeView.as_view(),
+        name='monitor_edit'
+    ),
     # Detalle de mouse
     url(
         r'^mouse/(?P<triage>[\w\d-]+)/$',
         inventario_v.MouseDetailView.as_view(),
         name='mouse_detail'
+    ),
+    # Actualizacion de mouse
+    url(
+        r'^mouse/(?P<triage>[\w\d-]+)/edit/$',
+        inventario_v.MouseUptadeView.as_view(),
+        name='mouse_edit'
     ),
     # Detalle de cpu
     url(
@@ -63,11 +75,23 @@ urlpatterns = [
         inventario_v.CPUDetailView.as_view(),
         name='cpu_detail'
     ),
+    # Actualizacion de Dispositivosinventario/entrada/imprimir_qr.html
+    url(
+        r'^cpu/(?P<triage>[\w\d-]+)/edit/$',
+        inventario_v.CPUptadeView.as_view(),
+        name='cpu_edit'
+    ),
     # Detalle de laptop
     url(
         r'^laptop/(?P<triage>[\w\d-]+)/$',
         inventario_v.LaptopDetailView.as_view(),
         name='laptop_detail'
+    ),
+    # Actualizacion de Laptop
+    url(
+        r'^laptop/(?P<triage>[\w\d-]+)/edit/$',
+        inventario_v.LaptopUptadeView.as_view(),
+        name='laptop_edit'
     ),
     # Detalle de hdd
     url(
@@ -75,17 +99,36 @@ urlpatterns = [
         inventario_v.HDDDetailView.as_view(),
         name='hdd_detail'
     ),
+    # Actualizacion de HHD
+    url(
+        r'^hdd/(?P<triage>[\w\d-]+)/edit/$',
+        inventario_v.HDDUptadeView.as_view(),
+        name='hdd_edit'
+    ),
+
     # Detalle de red
     url(
         r'^red/(?P<triage>[\w\d-]+)/$',
         inventario_v.DispositivoRedDetailView.as_view(),
         name='red_detail'
     ),
+    # Actualizacion de red
+    url(
+        r'^red/(?P<triage>[\w\d-]+)/edit/$',
+        inventario_v.DispositivoRedUptadeView.as_view(),
+        name='red_edit'
+    ),
     # Detalle de tablet
     url(
         r'^tablet/(?P<triage>[\w\d-]+)/$',
         inventario_v.TabletDetailView.as_view(),
         name='tablet_detail'
+    ),
+    # Actualizacion de tablet
+    url(
+        r'^tablet/(?P<triage>[\w\d-]+)/edit/$',
+        inventario_v.TabletUptadeView.as_view(),
+        name='tablet_edit'
     ),
     # Creacion de Solicitudes de movimiento
     url(
@@ -128,5 +171,17 @@ urlpatterns = [
         r'^dispositivo/reporteqr/(?P<triage>[\w\d-]+)/$',
         inventario_v.DispositivoQRprint.as_view(),
         name='reportedispositivo_qr'
+    ),
+    # impresion de Qr por listado
+    url(
+        r'^dispositivo/listadoqrtarima/(?P<pk>\d+)/$',
+        inventario_v.DispositivosTarimaQr.as_view(),
+        name='reportelistado_qr'
+    ),
+    # Listado de Dispositivos en Tarimas
+    url(
+        r'^dispositivo/tarima/list/$',
+        inventario_v.DispositivosTarimaListView.as_view(),
+        name='dispositivo_tarima'
     )
 ]

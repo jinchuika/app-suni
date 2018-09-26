@@ -9,7 +9,7 @@ from django.db import transaction
 from apps.conta import models as conta_m
 
 
-def ingresar_dispositivo(entrada, modelo, tipo, precio=None):
+def ingresar_dispositivo(entrada, modelo, tipo, entrada_detalle, precio=None):
     with transaction.atomic():
         periodo_actual = conta_m.PeriodoFiscal.objects.get(actual=True)
         if not precio or precio == 0.0:
@@ -18,7 +18,7 @@ def ingresar_dispositivo(entrada, modelo, tipo, precio=None):
                 periodo=periodo_actual,
                 inventario=conta_m.PrecioEstandar.DISPOSITIVO)
             precio = precio_estandar.precio
-        nuevo_dispositivo = modelo(entrada=entrada, tipo=tipo)
+        nuevo_dispositivo = modelo(entrada=entrada, tipo=tipo, entrada_detalle=entrada_detalle)
         # Antes de ejecutar el save, se dispara la señal `calcular_triage`
         # Durante el `save` se genera el código QR
         nuevo_dispositivo.save()
@@ -37,7 +37,7 @@ def ingresar_dispositivo(entrada, modelo, tipo, precio=None):
         movimiento.save()
 
 
-def ingresar_repuesto(entrada, modelo_repuesto, estado, tipo, precio=None):
+def ingresar_repuesto(entrada, modelo_repuesto, estado, tipo, entrada_detalle, precio=None):
     with transaction.atomic():
         periodo_actual = conta_m.PeriodoFiscal.objects.get(actual=True)
         if not precio or precio == 0.0:
@@ -49,6 +49,7 @@ def ingresar_repuesto(entrada, modelo_repuesto, estado, tipo, precio=None):
         nuevo_repuesto = modelo_repuesto(
             entrada=entrada,
             tipo=tipo,
+            entrada_detalle=entrada_detalle,
             disponible=True,
             estado=estado
         )

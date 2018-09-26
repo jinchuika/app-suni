@@ -24,7 +24,7 @@
                         <div class="box-body">
                             <form action="" method="post">
                                 {% csrf_token %}
-                                <table class="table table-condensed">
+                                <table id="solicitud-table" class="table table-condensed" data-cantidad="{{ form.instance.cantidad }}">
                                     <tr>
                                         <th>Cantidad</th>
                                         <td>{{ form.instance.cantidad }}</td>

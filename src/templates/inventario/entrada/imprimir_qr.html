@@ -1,0 +1,14 @@
+{% load staticfiles %}
+
+{%for codigos_qr in dispositivo_qr%}
+<div>
+  <img src="{{codigos_qr.codigo_qr.url}}" class="img-thumbnail" alt="" width="85" height="85">
+    <p><small>  &nbsp;&nbsp;&nbsp;&nbsp; {{codigos_qr}}</small></p>
+</div>
+
+{%endfor%}
+{% block extra_js %}
+<script>
+window.onload= function () { window.print();window.close();   }
+</script>
+{% endblock extra_js %}

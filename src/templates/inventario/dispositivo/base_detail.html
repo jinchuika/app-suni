@@ -15,7 +15,10 @@
                 						       <h3 class="box-title">{{ object.triage }}</h3>
                 							</div>
                               <div class="col-md-3">
-                                <a href="{%url 'reportedispositivo_qr' triage=object.triage %}" class="btn btn-block btn-success">Imprimir QR</a>
+                                  {% csrf_token %}
+                                {%if not object.impreso%}
+                                  <a id="qr-botton" target='_blank' rel='noopener noreferrer' href="{%url 'reportedispositivo_qr' triage=object.triage %}" data-dispositivo ="{{object.triage}}" data-url="{%url 'inventario_api:api_dispositivo-impresion-dispositivo'%}" class="btn btn-block btn-success">Imprimir QR </a>
+                                {%endif%}
                             </div>
                 						</div>
                         </div>
@@ -64,3 +67,9 @@
         </div>
     </section>
 {% endblock content %}
+{% block extra_js %}
+<script src="{% static "js/extrajs/inventario.js" %}"></script>
+<script>
+ let Revicion = new DispositivosQR();
+</script>
+{% endblock extra_js %}

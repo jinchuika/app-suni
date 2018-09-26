@@ -1,0 +1,42 @@
+{% extends "base/base.html" %}
+{% load staticfiles %} {% block page_title %}
+<title>Dispositivos creados en esta entrada </title>
+{% endblock page_title %}
+{% block content %}
+<section class="content">
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-md-6">
+				<div class="box">
+					<div class="box-header">
+            <div class="box-title">
+              <h3>Dispositivos Creados</h3>
+            </div>
+          </div>
+					<div class="box-body">
+					<table class="table table-condensed">
+							<thead>
+                <th> Triage</th>
+                <th> Tipo</th>
+              </thead>
+              <tbody>
+                {%for dispositivo in dispositivo_qr%}
+                <tr>
+                  <td>
+                  <a href="{{dispositivo.get_absolute_url}}">{{dispositivo}}</a>
+                  </td>
+                  <td>
+                    {{dispositivo.tipo}}
+                  </td>
+
+                </tr>
+                {%endfor%}
+              </tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+{% endblock content %}

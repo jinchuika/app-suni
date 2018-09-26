@@ -1,6 +1,15 @@
 {% extends "inventario/dispositivo/base_detail.html" %}
 
 {% block info_dispositivo %}
+<div >
+  <div class="row">
+    <div class="col-md-9">
+    </div>
+    <div class="col-md-3">
+      <a href="{%url 'tablet_edit' triage=object.triage %}" class="btn btn-block btn-warning">Editar</a>
+    </div>
+  </div>
+</div>
     <tr>
         <th>Sistema operativo</th>
         <td>{{ object.so_id|default_if_none:"" }}</td>
@@ -21,10 +30,4 @@
         <th>RAM</th>
         <td>{{ object.ram|default_if_none:"" }} {{ object.ram_medida|default_if_none:"" }}</td>
     </tr>
-    <tr>
-      <th>QR</th>
-      <td><img src="{{object.codigo_qr.url}}" class="img-thumbnail" alt=""></td>
-    </tr>
-
-
 {% endblock info_dispositivo %}
