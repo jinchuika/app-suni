@@ -16,10 +16,15 @@ class DetalleInformeFilter(filters.FilterSet):
     """ Filtro para generar los informes de Detalles de Entrada
     """
     tipo = django_filters.CharFilter(name='entrada')
+    asignacion = filters.NumberFilter(name='asignacion', method='filter_asignacion')
 
     class Meta:
         model = inv_m.EntradaDetalle
         fields = ['entrada']
+
+    def filter_asignacion(self, qs, name, value):
+        tipo_dis = self.request.user.tipos_dispositivos.tipos.all()
+        return qs.filter(entrada=value, tipo_dispositivo__in=tipo_dis)
 
 
 class EntradaDetalleViewSet(viewsets.ModelViewSet):

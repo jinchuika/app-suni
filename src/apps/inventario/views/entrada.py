@@ -160,9 +160,9 @@ class ConstanciaEntrada(LoginRequiredMixin, DetailView):
         context['suma_total'] = total
         return context
 
-                
+
 class ImprimirQr(LoginRequiredMixin, DetailView):
-    """
+    """ Muestra la impresion de los Qr de los Dispositivos
     """
     model = inv_m.Entrada
     template_name = 'inventario/entrada/imprimir_qr.html'
@@ -176,7 +176,7 @@ class ImprimirQr(LoginRequiredMixin, DetailView):
 
 
 class ReporteRepuestosQr(LoginRequiredMixin, DetailView):
-    """
+    """Muestra los Qr de los Repuestos creados
     """
     model = inv_m.Entrada
     template_name = 'inventario/entrada/imprimir_qr.html'
@@ -190,7 +190,7 @@ class ReporteRepuestosQr(LoginRequiredMixin, DetailView):
 
 
 class EntradaDetalleDispositivos(LoginRequiredMixin, DetailView):
-    """
+    """ Muestra los QR por Detalle de Entrada Creados
     """
     model = inv_m.Entrada
     template_name = 'inventario/entrada/entradadetalle_dispositivos.html'
@@ -199,12 +199,13 @@ class EntradaDetalleDispositivos(LoginRequiredMixin, DetailView):
         print(self.kwargs['detalle'])
         context = super(EntradaDetalleDispositivos, self).get_context_data(**kwargs)
         context['dispositivo_qr'] = inv_m.Dispositivo.objects.filter(entrada=self.object.id,
-                                                                     entrada_detalle=self.kwargs['detalle'])
+                                                                     estado=inv_m.DispositivoEstado.BN,
+                                                                     etapa=inv_m.DispositivoEtapa.TR)
         return context
 
 
 class EntradaDetalleRepuesto(LoginRequiredMixin, DetailView):
-    """
+    """ Muestra los QR de Repuestos creados por los  `EntradaDetalle`
     """
     model = inv_m.Entrada
     template_name = 'inventario/entrada/entradadetalle_repuesto.html'

@@ -45,6 +45,29 @@ class DispositivoViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
 
+    @action(methods=['post'], detail=False)
+    def solicitud(self, request, pk=None):
+        id = request.data['id']
+        solicitudes_movimiento = inv_m.SolicitudMovimiento.objects.get(id=id)
+        solicitudes_movimiento.recibida_por = self.request.user
+        solicitudes_movimiento.recibida = True
+        solicitudes_movimiento.save()
+        return Response(
+            {'mensaje': 'Solicitud Recibida'},
+            status=status.HTTP_200_OK
+        )
+
+    @action(methods=['post'], detail=False)
+    def impresion_dispositivo(self, request, pk=None):
+        triage = request.data['triage']
+        dispositivo = inv_m.Dispositivo.objects.get(triage=triage)
+        dispositivo.impreso = True
+        dispositivo.save()
+        return Response(
+            {'mensaje': 'Dispositivo impreso'},
+            status=status.HTTP_200_OK
+        )
+
 
 class PaquetesFilter(filters.FilterSet):
     """ Filtros par el ViewSet de Paquete

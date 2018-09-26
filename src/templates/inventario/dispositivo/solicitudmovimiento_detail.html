@@ -13,9 +13,18 @@
                         <div class="box-header">
                             <h3 class="box-title">Solicitud de movimiento</h3>
                             <div class="box-tools pull-right">
-                                <a href="{% url 'solicitudmovimiento_update' pk=object.id %}" class="btn btn-warning btn-sm">
-                                    Editar
-                                </a>
+                              {%if object.recibida%}
+                              {%else%}
+                              {% if object.terminada  %}
+                              <a id="btn-recibido" href="{% url 'inventario_api:api_dispositivo-solicitud' %}" data-id ="{{object.id}}" class="btn btn-info btn-sm">
+                                  Recibido
+                              </a>
+                              {% else %}
+                              <a href="{% url 'solicitudmovimiento_update' pk=object.id %}" class="btn btn-warning btn-sm">
+                                  Editar
+                              </a>
+                              {% endif %}
+                              {%endif%}
                             </div>
                         </div>
                         <div class="box-body">
@@ -45,11 +54,12 @@
                                             el {{ object.fecha_creacion|date:"Y-m-d" }}
                                         </td>
                                     </tr>
-                                    <tr>
                                         <th>Estado</th>
                                         <td>
-                                            {% if object.terminada %}
-                                                <span class="label label-success">Terminada</span>
+                                            {% if object.terminada and object.recibida%}
+                                                <span class="label label-success">Recibida</span>
+                                            {%elif object.terminada and not object.recibida%}
+                                            <span class="label label-warning">Terminada</span>
                                             {% else %}
                                                 <span class="label label-danger">Pendiente</span> <br>
                                             {% endif %}
@@ -80,7 +90,7 @@
                                 {% for cambio in object.cambios.all %}
                                     <tr>
                                         <td>
-                                            {{ cambio.dispositivo }}
+                                            <a href="{{cambio.dispositivo.get_absolute_url}}">{{ cambio.dispositivo }}</a>
                                         </td>
                                         <td>
                                             {{ cambio.fechahora|date:"Y-m-d" }}

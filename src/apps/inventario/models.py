@@ -1240,6 +1240,7 @@ class SolicitudMovimiento(models.Model):
     etapa_final = models.ForeignKey(DispositivoEtapa, on_delete=models.PROTECT, related_name='solicitudes_final')
     fecha_creacion = models.DateField(default=timezone.now)
     creada_por = models.ForeignKey(User, on_delete=models.PROTECT, related_name='solicitudes_movimiento')
+    recibida_por = models.ForeignKey(User, on_delete=models.PROTECT, related_name='recibida_por', null=True)
     autorizada_por = models.ForeignKey(
         User,
         on_delete=models.PROTECT,
@@ -1248,6 +1249,7 @@ class SolicitudMovimiento(models.Model):
     tipo_dispositivo = models.ForeignKey(DispositivoTipo, on_delete=models.PROTECT)
     cantidad = models.PositiveIntegerField()
     terminada = models.BooleanField(default=False)
+    recibida = models.BooleanField(default=False)
 
     class Meta:
         verbose_name = 'Solicitud de movimiento'
