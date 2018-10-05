@@ -14,6 +14,12 @@ urlpatterns = [
         inv_v.SalidaInventarioUpdateView.as_view(),
         name='salidainventario_edit'
     ),
+    # Detalles de la Salida
+    url(
+        r'^salida/(?P<pk>\d+)/detail/$',
+        inv_v.SalidaInventarioDetailView.as_view(),
+        name='salidainventario_detail'
+    ),
     # Creacion de Paquetes
     url(
         r'^salida/(?P<pk>\d+)/crear_paquetes/$',

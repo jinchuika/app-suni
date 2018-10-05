@@ -864,6 +864,133 @@ class SalidasRevisarList {
     });
   }
 }
+
+class Salidas {
+  constructor() {
+    var url_salida= $("#salidas-table").data("url");
+    var url_salida_paquete= $("#salidas-paquete-table").data("url");
+    var salida_pk= $("#salidas-paquete-table").data("pk");
+
+    $('#id_entrega').click(function () {
+        if ($("#id_entrega").is(':checked')) {
+
+          $("[for='id_udi']").css({"visibility":"visible"});
+
+          $("#id_udi").attr('type','visible');
+
+          $("#id_beneficiario").css({"visibility":"hidden"});
+
+
+          $("[for='id_beneficiario']").text("Beneficiario");
+          $("[for='id_beneficiario']").css({"visibility":"hidden"});
+        } else {
+          $("#id_beneficiario").append('<option value="" selected=""> ------- </option>');
+          $("#id_udi").attr('type','hidden');
+          $("[for='id_udi']").css({"visibility":"hidden"});
+          $("[for='id_beneficiario']").text("Beneficiario");
+          $("[for='id_beneficiario']").css({"visibility":"visible"});
+          $("#id_beneficiario").css({"visibility":"visible"});
+        }
+    });
+    $('#salidaform').on('submit', function(e){
+      var udi = $("#id_udi").val();
+      var beneficiario = $("#id_beneficiario").val();
+      if ($("#id_entrega").is(':checked')) {
+        if(udi.length == 0){
+              bootbox.alert("Necesita Ingresar un UDI");
+              e.preventDefault();
+        }
+      }else{
+        if(beneficiario.length == 0){
+          bootbox.alert("Necesita Ingresar un Beneficiario");
+            e.preventDefault();
+        }
+      }
+
+    });
+
+    $('#salidas-table').DataTable({
+      dom: 'lfrtipB',
+      buttons: ['excel','pdf'],
+      ajax:{
+        url:url_salida,
+        dataSrc:'',
+        cache:true,
+
+      },
+      columns:[
+        {data:"id"},
+        {data:"tipo_salida"},
+        {data:"fecha"},
+        {data:"estado"},
+        {data:"escuela", render: function(data, type, full, meta){
+          if(full.escuela===undefined){
+            return " ";
+          }else{
+            return full.escuela;
+          }
+
+        }},
+        {data:"beneficiario"},
+        {data:"", render: function(data, type, full, meta){
+          if(full.estado == 'Entregado'){
+            return "<a target='_blank' rel='noopener noreferrer' href="+full.url+" class='btn btn-success'>Abrir</a>";
+          }else{
+            return "<a target='_blank' rel='noopener noreferrer' href="+full.url+" class='btn btn-success'>Abrir</a>";
+          }
+
+        }}
+      ]
+    });
+
+    $('#salidas-paquete-table').DataTable({
+      dom: 'lfrtipB',
+      buttons: ['excel','pdf'],
+      ajax:{
+        url:url_salida_paquete,
+        dataSrc:'',
+        cache:true,
+        data: function () {
+          return {
+            salida: salida_pk,
+          }
+        }
+
+      },
+      columns:[
+        {data:"id"},
+        {data:"tipo_paquete"},
+        {data:"fecha_creacion"},
+        {data:"cantidad"},
+        {data:"aprobado", render: function(data, type, full, meta){
+          if(full.aprobado == true){
+            return "<span class='label label-success'>Revisado</span>"
+
+          }else{
+            return "<span class='label label-danger'>No Revisado</span>"
+          }
+        }},
+        {data:"", render: function(data, type, full, meta){
+          if(full.tipo_salida == "Especial" ){
+          }else{
+            /*for(var i = 0; i<(full.asignacion.length);i++){
+              console.log(full.asignacion[i].dispositivo.triage)
+              if(full.asignacion[i].dispositivo.triage.length == 0){
+                return "";
+
+              }else{
+                return "HOLA";
+              }
+            }*/
+            return "<a target='_blank' rel='noopener noreferrer' href="+full.url+" class='btn btn-success'>Ver Dispositivos</a>";
+          }
+
+        }}
+      ]
+    });
+
+  }
+}
 class PaquetesRevisionList {
   constructor() {
     let  paquetes_revision_tabla = $('#salida-paquetes-revision');
@@ -1054,6 +1181,47 @@ class PaqueteDetail {
     });
     }
     /****/
+    this.asig_dispositivos = $('#id_dispositivos');
+    let api_url = this.asig_dispositivos.data('api-url');
+    let etapa_inicial = 2;
+    let tipo_dipositivo = this.asig_dispositivos.data('tipo-dispositivo');
+    let slug = this.asig_dispositivos.data('slug');
+    let cantidad = this.asig_dispositivos.data('cantidad');
+    this.asig_dispositivos.select2({
+        maximumSelectionLength : cantidad,
+        debug:true,
+        placeholder:"Ingrese Triage",
+        width: '100%',
+        ajax:{
+          url:api_url,
+          dataType:'json',
+          data: function (params){
+            return{
+              search:params.term,
+              etapa:etapa_inicial,
+              tipo:tipo_dipositivo,
+              buscador:slug +"-"+params.term
+            };
+          },
+          processResults: function (data) {
+            return {
+              results: data.map(dispositivo => {
+                return {id:dispositivo["id"], text:dispositivo['triage']};
+              })
+            };
+          },
+          cache: true
+        }
+
+    });
+    let cantidad_dispositivos = this.asig_dispositivos;
+    $('form').on('submit', function(e){
+      let restante = cantidad - cantidad_dispositivos.select2('data').length;
+      if(cantidad_dispositivos.select2('data').length < cantidad){
+        bootbox.alert("Aun faltan  "+ restante  +" dispositivos por ingresar");
+        e.preventDefault();
+      }
+    });    
   }
 }
 class RepuestosList {
