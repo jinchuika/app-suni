@@ -5,6 +5,12 @@ from apps.inventario import models as inv_m
 
 class SalidaInventarioSerializer(serializers.ModelSerializer):
     """Serializer para la :class: `SalidaInventario`"""
+    tipo_salida = serializers.StringRelatedField()
+    beneficiario = serializers.StringRelatedField()
+    estado = serializers.StringRelatedField()
+    url = serializers.StringRelatedField(source='get_absolute_url')
+    escuela = serializers.StringRelatedField(source='escuela.codigo')
+
     class Meta:
         model = inv_m.SalidaInventario
         fields = '__all__'

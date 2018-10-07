@@ -9,6 +9,7 @@ from braces.views import (
 from apps.escuela import models as escuela_m
 from apps.inventario import models as inv_m
 from apps.inventario import forms as inv_f
+from django import forms
 
 
 class SalidaInventarioCreateView(LoginRequiredMixin, CreateView):
@@ -29,8 +30,13 @@ class SalidaInventarioCreateView(LoginRequiredMixin, CreateView):
         return context
 
     def form_valid(self, form):
-        form.instance.escuela = escuela_m.Escuela.objects.get(codigo=form.cleaned_data['udi'])
         form.instance.creada_por = self.request.user
+        form.instance.estado = inv_m.SalidaEstado.objects.get(id=1)
+        if form.instance.entrega:
+            form.instance.beneficiario = None
+            form.instance.escuela = escuela_m.Escuela.objects.get(codigo=form.cleaned_data['udi'])
+        else:
+            form.instance.escuela = None
         return super(SalidaInventarioCreateView, self).form_valid(form)
 
 
@@ -49,6 +55,13 @@ class SalidaInventarioUpdateView(LoginRequiredMixin, UpdateView):
         if self.request.user.has_perm("inventario.salidainventario_change"):
             context['paquetes_form'] = inv_f.PaqueteCantidadForm()
         return context
+
+
+class SalidaInventarioDetailView(LoginRequiredMixin, DetailView):
+    """
+    """
+    model = inv_m.SalidaInventario
+    template_name = 'inventario/salida/salida_detail.html'
 
 
 class SalidaPaqueteUpdateView(LoginRequiredMixin, UpdateView):
@@ -72,11 +85,43 @@ class SalidaPaqueteUpdateView(LoginRequiredMixin, UpdateView):
         return super(SalidaPaqueteUpdateView, self).form_valid(form)
 
 
-class SalidaPaqueteDetailView(LoginRequiredMixin, DetailView):
+class SalidaPaqueteDetailView(LoginRequiredMixin, UpdateView):
     """Vista para detalle de :class:`Paquete`.
     """
     model = inv_m.Paquete
     template_name = 'inventario/salida/paquetes_detail.html'
+    form_class = inv_f.PaqueteUpdateForm
+
+    def get_form(self, form_class=None):
+        print(self.object.tipo_paquete.tipo_dispositivo.slug)
+        form = super(SalidaPaqueteDetailView, self).get_form(form_class)
+        form.fields['dispositivos'].widget = forms.SelectMultiple(
+            attrs={
+                'data-api-url': reverse_lazy('inventario_api:api_dispositivo-list'),
+                'data-tipo-dispositivo': self.object.tipo_paquete.tipo_dispositivo.id,
+                'data-slug': self.object.tipo_paquete.tipo_dispositivo.slug,
+                'data-cantidad': self.object.cantidad,
+
+            }
+        )
+        form.fields['dispositivos'].queryset = inv_m.Dispositivo.objects.filter(
+            etapa=inv_m.DispositivoEtapa.objects.get(id=inv_m.DispositivoEtapa.TR),
+            tipo=self.object.tipo_paquete.tipo_dispositivo
+        )
+        return form
+
+    def form_valid(self, form):
+        form.instance.asignar_dispositivo(
+            lista_dispositivos=form.cleaned_data['dispositivos'],
+            usuario=self.request.user
+        )
+        return super(SalidaPaqueteDetailView, self).form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super(SalidaPaqueteDetailView, self).get_context_data(**kwargs)
+        context['dispositivos_paquetes'] = inv_m.DispositivoPaquete.objects.filter(paquete__id=self.object.id)
+        print(context['dispositivos_paquetes'])
+        return context
 
 
 class RevisionSalidaCreateView(LoginRequiredMixin, CreateView):
@@ -118,7 +163,8 @@ class SalidaPaqueteView(LoginRequiredMixin, DetailView):
             id__in=self.request.user.tipos_dispositivos.tipos.all()
         )
         paquete_form.fields['paquete'].queryset = inv_m.Paquete.objects.filter(salida=self.object,
-                                                                               aprobado=False)
+                                                                               aprobado=False)        
+
         context['paquete_form'] = paquete_form
         context['paquete_id'] = self.object.id
         return context
