@@ -69,5 +69,12 @@ urlpatterns = [
         inv_v.ControlCalidadListView.as_view(),
         name='controlcalidad_list'
     ),
+    # Dispositivos Asignados
+    url(
+        r'^salida/dispositivoasignados/(?P<pk>\d+)/$',
+        inv_v.DispositivoAsignados.as_view(),
+        name='dispositivo_asignados'
+    ),
+
 
 ]

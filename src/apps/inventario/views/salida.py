@@ -120,6 +120,7 @@ class SalidaPaqueteDetailView(LoginRequiredMixin, UpdateView):
     def get_context_data(self, **kwargs):
         context = super(SalidaPaqueteDetailView, self).get_context_data(**kwargs)
         context['dispositivos_paquetes'] = inv_m.DispositivoPaquete.objects.filter(paquete__id=self.object.id)
+        context['dispositivos_no'] = inv_m.DispositivoPaquete.objects.filter(paquete__id=self.object.id).count()
         print(context['dispositivos_paquetes'])
         return context
 
@@ -163,7 +164,7 @@ class SalidaPaqueteView(LoginRequiredMixin, DetailView):
             id__in=self.request.user.tipos_dispositivos.tipos.all()
         )
         paquete_form.fields['paquete'].queryset = inv_m.Paquete.objects.filter(salida=self.object,
-                                                                               aprobado=False)        
+                                                                               aprobado=False)
 
         context['paquete_form'] = paquete_form
         context['paquete_id'] = self.object.id
@@ -216,4 +217,16 @@ class ControlCalidadListView(LoginRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super(ControlCalidadListView, self).get_context_data(**kwargs)
         context['controlcalidad_list'] = inv_m.SalidaInventario.objects.filter(en_creacion=True)
+        return context
+
+
+class DispositivoAsignados(LoginRequiredMixin, DetailView):
+    """
+    """
+    model = inv_m.Paquete
+    template_name = 'inventario/salida/dispositivos_salida.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(DispositivoAsignados, self).get_context_data(**kwargs)
+        context['dispositivo_list'] = inv_m.DispositivoPaquete.objects.filter(paquete__id=self.object.id)        
         return context

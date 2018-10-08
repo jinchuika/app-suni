@@ -982,7 +982,7 @@ class Salidas {
                 return "HOLA";
               }
             }*/
-            return "<a target='_blank' rel='noopener noreferrer' href="+full.url+" class='btn btn-success'>Ver Dispositivos</a>";
+            return "<a target='_blank' rel='noopener noreferrer' href="+full.url_detail+" class='btn btn-success'>Ver Dispositivos</a>";
           }
 
         }}
@@ -1221,7 +1221,7 @@ class PaqueteDetail {
         bootbox.alert("Aun faltan  "+ restante  +" dispositivos por ingresar");
         e.preventDefault();
       }
-    });    
+    });
   }
 }
 class RepuestosList {
