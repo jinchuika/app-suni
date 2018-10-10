@@ -12,7 +12,7 @@ from apps.inventario import (
     models as inv_m
 )
 from apps.conta import models as conta_m
-from django.db.models import Count
+from django.db.models import Count, Sum
 from decimal import Decimal
 
 
@@ -102,6 +102,35 @@ class SalidaInventarioViewSet(viewsets.ModelViewSet):
         return Response(
             {
                 'mensaje': 'Actualizacion completa'
+            },
+            status=status.HTTP_200_OK
+        )
+
+    @action(methods=['post'], detail=False)
+    def cuadrar_salida(self, request, pk=None):
+        id_salida = request.data['primary_key']
+        tipo_dis = self.request.user.tipos_dispositivos.tipos.all()
+        tipo_paquete = inv_m.PaqueteTipo.objects.filter(tipo_dispositivo__in=tipo_dis)
+        cantidad_paquetes = inv_m.Paquete.objects.filter(
+            salida=id_salida,
+            tipo_paquete__in=tipo_paquete).aggregate(total_cantidad=Sum('cantidad'))
+        cantidad_dispositivos = inv_m.DispositivoPaquete.objects.filter(
+            paquete__salida=id_salida,
+            paquete__tipo_paquete__in=tipo_paquete).count()
+        print("cantidad de dispositivo en los paquetes "+str(cantidad_paquetes['total_cantidad']))
+        print("cantidad de dispositivo asignados"+str(cantidad_dispositivos))
+        if cantidad_paquetes != cantidad_dispositivos:
+            return Response(
+                {
+                    'mensaje': 'Faltan Dispositivos por asignar'
+
+                },
+                status=status.HTTP_400_BAD_REQUEST
+
+            )
+        return Response(
+            {
+                'mensaje': 'Salida Cuadrada'
             },
             status=status.HTTP_200_OK
         )

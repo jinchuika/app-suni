@@ -1093,10 +1093,26 @@ class DesechoDetalle(models.Model):
 
 class SalidaTipo(models.Model):
     nombre = models.CharField(max_length=30)
+    necesita_revision = models.BooleanField(default=True, blank=True, verbose_name='Necesita revisión')
 
     class Meta:
         verbose_name = "Tipo de salida"
         verbose_name_plural = "Tipos de salida"
+
+    def __str__(self):
+        return self.nombre
+
+
+class SalidaEstado(models.Model):
+
+    """Para indicar si está en Pendiende, Listo o Entregado
+    """
+
+    nombre = models.CharField(max_length=45)
+
+    class Meta:
+        verbose_name = "Estado de salida"
+        verbose_name_plural = "Estados de salida"
 
     def __str__(self):
         return self.nombre
@@ -1116,30 +1132,65 @@ class SalidaInventario(models.Model):
         blank=True)
     observaciones = models.TextField(null=True, blank=True)
     necesita_revision = models.BooleanField(default=True, blank=True, verbose_name='Necesita revisión')
+    beneficiario = models.ForeignKey(
+        crm_m.Donante,
+        on_delete=models.PROTECT,
+        related_name='beneficiario',
+        null=True,
+        blank=True)
+    estado = models.ForeignKey(SalidaEstado, on_delete=models.PROTECT, related_name='estados',  null=True, blank=True)
+    reasignado_por = models.ForeignKey(User, on_delete=models.PROTECT, related_name='reasignar', null=True, blank=True)
 
     class Meta:
         verbose_name = "Salida"
         verbose_name_plural = "Salidas"
 
     def get_absolute_url(self):
-        return reverse_lazy('salidainventario_add')
+        return reverse_lazy('salidainventario_edit', kwargs={'pk': self.id})
 
     def __str__(self):
         return str(self.id)
 
-    def crear_paquetes(self, cantidad, usuario, tipo_paquete=None):
+    def crear_paquetes(self, cantidad, usuario, entrada, tipo_paquete=None):
         creados = 0
         indice_actual = self.paquetes.count()
-        for i in range(cantidad):
+        print(entrada)
+        if entrada.count() == 0:
             paquete = Paquete(
                 salida=self,
-                indice=(i + 1 + indice_actual),
+                indice=(1 + indice_actual),
                 creado_por=usuario,
-                tipo_paquete=tipo_paquete
+                cantidad=cantidad,
+                tipo_paquete=tipo_paquete,
             )
             paquete.save()
-            creados += 1
+        else:
+            paquete = Paquete(
+                salida=self,
+                indice=(1 + indice_actual),
+                creado_por=usuario,
+                cantidad=cantidad,
+                tipo_paquete=tipo_paquete,
+                )
+            paquete.save()
+            for numero in entrada:
+                paquete.entrada.add(numero)
+        creados += 1
         return creados
+
+
+class SalidaComentario(models.Model):
+    salida = models.ForeignKey(SalidaInventario, on_delete=models.CASCADE, related_name='comentarios')
+    comentario = models.TextField()
+    fecha_revision = models.DateTimeField(default=timezone.now)
+    creado_por = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    class Meta:
+        verbose_name = 'Comentario de revisión de salida'
+        verbose_name_plural = 'Comentarios de revisión de salida'
+
+    def __str__(self):
+        return '{}'.format(self.comentario[15:])
 
 
 class PaqueteTipo(models.Model):
@@ -1147,7 +1198,8 @@ class PaqueteTipo(models.Model):
     etc. o tipos más específicos como componentes de red
     """
     nombre = models.CharField(max_length=35, verbose_name='Nombre del tipo')
-    tipo_dispositivo = models.ManyToManyField(DispositivoTipo, verbose_name='Tipos de dispositivo')
+    tipo_dispositivo = models.ForeignKey(DispositivoTipo, verbose_name='Tipos de dispositivo', null=True, blank=True)
+    # tipo_dispositivo = models.ManyToManyField(DispositivoTipo, verbose_name='Tipos de dispositivo')
 
     class Meta:
         verbose_name = "Tipo de paquete"
@@ -1166,6 +1218,7 @@ class Paquete(models.Model):
     fecha_creacion = models.DateTimeField(default=timezone.now)
     creado_por = models.ForeignKey(User, on_delete=models.PROTECT)
     indice = models.PositiveIntegerField()
+    cantidad = models.PositiveIntegerField(default=0)
     tipo_paquete = models.ForeignKey(
         PaqueteTipo,
         on_delete=models.PROTECT,
@@ -1173,8 +1226,9 @@ class Paquete(models.Model):
         null=True,
         blank=True)
     aprobado = models.BooleanField(default=False, blank=True)
+    entrada = models.ManyToManyField(Entrada, related_name='tipo_entrada', blank=True, null=True)
 
-    dispositivos = models.ManyToManyField(Dispositivo, through='DispositivoPaquete', related_name='paquetes')
+    # dispositivos = models.ManyToManyField(Dispositivo, through='DispositivoPaquete', related_name='paquetes')
 
     class Meta:
         verbose_name = "Paquete de salida"
@@ -1192,6 +1246,21 @@ class Paquete(models.Model):
 
     def get_absolute_url(self):
         return reverse_lazy('detalle_paquete', kwargs={'pk': self.id})
+
+    def asignar_dispositivo(self, lista_dispositivos, usuario):
+        """Asigna los dispositivo a los diferentes paquetes que se han creado
+        """
+        if not self.aprobado:
+            for dispositivos in lista_dispositivos:
+                if dispositivos.tipo == self.tipo_paquete.tipo_dispositivo:
+                    asignar = DispositivoPaquete(
+                        dispositivo=dispositivos,
+                        paquete=self,
+                        asignado_por=usuario
+                    )
+                    asignar.save()
+                else:
+                    raise OperationalError('El paquete ya fue aprobado')
 
 
 class DispositivoPaquete(models.Model):

@@ -1,18 +1,17 @@
 {% extends "base/base.html" %}
-{% load staticfiles %}
+{% load staticfiles widget_tweaks %}
 {% block page_title %}
 <title>Paquete - {{ paquete.id }}</title>
 {% endblock page_title %} {% block content %}
 <section class="content">
 	<div class="container-fluid">
 		<div class="row">
-			<div class="col-md-6">
+			<div class="col-md-5">
 				<div class="box">
 					<div class="box-header">
 						<div class="row">
 							<div class="col-md-9">
 								<h3 class="box-title">Paquete No. {{ paquete }}</h3>
-								{% csrf_token %}
 							</div>
 						</div>
 						<div class="col-md-3">
@@ -58,6 +57,22 @@
                 </td>
               </tr>
 							<tr>
+								<th>Cantidad</th>
+								<td>
+									{{paquete.cantidad}}
+									<br>
+								</td>
+							</tr>
+							<form action="" method="post">
+									{% csrf_token %}
+									{{form.as_table}}
+									<tr>
+                      <td>
+                          <input type="submit" class="btn btn-success" value="Guardar"/>
+                      </td>
+                  </tr>
+							</form>
+							<tr>
 								<th colspan="2">
 									Histórico
 								</th>
@@ -78,33 +93,41 @@
 					</div>
 				</div>
 			</div>
-				<div class="col-md-6">
+				<div class="col-md-7">
 					<div class="box">
 						<div class="box-header" >
 								<h3 class="box-title">Dispositivos Asignados</h3>
 						</div>
 					<table  id="rechazar-dispositivo" class="table table-condensed">
 						<thead>
+							<th>No.</th>
+							<th>Dispositivo</th>
 							<th>Tipo</th>
-							<th>Triage</th>
-							<th>Marca</th>
-							<th>Modelo</th>
+							<th>Fecha</th>
+							<th>Tecnico</th>
+							<th></th>
 							<th></th>
 						</thead>
 						<tbody>
-							{%for dispositivo in paquete.dispositivos.all%}
+							{%for dispositivo in dispositivos_paquetes%}
 							<tr>
 								<td>
-										{{dispositivo.tipo}}
+											{{forloop.counter}}
 								</td>
 								<td>
-										{{dispositivo}}
+										{{dispositivo.dispositivo.triage}}
 								</td>
 								<td>
-										{{dispositivo.marca}}
+										{{dispositivo.dispositivo.tipo}}
 								</td>
 								<td>
-										{{dispositivo.modelo}}
+									{{dispositivo.fecha_creacion}}
+								</td>
+								<td>
+										{{dispositivo.asignado_por.get_full_name}}
+								</td>
+								<td>
+									<button  id="id-rechazar" class="btn btn-warning btn-rechazar" data-triage="{{dispositivo}}" data-paquete={{paquete.salida}} data-idpaquete={{paquete}}>Aprobar</button>
 								</td>
 								 <td>
 									<button  id="id-rechazar" class="btn btn-warning btn-rechazar" data-triage="{{dispositivo}}" data-paquete={{paquete.salida}} data-idpaquete={{paquete}}>Rechazar</button>
@@ -122,8 +145,10 @@
 {% endblock content %}
 {% block extra_js %}
 <script src="{% static "js/extrajs/inventario.js" %}"></script>
+<script src="{% static "js/i18n/es.js" %}"></script>
 <script>
-  let Rechazado = new PaqueteDetail();
+	$(document).ready(function (){
+		let Rechazado = new PaqueteDetail();
+	});
 </script>
-
 {% endblock extra_js %}
