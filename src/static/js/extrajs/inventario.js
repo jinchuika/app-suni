@@ -973,6 +973,7 @@ class Salidas {
         }},
         {data:"", render: function(data, type, full, meta){
           if(full.tipo_salida == "Especial" ){
+            return ""
           }else{
             /*for(var i = 0; i<(full.asignacion.length);i++){
               console.log(full.asignacion[i].dispositivo.triage)
@@ -1053,7 +1054,7 @@ class Salidas {
                           }
                       },
                       callback: function (result) {
-                          if(result == true){                          
+                          if(result == true){
                             /**/
                            $.ajax({
                                 type: 'POST',
@@ -1061,7 +1062,8 @@ class Salidas {
                                 dataType: 'json',
                                 data: {
                                     csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
-                                    primary_key :salida_pk
+                                    primary_key :salida_pk,
+                                    tipo:tipo
                                 },
                                 success: function (response) {
                                     bootbox.confirm("Salida Creada",

@@ -89,25 +89,33 @@ class SalidaPaqueteUpdateView(LoginRequiredMixin, UpdateView):
         return form
 
     def form_valid(self, form):
+        cantidad_disponible = form.cleaned_data['entrada']
         tipo = inv_m.PaqueteTipo.objects.get(id=self.request.POST['tipo_paquete'])
         cantidad = form.cleaned_data['cantidad']
-        cantidad_disponible = form.cleaned_data['entrada']
-        cantidad_total = 0
-        for disponibles in cantidad_disponible:
-            detalles = inv_m.EntradaDetalle.objects.filter(
-                entrada=disponibles,
-                tipo_dispositivo=tipo.tipo_dispositivo.id
-                ).aggregate(total_util=Sum('util'))
-            cantidad_total = cantidad_total + detalles['total_util']
-        if(cantidad < cantidad_total):
+        if (cantidad_disponible.count() > 0):
+            cantidad_total = 0
+            for disponibles in cantidad_disponible:
+                detalles = inv_m.EntradaDetalle.objects.filter(
+                    entrada=disponibles,
+                    tipo_dispositivo=tipo.tipo_dispositivo.id
+                    ).aggregate(total_util=Sum('util'))
+                cantidad_total = cantidad_total + detalles['total_util']
+            if(cantidad < cantidad_total):
+                form.instance.crear_paquetes(
+                    cantidad=form.cleaned_data['cantidad'],
+                    usuario=self.request.user,
+                    tipo_paquete=form.cleaned_data['tipo_paquete'],
+                    entrada=form.cleaned_data['entrada']
+                    )
+            else:
+                messages.error(self.request, 'No Hay en existencia los dispositivos solicitados')
+        else:
             form.instance.crear_paquetes(
                 cantidad=form.cleaned_data['cantidad'],
                 usuario=self.request.user,
                 tipo_paquete=form.cleaned_data['tipo_paquete'],
                 entrada=form.cleaned_data['entrada']
                 )
-        else:
-            messages.error(self.request, 'No Hay en existencia los dispositivos solicitados')
         return super(SalidaPaqueteUpdateView, self).form_valid(form)
 
 
@@ -126,7 +134,7 @@ class SalidaPaqueteDetailView(LoginRequiredMixin, UpdateView):
                 'data-tipo-dispositivo': self.object.tipo_paquete.tipo_dispositivo.id,
                 'data-slug': self.object.tipo_paquete.tipo_dispositivo.slug,
                 'data-cantidad': self.object.cantidad,
-                
+
 
             }
         )
