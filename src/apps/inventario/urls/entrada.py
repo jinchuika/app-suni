@@ -39,11 +39,17 @@ urlpatterns = [
         inventario_v.CartaAgradecimiento.as_view(),
         name='carta_agradecimiento'
     ),
-    # url Informe Sucio
+    # url Constancia de lo Útil
     url(
-        r'^entradadetalle/constacia/(?P<pk>\d+)/$',
-        inventario_v.ConstanciaEntrada.as_view(),
+        r'^entradadetalle/util/(?P<pk>\d+)/$',
+        inventario_v.ConstanciaUtil.as_view(),
         name='reporte_sucio'
+    ),
+    # url Constancia de Entrada
+    url(
+        r'^entradadetalle/constancia/(?P<pk>\d+)/$',
+        inventario_v.ConstanciaEntrada.as_view(),
+        name='constancia_entrada'
     ),
     # url impresion de QR de dispositivos por detalle de entrada
     url(

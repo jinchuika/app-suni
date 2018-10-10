@@ -23,7 +23,7 @@
           {%else%}
           <h3 class="box-title">
               <b>
-                Entradas Existentes
+                Entradas Pendientes
               </b>
             </h3>
           {%endif%}
@@ -75,7 +75,7 @@
               {%for personas in listado %}
               <tr>
                 <td>
-                  {{personas}}
+                  <a href="{{personas.get_absolute_url}}">{{personas}}</a>
                 </td>
                 <td>
                   {{personas.fecha}}
@@ -179,4 +179,7 @@
  AlertaEnCreacion.init();
 </script>
 {%endif%}
+<script>
+  let pagina = new EntradaCreate();
+</script>
 {% endblock extra_js %}

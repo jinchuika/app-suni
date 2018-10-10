@@ -104,23 +104,35 @@ class CartaAgradecimiento(LoginRequiredMixin, DetailView):
         context['dispositivotipo_list'] = inv_m.EntradaDetalle.objects.filter(entrada=self.object.id)
         return context
 
-
 class ConstanciaEntrada(LoginRequiredMixin, DetailView):
+    """Muestra la carta agradecimiento
+    """
+    model = inv_m.Entrada
+    template_name = 'inventario/entrada/constancia_entrada.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(ConstanciaEntrada, self).get_context_data(**kwargs)
+        context['dispositivotipo_list'] = inv_m.EntradaDetalle.objects.filter(entrada=self.object.id)
+        return context
+
+class ConstanciaUtil(LoginRequiredMixin, DetailView):
     """Muestra informe de la entrada en sucio
     """
     model = inv_m.Entrada
     template_name = 'inventario/entrada/informe_sucio.html'
 
     def get_context_data(self, **kwargs):
-        context = super(ConstanciaEntrada, self).get_context_data(**kwargs)
+        context = super(ConstanciaUtil, self).get_context_data(**kwargs)
         context['dispositivotipo_list'] = inv_m.EntradaDetalle.objects.filter(entrada=self.object.id)
         tipo_dispositivo = inv_m.EntradaDetalle.objects.filter(
             entrada=self.object.id).values('tipo_dispositivo').distinct()
         lista = []
         util = []
         total = []
+        
         contador = 0
         for tipo in tipo_dispositivo:
+            responsables = []
             acumulado_util = 0
             dispositivo_tipo = inv_m.EntradaDetalle.objects.filter(
                 entrada=self.object.id,
@@ -129,6 +141,8 @@ class ConstanciaEntrada(LoginRequiredMixin, DetailView):
             contador = contador + 1
             for datos in dispositivo_tipo:
                 acumulado_util = acumulado_util + datos.total
+                if datos.creado_por.get_full_name() not in responsables:
+                    responsables.append(datos.creado_por.get_full_name())
             nuevo_dispositivo = inv_m.DispositivoTipo.objects.get(id=tipo['tipo_dispositivo'])
             suma_util = inv_m.EntradaDetalle.objects.filter(
                                                             entrada=self.object.id,
@@ -151,7 +165,9 @@ class ConstanciaEntrada(LoginRequiredMixin, DetailView):
                 'repuesto': suma_repuesto,
                 'desecho': suma_desecho,
                 'total': suma_total,
-                'index': index}
+                'index': index,
+                'creado_por': ', '.join(str(x) for x in responsables),
+                }
             util.append(suma_util)
             lista.append(diccionario)
             total.append(acumulado_util)
