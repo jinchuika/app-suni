@@ -870,6 +870,7 @@ class Salidas {
     var url_salida= $("#salidas-table").data("url");
     var url_salida_paquete= $("#salidas-paquete-table").data("url");
     var salida_pk= $("#salidas-paquete-table").data("pk");
+    var url_cuadrar = $("#salidas-paquete-table").data("cuadrar");
 
     $('#id_entrega').click(function () {
         if ($("#id_entrega").is(':checked')) {
@@ -952,7 +953,7 @@ class Salidas {
         cache:true,
         data: function () {
           return {
-            salida: salida_pk,
+            asignacion: salida_pk,
           }
         }
 
@@ -987,6 +988,100 @@ class Salidas {
 
         }}
       ]
+    });
+
+    this.asig_salidas =$('#id_entrada');
+    let api_urlentrada=this.asig_salidas.data('api-url');
+    let beneficiario = $('#salidas-paquete-table').data("beneficiario");
+    let tipo =$('#salidas-paquete-table').data("tipo");
+    this.asig_salidas.select2(
+      {
+        placeholder:"Ingrese la Entrada",
+        debug:true,
+        width:'100%',
+        ajax:{
+          url:api_urlentrada,
+          dataType:'json',
+          data: function (params){
+            return{
+              search:params.term,
+              proveedor:beneficiario,
+              tipo:3,
+              buscador:params.term
+
+            };
+          },
+          processResults: function (data){
+            return {
+              results: data.map(salida => {
+                  return {
+                    id:salida["id"],
+                    text:salida["id"]
+                  }
+              })
+            };
+          },
+          initSelection: function (data){
+            var nuevo = [];
+            nuevo.push({id:0, text:0})
+          },
+          cache:true
+        }
+      }
+    );
+    if(tipo != 3){
+      $("#id_entrada").next(".select2-container").hide();
+      $("[for='id_entrada']").css({"visibility":"hidden"});
+    }
+
+    /**En Creacion**/
+
+    $('#id_en_creacion').click(function () {
+        if ($("#id_en_creacion").is(':checked')) {
+
+        } else {
+          bootbox.confirm({
+                      message: "Esta Seguro que quiere Terminar la Creacion de Salida",
+                      buttons: {
+                          confirm: {
+                              label: 'Si',
+                              className: 'btn-success'
+                          },
+                          cancel: {
+                              label: 'No',
+                              className: 'btn-danger'
+                          }
+                      },
+                      callback: function (result) {
+                          if(result == true){                          
+                            /**/
+                           $.ajax({
+                                type: 'POST',
+                                url: url_cuadrar,
+                                dataType: 'json',
+                                data: {
+                                    csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
+                                    primary_key :salida_pk
+                                },
+                                success: function (response) {
+                                    bootbox.confirm("Salida Creada",
+                                    function(result){
+                                       location.reload();
+                                      });
+                                },
+                                error: function (response) {
+                                     var jsonResponse = JSON.parse(response.responseText);
+                                     bootbox.alert(jsonResponse["mensaje"]);
+                                }
+                            });
+                            /**/
+
+                          }else{
+                              document.getElementById("id_en_creacion").checked = true;
+                          }
+                      }
+                    });
+        }
     });
 
   }

@@ -12,6 +12,6 @@ entrada_router.register(
     r'entrada-detalles',
     api_views.EntradaViewSet,
     base_name='api_entrada'
-    )
+    ),
 entrada_urlpatterns = []
 entrada_urlpatterns += entrada_router.urls

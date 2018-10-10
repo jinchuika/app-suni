@@ -23,7 +23,7 @@ class DetalleInformeFilter(filters.FilterSet):
         fields = ['entrada']
 
     def filter_asignacion(self, qs, name, value):
-        tipo_dis = self.request.user.tipos_dispositivos.tipos.all()
+        tipo_dis = self.request.user.tipos_dispositivos.tipos.all()        
         return qs.filter(entrada=value, tipo_dispositivo__in=tipo_dis)
 
 

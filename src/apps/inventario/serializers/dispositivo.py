@@ -42,14 +42,12 @@ class PaqueteSerializer(serializers.ModelSerializer):
             'tipo_salida',
             'cantidad',
             'url_detail',
-            'asignacion'          
+            'asignacion'
 
             )
 
     def get_cantidad_dispositivos(self, obj, pk=None):
-        numero_dispositivos = inv_m.DispositivoPaquete.objects.filter(paquete=obj).count()
-        print(numero_dispositivos)
-        print(obj)
+        numero_dispositivos = inv_m.DispositivoPaquete.objects.filter(paquete=obj).count()    
         return numero_dispositivos
 
     def get_url_detail(self, obj):

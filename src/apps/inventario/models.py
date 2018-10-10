@@ -1131,17 +1131,30 @@ class SalidaInventario(models.Model):
     def __str__(self):
         return str(self.id)
 
-    def crear_paquetes(self, cantidad, usuario, tipo_paquete=None):
+    def crear_paquetes(self, cantidad, usuario, entrada, tipo_paquete=None):
         creados = 0
         indice_actual = self.paquetes.count()
-        paquete = Paquete(
-            salida=self,
-            indice=(1 + indice_actual),
-            creado_por=usuario,
-            cantidad=cantidad,
-            tipo_paquete=tipo_paquete
-        )
-        paquete.save()
+        print(entrada)
+        if entrada.count() == 0:
+            paquete = Paquete(
+                salida=self,
+                indice=(1 + indice_actual),
+                creado_por=usuario,
+                cantidad=cantidad,
+                tipo_paquete=tipo_paquete,
+            )
+            paquete.save()
+        else:
+            paquete = Paquete(
+                salida=self,
+                indice=(1 + indice_actual),
+                creado_por=usuario,
+                cantidad=cantidad,
+                tipo_paquete=tipo_paquete,
+                )
+            paquete.save()
+            for numero in entrada:
+                paquete.entrada.add(numero)
         creados += 1
         return creados
 
@@ -1193,6 +1206,7 @@ class Paquete(models.Model):
         null=True,
         blank=True)
     aprobado = models.BooleanField(default=False, blank=True)
+    entrada = models.ManyToManyField(Entrada, related_name='tipo_entrada', blank=True, null=True)
 
     # dispositivos = models.ManyToManyField(Dispositivo, through='DispositivoPaquete', related_name='paquetes')
 

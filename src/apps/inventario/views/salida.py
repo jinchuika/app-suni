@@ -5,6 +5,8 @@ from django.views.generic import CreateView, DetailView, ListView, UpdateView, F
 from braces.views import (
     LoginRequiredMixin, PermissionRequiredMixin, JsonRequestResponseMixin, CsrfExemptMixin
 )
+from django.contrib import messages
+from django.db.models import Sum
 
 from apps.escuela import models as escuela_m
 from apps.inventario import models as inv_m
@@ -22,7 +24,7 @@ class SalidaInventarioCreateView(LoginRequiredMixin, CreateView):
     template_name = 'inventario/salida/salida_add.html'
 
     def get_success_url(self):
-        return reverse_lazy('revisionsalida_add')
+        return reverse_lazy('salidainventario_edit', kwargs={'pk': self.object.id})
 
     def get_context_data(self, **kwargs):
         context = super(SalidaInventarioCreateView, self).get_context_data(**kwargs)
@@ -76,12 +78,36 @@ class SalidaPaqueteUpdateView(LoginRequiredMixin, UpdateView):
     def get_success_url(self):
         return reverse_lazy('salidainventario_edit', kwargs={'pk': self.object.id})
 
-    def form_valid(self, form):
-        form.instance.crear_paquetes(
-            cantidad=form.cleaned_data['cantidad'],
-            usuario=self.request.user,
-            tipo_paquete=form.cleaned_data['tipo_paquete']
+    def get_form(self, form_class=None):
+        form = super(SalidaPaqueteUpdateView, self).get_form(form_class)
+        form.fields['entrada'].widget = forms.SelectMultiple(attrs={
+            'data-api-url': reverse_lazy('inventario_api:api_entrada-list')
+        })
+        form.fields['entrada'].queryset = inv_m.Entrada.objects.filter(
+            tipo=3
         )
+        return form
+
+    def form_valid(self, form):
+        tipo = inv_m.PaqueteTipo.objects.get(id=self.request.POST['tipo_paquete'])
+        cantidad = form.cleaned_data['cantidad']
+        cantidad_disponible = form.cleaned_data['entrada']
+        cantidad_total = 0
+        for disponibles in cantidad_disponible:
+            detalles = inv_m.EntradaDetalle.objects.filter(
+                entrada=disponibles,
+                tipo_dispositivo=tipo.tipo_dispositivo.id
+                ).aggregate(total_util=Sum('util'))
+            cantidad_total = cantidad_total + detalles['total_util']
+        if(cantidad < cantidad_total):
+            form.instance.crear_paquetes(
+                cantidad=form.cleaned_data['cantidad'],
+                usuario=self.request.user,
+                tipo_paquete=form.cleaned_data['tipo_paquete'],
+                entrada=form.cleaned_data['entrada']
+                )
+        else:
+            messages.error(self.request, 'No Hay en existencia los dispositivos solicitados')
         return super(SalidaPaqueteUpdateView, self).form_valid(form)
 
 
@@ -93,7 +119,6 @@ class SalidaPaqueteDetailView(LoginRequiredMixin, UpdateView):
     form_class = inv_f.PaqueteUpdateForm
 
     def get_form(self, form_class=None):
-        print(self.object.tipo_paquete.tipo_dispositivo.slug)
         form = super(SalidaPaqueteDetailView, self).get_form(form_class)
         form.fields['dispositivos'].widget = forms.SelectMultiple(
             attrs={
@@ -101,6 +126,7 @@ class SalidaPaqueteDetailView(LoginRequiredMixin, UpdateView):
                 'data-tipo-dispositivo': self.object.tipo_paquete.tipo_dispositivo.id,
                 'data-slug': self.object.tipo_paquete.tipo_dispositivo.slug,
                 'data-cantidad': self.object.cantidad,
+                
 
             }
         )
@@ -121,7 +147,6 @@ class SalidaPaqueteDetailView(LoginRequiredMixin, UpdateView):
         context = super(SalidaPaqueteDetailView, self).get_context_data(**kwargs)
         context['dispositivos_paquetes'] = inv_m.DispositivoPaquete.objects.filter(paquete__id=self.object.id)
         context['dispositivos_no'] = inv_m.DispositivoPaquete.objects.filter(paquete__id=self.object.id).count()
-        print(context['dispositivos_paquetes'])
         return context
 
 
@@ -228,5 +253,5 @@ class DispositivoAsignados(LoginRequiredMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super(DispositivoAsignados, self).get_context_data(**kwargs)
-        context['dispositivo_list'] = inv_m.DispositivoPaquete.objects.filter(paquete__id=self.object.id)        
+        context['dispositivo_list'] = inv_m.DispositivoPaquete.objects.filter(paquete__id=self.object.id)
         return context

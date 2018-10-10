@@ -18,7 +18,7 @@ class SalidaInventarioForm(forms.ModelForm):
     class Meta:
         model = inv_m.SalidaInventario
         fields = '__all__'
-        exclude = ('creada_por', 'escuela', 'necesita_revision')
+        exclude = ('creada_por', 'escuela', 'necesita_revision', 'entrada')
         widgets = {
             'en_creacion': forms.HiddenInput(),
             'estado': forms.HiddenInput(),
@@ -63,10 +63,17 @@ class PaqueteCantidadForm(forms.ModelForm):
         queryset=inv_m.PaqueteTipo.objects.all(),
         widget=forms.Select(attrs={'class': 'form-control'})
     )
+    entrada = forms.ModelMultipleChoiceField(
+        required=False,
+        queryset=inv_m.Entrada.objects.none(),
+        widget=forms.SelectMultiple(attrs={
+            'data-api-url': reverse_lazy('inventario_api:api_entrada-list')
+        })
+    )
 
     class Meta:
-        model = inv_m.SalidaInventario
-        fields = ('cantidad', 'tipo_paquete', )
+        model = inv_m.Paquete
+        fields = ('cantidad', 'tipo_paquete', 'entrada',)
 
 
 class RevisionSalidaCreateForm(forms.ModelForm):
@@ -137,7 +144,7 @@ class PaqueteUpdateForm(forms.ModelForm):
         widget=forms.SelectMultiple(attrs={
             'data-api-url': reverse_lazy('inventario_api:api_dispositivo-list'),
             'data-etapa-inicial': '',
-            'data-tipo-dispositivo': ''
+            'data-tipo-dispositivo': '',
         })
     )
 
