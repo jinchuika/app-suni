@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html>
   <meta charset="utf-8" />
-  <head><title>Constacia de entrada (útil)</title>
+  <head><title>Constacia de entrada</title>
   </head>
 <body>
   <div class="encabezado">
@@ -46,36 +46,18 @@
   <table>
     <tr>
       <th>
-        Donante:
-      </th>
-      <td>
-        {{entrada.proveedor}}
-      </td>
-      <th>
-        Telefono:
-      </th>
-      <td>
-        {%for telefono in entrada.proveedor.lista_telefonos.all%}
-        {{telefono | default_if_none:""}}
-        {%endfor%}
-      </td>
-    </tr>
-    <tr>
-      <th></th>
-      <td></td>
-      <th>
-        Direccion:
-      </th>
-      <td>
-        {{entrada.proveedor.direccion}}
-      </td>
-    </tr>
-    <tr>
-      <th>
         Recibió:
       </th>
       <td>
         {{entrada.recibida_por.get_full_name}}
+      </td>
+    </tr>
+    <tr>
+      <th>
+        Donante:
+      </th>
+      <td>
+        {{entrada.proveedor}}
       </td>
     </tr>
   </table>
@@ -86,47 +68,40 @@
 <div class="encabezado2">
   <table class="table table-condensed">
       <thead>
-        <th>Tipo</th>
+        <th>No.</th>
         <th>Cantidad </th>
-        <th>Util</th>
-        <th>Técnico(s)</th>
+        <th>Tipo</th>
       </thead>
       <tbody>
         <tr>
-          <td style="width:30%;">
+          <td>
               <hr size="3" color="darkblue"/>
           </td>
-          <td style="width:15%;">
+          <td>
               <hr size="3" color="darkblue"/>
           </td>
-          <td style="width:15%;">
-              <hr size="3" color="darkblue"/>
-          </td>
-          <td style="width:40%;">
+          <td>
               <hr size="3" color="darkblue"/>
           </td>
         </tr>
-          {%for dispositivo in dispositivo_tipo%}
+          {%for dispositivo in dispositivotipo_list%}
           {%if dispositivo.index == 1%}
           <tr>
           {%else%}
           <tr style="background-color:#E0E0E0">
           {%endif%}
-            <td>
-              {{dispositivo.tipo_dipositivo}}
+            <td style="width:10%;">
+              {{ forloop.counter }} {# starting index 1 #}
             </td>
-            <td>
-              {{dispositivo.total.total_cantidad}}
+            <td style="width:20%;">
+              {{dispositivo.total}}
             </td>
-            <td>
-              {{dispositivo.util.total_util}}
-            </td>
-            <td>
-              {{dispositivo.creado_por}}
+            <td style="width:50%;">
+              {{dispositivo.descripcion}}
             </td>
         </tr>
-
           {%endfor%}
+          
       </tbody>
     </table>
 </div>
@@ -136,7 +111,7 @@
   <table>
     <tr>
       <th>
-        Vo.Bo.
+        Firma
       </th>
       <td>
         _____________________________________________________
@@ -147,7 +122,7 @@
       </td>
       <th>
         <center>
-          Nombre y Firma
+          {{entrada.proveedor}}
         </center>
       </th>
     </tr>

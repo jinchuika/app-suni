@@ -29,6 +29,7 @@ class EntradaTipo(models.Model):
 
     nombre = models.CharField(max_length=25)
     contable = models.BooleanField(default=False)
+    contenedor = models.BooleanField(default=False)
 
     class Meta:
         verbose_name = "Tipo de entrada"
@@ -180,6 +181,7 @@ class EntradaDetalle(models.Model):
         if self.entrada.tipo.contable and not self.precio_subtotal:
             raise ValidationError(
                 'El tipo de entrada requiere un precio total', code='entrada_precio_total')
+
         super(EntradaDetalle, self).save(*args, **kwargs)
 
     def crear_dispositivos(self, util=None):
@@ -926,6 +928,24 @@ class DispositivoRed(Dispositivo):
     class Meta:
         verbose_name = "Dispositivo de red"
         verbose_name_plural = "Dispositivos de red"
+
+    def __str__(self):
+        return self.triage
+
+    def get_absolute_url(self):
+        return reverse_lazy('red_detail', kwargs={'triage': self.triage})
+
+class AccessPoint(Dispositivo):
+    SLUG_TIPO = 'AP'
+    indice = models.PositiveIntegerField(editable=False, unique=True)
+    cantidad_puertos = models.PositiveIntegerField(null=True, blank=True)
+    puerto = models.ForeignKey(DispositivoPuerto, null=True, blank=True)
+    velocidad = models.PositiveIntegerField(null=True, blank=True)
+    velocidad_medida = models.ForeignKey(DispositivoMedida, null=True, blank=True)
+
+    class Meta:
+        verbose_name = "Access Point"
+        verbose_name_plural = "Access Point"
 
     def __str__(self):
         return self.triage

@@ -54,6 +54,24 @@
 
 }(window.AlertaEnCreacion = window.AlertaEnCreacion || {}, jQuery));
 
+class EntradaCreate {
+  constructor() {
+    $("[for='id_factura']").css({"visibility":"hidden"});
+    $("#id_factura").css({"visibility":"hidden"});
+
+    $('#id_tipo').change( function() {
+      var selected_tipo = $('#id_tipo option:selected').text();
+      if(selected_tipo == 'Compra'){
+        $("[for='id_factura']").css({"visibility":"visible"});
+        $("#id_factura").css({"visibility":"visible"});
+      } else {
+        $("[for='id_factura']").css({"visibility":"hidden"});
+        $("#id_factura").css({"visibility":"hidden"});
+      }
+    });
+  }
+}
+
 class EntradaUpdate {
     constructor() {
         let entrada_table = $('#entrada-table');
@@ -61,6 +79,11 @@ class EntradaUpdate {
         this.api_url = entrada_table.data("api");
         this.pk = entrada_table.data("pk");
         this.url_filtrada = this.api_url + "?asignacion=" + this.pk;
+
+        $('#id_tipo_dispositivo').change( function() {
+          $('#id_descripcion').val($('#id_tipo_dispositivo option:selected').text());
+        });
+
         this.tabla = entrada_table.DataTable({
             searching: false,
             paging: true,
@@ -273,6 +296,8 @@ class EntradaUpdate {
             });
             document.getElementById("detalleForm").reset();
         });
+
+
     }
 
     static crear_dispositivos(urldispositivo) {
@@ -290,7 +315,8 @@ class EntradaUpdate {
                   });
             },
             error: function (response) {
-                alert( "Error al crear los dispositivo:" + response.mensaje);
+              var mensaje = JSON.parse(response.responseText)
+              alert( "Error al crear los dispositivo: " + mensaje['mensaje']);
             }
         });
     }
@@ -310,7 +336,8 @@ class EntradaUpdate {
 
             },
             error: function (response) {
-                alert( "Error al crear los Repuestos:" + response.mensaje);
+              var mensaje = JSON.parse(response.responseText)
+              alert( "Error al crear los Repuestos: " + mensaje['mensaje']);
             }
 
         });
@@ -493,7 +520,7 @@ class EntradaDetail {
 
 class EntradaDetalleDetail {
   constructor() {
-       var validarDispositivos = $("#id_dispositivos_creados").val();
+      var validarDispositivos = $("#id_dispositivos_creados").val();
       var validarRepuestos = $("#id_repuestos_creados").val();
       if(validarDispositivos == "True"){
         document.getElementById("id_util").disabled = true;

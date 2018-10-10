@@ -1,6 +1,7 @@
 from django import forms
 from django.forms import ModelForm
 from django.contrib.auth.models import User
+from django.utils.translation import gettext_lazy as _
 from apps.inventario import models as inv_m
 from apps.crm import models as crm_m
 
@@ -20,7 +21,6 @@ class EntradaForm(forms.ModelForm):
             'factura': forms.TextInput({'class': 'form-control'}),
             'observaciones': forms.Textarea({'class': 'form-control'}),
         }
-
 
 class EntradaUpdateForm(forms.ModelForm):
     """Formulario para la :`class`:`EntradaUpdateView` que es la encargada de actualizar los datos
@@ -60,19 +60,29 @@ class EntradaDetalleForm(forms.ModelForm):
             'repuestos_creados',
             'qr_repuestos',
             'qr_dispositivo',
-            'impreso'
+            'impreso',
+            'util',
+            'repuesto',
+            'desecho',
             ]
         widgets = {
             'entrada': forms.HiddenInput(),
             'tipo_dispositivo': forms.Select(attrs={'class': 'form-control select2'}),
-            'util': forms.TextInput({'class': 'form-control '}),
-            'repuesto': forms.TextInput({'class': 'form-control'}),
-            'desecho': forms.TextInput({'class': 'form-control '}),
             'total': forms.TextInput({'class': 'form-control r'}),
             'precio_subtotal': forms.TextInput({'class': 'form-control'}),
             'descripcion': forms.TextInput({'class': 'form-control'}),
-
         }
+
+    def __init__(self, *args, **kwargs):
+        entrada = kwargs.pop('initial', None)['entrada'] 
+        super(EntradaDetalleForm, self).__init__(*args, **kwargs)
+        self.fields['entrada'].initial = entrada
+        if not entrada.tipo.contable:
+            self.fields['precio_subtotal'].empty_label = None
+            self.fields['precio_subtotal'].label = ''
+            self.fields['precio_subtotal'].widget = forms.TextInput(
+                attrs={'class': 'form-control', 'style': "visibility:hidden"})
+            self.fields['precio_subtotal'].initial = ""
 
 
 class EntradaDetalleUpdateForm(forms.ModelForm):
@@ -96,10 +106,10 @@ class EntradaDetalleUpdateForm(forms.ModelForm):
                     'impreso'
                     ]
         widgets = {
-            'util': forms.TextInput({'class': 'form-control '}),
-            'repuesto': forms.TextInput({'class': 'form-control'}),
-            'desecho': forms.TextInput({'class': 'form-control '}),
-            'total': forms.TextInput({'class': 'form-control r'}),
+            'util': forms.NumberInput({'class': 'form-control'}),
+            'repuesto': forms.NumberInput({'class': 'form-control'}),
+            'desecho': forms.NumberInput({'class': 'form-control '}),
+            'total': forms.NumberInput({'class': 'form-control '}),
             'descripcion': forms.TextInput({'class': 'form-control'}),
             'dispositivos_creados': forms.HiddenInput(),
             'repuestos_creados': forms.HiddenInput(),
@@ -107,9 +117,33 @@ class EntradaDetalleUpdateForm(forms.ModelForm):
 
         }
 
-        def __init__(self, *args, **kwargs):
-            super(EntradaDetalleUpdateForm, self).__init__(*args, **kwargs)
-            self.fields['creado_por'].label_from_instance = lambda obj: "%s" % obj.get_full_name()
+    def __init__(self, *args, **kwargs):
+        super(EntradaDetalleUpdateForm, self).__init__(*args, **kwargs)
+        self.fields['creado_por'].label_from_instance = lambda obj: "%s" % obj.get_full_name()
+        instance = getattr(self, 'instance', None)
+        if instance and instance.pk:
+            self.fields['total'].widget.attrs['readonly'] = True
+            self.fields['descripcion'].widget.attrs['readonly'] = True
+
+    def clean(self):
+        total = self.cleaned_data['total']
+        util = self.cleaned_data['util']
+        repuesto = self.cleaned_data['repuesto']
+        desecho = self.cleaned_data['desecho']
+
+        suma = util + repuesto + desecho
+        if total < suma:
+            raise forms.ValidationError(
+                    _('Los valores de depuración superan el total de dispositivos.')
+                )
+    def as_table(self):
+        "Returns this form rendered as HTML <tr>s -- excluding the <table></table>."
+        return self._html_output(
+            normal_row = u'<tr%(html_class_attr)s><th>%(label)s</th><td>%(errors)s%(field)s%(help_text)s</td></tr>',
+            error_row = u'<tr style="display:none"><td colspan="2">%s</td></tr>',
+            row_ender = u'</td></tr>',
+            help_text_html = u'<br /><span class="helptext">%s</span>',
+            errors_on_separate_row = False)
 
 
 class EntradaInformeForm(forms.Form):

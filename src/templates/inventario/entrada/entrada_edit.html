@@ -59,6 +59,7 @@
                                     </a>
                                 </td>
                             </tr>
+                            {%if form.instance.tipo.contable%}
                             <tr>
                                 <th>
                                     Factura No.:
@@ -68,6 +69,7 @@
 
                                 </td>
                             </tr>
+                            {%endif%}
                             <tr>
                               <th>
                                 Recibido por:
@@ -133,7 +135,8 @@
                           </div>
                           <div class="col-md-6">
                               <a href="{% url 'carta_agradecimiento' pk=object.id%}" class="btn btn-success">Carta Agradecimiento</a>
-                              <a href="{% url 'reporte_sucio' pk=object.id%}" class="btn btn-info">Constancia Entrada</a>
+                              <a href="{% url 'reporte_sucio' pk=object.id%}" class="btn btn-primary">Constancia Útil</a>
+                              <a href="{% url 'constancia_entrada' pk=object.id%}" class="btn btn-danger">Constancia Entrada</a>
                           </div>
                       </div>
 

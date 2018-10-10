@@ -72,7 +72,7 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
                                                                 repuestos_creados=True).count()
 
         tipo_dispositivo = inv_m.EntradaDetalle.objects.filter(entrada=entrad_id).values('tipo_dispositivo').distinct()
-
+        tipos_sin_cuadrar = []
         for tipo in tipo_dispositivo:
             acumulado_totales = 0
             acumulador_total = 0
@@ -86,10 +86,7 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
                 acumulador_total = acumulador_total + datos.total
                 mensaje_cuadrar = datos.tipo_dispositivo
             if(acumulador_total != acumulado_totales):
-                return Response(
-                    {'mensaje': 'La entrada no esta cuadrada revisar:  ' + str(mensaje_cuadrar)},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
+                tipos_sin_cuadrar.append("<br><b>" + str(datos.tipo_dispositivo) + "</b>")                
             else:
                 if(dispositivo_repuestos != validar_dispositivos or dispositivo_repuestos != validar_repuestos):
                     return Response(
@@ -98,10 +95,16 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
                     )
                 else:
                     print("Todo en orden")
-        return Response(
-            {'mensaje': 'Entrada Cuadrada'},
-            status=status.HTTP_200_OK
-        )
+        if(len(tipos_sin_cuadrar) > 0):
+            return Response(
+                {'mensaje': 'La entrada no esta cuadrada revisar:' + ', '.join(str(x) for x in tipos_sin_cuadrar)},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        else:
+            return Response(
+                {'mensaje': 'Entrada Cuadrada'},
+                status=status.HTTP_200_OK
+            )
 
     @action(methods=['post'], detail=True)
     def crear_dispositivos(self, request, pk=None):
@@ -109,6 +112,14 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
         """
         entrada_detalle = self.get_object()
         try:
+            entrada = entrada_detalle.entrada
+            if not entrada.tipo.contenedor:
+                total = entrada_detalle.util + entrada_detalle.repuesto + entrada_detalle.desecho
+                if entrada_detalle.total != total:
+                    return Response(
+                        {'mensaje': 'La línea de detalle no cuadra, revisar'},
+                        status=status.HTTP_400_BAD_REQUEST)
+
             creacion = entrada_detalle.crear_dispositivos()
             validar_dispositivos = inv_m.EntradaDetalle.objects.get(id=pk)
             validar_dispositivos.dispositivos_creados = True
@@ -127,6 +138,14 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
         """
         entrada_detalle = self.get_object()
         try:
+            entrada = entrada_detalle.entrada
+            if not entrada.tipo.contenedor:
+                total = entrada_detalle.util + entrada_detalle.repuesto + entrada_detalle.desecho
+                if entrada_detalle.total != total:
+                    return Response(
+                        {'mensaje': 'La línea de detalle no cuadra, revisar'},
+                        status=status.HTTP_400_BAD_REQUEST)
+                    
             creacion = entrada_detalle.crear_repuestos()
             validar_dispositivos = inv_m.EntradaDetalle.objects.get(id=pk)
             validar_dispositivos.repuestos_creados = True
