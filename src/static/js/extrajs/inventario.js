@@ -863,7 +863,7 @@ class SalidasRevisarList {
       processing:true,
       retrieve:true,
       ajax:{
-        url:api_url_revision,
+        url:api_url_revision +"?estado=1",
         dataSrc:'',
         cache:false,
         deferRender:true,
@@ -885,7 +885,8 @@ class SalidasRevisarList {
           return newDate.toLocaleDateString("es-Es",options);
         }},
         {data:"salida"},
-        {data:"revisado_por"}
+        {data:"revisado_por"},
+        {data:"estado"},
       ]
 
     });
@@ -1000,6 +1001,7 @@ class Salidas {
         }},
         {data:"", render: function(data, type, full, meta){
           if(full.tipo_salida == "Especial" ){
+            return ""
           }else{
             /*for(var i = 0; i<(full.asignacion.length);i++){
               console.log(full.asignacion[i].dispositivo.triage)
@@ -1080,7 +1082,7 @@ class Salidas {
                           }
                       },
                       callback: function (result) {
-                          if(result == true){                          
+                          if(result == true){
                             /**/
                            $.ajax({
                                 type: 'POST',
@@ -1088,7 +1090,8 @@ class Salidas {
                                 dataType: 'json',
                                 data: {
                                     csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
-                                    primary_key :salida_pk
+                                    primary_key :salida_pk,
+                                    tipo:tipo
                                 },
                                 success: function (response) {
                                     bootbox.confirm("Salida Creada",
@@ -1099,6 +1102,7 @@ class Salidas {
                                 error: function (response) {
                                      var jsonResponse = JSON.parse(response.responseText);
                                      bootbox.alert(jsonResponse["mensaje"]);
+                                     document.getElementById("id_en_creacion").checked = true;
                                 }
                             });
                             /**/
@@ -1239,6 +1243,7 @@ class PaqueteDetail {
   constructor() {
     let tablabodyRechazar = $("#rechazar-dispositivo tbody tr");
     var urlCambio = $("#salida-id").data('url');
+    var urlAprobar = $("#salida-id").data('urlaprobar');
     tablabodyRechazar.on('click','.btn-rechazar', function () {
       let data_triage = $(this).attr("data-triage");
       let data_paquete=$(this).attr("data-paquete");
@@ -1285,6 +1290,49 @@ class PaqueteDetail {
        });
     });
     /****/
+    tablabodyRechazar.on('click','.btn-aprobar', function () {
+      let data_triage = $(this).attr("data-triage");
+      let data_paquete=$(this).attr("data-paquete");
+      let data_idpaquete=$(this).attr("data-idpaquete");
+      bootbox.confirm({
+         message: "Esta seguro de aprobar el dispositivo",
+         buttons: {
+             confirm: {
+                 label: 'Si',
+                 className: 'btn-success'
+             },
+             cancel: {
+                 label: 'No',
+                 className: 'btn-danger'
+             }
+         },
+         callback: function (result) {
+           if(result==true){
+             $.ajax({
+               type: "POST",
+               url: urlAprobar,
+               dataType: 'json',
+               data:{
+                 csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
+                 triage:data_triage,
+                 paquete:data_paquete,
+                 idpaquete:data_idpaquete
+               },
+               success: function (response){
+                 bootbox.alert(response.mensaje);
+               },
+               error: function (response){
+                 var jsonResponse = JSON.parse(response.responseText);
+                 bootbox.alert(jsonResponse["mensaje"]);
+               }
+             });
+           }
+
+             console.log('This was logged in the callback: ' + result);
+         }
+       });
+    });
+    /****/
     var crear_historial_salidas = function(url, id_comentario, comentario){
       var data = {
         "id_comentario":id_comentario,
@@ -1322,6 +1370,7 @@ class PaqueteDetail {
               search:params.term,
               etapa:etapa_inicial,
               tipo:tipo_dipositivo,
+              estado:1,
               buscador:slug +"-"+params.term
             };
           },
@@ -1344,6 +1393,8 @@ class PaqueteDetail {
         e.preventDefault();
       }
     });
+    /****/
+
   }
 }
 class RepuestosList {

@@ -1094,6 +1094,7 @@ class DesechoDetalle(models.Model):
 class SalidaTipo(models.Model):
     nombre = models.CharField(max_length=30)
     necesita_revision = models.BooleanField(default=True, blank=True, verbose_name='Necesita revisión')
+    especial = models.BooleanField(default=False, blank=True, verbose_name='especial')
 
     class Meta:
         verbose_name = "Tipo de salida"
@@ -1154,7 +1155,6 @@ class SalidaInventario(models.Model):
     def crear_paquetes(self, cantidad, usuario, entrada, tipo_paquete=None):
         creados = 0
         indice_actual = self.paquetes.count()
-        print(entrada)
         if entrada.count() == 0:
             paquete = Paquete(
                 salida=self,
@@ -1258,7 +1258,7 @@ class Paquete(models.Model):
                         paquete=self,
                         asignado_por=usuario
                     )
-                    asignar.save()
+                    # asignar.save()
                 else:
                     raise OperationalError('El paquete ya fue aprobado')
 
@@ -1295,6 +1295,13 @@ class RevisionSalida(models.Model):
     fecha_revision = models.DateTimeField(default=timezone.now, verbose_name='Fecha de revisión')
     anotaciones = models.TextField(null=True, blank=True, verbose_name='Anotaciones generales')
     aprobada = models.BooleanField(default=False, blank=True)
+    tecnico = models.ForeignKey(
+        User,
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name='tecnicos'
+        )
 
     class Meta:
         verbose_name = 'Revisión de salida'
