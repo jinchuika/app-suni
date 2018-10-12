@@ -1270,6 +1270,8 @@ class SolicitudMovimiento(models.Model):
     cantidad = models.PositiveIntegerField()
     terminada = models.BooleanField(default=False)
     recibida = models.BooleanField(default=False)
+    devolucion = models.BooleanField(default=False)
+    desecho = models.BooleanField(default=False)
 
     class Meta:
         verbose_name = 'Solicitud de movimiento'
@@ -1326,8 +1328,10 @@ class CambioEtapa(models.Model):
         if self.etapa_inicial != self.etapa_final:
             super(CambioEtapa, self).save(*args, **kwargs)
             self.dispositivo.etapa = self.etapa_final
+            if self.solicitud.desecho:
+                estado_desecho = DispositivoEstado.objects.get(pk=DispositivoEstado.DS)
+                self.dispositivo.estado = estado_desecho
             self.dispositivo.save()
-            print(self.dispositivo.etapa)
 
 
 class AsignacionTecnico(models.Model):

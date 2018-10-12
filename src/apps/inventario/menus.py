@@ -12,9 +12,10 @@ entrada_children = (
         icon="fa-list",
     ),
     ViewMenuItem(
-        "Entradas en creacion",
+        "Agregar entrada",
         reverse_lazy('entrada_add'),
         weight=12,
+        perm="inventario.add_entrada",
         icon="fa-pencil-square-o",
     ),
 )
@@ -115,6 +116,10 @@ contabilidad_children = (
     ),
 )
 
+##################################################################
+## CREACION DE MENÚS
+##################################################################
+
 Menu.add_item(
     "user",
     ViewMenuItem(
@@ -166,7 +171,7 @@ Menu.add_item(
         reverse_lazy('entrada_list'),
         weight=10,
         icon="fa-trash-o",
-        group="inventario",
+        group="inv_bodega",
         children=desecho_children
     )
 )
@@ -177,7 +182,7 @@ Menu.add_item(
         reverse_lazy('entrada_list'),
         weight=10,
         icon="fa-archive",
-        group="inventario",
+        group="inv_conta",
         children=contabilidad_children
     )
 )
