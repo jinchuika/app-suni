@@ -145,10 +145,15 @@ class SalidaPaqueteDetailView(LoginRequiredMixin, UpdateView):
         return form
 
     def form_valid(self, form):
+        etapa_control = inv_m.DispositivoEtapa.objects.get(id=inv_m.DispositivoEtapa.CC)
         form.instance.asignar_dispositivo(
             lista_dispositivos=form.cleaned_data['dispositivos'],
             usuario=self.request.user
         )
+        print(form.cleaned_data['dispositivos'])
+        for nuevosDispositivos in form.cleaned_data['dispositivos']:
+            nuevosDispositivos.etapa = etapa_control
+            nuevosDispositivos.save()
         return super(SalidaPaqueteDetailView, self).form_valid(form)
 
     def get_context_data(self, **kwargs):

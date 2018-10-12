@@ -88,9 +88,9 @@ class RevisionSalidaCreateForm(forms.ModelForm):
 
     class Meta:
         model = inv_m.RevisionSalida
-        fields = ('salida', 'fecha_revision')
-        widgets = {
-            'fecha_revision': forms.TextInput(attrs={'class': 'form-control datepicker'})
+        fields = ('salida', 'tecnico')
+        widgets = {            
+            'tecnico': forms.Select(attrs={'class': 'form-control select2'})
         }
 
 
