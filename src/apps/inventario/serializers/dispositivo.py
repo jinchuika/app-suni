@@ -22,6 +22,9 @@ class PaqueteSerializer(serializers.ModelSerializer):
     id_paquete = serializers.StringRelatedField(source='id')
     tipo_paquete = serializers.StringRelatedField()
     urlPaquet = serializers.StringRelatedField(source='get_absolute_url')
+    cantidad_dispositivos = serializers.SerializerMethodField()
+    tipo_salida = serializers.StringRelatedField(source='salida.tipo_salida')
+    url_detail = serializers.SerializerMethodField()
 
     class Meta:
         model = inv_m.Paquete
@@ -35,5 +38,17 @@ class PaqueteSerializer(serializers.ModelSerializer):
             'salida',
             'creado_por',
             'tipo_paquete',
+            'cantidad_dispositivos',
+            'tipo_salida',
+            'cantidad',
+            'url_detail',
             'asignacion'
+
             )
+
+    def get_cantidad_dispositivos(self, obj, pk=None):
+        numero_dispositivos = inv_m.DispositivoPaquete.objects.filter(paquete=obj).count()    
+        return numero_dispositivos
+
+    def get_url_detail(self, obj):
+        return reverse_lazy('dispositivo_asignados', kwargs={'pk': obj.id})

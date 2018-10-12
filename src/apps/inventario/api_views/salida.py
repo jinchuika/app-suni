@@ -12,7 +12,7 @@ from apps.inventario import (
     models as inv_m
 )
 from apps.conta import models as conta_m
-from django.db.models import Count
+from django.db.models import Count, Sum
 from decimal import Decimal
 
 
@@ -106,13 +106,84 @@ class SalidaInventarioViewSet(viewsets.ModelViewSet):
             status=status.HTTP_200_OK
         )
 
+    @action(methods=['post'], detail=False)
+    def cuadrar_salida(self, request, pk=None):
+        id_salida = request.data['primary_key']
+        tipo = request.data['tipo']
+        tipo_salida = inv_m.SalidaTipo.objects.get(id=tipo)
+        estado = inv_m.SalidaInventario.objects.get(id=id_salida)
+        if(str(estado.estado) == "Listo"):
+            if not tipo_salida.especial:
+                tipo_dis = self.request.user.tipos_dispositivos.tipos.all()
+                tipo_paquete = inv_m.PaqueteTipo.objects.filter(tipo_dispositivo__in=tipo_dis)
+                cantidad_paquetes = inv_m.Paquete.objects.filter(
+                    salida=id_salida,
+                    tipo_paquete__in=tipo_paquete).aggregate(total_cantidad=Sum('cantidad'))
+                cantidad_dispositivos = inv_m.DispositivoPaquete.objects.filter(
+                    paquete__salida=id_salida,
+                    paquete__tipo_paquete__in=tipo_paquete).count()
+                cantidad_dispositivos_aprovados = inv_m.DispositivoPaquete.objects.filter(
+                    paquete__salida=id_salida,
+                    paquete__tipo_paquete__in=tipo_paquete,
+                    aprobado=True).count()
+                if cantidad_paquetes['total_cantidad'] != cantidad_dispositivos:
+                    return Response(
+                        {
+                            'mensaje': 'Faltan Dispositivos por asignar'
+
+                        },
+                        status=status.HTTP_400_BAD_REQUEST
+
+                    )
+                else:
+                    if(cantidad_dispositivos_aprovados < cantidad_dispositivos):
+                        return Response(
+                            {
+                                'mensaje': 'Faltan dispositivos por aprobar'
+
+                            },
+                            status=status.HTTP_400_BAD_REQUEST
+                            )
+                    else:
+                        estado_entregado = inv_m.SalidaEstado.objects.get(nombre="Entregado")
+                        estado.en_creacion = False
+                        estado.estado = estado_entregado
+                        estado.save()
+        else:
+            print(tipo_salida.especial)
+            if tipo_salida.especial:
+                estado_entregado = inv_m.SalidaEstado.objects.get(nombre="Entregado")
+                estado.en_creacion = False
+                estado.estado = estado_entregado
+                estado.save()
+            else:
+                return Response(
+                    {
+                        'mensaje': 'El estado de la salida es Pendiente'
+
+                    },
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+        return Response(
+            {
+                'mensaje': 'Salida Cuadrada'
+            },
+            status=status.HTTP_200_OK
+        )
+
 
 class RevisionSalidaFilter(filters.FilterSet):
     """ Filtros para generar infome de Entrada
     """
+    estado = filters.NumberFilter(name="estado", method='filter_estado')
+
     class Meta:
         model = inv_m.RevisionSalida
         fields = ['aprobada']
+
+    def filter_estado(self, qs, name, value):
+        pendiente = inv_m.SalidaEstado.objects.get(nombre="Pendiente")
+        return qs.filter(salida__estado=pendiente)
 
 
 class RevisionSalidaViewSet(viewsets.ModelViewSet):
@@ -170,7 +241,7 @@ class RevisionSalidaViewSet(viewsets.ModelViewSet):
         )
 
     @action(methods=['post'], detail=True)
-    def rechazar(self, request, pk=None):
+    def rechazar_dispositivo(self, request, pk=None):
         """ Metodo para rechazar los dispositivos
         """
         triage = request.data["triage"]
@@ -185,4 +256,38 @@ class RevisionSalidaViewSet(viewsets.ModelViewSet):
         dispositivo.save()
         return Response({
             'mensaje': 'El dispositivo a sido rechazado'
-        })
+        },
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    @action(methods=['post'], detail=True)
+    def aprobar_dispositivo(self, request, pk=None):
+        triage = request.data["triage"]
+        paquete = request.data["paquete"]
+        id_paquete = request.data["idpaquete"]
+        asignaciones_aprobadas = inv_m.DispositivoPaquete.objects.filter(paquete=id_paquete, aprobado=True).count()
+        asignaciones = inv_m.DispositivoPaquete.objects.filter(paquete=id_paquete, aprobado=False)
+        cantidad_paquetes = inv_m.Paquete.objects.get(id=id_paquete)
+        cambio_estado = inv_m.Dispositivo.objects.get(triage=triage)
+        for aprobar in asignaciones:
+            aprobar.aprobado = True
+            aprobar.save()
+        cambio_estado.estado = inv_m.DispositivoEstado.objects.get(id=inv_m.DispositivoEstado.BN)
+        cambio_estado.save()
+        if asignaciones_aprobadas == cantidad_paquetes.cantidad:
+            cantidad_paquetes.aprobado = True
+            cantidad_paquetes.save()
+        else:
+            return Response(
+                {
+                    'mensaje': 'Faltan Dispositivos por aprobar'
+
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        return Response({
+            'mensaje': 'Dispositivo aprobado'
+        },
+            status=status.HTTP_200_OK
+        )

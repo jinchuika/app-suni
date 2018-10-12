@@ -79,6 +79,7 @@ class PaquetesFilter(filters.FilterSet):
         name='tipo dispositivo',
         method='filter_tipo_dispositivo',
         )
+    asignacion = filters.NumberFilter(name='asignacion', method='filter_asignacion')
 
     class Meta:
         model = inv_m.Paquete
@@ -86,6 +87,12 @@ class PaquetesFilter(filters.FilterSet):
 
     def filter_tipo_dispositivo(self, qs, name, value):
         qs = qs.filter(tipo_paquete__tipo_dispositivo__tipo=value)
+        return qs
+
+    def filter_asignacion(self, qs, name, value):
+        tipo_dis = self.request.user.tipos_dispositivos.tipos.all()
+        tip_paquete = inv_m.PaqueteTipo.objects.filter(tipo_dispositivo__in=tipo_dis)        
+        qs = qs.filter(salida=value, tipo_paquete__in=tip_paquete)
         return qs
 
 
