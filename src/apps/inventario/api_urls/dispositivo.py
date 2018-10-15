@@ -13,5 +13,10 @@ dispositivo_router.register(
     api_views.PaquetesViewSet,
     base_name='api_paquete'
 )
+dispositivo_router.register(
+    r'dispositivopaquete',
+    api_views.DispositivosPaquetesViewSet,
+    base_name='api_dispositivopaquete'
+)
 dispositivo_urlpatterns = []
 dispositivo_urlpatterns += dispositivo_router.urls

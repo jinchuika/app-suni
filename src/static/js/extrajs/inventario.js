@@ -1121,6 +1121,8 @@ class PaquetesRevisionList {
   constructor() {
     let  paquetes_revision_tabla = $('#salida-paquetes-revision');
     let api_paquetes_revision = $('#paquetes-revision').data('url');
+    let urlraprobar = $('#paquetes-revision').data('urlaprobar');
+    let urlrechazar = $('#paquetes-revision').data('urlrechazar');
     var api_paquete_salida= $('#paquetes-revision').data('id');
     let api_aprobar_salida=$('#aprobar-btn').data('url')
     var  tablaPaquetes = paquetes_revision_tabla.DataTable({
@@ -1141,22 +1143,96 @@ class PaquetesRevisionList {
       },
       columns:[
         {data:"id", render: function( data, type, full, meta){
+
           return '<a href="'+full.urlPaquet+'">'+data+'</a>'
         }},
+        {data:"tipo", render: function(data,type, full, meta){
+          return data
+        }} ,
+
         {data:"fecha_creacion", render: function(data, type, full, meta){
           var newDate = new Date(full.fecha_creacion);
           var options = {year: 'numeric', month:'long', day:'numeric', hour:'numeric',minute:'numeric'};
            return newDate.toLocaleDateString("es-Es",options);
         }},
-        {data:"tipo_paquete"} ,
-      ]
+        {data:"asignado_por"},
+        {data:"dispositivo"},
+        {data:" " ,render: function(data, type, full, meta){
+            return "<a id='conta-aprobar' data-triage="+full.dispositivo+"  class='btn btn-primary btn-aprobar-conta'>Aprobar</a>";
+        }},
+        {data:" " ,render: function(data, type, full, meta){
+            return "<a id='conta-rechazar' data-paquete="+full.paquete+" data-triage="+full.dispositivo+"  class='btn btn-primary btn-rechazar-conta'>Rechazar</a>";
+        }}
+          ]
 
+    });
+    /**Boton Aprobar Dispositivos**/
+    tablaPaquetes.on('click','.btn-aprobar-conta', function () {
+      let data_fila = tablaPaquetes.row($(this).parents('tr')).data();
+      $.ajax({
+        type: "POST",
+        url: urlraprobar,
+        data:{
+          csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
+          triage:data_fila.dispositivo
+        },
+        success: function (response){
+            bootbox.alert("Dispositivos aprovados");
+        },
+      });
+
+    });
+    /**Boton  de Rechazo de Dispositivos**/
+    tablaPaquetes.on('click','.btn-rechazar-conta', function () {
+      let data_fila = tablaPaquetes.row($(this).parents('tr')).data();
+      /****/
+      bootbox.confirm({
+         message: "Esta seguro de rechazar el dispositivo",
+         buttons: {
+             confirm: {
+                 label: 'Si',
+                 className: 'btn-success'
+             },
+             cancel: {
+                 label: 'No',
+                 className: 'btn-danger'
+             }
+         },
+         callback: function (result) {
+           if(result==true){
+             $.ajax({
+               type: "POST",
+               url: urlrechazar,
+               data:{
+                 csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
+                 triage:data_fila.dispositivo
+               },
+               success: function (response){
+                 var id_comentario = $("#paquetes-revision").data('id');
+                 var url = $("#paquetes-revision").data('urlhistorico');
+                 bootbox.prompt({
+                   title: "Por que rechazo este dispositivo?",
+                   inputType: 'textarea',
+                   callback: function (result) {
+                     if (result) {
+                       crear_historial_salidas(url, id_comentario, result);
+                     }
+                   }
+                 });
+               },
+             });
+           }
+
+             console.log('This was logged in the callback: ' + result);
+         }
+       });
+      /****/
     });
     /** Boton de Historial **/
     var crear_historial_salidas = function(url, id_comentario, comentario){
       var data = {
         "id_comentario":id_comentario,
-        "comentario":comentario
+        "comentario":"El Dispositivo con Triage: "+ $("#conta-rechazar").data('triage')+" del paquete no: "+$("#conta-rechazar").data('paquete') +" "+ comentario
       }
 
       $.post(url, JSON.stringify(data)).then(function (response){

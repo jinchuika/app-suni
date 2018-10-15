@@ -182,7 +182,7 @@ class RevisionSalidaFilter(filters.FilterSet):
         fields = ['aprobada']
 
     def filter_estado(self, qs, name, value):
-        pendiente = inv_m.SalidaEstado.objects.get(nombre="Pendiente")
+        pendiente = inv_m.SalidaEstado.objects.get(nombre="Pendiente")        
         return qs.filter(salida__estado=pendiente)
 
 
