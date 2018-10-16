@@ -91,7 +91,7 @@ class PaquetesFilter(filters.FilterSet):
 
     def filter_asignacion(self, qs, name, value):
         tipo_dis = self.request.user.tipos_dispositivos.tipos.all()
-        tip_paquete = inv_m.PaqueteTipo.objects.filter(tipo_dispositivo__in=tipo_dis)        
+        tip_paquete = inv_m.PaqueteTipo.objects.filter(tipo_dispositivo__in=tipo_dis)
         qs = qs.filter(salida=value, tipo_paquete__in=tip_paquete)
         return qs
 
@@ -103,3 +103,53 @@ class PaquetesViewSet(viewsets.ModelViewSet):
     serializer_class = inv_s.PaqueteSerializer
     queryset = inv_m.Paquete.objects.all()
     filter_class = PaquetesFilter
+
+
+class DispositivosPaqueteFilter(filters.FilterSet):
+    """ Filtros par el ViewSet de Paquete
+    """
+    salida = filters.NumberFilter(name="salida", method='filter_salida')
+
+    class Meta:
+        model = inv_m.DispositivoPaquete
+        fields = ['salida']
+
+    def filter_salida(self, qs, name, value):
+        qs = qs.filter(paquete__salida=value, dispositivo__etapa=inv_m.DispositivoEtapa.objects.get(id=inv_m.DispositivoEtapa.CC))
+        return qs
+
+
+class DispositivosPaquetesViewSet(viewsets.ModelViewSet):
+    serializer_class = inv_s.DispositivoPaqueteSerializerConta
+    queryset = inv_m.DispositivoPaquete.objects.all()
+    filter_class = DispositivosPaqueteFilter
+
+    @action(methods=['post'], detail=False)
+    def aprobar_conta_dispositivos(self, request, pk=None):
+        """
+        """
+        triage = request.data["triage"]
+        cambio_estado = inv_m.Dispositivo.objects.get(triage=triage)
+        cambio_estado.etapa = inv_m.DispositivoEtapa.objects.get(id=inv_m.DispositivoEtapa.LS)
+        cambio_estado.save()
+
+        return Response({
+            'mensaje': 'El dispositivo a sido Aprobado'
+        },
+            status=status.HTTP_200_OK
+        )
+
+    @action(methods=['post'], detail=False)
+    def rechazar_conta_dispositivos(self, request, pk=None):
+        """
+        """
+        triage = request.data["triage"]
+        cambio_estado = inv_m.Dispositivo.objects.get(triage=triage)
+        cambio_estado.estado = inv_m.DispositivoEstado.objects.get(id=inv_m.DispositivoEstado.PD)
+        cambio_estado.save()
+
+        return Response({
+            'mensaje': 'El dispositivo a sido Aprobado'
+        },
+            status=status.HTTP_200_OK
+        )
