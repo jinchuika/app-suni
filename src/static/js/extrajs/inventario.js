@@ -1178,6 +1178,7 @@ class PaquetesRevisionList {
         },
         success: function (response){
             bootbox.alert("Dispositivos aprovados");
+            location.reload();
         },
       });
 
@@ -1301,8 +1302,8 @@ class PaquetesRevisionList {
                csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
                salida:api_paquete_salida
              },
-             success: function (response){
-                 bootbox.alert("Dispositivos aprovados");
+             success: function (response){               
+                 bootbox.alert(response.mensaje);
              },
              error: function (response) {
                   var jsonResponse = JSON.parse(response.responseText);

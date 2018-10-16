@@ -303,7 +303,7 @@ class RevisionSalidaViewSet(viewsets.ModelViewSet):
         etapa_listo = inv_m.DispositivoEtapa.objects.get(id=inv_m.DispositivoEtapa.LS)
         paquetes_aprobados = inv_m.DispositivoPaquete.objects.filter(
             paquete__salida=id_salida,
-            aprobado=True).count()
+            paquete__aprobado=True).count()
         dispositivos_paquetes = inv_m.DispositivoPaquete.objects.filter(paquete__salida=id_salida).count()
         dispositivos_aprobados = inv_m.DispositivoPaquete.objects.filter(
             paquete__salida=id_salida,
