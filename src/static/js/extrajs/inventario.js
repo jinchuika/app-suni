@@ -1296,7 +1296,7 @@ class PaquetesRevisionList {
          if(result==true){
            $.ajax({
              type: "POST",
-             url: api_aprobar_salida+api_paquete_salida+"/aprobado/",
+             url: api_aprobar_salida+api_paquete_salida+"/aprobar_revision/",
              data:{
                csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
                salida:api_paquete_salida
@@ -1304,6 +1304,11 @@ class PaquetesRevisionList {
              success: function (response){
                  bootbox.alert("Dispositivos aprovados");
              },
+             error: function (response) {
+                  var jsonResponse = JSON.parse(response.responseText);
+                  bootbox.alert(jsonResponse["mensaje"]);
+
+             }
            });
          }
 

@@ -182,7 +182,7 @@ class RevisionSalidaFilter(filters.FilterSet):
         fields = ['aprobada']
 
     def filter_estado(self, qs, name, value):
-        pendiente = inv_m.SalidaEstado.objects.get(nombre="Pendiente")        
+        pendiente = inv_m.SalidaEstado.objects.get(nombre="Pendiente")
         return qs.filter(salida__estado=pendiente)
 
 
@@ -202,17 +202,20 @@ class RevisionSalidaViewSet(viewsets.ModelViewSet):
         salida = inv_m.RevisionSalida.objects.get(salida=id_salida)
         paquetes = inv_m.Paquete.objects.filter(salida=id_salida,
                                                 aprobado=True)
+
         for paquete in paquetes:
             dispositivosPaquetes = inv_m.DispositivoPaquete.objects.filter(paquete=paquete.id,
                                                                            aprobado=True)
+            print(dispositivosPaquetes)
             for dispositivos in dispositivosPaquetes:
+                print(dispositivos)
                 dispositivos.dispositivo.etapa = inv_m.DispositivoEtapa.objects.get(id=inv_m.DispositivoEtapa.EN)
                 dispositivos.dispositivo.valido = False
                 try:
                     cambios_etapa = inv_m.CambioEtapa.objects.get(dispositivo__triage=dispositivos.dispositivo)
                     cambios_etapa.etapa_final = inv_m.DispositivoEtapa.objects.get(id=inv_m.DispositivoEtapa.EN)
                     cambios_etapa.creado_por = request.user
-                    cambios_etapa.save()
+                    # cambios_etapa.save()
                 except ObjectDoesNotExist as e:
                     print("EL DISPOSITIVO NO EXISTE")
                     """ Metodo para movimiento de dispositivos
@@ -227,13 +230,13 @@ class RevisionSalidaViewSet(viewsets.ModelViewSet):
                         tipo_movimiento=conta_m.MovimientoDispositivo.BAJA,
                         referencia='Salida {}'.format(salida),
                         precio=precio_dispositivo.precio)
-                    movimiento.save()
-                dispositivos.dispositivo.save()
+                    # movimiento.save()
+                # dispositivos.dispositivo.save()
         salida.aprobada = True
-        salida.save()
+        # salida.save()
         finalizar_salida.en_creacion = False
         finalizar_salida.necesita_revision = False
-        finalizar_salida.save()
+        # finalizar_salida.save()
         return Response(
             {
                 'mensaje': 'El estatus a sido Aprobado'
@@ -288,6 +291,43 @@ class RevisionSalidaViewSet(viewsets.ModelViewSet):
 
         return Response({
             'mensaje': 'Dispositivo aprobado'
+        },
+            status=status.HTTP_200_OK
+        )
+
+    @action(methods=['post'], detail=True)
+    def aprobar_revision(self, request, pk=None):
+        id_salida = request.data["salida"]
+        finalizar_salida = inv_m.SalidaInventario.objects.get(id=id_salida)
+        estado_bueno = inv_m.DispositivoEstado.objects.get(id=inv_m.DispositivoEstado.BN)
+        etapa_listo = inv_m.DispositivoEtapa.objects.get(id=inv_m.DispositivoEtapa.LS)
+        paquetes_aprobados = inv_m.DispositivoPaquete.objects.filter(
+            paquete__salida=id_salida,
+            aprobado=True).count()
+        dispositivos_paquetes = inv_m.DispositivoPaquete.objects.filter(paquete__salida=id_salida).count()
+        dispositivos_aprobados = inv_m.DispositivoPaquete.objects.filter(
+            paquete__salida=id_salida,
+            dispositivo__etapa=etapa_listo,
+            dispositivo__estado=estado_bueno).count()
+        print("dispositivo aprobados:"+str(dispositivos_aprobados))
+        print("dispositivo paquetes:"+str(dispositivos_paquetes))
+        print("paquetes aprobados:"+str(paquetes_aprobados))
+        if(dispositivos_aprobados != dispositivos_paquetes):
+            return Response({
+                'mensaje': 'Faltan Dispositivos por aprobar'
+            },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        else:
+            if(paquetes_aprobados < dispositivos_paquetes):
+                return Response({
+                    'mensaje': 'Faltan Paquetes  por aprobar'
+                },
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+        return Response({
+            'mensaje': 'Revision aprobada'
         },
             status=status.HTTP_200_OK
         )
