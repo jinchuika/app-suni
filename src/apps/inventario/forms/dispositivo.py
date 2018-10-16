@@ -316,7 +316,9 @@ class SolicitudMovimientoCreateForm(forms.ModelForm):
             'etapa_inicial',
             'etapa_final',
             'recibida',
-            'recibida_por'
+            'recibida_por',
+            'devolucion',
+            'desecho'
             ]
         widgets = {
             'tipo_dispositivo': forms.Select(attrs={'class': 'form-control'}),
@@ -332,6 +334,30 @@ class SolicitudMovimientoCreateForm(forms.ModelForm):
         if cleaned_data['etapa_inicial'] == cleaned_data['etapa_final']:
             raise forms.ValidationError('Las etapas no pueden ser iguales.')"""
 
+class DevolucionCreateForm(forms.ModelForm):
+    """Formulario para el control de las Solicitud de Movimiento de la empresa.
+    """
+    class Meta:
+        model = inv_m.SolicitudMovimiento
+        exclude = [
+            'autorizada_por',
+            'terminada',
+            'creada_por',
+            'fecha_creacion',
+            'etapa_inicial',
+            'etapa_final',
+            'recibida',
+            'recibida_por',
+            'devolucion'
+            ]
+        widgets = {
+            'tipo_dispositivo': forms.Select(attrs={'class': 'form-control'}),
+            'cantidad': forms.TextInput({'class': 'form-control'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super(DevolucionCreateForm, self).__init__(*args, **kwargs)
+        self.fields['tipo_dispositivo'].queryset = inv_m.DispositivoTipo.objects.filter(usa_triage=True)
 
 class SolicitudMovimientoUpdateForm(forms.ModelForm):
     """Formulario para actualizar una `SolicitudMovimiento`, usado principalmente para autorizar movimientos.

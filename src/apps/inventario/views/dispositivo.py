@@ -93,11 +93,40 @@ class SolicitudMovimientoCreateView(LoginRequiredMixin, CreateView):
 
     def get_form(self, form_class=None):
         form = super(SolicitudMovimientoCreateView, self).get_form(form_class)
-        print(self.request.user.tipos_dispositivos.tipos.all())
         tipo_dis = self.request.user.tipos_dispositivos.tipos.all()
-        for datos in tipo_dis:
-            print(datos)
-            print(inv_m.EntradaDetalle.objects.filter(entrada=22, tipo_dispositivo=datos))
+        form.fields['tipo_dispositivo'].queryset = self.request.user.tipos_dispositivos.tipos.all()
+        return form
+
+class DevolucionCreateView(LoginRequiredMixin, CreateView):
+    """Vista   para obtener los datos de Solicitudslug_field = "triage"
+    slug_url_kwarg = "triage"
+    query_pk_and_slug = TrueMovimiento mediante una :class:`SolicitudMovimiento`
+    Funciona  para recibir los datos de un  'DevolucionCreateView' mediante el metodo  POST.  y
+    nos muestra el template de visitas mediante el metodo GET.
+    """
+    model = inv_m.SolicitudMovimiento
+    template_name = 'inventario/dispositivo/solicitudmovimiento_add.html'
+    form_class = inv_f.DevolucionCreateForm
+
+    def form_valid(self, form):
+        form.instance.creada_por = self.request.user
+        form.instance.devolucion = True
+        form.instance.etapa_inicial = inv_m.DispositivoEtapa.objects.get(
+            id=inv_m.DispositivoEtapa.TR
+            )
+        form.instance.etapa_final = inv_m.DispositivoEtapa.objects.get(
+            id=inv_m.DispositivoEtapa.AB
+            )
+        return super(DevolucionCreateView, self).form_valid(form)
+
+    def get_initial(self):
+        return {
+            'fecha_creacion': None
+        }
+
+    def get_form(self, form_class=None):
+        form = super(DevolucionCreateView, self).get_form(form_class)
+        tipo_dis = self.request.user.tipos_dispositivos.tipos.all()
         form.fields['tipo_dispositivo'].queryset = self.request.user.tipos_dispositivos.tipos.all()
         return form
 

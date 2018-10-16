@@ -65,12 +65,27 @@
                                             {% endif %}
                                         </td>
                                     </tr>
+                                    {%if object.devolucion%}
+                                    <tr>
+                                        <th>Tipo</th>
+                                        <td>
+                                            <span class="label label-danger">Devolución</span> <br>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>Desecho</th>
+                                        <td>
+                                            <input type="checkbox" name="desecho" disabled  {% if object.desecho %} checked {% endif %} />
+                                        </td>
+                                    </tr>
+                                    {% else %}
                                     <tr>
                                         <th>Autorizada por</th>
                                         <td>
                                             {{ object.autorizada_por.get_full_name }}
                                         </td>
                                     </tr>
+                                    {% endif %}
                                 </table>
                             </form>
                         </div>

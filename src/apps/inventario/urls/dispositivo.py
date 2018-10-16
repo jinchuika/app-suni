@@ -136,6 +136,12 @@ urlpatterns = [
         inventario_v.SolicitudMovimientoCreateView.as_view(),
         name='solicitudmovimiento_add'
     ),
+    # Creacion de Devoluciones
+    url(
+        r'^dispositivo/devolucion/add/$',
+        inventario_v.DevolucionCreateView.as_view(),
+        name='devolucion_add'
+    ),
     # Actualización de Solicitudes de movimiento
     url(
         r'^dispositivo/solicitudmovimiento/(?P<pk>\d+)/edit/$',
