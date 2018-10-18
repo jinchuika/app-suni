@@ -989,7 +989,11 @@ class Salidas {
       columns:[
         {data:"id"},
         {data:"tipo_paquete"},
-        {data:"fecha_creacion"},
+        {data:"fecha_creacion", render: function(data, type, full, meta){
+         var newDate = new Date(full.fecha_creacion);
+         var options = {year: 'numeric', month:'long', day:'numeric', hour:'numeric',minute:'numeric'};
+          return newDate.toLocaleDateString("es-Es",options);
+        }},
         {data:"cantidad"},
         {data:"aprobado", render: function(data, type, full, meta){
           if(full.aprobado == true){
@@ -1013,6 +1017,14 @@ class Salidas {
               }
             }*/
             return "<a target='_blank' rel='noopener noreferrer' href="+full.url_detail+" class='btn btn-success'>Ver Dispositivos</a>";
+          }
+
+        }},
+        {data:"", render: function(data, type, full, meta){
+          if(full.aprobado ==false){
+            return "<a target='_blank' rel='noopener noreferrer' href="+full.urlPaquet+" class='btn btn-primary'>Asignar Dispositivos</a>";
+          }else{
+            return "";
           }
 
         }}
@@ -1114,6 +1126,17 @@ class Salidas {
                     });
         }
     });
+    $('#id_tipo_salida').change(function(){
+      var tipoSalida = $(this).val();
+      var tipoSalidaText = $('#id_tipo_salida option:selected').text()
+      console.log(tipoSalida);
+      console.log(tipoSalidaText);
+      if(tipoSalida == 3 || tipoSalidaText =='Especial'){
+        $('#id_entrega').prop("disabled",false);
+
+      }
+    });
+
 
   }
 }
@@ -1302,7 +1325,7 @@ class PaquetesRevisionList {
                csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
                salida:api_paquete_salida
              },
-             success: function (response){               
+             success: function (response){
                  bootbox.alert(response.mensaje);
              },
              error: function (response) {

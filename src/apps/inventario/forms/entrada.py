@@ -22,6 +22,7 @@ class EntradaForm(forms.ModelForm):
             'observaciones': forms.Textarea({'class': 'form-control'}),
         }
 
+
 class EntradaUpdateForm(forms.ModelForm):
     """Formulario para la :`class`:`EntradaUpdateView` que es la encargada de actualizar los datos
     de entrada.
@@ -74,7 +75,7 @@ class EntradaDetalleForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
-        entrada = kwargs.pop('initial', None)['entrada'] 
+        entrada = kwargs.pop('initial', None)['entrada']
         super(EntradaDetalleForm, self).__init__(*args, **kwargs)
         self.fields['entrada'].initial = entrada
         if not entrada.tipo.contable:
@@ -136,6 +137,7 @@ class EntradaDetalleUpdateForm(forms.ModelForm):
             raise forms.ValidationError(
                     _('Los valores de depuración superan el total de dispositivos.')
                 )
+                
     def as_table(self):
         "Returns this form rendered as HTML <tr>s -- excluding the <table></table>."
         return self._html_output(

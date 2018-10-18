@@ -27,6 +27,7 @@ class SalidaInventarioForm(forms.ModelForm):
             'escuela': forms.TextInput({'class': 'form-control'}),
             'observaciones': forms.Textarea({'class': 'form-control'}),
             'reasignado_por': forms.HiddenInput(),
+            'entrega': forms.CheckboxInput(attrs={'disabled': 'False'})
         }
 
     def __init__(self, *args, **kwargs):
@@ -75,6 +76,11 @@ class PaqueteCantidadForm(forms.ModelForm):
         model = inv_m.Paquete
         fields = ('cantidad', 'tipo_paquete', 'entrada',)
 
+    def __init__(self, *args, **kwargs):
+        # self.user = kwargs.pop('user')
+        super(PaqueteCantidadForm, self).__init__(*args, **kwargs)
+        # print(self.user)
+
 
 class RevisionSalidaCreateForm(forms.ModelForm):
     """Formulario para creación de :class:`RevisionSalida`.
@@ -89,7 +95,7 @@ class RevisionSalidaCreateForm(forms.ModelForm):
     class Meta:
         model = inv_m.RevisionSalida
         fields = ('salida', 'tecnico')
-        widgets = {            
+        widgets = {
             'tecnico': forms.Select(attrs={'class': 'form-control select2'})
         }
 
