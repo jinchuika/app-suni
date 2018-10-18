@@ -61,7 +61,7 @@ class PaqueteCantidadForm(forms.ModelForm):
     cantidad = forms.IntegerField(
         widget=forms.TextInput(attrs={'class': 'form-control'}))
     tipo_paquete = forms.ModelChoiceField(
-        queryset=inv_m.PaqueteTipo.objects.none(),
+        queryset=inv_m.PaqueteTipo.objects.all(),
         widget=forms.Select(attrs={'class': 'form-control'})
     )
     entrada = forms.ModelMultipleChoiceField(
