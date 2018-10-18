@@ -1258,7 +1258,7 @@ class Paquete(models.Model):
                         paquete=self,
                         asignado_por=usuario
                     )
-                    # asignar.save()
+                    asignar.save()
                 else:
                     raise OperationalError('El paquete ya fue aprobado')
 

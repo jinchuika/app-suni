@@ -1,4 +1,5 @@
 from django.shortcuts import reverse, render
+from django.core.exceptions import ObjectDoesNotExist
 from django.urls import reverse_lazy
 from django.utils import timezone
 from django.views.generic import CreateView, DetailView, ListView, UpdateView, FormView, View
@@ -79,6 +80,7 @@ class SalidaPaqueteUpdateView(LoginRequiredMixin, UpdateView):
         return reverse_lazy('salidainventario_edit', kwargs={'pk': self.object.id})
 
     def get_form(self, form_class=None):
+        print(self.request.user)
         form = super(SalidaPaqueteUpdateView, self).get_form(form_class)
         form.fields['entrada'].widget = forms.SelectMultiple(attrs={
             'data-api-url': reverse_lazy('inventario_api:api_entrada-list')
@@ -88,18 +90,27 @@ class SalidaPaqueteUpdateView(LoginRequiredMixin, UpdateView):
         )
         return form
 
+    def get_form_kwargs(self):
+        kwargs = super(SalidaPaqueteUpdateView, self).get_form_kwargs()
+        kwargs.update({'user': self.request.user})
+        return kwargs
+
     def form_valid(self, form):
+        print(self.request.user.tipos_dispositivos.tipos.all())
         cantidad_disponible = form.cleaned_data['entrada']
         tipo = inv_m.PaqueteTipo.objects.get(id=self.request.POST['tipo_paquete'])
         cantidad = form.cleaned_data['cantidad']
         if (cantidad_disponible.count() > 0):
             cantidad_total = 0
             for disponibles in cantidad_disponible:
-                detalles = inv_m.EntradaDetalle.objects.filter(
-                    entrada=disponibles,
-                    tipo_dispositivo=tipo.tipo_dispositivo.id
-                    ).aggregate(total_util=Sum('util'))
-                cantidad_total = cantidad_total + detalles['total_util']
+                try:
+                    detalles = inv_m.EntradaDetalle.objects.filter(
+                        entrada=disponibles,
+                        tipo_dispositivo=tipo.tipo_dispositivo.id
+                        ).aggregate(total_util=Sum('util'))
+                    cantidad_total = cantidad_total + detalles['total_util']
+                except TypeError as e:
+                    messages.error(self.request, 'La entrada:'+str(disponibles)+" No tiene dispositivos de este tipo")
             if(cantidad < cantidad_total):
                 form.instance.crear_paquetes(
                     cantidad=form.cleaned_data['cantidad'],

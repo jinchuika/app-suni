@@ -333,6 +333,7 @@ class SolicitudMovimientoCreateForm(forms.ModelForm):
         cleaned_data = super(SolicitudMovimientoCreateForm, self).clean()
         if cleaned_data['etapa_inicial'] == cleaned_data['etapa_final']:
             raise forms.ValidationError('Las etapas no pueden ser iguales.')"""
+            
 
 class DevolucionCreateForm(forms.ModelForm):
     """Formulario para el control de las Solicitud de Movimiento de la empresa.
@@ -358,6 +359,7 @@ class DevolucionCreateForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(DevolucionCreateForm, self).__init__(*args, **kwargs)
         self.fields['tipo_dispositivo'].queryset = inv_m.DispositivoTipo.objects.filter(usa_triage=True)
+
 
 class SolicitudMovimientoUpdateForm(forms.ModelForm):
     """Formulario para actualizar una `SolicitudMovimiento`, usado principalmente para autorizar movimientos.

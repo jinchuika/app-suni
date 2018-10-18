@@ -104,6 +104,7 @@ class CartaAgradecimiento(LoginRequiredMixin, DetailView):
         context['dispositivotipo_list'] = inv_m.EntradaDetalle.objects.filter(entrada=self.object.id)
         return context
 
+
 class ConstanciaEntrada(LoginRequiredMixin, DetailView):
     """Muestra la carta agradecimiento
     """
@@ -114,6 +115,7 @@ class ConstanciaEntrada(LoginRequiredMixin, DetailView):
         context = super(ConstanciaEntrada, self).get_context_data(**kwargs)
         context['dispositivotipo_list'] = inv_m.EntradaDetalle.objects.filter(entrada=self.object.id)
         return context
+
 
 class ConstanciaUtil(LoginRequiredMixin, DetailView):
     """Muestra informe de la entrada en sucio
@@ -129,7 +131,7 @@ class ConstanciaUtil(LoginRequiredMixin, DetailView):
         lista = []
         util = []
         total = []
-        
+
         contador = 0
         for tipo in tipo_dispositivo:
             responsables = []

@@ -258,7 +258,7 @@ class RevisionSalidaViewSet(viewsets.ModelViewSet):
         asignacion_dispositivo.delete()
         dispositivo.save()
         return Response({
-            'mensaje': 'El dispositivo a sido rechazado'
+            'mensaje': 'El dispositivo ha sido rechazado'
         },
             status=status.HTTP_400_BAD_REQUEST
         )
@@ -268,26 +268,20 @@ class RevisionSalidaViewSet(viewsets.ModelViewSet):
         triage = request.data["triage"]
         paquete = request.data["paquete"]
         id_paquete = request.data["idpaquete"]
+        print(id_paquete)
         asignaciones_aprobadas = inv_m.DispositivoPaquete.objects.filter(paquete=id_paquete, aprobado=True).count()
-        asignaciones = inv_m.DispositivoPaquete.objects.filter(paquete=id_paquete, aprobado=False)
+        # asignaciones = inv_m.DispositivoPaquete.objects.filter(paquete=id_paquete, aprobado=False)
+        # print(asignaciones)
         cantidad_paquetes = inv_m.Paquete.objects.get(id=id_paquete)
         cambio_estado = inv_m.Dispositivo.objects.get(triage=triage)
-        for aprobar in asignaciones:
+        """for aprobar in asignaciones:
             aprobar.aprobado = True
-            aprobar.save()
+            aprobar.save()"""
         cambio_estado.estado = inv_m.DispositivoEstado.objects.get(id=inv_m.DispositivoEstado.BN)
         cambio_estado.save()
         if asignaciones_aprobadas == cantidad_paquetes.cantidad:
             cantidad_paquetes.aprobado = True
             cantidad_paquetes.save()
-        else:
-            return Response(
-                {
-                    'mensaje': 'Faltan Dispositivos por aprobar'
-
-                },
-                status=status.HTTP_400_BAD_REQUEST
-            )
 
         return Response({
             'mensaje': 'Dispositivo aprobado'

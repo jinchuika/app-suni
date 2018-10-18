@@ -149,7 +149,7 @@ class DispositivosPaquetesViewSet(viewsets.ModelViewSet):
         cambio_estado.save()
 
         return Response({
-            'mensaje': 'El dispositivo a sido Aprobado'
+            'mensaje': 'El dispositivo a sido Rechazado'
         },
             status=status.HTTP_200_OK
         )
