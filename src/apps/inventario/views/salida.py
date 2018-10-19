@@ -90,11 +90,6 @@ class SalidaPaqueteUpdateView(LoginRequiredMixin, UpdateView):
         )
         return form
 
-    def get_form_kwargs(self):
-        kwargs = super(SalidaPaqueteUpdateView, self).get_form_kwargs()
-        kwargs.update({'user': self.request.user})
-        return kwargs
-
     def form_valid(self, form):
         print(self.request.user.tipos_dispositivos.tipos.all())
         cantidad_disponible = form.cleaned_data['entrada']
@@ -181,7 +176,7 @@ class RevisionSalidaCreateView(LoginRequiredMixin, CreateView):
     template_name = 'inventario/salida/revisionsalida_add.html'
 
     def get_success_url(self):
-        return reverse_lazy('revisionsalida_list')
+        return reverse_lazy('revisionsalida_update', kwargs={'pk': self.object.id})
 
     def get_initial(self):
         return {

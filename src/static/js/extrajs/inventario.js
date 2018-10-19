@@ -899,6 +899,8 @@ class Salidas {
     var url_salida_paquete= $("#salidas-paquete-table").data("url");
     var salida_pk= $("#salidas-paquete-table").data("pk");
     var url_cuadrar = $("#salidas-paquete-table").data("cuadrar");
+    var url_finalizar = $("#salidas-paquete-table").data("urlfin");
+    console.log(url_finalizar);
 
     $('#id_entrega').click(function () {
         if ($("#id_entrega").is(':checked')) {
@@ -1106,10 +1108,25 @@ class Salidas {
                                     tipo:tipo
                                 },
                                 success: function (response) {
-                                    bootbox.confirm("Salida Creada",
+                                  /*  bootbox.confirm("Salida Creada",
                                     function(result){
                                        location.reload();
-                                      });
+                                     });*/
+                                     /****/
+                                     $.ajax({
+                                       type: "POST",
+                                       url: url_finalizar,
+                                       dataType: 'json',
+                                       data: {
+                                           csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
+                                           salida :salida_pk,
+                                       },
+                                       success: function (response){
+                                         console.log(response);
+
+                                       },
+                                     });
+                                     /***/
                                 },
                                 error: function (response) {
                                      var jsonResponse = JSON.parse(response.responseText);
@@ -1148,6 +1165,7 @@ class PaquetesRevisionList {
     let urlrechazar = $('#paquetes-revision').data('urlrechazar');
     var api_paquete_salida= $('#paquetes-revision').data('id');
     let api_aprobar_salida=$('#aprobar-btn').data('url')
+    let  dispositivo_revision_tabla = $('#dispositivo-salida-paquetes-revision');
     var  tablaPaquetes = paquetes_revision_tabla.DataTable({
       processing:true,
       retrieve:true,
@@ -1165,30 +1183,43 @@ class PaquetesRevisionList {
         }
       },
       columns:[
-        {data:"id", render: function( data, type, full, meta){
-
-          return '<a href="'+full.urlPaquet+'">'+data+'</a>'
-        }},
+        {data:"dispositivo"},
         {data:"tipo", render: function(data,type, full, meta){
           return data
         }} ,
-
-        {data:"fecha_creacion", render: function(data, type, full, meta){
-          var newDate = new Date(full.fecha_creacion);
-          var options = {year: 'numeric', month:'long', day:'numeric', hour:'numeric',minute:'numeric'};
-           return newDate.toLocaleDateString("es-Es",options);
-        }},
-        {data:"asignado_por"},
-        {data:"dispositivo"},
         {data:" " ,render: function(data, type, full, meta){
-            return "<a id='conta-aprobar' data-triage="+full.dispositivo+"  class='btn btn-primary btn-aprobar-conta'>Aprobar</a>";
+            return "<a id='conta-aprobar' data-triage="+full.dispositivo+"  class='btn btn-success btn-aprobar-conta'>Aprobar</a>";
         }},
         {data:" " ,render: function(data, type, full, meta){
-            return "<a id='conta-rechazar' data-paquete="+full.paquete+" data-triage="+full.dispositivo+"  class='btn btn-primary btn-rechazar-conta'>Rechazar</a>";
+            return "<a id='conta-rechazar' data-paquete="+full.paquete+" data-triage="+full.dispositivo+"  class='btn btn-warning btn-rechazar-conta'>Rechazar</a>";
         }}
           ]
 
     });
+    /****/
+    var  tablaPaquetesDispositivos = dispositivo_revision_tabla.DataTable({
+      processing:true,
+      retrieve:true,
+      ajax:{
+        url:api_paquetes_revision,
+        dataSrc:'',
+        cache:false,
+        deferRender:true,
+        processing:true,
+        data: function () {
+          return {
+            listo:api_paquete_salida,
+          }
+        }
+      },
+      columns:[
+        {data:"dispositivo"},
+        {data:"tipo", render: function(data,type, full, meta){
+          return data
+        }} ,
+          ]
+    });
+
     /**Boton Aprobar Dispositivos**/
     tablaPaquetes.on('click','.btn-aprobar-conta', function () {
       let data_fila = tablaPaquetes.row($(this).parents('tr')).data();
@@ -1265,6 +1296,7 @@ class PaquetesRevisionList {
       var td = $('<td></td>').text(response.comentario);
       var tr = $('<tr></tr>').append(td).append(td_data);
       $('#body-salidas-' + id_comentario).append(tr);
+      location.reload();
     },function(response){
       alert("Error al crear datos");
     });
@@ -1425,6 +1457,7 @@ class PaqueteDetail {
                },
                success: function (response){
                  bootbox.alert(response.mensaje);
+                  location.reload();
                },
                error: function (response){
                  var jsonResponse = JSON.parse(response.responseText);
@@ -1462,8 +1495,17 @@ class PaqueteDetail {
     let tipo_dipositivo = this.asig_dispositivos.data('tipo-dispositivo');
     let slug = this.asig_dispositivos.data('slug');
     let cantidad = this.asig_dispositivos.data('cantidad');
+    let cantidad_disponible = $('#rechazar-dispositivo').data('dispo');
+    let cantidad_asignar = cantidad - cantidad_disponible;
+    console.log(cantidad_asignar);
+    if(cantidad_asignar == 0){
+      var activar = true
+    }else{
+      var activar = false
+    }
     this.asig_dispositivos.select2({
-        maximumSelectionLength : cantidad,
+        disabled :activar,
+        maximumSelectionLength : cantidad_asignar,
         debug:true,
         placeholder:"Ingrese Triage",
         width: '100%',
@@ -1492,8 +1534,8 @@ class PaqueteDetail {
     });
     let cantidad_dispositivos = this.asig_dispositivos;
     $('form').on('submit', function(e){
-      let restante = cantidad - cantidad_dispositivos.select2('data').length;
-      if(cantidad_dispositivos.select2('data').length < cantidad){
+      let restante = cantidad_asignar - cantidad_dispositivos.select2('data').length;
+      if(cantidad_dispositivos.select2('data').length < cantidad_asignar){
         bootbox.alert("Aun faltan  "+ restante  +" dispositivos por ingresar");
         e.preventDefault();
       }

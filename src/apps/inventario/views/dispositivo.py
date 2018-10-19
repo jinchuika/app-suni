@@ -96,6 +96,7 @@ class SolicitudMovimientoCreateView(LoginRequiredMixin, CreateView):
         tipo_dis = self.request.user.tipos_dispositivos.tipos.all()
         form.fields['tipo_dispositivo'].queryset = self.request.user.tipos_dispositivos.tipos.all()
         return form
+        
 
 class DevolucionCreateView(LoginRequiredMixin, CreateView):
     """Vista   para obtener los datos de Solicitudslug_field = "triage"

@@ -109,13 +109,18 @@ class DispositivosPaqueteFilter(filters.FilterSet):
     """ Filtros par el ViewSet de Paquete
     """
     salida = filters.NumberFilter(name="salida", method='filter_salida')
+    listo = filters.NumberFilter(name="salida aprobada", method='filter_listo')
 
     class Meta:
         model = inv_m.DispositivoPaquete
-        fields = ['salida']
+        fields = ['salida', 'listo']
 
     def filter_salida(self, qs, name, value):
         qs = qs.filter(paquete__salida=value, dispositivo__etapa=inv_m.DispositivoEtapa.objects.get(id=inv_m.DispositivoEtapa.CC))
+        return qs
+
+    def filter_listo(self, qs, name, value):
+        qs = qs.filter(paquete__salida=value, dispositivo__etapa=inv_m.DispositivoEtapa.objects.get(id=inv_m.DispositivoEtapa.LS))
         return qs
 
 
@@ -147,7 +152,9 @@ class DispositivosPaquetesViewSet(viewsets.ModelViewSet):
         cambio_estado = inv_m.Dispositivo.objects.get(triage=triage)
         cambio_estado.estado = inv_m.DispositivoEstado.objects.get(id=inv_m.DispositivoEstado.PD)
         cambio_estado.save()
-
+        desasignar_paquete = inv_m.DispositivoPaquete.objects.get(dispositivo__triage=triage)
+        desasignar_paquete.aprobado = False
+        desasignar_paquete.save()
         return Response({
             'mensaje': 'El dispositivo a sido Rechazado'
         },
