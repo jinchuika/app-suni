@@ -5,3 +5,4 @@ from .entrada import *
 from .desecho import *
 from .salida import *
 from .repuesto import *
+from .prestamo import *

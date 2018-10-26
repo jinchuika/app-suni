@@ -16,8 +16,18 @@ from .bodega import urlpatterns as bodega_urls
 from .desecho import urlpatterns as desecho_urls
 from .salida import urlpatterns as salida_urls
 from .repuesto import urlpatterns as repuesto_urls
+from .prestamo import urlpatterns as prestamo_urls
 
-urlpatterns = dispositivo_urls + entrada_urls + software_urls + bodega_urls + desecho_urls + salida_urls + repuesto_urls
+urlpatterns = list(
+    dispositivo_urls +
+    entrada_urls +
+    software_urls +
+    bodega_urls +
+    desecho_urls +
+    salida_urls +
+    repuesto_urls +
+    prestamo_urls
+)
 
 urlpatterns.append(
     url(r'^api/', include(('apps.inventario.api_urls', 'inventario'), namespace='inventario_api')),

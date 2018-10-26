@@ -22,7 +22,7 @@
 						<table class="table table-condensed">
 							<tr>
 								<th>Salida </th>
-								<td id="salida-id"  data-url="{% url 'inventario_api:api_revisionsalidas-rechazar-dispositivo' pk=paquete.salida%}" data-urlhistorico="{% url 'historico_salida' %}" data-id="{{  paquete.salida }}" data-urlaprobar="{% url 'inventario_api:api_revisionsalidas-aprobar-dispositivo' pk=paquete.salida%}">{{ paquete.salida }}</td>
+								<td id="salida-id"  data-url="{% url 'inventario_api:api_revisionsalidas-rechazar-dispositivo' pk=paquete.salida%}" data-urlhistorico="{% url 'historico_control' %}" data-id="{{  paquete.salida }}" data-urlaprobar="{% url 'inventario_api:api_revisionsalidas-aprobar-dispositivo' pk=paquete.salida%}">{{ paquete.salida }}</td>
 							</tr>
 							<tr >
 								<th>Fecha Creación</th>
@@ -78,7 +78,7 @@
 								</th>
 							</tr>
 							<tbody id="body-salidas-{{paquete.salida}}">
-								{%for comentario in revisionsalida.comentarios.all%}
+								{%for comentario in comentarios%}
 							 <tr>
 								 <td>
 									 {{comentario.comentario}}

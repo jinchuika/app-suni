@@ -13,6 +13,8 @@ from apps.inventario import (
     models as inv_m
 )
 from apps.conta import models as conta_m
+from apps.escuela import models as escuela_m
+from apps.crm import models as crm_m
 from django.db.models import Count, Sum
 from decimal import Decimal
 
@@ -168,6 +170,46 @@ class SalidaInventarioViewSet(viewsets.ModelViewSet):
         return Response(
             {
                 'mensaje': 'Salida Cuadrada'
+            },
+            status=status.HTTP_200_OK
+        )
+
+    @action(methods=['post'], detail=False)
+    def reasignar_salida(self, request, pk=None):
+        id_salida = request.data['id_salida']
+        data = request.data['data']
+        es_beneficiario = request.data['beneficiario']
+        nueva_reasignar = inv_m.SalidaInventario.objects.get(id=id_salida)
+        if(es_beneficiario == 'true'):
+            try:
+                nuevo_beneficiario = crm_m.Donante.objects.get(nombre=data)
+                nueva_reasignar.beneficiario = nuevo_beneficiario
+                nueva_reasignar.reasignado_por = request.user
+                nueva_reasignar.save()
+            except ObjectDoesNotExist as e:
+                    return Response(
+                        {
+                            'mensaje': 'EL Beneficiario no existe'
+                        },
+                        status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                    )
+        else:
+            try:
+                asignacion = escuela_m.Escuela.objects.get(codigo=data)
+                nueva_reasignar.escuela = asignacion
+                nueva_reasignar.reasignado_por = request.user
+                nueva_reasignar.save()
+            except ObjectDoesNotExist as e:
+                return Response(
+                    {
+                        'mensaje': 'La Escuela  no existe'
+                    },
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                )
+
+        return Response(
+            {
+                'mensaje': 'Salida reasignada'
             },
             status=status.HTTP_200_OK
         )

@@ -113,7 +113,7 @@ class DispositivosPaqueteFilter(filters.FilterSet):
 
     class Meta:
         model = inv_m.DispositivoPaquete
-        fields = ['salida', 'listo']
+        fields = ['salida', 'listo', 'aprobado']
 
     def filter_salida(self, qs, name, value):
         qs = qs.filter(paquete__salida=value, dispositivo__etapa=inv_m.DispositivoEtapa.objects.get(id=inv_m.DispositivoEtapa.CC))

@@ -4,6 +4,7 @@ from .bodega import bodega_urlpatterns
 from .dispositivo import dispositivo_urlpatterns
 from .salida import salida_urlpatterns
 from .repuesto import repuesto_urlpatterns
+from .prestamo import prestamo_urlpatterns
 
 
 urlpatterns = list(
@@ -12,5 +13,6 @@ urlpatterns = list(
     bodega_urlpatterns +
     dispositivo_urlpatterns +
     salida_urlpatterns +
-    repuesto_urlpatterns
+    repuesto_urlpatterns +
+    prestamo_urlpatterns
 )
