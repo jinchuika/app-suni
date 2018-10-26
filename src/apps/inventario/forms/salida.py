@@ -76,11 +76,6 @@ class PaqueteCantidadForm(forms.ModelForm):
         model = inv_m.Paquete
         fields = ('cantidad', 'tipo_paquete', 'entrada',)
 
-    def __init__(self, *args, **kwargs):
-        # self.user = kwargs.pop('user')
-        super(PaqueteCantidadForm, self).__init__(*args, **kwargs)
-        # print(self.user)
-
 
 class RevisionSalidaCreateForm(forms.ModelForm):
     """Formulario para creación de :class:`RevisionSalida`.
@@ -99,6 +94,10 @@ class RevisionSalidaCreateForm(forms.ModelForm):
             'tecnico': forms.Select(attrs={'class': 'form-control select2'})
         }
 
+    def __init__(self, *args, **kwargs):
+        super(RevisionSalidaCreateForm, self).__init__(*args, **kwargs)
+        self.fields['tecnico'].label_from_instance = lambda obj: "%s" % obj.get_full_name()
+
 
 class RevisionSalidaUpdateForm(forms.ModelForm):
     """Formulario para edición de :class:`RevisionSalida`.
@@ -108,7 +107,7 @@ class RevisionSalidaUpdateForm(forms.ModelForm):
         model = inv_m.RevisionSalida
         fields = ('anotaciones', )
         widgets = {
-            'anotaciones': forms.Textarea(attrs={'class': 'form-control'})
+            'anotaciones': forms.TextInput(attrs={'class': 'form-control'})
         }
 
 

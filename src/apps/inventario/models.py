@@ -1445,8 +1445,36 @@ class CambioEstado(models.Model):
         self.dispositivo.save()
 
 
+class PrestamoTipo(models.Model):
+
+    """Para indicar el tipo de :class:`Entrada`.
+    El campo `contable` indica que los detalles de entrada deben asignar precio.
+    """
+
+    nombre = models.CharField(max_length=25)
+
+    class Meta:
+        verbose_name = "Tipo de Prestamo"
+        verbose_name_plural = "Tipos de Prestamo"
+
+    def __str__(self):
+        return self.nombre
+
+
 class Prestamo(models.Model):
     dispositivo = models.ForeignKey(Dispositivo, on_delete=models.CASCADE, related_name='prestamos')
+    tipo_dispositivo = models.ForeignKey(
+        DispositivoTipo,
+        null=True,
+        blank=True,
+        on_delete=models.PROTECT,
+        related_name='prestamo_dispositivo')
+    tipo_prestamo = models.ForeignKey(
+        PrestamoTipo,
+        null=True,
+        blank=True,
+        on_delete=models.PROTECT,
+        related_name='prestamo_tipo')
     fecha_inicio = models.DateField()
     fecha_fin = models.DateField(null=True, blank=True)
     creado_por = models.ForeignKey(User, on_delete=models.CASCADE, related_name='prestamos_creados')

@@ -63,6 +63,12 @@ urlpatterns = [
         inv_v.RevisionComentarioCreate.as_view(),
         name='historico_salida'
     ),
+    # Creación de Historicos de Control de Calidad
+    url(
+        r'^salida/historicocontrol/add/$',
+        inv_v.RevisionComentarioSalidaCreate.as_view(),
+        name='historico_control'
+    ),
     # Control de Calidad
     url(
         r'^salida/controlcalidad/$',

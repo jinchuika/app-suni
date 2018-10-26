@@ -90,11 +90,6 @@ class SalidaPaqueteUpdateView(LoginRequiredMixin, UpdateView):
         )
         return form
 
-    def get_form_kwargs(self):
-        kwargs = super(SalidaPaqueteUpdateView, self).get_form_kwargs()
-        kwargs.update({'user': self.request.user})
-        return kwargs
-
     def form_valid(self, form):
         print(self.request.user.tipos_dispositivos.tipos.all())
         cantidad_disponible = form.cleaned_data['entrada']
@@ -169,8 +164,10 @@ class SalidaPaqueteDetailView(LoginRequiredMixin, UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super(SalidaPaqueteDetailView, self).get_context_data(**kwargs)
+        nuevo_id = inv_m.Paquete.objects.get(id=self.object.id)
         context['dispositivos_paquetes'] = inv_m.DispositivoPaquete.objects.filter(paquete__id=self.object.id)
         context['dispositivos_no'] = inv_m.DispositivoPaquete.objects.filter(paquete__id=self.object.id).count()
+        context['comentarios'] = inv_m.SalidaComentario.objects.filter(salida=nuevo_id.salida)
         return context
 
 
@@ -181,7 +178,7 @@ class RevisionSalidaCreateView(LoginRequiredMixin, CreateView):
     template_name = 'inventario/salida/revisionsalida_add.html'
 
     def get_success_url(self):
-        return reverse_lazy('revisionsalida_list')
+        return reverse_lazy('revisionsalida_update', kwargs={'pk': self.object.id})
 
     def get_initial(self):
         return {
@@ -247,6 +244,36 @@ class RevisionComentarioCreate(CsrfExemptMixin, JsonRequestResponseMixin, View):
             return self.render_bad_request_response(error_dict)
         comentario_revision = inv_m.RevisionComentario(
             revision=revision_salida[0],
+            comentario=comentario,
+            creado_por=self.request.user)
+        comentario_revision.save()
+        return self.render_json_response({
+            "comentario": comentario_revision.comentario,
+            "fecha": str(comentario_revision.fecha_revision),
+            "usuario": str(comentario_revision.creado_por.perfil)
+            })
+
+
+class RevisionComentarioSalidaCreate(CsrfExemptMixin, JsonRequestResponseMixin, View):
+    """Vista Encargada de obtener las Revision de Comentario de las ofertas mediante el metodo
+    POST y gurdarlos en la :class:`SalidaComentario`
+    """
+
+    require_json = True
+
+    def post(self, request, *args, **kwargs):
+        try:
+            id_comentario = self.request_json["id_comentario"]
+            revision_salida = inv_m.SalidaInventario.objects.filter(id=id_comentario)
+            comentario = self.request_json["comentario"]
+            print()
+            if not len(comentario) or len(revision_salida) == 0:
+                raise KeyError
+        except KeyError:
+            error_dict = {u"message": u"Sin Comentario"}
+            return self.render_bad_request_response(error_dict)
+        comentario_revision = inv_m.SalidaComentario(
+            salida=revision_salida[0],
             comentario=comentario,
             creado_por=self.request.user)
         comentario_revision.save()
