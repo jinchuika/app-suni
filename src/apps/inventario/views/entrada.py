@@ -186,7 +186,6 @@ class ImprimirQr(LoginRequiredMixin, DetailView):
     template_name = 'inventario/entrada/imprimir_qr.html'
 
     def get_context_data(self, **kwargs):
-        print(self.kwargs['detalle'])
         context = super(ImprimirQr, self).get_context_data(**kwargs)
         context['dispositivo_qr'] = inv_m.Dispositivo.objects.filter(entrada=self.object.id,
                                                                      entrada_detalle=self.kwargs['detalle'])
@@ -200,7 +199,6 @@ class ReporteRepuestosQr(LoginRequiredMixin, DetailView):
     template_name = 'inventario/entrada/imprimir_qr.html'
 
     def get_context_data(self, **kwargs):
-        print(self.kwargs['detalle'])
         context = super(ReporteRepuestosQr, self).get_context_data(**kwargs)
         context['dispositivo_qr'] = inv_m.Repuesto.objects.filter(entrada=self.object.id,
                                                                   entrada_detalle=self.kwargs['detalle'])
@@ -214,11 +212,9 @@ class EntradaDetalleDispositivos(LoginRequiredMixin, DetailView):
     template_name = 'inventario/entrada/entradadetalle_dispositivos.html'
 
     def get_context_data(self, **kwargs):
-        print(self.kwargs['detalle'])
         context = super(EntradaDetalleDispositivos, self).get_context_data(**kwargs)
         context['dispositivo_qr'] = inv_m.Dispositivo.objects.filter(entrada=self.object.id,
-                                                                     estado=inv_m.DispositivoEstado.BN,
-                                                                     etapa=inv_m.DispositivoEtapa.TR)
+                                                                    entrada_detalle=self.kwargs['detalle'])
         return context
 
 
@@ -229,7 +225,6 @@ class EntradaDetalleRepuesto(LoginRequiredMixin, DetailView):
     template_name = 'inventario/entrada/entradadetalle_repuesto.html'
 
     def get_context_data(self, **kwargs):
-        print(self.kwargs['detalle'])
         context = super(EntradaDetalleRepuesto, self).get_context_data(**kwargs)
         context['repuesto_qr'] = inv_m.Repuesto.objects.filter(entrada=self.object.id,
                                                                entrada_detalle=self.kwargs['detalle'])

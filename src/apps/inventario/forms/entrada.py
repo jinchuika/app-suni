@@ -94,7 +94,6 @@ class EntradaDetalleUpdateForm(forms.ModelForm):
         model = inv_m.EntradaDetalle
         fields = '__all__'
         exclude = [
-                    'entrada',
                     'tipo_dispositivo',
                     'precio_unitario',
                     'precio_total',
@@ -115,6 +114,7 @@ class EntradaDetalleUpdateForm(forms.ModelForm):
             'dispositivos_creados': forms.HiddenInput(),
             'repuestos_creados': forms.HiddenInput(),
             'creado_por': forms.HiddenInput(),
+            'entrada': forms.HiddenInput(),
 
         }
 
@@ -131,13 +131,16 @@ class EntradaDetalleUpdateForm(forms.ModelForm):
         util = self.cleaned_data['util']
         repuesto = self.cleaned_data['repuesto']
         desecho = self.cleaned_data['desecho']
+        id_entrada = self.cleaned_data['entrada']
+        entrada = inv_m.Entrada.objects.get(pk=str(id_entrada))
 
-        suma = util + repuesto + desecho
-        if total < suma:
-            raise forms.ValidationError(
+        if not entrada.tipo.contenedor or (entrada.tipo.contenedor and total > 0):
+            suma = util + repuesto + desecho
+            if total < suma:
+                raise forms.ValidationError(
                     _('Los valores de depuración superan el total de dispositivos.')
-                )
-                
+                )            
+    
     def as_table(self):
         "Returns this form rendered as HTML <tr>s -- excluding the <table></table>."
         return self._html_output(

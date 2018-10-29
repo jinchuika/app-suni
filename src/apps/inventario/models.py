@@ -951,7 +951,7 @@ class AccessPoint(Dispositivo):
         return self.triage
 
     def get_absolute_url(self):
-        return reverse_lazy('red_detail', kwargs={'triage': self.triage})
+        return reverse_lazy('ap_detail', kwargs={'triage': self.triage})
 
 
 class RepuestoEstado(models.Model):
