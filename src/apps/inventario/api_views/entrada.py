@@ -6,6 +6,7 @@ from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from braces.views import LoginRequiredMixin
+from django.db.models import Q
 from apps.inventario import (
     serializers as inv_s,
     models as inv_m
@@ -65,11 +66,10 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
         """
         mensaje_cuadrar = ""
         entrad_id = request.data['primary_key']
-        dispositivo_repuestos = inv_m.EntradaDetalle.objects.filter(entrada=entrad_id).count()
-        validar_dispositivos = inv_m.EntradaDetalle.objects.filter(entrada=entrad_id,
-                                                                   dispositivos_creados=True).count()
-        validar_repuestos = inv_m.EntradaDetalle.objects.filter(entrada=entrad_id,
-                                                                repuestos_creados=True).count()
+        dispositivos_utiles = inv_m.EntradaDetalle.objects.filter(Q(entrada=entrad_id),Q(util__gt = 0)).count()
+        repuestos_utiles = inv_m.EntradaDetalle.objects.filter(Q(entrada=entrad_id),Q(repuesto__gt = 0)).count()
+        validar_dispositivos = inv_m.EntradaDetalle.objects.filter(Q(entrada=entrad_id),Q(util__gt = 0) , dispositivos_creados=True).count()
+        validar_repuestos = inv_m.EntradaDetalle.objects.filter(Q(entrada=entrad_id),Q(repuesto__gt = 0), repuestos_creados=True).count()
 
         tipo_dispositivo = inv_m.EntradaDetalle.objects.filter(entrada=entrad_id).values('tipo_dispositivo').distinct()
         tipos_sin_cuadrar = []
@@ -79,25 +79,21 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
             cuadrar_dispositivo = inv_m.EntradaDetalle.objects.filter(
                 entrada=entrad_id,
                 tipo_dispositivo=tipo['tipo_dispositivo'])
-            print(tipo)
             for datos in cuadrar_dispositivo:
-                print(datos.util)
                 acumulado_totales = acumulado_totales + datos.util + datos.repuesto + datos.desecho
                 acumulador_total = acumulador_total + datos.total
                 mensaje_cuadrar = datos.tipo_dispositivo
             if(acumulador_total != acumulado_totales):
-                tipos_sin_cuadrar.append("<br><b>" + str(datos.tipo_dispositivo) + "</b>")                
-            else:
-                if(dispositivo_repuestos != validar_dispositivos or dispositivo_repuestos != validar_repuestos):
-                    return Response(
-                        {'mensaje': 'Los dispositivos o repuestos no  han sido creados'},
-                        status=status.HTTP_400_BAD_REQUEST
-                    )
-                else:
-                    print("Todo en orden")
+                tipos_sin_cuadrar.append("<br><b>" + str(datos.tipo_dispositivo) + "</b>")
+
         if(len(tipos_sin_cuadrar) > 0):
             return Response(
                 {'mensaje': 'La entrada no esta cuadrada revisar:' + ', '.join(str(x) for x in tipos_sin_cuadrar)},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        elif(dispositivos_utiles != validar_dispositivos or repuestos_utiles != validar_repuestos):
+            return Response(
+                {'mensaje': 'Los dispositivos o repuestos no  han sido creados'},
                 status=status.HTTP_400_BAD_REQUEST
             )
         else:

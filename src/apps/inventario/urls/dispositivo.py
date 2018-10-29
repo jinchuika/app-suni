@@ -118,6 +118,20 @@ urlpatterns = [
         inventario_v.DispositivoRedUptadeView.as_view(),
         name='red_edit'
     ),
+
+    # Detalle de access point
+    url(
+        r'^ap/(?P<triage>[\w\d-]+)/$',
+        inventario_v.DispositivoAccessPointDetailView.as_view(),
+        name='ap_detail'
+    ),
+    # Actualizacion de access point
+    url(
+        r'^ap/(?P<triage>[\w\d-]+)/edit/$',
+        inventario_v.DispositivoAccessPointUptadeView.as_view(),
+        name='ap_edit'
+    ),
+
     # Detalle de tablet
     url(
         r'^tablet/(?P<triage>[\w\d-]+)/$',

@@ -1,22 +1,26 @@
 {% extends "base/base.html" %}
 {%load staticfiles widget_tweaks %}
 {% block page_title %}
-<title>Periodo Fiscales</title>
+<title>Access Point</title>
 {% endblock page_title %}
 {% block content %}
 <section class="content">
   <div class="container-fluid">
     <div class="row">
-      <div class="col-md-6 ">
+      <div class="col-md-5">
         <div class="box">
           <div class="box-header">
             <div class="row">
-              <div class="col-md-9"><span class="info-box-text"> Periodo Fiscal</span></div>
+              <div class="col-md-9">
+                <h3 class="box-title">Access Point</h3>
+              </div>
+              <div class="col-md-3">
+              </div>
             </div>
           </div>
           <div class="box-body">
             <table class="table table-condensed">
-              <form action="{%url 'conta:periodofiscal-validar-periodo'%}" method="post" id="periodo-fiscal-form">
+              <form action="{% url 'red_edit' triage=form.instance.triage%}" method="post">
                 {%csrf_token%}
                 <table>
                   {{ form.as_table }}
@@ -35,9 +39,3 @@
   </div>
 </section>
 {% endblock content %}
-{% block extra_js %}
-<script src="{% static "js/extrajs/conta.js" %}"></script>
-<script>
-  let Periodo = new PeriodoFiscal()
-</script>
-{% endblock extra_js %}

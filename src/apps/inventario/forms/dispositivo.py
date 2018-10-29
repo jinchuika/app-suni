@@ -181,6 +181,37 @@ class DispositivoRedForm(forms.ModelForm):
             'velocidad_medida': forms.Select(attrs={'class': 'form-control select2'}),
         }
 
+class DispositivoAccessPointForm(forms.ModelForm):
+    """Formulario para la creación de :class:`DispositivoRed`.
+    Se utiliza desde la vistas de DispositivoRed."""
+    class Meta:
+        model = inv_m.AccessPoint
+        fields = '__all__'
+        exclude = [
+            'indice',
+            'entrada',
+            'tipo',
+            'entrada_detalle',
+            'impreso',
+            'estado',
+            'etapa',
+            'valido',
+            'codigo_qr'
+            ]
+        widgets = {
+            'marca': forms.Select(attrs={'class': 'form-control select2'}),
+            'modelo': forms.Select(attrs={'class': 'form-control select2'}),
+            'serie': forms.TextInput({'class': 'form-control '}),
+            'tarima': forms.Select(attrs={'class': 'form-control select2'}),
+            'procesador': forms.Select(attrs={'class': 'form-control select2'}),
+            'version_sistema': forms.Select(attrs={'class': 'form-control select2'}),
+            'disco_duro': forms.Select(attrs={'class': 'form-control select2'}),
+            'cantidad_puertos': forms.TextInput({'class': 'form-control'}),
+            'puerto': forms.Select(attrs={'class': 'form-control select2'}),
+            'velocidad': forms.TextInput({'class': 'form-control'}),
+            'velocidad_medida': forms.Select(attrs={'class': 'form-control select2'}),
+        }
+
 
 class TabletForm(forms.ModelForm):
     """Formulario para la creación de :class:`Tablet`.
@@ -287,7 +318,7 @@ class AsignacionTecnicoForm(forms.ModelForm):
     """Formulario para manipulación de :class:`AsignacionTecnico`
     """
     tipos = forms.ModelMultipleChoiceField(
-        queryset=inv_m.DispositivoTipo.objects.filter(usa_triage=True),
+        queryset=inv_m.DispositivoTipo.objects.all(),
         widget=forms.CheckboxSelectMultiple()
     )
 

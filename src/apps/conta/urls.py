@@ -1,7 +1,6 @@
 from django.conf.urls import url, include
 from apps.conta import views as conta_v
 
-app_name = 'conta'
 urlpatterns = [
  # Creacion de periodos fiscales
  url(
