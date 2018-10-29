@@ -1,0 +1,64 @@
+[
+{
+   "model": "inventario.dispositivoetapa",
+   "pk": 1,
+   "fields": {
+      "proceso": "Almacenaje en bodega",
+      "estados_disponibles": [
+         1,
+         2
+      ]
+   }
+},
+{
+   "model": "inventario.dispositivoetapa",
+   "pk": 2,
+   "fields": {
+      "proceso": "En tr\u00e1nsito",
+      "estados_disponibles": [
+         1,
+         2
+      ]
+   }
+},
+{
+   "model": "inventario.dispositivoetapa",
+   "pk": 3,
+   "fields": {
+      "proceso": "Control de calidad",
+      "estados_disponibles": [
+         2
+      ]
+   }
+},
+{
+   "model": "inventario.dispositivoetapa",
+   "pk": 4,
+   "fields": {
+      "proceso": "Desechado",
+      "estados_disponibles": [
+         3
+      ]
+   }
+},
+{
+   "model": "inventario.dispositivoetapa",
+   "pk": 5,
+   "fields": {
+      "proceso": "Listo para entrega",
+      "estados_disponibles": [
+         2
+      ]
+   }
+},
+{
+   "model": "inventario.dispositivoetapa",
+   "pk": 6,
+   "fields": {
+      "proceso": "Entregado",
+      "estados_disponibles": [
+         4
+      ]
+   }
+}
+]

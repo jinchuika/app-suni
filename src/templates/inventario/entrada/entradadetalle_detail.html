@@ -1,8 +1,26 @@
 {% extends "base/base.html" %}
 {% load staticfiles %} {% block page_title %}
-<title>Donante </title>
+<title>Detalles de Entrada </title>
 {% endblock page_title %}
 {% block content %}
+
+{% if form.errors %}
+    <div class="alert alert-error">
+      <h4>Advertencia!</h4>
+      <ul>
+      	{% for field in form %}
+      		{% if field.errors %}
+      			{% for error in field.errors %}
+      				<li><p class="error">{{ error|escape }}</p></li>
+      			{% endfor %}
+      		{% endif %}
+      	{% endfor %}
+      </ul>
+      {% if form.non_field_errors %}
+        {{ form.non_field_errors }}
+      {% endif %}
+    </div>
+  {% endif %}
 <section class="content">
 	<div class="container-fluid">
 		<div class="row">
@@ -87,7 +105,12 @@
 	</div>
 </section>
 {% endblock content %} {% block extra_js %}
-<script src="{% static "js/pdfmake.min.js" %}"></script>
-<script src="{% static "js/vfs_fonts.js" %}"></script>
-<script src="{% static "js/extrajs/tpe.js" %}"></script>
+
+<script src="{% static "js/extrajs/inventario.js" %}"></script>
+
+<script>
+
+    let pagina = new EntradaDetalleDetail();
+</script>
+
 {% endblock extra_js %}

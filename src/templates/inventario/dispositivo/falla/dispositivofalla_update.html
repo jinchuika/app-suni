@@ -1,0 +1,49 @@
+{% extends 'base/base.html' %}
+
+
+{% block page_title %}
+    <title>Falla {{ object }}</title>
+{% endblock %}
+
+{% block content %}
+    <section class="content">
+        <div class="row">
+            <div class="col-md-8">
+                <div class="box">
+                    <div class="box-header">
+                        <h3 class="box-title">Falla {{ object }}</h3>
+                    </div>
+                    <div class="box-body">
+                        <form action="{{ action }}" method="post">
+                            {% csrf_token %}
+                            <table class="table table-condensed">
+                                <tr>
+                                    <th>Falla del dispositivo</th>
+                                    <td>
+                                        <a href="{{ object.dispositivo.get_absolute_url }}">
+                                            {{ object.dispositivo }}
+                                        </a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Creada por</th>
+                                    <td>{{ object.reportada_por.get_full_name }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Fecha de inicio</th>
+                                    <td>{{ object.fecha_inicio|date:"Y-m-d" }}</td>
+                                </tr>
+                                {{ form.as_table }}
+                                <tr>
+                                    <td colspan="2">
+                                        <input type="submit" value="Guardar" class="btn btn-success pull-right">
+                                    </td>
+                                </tr>
+                            </table>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}

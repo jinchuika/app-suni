@@ -23,7 +23,7 @@
           {%else%}
           <h3 class="box-title">
               <b>
-                Entradas Existentes
+                Entradas Pendientes
               </b>
             </h3>
           {%endif%}
@@ -75,7 +75,7 @@
               {%for personas in listado %}
               <tr>
                 <td>
-                  {{personas}}
+                  <a href="{{personas.get_absolute_url}}">{{personas}}</a>
                 </td>
                 <td>
                   {{personas.fecha}}
@@ -117,6 +117,7 @@
             </table>
           </div>
         </div>
+
         <!--Fin de Entrada-->
           {%if  form.instance.id%}
           <div class="box">
@@ -169,8 +170,16 @@
 {% endblock content %}
 {% block extra_js %}
 <script src="{% static "js/extrajs/inventario.js" %}"></script>
+{%if form.instance.id%}
 <script>
-  AlertaEnCreacion.init();
   EntradaDetalleList.init();
+</script>
+{%else%}
+<script>
+ AlertaEnCreacion.init();
+</script>
+{%endif%}
+<script>
+  let pagina = new EntradaCreate();
 </script>
 {% endblock extra_js %}

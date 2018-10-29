@@ -35,6 +35,7 @@ class VisitaSerializer(DynamicFieldsModelSerializer):
     municipio = serializers.StringRelatedField(source='escuela.municipio.nombre')
     departamento = serializers.StringRelatedField(source='escuela.municipio.departamento')
     poblacion = serializers.SerializerMethodField()
+    estudiantes = serializers.SerializerMethodField()
 
     class Meta:
         model = kalite_m.Visita
@@ -44,6 +45,10 @@ class VisitaSerializer(DynamicFieldsModelSerializer):
     def get_poblacion(self, obj):
         poblacion = obj.escuela.poblaciones.last()
         return poblacion.total_maestro if poblacion else 0
+
+    def get_estudiantes(self, obj):
+        estudiantes = obj.escuela.poblaciones.last()
+        return estudiantes.total_alumno if estudiantes else 0
 
 
 class VisitaCalendarSerializer(DynamicFieldsModelSerializer):

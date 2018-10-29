@@ -1,0 +1,900 @@
+[33mcommit d728b9023c8fa21492f5b8a0359823232f411085[m[33m ([m[1;36mHEAD -> [m[1;32mdev[m[33m, [m[1;31morigin/dev[m[33m)[m
+Merge: bf4689a 84c84b9
+Author: Arnoldo Ruano <arnoldo.ruano6@gmail.com>
+Date:   Fri Oct 12 15:12:05 2018 -0600
+
+    Merge remote-tracking branch 'upstream/dev' into dev
+    
+    Actualización del FORK
+
+[33mcommit bf4689a1970c9e89f4b8391c2ee7ad22cb8d38ff[m
+Author: Arnoldo Ruano <arnoldo.ruano6@gmail.com>
+Date:   Fri Oct 12 14:49:38 2018 -0600
+
+    Devoluciones
+
+ src/apps/inventario/forms/dispositivo.py                             | 28 [32m+++++++++++++++++++++++++++[m[31m-[m
+ src/apps/inventario/menus.py                                         | 11 [32m++++++++[m[31m---[m
+ src/apps/inventario/migrations/0024_auto_20181011_1420.py            | 25 [32m+++++++++++++++++++++++++[m
+ src/apps/inventario/models.py                                        |  6 [32m+++++[m[31m-[m
+ src/apps/inventario/urls/dispositivo.py                              |  6 [32m++++++[m
+ src/apps/inventario/views/dispositivo.py                             | 37 [32m+++++++++++++++++++++++++++++++++[m[31m----[m
+ src/apps/main/menus.py                                               |  2 [32m+[m[31m-[m
+ src/templates/inventario/dispositivo/solicitudmovimiento_detail.html | 15 [32m+++++++++++++++[m
+ src/templates/inventario/dispositivo/solicitudmovimiento_list.html   | 24 [32m+++++++++++++++++++[m[31m-----[m
+ 9 files changed, 139 insertions(+), 15 deletions(-)
+
+[33mcommit 84c84b929d4b92d2c4347632bb26b40e7e3d019b[m[33m ([m[1;31mupstream/dev[m[33m)[m
+Merge: 945b92c b046c44
+Author: Arnoldo Ruano <arnoldo.ruano6@gmail.com>
+Date:   Fri Oct 12 13:59:56 2018 -0600
+
+    Merge pull request #144 from Epatzan/dev
+    
+    correcion a la hora de crear paquetes y  seleccion en entrada especial
+
+[33mcommit b046c44a4b8817705b39fa6724668ebc39b94c01[m
+Author: Edgar Patzan <epatzan@github.com>
+Date:   Fri Oct 12 13:55:18 2018 -0600
+
+    Resumen,Editar,Validar,Bloquear, Salidas y Asignacion,Rechazo de paquetes
+
+ src/apps/inventario/api_views/salida.py                       | 106 [32m+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m[31m-----------------[m
+ src/apps/inventario/forms/salida.py                           |   6 [32m+++[m[31m---[m
+ src/apps/inventario/migrations/0030_revisionsalida_tecnico.py |  23 [32m+++++++++++++++++++++++[m
+ src/apps/inventario/models.py                                 |  11 [32m+++++++++[m[31m--[m
+ src/apps/inventario/serializers/salida.py                     |   1 [32m+[m
+ src/apps/inventario/views/salida.py                           |   5 [32m+++++[m
+ src/static/js/extrajs/inventario.js                           |  53 [32m+++++++++++++++++++++++++++++++++++++++++++++++++++[m[31m--[m
+ src/templates/inventario/salida/paquetes_detail.html          |   6 [32m+++[m[31m---[m
+ src/templates/inventario/salida/revisionsalida_add.html       |  44 [32m+++++++++++++++++++++++++++++++++++++++++[m[31m---[m
+ src/templates/inventario/salida/revisionsalida_list.html      |   3 [32m++[m[31m-[m
+ src/templates/inventario/salida/salida_edit.html              |  60 [32m++++++++++++++++++++++++++++++++++++[m[31m------------------------[m
+ 11 files changed, 263 insertions(+), 55 deletions(-)
+
+[33mcommit c5db86fa7e8c98ae0d57bbab5425e9df39d37e7c[m
+Author: Edgar Patzan <epatzan@github.com>
+Date:   Wed Oct 10 15:51:46 2018 -0600
+
+    correcion a la hora de crear paquetes y  seleccion en entrada especial
+
+ src/apps/inventario/api_views/salida.py                    | 38 [32m+++++++++++++++++++++[m[31m-----------------[m
+ src/apps/inventario/migrations/0029_salidatipo_especial.py | 20 [32m++++++++++++++++++++[m
+ src/apps/inventario/models.py                              |  4 [32m++[m[31m--[m
+ src/apps/inventario/views/salida.py                        | 32 [32m++++++++++++++++++++[m[31m------------[m
+ src/static/js/extrajs/inventario.js                        |  6 [32m++++[m[31m--[m
+ 5 files changed, 67 insertions(+), 33 deletions(-)
+
+[33mcommit 945b92c930b9fad0c483915a2f85b5f6189e803b[m
+Merge: 14decf4 fd2495f
+Author: Arnoldo Ruano <arnoldo.ruano6@gmail.com>
+Date:   Wed Oct 10 14:16:29 2018 -0600
+
+    Merge pull request #143 from Epatzan/dev
+    
+    Módulo de Salidas (Re estructuración)
+
+[33mcommit fd2495f5ed4283eec8d816f5dcec3bd97bd6d4cf[m
+Author: Edgar Patzan <epatzan@github.com>
+Date:   Wed Oct 10 13:57:19 2018 -0600
+
+    Mejoras al modulo de Salida, Validaciones y resumen de salida
+
+ src/apps/inventario/api_urls/entrada.py                   |  2 [32m+[m[31m-[m
+ src/apps/inventario/api_views/dispositivo.py              |  7 [32m+++++++[m
+ src/apps/inventario/api_views/entrada.py                  |  2 [32m+[m[31m-[m
+ src/apps/inventario/api_views/salida.py                   | 31 [32m++++++++++++++++++++++++++++++[m[31m-[m
+ src/apps/inventario/forms/salida.py                       | 15 [32m+++++++++++[m[31m----[m
+ src/apps/inventario/migrations/0026_auto_20181008_1122.py | 24 [32m++++++++++++++++++++++++[m
+ src/apps/inventario/migrations/0027_auto_20181008_1535.py | 20 [32m++++++++++++++++++++[m
+ src/apps/inventario/migrations/0028_auto_20181009_0838.py | 24 [32m++++++++++++++++++++++++[m
+ src/apps/inventario/models.py                             | 32 [32m+++++++++++++++++++++++[m[31m---------[m
+ src/apps/inventario/serializers/dispositivo.py            |  6 [32m++[m[31m----[m
+ src/apps/inventario/views/salida.py                       | 43 [32m++++++++++++++++++++++++++++++++++[m[31m---------[m
+ src/static/js/extrajs/inventario.js                       | 97 [32m++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m[31m-[m
+ src/templates/inventario/salida/paquetes_add.html         | 10 [32m+++++++++[m[31m-[m
+ src/templates/inventario/salida/salida_edit.html          |  7 [32m+++++[m[31m--[m
+ 14 files changed, 287 insertions(+), 33 deletions(-)
+
+[33mcommit 14decf40631f06ef79d5d52ca49c07f491f9cecf[m
+Merge: 2ce133b c7911e5
+Author: Arnoldo Ruano <arnoldo.ruano6@gmail.com>
+Date:   Wed Oct 10 11:55:34 2018 -0600
+
+    Merge pull request #142 from aruano/dev
+    
+    Mejoras de Entradas
+
+[33mcommit c7911e57baf2c33c3f6bfc27e0ace0d99d32e5b2[m
+Author: Arnoldo Ruano <arnoldo.ruano6@gmail.com>
+Date:   Wed Oct 10 11:50:11 2018 -0600
+
+    Mejoras de Entradas
+
+ src/apps/inventario/api_views/entrada.py                    |  37 [32m++++++++++++++++++++[m[31m-------[m
+ src/apps/inventario/forms/entrada.py                        |  60 [32m++++++++++++++++++++++++++++++++++[m[31m----------[m
+ src/apps/inventario/migrations/0023_auto_20181009_1531.py   |  37 [32m+++++++++++++++++++++++++++[m
+ src/apps/inventario/models.py                               |  20 [32m+++++++++++++++[m
+ src/apps/inventario/urls/entrada.py                         |  12 [32m++++++[m[31m---[m
+ src/apps/inventario/views/entrada.py                        |  22 [32m+++++++++++++[m[31m---[m
+ src/static/js/extrajs/inventario.js                         |  33 [32m+++++++++++++++++++++[m[31m---[m
+ src/templates/inventario/entrada/constancia_entrada.html    | 281 [32m+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m
+ src/templates/inventario/entrada/entrada_add.html           |   7 [32m++++[m[31m--[m
+ src/templates/inventario/entrada/entrada_detail.html        |   6 [32m+++[m[31m--[m
+ src/templates/inventario/entrada/entrada_edit.html          |   5 [32m+++[m[31m-[m
+ src/templates/inventario/entrada/entradadetalle_detail.html |  18 [32m+++++++++++++[m
+ src/templates/inventario/entrada/informe_sucio.html         |  42 [32m++++++++++[m[31m---------------------[m
+ 13 files changed, 515 insertions(+), 65 deletions(-)
+
+[33mcommit 2577b286a219009993733e9f966df108aa34310e[m
+Author: Edgar Patzan <epatzan@github.com>
+Date:   Sun Oct 7 22:13:19 2018 -0600
+
+    Mejoras al modulo de salida , creacion de lista de dispositivos
+
+ src/apps/inventario/serializers/dispositivo.py           |  7 [32m++++++[m[31m-[m
+ src/apps/inventario/urls/salida.py                       |  7 [32m+++++++[m
+ src/apps/inventario/views/salida.py                      | 15 [32m++++++++++++++[m[31m-[m
+ src/static/js/extrajs/inventario.js                      |  4 [32m++[m[31m--[m
+ src/templates/inventario/salida/dispositivos_salida.html | 66 [32m++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m
+ src/templates/inventario/salida/paquetes_detail.html     | 24 [32m++++++++++++++++[m[31m--------[m
+ 6 files changed, 111 insertions(+), 12 deletions(-)
+
+[33mcommit e3e6286b5c5225401cda74bef6bdab28f2d1042a[m
+Merge: 2ce133b 0080436
+Author: Edgar Patzan <epatzan@github.com>
+Date:   Sun Oct 7 06:40:33 2018 -0600
+
+    Merge remote-tracking branch 'origin/dev' into dev
+
+[33mcommit 0080436407a68520ebbeb275a791b64bf58dfeb9[m
+Author: Edgar Patzan <epatzan@github.com>
+Date:   Fri Oct 5 14:25:23 2018 -0600
+
+    Restruccturacion del modulo de salidas
+
+ src/apps/inventario/forms/salida.py                       |  49 [32m+++++++++++++++++++++++++++++++++++++++++++++[m[31m----[m
+ src/apps/inventario/migrations/0023_auto_20181002_1005.py |  69 [32m+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m
+ src/apps/inventario/migrations/0024_paquete_cantidad.py   |  20 [32m++++++++++++++++++++[m
+ src/apps/inventario/migrations/0025_auto_20181005_0927.py |  25 [32m+++++++++++++++++++++++++[m
+ src/apps/inventario/models.py                             |  79 [32m+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m[31m------------[m
+ src/apps/inventario/serializers/dispositivo.py            |  12 [32m++++++++++++[m
+ src/apps/inventario/serializers/salida.py                 |   6 [32m++++++[m
+ src/apps/inventario/urls/salida.py                        |   6 [32m++++++[m
+ src/apps/inventario/views/salida.py                       |  52 [32m+++++++++++++++++++++++++++++++++++++++++++++++++[m[31m---[m
+ src/static/js/extrajs/inventario.js                       | 168 [32m++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m
+ src/templates/crm/oferta_list.html                        |   2 [32m+[m[31m-[m
+ src/templates/inventario/salida/paquetes_detail.html      |  35 [32m++++++++++++++++++++++++++[m[31m---------[m
+ src/templates/inventario/salida/salida_add.html           |  38 [32m+++++++++++++++++++[m[31m-------------------[m
+ src/templates/inventario/salida/salida_detail.html        | 117 [32m+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m
+ src/templates/inventario/salida/salida_edit.html          |  96 [32m+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m[31m-------------------------[m
+ 15 files changed, 701 insertions(+), 73 deletions(-)
+
+[33mcommit 2ce133bb4d0ffb4b85c51b630547e7bb07e8fe35[m
+Merge: 032123a 52566d5
+Author: Arnoldo Ruano <arnoldo.ruano6@gmail.com>
+Date:   Wed Sep 26 16:01:12 2018 -0600
+
+    Merge pull request #141 from Epatzan/dev
+    
+    Mejoras del módulo de Entradas, Solicitudes de movimiento y Dispositivos.
+
+[33mcommit 52566d5344778e039c767990a4d46c6e494edd6b[m
+Author: Edgar Patzan <epatzan@github.com>
+Date:   Wed Sep 26 14:27:02 2018 -0600
+
+    Mejoras de Salida, Mejoras de Movimiento de Dispositivos, Mejoras de Dispositivos
+
+ src/apps/inventario/api_views/dispositivo.py                         |  23 [32m++++++++++++++++++[m
+ src/apps/inventario/api_views/entrada.py                             |   5 [32m++++[m
+ src/apps/inventario/forms/dispositivo.py                             | 249 [32m++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m[31m----[m
+ src/apps/inventario/migrations/0022_auto_20180925_1438.py            |  28 [32m++++++++++++++++++++++[m
+ src/apps/inventario/models.py                                        |   2 [32m++[m
+ src/apps/inventario/urls/dispositivo.py                              |  55 [32m+++++++++++++++++++++++++++++++++++++++++++[m
+ src/apps/inventario/views/dispositivo.py                             | 115 [32m+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m[31m-[m
+ src/apps/inventario/views/entrada.py                                 |  13 [32m++++++[m[31m-----[m
+ src/static/js/extrajs/inventario.js                                  | 132 [32m++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m[31m---------[m
+ src/templates/inventario/dispositivo/base_detail.html                |  11 [32m++++++++[m[31m-[m
+ src/templates/inventario/dispositivo/cpu/cpu_detail.html             |  14 [32m+++++++[m[31m----[m
+ src/templates/inventario/dispositivo/cpu/cpu_edit.html               |  41 [32m++++++++++++++++++++++++++++++++[m
+ src/templates/inventario/dispositivo/dispositivo_tarima_list.html    |  75 [32m+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m
+ src/templates/inventario/dispositivo/hdd/hdd_detail.html             |  13 [32m+++++++[m[31m----[m
+ src/templates/inventario/dispositivo/hdd/hdd_edit.html               |  41 [32m++++++++++++++++++++++++++++++++[m
+ src/templates/inventario/dispositivo/laptop/laptop_detail.html       |  14 [32m+++++++[m[31m----[m
+ src/templates/inventario/dispositivo/laptop/laptop_edit.html         |  41 [32m++++++++++++++++++++++++++++++++[m
+ src/templates/inventario/dispositivo/monitor/monitor_detail.html     |  13 [32m+++++++[m[31m----[m
+ src/templates/inventario/dispositivo/monitor/monitor_edit.html       |  41 [32m++++++++++++++++++++++++++++++++[m
+ src/templates/inventario/dispositivo/mouse/mouse_detail.html         |  13 [32m+++++++[m[31m----[m
+ src/templates/inventario/dispositivo/mouse/mouse_edit.html           |  41 [32m++++++++++++++++++++++++++++++++[m
+ src/templates/inventario/dispositivo/red/red_detail.html             |  13 [32m+++++++[m[31m----[m
+ src/templates/inventario/dispositivo/red/red_edit.html               |  41 [32m++++++++++++++++++++++++++++++++[m
+ src/templates/inventario/dispositivo/solicitudmovimiento_detail.html |  24 [32m+++++++++++++[m[31m------[m
+ src/templates/inventario/dispositivo/solicitudmovimiento_update.html |   2 [32m+[m[31m-[m
+ src/templates/inventario/dispositivo/tablet/tablet_detail.html       |  15 [32m+++++++[m[31m-----[m
+ src/templates/inventario/dispositivo/tablet/tablet_edit.html         |  41 [32m++++++++++++++++++++++++++++++++[m
+ src/templates/inventario/dispositivo/teclado/teclado_detail.html     |  13 [32m+++++++[m[31m----[m
+ src/templates/inventario/entrada/imprimir_qr.html                    |   2 [32m+[m[31m-[m
+ 29 files changed, 1065 insertions(+), 66 deletions(-)
+
+[33mcommit 3a4246298c9550e9ac57e7e8da95f2dc59c6f365[m
+Author: Edgar Patzan <epatzan@github.com>
+Date:   Sun Sep 23 22:05:55 2018 -0600
+
+    Mejoras al movimiento de entrada
+
+ src/apps/inventario/api_views/entrada.py                             | 15 [32m++++++++[m[31m-------[m
+ src/apps/inventario/forms/dispositivo.py                             | 18 [32m+++++++++++[m[31m-------[m
+ src/apps/inventario/views/dispositivo.py                             |  6 [32m++++++[m
+ src/static/js/extrajs/inventario.js                                  | 12 [32m+++++++++++[m[31m-[m
+ src/templates/inventario/dispositivo/solicitudmovimiento_detail.html | 11 [32m+++++++++[m[31m--[m
+ src/templates/inventario/dispositivo/solicitudmovimiento_list.html   | 10 [32m+++++++++[m[31m-[m
+ 6 files changed, 54 insertions(+), 18 deletions(-)
+
+[33mcommit 58e468d0209a867e3c3b33bb8a4ec039bf138718[m
+Merge: d7263ff 1d55c9a
+Author: Edgar Patzan <epatzan@github.com>
+Date:   Sat Sep 22 05:10:56 2018 -0600
+
+    Merge branch 'dev' of https://github.com/Epatzan/app-suni into dev
+
+[33mcommit d7263ff70b64930d0204b3ae08ef05b04d279836[m
+Merge: 2c4e92e b7f9eaf
+Author: Edgar Patzan <epatzan@github.com>
+Date:   Sat Sep 22 05:00:22 2018 -0600
+
+    cambios generales
+
+[33mcommit 1d55c9a9a24ba7c4cd2a10487405af2f373375bb[m
+Author: Edgar Patzan <epatzan@github.com>
+Date:   Fri Sep 21 16:02:10 2018 -0600
+
+    Creacion de cartas y mejoras de entradas
+
+ src/apps/inventario/api_views/entrada.py                          |  60 [32m++++++++++++++++++++++++++++[m[31m---------[m
+ src/apps/inventario/forms/entrada.py                              |  25 [32m+++++++++++++[m[31m---[m
+ src/apps/inventario/migrations/0020_auto_20180919_1347.py         |  25 [32m++++++++++++++++[m
+ src/apps/inventario/migrations/0021_entrada_factura.py            |  20 [32m+++++++++++++[m
+ src/apps/inventario/models.py                                     |  10 [32m+++++++[m
+ src/apps/inventario/serializers/entrada.py                        |  25 [32m+++++++++++++++[m[31m-[m
+ src/apps/inventario/transacciones.py                              |   3 [32m+[m[31m-[m
+ src/apps/inventario/urls/entrada.py                               |  37 [32m++++++++++++++++++++++[m[31m-[m
+ src/apps/inventario/views/entrada.py                              | 127 [32m+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m[31m-[m
+ src/static/js/extrajs/inventario.js                               | 106 [32m++++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m[31m-------[m
+ src/templates/inventario/entrada/carta_agradecimiento.html        | 171 [32m+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m
+ src/templates/inventario/entrada/entrada_detail.html              |  14 [32m++++++++[m[31m-[m
+ src/templates/inventario/entrada/entrada_edit.html                |  26 [32m++++++++++++[m[31m----[m
+ src/templates/inventario/entrada/entradadetalle_dispositivos.html |  42 [32m++++++++++++++++++++++++++[m
+ src/templates/inventario/entrada/entradadetalle_repuesto.html     |  42 [32m++++++++++++++++++++++++++[m
+ src/templates/inventario/entrada/imprimir_qr.html                 |  14 [32m+++++++++[m
+ src/templates/inventario/entrada/informe_sucio.html               | 322 [32m+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m
+ 17 files changed, 1031 insertions(+), 38 deletions(-)
+
+[33mcommit 2c4e92ed789a5f9a943a31f51d2f59eb6a75d054[m
+Author: Edgar Patzan <epatzan@github.com>
+Date:   Sun Sep 16 22:43:25 2018 -0600
+
+    Cambios en los modelos para poder saber si se imprimieron y validacion de cuadrado
+
+ src/apps/inventario/api_views/entrada.py                  | 37 [32m+++++++++++++++++++++++++++++++++++++[m
+ src/apps/inventario/migrations/0019_auto_20180916_1853.py | 30 [32m++++++++++++++++++++++++++++++[m
+ src/apps/inventario/models.py                             |  3 [32m+++[m
+ src/apps/inventario/serializers/entrada.py                |  4 [32m+++[m[31m-[m
+ src/apps/inventario/views/dispositivo.py                  |  4 [32m++++[m
+ src/static/js/extrajs/inventario.js                       | 46 [32m+++++++++++++++++++++++++++++++++++++++++++[m[31m---[m
+ src/templates/inventario/entrada/entrada_edit.html        |  4 [32m++[m[31m--[m
+ 7 files changed, 122 insertions(+), 6 deletions(-)
+
+[33mcommit 55c85215362a6c93c9ec5db9ef0d320db34f3dd5[m
+Author: Edgar Patzan <epatzan@github.com>
+Date:   Thu Sep 13 16:15:41 2018 -0600
+
+    Cambios generales
+
+ src/apps/inventario/views/entrada.py | 2 [32m+[m[31m-[m
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+[33mcommit c6d13131a9e8dbc2af31c940183c86e1f1389f18[m
+Author: Edgar Patzan <epatzan@github.com>
+Date:   Thu Sep 13 16:01:21 2018 -0600
+
+    se agrego botones de impresion de Qr, se modifico el modelo para reportes de QR
+
+ src/apps/inventario/migrations/0018_auto_20180913_1256.py | 36 [32m++++++++++++++++++++++++++++++++++++[m
+ src/apps/inventario/models.py                             |  6 [32m+++++[m[31m-[m
+ src/apps/inventario/transacciones.py                      |  4 [32m++[m[31m--[m
+ src/apps/inventario/views/entrada.py                      |  5 [32m+++++[m
+ src/static/js/extrajs/inventario.js                       |  6 [32m+++[m[31m---[m
+ 5 files changed, 51 insertions(+), 6 deletions(-)
+
+[33mcommit 032123a36ff4a9d9be0f39f20270a24f96f3c687[m
+Merge: 43e6251 cf5a0a6
+Author: Arnoldo Ruano <arnoldo.ruano6@gmail.com>
+Date:   Thu Sep 13 09:18:07 2018 -0600
+
+    Merge pull request #140 from Epatzan/dev
+    
+    Mejoras en la seccion de entrada
+
+[33mcommit cf5a0a643680a4ee6ff5f9ecf07af91b0fa9d3b9[m
+Author: Edgar Patzan <epatzan@github.com>
+Date:   Tue Sep 11 15:52:03 2018 -0600
+
+    Mejoras en la seccion de Entradas
+
+ src/apps/inventario/api_views/entrada.py                    |   6 [32m++++++[m
+ src/apps/inventario/forms/entrada.py                        |  32 [32m++++++++++++++++++[m[31m-------------[m
+ src/apps/inventario/migrations/0015_auto_20180907_1114.py   |  25 [32m++++++++++++++++++++++++[m
+ src/apps/inventario/migrations/0016_auto_20180907_1115.py   |  21 [32m+++++++++++++++++++++[m
+ src/apps/inventario/migrations/0017_auto_20180910_0922.py   |  25 [32m++++++++++++++++++++++++[m
+ src/apps/inventario/models.py                               |   5 [32m++++[m[31m-[m
+ src/apps/inventario/serializers/entrada.py                  |   7 [32m++++++[m[31m-[m
+ src/apps/inventario/urls/repuesto.py                        |   6 [32m++++++[m
+ src/apps/inventario/views/entrada.py                        |  24 [32m+++++++++++++++++++++++[m
+ src/apps/inventario/views/repuesto.py                       |   7 [32m+++++++[m
+ src/static/js/extrajs/inventario.js                         | 212 [32m+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m[31m------[m
+ src/templates/inventario/entrada/entrada_detail.html        |  54 [32m+++++++++++++++++++++++++++++++++++++++++++++++++[m[31m---[m
+ src/templates/inventario/entrada/entrada_edit.html          |  29 [32m++++++++++++++++++[m[31m----------[m
+ src/templates/inventario/entrada/entradadetalle_detail.html |  13 [32m+++++++++[m[31m----[m
+ src/templates/inventario/repuesto/repuesto_print.html       |   8 [32m++++++++[m
+ 15 files changed, 436 insertions(+), 38 deletions(-)
+
+[33mcommit f076129f435a1ce1bdf7a8043c91d3cd1137af59[m
+Author: Edgar Patzan <epatzan@github.com>
+Date:   Thu Sep 6 11:06:19 2018 -0600
+
+    Mostar QR en template de dispositivos
+
+ src/apps/conta/migrations/0002_auto_20180903_1133.py             | 20 [32m++++++++++++++++++++[m
+ src/apps/conta/models.py                                         |  6 [32m+++[m[31m---[m
+ src/apps/inventario/api_views/salida.py                          |  5 [32m+++[m[31m--[m
+ src/apps/inventario/migrations/0014_auto_20180903_1133.py        | 26 [32m++++++++++++++++++++++++++[m
+ src/apps/inventario/urls/dispositivo.py                          |  6 [32m++++++[m
+ src/apps/inventario/views/dispositivo.py                         | 14 [32m+++++++++++++[m[31m-[m
+ src/static/js/extrajs/inventario.js                              |  6 [32m+++++[m[31m-[m
+ src/templates/inventario/dispositivo/base_detail.html            | 11 [32m++++++++[m[31m---[m
+ src/templates/inventario/dispositivo/cpu/cpu_detail.html         |  4 [32m++++[m
+ src/templates/inventario/dispositivo/dispositivo_print.html      | 12 [32m++++++++++++[m
+ src/templates/inventario/dispositivo/hdd/hdd_detail.html         |  4 [32m++++[m
+ src/templates/inventario/dispositivo/laptop/laptop_detail.html   |  4 [32m++++[m
+ src/templates/inventario/dispositivo/monitor/monitor_detail.html |  4 [32m++++[m
+ src/templates/inventario/dispositivo/mouse/mouse_detail.html     |  4 [32m++++[m
+ src/templates/inventario/dispositivo/red/red_detail.html         |  4 [32m++++[m
+ src/templates/inventario/dispositivo/tablet/tablet_detail.html   |  4 [32m++++[m
+ src/templates/inventario/dispositivo/teclado/teclado_detail.html |  4 [32m++++[m
+ src/templates/inventario/entrada/entrada_add.html                |  8 [32m+++++++[m[31m-[m
+ src/templates/inventario/repuesto/repuesto_detail.html           | 33 [32m+++++++++++++++++++++[m[31m------------[m
+ 19 files changed, 156 insertions(+), 23 deletions(-)
+
+[33mcommit 43e6251aa3c0f144a443254ec80a6ddfaae35dbb[m
+Merge: 1420b4f db3d898
+Author: Arnoldo Ruano <arnoldo.ruano6@gmail.com>
+Date:   Thu Sep 6 07:34:34 2018 -0600
+
+    Merge pull request #139 from Epatzan/dev
+    
+    Se agrego url de redireccionamiento
+
+[33mcommit db3d89875c5b1a72a3a40945b761929205c6aed7[m
+Author: Edgar Patzan <epatzan@github.com>
+Date:   Fri Aug 31 09:34:08 2018 -0600
+
+    Se agrego url de redireccionamiento al momento de actulizar periodo fiscal
+
+ src/apps/conta/views.py | 3 [32m+++[m
+ 1 file changed, 3 insertions(+)
+
+[33mcommit 1420b4ff3d860f14bd13f037f8e0a42794860c95[m
+Merge: 93be8e9 bb709ee
+Author: Arnoldo Ruano <arnoldo.ruano6@gmail.com>
+Date:   Fri Aug 31 09:30:16 2018 -0600
+
+    Merge pull request #138 from Epatzan/dev
+    
+    Se agrego el modulo de contabilidad, y refactorizacion de codigo
+
+[33mcommit bb709ee1123c241c4e9325aff839502821590c97[m
+Author: Edgar Patzan <epatzan@github.com>
+Date:   Fri Aug 31 09:22:35 2018 -0600
+
+    Correccion de errores en url y template
+
+ src/apps/conta/urls.py                               | 2 [32m+[m[31m-[m
+ src/templates/conta/periodo_detail.html              | 2 [32m+[m[31m-[m
+ src/templates/inventario/repuesto/repuesto_list.html | 3 [31m---[m
+ 3 files changed, 2 insertions(+), 5 deletions(-)
+
+[33mcommit 202b2e185827679b4616150546f1f806ab010e86[m
+Author: Edgar Patzan <epatzan@github.com>
+Date:   Thu Aug 30 14:26:29 2018 -0600
+
+    Se agrego el modulo de contabilidad, y refactorizacion de codigo
+
+ src/apps/conta/api_urls.py                   |  16 [32m++++++++++++++++[m
+ src/apps/conta/api_views.py                  | 108 [32m++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m
+ src/apps/conta/forms.py                      |  66 [32m++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m
+ src/apps/conta/serializers.py                |  23 [32m+++++++++++++++++++++++[m
+ src/apps/conta/urls.py                       |  44 [32m++++++++++++++++++++++++++++++++++++++++++++[m
+ src/apps/conta/views.py                      |  69 [32m++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m[31m-[m
+ src/apps/inventario/api_views/repuesto.py    |   2 [32m+[m[31m-[m
+ src/apps/inventario/api_views/salida.py      |   9 [32m+[m[31m--------[m
+ src/apps/inventario/forms/salida.py          |   2 [32m++[m
+ src/src/urls.py                              |   5 [32m+++++[m
+ src/static/js/extrajs/conta.js               |  85 [32m+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m
+ src/templates/conta/periodo_add.html         |  43 [32m+++++++++++++++++++++++++++++++++++++++++++[m
+ src/templates/conta/periodo_detail.html      |  58 [32m++++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m
+ src/templates/conta/periodo_edit.html        |  38 [32m++++++++++++++++++++++++++++++++++++++[m
+ src/templates/conta/periodo_list.html        |  49 [32m+++++++++++++++++++++++++++++++++++++++++++++++++[m
+ src/templates/conta/precioestandar_add.html  |  37 [32m+++++++++++++++++++++++++++++++++++++[m
+ src/templates/conta/precioestandar_list.html |  68 [32m++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m
+ src/templates/crm/donante_add.html           |   2 [32m+[m[31m-[m
+ 18 files changed, 713 insertions(+), 11 deletions(-)
+
+[33mcommit 93be8e94781c5af514ecd52d865c2ea9b6cf6f13[m
+Merge: bc33604 330340a
+Author: Arnoldo Ruano <arnoldo.ruano6@gmail.com>
+Date:   Fri Aug 24 15:28:50 2018 -0600
+
+    Merge pull request #137 from Epatzan/dev
+    
+    Inventario asignacion de paquetes, control de calidad
+    Asignaciòn de dispositivos a Paquetes
+    Correccion de errores
+    Cambios de Estado a los Dispositovos
+    Revisiòn de Salidas
+    Repuestos
+
+[33mcommit 330340ad458f09b34c2bfa55f3ba98e45d998a06[m
+Author: Edgar Patzan <epatzan@github.com>
+Date:   Fri Aug 24 12:19:26 2018 -0600
+
+    Se aregrego la seccion de repuestos , refactorizacion de codigo y mass
+
+ src/apps/inventario/api_urls/__init__.py                      |   4 [32m+++[m[31m-[m
+ src/apps/inventario/api_urls/repuesto.py                      |  12 [32m++++++++++[m
+ src/apps/inventario/api_urls/salida.py                        |   1 [32m+[m
+ src/apps/inventario/api_views/__init__.py                     |   1 [32m+[m
+ src/apps/inventario/api_views/repuesto.py                     |  68 [32m+++++++++++++++++++++++++++++++++++++++++++++++++++++++[m
+ src/apps/inventario/api_views/salida.py                       |  34 [32m+++++++++++++++++++++[m[31m-------[m
+ src/apps/inventario/forms/__init__.py                         |   1 [32m+[m
+ src/apps/inventario/forms/dispositivo.py                      |  35 [32m+++++++++++++++++++++++++++[m[31m--[m
+ src/apps/inventario/forms/repuesto.py                         |  23 [32m+++++++++++++++++++[m
+ src/apps/inventario/menus.py                                  | 183 [32m++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m
+ src/apps/inventario/models.py                                 |   3 [32m++[m[31m-[m
+ src/apps/inventario/serializers/__init__.py                   |   1 [32m+[m
+ src/apps/inventario/serializers/bodega.py                     |   4 [32m+++[m[31m-[m
+ src/apps/inventario/serializers/dispositivo.py                |   2 [32m++[m
+ src/apps/inventario/serializers/entrada.py                    |  11 [32m++++++++[m[31m-[m
+ src/apps/inventario/serializers/repuesto.py                   |  14 [32m++++++++++++[m
+ src/apps/inventario/urls/__init__.py                          |   3 [32m++[m[31m-[m
+ src/apps/inventario/urls/dispositivo.py                       |  12 [32m++++++++++[m
+ src/apps/inventario/urls/repuesto.py                          |  23 [32m+++++++++++++++++++[m
+ src/apps/inventario/urls/salida.py                            |   8 [32m++++++[m[31m-[m
+ src/apps/inventario/views/__init__.py                         |   1 [32m+[m
+ src/apps/inventario/views/dispositivo.py                      |  24 [32m+++++++++++++++++++[m[31m-[m
+ src/apps/inventario/views/entrada.py                          |   1 [32m+[m
+ src/apps/inventario/views/repuesto.py                         |  46 [32m++++++++++++++++++++++++++++++++++++++[m
+ src/apps/inventario/views/salida.py                           |  25 [32m++++++++++++++++++[m[31m---[m
+ src/apps/inventario/views/software.py                         |   4 [32m++++[m
+ src/static/js/extrajs/inventario.js                           | 140 [32m+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m[31m------------------[m
+ src/templates/inventario/dispositivo/base_detail.html         |   2 [32m++[m
+ src/templates/inventario/dispositivo/dispositivos_list.html   |  72 [32m+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m
+ src/templates/inventario/dispositivo/dispositivotipo_add.html |  77 [32m+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m
+ src/templates/inventario/entrada/entrada_edit.html            | 248 [32m++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m[31m---------------------------------------------------------------------------------------------------[m
+ src/templates/inventario/entrada/entrada_list.html            |   3 [32m++[m[31m-[m
+ src/templates/inventario/repuesto/repuesto_detail.html        | 168 [32m++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m
+ src/templates/inventario/repuesto/repuesto_edit.html          | 105 [32m+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m
+ src/templates/inventario/repuesto/repuesto_list.html          |  67 [32m+++++++++++++++++++++++++++++++++++++++++++++++++++++++[m
+ src/templates/inventario/salida/controlcalidad_list.html      |  46 [32m++++++++++++++++++++++++++++++++++++++[m
+ src/templates/inventario/salida/salida_add.html               |   4 [32m++[m[31m--[m
+ src/templates/inventario/salida/salida_edit.html              |   6 [32m++[m[31m---[m
+ 38 files changed, 1312 insertions(+), 170 deletions(-)
+
+[33mcommit f1a3d8210a10ae5fa91a1f8235006955a80753fd[m
+Author: Edgar Patzan <epatzan@github.com>
+Date:   Tue Aug 14 07:27:54 2018 -0600
+
+    Revision de Salidas
+
+ src/apps/inventario/api_urls/salida.py                     |   5 [32m++++[m
+ src/apps/inventario/api_views/dispositivo.py               |   2 [32m+[m[31m-[m
+ src/apps/inventario/api_views/salida.py                    | 105 [32m+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m[31m-------[m
+ src/apps/inventario/models.py                              |  11 [32m++++++++[m[31m-[m
+ src/apps/inventario/serializers/dispositivo.py             |   2 [32m++[m
+ src/apps/inventario/serializers/salida.py                  |  13 [32m++++++++++[m[31m-[m
+ src/apps/inventario/urls/salida.py                         |  20 [32m++++++++++++++++[m
+ src/apps/inventario/views/salida.py                        |  59 [32m++++++++++++++++++++++++++++++++++++++++++[m[31m-----[m
+ src/static/js/extrajs/inventario.js                        | 256 [32m++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m[31m----[m
+ src/templates/inventario/desecho/desechosalida_edit.html   |   0
+ src/templates/inventario/salida/paquetes_detail.html       | 129 [32m+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m
+ src/templates/inventario/salida/revisionsalida_list.html   |  50 [32m++++++++++++++++++++++++++++++++++++++++[m
+ src/templates/inventario/salida/revisionsalida_update.html |  61 [32m+++++++++++++++++++++++++++++++++++++++++++++[m[31m----[m
+ 13 files changed, 688 insertions(+), 25 deletions(-)
+
+[33mcommit 54212d61625245cdc6fdba9146e6079d574a2b87[m
+Author: Edgar Patzan <epatzan@github.com>
+Date:   Tue Jul 17 13:44:21 2018 -0600
+
+    cambio de estado a los dipositivos
+
+ src/apps/inventario/api_views/salida.py                  | 19 [32m++++++++++++++++++[m[31m-[m
+ src/apps/inventario/serializers/dispositivo.py           |  2 [32m++[m
+ src/static/js/extrajs/inventario.js                      | 59 [32m++++++++++++++++++++++++++++++++++++++++++++++++[m[31m-----------[m
+ src/templates/inventario/salida/dispositivo_paquete.html |  4 [32m+++[m[31m-[m
+ 4 files changed, 71 insertions(+), 13 deletions(-)
+
+[33mcommit 7577ba9c1c1e79292d53f79cbb8b5ccf405d10aa[m
+Author: Edgar Patzan <epatzan@github.com>
+Date:   Mon Jul 16 08:20:00 2018 -0600
+
+    Correccion de error
+
+ src/apps/inventario/api_urls/__init__.py                 |  9 [32m++++++++[m[31m-[m
+ src/apps/inventario/api_urls/dispositivo.py              |  7 [32m++++++[m[31m-[m
+ src/apps/inventario/api_urls/salida.py                   | 11 [32m+++++++++++[m
+ src/apps/inventario/api_views/__init__.py                |  1 [32m+[m
+ src/apps/inventario/api_views/dispositivo.py             | 37 [32m++++++++++++++++++++++++++++++++++++[m[31m-[m
+ src/apps/inventario/api_views/salida.py                  | 70 [32m++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m
+ src/apps/inventario/models.py                            | 14 [32m+++++++[m[31m-------[m
+ src/apps/inventario/serializers/__init__.py              |  1 [32m+[m
+ src/apps/inventario/serializers/bodega.py                |  2 [32m+[m[31m-[m
+ src/apps/inventario/serializers/dispositivo.py           | 33 [32m+++++++++++++++++++++++++++++++++[m
+ src/apps/inventario/serializers/salida.py                | 10 [32m++++++++++[m
+ src/apps/inventario/views/salida.py                      |  2 [32m+[m[31m-[m
+ src/static/js/extrajs/inventario.js                      |  3 [32m+[m[31m--[m
+ src/templates/crm/donante_add.html                       |  2 [32m+[m[31m-[m
+ src/templates/inventario/entrada/entrada_edit.html       |  2 [32m+[m[31m-[m
+ src/templates/inventario/salida/dispositivo_paquete.html | 41 [32m++++++++++++++++++++++++++++++++++++[m[31m-----[m
+ 16 files changed, 224 insertions(+), 21 deletions(-)
+
+[33mcommit 5fbc38f59c103e1acec82a5168fadab53b06b4be[m
+Author: Edgar Patzan <epatzan@github.com>
+Date:   Fri Jul 13 15:04:40 2018 -0600
+
+    Asigancion de dispositivos a Paquetes
+
+ src/static/js/extrajs/inventario.js | 114 [32m++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m[31m----[m
+ 1 file changed, 110 insertions(+), 4 deletions(-)
+
+[33mcommit bc33604c2a782568476d3daecdf117c920842874[m
+Author: Luis Carlos Contreras <jinchuika@gmail.com>
+Date:   Wed Jun 27 14:43:25 2018 -0600
+
+    Solicitudes de movimiento de dispositivos
+
+ src/apps/crm/models.py                                               |  13 [32m++++[m[31m-----[m
+ src/apps/inventario/api_views/dispositivo.py                         |  24 [32m+++++++++++++++[m[31m-[m
+ src/apps/inventario/forms/dispositivo.py                             |  21 [32m++++++++++++++[m
+ src/apps/inventario/forms/salida.py                                  |  28 [32m+++++++++++++++++[m[31m--[m
+ src/apps/inventario/migrations/0013_auto_20180625_1535.py            |  64 [32m+++++++++++++++++++++++++++++++++++++++++++[m
+ src/apps/inventario/models.py                                        |  58 [32m+++++++++++++++++++++++++++++++++++[m[31m----[m
+ src/apps/inventario/urls/dispositivo.py                              |  22 [32m+++++++++++++[m[31m--[m
+ src/apps/inventario/urls/salida.py                                   |   6 [32m++++[m
+ src/apps/inventario/views/dispositivo.py                             |  87 [32m++++++++++++++++++++++++++++++++++++++++++++++[m[31m------------[m
+ src/apps/inventario/views/salida.py                                  |  24 [32m++++++++++++++[m[31m--[m
+ src/static/js/extrajs/inventario.js                                  | 291 [32m+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m[31m-------------------------------------------------------------------------------------[m
+ src/static/js/i18n/es.js                                             |   3 [32m++[m
+ src/static/js/main.js                                                |   1 [32m+[m
+ src/templates/inventario/dispositivo/solicitudmovimiento_add.html    |  63 [32m++++++++++++++++++++[m[31m----------------------[m
+ src/templates/inventario/dispositivo/solicitudmovimiento_detail.html |  98 [32m+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m
+ src/templates/inventario/dispositivo/solicitudmovimiento_list.html   |  61 [32m+++++++++++++++++++++++++++++++++++++++++[m
+ src/templates/inventario/dispositivo/solicitudmovimiento_update.html |  78 [32m++++++++++++++++++++++++++++++++++++++++++++++++++++[m
+ src/templates/inventario/salida/dispositivo_paquete.html             |  33 [32m++++++++++++++++++++++[m
+ src/templates/inventario/salida/paquetes_add.html                    |  46 [32m++++++++++++[m[31m-------------------[m
+ src/templates/inventario/salida/salida_edit.html                     |   7 [32m++++[m[31m-[m
+ 20 files changed, 799 insertions(+), 229 deletions(-)
+
+[33mcommit b4416382da57be9302bf6d8646ee80c81a037c47[m
+Author: Luis Carlos Contreras <jinchuika@gmail.com>
+Date:   Fri Jun 22 09:26:39 2018 -0600
+
+    Cambio a la estructura del QR
+
+ src/apps/inventario/models.py | 26 [32m++++++++++++++++++++++[m[31m----[m
+ 1 file changed, 22 insertions(+), 4 deletions(-)
+
+[33mcommit 206077e40d391df42bbbfe61f28ffda02656a238[m
+Merge: 9261f0c fab8f23
+Author: Luis Carlos Contreras <jinchuika@gmail.com>
+Date:   Fri Jun 22 07:24:34 2018 -0600
+
+    Edición de fallas y detalles de dispositivos
+
+[33mcommit fab8f23ff6638b888920722ab6b4000cdebbfc27[m
+Merge: 9e8fc54 317ff69
+Author: Luis Carlos <jinchuika@gmail.com>
+Date:   Thu Jun 21 15:24:03 2018 -0600
+
+    Solicitudes de Movimiento
+    
+    - Creación de solicitudes de movimiento
+
+[33mcommit 317ff69f86d883ef7de01f57b603b7e961cc1efd[m
+Author: Edgar Patzan <epatzan@github.com>
+Date:   Thu Jun 21 14:58:09 2018 -0600
+
+    cambios en el formulario de movimientos
+
+ src/apps/inventario/forms/dispositivo.py | 8 [32m+++++[m[31m---[m
+ src/apps/inventario/urls/bodega.py       | 4 [32m+[m[31m---[m
+ src/apps/inventario/views/dispositivo.py | 4 [32m++++[m
+ 3 files changed, 10 insertions(+), 6 deletions(-)
+
+[33mcommit 9261f0c1d9dd0eb281bb4b4c59d10005758c0e99[m
+Author: Luis Carlos Contreras <jinchuika@gmail.com>
+Date:   Thu Jun 21 14:28:58 2018 -0600
+
+    Mejoras a la vista básica de dispositivos
+
+ src/apps/inventario/forms/dispositivo.py                         | 19 [32m+++++++++++++++++++[m
+ src/apps/inventario/migrations/0012_auto_20180620_1423.py        | 37 [32m+++++++++++++++++++++++++++++++++++++[m
+ src/apps/inventario/models.py                                    | 38 [32m+++++++++++++++++++++++++++++++++++[m[31m---[m
+ src/apps/inventario/urls/dispositivo.py                          | 57 [32m+++++++++++++++++++++++++++++++++++++++++++++++++++++++[m[31m--[m
+ src/apps/inventario/views/dispositivo.py                         | 77 [32m+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m[31m--------[m
+ src/apps/inventario/views/salida.py                              |  2 [32m+[m[31m-[m
+ src/templates/inventario/dispositivo/asignaciontecnico_form.html | 28 [32m++++++++++++++++++++++++++++[m
+ src/templates/inventario/dispositivo/asignaciontecnico_list.html | 41 [32m+++++++++++++++++++++++++++++++++++++++++[m
+ src/templates/inventario/dispositivo/base_detail.html            | 20 [32m++++++++++++++++++++[m
+ src/templates/inventario/dispositivo/cpu/cpu_detail.html         | 20 [32m++++++++++++++++++++[m
+ src/templates/inventario/dispositivo/hdd/hdd_detail.html         | 12 [32m++++++++++++[m
+ src/templates/inventario/dispositivo/laptop/laptop_detail.html   | 24 [32m++++++++++++++++++++++++[m
+ src/templates/inventario/dispositivo/monitor/monitor_detail.html | 78 [32m++++++++++++++++[m[31m--------------------------------------------------------------[m
+ src/templates/inventario/dispositivo/mouse/mouse_detail.html     | 12 [32m++++++++++++[m
+ src/templates/inventario/dispositivo/red/red_detail.html         | 16 [32m++++++++++++++++[m
+ src/templates/inventario/dispositivo/snp_falla_list.html         | 41 [32m++++++++++++++++++++++++[m[31m-----------------[m
+ src/templates/inventario/dispositivo/tablet/tablet_detail.html   | 26 [32m++++++++++++++++++++++++++[m
+ src/templates/inventario/dispositivo/teclado/teclado_detail.html | 64 [32m++++++++[m[31m--------------------------------------------------------[m
+ 18 files changed, 463 insertions(+), 149 deletions(-)
+
+[33mcommit 4b57eddb424aa0c54e3091f0a9a1c7f5cb551c73[m
+Author: Edgar Patzan <epatzan@github.com>
+Date:   Thu Jun 21 10:05:44 2018 -0600
+
+    creacion de solicitud de movimiento
+
+ src/apps/inventario/forms/dispositivo.py                          | 17 [32m+++++++++++++++++[m
+ src/apps/inventario/urls/dispositivo.py                           |  8 [32m+++++++[m[31m-[m
+ src/apps/inventario/views/dispositivo.py                          | 10 [32m++++++++++[m
+ src/templates/inventario/dispositivo/solicitudmovimiento_add.html | 42 [32m++++++++++++++++++++++++++++++++++++++++++[m
+ 4 files changed, 76 insertions(+), 1 deletion(-)
+
+[33mcommit 788ae8f2fabe48d162eefa25b5a02b21c6951b63[m
+Author: Edgar Patzan <epatzan@github.com>
+Date:   Thu Jun 21 07:11:10 2018 -0600
+
+    correccion de errores
+
+ src/apps/inventario/forms/salida.py | 8 [32m++++[m[31m----[m
+ src/apps/inventario/urls/salida.py  | 4 [32m++[m[31m--[m
+ 2 files changed, 6 insertions(+), 6 deletions(-)
+
+[33mcommit 9e8fc54ea5b262292faf9b77e79fd3433fc8b368[m
+Merge: 12ab935 23e9926
+Author: Luis Carlos <jinchuika@gmail.com>
+Date:   Tue Jun 19 10:35:02 2018 -0600
+
+    Sección de salida de inventario
+    
+    - Se implemento  la seccion de salidas de inventarios  con su primera sub-seccion de agregar
+    - Se crearon los puntos de acceso a dispositivos mediante el REST
+
+[33mcommit 23e99265b49af2fcd0cfdae19bf1e6888b21bd21[m
+Author: Edgar Patzan <epatzan@github.com>
+Date:   Tue Jun 19 09:57:20 2018 -0600
+
+    cambio en permisos en vista
+
+ .gitignore                                        | 4 [32m+++[m[31m-[m
+ src/apps/inventario/views/salida.py               | 9 [32m++++[m[31m-----[m
+ src/templates/inventario/salida/paquetes_add.html | 6 [32m++++[m[31m--[m
+ src/templates/inventario/salida/salida_edit.html  | 2 [32m++[m
+ 4 files changed, 13 insertions(+), 8 deletions(-)
+
+[33mcommit 9e008eb376043c56c6ca024ca4872337ea6569ce[m
+Merge: 23417e9 12ab935
+Author: Edgar Patzan <epatzan@github.com>
+Date:   Tue Jun 19 08:53:52 2018 -0600
+
+    Merge remote-tracking branch 'upstream/dev' into dev
+
+[33mcommit 23417e9aed8c2e333b3872c1f4c2a4102862d023[m
+Author: Edgar Patzan <epatzan@github.com>
+Date:   Tue Jun 19 08:50:37 2018 -0600
+
+    Creacion de Paquetes
+
+ src/apps/inventario/api_views/bodega.py                  |  4 [31m----[m
+ src/apps/inventario/api_views/desecho.py                 |  2 [32m+[m[31m-[m
+ src/apps/inventario/forms/salida.py                      | 23 [32m++++++++++++++++++++++[m[31m-[m
+ src/apps/inventario/serializers/bodega.py                |  3 [32m+[m[31m--[m
+ src/apps/inventario/urls/__init__.py                     |  4 [32m++[m[31m--[m
+ src/apps/inventario/urls/salida.py                       | 12 [32m++++++++++++[m
+ src/apps/inventario/views/salida.py                      | 45 [32m+++++++++++++++++++++++++++++++++++++++++[m[31m----[m
+ src/templates/inventario/desecho/desechosalida_form.html |  2 [32m+[m[31m-[m
+ src/templates/inventario/salida/paquetes_add.html        | 27 [32m+++++++++++++++++++++++++++[m
+ src/templates/inventario/salida/salida_edit.html         | 77 [32m+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m
+ 10 files changed, 184 insertions(+), 15 deletions(-)
+
+[33mcommit 12ab935f22ddf692cab0661c75cf56f544dfa110[m
+Author: Luis Carlos Contreras <jinchuika@gmail.com>
+Date:   Tue Jun 19 08:04:25 2018 -0600
+
+    Cambio de etapa
+
+ src/apps/inventario/fixtures/dispositivo_estado.json      |  30 [32m++++++++++++++++++++++++++++++[m
+ src/apps/inventario/fixtures/dispositivo_etapa.json       |  64 [32m++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m
+ src/apps/inventario/migrations/0010_auto_20180614_1514.py |  26 [32m++++++++++++++++++++++++++[m
+ src/apps/inventario/migrations/0011_auto_20180619_0721.py |  95 [32m+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m
+ src/apps/inventario/models.py                             | 159 [32m+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m[31m--------------[m
+ 5 files changed, 360 insertions(+), 14 deletions(-)
+
+[33mcommit 88558d89968de13ef8342eaa7ec79ab4351a8a3e[m
+Author: Edgar Patzan <epatzan@github.com>
+Date:   Fri Jun 15 14:20:45 2018 -0600
+
+    Se implemento la seccion de salidas de inventario y puntos de acceso a REST de Dispositivo para el app movil
+
+ src/apps/inventario/api_urls/bodega.py                   |  5 [32m++[m[31m---[m
+ src/apps/inventario/api_views/bodega.py                  |  4 [32m++++[m
+ src/apps/inventario/api_views/dispositivo.py             |  2 [32m+[m[31m-[m
+ src/apps/inventario/forms/__init__.py                    |  1 [32m+[m
+ src/apps/inventario/forms/salida.py                      | 25 [32m+++++++++++++++++++++++++[m
+ src/apps/inventario/serializers/bodega.py                | 11 [32m+++++++++[m[31m--[m
+ src/apps/inventario/urls/__init__.py                     |  3 [32m++[m[31m-[m
+ src/apps/inventario/urls/salida.py                       | 11 [32m+++++++++++[m
+ src/apps/inventario/views/__init__.py                    |  1 [32m+[m
+ src/apps/inventario/views/salida.py                      | 30 [32m++++++++++++++++++++++++++++++[m
+ src/templates/inventario/desecho/desechosalida_form.html |  8 [32m++++[m[31m----[m
+ src/templates/inventario/salida/salida_add.html          | 70 [32m++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m
+ 12 files changed, 160 insertions(+), 11 deletions(-)
+
+[33mcommit ac82eecc26d60baccd0f62eff9ad9f91b94e75fb[m
+Merge: 5aa6d08 59ff590
+Author: Edgar Patzan <epatzan@github.com>
+Date:   Fri Jun 15 10:42:32 2018 -0600
+
+    Merge remote-tracking branch 'upstream/dev' into dev
+
+[33mcommit 59ff59044b9258b672e21eba60346f15c2f87414[m
+Author: Luis Carlos Contreras <jinchuika@gmail.com>
+Date:   Thu Jun 14 10:08:27 2018 -0600
+
+    Modelos de salida de inventario y transacciones
+
+ src/apps/conta/admin.py                                   |   5 [32m++[m[31m--[m
+ src/apps/conta/migrations/0001_initial.py                 | 142 [32m+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m
+ src/apps/conta/models.py                                  |  19 [32m+++++++++[m[31m------[m
+ src/apps/inventario/api_views/entrada.py                  |  29 [32m+++++++++++++++++++[m[31m---[m
+ src/apps/inventario/migrations/0008_auto_20180611_1158.py | 125 [32m+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m
+ src/apps/inventario/migrations/0009_auto_20180614_1007.py |  61 [32m++++++++++++++++++++++++++++++++++++++++++++++[m
+ src/apps/inventario/models.py                             | 106 [32m+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m[31m--------------[m
+ src/apps/inventario/serializers/entrada.py                |   1 [31m-[m
+ src/apps/inventario/transacciones.py                      |  70 [32m++++++++++++++++++++++++++++++++++++++++++++++++++++[m
+ src/static/js/extrajs/inventario.js                       | 186 [32m+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m[31m-------------------------------------------------------[m
+ src/templates/inventario/entrada/entrada_edit.html        | 276 [32m+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m[31m------------------------------------------------------------------------------------------------------[m
+ 11 files changed, 777 insertions(+), 243 deletions(-)
+
+[33mcommit 5aa6d086ea041d528b8be1e11dc143eb10281626[m
+Author: Edgar Patzan <epatzan@github.com>
+Date:   Fri Jun 8 08:36:49 2018 -0600
+
+    cambios en el template
+
+ src/templates/inventario/desecho/desechodetalle_add.html | 2 [32m+[m[31m-[m
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+[33mcommit 7741747245d6413d4fcbff9336a5f2e6d791bb81[m
+Author: Edgar Patzan <epatzan@github.com>
+Date:   Thu Jun 7 15:43:10 2018 -0600
+
+    Creacion de puntos de acceso para el app movil , correcion de errores y documentacion de clases
+
+ src/apps/inventario/api_urls/__init__.py                  |  4 [32m+++[m[31m-[m
+ src/apps/inventario/api_urls/bodega.py                    | 19 [32m+++++++++++++++++++[m
+ src/apps/inventario/api_urls/dispositivo.py               | 12 [32m++++++++++++[m
+ src/apps/inventario/api_views/__init__.py                 |  1 [32m+[m
+ src/apps/inventario/api_views/bodega.py                   | 25 [32m+++++++++++++++++++++++++[m
+ src/apps/inventario/api_views/desecho.py                  |  2 [32m+[m[31m-[m
+ src/apps/inventario/api_views/dispositivo.py              | 18 [32m++++++++++++++++++[m
+ src/apps/inventario/api_views/entrada.py                  |  2 [32m+[m[31m-[m
+ src/apps/inventario/serializers/__init__.py               |  1 [32m+[m
+ src/apps/inventario/serializers/bodega.py                 | 49 [32m+++++++++++++++++++++++++++++++++++++++++++++++++[m
+ src/templates/inventario/desecho/desechoempresa_list.html |  4 [32m++[m[31m--[m
+ 11 files changed, 132 insertions(+), 5 deletions(-)
+
+[33mcommit d5056907bf12f7881aeccb9d0ec8451c10b792e9[m
+Author: Luis Carlos Contreras <jinchuika@gmail.com>
+Date:   Thu Jun 7 15:26:46 2018 -0600
+
+    Aplicación de conta, página 404
+
+ README.md                                |   2 [32m+[m[31m-[m
+ src/apps/conta/__init__.py               |   0
+ src/apps/conta/admin.py                  |   3 [32m+++[m
+ src/apps/conta/apps.py                   |   5 [32m+++++[m
+ src/apps/conta/migrations/__init__.py    |   0
+ src/apps/conta/models.py                 | 149 [32m+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m
+ src/apps/conta/tests.py                  |   3 [32m+++[m
+ src/apps/conta/views.py                  |   3 [32m+++[m
+ src/apps/escuela/views.py                |   9 [32m+++[m[31m------[m
+ src/apps/inventario/models.py            | 158 [32m+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m[31m-------------------------------------[m
+ src/apps/inventario/signals.py           |   8 [32m+++++[m[31m---[m
+ src/apps/inventario/views/dispositivo.py |   2 [32m+[m[31m-[m
+ src/apps/mye/api_views.py                |   4 [32m+++[m[31m-[m
+ src/apps/mye/forms.py                    |   4 [32m++++[m
+ src/src/settings.py                      |   3 [32m+[m[31m--[m
+ src/templates/404.html                   |  24 [32m++++++++++++++++++++++++[m
+ src/templates/db.sqlite3                 | Bin [31m221184[m -> [32m0[m bytes
+ 17 files changed, 326 insertions(+), 51 deletions(-)
+
+[33mcommit 3fe816a9453b3a868e66c0cc26a5d62957dffe46[m
+Author: Luis Carlos Contreras <jinchuika@gmail.com>
+Date:   Wed Jun 6 09:56:03 2018 -0600
+
+    App legacy para datos de capacitacion
+
+ src/apps/escuela/models.py                                |  9 [32m+++++++++[m
+ src/apps/inventario/migrations/0007_auto_20180605_1546.py | 25 [32m+++++++++++++++++++++++++[m
+ src/apps/legacy/__init__.py                               |  0
+ src/apps/legacy/admin.py                                  |  5 [32m+++++[m
+ src/apps/legacy/apps.py                                   |  5 [32m+++++[m
+ src/apps/legacy/dbrouters.py                              | 34 [32m++++++++++++++++++++++++++++++++++[m
+ src/apps/legacy/migrations/0001_initial.py                | 34 [32m++++++++++++++++++++++++++++++++++[m
+ src/apps/legacy/migrations/__init__.py                    |  0
+ src/apps/legacy/models.py                                 | 28 [32m++++++++++++++++++++++++++++[m
+ src/src/settings.py                                       | 15 [32m++++++++++++[m[31m---[m
+ src/templates/escuela/detail.html                         | 82 [32m++++++++++++++++++++[m[31m--------------------------------------------------------------[m
+ src/templates/escuela/detail_capacitacion.html            | 69 [32m+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m
+ 12 files changed, 241 insertions(+), 65 deletions(-)
+
+[33mcommit 005c614a5a66e5c3f5ff4474e8776d1782963edc[m
+Author: Luis Carlos Contreras <jinchuika@gmail.com>
+Date:   Tue Jun 5 14:14:32 2018 -0600
+
+    Cambios a la sección de entradas y desecho
+
+ src/apps/inventario/models.py                               |   4 [32m++[m[31m--[m
+ src/apps/inventario/serializers/desecho.py                  |   6 [32m++[m[31m----[m
+ src/apps/inventario/views/entrada.py                        |   2 [32m+[m[31m-[m
+ src/templates/inventario/entrada/entrada_add.html           |   2 [32m+[m[31m-[m
+ src/templates/inventario/entrada/entrada_edit.html          | 148 [32m++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m
+ src/templates/inventario/entrada/entradadetalle_add.html    |  35 [32m++++++++++++++[m[31m---------------------[m
+ src/templates/inventario/entrada/entradadetalle_detail.html |   6 [32m+++[m[31m---[m
+ 7 files changed, 171 insertions(+), 32 deletions(-)
+
+[33mcommit de8c7cf8e497e191a2143807e4ac87761cfc9c35[m
+Author: Luis Carlos Contreras <jinchuika@gmail.com>
+Date:   Fri Jun 1 15:18:29 2018 -0600
+
+    Prueba kalite
+
+ README.md                                 |  7 [32m+++++++[m
+ src/apps/kalite/api_urls.py               |  5 [32m+++++[m
+ src/apps/kalite/api_views.py              | 24 [32m+++++++++++++++++++++++[m[31m-[m
+ src/apps/kalite/forms.py                  | 12 [32m++++++++++++[m
+ src/apps/kalite/serializers.py            | 46 [32m++++++++++++++++++++++++++++++++++++++++++++++[m
+ src/apps/kalite/urls.py                   |  1 [32m+[m
+ src/apps/kalite/views.py                  |  9 [32m+++++++++[m
+ src/static/js/extrajs/kalite.js           | 59 [32m++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m[31m---[m
+ src/templates/kalite/escuela_informe.html | 76 [32m++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m
+ 9 files changed, 235 insertions(+), 4 deletions(-)
+
+[33mcommit c46a2fcb004e91b11cefa7213412a137bd91e871[m
+Merge: 19b1821 9a26e45
+Author: Luis Carlos <jinchuika@gmail.com>
+Date:   Thu May 31 10:32:12 2018 -0600
+
+    PR #132 from Epatzan/dev
+    
+    ## Creacion del submodulo de desechos
+    - Creación de empresas de desecho
+    - Detalle de empresas de desecho
+    - Listado de empresas de desecho
+    -  Creación de salidas de desecho
+    - Edición de salidas de desecho
+    - Detalle de monitor
+    
+    ***
+    
+    - [ ] Requiere `collectstatic`
+    - [x] Requiere `migración`
+    - [ ] Requiere `pip install`

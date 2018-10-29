@@ -1,0 +1,30 @@
+[
+{
+   "model": "inventario.dispositivoestado",
+   "pk": 1,
+   "fields": {
+      "estado": "Pendiente"
+   }
+},
+{
+   "model": "inventario.dispositivoestado",
+   "pk": 2,
+   "fields": {
+      "estado": "Bueno"
+   }
+},
+{
+   "model": "inventario.dispositivoestado",
+   "pk": 3,
+   "fields": {
+      "estado": "Desechado"
+   }
+},
+{
+   "model": "inventario.dispositivoestado",
+   "pk": 4,
+   "fields": {
+      "estado": "Entregado"
+   }
+}
+]

@@ -1,0 +1,75 @@
+{% extends "base/base.html" %}
+{% load staticfiles thumbnail %}
+{% block page_title %}
+    <title>{{ object }}</title>
+{% endblock page_title %}
+{% block content %}
+    <section class="content">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-5">
+                    <div class="box box-primary">
+                        <div class="box-header">
+                            <div class="row">
+                							<div class="col-md-9">
+                						       <h3 class="box-title">{{ object.triage }}</h3>
+                							</div>
+                              <div class="col-md-3">
+                                  {% csrf_token %}
+                                {%if not object.impreso%}
+                                  <a id="qr-botton" target='_blank' rel='noopener noreferrer' href="{%url 'reportedispositivo_qr' triage=object.triage %}" data-dispositivo ="{{object.triage}}" data-url="{%url 'inventario_api:api_dispositivo-impresion-dispositivo'%}" class="btn btn-block btn-success">Imprimir QR </a>
+                                {%endif%}
+                            </div>
+                						</div>
+                        </div>
+                        <div class="box-body">
+                            <table class="table table-condensed table-striped">
+                                <tr>
+                                    <th>Entrada</th>
+                                    <td>
+                                        <a href="{{ object.entrada.get_absolute_url }}" class="btn-block">
+                                            {{ object.entrada }}
+                                        </a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Marca</th>
+                                    <td>
+                                        {{ object.marca|default_if_none:"" }}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Modelo</th>
+                                    <td>
+                                        {{ object.modelo|default_if_none:"" }}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Serie</th>
+                                    <td>{{ object.serie|default_if_none:"" }}</td>
+                                </tr>
+                                {% block info_dispositivo %}
+
+                                {% endblock %}
+                            </table>
+                        </div>
+                    </div>
+
+                </div>
+                {%if perms.inventario.add_asignaciontecnico%}
+                <div class="col-md-6">
+                    {% block fallas_dispositivo %}
+                        {% include "inventario/dispositivo/snp_falla_list.html" with dispositivo=object %}
+                    {% endblock %}
+                </div>
+                {%endif%}
+            </div>
+        </div>
+    </section>
+{% endblock content %}
+{% block extra_js %}
+<script src="{% static "js/extrajs/inventario.js" %}"></script>
+<script>
+ let Revicion = new DispositivosQR();
+</script>
+{% endblock extra_js %}

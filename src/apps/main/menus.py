@@ -1,5 +1,5 @@
 from menu import MenuItem
-
+from django.contrib.auth.models import Permission
 
 class ViewMenuItem(MenuItem):
     def __init__(self, *args, **kwargs):

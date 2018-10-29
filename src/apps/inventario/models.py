@@ -1,8 +1,14 @@
+#!/usr/bin/env python
+# -*- coding: UTF-8 -*-
+
 import uuid
 import qrcode
+import json
+import sys
 from io import BytesIO
 from django.db import models
-from django.urls import reverse_lazy
+from django.db.utils import OperationalError
+from django.urls import reverse_lazy, reverse
 from django.utils import timezone
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
@@ -10,6 +16,7 @@ from django.core.files.uploadedfile import InMemoryUploadedFile
 
 from easy_thumbnails import fields as et_fields
 
+from apps.inventario import transacciones
 from apps.crm import models as crm_m
 from apps.escuela import models as escuela_m
 
@@ -22,6 +29,7 @@ class EntradaTipo(models.Model):
 
     nombre = models.CharField(max_length=25)
     contable = models.BooleanField(default=False)
+    contenedor = models.BooleanField(default=False)
 
     class Meta:
         verbose_name = "Tipo de entrada"
@@ -57,6 +65,8 @@ class Entrada(models.Model):
     creada_por = models.ForeignKey(User, on_delete=models.PROTECT, related_name='entradas_creadas')
     recibida_por = models.ForeignKey(User, on_delete=models.PROTECT, related_name='entradas_recibidas')
     proveedor = models.ForeignKey(crm_m.Donante, on_delete=models.PROTECT, related_name='entradas')
+    factura = models.PositiveIntegerField(default=0)
+    observaciones = models.TextField(null=True, blank=True)
 
     class Meta:
         verbose_name = "Entrada"
@@ -71,7 +81,7 @@ class Entrada(models.Model):
 
     @property
     def subtotal(self):
-        return sum(d.precio_subtotal for d in self.detalles.all())
+        return sum(d.precio_subtotal for d in self.detalles.all() if d.precio_subtotal)
 
     @property
     def total(self):
@@ -132,7 +142,12 @@ class EntradaDetalle(models.Model):
     repuesto = models.PositiveIntegerField(default=0)
     desecho = models.PositiveIntegerField(default=0)
     total = models.PositiveIntegerField()
-
+    descripcion = models.CharField(max_length=50)
+    dispositivos_creados = models.BooleanField(default=False, blank=True, verbose_name='Dispositivos creados')
+    repuestos_creados = models.BooleanField(default=False, blank=True, verbose_name='Repuestos creados')
+    qr_repuestos = models.BooleanField(default=False, blank=True, verbose_name='Imprimir Qr Repuesto')
+    qr_dispositivo = models.BooleanField(default=False, blank=True, verbose_name='Imprimir Qr Dispositivo')
+    impreso = models.BooleanField(default=False, blank=True, verbose_name='Impreso')
     # Campos sobre contabilidad
     precio_unitario = models.DecimalField(max_digits=8, decimal_places=2, blank=True, null=True)
     precio_subtotal = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
@@ -160,27 +175,56 @@ class EntradaDetalle(models.Model):
         los descuentos que hayan sido aplicados a la entrada.
         El cálculo de todos los campos se realiza desde las funciones definidas en `signals.py`.
         """
+        if self.tipo_dispositivo.usa_triage is False:
+            self.dispositivos_creados = True
+            self.repuestos_creados = True
         if self.entrada.tipo.contable and not self.precio_subtotal:
             raise ValidationError(
                 'El tipo de entrada requiere un precio total', code='entrada_precio_total')
+
         super(EntradaDetalle, self).save(*args, **kwargs)
 
     def crear_dispositivos(self, util=None):
         if util is None:
             util = self.util
-        try:
-            modelo = next(
-                f.related_model for f in Dispositivo._meta.get_fields()
-                if f.one_to_one and f.related_model.SLUG_TIPO == self.tipo_dispositivo.slug
-            )
-            total = 0
-            for _ in range(0, util):
-                nuevo = modelo(entrada=self.entrada, tipo=self.tipo_dispositivo)
-                nuevo.save()
-                total = total + 1
-        except KeyError as e:
-            raise e
-        return total
+        # Busca el modelo del `tipo_dispositivo` del objeto actual
+        modelo = Dispositivo.obtener_modelo_hijo(self.tipo_dispositivo)
+        creados = 0
+        errores = 0
+        for _ in range(0, util):
+            try:
+                transacciones.ingresar_dispositivo(
+                    entrada=self.entrada,
+                    modelo=modelo,
+                    tipo=self.tipo_dispositivo,
+                    entrada_detalle=self,
+                    precio=self.precio_unitario
+                    )
+                creados = creados + 1
+            except OperationalError:
+                errores = errores + 1
+        return {'creados': creados, 'errores': errores}
+
+    def crear_repuestos(self, repuesto=None):
+        if repuesto is None:
+            repuesto = self.repuesto
+        creados = 0
+        errores = 0
+        estado_repuesto = RepuestoEstado.objects.first()
+        for _ in range(0, repuesto):
+            try:
+                transacciones.ingresar_repuesto(
+                    entrada=self.entrada,
+                    modelo_repuesto=Repuesto,
+                    estado=estado_repuesto,
+                    tipo=self.tipo_dispositivo,
+                    entrada_detalle=self,
+                    precio=self.precio_unitario
+                )
+                creados = creados + 1
+            except OperationalError:
+                errores = errores + 1
+        return {'creados': creados, 'errores': errores}
 
     def get_absolute_url(self):
         return self.entrada.get_absolute_url()
@@ -210,6 +254,10 @@ class DispositivoEstado(models.Model):
         - Desechado: ha sido desechado por un técnico
         - Entregado: enviado a una escuela
     """
+    PD = 1
+    BN = 2
+    DS = 3
+    EN = 4
 
     estado = models.CharField(max_length=20)
 
@@ -223,16 +271,23 @@ class DispositivoEstado(models.Model):
 
 class DispositivoEtapa(models.Model):
 
-    """Etapa de un :class:`Dispositivo`. Indica la parte del proceso de manufactura por la que puede pasar el dispositivo:
-        - Almacenado en bodega
-        - Tránsito
-        - Control de calidad
-        - Desechado
-        - Listo
-        - Entregado
+    """Etapa de un :class:`Dispositivo`. Indica la parte del proceso de manufactura por la que puede pasar el dispositivo.
+    A continuación se detalla la etapa y los estados que admite:
+        - Almacenado en bodega: almacenamiento sin importar el estado (pendiente, bueno)
+        - Tránsito: en reparación (pendiente, bueno)
+        - Control de calidad: listo para asignación para ser enviado a una escuela (bueno)
+        - Desechado: enviado a desecho (desechado)
+        - Listo: aprobado por control de calidad (bueno)
+        - Entregado: uubicado en una escuela después de una salida aprobada (entregado)
 
     El campo de estados disponibles indica qué :class:`DispositivoEstado` admite este proceso.
     """
+    AB = 1  # Almacenado
+    TR = 2  # Tránsito
+    CC = 3  # Control de calidad
+    DS = 4  # Desecho
+    LS = 5  # Listo
+    EN = 6  # Entregado
 
     proceso = models.CharField(max_length=30)
     estados_disponibles = models.ManyToManyField(DispositivoEstado)
@@ -325,7 +380,11 @@ class Sector(models.Model):
             box_size=6,
             border=1,
         )
-        qr.add_data(self.id)
+        data_qr = {
+            'tipo': 'sector',
+            'id': self.id
+        }
+        qr.add_data(json.dumps(data_qr, ensure_ascii=False))
         qr.make(fit=True)
         img = qr.make_image()
         buffer = BytesIO()
@@ -363,7 +422,11 @@ class Tarima(models.Model):
             box_size=6,
             border=1,
         )
-        qr.add_data(self.id)
+        data_qr = {
+            'tipo': 'tarima',
+            'id': self.id
+        }
+        qr.add_data(json.dumps(data_qr, ensure_ascii=False))
         qr.make(fit=True)
         img = qr.make_image()
         buffer = BytesIO()
@@ -383,8 +446,22 @@ class Dispositivo(models.Model):
     triage = models.SlugField(unique=True, blank=True, editable=False)
     tipo = models.ForeignKey(DispositivoTipo, on_delete=models.CASCADE)
     entrada = models.ForeignKey(Entrada, on_delete=models.PROTECT, related_name='dispositivos')
-    estado = models.ForeignKey(DispositivoEstado, on_delete=models.CASCADE, null=True, editable=False)
-    etapa = models.ForeignKey(DispositivoEtapa, on_delete=models.PROTECT, null=True, editable=False)
+    entrada_detalle = models.ForeignKey(EntradaDetalle, on_delete=models.PROTECT, null=True, related_name='detalle_dispositivos')
+    impreso = models.BooleanField(default=False, blank=True, verbose_name='Impreso')
+    estado = models.ForeignKey(
+        DispositivoEstado,
+        on_delete=models.CASCADE,
+        null=True,
+        editable=True,
+        default=DispositivoEstado.PD
+    )
+    etapa = models.ForeignKey(
+        DispositivoEtapa,
+        on_delete=models.PROTECT,
+        null=True,
+        editable=True,
+        default=DispositivoEtapa.AB
+    )
 
     marca = models.ForeignKey(DispositivoMarca, on_delete=models.CASCADE, null=True, blank=True)
     modelo = models.ForeignKey(DispositivoModelo, on_delete=models.CASCADE, null=True, blank=True)
@@ -422,7 +499,7 @@ class Dispositivo(models.Model):
                 if isinstance(attr, self.__class__) and type(attr) != type(self):
                     return attr
             except:
-                print("a")
+                print("Error al cargar el modelo de {}".format(self.tipo))
 
     def crear_qrcode(self):
         """Genera le código QR para apuntar a la id del dispositivo
@@ -433,14 +510,33 @@ class Dispositivo(models.Model):
             box_size=6,
             border=1,
         )
-        qr.add_data(self.id)
-        img = qr.make(fit=True)
+        data_qr = {
+            'id': str(self.id),
+            'triage': self.triage,
+            'tipo': str(self.tipo)
+        }
+        qr.add_data(json.dumps(data_qr, ensure_ascii=False))
+        qr.make(fit=True)
         img = qr.make_image()
         buffer = BytesIO()
         img.save(buffer)
         filename = 'dispositivo-{}.png'.format(self.id)
         filebuffer = InMemoryUploadedFile(buffer, None, filename, 'image/png', buffer.getbuffer().nbytes, None)
         self.codigo_qr.save(filename, filebuffer)
+
+    @classmethod
+    def obtener_modelo_hijo(cls, tipo_dispositivo):
+        """Obitne el modelo hijo de `Dispositivo` a partir de un `DispositivoTipo`"""
+        modelo = next(
+            (
+                f.related_model for f in cls._meta.get_fields()
+                if f.one_to_one and f.related_model.SLUG_TIPO == tipo_dispositivo.slug
+            ),
+            None
+        )
+        if modelo is None:
+            raise OperationalError('No es un dispositivo')
+        return modelo
 
 
 class DispositivoFalla(models.Model):
@@ -464,6 +560,9 @@ class DispositivoFalla(models.Model):
 
     def __str__(self):
         return 'F-{pk}'.format(pk=self.id)
+
+    def get_absolute_url(self):
+        return self.dispositivo.get_absolute_url()
 
 
 class SoftwareTipo(models.Model):
@@ -586,6 +685,9 @@ class Teclado(Dispositivo):
     def __str__(self):
         return self.triage
 
+    def get_absolute_url(self):
+        return reverse_lazy('teclado_detail', kwargs={'triage': self.triage})
+
 
 class MouseTipo(models.Model):
 
@@ -625,6 +727,9 @@ class Mouse(Dispositivo):
     def __str__(self):
         return self.triage
 
+    def get_absolute_url(self):
+        return reverse_lazy('mouse_detail', kwargs={'triage': self.triage})
+
 
 class HDD(Dispositivo):
     SLUG_TIPO = 'HDD'
@@ -649,6 +754,9 @@ class HDD(Dispositivo):
 
     def __str__(self):
         return self.triage
+
+    def get_absolute_url(self):
+        return reverse_lazy('hdd_detail', kwargs={'triage': self.triage})
 
     @property
     def en_uso(self):
@@ -699,6 +807,9 @@ class Tablet(Dispositivo):
 
     def __str__(self):
         return self.triage
+
+    def get_absolute_url(self):
+        return reverse_lazy('tablet_detail', kwargs={'triage': self.triage})
 
 
 class MonitorTipo(models.Model):
@@ -765,6 +876,9 @@ class CPU(Dispositivo):
     def __str__(self):
         return self.triage
 
+    def get_absolute_url(self):
+        return reverse_lazy('cpu_detail', kwargs={'triage': self.triage})
+
 
 class Laptop(Dispositivo):
     SLUG_TIPO = 'L'
@@ -787,6 +901,9 @@ class Laptop(Dispositivo):
 
     def __str__(self):
         return self.triage
+
+    def get_absolute_url(self):
+        return reverse_lazy('laptop_detail', kwargs={'triage': self.triage})
 
 
 class TipoRed(models.Model):
@@ -815,6 +932,27 @@ class DispositivoRed(Dispositivo):
     def __str__(self):
         return self.triage
 
+    def get_absolute_url(self):
+        return reverse_lazy('red_detail', kwargs={'triage': self.triage})
+
+class AccessPoint(Dispositivo):
+    SLUG_TIPO = 'AP'
+    indice = models.PositiveIntegerField(editable=False, unique=True)
+    cantidad_puertos = models.PositiveIntegerField(null=True, blank=True)
+    puerto = models.ForeignKey(DispositivoPuerto, null=True, blank=True)
+    velocidad = models.PositiveIntegerField(null=True, blank=True)
+    velocidad_medida = models.ForeignKey(DispositivoMedida, null=True, blank=True)
+
+    class Meta:
+        verbose_name = "Access Point"
+        verbose_name_plural = "Access Point"
+
+    def __str__(self):
+        return self.triage
+
+    def get_absolute_url(self):
+        return reverse_lazy('ap_detail', kwargs={'triage': self.triage})
+
 
 class RepuestoEstado(models.Model):
 
@@ -836,6 +974,8 @@ class RepuestoEstado(models.Model):
 
 class Repuesto(models.Model):
     entrada = models.ForeignKey(Entrada, on_delete=models.CASCADE, related_name='repuestos')
+    entrada_detalle = models.ForeignKey(EntradaDetalle, on_delete=models.PROTECT, null=True, related_name='detalle_repuesto')
+    impreso = models.BooleanField(default=False, blank=True, verbose_name='Impreso')
     tipo = models.ForeignKey(DispositivoTipo, on_delete=models.PROTECT, related_name='repuestos')
     estado = models.ForeignKey(RepuestoEstado, on_delete=models.PROTECT)
     descripcion = models.TextField(null=True, blank=True)
@@ -857,6 +997,9 @@ class Repuesto(models.Model):
             self.crear_qrcode()
             super(Repuesto, self).save(*args, **kwargs)
 
+    def get_absolute_url(self):
+        return reverse_lazy('repuesto_detail', kwargs={'pk': self.id})
+
     def crear_qrcode(self):
         """Genera le código QR para apuntar a la id del repuesto
         """
@@ -866,7 +1009,11 @@ class Repuesto(models.Model):
             box_size=6,
             border=1,
         )
-        qr.add_data(self.id)
+        data_qr = {
+            'id': str(self.id),
+            'tipo': str(self.tipo)
+        }
+        qr.add_data(json.dumps(data_qr, ensure_ascii=False))
         qr.make(fit=True)
         img = qr.make_image()
         buffer = BytesIO()
@@ -946,6 +1093,8 @@ class DesechoDetalle(models.Model):
 
 class SalidaTipo(models.Model):
     nombre = models.CharField(max_length=30)
+    necesita_revision = models.BooleanField(default=True, blank=True, verbose_name='Necesita revisión')
+    especial = models.BooleanField(default=False, blank=True, verbose_name='especial')
 
     class Meta:
         verbose_name = "Tipo de salida"
@@ -955,7 +1104,22 @@ class SalidaTipo(models.Model):
         return self.nombre
 
 
-class Salida(models.Model):
+class SalidaEstado(models.Model):
+
+    """Para indicar si está en Pendiende, Listo o Entregado
+    """
+
+    nombre = models.CharField(max_length=45)
+
+    class Meta:
+        verbose_name = "Estado de salida"
+        verbose_name_plural = "Estados de salida"
+
+    def __str__(self):
+        return self.nombre
+
+
+class SalidaInventario(models.Model):
     tipo_salida = models.ForeignKey(SalidaTipo, on_delete=models.PROTECT)
     fecha = models.DateField(default=timezone.now)
     creada_por = models.ForeignKey(User, on_delete=models.PROTECT, related_name='salidas')
@@ -968,21 +1132,81 @@ class Salida(models.Model):
         null=True,
         blank=True)
     observaciones = models.TextField(null=True, blank=True)
+    necesita_revision = models.BooleanField(default=True, blank=True, verbose_name='Necesita revisión')
+    beneficiario = models.ForeignKey(
+        crm_m.Donante,
+        on_delete=models.PROTECT,
+        related_name='beneficiario',
+        null=True,
+        blank=True)
+    estado = models.ForeignKey(SalidaEstado, on_delete=models.PROTECT, related_name='estados',  null=True, blank=True)
+    reasignado_por = models.ForeignKey(User, on_delete=models.PROTECT, related_name='reasignar', null=True, blank=True)
 
     class Meta:
         verbose_name = "Salida"
         verbose_name_plural = "Salidas"
 
+    def get_absolute_url(self):
+        return reverse_lazy('salidainventario_edit', kwargs={'pk': self.id})
+
     def __str__(self):
         return str(self.id)
 
-    def crear_paquetes(self, cantidad, usuario):
+    def crear_paquetes(self, cantidad, usuario, entrada, tipo_paquete=None):
         creados = 0
-        for i in range(cantidad):
-            paquete = Paquete(salida=self, indice=i+1, creado_por=usuario)
+        indice_actual = self.paquetes.count()
+        if entrada.count() == 0:
+            paquete = Paquete(
+                salida=self,
+                indice=(1 + indice_actual),
+                creado_por=usuario,
+                cantidad=cantidad,
+                tipo_paquete=tipo_paquete,
+            )
             paquete.save()
-            creados += 1
+        else:
+            paquete = Paquete(
+                salida=self,
+                indice=(1 + indice_actual),
+                creado_por=usuario,
+                cantidad=cantidad,
+                tipo_paquete=tipo_paquete,
+                )
+            paquete.save()
+            for numero in entrada:
+                paquete.entrada.add(numero)
+        creados += 1
         return creados
+
+
+class SalidaComentario(models.Model):
+    salida = models.ForeignKey(SalidaInventario, on_delete=models.CASCADE, related_name='comentarios')
+    comentario = models.TextField()
+    fecha_revision = models.DateTimeField(default=timezone.now)
+    creado_por = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    class Meta:
+        verbose_name = 'Comentario de revisión de salida'
+        verbose_name_plural = 'Comentarios de revisión de salida'
+
+    def __str__(self):
+        return '{}'.format(self.comentario[15:])
+
+
+class PaqueteTipo(models.Model):
+    """Tipos de :class:`Paquete` a entregar. Puede incluir las partes básicas de una computadora, como CPU, Teclado,
+    etc. o tipos más específicos como componentes de red
+    """
+    nombre = models.CharField(max_length=35, verbose_name='Nombre del tipo')
+    tipo_dispositivo = models.ForeignKey(DispositivoTipo, verbose_name='Tipos de dispositivo', null=True, blank=True)
+    # tipo_dispositivo = models.ManyToManyField(DispositivoTipo, verbose_name='Tipos de dispositivo')
+
+    class Meta:
+        verbose_name = "Tipo de paquete"
+        verbose_name_plural = "Tipos de paquete"
+
+    def __str__(self):
+        return self.nombre
 
 
 class Paquete(models.Model):
@@ -990,11 +1214,21 @@ class Paquete(models.Model):
     Por default, debería ser una computadora que contenga Mouse, Monitor, CPU, etc.
     Puede ser cualquier otro tipo de paquetes de dispositivos. Por ejemplo, un servidor
     puede tener además de los dipositivos básicos, un dispositivo de red."""
-    salida = models.ForeignKey(Salida, on_delete=models.PROTECT, related_name="paquetes")
+    salida = models.ForeignKey(SalidaInventario, on_delete=models.PROTECT, related_name="paquetes")
     fecha_creacion = models.DateTimeField(default=timezone.now)
     creado_por = models.ForeignKey(User, on_delete=models.PROTECT)
     indice = models.PositiveIntegerField()
-    dispositivos = models.ManyToManyField(Dispositivo, through='DispositivoPaquete', related_name='paquetes')
+    cantidad = models.PositiveIntegerField(default=0)
+    tipo_paquete = models.ForeignKey(
+        PaqueteTipo,
+        on_delete=models.PROTECT,
+        related_name='paquetes',
+        null=True,
+        blank=True)
+    aprobado = models.BooleanField(default=False, blank=True)
+    entrada = models.ManyToManyField(Entrada, related_name='tipo_entrada', blank=True, null=True)
+
+    # dispositivos = models.ManyToManyField(Dispositivo, through='DispositivoPaquete', related_name='paquetes')
 
     class Meta:
         verbose_name = "Paquete de salida"
@@ -1002,7 +1236,31 @@ class Paquete(models.Model):
         unique_together = ('salida', 'indice')
 
     def __str__(self):
-        return '{salida}-{indice}'.format(salida=self.salida, indice=self.indice)
+        return 'P{salida}-{indice}'.format(salida=self.salida, indice=self.indice)
+
+    def aprobar(self, usuario):
+        for paquete in self.asignacion.all():
+            paquete.aprobado = True
+            paquete.aprobado_por = usuario
+            paquete.save()
+
+    def get_absolute_url(self):
+        return reverse_lazy('detalle_paquete', kwargs={'pk': self.id})
+
+    def asignar_dispositivo(self, lista_dispositivos, usuario):
+        """Asigna los dispositivo a los diferentes paquetes que se han creado
+        """
+        if not self.aprobado:
+            for dispositivos in lista_dispositivos:
+                if dispositivos.tipo == self.tipo_paquete.tipo_dispositivo:
+                    asignar = DispositivoPaquete(
+                        dispositivo=dispositivos,
+                        paquete=self,
+                        asignado_por=usuario
+                    )
+                    asignar.save()
+                else:
+                    raise OperationalError('El paquete ya fue aprobado')
 
 
 class DispositivoPaquete(models.Model):
@@ -1022,8 +1280,210 @@ class DispositivoPaquete(models.Model):
         related_name='paquetes_aprobados')
 
     class Meta:
-        verbose_name = "DispositivoPaquete"
-        verbose_name_plural = "DispositivoPaquetes"
+        verbose_name = "Asignación Dispositivo - Paquete"
+        verbose_name_plural = "Asignaciones Dispositivo - Paquete"
 
     def __str__(self):
-        return '{} -> {}'.format(self.dispositivo, self.paquete)
+        return '{paquete} -> {dispositivo}'.format(
+            paquete=self.paquete,
+            dispositivo=self.dispositivo)
+
+
+class RevisionSalida(models.Model):
+    salida = models.ForeignKey(SalidaInventario, on_delete=models.PROTECT, related_name='revisiones')
+    revisado_por = models.ForeignKey(User, on_delete=models.PROTECT)
+    fecha_revision = models.DateTimeField(default=timezone.now, verbose_name='Fecha de revisión')
+    anotaciones = models.TextField(null=True, blank=True, verbose_name='Anotaciones generales')
+    aprobada = models.BooleanField(default=False, blank=True)
+    tecnico = models.ForeignKey(
+        User,
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name='tecnicos'
+        )
+
+    class Meta:
+        verbose_name = 'Revisión de salida'
+        verbose_name_plural = 'Revisiones de salida'
+
+    def __str__(self):
+        return str(self.salida)
+
+    def get_absolute_url(self):
+        return reverse_lazy('revisionsalida_update', kwargs={'pk': self.id})
+
+
+class RevisionComentario(models.Model):
+    revision = models.ForeignKey(RevisionSalida, on_delete=models.CASCADE, related_name='comentarios')
+    comentario = models.TextField()
+    fecha_revision = models.DateTimeField(default=timezone.now)
+    creado_por = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    class Meta:
+        verbose_name = 'Comentario de revisión'
+        verbose_name_plural = 'Comentarios de revisión'
+
+    def __str__(self):
+        return '{}'.format(self.comentario[15:])
+
+
+class SolicitudMovimiento(models.Model):
+    """Solicitud de un técnico de área para cambiar cierta cantidad de dispositivos de la etapa. Por ejemplo:
+    Un técnico solicitua cambiar 5 monitores de 'Almacenaje en bodega' a 'Tránsito'"""
+
+    etapa_inicial = models.ForeignKey(DispositivoEtapa, on_delete=models.PROTECT, related_name='solicitudes_inicial')
+    etapa_final = models.ForeignKey(DispositivoEtapa, on_delete=models.PROTECT, related_name='solicitudes_final')
+    fecha_creacion = models.DateField(default=timezone.now)
+    creada_por = models.ForeignKey(User, on_delete=models.PROTECT, related_name='solicitudes_movimiento')
+    recibida_por = models.ForeignKey(User, on_delete=models.PROTECT, related_name='recibida_por', null=True)
+    autorizada_por = models.ForeignKey(
+        User,
+        on_delete=models.PROTECT,
+        related_name='autorizaciones_movimiento',
+        null=True)
+    tipo_dispositivo = models.ForeignKey(DispositivoTipo, on_delete=models.PROTECT)
+    cantidad = models.PositiveIntegerField()
+    terminada = models.BooleanField(default=False)
+    recibida = models.BooleanField(default=False)
+    devolucion = models.BooleanField(default=False)
+    desecho = models.BooleanField(default=False)
+
+    class Meta:
+        verbose_name = 'Solicitud de movimiento'
+        verbose_name_plural = 'Solicitudes de movimiento'
+
+    def __str__(self):
+        return str(self.id)
+
+    def get_absolute_url(self):
+        return reverse_lazy('solicitudmovimiento_detail', kwargs={'pk': self.id})
+
+    def cambiar_etapa(self, lista_dispositivos, usuario):
+        """Cambia el campo `etapa` de la lista de dispositivos recibida.
+        En caso de que la solicitud ya haya sido terminada, no se puede volver a realizar esta operación.
+        En el ciclo for se realiza la validación para no hacer cambios en dispositivos que no sean del tipo de
+        que se está solicitando.
+        """
+        if not self.terminada:
+            for dispositivo in lista_dispositivos:
+                if dispositivo.tipo == self.tipo_dispositivo:
+                    cambio = CambioEtapa(
+                        solicitud=self,
+                        dispositivo=dispositivo,
+                        etapa_inicial=self.etapa_inicial,
+                        etapa_final=self.etapa_final,
+                        creado_por=usuario
+                    )
+                    cambio.save()
+            self.terminada = True
+            self.save()
+        else:
+            raise OperationalError('La solicitud ya fue terminada')
+
+
+class CambioEtapa(models.Model):
+    """Registra un movimiento de cambio de etapa en un :class:`Dispositivo`"""
+    solicitud = models.ForeignKey(SolicitudMovimiento, on_delete=models.PROTECT, related_name='cambios')
+    dispositivo = models.ForeignKey(Dispositivo, on_delete=models.PROTECT, related_name='cambios_etapa')
+    etapa_inicial = models.ForeignKey(DispositivoEtapa, models.PROTECT, related_name='cambios_inicio')
+    etapa_final = models.ForeignKey(DispositivoEtapa, models.PROTECT, related_name='cambios_final')
+    fechahora = models.DateTimeField(default=timezone.now)
+    creado_por = models.ForeignKey(User, on_delete=models.PROTECT)
+
+    class Meta:
+        verbose_name = 'Cambio de etapa'
+        verbose_name_plural = 'Cambios de etapa'
+
+    def __str__(self):
+        return '{dispositivo} -> {final}'.format(
+            dispositivo=self.dispositivo,
+            final=self.etapa_final)
+
+    def save(self, *args, **kwargs):
+        if self.etapa_inicial != self.etapa_final:
+            super(CambioEtapa, self).save(*args, **kwargs)
+            self.dispositivo.etapa = self.etapa_final
+            if self.solicitud.desecho:
+                estado_desecho = DispositivoEstado.objects.get(pk=DispositivoEstado.DS)
+                self.dispositivo.estado = estado_desecho
+            self.dispositivo.save()
+
+
+class AsignacionTecnico(models.Model):
+    """Registra qué dispositivos puede manipular un técnico"""
+    usuario = models.OneToOneField(User, on_delete=models.CASCADE, unique=True, related_name='tipos_dispositivos')
+    tipos = models.ManyToManyField(DispositivoTipo, related_name='tipos_disponibles', blank=True)
+
+    class Meta:
+        verbose_name = 'Asignacion de técnico'
+        verbose_name_plural = 'Asignaciones de técnicos'
+
+    def __str__(self):
+        return str(self.usuario)
+
+    def get_absolute_url(self):
+        return reverse_lazy('asignaciontecnico_update', kwargs={'pk': self.id})
+
+
+class CambioEstado(models.Model):
+    dispositivo = models.ForeignKey(Dispositivo, on_delete=models.CASCADE, related_name='cambios_estado')
+    estado = models.ForeignKey(DispositivoEstado, on_delete=models.PROTECT, related_name='cambios')
+    fecha_hora = models.DateTimeField(default=timezone.now)
+    creado_por = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    class Meta:
+        verbose_name = 'Cambio de estado'
+        verbose_name_plural = 'Cambios de estado'
+
+    def __str__(self):
+        return '{} -> {}'.format(self.dispositivo, self.estado)
+
+    def save(self, **kwargs):
+        super(CambioEstado, self).save(**kwargs)
+        self.dispositivo.estado = self.estado
+        self.dispositivo.save()
+
+
+class PrestamoTipo(models.Model):
+
+    """Para indicar el tipo de :class:`Entrada`.
+    El campo `contable` indica que los detalles de entrada deben asignar precio.
+    """
+
+    nombre = models.CharField(max_length=25)
+
+    class Meta:
+        verbose_name = "Tipo de Prestamo"
+        verbose_name_plural = "Tipos de Prestamo"
+
+    def __str__(self):
+        return self.nombre
+
+
+class Prestamo(models.Model):
+    dispositivo = models.ForeignKey(Dispositivo, on_delete=models.CASCADE, related_name='prestamos')
+    tipo_dispositivo = models.ForeignKey(
+        DispositivoTipo,
+        null=True,
+        blank=True,
+        on_delete=models.PROTECT,
+        related_name='prestamo_dispositivo')
+    tipo_prestamo = models.ForeignKey(
+        PrestamoTipo,
+        null=True,
+        blank=True,
+        on_delete=models.PROTECT,
+        related_name='prestamo_tipo')
+    fecha_inicio = models.DateField()
+    fecha_fin = models.DateField(null=True, blank=True)
+    creado_por = models.ForeignKey(User, on_delete=models.CASCADE, related_name='prestamos_creados')
+    prestado_a = models.ForeignKey(User, on_delete=models.CASCADE, related_name='prestamos')
+    devuelto = models.BooleanField(default=False, blank=True)
+
+    class Meta:
+        verbose_name = 'Préstamo'
+        verbose_name_plural = 'Préstamos'
+
+    def __str__(self):
+        return '{} - {}'.format(self.fecha_inicio, self.dispositivo)

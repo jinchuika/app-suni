@@ -1,8 +1,10 @@
+#!/usr/bin/env python
+# -*- coding: UTF-8 -*-
+
 from django.db import models
 from django.utils import timezone
 
 from django.contrib.auth.models import User
-from apps.inventario import models as inv_m
 
 
 class PeriodoFiscal(models.Model):
@@ -11,11 +13,12 @@ class PeriodoFiscal(models.Model):
 
     fecha_inicio = models.DateField()
     fecha_fin = models.DateField()
+    actual = models.BooleanField(default=False, blank=True)
 
     class Meta:
         verbose_name = 'Periodo fiscal'
         verbose_name_plural = 'Periodos fiscales'
-    
+
     def __str__(self):
         return '{} - {}'.format(self.fecha_inicio, self.fecha_fin)
 
@@ -24,7 +27,7 @@ class PrecioEstandar(models.Model):
     """Precio por defecto a asignar a un dispositivo o repuesto que ingrese sin específicar un precio, tomando
     como punto de partida su tipo. Un tipo únicamente puede tener un precio estándar en el mismo periodo.
     """
-    
+
     DISPOSITIVO = 'dispositivo'
     REPUESTO = 'repuesto'
 
@@ -34,14 +37,14 @@ class PrecioEstandar(models.Model):
     )
 
     periodo = models.ForeignKey(PeriodoFiscal, on_delete=models.CASCADE, related_name='precios')
-    tipo_dispositivo = models.ForeignKey(inv_m.DispositivoTipo, on_delete=models.CASCADE, related_name='precios')
+    tipo_dispositivo = models.ForeignKey('inventario.DispositivoTipo', on_delete=models.CASCADE, related_name='precios')
     activo = models.BooleanField(default=True, blank=True)
     precio = models.DecimalField(max_digits=12, decimal_places=2, default=0.0)
     inventario = models.CharField(max_length=12, choices=INVENTARIO_CHOICES, default=DISPOSITIVO)
     creado_por = models.ForeignKey(User, on_delete=models.PROTECT)
 
     class Meta:
-        unique_together = ('periodo', 'tipo_dispositivo')
+        unique_together = ('periodo', 'tipo_dispositivo', 'inventario')
         verbose_name = 'Precio estándar'
         verbose_name_plural = 'Precios estándar'
         indexes = [
@@ -57,7 +60,7 @@ class PrecioDispositivo(models.Model):
     repetir, ya que un dispositivo no puede cambiar de precio en el mismo período
     """
 
-    dispositivo = models.ForeignKey(inv_m.Dispositivo, on_delete=models.CASCADE, related_name='precios')
+    dispositivo = models.ForeignKey('inventario.Dispositivo', on_delete=models.CASCADE, related_name='precios')
     precio = models.DecimalField(max_digits=14, decimal_places=2, default=0.0)
     periodo = models.ForeignKey(PeriodoFiscal, on_delete=models.CASCADE, related_name='precios_dispositivo')
     activo = models.BooleanField(default=True, blank=True)
@@ -76,7 +79,7 @@ class PrecioRepuesto(models.Model):
     """Precio asignado a un :clas:`Repuesto` en un :class:`PeriodoFiscal`. Estos datos NO se pueden
     repetir, ya que un repuesto no puede cambiar de precio en el mismo período
     """
-    repuesto = models.ForeignKey(inv_m.Repuesto, on_delete=models.CASCADE, related_name='precios')
+    repuesto = models.ForeignKey('inventario.Repuesto', on_delete=models.CASCADE, related_name='precios')
     precio = models.DecimalField(max_digits=14, decimal_places=2, default=0.0)
     periodo = models.ForeignKey(PeriodoFiscal, on_delete=models.CASCADE, related_name='precios_repuesto')
     activo = models.BooleanField(default=True, blank=True)
@@ -105,17 +108,17 @@ class MovimientoDispositivo(models.Model):
     )
 
     fecha = models.DateField(default=timezone.now)
-    dispositivo = models.ForeignKey(inv_m.Dispositivo)
+    dispositivo = models.ForeignKey('inventario.Dispositivo')
     periodo_fiscal = models.ForeignKey(PeriodoFiscal, on_delete=models.PROTECT, related_name='movimientos_dispositivo')
     tipo_movimiento = models.IntegerField(choices=TIPO_CHOICES, default=ALTA)
     precio = models.DecimalField(max_digits=14, decimal_places=2, default=0.0)
     referencia = models.CharField(max_length=30, null=True, blank=True)
     observaciones = models.TextField(null=True, blank=True)
-    
+
     class Meta:
         verbose_name = 'Movimiento de dispositivo'
         verbose_name_plural = 'Movimientos de dispositivos'
-    
+
     def __str__(self):
         return '{} - {}'.format(self.tipo_movimiento, self.dispositivo)
 
@@ -134,7 +137,7 @@ class MovimientoRepuesto(models.Model):
     )
 
     fecha = models.DateField(default=timezone.now)
-    repuesto = models.ForeignKey(inv_m.Repuesto)
+    repuesto = models.ForeignKey('inventario.Repuesto')
     periodo_fiscal = models.ForeignKey(PeriodoFiscal, on_delete=models.PROTECT, related_name='movimientos_repuesto')
     tipo_movimiento = models.IntegerField(choices=TIPO_CHOICES, default=ALTA)
     precio = models.DecimalField(max_digits=14, decimal_places=2, default=0.0)

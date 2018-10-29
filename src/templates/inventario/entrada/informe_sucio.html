@@ -1,0 +1,306 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html>
+  <meta charset="utf-8" />
+  <head><title>Constacia de entrada (útil)</title>
+  </head>
+<body>
+  <div class="encabezado">
+    <img src="{% static "image/funsepalogo.png" %}" width="110" height="110" />
+<tr>
+<td>
+<fieldset>
+  <u>CONSTANCIA</u>
+</fieldset>
+</td>
+</tr>
+</div>
+<!--DATOS DE LA BOLETA-->
+<div class="datos">
+  <table>
+    <tr>
+      <th>
+        Fecha:
+      </th>
+      <td>
+        {{entrada.fecha}}
+      </td>
+      <th>
+        Tipo:
+      </th>
+      <td >
+        {{entrada.tipo}}
+      </td>
+      <th>
+        No. Entrada:
+      </th>
+      <td >
+          {{entrada}}
+      </td>
+    </tr>
+  </table>
+</div>
+<hr size="3" color="darkblue" />
+<!--INFORMACION DEL DONANTE Y RECEPCION DE MATERIAL-->
+<div class="donantes">
+  <table>
+    <tr>
+      <th>
+        Donante:
+      </th>
+      <td>
+        {{entrada.proveedor}}
+      </td>
+      <th>
+        Telefono:
+      </th>
+      <td>
+        {%for telefono in entrada.proveedor.lista_telefonos.all%}
+        {{telefono | default_if_none:""}}
+        {%endfor%}
+      </td>
+    </tr>
+    <tr>
+      <th></th>
+      <td></td>
+      <th>
+        Direccion:
+      </th>
+      <td>
+        {{entrada.proveedor.direccion}}
+      </td>
+    </tr>
+    <tr>
+      <th>
+        Recibió:
+      </th>
+      <td>
+        {{entrada.recibida_por.get_full_name}}
+      </td>
+    </tr>
+  </table>
+</div>
+<hr size="3" color="darkblue"/>
+
+<!--ESTADO DEL EQUIPO DONADO-->
+<div class="encabezado2">
+  <table class="table table-condensed">
+      <thead>
+        <th>Tipo</th>
+        <th>Cantidad </th>
+        <th>Util</th>
+        <th>Técnico(s)</th>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="width:30%;">
+              <hr size="3" color="darkblue"/>
+          </td>
+          <td style="width:15%;">
+              <hr size="3" color="darkblue"/>
+          </td>
+          <td style="width:15%;">
+              <hr size="3" color="darkblue"/>
+          </td>
+          <td style="width:40%;">
+              <hr size="3" color="darkblue"/>
+          </td>
+        </tr>
+          {%for dispositivo in dispositivo_tipo%}
+          {%if dispositivo.index == 1%}
+          <tr>
+          {%else%}
+          <tr style="background-color:#E0E0E0">
+          {%endif%}
+            <td>
+              {{dispositivo.tipo_dipositivo}}
+            </td>
+            <td>
+              {{dispositivo.total.total_cantidad}}
+            </td>
+            <td>
+              {{dispositivo.util.total_util}}
+            </td>
+            <td>
+              {{dispositivo.creado_por}}
+            </td>
+        </tr>
+
+          {%endfor%}
+      </tbody>
+    </table>
+</div>
+<!--VISTO BUENO Y PIE DE PAGINA-->
+<div class="pie">
+  <hr/>
+  <table>
+    <tr>
+      <th>
+        Vo.Bo.
+      </th>
+      <td>
+        _____________________________________________________
+      </td>
+    </tr>
+    <tr>
+      <td>
+      </td>
+      <th>
+        <center>
+          Nombre y Firma
+        </center>
+      </th>
+    </tr>
+  </table>
+  <form>
+    <legend>Observaciones:</legend>
+      <fieldset>
+        {{entrada.observaciones|default_if_none:""}}
+      </fieldset>
+
+  </form>
+</div>
+
+
+<!--INICIA EL CSS-->
+<style type="text/css">
+body{
+  font-size: 12px;
+}
+/*ESTILO DEL LOGO*/
+.encabezado fieldset{
+  color: darkblue;
+  margin-top: -70px;
+  margin-left: 39%;
+  width: 10px;
+  font-weight: bold;
+  font-size: 24px;
+}
+.encabezado img{
+  margin-top: 50px;
+  margin-left: 80%;
+}
+
+/*ESTILO DE INFORMACION DE LA BOLETA*/
+.datos{
+  margin-top: 25px;
+  margin-left: 35px;
+}
+.datos th {
+  width: auto;
+  color: darkblue;
+
+}
+.datos td{
+width: 125px;
+font-size: 10px;
+}
+
+p{
+  margin-left: 40px;
+  color: darkblue;
+  font-weight: bold;
+}
+
+/*ESTILO INFORMACION DEL DONANTE*/
+.donantes {
+  margin-left: 40px;
+}
+.donantes th {
+
+  color: darkblue;
+  text-align: left;
+
+}
+.donantes tr{
+  height: 25px;
+}
+.donantes td{
+text-align: left;
+font-size: 10px;
+}
+
+/*ESTILO DE LA UTILIDAD DEL MATERIAL
+encabezado2{Tipo,cantidad,util,repuesto,desecho}
+donaciones{equipo}*/
+.encabezado2 {
+  margin-left: 75px;
+}
+
+.encabezado2 th {
+  font-weight: bold;
+  color: darkblue;
+  text-align: left;
+  width: 200px;
+
+}
+.donaciones {
+  margin-left: 50px;
+}
+
+.donaciones tr{
+  height: 25px;
+}
+.donaciones td{
+  text-align: left;
+  width: 200px;
+  border-bottom-style: solid;
+  color: gray;
+}
+.donaciones th{
+  text-align: left;
+  width: 200px;
+  color: darkblue;
+}
+
+/*margenes y saltos*/
+@page{
+  margin:0mm;
+}
+hr{
+  color: darkblue;
+  weight: 5px;
+}
+
+/*Visto bueno y cuadro de observaciones*/
+.pie{
+  margin-top: 30%;
+}
+.pie table{
+  margin-left: 40px;
+  margin-top: 40px;
+  font-weight: bold;
+}
+.pie legend{
+  margin-left: 50px;
+  color: darkblue;
+  font-weight: bold;
+  margin-top: 20px;
+}
+.pie fieldset{
+  margin-left: 50px;
+  width: 600px;
+  height: 75px
+}
+.pie th{
+  font-weight: bold;
+  color: darkblue;
+  width: auto;
+}
+.pie td{
+  color: black;
+  font-weight: bold;
+  border-bottom-style: none;
+  width: auto;
+}
+
+</style>
+
+</body>
+</html>
+
+{% block extra_js %}
+<script>
+window.onload= function () { window.print();window.close();   }
+</script>
+{% endblock extra_js %}

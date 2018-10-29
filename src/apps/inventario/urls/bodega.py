@@ -80,9 +80,7 @@ urlpatterns = [
         inv_v.PasilloActualizarUpdateView.as_view(),
         name='pasillo_update'
         ),
-
-
-
+    #  Detalles de Sector
     url(
         r'^sector/(?P<pk>\d+)/$',
         inv_v.SectorDetailView.as_view(),
