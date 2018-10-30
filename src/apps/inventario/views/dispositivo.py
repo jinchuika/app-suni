@@ -131,6 +131,9 @@ class DevolucionCreateView(LoginRequiredMixin, CreateView):
         form.fields['tipo_dispositivo'].queryset = self.request.user.tipos_dispositivos.tipos.all()
         return form
 
+    def get_success_url(self):
+        return reverse('solicitudmovimiento_update', kwargs={'pk': self.object.id})
+
 
 class SolicitudMovimientoUpdateView(LoginRequiredMixin, UpdateView):
     """Vista para crear `CambioDispositivo` a partir de una `SolicitudMovimiento`"""
@@ -362,6 +365,22 @@ class DispositivoRedUptadeView(LoginRequiredMixin, UpdateView):
     slug_url_kwarg = "triage"
     query_pk_and_slug = True
     template_name = 'inventario/dispositivo/red/red_edit.html'
+
+class DispositivoAccessPointDetailView(LoginRequiredMixin, DispositivoDetailView):
+    """Vista de detalle de dispositivos tipo :class:`DispositivoRed`"""
+    model = inv_m.AccessPoint
+    template_name = 'inventario/dispositivo/ap/ap_detail.html'
+
+
+class DispositivoAccessPointUptadeView(LoginRequiredMixin, UpdateView):
+    """ Vista actualizar los  dispositivos tipo :class:`DispositivoRed`
+    """
+    model = inv_m.AccessPoint
+    form_class = inv_f.DispositivoAccessPointForm
+    slug_field = "triage"
+    slug_url_kwarg = "triage"
+    query_pk_and_slug = True
+    template_name = 'inventario/dispositivo/ap/ap_edit.html'
 
 
 class DispositivoTipoCreateView(LoginRequiredMixin, CreateView):

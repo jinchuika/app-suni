@@ -109,7 +109,7 @@ class EntradaUpdate {
                 {data: "creado_por"},
                 {
                     data: "",render: function(data, type, full, meta){
-                      if(full.dispositivos_creados == true ){
+                      if(full.dispositivos_creados == true || full.repuestos_creados == true){
                           if(full.usa_triage == "False"){
                             return "<a href="+full.update_url+" class='btn btn-info btn-editar'>Editar</a>";
                           }else{
@@ -125,7 +125,7 @@ class EntradaUpdate {
                     data: "", render: function(data, type, full, meta){
                       if(full.tipo_entrada != "Especial"){
                           if(full.dispositivos_creados == false){
-                            if(full.usa_triage == "True"){
+                            if(full.usa_triage == "True" && full.util > 0){
                               return "<button class='btn btn-primary btn-dispositivo'>Crear Disp</button>";
                             }else{
                               return "";
@@ -156,7 +156,7 @@ class EntradaUpdate {
                     data: "", render: function(data, type, full, meta){
                       if(full.tipo_entrada != "Especial"){
                         if(full.repuestos_creados == false){
-                          if(full.usa_triage == "True"){
+                          if(full.usa_triage == "True" && full.repuesto > 0){
                               return "<button class='btn btn-warning btn-repuesto'>Crear Rep</button>";
                           }else{
                             return " ";
