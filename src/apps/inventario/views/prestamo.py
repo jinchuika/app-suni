@@ -28,8 +28,7 @@ class PrestamoCreateView(LoginRequiredMixin, CreateView):
         form.instance.fecha_inicio = timezone.now()
         form.instance.creado_por = self.request.user
         estado_entregado = inv_m.DispositivoEstado.objects.get(id=inv_m.DispositivoEstado.EN)
-        etapa_entregado = inv_m.DispositivoEtapa.objects.get(id=inv_m.DispositivoEtapa.EN)
-        print(form.cleaned_data['dispositivo'])
+        etapa_entregado = inv_m.DispositivoEtapa.objects.get(id=inv_m.DispositivoEtapa.EN)        
         dispositivos = inv_m.Dispositivo.objects.get(triage=form.cleaned_data['dispositivo'])
         dispositivos.etapa = etapa_entregado
         dispositivos.estado = estado_entregado

@@ -49,6 +49,8 @@ class PrestamoViewSet(viewsets.ModelViewSet):
 
     @action(methods=['post'], detail=False)
     def devolver_prestamo(self, request, pk=None):
+        """Metodo para devolver los dispositivos que fueron prestados
+        """
         id_prestamo = request.data['prestamo']
         triage = request.data['triage']
         prestamo = inv_m.Prestamo.objects.get(id=id_prestamo)

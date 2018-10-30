@@ -446,7 +446,11 @@ class Dispositivo(models.Model):
     triage = models.SlugField(unique=True, blank=True, editable=False)
     tipo = models.ForeignKey(DispositivoTipo, on_delete=models.CASCADE)
     entrada = models.ForeignKey(Entrada, on_delete=models.PROTECT, related_name='dispositivos')
-    entrada_detalle = models.ForeignKey(EntradaDetalle, on_delete=models.PROTECT, null=True, related_name='detalle_dispositivos')
+    entrada_detalle = models.ForeignKey(
+        EntradaDetalle,
+        on_delete=models.PROTECT,
+        null=True,
+        related_name='detalle_dispositivos')
     impreso = models.BooleanField(default=False, blank=True, verbose_name='Impreso')
     estado = models.ForeignKey(
         DispositivoEstado,
@@ -935,6 +939,7 @@ class DispositivoRed(Dispositivo):
     def get_absolute_url(self):
         return reverse_lazy('red_detail', kwargs={'triage': self.triage})
 
+
 class AccessPoint(Dispositivo):
     SLUG_TIPO = 'AP'
     indice = models.PositiveIntegerField(editable=False, unique=True)
@@ -974,7 +979,11 @@ class RepuestoEstado(models.Model):
 
 class Repuesto(models.Model):
     entrada = models.ForeignKey(Entrada, on_delete=models.CASCADE, related_name='repuestos')
-    entrada_detalle = models.ForeignKey(EntradaDetalle, on_delete=models.PROTECT, null=True, related_name='detalle_repuesto')
+    entrada_detalle = models.ForeignKey(
+        EntradaDetalle,
+        on_delete=models.PROTECT,
+        null=True,
+        related_name='detalle_repuesto')
     impreso = models.BooleanField(default=False, blank=True, verbose_name='Impreso')
     tipo = models.ForeignKey(DispositivoTipo, on_delete=models.PROTECT, related_name='repuestos')
     estado = models.ForeignKey(RepuestoEstado, on_delete=models.PROTECT)
