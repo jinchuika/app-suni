@@ -1151,6 +1151,8 @@ class Salidas {
       if(tipoSalida == 3 || tipoSalidaText =='Especial'){
         $('#id_entrega').prop("disabled",false);
 
+      }else{
+        $('#id_entrega').prop("disabled",true);
       }
     });
     /**Reasignar**/
@@ -1205,13 +1207,17 @@ class Salidas {
           success:function(data){
             console.log(data);
             console.log(data.length);
-            
+            var listOfObjects = [];
+            var singleObj = {}
+            for (var i = 0; i < data.length; i++) {
+            singleObj['text'] = data['id'];
+            singleObj['value'] = i;
+            listOfObjects.push(singleObj);
+            }
             bootbox.prompt({
           title: "This is a prompt with select!",
           inputType: 'select',
-          inputOptions: [
-
-          ],
+          inputOptions: listOfObjects,
           callback: function (result) {
               console.log(result);
           }
@@ -1546,7 +1552,7 @@ class PaqueteDetail {
     var crear_historial_salidas = function(url, id_comentario, comentario){
       var data = {
         "id_comentario":id_comentario,
-        "comentario":"El Dispositivo con Triage: "+ $("#id-rechazar").data('triage')+" del paquete no: "+$("#id-rechazar").data('idpaquete') +" "+ comentario
+        "comentario":"El Dispositivo con Triage: "+ $("#id-rechazar").data('triage')+" del paquete no: "+$("#id-rechazar").data('triagepaquete') +" "+ comentario
       }
 
       $.post(url, JSON.stringify(data)).then(function (response){
@@ -1555,6 +1561,7 @@ class PaqueteDetail {
       var td = $('<td></td>').text(response.comentario);
       var tr = $('<tr></tr>').append(td).append(td_data);
     $('#body-salidas-' + id_comentario).append(tr);
+    location.reload();
 
     },function(response){
       alert("Error al crear datos");

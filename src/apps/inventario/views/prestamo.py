@@ -22,13 +22,13 @@ class PrestamoCreateView(LoginRequiredMixin, CreateView):
     template_name = 'inventario/prestamo/prestamo_add.html'
 
     def get_success_url(self):
-        return reverse_lazy('salidainventario_edit', kwargs={'pk': self.object.id})
+        return reverse_lazy('prestamo_list')
 
     def form_valid(self, form):
         form.instance.fecha_inicio = timezone.now()
         form.instance.creado_por = self.request.user
         estado_entregado = inv_m.DispositivoEstado.objects.get(id=inv_m.DispositivoEstado.EN)
-        etapa_entregado = inv_m.DispositivoEtapa.objects.get(id=inv_m.DispositivoEtapa.EN)        
+        etapa_entregado = inv_m.DispositivoEtapa.objects.get(id=inv_m.DispositivoEtapa.EN)
         dispositivos = inv_m.Dispositivo.objects.get(triage=form.cleaned_data['dispositivo'])
         dispositivos.etapa = etapa_entregado
         dispositivos.estado = estado_entregado
