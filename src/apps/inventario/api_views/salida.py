@@ -54,7 +54,6 @@ class SalidaInventarioViewSet(viewsets.ModelViewSet):
                     asignacion_dispositivo.dispositivo.save()
                 asignacion_dispositivo.dispositivo = dispositivo
                 asignacion_dispositivo.dispositivo.etapa = etapa_control
-                print("asignacon dispositivo" + str(asignacion_dispositivo))
                 asignacion_dispositivo.dispositivo.save()
                 asignacion_dispositivo.save()
             except ObjectDoesNotExist as e:
@@ -66,8 +65,6 @@ class SalidaInventarioViewSet(viewsets.ModelViewSet):
                 nueva_asignacion.dispositivo.etapa = etapa_control
                 nueva_asignacion.dispositivo.save()
                 nueva_asignacion.save()
-                print("nueva asignacion:" + str(nueva_asignacion))
-                print(nueva_asignacion.dispositivo.etapa)
         except KeyError as e:
             return Response(
                 {
@@ -93,8 +90,6 @@ class SalidaInventarioViewSet(viewsets.ModelViewSet):
         id_paquete = request.data["paquete"]
         paquete = inv_m.DispositivoPaquete.objects.filter(paquete=id_paquete)
         for dispositivos in paquete:
-            print(str(dispositivos.dispositivo)+"dis")
-            print(str(dispositivos.aprobado)+"status")
             dispositivos.aprobado = True
             dispositivos.dispositivo.etapa = inv_m.DispositivoEtapa.objects.get(id=inv_m.DispositivoEtapa.LS)
             dispositivos.dispositivo.save()
@@ -111,6 +106,8 @@ class SalidaInventarioViewSet(viewsets.ModelViewSet):
 
     @action(methods=['post'], detail=False)
     def cuadrar_salida(self, request, pk=None):
+        """Metodo para cuadrar las salidas
+        """
         id_salida = request.data['primary_key']
         tipo = request.data['tipo']
         tipo_salida = inv_m.SalidaTipo.objects.get(id=tipo)
@@ -153,7 +150,6 @@ class SalidaInventarioViewSet(viewsets.ModelViewSet):
                         estado.estado = estado_entregado
                         estado.save()
         else:
-            print(tipo_salida.especial)
             if tipo_salida.especial:
                 estado_entregado = inv_m.SalidaEstado.objects.get(nombre="Entregado")
                 estado.en_creacion = False
@@ -176,6 +172,8 @@ class SalidaInventarioViewSet(viewsets.ModelViewSet):
 
     @action(methods=['post'], detail=False)
     def reasignar_salida(self, request, pk=None):
+        """Metodo para reasignar salida a un nuevo beneficiario
+        """
         id_salida = request.data['id_salida']
         data = request.data['data']
         es_beneficiario = request.data['beneficiario']
@@ -242,7 +240,6 @@ class RevisionSalidaViewSet(viewsets.ModelViewSet):
         """
 
         id_salida = request.data["salida"]
-        print(id_salida)
         finalizar_salida = inv_m.SalidaInventario.objects.get(id=id_salida)
         salida = inv_m.RevisionSalida.objects.get(salida=id_salida)
         paquetes = inv_m.Paquete.objects.filter(salida=id_salida,
@@ -251,9 +248,8 @@ class RevisionSalidaViewSet(viewsets.ModelViewSet):
         for paquete in paquetes:
             dispositivosPaquetes = inv_m.DispositivoPaquete.objects.filter(paquete=paquete.id,
                                                                            aprobado=True)
-            print(dispositivosPaquetes)
+
             for dispositivos in dispositivosPaquetes:
-                print(dispositivos)
                 dispositivos.dispositivo.etapa = inv_m.DispositivoEtapa.objects.get(id=inv_m.DispositivoEtapa.EN)
                 dispositivos.dispositivo.valido = False
                 try:
@@ -290,7 +286,7 @@ class RevisionSalidaViewSet(viewsets.ModelViewSet):
 
     @action(methods=['post'], detail=True)
     def rechazar_dispositivo(self, request, pk=None):
-        """ Metodo para rechazar los dispositivos
+        """ Metodo para rechazar los dispositivos en control de calidad
         """
         triage = request.data["triage"]
         id_paquete = request.data["paquete"]
@@ -310,6 +306,8 @@ class RevisionSalidaViewSet(viewsets.ModelViewSet):
 
     @action(methods=['post'], detail=True)
     def aprobar_dispositivo(self, request, pk=None):
+        """Metodo para aprobar dispositivos en area de control de calidad
+        """
         triage = request.data["triage"]
         paquete = request.data["paquete"]
         id_paquete = request.data["idpaquete"]
@@ -319,7 +317,6 @@ class RevisionSalidaViewSet(viewsets.ModelViewSet):
         asignacion_fecha.save()
         cantidad_paquetes = inv_m.Paquete.objects.get(id=id_paquete)
         cambio_estado = inv_m.Dispositivo.objects.get(triage=triage)
-        print(cantidad_paquetes.cantidad)
         asignaciones_aprobadas = inv_m.DispositivoPaquete.objects.filter(paquete=id_paquete, aprobado=True).count()
         cambio_estado.estado = inv_m.DispositivoEstado.objects.get(id=inv_m.DispositivoEstado.BN)
         cambio_estado.save()
@@ -335,7 +332,7 @@ class RevisionSalidaViewSet(viewsets.ModelViewSet):
     @action(methods=['post'], detail=True)
     def aprobar_revision(self, request, pk=None):
         id_salida = request.data["salida"]
-        finalizar_salida = inv_m.SalidaInventario.objects.get(id=id_salida)
+        finalizar_salida = inv_m.SalidaInventario.objects.get(id=id_salida)        
         estado_bueno = inv_m.DispositivoEstado.objects.get(id=inv_m.DispositivoEstado.BN)
         etapa_listo = inv_m.DispositivoEtapa.objects.get(id=inv_m.DispositivoEtapa.LS)
         paquetes_aprobados = inv_m.DispositivoPaquete.objects.filter(
@@ -346,9 +343,6 @@ class RevisionSalidaViewSet(viewsets.ModelViewSet):
             paquete__salida=id_salida,
             dispositivo__etapa=etapa_listo,
             dispositivo__estado=estado_bueno).count()
-        print("dispositivo aprobados:"+str(dispositivos_aprobados))
-        print("dispositivo paquetes:"+str(dispositivos_paquetes))
-        print("paquetes aprobados:"+str(paquetes_aprobados))
         if(dispositivos_aprobados != dispositivos_paquetes):
             return Response({
                 'mensaje': 'Faltan Dispositivos por aprobar'
@@ -362,7 +356,8 @@ class RevisionSalidaViewSet(viewsets.ModelViewSet):
                 },
                     status=status.HTTP_400_BAD_REQUEST
                 )
-
+        finalizar_salida.estado = inv_m.SalidaEstado.objects.get(nombre="Listo")
+        finalizar_salida.save()
         return Response({
             'mensaje': 'Revision aprobada'
         },

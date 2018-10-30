@@ -61,7 +61,7 @@ class SalidaInventarioUpdateView(LoginRequiredMixin, UpdateView):
 
 
 class SalidaInventarioDetailView(LoginRequiredMixin, DetailView):
-    """
+    """Vista encargada de mostrar los detalles de la :class:`SalidaInventario`
     """
     model = inv_m.SalidaInventario
     template_name = 'inventario/salida/salida_detail.html'
@@ -80,7 +80,6 @@ class SalidaPaqueteUpdateView(LoginRequiredMixin, UpdateView):
         return reverse_lazy('salidainventario_edit', kwargs={'pk': self.object.id})
 
     def get_form(self, form_class=None):
-        print(self.request.user)
         form = super(SalidaPaqueteUpdateView, self).get_form(form_class)
         form.fields['entrada'].widget = forms.SelectMultiple(attrs={
             'data-api-url': reverse_lazy('inventario_api:api_entrada-list')
@@ -91,7 +90,6 @@ class SalidaPaqueteUpdateView(LoginRequiredMixin, UpdateView):
         return form
 
     def form_valid(self, form):
-        print(self.request.user.tipos_dispositivos.tipos.all())
         cantidad_disponible = form.cleaned_data['entrada']
         tipo = inv_m.PaqueteTipo.objects.get(id=self.request.POST['tipo_paquete'])
         cantidad = form.cleaned_data['cantidad']
@@ -156,7 +154,6 @@ class SalidaPaqueteDetailView(LoginRequiredMixin, UpdateView):
             lista_dispositivos=form.cleaned_data['dispositivos'],
             usuario=self.request.user
         )
-        print(form.cleaned_data['dispositivos'])
         for nuevosDispositivos in form.cleaned_data['dispositivos']:
             nuevosDispositivos.etapa = etapa_control
             nuevosDispositivos.save()
@@ -236,7 +233,6 @@ class RevisionComentarioCreate(CsrfExemptMixin, JsonRequestResponseMixin, View):
             id_comentario = self.request_json["id_comentario"]
             revision_salida = inv_m.RevisionSalida.objects.filter(salida=id_comentario)
             comentario = self.request_json["comentario"]
-            print()
             if not len(comentario) or len(revision_salida) == 0:
                 raise KeyError
         except KeyError:
@@ -266,7 +262,6 @@ class RevisionComentarioSalidaCreate(CsrfExemptMixin, JsonRequestResponseMixin, 
             id_comentario = self.request_json["id_comentario"]
             revision_salida = inv_m.SalidaInventario.objects.filter(id=id_comentario)
             comentario = self.request_json["comentario"]
-            print()
             if not len(comentario) or len(revision_salida) == 0:
                 raise KeyError
         except KeyError:
@@ -297,7 +292,7 @@ class ControlCalidadListView(LoginRequiredMixin, ListView):
 
 
 class DispositivoAsignados(LoginRequiredMixin, DetailView):
-    """
+    """Vista encargada de ver los dispositivos que se fueron asignados a los paquetes  
     """
     model = inv_m.Paquete
     template_name = 'inventario/salida/dispositivos_salida.html'

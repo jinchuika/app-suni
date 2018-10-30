@@ -13,19 +13,21 @@ from django.http import HttpResponse, HttpResponseRedirect
 
 # Tarima
 
-#Listar las tarimas
+# Listar las tarimas
 class TarimaListView(ListView):
     model = inv_m.Tarima
     template_name = 'bodega/tarimas_list.html'
 
-#Crear tarimas
+
+# Crear tarimas
 class TarimaCrearCreateView(CreateView):
     model = inv_m.Tarima
     form_class = inv_f.TarimaForm
     template_name = 'bodega/tarimas_add.html'
     success_url = reverse_lazy('tarima_list')
 
-#Actualizar Tarima
+
+# Actualizar Tarima
 class TarimaActualizarUpdateView(UpdateView):
     model = inv_m.Tarima
     form_class = inv_f.TarimaForm
@@ -35,19 +37,21 @@ class TarimaActualizarUpdateView(UpdateView):
 
 # Sector
 
-#Listar las Sectores
+# Listar las Sectores
 class SectoreListarListView(ListView):
     model = inv_m.Sector
     template_name = 'bodega/sectores_list.html'
 
-#Crear Sector
+
+# Crear Sector
 class SectorCrearCreateView(CreateView):
     model = inv_m.Sector
     form_class = inv_f.SectorForm
     template_name = 'bodega/sector_add.html'
     success_url = reverse_lazy('sector_list')
 
-#Actualizar Sector
+
+# Actualizar Sector
 class SectorActualizarUpdateView(UpdateView):
     model = inv_m.Sector
     form_class = inv_f.TarimaForm
@@ -57,19 +61,21 @@ class SectorActualizarUpdateView(UpdateView):
 
 # Nivel
 
-#Listar las Niveles
+# Listar las Niveles
 class NivelListarListView(ListView):
     model = inv_m.Nivel
     template_name = 'bodega/nivel_list.html'
 
-#Crear Nivel
+
+# Crear Nivel
 class NivelCrearCreateView(CreateView):
     model = inv_m.Nivel
     form_class = inv_f.NivelForm
     template_name = 'bodega/nivel_add.html'
     success_url = reverse_lazy('nivel_list')
 
-#Actualizar Nivel
+
+# Actualizar Nivel
 class NivelActualizarUpdateView(UpdateView):
     model = inv_m.Nivel
     form_class = inv_f.NivelForm
@@ -79,19 +85,21 @@ class NivelActualizarUpdateView(UpdateView):
 
 # Pasillo
 
-#Listar los pasillos
+# Listar los pasillos
 class PasilloListView(ListView):
     model = inv_m.Pasillo
     template_name = 'bodega/pasillo_list.html'
 
-#Crear pasillo
+
+# Crear pasillo
 class PasilloCrearCreateView(CreateView):
     model = inv_m.Pasillo
     form_class = inv_f.PasilloForm
     template_name = 'bodega/pasillo_add.html'
     success_url = reverse_lazy('pasillo_list')
 
-#Actualizar Pasillo
+
+# Actualizar Pasillo
 class PasilloActualizarUpdateView(UpdateView):
     model = inv_m.Pasillo
     form_class = inv_f.PasilloForm

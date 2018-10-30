@@ -2,7 +2,7 @@ from rest_framework import routers
 from apps.inventario import api_views
 
 entrada_router = routers.DefaultRouter()
-# ruta de acceso al api de detalles
+# ruta de acceso al api de entradas
 entrada_router.register(
     r'detalles',
     api_views.EntradaDetalleViewSet,

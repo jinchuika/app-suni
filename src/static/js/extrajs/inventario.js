@@ -1164,7 +1164,8 @@ class Salidas {
       var es_beneficiario = true;
     }
     $('#id-reasignar').click( function(){
-      bootbox.prompt({
+      console.log(url_salida_paquete);
+    /*  bootbox.prompt({
         title: mensaje,
         callback: function (result) {
           if (result) {
@@ -1189,7 +1190,37 @@ class Salidas {
            });
           }
         }
+      });*/
+      $.ajax({
+          url:url_salida_paquete+"?asignacion=53",
+          data:function (){
+            return {
+              asignacion: salida_pk,
+            }
+          },
+          error:function(error){
+            console.log(error)
+            console.log("Error");
+          },
+          success:function(data){
+            console.log(data);
+            console.log(data.length);
+            
+            bootbox.prompt({
+          title: "This is a prompt with select!",
+          inputType: 'select',
+          inputOptions: [
+
+          ],
+          callback: function (result) {
+              console.log(result);
+          }
       });
+
+          },
+          type: 'GET'
+        }
+      );
     });
 
 
@@ -1453,7 +1484,7 @@ class PaqueteDetail {
                    title: "Por que rechazo este dispositivo?",
                    inputType: 'textarea',
                    callback: function (result) {
-                     if (result) {                      
+                     if (result) {
                        crear_historial_salidas(url, id_comentario, result);
                      }
                    }
@@ -1701,7 +1732,11 @@ class DispositivosQR {
        success:function (response){
          location.reload();
 
-       }
+       },
+       error: function (response) {
+            var jsonResponse = JSON.parse(response.responseText);
+             bootbox.alert(jsonResponse["mensaje"]);
+        }
      });
     })
 
