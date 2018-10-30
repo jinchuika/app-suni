@@ -436,6 +436,7 @@
         {data: "alcance"},
         {data: "fecha", class: 'nowrap'},
         {data: "poblacion"},
+        {data: "estudiantes"},
         ]
     })
     .on('xhr.dt', function (e, settings, json, xhr) {
