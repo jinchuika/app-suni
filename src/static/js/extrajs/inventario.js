@@ -109,7 +109,7 @@ class EntradaUpdate {
                 {data: "creado_por"},
                 {
                     data: "",render: function(data, type, full, meta){
-                      if(full.dispositivos_creados == true || full.repuestos_creados == true){
+                      if(full.dispositivos_creados == true ){
                           if(full.usa_triage == "False"){
                             return "<a href="+full.update_url+" class='btn btn-info btn-editar'>Editar</a>";
                           }else{
@@ -125,7 +125,7 @@ class EntradaUpdate {
                     data: "", render: function(data, type, full, meta){
                       if(full.tipo_entrada != "Especial"){
                           if(full.dispositivos_creados == false){
-                            if(full.usa_triage == "True" && full.util > 0){
+                            if(full.usa_triage == "True"){
                               return "<button class='btn btn-primary btn-dispositivo'>Crear Disp</button>";
                             }else{
                               return "";
@@ -156,7 +156,7 @@ class EntradaUpdate {
                     data: "", render: function(data, type, full, meta){
                       if(full.tipo_entrada != "Especial"){
                         if(full.repuestos_creados == false){
-                          if(full.usa_triage == "True" && full.repuesto > 0){
+                          if(full.usa_triage == "True"){
                               return "<button class='btn btn-warning btn-repuesto'>Crear Rep</button>";
                           }else{
                             return " ";
@@ -858,7 +858,7 @@ class SalidasRevisarList {
   constructor() {
     /** Uso de tabla **/
     let revision_tabla = $('#salidasrevisar-table');
-    let api_url_revision = $('#salidarevisionid').data('url');
+    let api_url_revision = $('#salidarevisionid').data('url');    
     var tablaRevision = revision_tabla.DataTable({
       processing:true,
       retrieve:true,
@@ -876,7 +876,7 @@ class SalidasRevisarList {
 
       },
       columns:[
-        {data:"id", render: function( data, type, full, meta){
+        {data:"salida", render: function( data, type, full, meta){
           return '<a href="'+full.urlSalida+'">'+data+'</a>'
         }},
         {data:"fecha_revision", render: function(data, type, full, meta){
@@ -884,7 +884,6 @@ class SalidasRevisarList {
          var options = {year: 'numeric', month:'long', day:'numeric', hour:'numeric',minute:'numeric'};
           return newDate.toLocaleDateString("es-Es",options);
         }},
-        {data:"salida"},
         {data:"revisado_por"},
         {data:"estado"},
       ]
@@ -900,27 +899,35 @@ class Salidas {
     var salida_pk= $("#salidas-paquete-table").data("pk");
     var url_cuadrar = $("#salidas-paquete-table").data("cuadrar");
     var url_finalizar = $("#salidas-paquete-table").data("urlfin");
-    console.log(url_finalizar);
+    var url_detail = $("#salidas-paquete-table").data("urldetail");
+    var fecha = new Date();
+    var dia = fecha.getDate();
+    var mes = fecha.getMonth()+1;
+    var year = fecha.getFullYear();
+    if(dia<10){
+        dia='0'+dia;
+    }
+    if(mes<10){
+        mes='0'+mes;
+    }
+    var fecha = year+'-'+mes+'-'+dia;
+    $('#id_fecha').val(fecha);
+    $("[for='id_entrega']").css({"visibility":"hidden"});
+    $("[for='id_beneficiario']").css({"visibility":"hidden"});
 
     $('#id_entrega').click(function () {
         if ($("#id_entrega").is(':checked')) {
-
           $("[for='id_udi']").css({"visibility":"visible"});
-
           $("#id_udi").attr('type','visible');
-
+          $("#id_udi").val(" ");
           $("#id_beneficiario").css({"visibility":"hidden"});
-
-
-          $("[for='id_beneficiario']").text("Beneficiario");
           $("[for='id_beneficiario']").css({"visibility":"hidden"});
         } else {
-          $("#id_beneficiario").append('<option value="" selected=""> ------- </option>');
           $("#id_udi").attr('type','hidden');
           $("[for='id_udi']").css({"visibility":"hidden"});
-          $("[for='id_beneficiario']").text("Beneficiario");
           $("[for='id_beneficiario']").css({"visibility":"visible"});
           $("#id_beneficiario").css({"visibility":"visible"});
+          $("#id_udi").val(" ");
         }
     });
     $('#salidaform').on('submit', function(e){
@@ -965,7 +972,7 @@ class Salidas {
         {data:"beneficiario"},
         {data:"", render: function(data, type, full, meta){
           if(full.estado == 'Entregado'){
-            return "<a target='_blank' rel='noopener noreferrer' href="+full.url+" class='btn btn-success'>Abrir</a>";
+            return "<a target='_blank' rel='noopener noreferrer' href="+full.detail_url+" class='btn btn-success'>Abrir</a>";
           }else{
             return "<a target='_blank' rel='noopener noreferrer' href="+full.url+" class='btn btn-success'>Abrir</a>";
           }
@@ -1009,18 +1016,8 @@ class Salidas {
           if(full.tipo_salida == "Especial" ){
             return ""
           }else{
-            /*for(var i = 0; i<(full.asignacion.length);i++){
-              console.log(full.asignacion[i].dispositivo.triage)
-              if(full.asignacion[i].dispositivo.triage.length == 0){
-                return "";
-
-              }else{
-                return "HOLA";
-              }
-            }*/
             return "<a target='_blank' rel='noopener noreferrer' href="+full.url_detail+" class='btn btn-success'>Ver Dispositivos</a>";
           }
-
         }},
         {data:"", render: function(data, type, full, meta){
           if(full.aprobado ==false){
@@ -1108,11 +1105,6 @@ class Salidas {
                                     tipo:tipo
                                 },
                                 success: function (response) {
-                                  /*  bootbox.confirm("Salida Creada",
-                                    function(result){
-                                       location.reload();
-                                     });*/
-                                     /****/
                                      $.ajax({
                                        type: "POST",
                                        url: url_finalizar,
@@ -1122,6 +1114,7 @@ class Salidas {
                                            salida :salida_pk,
                                        },
                                        success: function (response){
+                                        window.location.href = url_detail;
                                          console.log(response);
 
                                        },
@@ -1146,13 +1139,12 @@ class Salidas {
     $('#id_tipo_salida').change(function(){
       var tipoSalida = $(this).val();
       var tipoSalidaText = $('#id_tipo_salida option:selected').text()
-      console.log(tipoSalida);
-      console.log(tipoSalidaText);
       if(tipoSalida == 3 || tipoSalidaText =='Especial'){
-        $('#id_entrega').prop("disabled",false);
-
+        $("[for='id_entrega']").css({"visibility":"visible"});
+        $("#id_entrega").css({"visibility":"visible"});
       }else{
-        $('#id_entrega').prop("disabled",true);
+        $("[for='id_entrega']").css({"visibility":"hidden"});
+        $("#id_entrega").css({"visibility":"hidden"});
       }
     });
     /**Reasignar**/
@@ -1166,7 +1158,6 @@ class Salidas {
       var es_beneficiario = true;
     }
     $('#id-reasignar').click( function(){
-      console.log(url_salida_paquete);
     /*  bootbox.prompt({
         title: mensaje,
         callback: function (result) {
@@ -1196,10 +1187,10 @@ class Salidas {
       $.ajax({
           url:url_salida_paquete+"?asignacion=53",
           data:function (){
-            return {
-              asignacion: salida_pk,
-            }
-          },
+          return {
+            asignacion: salida_pk,
+          }
+         },
           error:function(error){
             console.log(error)
             console.log("Error");

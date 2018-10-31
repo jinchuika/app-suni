@@ -77,12 +77,19 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
         else:
             mensaje_cuadrar = ""
             entrad_id = request.data['primary_key']
-            dispositivos_utiles = inv_m.EntradaDetalle.objects.filter(Q(entrada=entrad_id),Q(util__gt = 0)).count()
-            repuestos_utiles = inv_m.EntradaDetalle.objects.filter(Q(entrada=entrad_id),Q(repuesto__gt = 0)).count()
-            validar_dispositivos = inv_m.EntradaDetalle.objects.filter(Q(entrada=entrad_id),Q(util__gt = 0) , dispositivos_creados=True).count()
-            validar_repuestos = inv_m.EntradaDetalle.objects.filter(Q(entrada=entrad_id),Q(repuesto__gt = 0), repuestos_creados=True).count()
-
-            tipo_dispositivo = inv_m.EntradaDetalle.objects.filter(entrada=entrad_id).values('tipo_dispositivo').distinct()
+            dispositivos_utiles = inv_m.EntradaDetalle.objects.filter(Q(entrada=entrad_id), Q(util__gt=0)).count()
+            repuestos_utiles = inv_m.EntradaDetalle.objects.filter(Q(entrada=entrad_id), Q(repuesto__gt=0)).count()
+            validar_dispositivos = inv_m.EntradaDetalle.objects.filter(
+                Q(entrada=entrad_id),
+                Q(util__gt=0),
+                dispositivos_creados=True).count()
+            validar_repuestos = inv_m.EntradaDetalle.objects.filter(
+                Q(entrada=entrad_id),
+                Q(repuesto__gt=0),
+                repuestos_creados=True).count()
+            tipo_dispositivo = inv_m.EntradaDetalle.objects.filter(
+                entrada=entrad_id
+                ).values('tipo_dispositivo').distinct()
             tipos_sin_cuadrar = []
             for tipo in tipo_dispositivo:
                 acumulado_totales = 0
@@ -99,7 +106,8 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
 
             if(len(tipos_sin_cuadrar) > 0):
                 return Response(
-                      {'mensaje': 'La entrada no esta cuadrada revisar:' + ', '.join(str(x) for x in tipos_sin_cuadrar)},
+                      {'mensaje': 'La entrada no esta cuadrada revisar:'
+                       + ', '.join(str(x) for x in tipos_sin_cuadrar)},
                       status=status.HTTP_400_BAD_REQUEST
                   )
             elif(dispositivos_utiles != validar_dispositivos or repuestos_utiles != validar_repuestos):
@@ -111,8 +119,8 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
                 return Response(
                     {'mensaje': 'Entrada Cuadrada'},
                     status=status.HTTP_200_OK
-                )             
-           
+                )
+
     @action(methods=['post'], detail=True)
     def crear_dispositivos(self, request, pk=None):
         """ Metodo para la Creacion de Dispositivos

@@ -36,10 +36,18 @@ class SalidaInventarioCreateView(LoginRequiredMixin, CreateView):
         form.instance.creada_por = self.request.user
         form.instance.estado = inv_m.SalidaEstado.objects.get(id=1)
         if form.instance.entrega:
-            form.instance.beneficiario = None
-            form.instance.escuela = escuela_m.Escuela.objects.get(codigo=form.cleaned_data['udi'])
+            print(form.instance.entrega)
+            print("1")
+            try:
+                form.instance.escuela = escuela_m.Escuela.objects.get(codigo=form.cleaned_data['udi'])
+            except ObjectDoesNotExist:
+                form.add_error('udi', 'El UDI no es válido o no existe.')
+                return self.form_invalid(form)
         else:
+            print(form.instance.entrega)
+            print("2")
             form.instance.escuela = None
+            # print(asdasdas)
         return super(SalidaInventarioCreateView, self).form_valid(form)
 
 
@@ -292,7 +300,7 @@ class ControlCalidadListView(LoginRequiredMixin, ListView):
 
 
 class DispositivoAsignados(LoginRequiredMixin, DetailView):
-    """Vista encargada de ver los dispositivos que se fueron asignados a los paquetes  
+    """Vista encargada de ver los dispositivos que se fueron asignados a los paquetes
     """
     model = inv_m.Paquete
     template_name = 'inventario/salida/dispositivos_salida.html'
