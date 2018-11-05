@@ -44,3 +44,14 @@ class ofertaSerializer(serializers.ModelSerializer):
             responder = "No"
 
         return responder
+
+
+class DonanteSerializer(serializers.ModelSerializer):
+    """ Serializer para generar informes completos de :class:`Donante`
+    """
+    class Meta:
+        model = crm_m.Donante
+        fields = (
+            'id',
+            'nombre'
+        )

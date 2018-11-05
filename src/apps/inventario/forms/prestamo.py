@@ -1,4 +1,5 @@
 from django import forms
+from django.utils import timezone
 from apps.inventario import models as inv_m
 from django.contrib.auth.models import User
 
@@ -14,7 +15,7 @@ class PrestamoForm(forms.ModelForm):
     class Meta:
         model = inv_m.Prestamo
         fields = ('tipo_prestamo', 'prestado_a', 'tipo_dispositivo', 'dispositivo')
-        widgets = {
+        widgets = {            
             'tipo_prestamo': forms.Select(attrs={'class': 'form-control select2 '}),
             'prestado_a': forms.Select(attrs={'class': 'form-control select2'}),
             'tipo_dispositivo': forms.Select(attrs={'class': 'form-control select2'}),

@@ -858,7 +858,7 @@ class SalidasRevisarList {
   constructor() {
     /** Uso de tabla **/
     let revision_tabla = $('#salidasrevisar-table');
-    let api_url_revision = $('#salidarevisionid').data('url');    
+    let api_url_revision = $('#salidarevisionid').data('url');
     var tablaRevision = revision_tabla.DataTable({
       processing:true,
       retrieve:true,
@@ -1150,6 +1150,7 @@ class Salidas {
     /**Reasignar**/
     var asignacion =   $('#id-reasignar').data('entrega');
     var urlrechazar = $('#id-reasignar').data('urlreasignar');
+    var urldonantes = $('#id-reasignar').data('urldonantes');
     if(asignacion == "None"){
       var mensaje = "Ingrese el UDI a Reasignar";
         var es_beneficiario = false;
@@ -1157,70 +1158,95 @@ class Salidas {
       var mensaje = "Ingrese el Beneficiario a Reasignar";
       var es_beneficiario = true;
     }
-    $('#id-reasignar').click( function(){
-    /*  bootbox.prompt({
-        title: mensaje,
-        callback: function (result) {
-          if (result) {
-            $.ajax({
-             type: "POST",
-             url:urlrechazar,
-             data:{
-               csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
-               data:result,
-               id_salida:salida_pk,
-               beneficiario:es_beneficiario
-             },
-             success:function (response){
-               bootbox.alert(response.mensaje);
-
-             },
-             error: function (response) {
-                  var jsonResponse = JSON.parse(response.responseText);
-                  bootbox.alert(jsonResponse["mensaje"]);
-
+    if(beneficiario == true){
+      $('#id-reasignar').click( function(){
+       console.log(url_salida_paquete);
+        $.ajax({
+             url:urldonantes,
+             data:function (){
+             return {
+               asignacion: salida_pk,
              }
-           });
-          }
-        }
-      });*/
-      $.ajax({
-          url:url_salida_paquete+"?asignacion=53",
-          data:function (){
-          return {
-            asignacion: salida_pk,
-          }
-         },
-          error:function(error){
-            console.log(error)
-            console.log("Error");
-          },
-          success:function(data){
-            console.log(data);
-            console.log(data.length);
-            var listOfObjects = [];
-            var singleObj = {}
-            for (var i = 0; i < data.length; i++) {
-            singleObj['text'] = data['id'];
-            singleObj['value'] = i;
-            listOfObjects.push(singleObj);
-            }
-            bootbox.prompt({
-          title: "This is a prompt with select!",
-          inputType: 'select',
-          inputOptions: listOfObjects,
-          callback: function (result) {
-              console.log(result);
-          }
-      });
+            },
+             error:function(error){
+               console.log(error);
+               console.log("Error");
+             },
+             success:function(data){
+               var listaDeDonantes = [];
+               for (var i in data){
+                 var donante = {}
+                 donante['text'] = data[i].nombre;
+                 donante['value'] =data[i].id;
+                 listaDeDonantes.push(donante);
+             }
+               bootbox.prompt({
+             title: "Seleccione el Donante",
+             inputType: 'select',
+             inputOptions: listaDeDonantes,
+             callback: function (result) {
+                 console.log(result);
+                 //
+                 $.ajax({
+                  type: "POST",
+                  url:urlrechazar,
+                  data:{
+                    csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
+                    data:result,
+                    id_salida:salida_pk,
+                    beneficiario:es_beneficiario
+                  },
+                  success:function (response){
+                    bootbox.alert(response.mensaje);
+                    location.reload();
 
-          },
-          type: 'GET'
-        }
-      );
-    });
+                  },
+                  error: function (response) {
+                       bootbox.alert("Seleccione un  Donante dela lista");
 
+                  }
+                });
+                 //
+             }
+             });
 
+             },
+             type: 'GET'
+           }
+         );
+       });
+    }else{
+      $('#id-reasignar').click( function(){
+       console.log(url_salida_paquete);
+       bootbox.prompt({
+           title: mensaje,
+           callback: function (result) {
+             if (result) {
+               $.ajax({
+                type: "POST",
+                url:urlrechazar,
+                data:{
+                  csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
+                  data:result,
+                  id_salida:salida_pk,
+                  beneficiario:es_beneficiario
+                },
+                success:function (response){
+                  bootbox.alert(response.mensaje);
+                  location.reload();
+
+                },
+                error: function (response) {
+                     var jsonResponse = JSON.parse(response.responseText);
+                     bootbox.alert(jsonResponse["mensaje"]);
+                }
+              });
+             }
+           }
+         });
+
+       });
+    }
 
   }
 }
@@ -1787,6 +1813,22 @@ class DispositivosTarimaList {
 }
 class Prestamo {
   constructor() {
+      /**/
+
+      document.getElementById("id_fecha_inicio").disabled = true;
+      var fecha = new Date();
+      var dia = fecha.getDate();
+      var mes = fecha.getMonth()+1;
+      var year = fecha.getFullYear();
+      if(dia<10){
+          dia='0'+dia;
+      }
+      if(mes<10){
+          mes='0'+mes;
+      }
+      var fecha = year+'-'+mes+'-'+dia;
+      $('#id_fecha_inicio').text("Fecha de Inicio:"+ fecha);
+      /**/
 
       $('#id_dispositivo').append('<option value=""'+'>'+"---------"+'</option>');
       var api_url = $('#prestamoDispositivo').data("url")

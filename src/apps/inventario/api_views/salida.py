@@ -180,7 +180,7 @@ class SalidaInventarioViewSet(viewsets.ModelViewSet):
         nueva_reasignar = inv_m.SalidaInventario.objects.get(id=id_salida)
         if(es_beneficiario == 'true'):
             try:
-                nuevo_beneficiario = crm_m.Donante.objects.get(nombre=data)
+                nuevo_beneficiario = crm_m.Donante.objects.get(id=data)
                 nueva_reasignar.beneficiario = nuevo_beneficiario
                 nueva_reasignar.reasignado_por = request.user
                 nueva_reasignar.save()

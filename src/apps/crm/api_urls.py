@@ -7,5 +7,8 @@ router = routers.DefaultRouter()
 router.register(r'ofertas',
                 api_views.OfertaViewSet,
                 base_name='ofertas')
+router.register(r'donante',
+                api_views.DonanteViewSet,
+                base_name='donante')
 urlpatterns = []
 urlpatterns += router.urls
