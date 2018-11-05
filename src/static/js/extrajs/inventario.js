@@ -911,6 +911,7 @@ class Salidas {
         mes='0'+mes;
     }
     var fecha = year+'-'+mes+'-'+dia;
+      console.log(fecha);
     $('#id_fecha').val(fecha);
     $("[for='id_entrega']").css({"visibility":"hidden"});
     $("[for='id_beneficiario']").css({"visibility":"hidden"});
