@@ -18,10 +18,11 @@ class DetalleInformeFilter(filters.FilterSet):
     """
     tipo = django_filters.CharFilter(name='entrada')
     asignacion = filters.NumberFilter(name='asignacion', method='filter_asignacion')
+    desecho = filters.NumberFilter(lookup_expr='gt')
 
     class Meta:
         model = inv_m.EntradaDetalle
-        fields = ['entrada']
+        fields = ['entrada', 'tipo_dispositivo', 'desecho']
 
     def filter_asignacion(self, qs, name, value):
         tipo_dis = self.request.user.tipos_dispositivos.tipos.all()

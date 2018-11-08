@@ -5,17 +5,17 @@
 {% block content %}
 <section class="content">
   <div class="container-fluid">
-          <form id="detalleForm" action="{% url 'inventario_api:api_desechodetalle-list' %}" method="post">
-            {%csrf_token%}
-            <table class="table table-condensed">
-              {{ DesechoDetalleForm.as_table }}
-              <tr>
-                <td>
-                  <input id="detallebtn"type="submit" class="btn btn-success" value="Guardar" />
-                </td>
-              </tr>
-            </table>
-          </form>
+      <form id="detalleForm" action="{% url 'inventario_api:api_desechodetalle-list' %}" method="post">
+        {%csrf_token%}
+        <table class="table table-condensed">
+          {{ DesechoDetalleForm.as_table }}
+          <tr>
+            <td>
+              <input id="detallebtn"type="submit" class="btn btn-success" value="Guardar" />
+            </td>
+          </tr>
+        </table>
+      </form>
   </div>
 </section>
 {% endblock content %}

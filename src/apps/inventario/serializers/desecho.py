@@ -11,5 +11,15 @@ class DesechoDetalleSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = inv_m.DesechoDetalle
-        fields = ['desecho', 'entrada_detalle', 'cantidad', 'tdispositivo', 'tipo_dispositivo']
+        fields = ['id', 'desecho', 'entrada_detalle', 'cantidad', 'tdispositivo', 'tipo_dispositivo', 'aprobado']
 
+
+class DesechoDispositivoSerializer(serializers.ModelSerializer):
+    """ Serializer para generar informes de la :class:'DesechoDetalle'
+    """
+    tipo = serializers.StringRelatedField(source='dispositivo.tipo')
+    triage = serializers.StringRelatedField(source='dispositivo.triage')
+
+    class Meta:
+        model = inv_m.DesechoDispositivo
+        fields = '__all__'

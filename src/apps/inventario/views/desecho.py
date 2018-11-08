@@ -42,7 +42,20 @@ class DesechoSalidaCreateView(LoginRequiredMixin, CreateView):
 
     def get_context_data(self, **kwargs):
         context = super(DesechoSalidaCreateView, self).get_context_data(**kwargs)
-        context['desechosalida'] = inv_m.DesechoSalida.objects.filter(en_creacion='True')
+        context['desechosalida'] = inv_m.DesechoSalida.objects.all()
+        return context
+
+
+class DesechoSalidaDetailView(LoginRequiredMixin, DetailView):
+    """Vista encargada de mostrar los detalles de la :class:`SalidaInventario`
+    """
+    model = inv_m.DesechoSalida
+    template_name = 'inventario/desecho/desechosalida_detail.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(DesechoSalidaDetailView, self).get_context_data(**kwargs)
+        context['desechodetalles'] = inv_m.DesechoDetalle.objects.filter(desecho=self.object.id)
+        context['desechodispositivo'] = inv_m.DesechoDispositivo.objects.filter(desecho=self.object.id)
         return context
 
 
@@ -56,7 +69,21 @@ class DesechoSalidaUpdateView(LoginRequiredMixin, UpdateView):
     def get_context_data(self, **kwargs):
         context = super(DesechoSalidaUpdateView, self).get_context_data(**kwargs)
         context['DesechoDetalleForm'] = inv_f.DesechoDetalleForm(initial={'desecho': self.object})
+        context['DesechoDispositivoForm'] = inv_f.DesechoDispositivoForm(initial={'desecho': self.object})
         return context
 
     def get_success_url(self):
         return reverse('desechosalida_update', kwargs={'pk': self.object.id})
+
+
+class DesechoDispositivoCreateView(LoginRequiredMixin, CreateView):
+    """Vista   para obtener los datos de Entrada mediante una :class:`DesechoSalida`
+    Funciona  para recibir los datos de un  'DesechoSalidaForm' mediante el metodo  POST.  y
+    nos muestra el template de visitas mediante el metodo GET.
+    """
+    model = inv_m.DesechoDispositivo
+    form_class = inv_f.DesechoDispositivoForm
+    template_name = 'inventario/desecho/desechodispositivo_add.html'
+
+    def get_success_url(self):
+        return reverse('desechosalida_updatet', kwargs={'pk': self.object.id})

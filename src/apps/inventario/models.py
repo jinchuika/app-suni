@@ -1087,8 +1087,9 @@ class DesechoDetalle(models.Model):
         on_delete=models.PROTECT,
         null=True,
         blank=True)
-    cantidad = models.DecimalField(max_digits=12, decimal_places=2)
+    cantidad = models.PositiveIntegerField(default=0)
     tipo_dispositivo = models.ForeignKey(DispositivoTipo, on_delete=models.PROTECT, related_name='salidas_desecho')
+    aprobado = models.BooleanField(default=False, blank=True)
 
     class Meta:
         verbose_name = "Detalle de salida de desecho"
@@ -1098,6 +1099,21 @@ class DesechoDetalle(models.Model):
         return '{desecho} {entrada}'.format(
             desecho=self.desecho,
             entrada=self.entrada_detalle)
+
+
+class DesechoDispositivo(models.Model):
+    desecho = models.ForeignKey(DesechoSalida, on_delete=models.PROTECT, related_name='detalles_dispositivos')
+    dispositivo = models.ForeignKey(Dispositivo, on_delete=models.CASCADE, related_name='desecho')
+    aprobado = models.BooleanField(default=False, blank=True)
+
+    class Meta:
+        verbose_name = "Dispositivo de desecho"
+        verbose_name_plural = "Dispositivos de desecho"
+
+    def __str__(self):
+        return '{desecho} -> {dispositivo}'.format(
+            desecho=self.desecho,
+            dispositivo=self.dispositivo)
 
 
 class SalidaTipo(models.Model):
@@ -1471,7 +1487,8 @@ class PrestamoTipo(models.Model):
 
 
 class Prestamo(models.Model):
-    dispositivo = models.ForeignKey(Dispositivo, on_delete=models.CASCADE, related_name='prestamos')
+    # dispositivo = models.ForeignKey(Dispositivo, on_delete=models.CASCADE, related_name='prestamos')
+    dispositivo = models.ManyToManyField(Dispositivo, related_name='prestamos')
     tipo_dispositivo = models.ForeignKey(
         DispositivoTipo,
         null=True,
@@ -1486,6 +1503,7 @@ class Prestamo(models.Model):
         related_name='prestamo_tipo')
     fecha_inicio = models.DateField()
     fecha_fin = models.DateField(null=True, blank=True)
+    fecha_estimada = models.DateField(null=True, blank=True)
     creado_por = models.ForeignKey(User, on_delete=models.CASCADE, related_name='prestamos_creados')
     prestado_a = models.ForeignKey(User, on_delete=models.CASCADE, related_name='prestamos')
     devuelto = models.BooleanField(default=False, blank=True)
@@ -1495,4 +1513,5 @@ class Prestamo(models.Model):
         verbose_name_plural = 'Préstamos'
 
     def __str__(self):
-        return '{} - {}'.format(self.fecha_inicio, self.dispositivo)
+        print(self.dispositivo)
+        return '{} - {}'.format(self.fecha_inicio, self.id)

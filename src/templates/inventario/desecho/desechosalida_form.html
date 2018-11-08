@@ -2,9 +2,9 @@
 {%load staticfiles widget_tweaks %}
 {% block page_title %}
 {%if form.instance.id%}
-<title>Salida: {{form.instance.id}}</title>
+<title>Desecho: {{form.instance.id}}</title>
 {%else%}
-<title>Salida</title>
+<title>Desecho</title>
 {%endif%}
 {% endblock page_title %}
 {% block content %}
@@ -17,7 +17,7 @@
           {%if form.instance.id%}
           <h3 class="box-title">
               <b>
-                Infomacion de salidas
+                Infomacion de desecho
               </b>
             </h3>
           {%endif%}
@@ -27,7 +27,7 @@
             <table class="table table-condensed">
               <tr>
                 <th>
-                    Salida numero :
+                    Desecho No. :
                 </th>
                 <td>
                   {{form.instance.id}}
@@ -39,15 +39,6 @@
                 </th>
                 <td>
                   {{form.instance.creado_por.get_full_name}}
-                </td>
-              </tr>
-
-              <tr>
-                <th>
-                     Empresa:
-                </th>
-                <td>
-                  {{form.instance.empresa}}
                 </td>
               </tr>
             </table>
@@ -80,7 +71,7 @@
           <div class="box-header">
             <div class="row">
               <div class="col-md-9">
-                <h3 class="box-title"><b>Actualizar datos de salida</b></h3>
+                <h3 class="box-title"><b>Actualizar datos de desecho</b></h3>
               </div>
               <div class="col-md-3">
                   <input id="btn-terminar" type="submit" class="btn btn-danger" value="Terminar" />
@@ -118,6 +109,16 @@
                 {%include "inventario/desecho/desechodetalle_add.html"%}
               </div>
           </div>
+          <div class="box">
+              <div class="box-header">
+                <div class="box-title">
+                      <h3><b>Agregar Dispositivo de salida</b></h3>
+                </div>
+              </div>
+              <div class="box-body">
+                {%include "inventario/desecho/desechodispositivo_add.html"%}
+              </div>
+          </div>
           {%endif%}
       </div>
       <div class="col-md-8">
@@ -125,22 +126,45 @@
         <div class="box">
             <div class="box-header">
               <div class="box-title">
-                    <h3><b>Listado de salidas en creación</b></h3>
+                    <h3><b>Desechos Por Entrada</b></h3>
               </div>
             </div>
             <div class="box-body">
-              <table id="salida-table" class="table table-condensed" data-api="{% url 'inventario_api:api_desechodetalle-list' %}" data-pk ="{{form.instance.id}}">
+              <table id="salida-table" class="table table-condensed" data-api="{% url 'inventario_api:api_desechodetalle-list' %}" data-pk ="{{form.instance.id}}" data-apiaprobar="{% url 'inventario_api:api_desechodispositivo-aprobar-detalle' %}" data-apirechazar="{% url 'inventario_api:api_desechodispositivo-rechazar-detalle' %}" data-finalizar="{% url 'inventario_api:api_desechodispositivo-finalizar-desecho' %}">
                 <thead>
                   <tr>
                     <th>Dispositivo</th>
                     <th>Cantidad</th>
                     <th>Desecho</th>
                     <th>Entrada No</th>
+                    <th></th>
+                    <th></th>
                   </tr>
                 </thead>
               </table>
             </div>
         </div>
+        <!---->
+        <div class="box">
+            <div class="box-header">
+              <div class="box-title">
+                    <h3><b>Desechos de Dispositivos</b></h3>
+              </div>
+            </div>
+            <div class="box-body">
+              <table id="dispositivo-table" class="table table-condensed" data-api="{% url 'inventario_api:api_desechodispositivo-list' %}" data-pk ="{{form.instance.id}}" data-apiaprobar="{% url 'inventario_api:api_desechodispositivo-aprobar-dispositivo' %}" data-apirechazar="{% url 'inventario_api:api_desechodispositivo-rechazar-dispositivo' %}" data-tipo="{% url 'inventario_api:api_detalles-list' %}">
+                <thead>
+                  <tr>
+                    <th>Triage</th>
+                    <th>Tipo</th>
+                    <th></th>
+                    <th></th>
+                  </tr>
+                </thead>
+              </table>
+            </div>
+        </div>
+        <!---->
         {%else%}
       </div>
     </div>
