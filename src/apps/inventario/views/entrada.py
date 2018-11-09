@@ -226,7 +226,7 @@ class EntradaDetalleDispositivos(LoginRequiredMixin, GroupRequiredMixin, DetailV
     def get_context_data(self, **kwargs):
         context = super(EntradaDetalleDispositivos, self).get_context_data(**kwargs)
         context['dispositivo_qr'] = inv_m.Dispositivo.objects.filter(entrada=self.object.id,
-                                                                    entrada_detalle=self.kwargs['detalle'])
+                                                                     entrada_detalle=self.kwargs['detalle'])
         return context
 
 

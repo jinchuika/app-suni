@@ -1,0 +1,18 @@
+{%load widget_tweaks %}
+{% block content  %}
+<section class="content">
+  <div class="container-fluid">
+  <form id="dispositivoForm" action="{% url 'inventario_api:api_desechodispositivo-list' %}" method="post">
+    {%csrf_token%}
+    <table class="table table-condensed">
+      {{ DesechoDispositivoForm.as_table }}
+      <tr>
+        <td>
+          <input id="detallebtn"type="submit" class="btn btn-success" value="Guardar" />
+        </td>
+      </tr>
+    </table>
+  </form>
+  </div>
+</section>
+{% endblock content%}

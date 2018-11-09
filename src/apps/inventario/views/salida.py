@@ -4,7 +4,7 @@ from django.urls import reverse_lazy
 from django.utils import timezone
 from django.views.generic import CreateView, DetailView, ListView, UpdateView, FormView, View
 from braces.views import (
-    LoginRequiredMixin, PermissionRequiredMixin, JsonRequestResponseMixin, CsrfExemptMixin
+    LoginRequiredMixin, PermissionRequiredMixin, JsonRequestResponseMixin, CsrfExemptMixin, GroupRequiredMixin
 )
 from django.contrib import messages
 from django.db.models import Sum
@@ -15,7 +15,7 @@ from apps.inventario import forms as inv_f
 from django import forms
 
 
-class SalidaInventarioCreateView(LoginRequiredMixin, CreateView):
+class SalidaInventarioCreateView(LoginRequiredMixin, GroupRequiredMixin, CreateView):
     """Vista   para obtener los datos de Salida mediante una :class:`SalidaInventario`
     Funciona  para recibir los datos de un  'SalidaInventarioForm' mediante el metodo  POST.  y
     nos muestra el template de visitas mediante el metodo GET.
@@ -23,6 +23,7 @@ class SalidaInventarioCreateView(LoginRequiredMixin, CreateView):
     model = inv_m.SalidaInventario
     form_class = inv_f.SalidaInventarioForm
     template_name = 'inventario/salida/salida_add.html'
+    group_required = [u"inv_cc", u"inv_admin"]
 
     def get_success_url(self):
         return reverse_lazy('salidainventario_edit', kwargs={'pk': self.object.id})
@@ -36,14 +37,17 @@ class SalidaInventarioCreateView(LoginRequiredMixin, CreateView):
         form.instance.creada_por = self.request.user
         form.instance.estado = inv_m.SalidaEstado.objects.get(id=1)
         if form.instance.entrega:
-            form.instance.beneficiario = None
-            form.instance.escuela = escuela_m.Escuela.objects.get(codigo=form.cleaned_data['udi'])
+            try:
+                form.instance.escuela = escuela_m.Escuela.objects.get(codigo=form.cleaned_data['udi'])
+            except ObjectDoesNotExist:
+                form.add_error('udi', 'El UDI no es válido o no existe.')
+                return self.form_invalid(form)
         else:
             form.instance.escuela = None
         return super(SalidaInventarioCreateView, self).form_valid(form)
 
 
-class SalidaInventarioUpdateView(LoginRequiredMixin, UpdateView):
+class SalidaInventarioUpdateView(LoginRequiredMixin, GroupRequiredMixin, UpdateView):
     """ Vista   para obtener los datos de Salida mediante una :class:`SalidaInventario`
     Funciona  para recibir los datos de un  'SalidaInventarioForm' mediante el metodo  POST.  y
     nos muestra el template de visitas mediante el metodo GET.
@@ -51,23 +55,26 @@ class SalidaInventarioUpdateView(LoginRequiredMixin, UpdateView):
     model = inv_m.SalidaInventario
     form_class = inv_f.SalidaInventarioUpdateForm
     template_name = 'inventario/salida/salida_edit.html'
-    permission_required = 'inventario.salidainventario_change'
+    # permission_required = 'inventario.salidainventario_change'
+    group_required = [u"inv_cc", u"inv_admin"]
 
     def get_context_data(self, *args, **kwargs):
         context = super(SalidaInventarioUpdateView, self).get_context_data(*args, **kwargs)
-        if self.request.user.has_perm("inventario.salidainventario_change"):
-            context['paquetes_form'] = inv_f.PaqueteCantidadForm()
+        context['paquetes_form'] = inv_f.PaqueteCantidadForm()
+        """if self.request.user.has_perm("inventario.salidainventario_change"):
+            context['paquetes_form'] = inv_f.PaqueteCantidadForm()"""
         return context
 
 
-class SalidaInventarioDetailView(LoginRequiredMixin, DetailView):
+class SalidaInventarioDetailView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
     """Vista encargada de mostrar los detalles de la :class:`SalidaInventario`
     """
     model = inv_m.SalidaInventario
     template_name = 'inventario/salida/salida_detail.html'
+    group_required = [u"inv_cc", u"inv_admin"]
 
 
-class SalidaPaqueteUpdateView(LoginRequiredMixin, UpdateView):
+class SalidaPaqueteUpdateView(LoginRequiredMixin, GroupRequiredMixin, UpdateView):
     """ Vista   para obtener los datos de Paquete mediante una :class:`SalidaInventario`
     Funciona  para recibir los datos de un  'PaqueteCantidadForm' mediante el metodo  POST.  y
     nos muestra el template de visitas mediante el metodo GET.
@@ -75,6 +82,7 @@ class SalidaPaqueteUpdateView(LoginRequiredMixin, UpdateView):
     model = inv_m.SalidaInventario
     form_class = inv_f.PaqueteCantidadForm
     template_name = 'inventario/salida/paquetes_add.html'
+    group_required = [u"inv_cc", u"inv_admin"]
 
     def get_success_url(self):
         return reverse_lazy('salidainventario_edit', kwargs={'pk': self.object.id})
@@ -123,12 +131,13 @@ class SalidaPaqueteUpdateView(LoginRequiredMixin, UpdateView):
         return super(SalidaPaqueteUpdateView, self).form_valid(form)
 
 
-class SalidaPaqueteDetailView(LoginRequiredMixin, UpdateView):
+class SalidaPaqueteDetailView(LoginRequiredMixin, GroupRequiredMixin, UpdateView):
     """Vista para detalle de :class:`Paquete`.
     """
     model = inv_m.Paquete
     template_name = 'inventario/salida/paquetes_detail.html'
     form_class = inv_f.PaqueteUpdateForm
+    group_required = [u"inv_cc", u"inv_admin"]
 
     def get_form(self, form_class=None):
         form = super(SalidaPaqueteDetailView, self).get_form(form_class)
@@ -168,11 +177,12 @@ class SalidaPaqueteDetailView(LoginRequiredMixin, UpdateView):
         return context
 
 
-class RevisionSalidaCreateView(LoginRequiredMixin, CreateView):
+class RevisionSalidaCreateView(LoginRequiredMixin, GroupRequiredMixin, CreateView):
     """Vista para creación de :class:`RevisionSalida`"""
     model = inv_m.RevisionSalida
     form_class = inv_f.RevisionSalidaCreateForm
     template_name = 'inventario/salida/revisionsalida_add.html'
+    group_required = [u"inv_conta", u"inv_admin"]
 
     def get_success_url(self):
         return reverse_lazy('revisionsalida_update', kwargs={'pk': self.object.id})
@@ -187,18 +197,20 @@ class RevisionSalidaCreateView(LoginRequiredMixin, CreateView):
         return super(RevisionSalidaCreateView, self).form_valid(form)
 
 
-class RevisionSalidaUpdateView(LoginRequiredMixin, UpdateView):
+class RevisionSalidaUpdateView(LoginRequiredMixin, GroupRequiredMixin, UpdateView):
     """Vista para edición de :class:`RevisionSalida`"""
     model = inv_m.RevisionSalida
     form_class = inv_f.RevisionSalidaUpdateForm
     template_name = 'inventario/salida/revisionsalida_update.html'
+    group_required = [u"inv_conta", u"inv_admin"]
 
 
-class SalidaPaqueteView(LoginRequiredMixin, DetailView):
+class SalidaPaqueteView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
     """Vista para detalle de :class:`SalidaInventario`.on sus respectivos filtros
     """
     model = inv_m.SalidaInventario
     template_name = 'inventario/salida/dispositivo_paquete.html'
+    group_required = [u"inv_cc", u"inv_admin"]
 
     def get_context_data(self, **kwargs):
         context = super(SalidaPaqueteView, self).get_context_data(**kwargs)
@@ -214,11 +226,12 @@ class SalidaPaqueteView(LoginRequiredMixin, DetailView):
         return context
 
 
-class RevisionSalidaListView(LoginRequiredMixin, ListView):
+class RevisionSalidaListView(LoginRequiredMixin, GroupRequiredMixin, ListView):
     """Vista para Los listados de :class:`RevisionSalida`. con sus respectivos datos
     """
     model = inv_m.RevisionSalida
     template_name = 'inventario/salida/revisionsalida_list.html'
+    group_required = [u"inv_cc", u"inv_admin", u"inv_conta"]
 
 
 class RevisionComentarioCreate(CsrfExemptMixin, JsonRequestResponseMixin, View):
@@ -279,11 +292,12 @@ class RevisionComentarioSalidaCreate(CsrfExemptMixin, JsonRequestResponseMixin, 
             })
 
 
-class ControlCalidadListView(LoginRequiredMixin, ListView):
+class ControlCalidadListView(LoginRequiredMixin, GroupRequiredMixin, ListView):
     """Vista para Los listados de :class:`SalidaInventario`. con sus respectivos datos
     """
     model = inv_m.SalidaInventario
     template_name = 'inventario/salida/controlcalidad_list.html'
+    group_required = [u"inv_cc", u"inv_admin"]
 
     def get_context_data(self, **kwargs):
         context = super(ControlCalidadListView, self).get_context_data(**kwargs)
@@ -291,11 +305,12 @@ class ControlCalidadListView(LoginRequiredMixin, ListView):
         return context
 
 
-class DispositivoAsignados(LoginRequiredMixin, DetailView):
-    """Vista encargada de ver los dispositivos que se fueron asignados a los paquetes  
+class DispositivoAsignados(LoginRequiredMixin, GroupRequiredMixin, DetailView):
+    """Vista encargada de ver los dispositivos que se fueron asignados a los paquetes
     """
     model = inv_m.Paquete
     template_name = 'inventario/salida/dispositivos_salida.html'
+    group_required = [u"inv_tecnico", u"inv_admin", u"inv_cc"]
 
     def get_context_data(self, **kwargs):
         context = super(DispositivoAsignados, self).get_context_data(**kwargs)

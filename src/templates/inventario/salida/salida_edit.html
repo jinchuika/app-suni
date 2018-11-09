@@ -11,7 +11,8 @@
 <section class="content">
 	<div class="container-fluid">
 		<div class="row">
-			{%if perms.inventario.salidainventario_change%}
+			{% for permiso in user.groups.all   %}
+			{%if permiso.name == "inv_cc" or permiso.name == 'inv_admin' %}
 			<!-- Comienza el formulario -->
 			<div class="col-md-3 col-sm-3">
 				<div class="box">
@@ -21,7 +22,7 @@
 										<h3 class="box-title">Informacion de Salida</h3>
 								</div>
 								<div class="col-md-3">
-											<button  id="id-reasignar" class="btn btn-danger btn-rechazar" data-entrega={{salidainventario.beneficiario}} data-urlreasignar="{%url 'inventario_api:api_inventariosalidas-reasignar-salida'%}">Reasignar</button>
+											<button  id="id-reasignar" class="btn btn-danger btn-rechazar" data-entrega={{salidainventario.beneficiario}} data-urlreasignar="{%url 'inventario_api:api_inventariosalidas-reasignar-salida'%}" data-urldonantes="{%url 'crm_api:donante-list'%}">Reasignar</button>
 								</div>
 							</div>
 					</div>
@@ -71,19 +72,20 @@
 					</div>
 
 				</div>
+				{% if permiso.name == "inv_cc"  %}
+				{% else %}
 				<div class="box">
 					<form action="{{action}}"  method="post">
 						<div class="box-body">
 							{% csrf_token %}
 							<div class="form-group">
 								{{ form.as_table }}
-
 							</div>
 							<input type="submit" class="btn btn-success" value="Guardar"/>
 						</div>
-
 					</form>
 				</div>
+				{% endif %}
 				 <div class="box">
 										 <div class="box-header">
 												 <h3 class="box-title">Agregar paquetes</h3>
@@ -96,6 +98,9 @@
 			</div>
 			<!--Aca termina el formulario-->
 			{%endif%}
+
+			{% endfor %}
+
 			<div class="col-md-9 col-sm-9">
 				<div class="box box-primary">
 					<div class="box-header">
@@ -107,7 +112,7 @@
 					</div>
 					<div class="box-body  table-responsive">
 						<!--	<div class="col-md-12 table-responsive"> -->
-						<table  id="salidas-paquete-table" class="table table-striped table-hover table-bordered table-condensed" data-url="{%url 'inventario_api:api_paquete-list'%}" data-pk="{{salidainventario}}" data-beneficiario="{{salidainventario.beneficiario.id}}" data-tipo="{{salidainventario.tipo_salida.id}}" data-cuadrar="{%url 'inventario_api:api_inventariosalidas-cuadrar-salida'%}" data-urlfin="{%url 'inventario_api:api_revisionsalidas-aprobado' pk=salidainventario%}" >
+						<table  id="salidas-paquete-table" class="table table-striped table-hover table-bordered table-condensed" data-url="{%url 'inventario_api:api_paquete-list'%}" data-pk="{{salidainventario}}" data-beneficiario="{{salidainventario.beneficiario.id}}" data-tipo="{{salidainventario.tipo_salida.id}}" data-cuadrar="{%url 'inventario_api:api_inventariosalidas-cuadrar-salida'%}" data-urlfin="{%url 'inventario_api:api_revisionsalidas-aprobado' pk=salidainventario%}" data-urldetail="{%url 'salidainventario_detail' pk=salidainventario%}">
 							<thead>
 								<tr>
 									<th>Paquete</th>

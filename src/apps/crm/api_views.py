@@ -33,3 +33,8 @@ class OfertaViewSet(LoginRequiredMixin, viewsets.ModelViewSet):
     serializer_class = crm_s.ofertaSerializer
     queryset = crm_m.Oferta.objects.all()
     filter_class = OfertasInformeFilter
+    
+
+class DonanteViewSet(LoginRequiredMixin, viewsets.ModelViewSet):
+    serializer_class = crm_s.DonanteSerializer
+    queryset = crm_m.Donante.objects.all()

@@ -180,7 +180,7 @@ class SalidaInventarioViewSet(viewsets.ModelViewSet):
         nueva_reasignar = inv_m.SalidaInventario.objects.get(id=id_salida)
         if(es_beneficiario == 'true'):
             try:
-                nuevo_beneficiario = crm_m.Donante.objects.get(nombre=data)
+                nuevo_beneficiario = crm_m.Donante.objects.get(id=data)
                 nueva_reasignar.beneficiario = nuevo_beneficiario
                 nueva_reasignar.reasignado_por = request.user
                 nueva_reasignar.save()
@@ -332,7 +332,7 @@ class RevisionSalidaViewSet(viewsets.ModelViewSet):
     @action(methods=['post'], detail=True)
     def aprobar_revision(self, request, pk=None):
         id_salida = request.data["salida"]
-        finalizar_salida = inv_m.SalidaInventario.objects.get(id=id_salida)        
+        finalizar_salida = inv_m.SalidaInventario.objects.get(id=id_salida)
         estado_bueno = inv_m.DispositivoEstado.objects.get(id=inv_m.DispositivoEstado.BN)
         etapa_listo = inv_m.DispositivoEtapa.objects.get(id=inv_m.DispositivoEtapa.LS)
         paquetes_aprobados = inv_m.DispositivoPaquete.objects.filter(
