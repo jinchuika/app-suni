@@ -1224,7 +1224,6 @@ class PaqueteTipo(models.Model):
     """
     nombre = models.CharField(max_length=35, verbose_name='Nombre del tipo')
     tipo_dispositivo = models.ForeignKey(DispositivoTipo, verbose_name='Tipos de dispositivo', null=True, blank=True)
-    # tipo_dispositivo = models.ManyToManyField(DispositivoTipo, verbose_name='Tipos de dispositivo')
 
     class Meta:
         verbose_name = "Tipo de paquete"
@@ -1252,8 +1251,6 @@ class Paquete(models.Model):
         blank=True)
     aprobado = models.BooleanField(default=False, blank=True)
     entrada = models.ManyToManyField(Entrada, related_name='tipo_entrada', blank=True, null=True)
-
-    # dispositivos = models.ManyToManyField(Dispositivo, through='DispositivoPaquete', related_name='paquetes')
 
     class Meta:
         verbose_name = "Paquete de salida"
@@ -1487,7 +1484,6 @@ class PrestamoTipo(models.Model):
 
 
 class Prestamo(models.Model):
-    # dispositivo = models.ForeignKey(Dispositivo, on_delete=models.CASCADE, related_name='prestamos')
     dispositivo = models.ManyToManyField(Dispositivo, related_name='prestamos')
     tipo_dispositivo = models.ForeignKey(
         DispositivoTipo,
@@ -1513,5 +1509,4 @@ class Prestamo(models.Model):
         verbose_name_plural = 'Préstamos'
 
     def __str__(self):
-        print(self.dispositivo)
         return '{} - {}'.format(self.fecha_inicio, self.id)

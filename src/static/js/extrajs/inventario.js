@@ -632,6 +632,10 @@ class EntradaDetalleDetail {
               success: function (response) {
                    location.reload();
               },
+              error: function (response) {
+                var mensaje = JSON.parse(response.responseText)
+                bootbox.alert(mensaje['mensaje']);
+              }
           });
 
 
@@ -665,6 +669,10 @@ class EntradaDetalleDetail {
                             success: function (response) {
                                  location.reload();
                             },
+                            error: function (response) {
+                              var mensaje = JSON.parse(response.responseText)
+                              bootbox.alert(mensaje['mensaje']);
+                            }
                         });
                         }
 
@@ -688,6 +696,10 @@ class EntradaDetalleDetail {
                     success: function (response) {
                          location.reload();
                     },
+                    error: function (response) {
+                      var mensaje = JSON.parse(response.responseText)
+                      bootbox.alert(mensaje['mensaje']);
+                    }
                 });
 
 
@@ -720,6 +732,10 @@ class EntradaDetalleDetail {
                               success: function (response) {
                                    location.reload();
                               },
+                              error: function (response) {
+                                var mensaje = JSON.parse(response.responseText)
+                                bootbox.alert(mensaje['mensaje']);
+                              }
                           });
 
 
@@ -1833,7 +1849,7 @@ class PaqueteDetail {
     let slug = this.asig_dispositivos.data('slug');
     let cantidad = this.asig_dispositivos.data('cantidad');
     let cantidad_disponible = $('#rechazar-dispositivo').data('dispo');
-    let cantidad_asignar = cantidad - cantidad_disponible;    
+    let cantidad_asignar = cantidad - cantidad_disponible;
     if(cantidad_asignar == 0){
       var activar = true
     }else{
@@ -2068,37 +2084,6 @@ class Prestamo {
       }
       var fecha = year+'-'+mes+'-'+dia;
       $('#id_fecha_inicio').text("Fecha de Inicio:"+ fecha);
-      /**/
-        //$('#id_dispositivo').select2();
-      $('#id_dispositivo').append('<option value=""'+'>'+"---------"+'</option>');
-      var api_url = $('#prestamoDispositivo').data("url")
-    /*  $('#id_tipo_dispositivo').change(function() {
-        var tipo = $(this).val();
-        var urlDispositivo = api_url+"?buscador=&tipo="+tipo+"&estado=1&etapa=1&asignaciones=0";
-        console.log(tipo);
-        console.log(urlDispositivo);
-         $.ajax({
-              url:urlDispositivo,
-              dataType:'json',
-              data:{
-                format:'json'
-              },
-              error:function(){
-                console.log("Error");
-              },
-              success:function(data){
-                  //$('#id_dispositivo').empty();
-                  //$('#id_dispositivo').append('<option value=""'+'>'+"---------"+'</option>');
-                  for (var i in data){
-                    $('#id_dispositivo').append('<option value='+data[i].id + '>'+data[i].triage+'</option>');
-                }
-               $('#id_dispositivo').val();
-              },
-              type: 'GET'
-            }
-          );
-
-      })*/
 
   }
 }

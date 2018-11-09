@@ -67,6 +67,8 @@
           </div>
         </div>
         <!--Fin de la Informacion-->
+        {% for permiso in user.groups.all   %}
+        	{%if permiso.name == "inv_monitoreo" or permiso.name == 'inv_admin' %}
         <div class="box">
           <div class="box-header">
             <div class="row">
@@ -97,8 +99,12 @@
             </table>
           </div>
         </div>
+        {%endif%}
+        {%endfor%}
         <!--Fin de Entrada-->
           {%if  form.instance.id%}
+          {% for permiso in user.groups.all   %}
+          	{%if permiso.name == "inv_bodega" or permiso.name == 'inv_admin' %}
           <div class="box">
               <div class="box-header">
                 <div class="box-title">
@@ -119,6 +125,8 @@
                 {%include "inventario/desecho/desechodispositivo_add.html"%}
               </div>
           </div>
+          {%endif%}
+          {%endfor%}
           {%endif%}
       </div>
       <div class="col-md-8">

@@ -61,7 +61,7 @@ class DesechoDetalleForm(forms.ModelForm):
 
 
 class DesechoDispositivoForm(forms.ModelForm):
-    """Formulario para ingresar nuevos detalles de  DesechoDetalle."""
+    """Formulario para ingresar dispositivos a desechar"""
     dispositivo = forms.ModelMultipleChoiceField(
         queryset=inv_m.Dispositivo.objects.filter(
             estado=inv_m.DispositivoEstado.DS,

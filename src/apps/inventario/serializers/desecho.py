@@ -15,7 +15,7 @@ class DesechoDetalleSerializer(serializers.ModelSerializer):
 
 
 class DesechoDispositivoSerializer(serializers.ModelSerializer):
-    """ Serializer para generar informes de la :class:'DesechoDetalle'
+    """ Serializer para generar informes de la :class:'DesechoDispositivo'
     """
     tipo = serializers.StringRelatedField(source='dispositivo.tipo')
     triage = serializers.StringRelatedField(source='dispositivo.triage')

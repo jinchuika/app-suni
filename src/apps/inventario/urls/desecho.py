@@ -39,12 +39,4 @@ urlpatterns = [
         inventario_v.DesechoSalidaDetailView.as_view(),
         name='desechosalida_detail'
     ),
-    # Creacion de Dispositivos para Desechos
-    url(
-        r'^desechodispositivo/add/$',
-        inventario_v.DesechoDispositivoCreateView.as_view(),
-        name='desechodispositivo_add'
-    ),
-
-
 ]

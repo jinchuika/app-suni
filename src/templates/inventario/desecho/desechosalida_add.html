@@ -7,6 +7,8 @@
 <section class="content">
   <div class="container-fluid">
     <div class="row">
+      {% for permiso in user.groups.all   %}
+      	{%if permiso.name == "inv_bodega" or permiso.name == 'inv_admin' %}
       <div class="col-md-6">
         <div class="box">
           <div class="box-header">
@@ -31,6 +33,8 @@
           </div>
         </div>
       </div>
+      {%endif%}
+      {% endfor %}
       <div class="col-md-6">
         <div class="box">
           <div class="box-header">
