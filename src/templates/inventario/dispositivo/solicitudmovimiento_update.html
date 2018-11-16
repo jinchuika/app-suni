@@ -10,14 +10,15 @@
     <section class="content">
         <div class="container-fluid">
             <div class="row">
-                <div class="col-md-8">
+                <div class="col-md-6">
                     <div class="box">
                         <div class="box-header">
                             <div class="row">
-                                <div class="col-md-9">
+                                <div class="col-md-6">
                                     <h3 class="box-title">Solicitud de movimientos</h3>
                                 </div>
-                                <div class="col-md-3">
+                                <div class="col-md-6">
+                                    <input id="btn-manual" type="submit" class="btn btn-success" value="Ingresar Triage Manualmente" />
                                 </div>
                             </div>
                         </div>
@@ -47,6 +48,14 @@
                                             {{ form.instance.creada_por.get_full_name }},
                                             el {{ form.instance.fecha_creacion|date:"Y-m-d" }}
                                         </td>
+                                    </tr>
+                                    <tr>
+                                      <th>
+                                        <label for="area_scanner">Area de Scanner:</label>
+                                      </th>
+                                      <td>
+                                          <input id="area_scanner" class="form-control" type="text" name="area_scanner" style="width:50%">
+                                      </td>
                                     </tr>
                                     {{ form.as_table }}
                                     <tr>

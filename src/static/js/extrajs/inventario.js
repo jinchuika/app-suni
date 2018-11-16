@@ -784,7 +784,7 @@ class EntradaDetalleDetail {
     SalidaDetalleList.init = function () {
         $('#btn-terminar').click(function () {
             bootbox.confirm({
-                message: "¿Esta seguro que quiere terminara la salida de desechos?",
+                message: "¿Esta seguro que quiere terminar la salida de desechos?",
                 buttons: {
                     confirm: {
                         label: 'Yes',
@@ -909,40 +909,21 @@ class SolicitudMovimiento {
 
 class SolicitudMovimientoUpdate {
     constructor() {
-        this.sel_dispositivos = $('#id_dispositivos');
-        let api_url = this.sel_dispositivos.data('api-url');
-        let etapa_inicial = this.sel_dispositivos.data('etapa-inicial');
-        let tipo_dipositivo = this.sel_dispositivos.data('tipo-dispositivo');
-        let slug = this.sel_dispositivos.data('slug');
-        let cantidad = $("#solicitud-table").data("cantidad");
-
-        this.sel_dispositivos.select2({
+        var sel_dispositivos = $('#id_dispositivos');
+        let api_url = sel_dispositivos.data('api-url');
+        let etapa_inicial = sel_dispositivos.data('etapa-inicial');
+        let estado_inicial = sel_dispositivos.data('estado-inicial');
+        let tipo_dipositivo = sel_dispositivos.data('tipo-dispositivo');
+        let slug = sel_dispositivos.data('slug');
+        var cantidad = $("#solicitud-table").data("cantidad");
+        $('#id_dispositivos').val("").trigger('change');
+        var lista_triage = [];
+        sel_dispositivos.select2({
             maximumSelectionLength : cantidad,
-            debug: true,
             placeholder: "Ingrese los triage",
-            ajax: {
-                url: api_url,
-                dataType: 'json',
-                data: function (params) {
-                    return {
-                        search: params.term,
-                        etapa: etapa_inicial,
-                        tipo: tipo_dipositivo,
-                        buscador: slug + "-" + params.term
-                    };
-                },
-                processResults: function (data) {
-                    return {
-                        results: data.map(dispositivo => {
-                            return {id: dispositivo["id"], text: dispositivo['triage']};
-                        })
-                    };
-                },
-                cache: true
-            },
-            width : '100%'
+            width : '50%'
         });
-        let cantidad_dispositivos = this.sel_dispositivos;
+        let cantidad_dispositivos = sel_dispositivos;
         $('form').on('submit', function(e){
            let restante  = cantidad - cantidad_dispositivos.select2('data').length;
 
@@ -952,8 +933,210 @@ class SolicitudMovimientoUpdate {
             e.preventDefault();
           }
         });
+        /*Scanner*/
+        var inputStart, inputStop, firstKey, lastKey, timing, userFinishedEntering;
+        var minChars = 3;
+
+        // handle a key value being entered by either keyboard or scanner
+        $("#area_scanner").keypress(function (e) {
+            // restart the timer
+            if (timing) {
+                clearTimeout(timing);
+            }
+
+            // handle the key event
+            if (e.which == 13) {
+                // Enter key was entered
+
+                // don't submit the form
+                e.preventDefault();
+
+                // has the user finished entering manually?
+                if ($("#area_scanner").val().length >= minChars){
+                    userFinishedEntering = true; // incase the user pressed the enter key
+                    inputComplete();
+                }
+            }
+            else {
+                // some other key value was entered
+
+                // could be the last character
+                inputStop = performance.now();
+                lastKey = e.which;
+                // don't assume it's finished just yet
+                userFinishedEntering = false;
+
+                // is this the first character?
+                if (!inputStart) {
+                    firstKey = e.which;
+                    inputStart = inputStop;
+
+                    // watch for a loss of focus
+                    $("body").on("blur", "#area_scanner", inputBlur);
+                }
+
+                // start the timer again
+                timing = setTimeout(inputTimeoutHandler, 500);
+            }
+        });
+
+        // Assume that a loss of focus means the value has finished being entered
+        function inputBlur(){
+            clearTimeout(timing);
+            if ($("#area_scanner").val().length >= minChars){
+                userFinishedEntering = true;
+                inputComplete();
+            }
+        };
 
 
+        // reset the page
+        $("#reset").click(function (e) {
+            e.preventDefault();
+            resetValues();
+        });
+
+        function resetValues() {
+            // clear the variables
+            inputStart = null;
+            inputStop = null;
+            firstKey = null;
+            lastKey = null;
+            // clear the results
+            inputComplete();
+        }
+
+        // Assume that it is from the scanner if it was entered really fast
+        function isScannerInput() {
+            return (((inputStop - inputStart) / $("#area_scanner").val().length) < 15);
+        }
+
+        // Determine if the user is just typing slowly
+        function isUserFinishedEntering(){
+            return !isScannerInput() && userFinishedEntering;
+        }
+
+        function inputTimeoutHandler(){
+            // stop listening for a timer event
+            clearTimeout(timing);
+            // if the value is being entered manually and hasn't finished being entered
+            if (!isUserFinishedEntering() || $("#area_scanner").val().length < 3) {
+                // keep waiting for input
+                return;
+            }
+            else{
+                reportValues();
+            }
+        }
+
+        // here we decide what to do now that we know a value has been completely entered
+        function inputComplete(){
+            // stop listening for the input to lose focus
+            $("body").off("blur", "#area_scanner", inputBlur);
+            // report the results
+            reportValues();
+        }
+
+        function reportValues() {
+            var inputMethod = isScannerInput() ? "Scanner" : "Keyboard";
+             if(inputMethod == "Scanner"){
+                var datos = {};
+                var seleccion = new Array(cantidad);
+                var triage = $("#area_scanner").val();
+                 var mensaje = JSON.parse(triage);
+                 datos['text'] = mensaje.triage;
+                 datos['id'] = mensaje.id;
+                 /*Api*/
+                 $.ajax({
+                   url:api_url,
+                   dataType:'json',
+                   data:{
+                     etapa: etapa_inicial,
+                     estado: estado_inicial,
+                     id: mensaje.id
+                   },
+                   error:function(){
+                     console.log("Error");
+                   },
+                   success:function(data){
+                     if(data.length >0){
+                       /*asignar datos*/
+                       lista_triage.push(datos);
+                       $("#area_scanner").val("");
+                       inputStart = null;
+                       inputStop = null;
+                       firstKey = null;
+                       lastKey = null;
+                       sel_dispositivos.select2({
+                           maximumSelectionLength : cantidad,
+                           debug: true,
+                           placeholder: "Ingrese los triage",
+                           data:lista_triage,
+                           processResults: function (data){
+                             return {
+                               results : data.map(lista_triage =>{
+                                 return {id: lista_triage["value"], text:lista_triage["triage"]};
+                               })
+                             };
+                           },
+                           width : '100%'
+                       });
+                      for(var i = 0; i<(lista_triage.length);i++){
+                          seleccion[i] = lista_triage[i].id;
+                     }
+                       $('#id_dispositivos').val(seleccion).trigger('change');
+                       /**/
+
+                     }else{
+                       bootbox.alert("Este dispositivo no esta disponible");
+                       $("#area_scanner").val("");
+
+                     }
+                   },
+                   type: 'GET'
+                 }
+               );
+                 /**/
+             }
+        }
+        $("#area_scanner").focus();
+        /*Fin scanner*/
+        $("#btn-manual").click(function(e){
+          $("#area_scanner").attr('type','hidden');
+          $("[for='area_scanner']").css({"visibility":"hidden"});
+          $('#id_dispositivos').val(" ").trigger('change');
+          $("#btn-manual").css({"visibility":"hidden"});
+
+          /**/
+          sel_dispositivos.select2({
+              maximumSelectionLength : cantidad,
+              debug: true,
+              placeholder: "Ingrese los triage",
+              ajax: {
+                  url: api_url,
+                  dataType: 'json',
+                  data: function (params) {
+                      return {
+                          search: params.term,
+                          etapa: etapa_inicial,
+                          estado: estado_inicial,
+                          buscador: slug + "-" + params.term
+                      };
+                  },
+                  processResults: function (data) {
+                      return {
+                          results: data.map(dispositivo => {
+                              return {id: dispositivo["id"], text: dispositivo['triage']};
+                          })
+                      };
+                  },
+                  cache: true
+              },
+              width : '50%'
+          });
+          /**/
+
+        });
 
     }
 }
@@ -1731,6 +1914,8 @@ class PaqueteDetail {
     let tablabodyRechazar = $("#rechazar-dispositivo tbody tr");
     var urlCambio = $("#salida-id").data('url');
     var urlAprobar = $("#salida-id").data('urlaprobar');
+    var lista_triage = [];
+    var estado_inicial = $('#id_dispositivos').data('estado-inicial');
     tablabodyRechazar.on('click','.btn-rechazar', function () {
       let data_triage = $(this).attr("data-triage");
       let data_paquete=$(this).attr("data-paquete");
@@ -1893,6 +2078,175 @@ class PaqueteDetail {
       }
     });
     /****/
+    //Scanner
+    var inputStart, inputStop, firstKey, lastKey, timing, userFinishedEntering;
+      var minChars = 3;
+
+      // handle a key value being entered by either keyboard or scanner
+      $("#area_scanner").keypress(function (e) {
+          // restart the timer
+          if (timing) {
+              clearTimeout(timing);
+          }
+
+          // handle the key event
+          if (e.which == 13) {
+              // Enter key was entered
+
+              // don't submit the form
+              e.preventDefault();
+
+              // has the user finished entering manually?
+              if ($("#area_scanner").val().length >= minChars){
+                  userFinishedEntering = true; // incase the user pressed the enter key
+                  inputComplete();
+              }
+          }
+          else {
+              // some other key value was entered
+
+              // could be the last character
+              inputStop = performance.now();
+              lastKey = e.which;
+              // don't assume it's finished just yet
+              userFinishedEntering = false;
+
+              // is this the first character?
+              if (!inputStart) {
+                  firstKey = e.which;
+                  inputStart = inputStop;
+
+                  // watch for a loss of focus
+                  $("body").on("blur", "#area_scanner", inputBlur);
+              }
+
+              // start the timer again
+              timing = setTimeout(inputTimeoutHandler, 500);
+          }
+      });
+
+      // Assume that a loss of focus means the value has finished being entered
+      function inputBlur(){
+          clearTimeout(timing);
+          if ($("#area_scanner").val().length >= minChars){
+              userFinishedEntering = true;
+              inputComplete();
+          }
+      };
+
+
+      // reset the page
+      $("#reset").click(function (e) {
+          e.preventDefault();
+          resetValues();
+      });
+
+      function resetValues() {
+          // clear the variables
+          inputStart = null;
+          inputStop = null;
+          firstKey = null;
+          lastKey = null;
+          // clear the results
+          inputComplete();
+      }
+
+      // Assume that it is from the scanner if it was entered really fast
+      function isScannerInput() {
+          return (((inputStop - inputStart) / $("#area_scanner").val().length) < 15);
+      }
+
+      // Determine if the user is just typing slowly
+      function isUserFinishedEntering(){
+          return !isScannerInput() && userFinishedEntering;
+      }
+
+      function inputTimeoutHandler(){
+          // stop listening for a timer event
+          clearTimeout(timing);
+          // if the value is being entered manually and hasn't finished being entered
+          if (!isUserFinishedEntering() || $("#area_scanner").val().length < 3) {
+              // keep waiting for input
+              return;
+          }
+          else{
+              reportValues();
+          }
+      }
+
+      // here we decide what to do now that we know a value has been completely entered
+      function inputComplete(){
+          // stop listening for the input to lose focus
+          $("body").off("blur", "#area_scanner", inputBlur);
+          // report the results
+          reportValues();
+      }
+
+      function reportValues() {
+          var inputMethod = isScannerInput() ? "Scanner" : "Keyboard";
+           if(inputMethod == "Scanner"){
+              var datos = {};
+              var seleccion = new Array(cantidad);
+              var triage = $("#area_scanner").val();
+               var mensaje = JSON.parse(triage);
+               datos['text'] = mensaje.triage;
+               datos['id'] = mensaje.id;
+               /*Api*/
+               $.ajax({
+                 url:api_url,
+                 dataType:'json',
+                 data:{
+                   etapa: etapa_inicial,
+                   estado: estado_inicial,
+                   id: mensaje.id
+                 },
+                 error:function(){
+                   console.log("Error");
+                 },
+                 success:function(data){
+                   if(data.length >0){
+                     /*asignar datos*/
+                     lista_triage.push(datos);
+                     $("#area_scanner").val("");
+                     inputStart = null;
+                     inputStop = null;
+                     firstKey = null;
+                     lastKey = null;
+                     $('#id_dispositivos').select2({
+                         maximumSelectionLength : cantidad,
+                         debug: true,
+                         placeholder: "Ingrese los triage",
+                         data:lista_triage,
+                         processResults: function (data){
+                           return {
+                             results : data.map(lista_triage =>{
+                               return {id: lista_triage["value"], text:lista_triage["triage"]};
+                             })
+                           };
+                         },
+                         width : '100%'
+                     });
+                    for(var i = 0; i<(lista_triage.length);i++){
+                        seleccion[i] = lista_triage[i].id;
+                   }
+                     $('#id_dispositivos').val(seleccion).trigger('change');
+                     /**/
+
+                   }else{
+                     bootbox.alert("Este dispositivo no esta disponible");
+                     $("#area_scanner").val("");
+
+                   }
+                 },
+                 type: 'GET'
+               }
+             );
+               /**/
+           }
+      }
+      $("#area_scanner").focus();
+
+    //Fin Scanner
 
   }
 }

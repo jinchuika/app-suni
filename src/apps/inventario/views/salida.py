@@ -141,12 +141,16 @@ class SalidaPaqueteDetailView(LoginRequiredMixin, GroupRequiredMixin, UpdateView
 
     def get_form(self, form_class=None):
         form = super(SalidaPaqueteDetailView, self).get_form(form_class)
+        etapa = inv_m.DispositivoEtapa.objects.get(id=inv_m.DispositivoEtapa.TR)
+        estado = inv_m.DispositivoEstado.objects.get(id=inv_m.DispositivoEstado.PD)
         form.fields['dispositivos'].widget = forms.SelectMultiple(
             attrs={
                 'data-api-url': reverse_lazy('inventario_api:api_dispositivo-list'),
                 'data-tipo-dispositivo': self.object.tipo_paquete.tipo_dispositivo.id,
                 'data-slug': self.object.tipo_paquete.tipo_dispositivo.slug,
                 'data-cantidad': self.object.cantidad,
+                'data-etapa_inicial': etapa.id,
+                'data-estado_inicial': estado.id,
 
 
             }
