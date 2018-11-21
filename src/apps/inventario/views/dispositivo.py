@@ -143,9 +143,11 @@ class SolicitudMovimientoUpdateView(LoginRequiredMixin, UpdateView):
 
     def get_form(self, form_class=None):
         form = super(SolicitudMovimientoUpdateView, self).get_form(form_class)
+        estado = inv_m.DispositivoEstado.objects.get(id=inv_m.DispositivoEstado.PD)
         form.fields['dispositivos'].widget = forms.SelectMultiple(attrs={
             'data-api-url': reverse_lazy('inventario_api:api_dispositivo-list'),
             'data-etapa-inicial': self.object.etapa_inicial.id,
+            'data-estado-inicial': estado.id,
             'data-tipo-dispositivo': self.object.tipo_dispositivo.id,
             'data-slug': self.object.tipo_dispositivo.slug,
         })
@@ -365,7 +367,7 @@ class DispositivoRedUptadeView(LoginRequiredMixin, UpdateView):
     slug_url_kwarg = "triage"
     query_pk_and_slug = True
     template_name = 'inventario/dispositivo/red/red_edit.html'
-    
+
 
 class DispositivoAccessPointDetailView(LoginRequiredMixin, DispositivoDetailView):
     """Vista de detalle de dispositivos tipo :class:`DispositivoRed`"""
