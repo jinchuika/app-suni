@@ -78,6 +78,9 @@
                   <h3 class="box-title">Listado de Paquetes</h3>
               </div>
               <div class="col-md-3">
+								{% if salidainventario.tipo_salida|stringformat:"s" == "Entrega" %}
+									<a target='_blank' href="{% url 'garantia_print' pk=object.id%}" class="btn btn-success">Constacia de Garantia</a>
+								{% endif %}
               </div>
             </div>
           </div>

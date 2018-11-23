@@ -50,8 +50,16 @@ class PrestamoInformeView(LoginRequiredMixin, FormView, GroupRequiredMixin):
 
 
 class PrestamoDetailView(LoginRequiredMixin, DetailView, GroupRequiredMixin):
-    """Vista encargada de mostrar los detalles de la :class:`SalidaInventario`
+    """Vista encargada de mostrar los detalles de la :class:`Prestamo`
     """
     model = inv_m.Prestamo
     template_name = 'inventario/prestamo/prestamo_detail.html'
+    group_required = [u"inv_bodega", u"inv_admin"]
+
+
+class PrestamoPrintView(LoginRequiredMixin, DetailView, GroupRequiredMixin):
+    """Vista encargada para imprimir las :class:`Prestamo`
+    """
+    model = inv_m.Prestamo
+    template_name = 'inventario/prestamo/prestamo_print.html'
     group_required = [u"inv_bodega", u"inv_admin"]

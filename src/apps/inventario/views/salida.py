@@ -13,6 +13,7 @@ from apps.escuela import models as escuela_m
 from apps.inventario import models as inv_m
 from apps.inventario import forms as inv_f
 from django import forms
+from dateutil.relativedelta import relativedelta
 
 
 class SalidaInventarioCreateView(LoginRequiredMixin, GroupRequiredMixin, CreateView):
@@ -61,6 +62,12 @@ class SalidaInventarioUpdateView(LoginRequiredMixin, GroupRequiredMixin, UpdateV
     def get_context_data(self, *args, **kwargs):
         context = super(SalidaInventarioUpdateView, self).get_context_data(*args, **kwargs)
         context['paquetes_form'] = inv_f.PaqueteCantidadForm()
+        Laptop = inv_m.PaqueteTipo.objects.get(nombre="Laptop")
+        Total_Laptop = inv_m.DispositivoPaquete.objects.filter(
+            paquete__salida__id=self.object.id,
+            paquete__tipo_paquete=Laptop)
+        print(Total_Laptop.count())
+        context['Laptops'] = Total_Laptop.count()
         """if self.request.user.has_perm("inventario.salidainventario_change"):
             context['paquetes_form'] = inv_f.PaqueteCantidadForm()"""
         return context
@@ -319,4 +326,85 @@ class DispositivoAsignados(LoginRequiredMixin, GroupRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super(DispositivoAsignados, self).get_context_data(**kwargs)
         context['dispositivo_list'] = inv_m.DispositivoPaquete.objects.filter(paquete__id=self.object.id)
+        return context
+
+
+class GarantiaPrintView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
+    """Vista encargada para imprimir las Garantias de las :class:`SalidaInventario` 
+    """
+    model = inv_m.SalidaInventario
+    template_name = 'inventario/salida/garantia_print.html'
+    group_required = [u"inv_tecnico", u"inv_admin", u"inv_cc"]
+
+    def get_context_data(self, **kwargs):
+        context = super(GarantiaPrintView, self).get_context_data(**kwargs)
+        CPU = inv_m.PaqueteTipo.objects.get(nombre="CPU")
+        Laptop = inv_m.PaqueteTipo.objects.get(nombre="Laptop")
+        Tablet = inv_m.PaqueteTipo.objects.get(nombre="Tablet")
+        Total_Cpu = inv_m.Paquete.objects.filter(
+            salida__id=self.object.id,
+            tipo_paquete=CPU).aggregate(total_cpu=Sum('cantidad'))
+        Total_Laptop = inv_m.Paquete.objects.filter(
+            salida__id=self.object.id,
+            tipo_paquete=Laptop).aggregate(total_laptop=Sum('cantidad'))
+        Total_Tablet = inv_m.Paquete.objects.filter(
+            salida__id=self.object.id,
+            tipo_paquete=Tablet).aggregate(total_tablet=Sum('cantidad'))
+        if Total_Cpu['total_cpu'] is None:
+            Total_Cpu = 0
+        if Total_Laptop['total_laptop'] is None:
+            Total_Laptop['total_laptop'] = 0
+        if Total_Tablet['total_tablet'] is None:
+            Total_Tablet['total_tablet'] = 0
+        Total_Entregado = Total_Cpu['total_cpu']+Total_Laptop['total_laptop']+Total_Tablet['total_tablet']
+        Fecha = inv_m.SalidaInventario.objects.get(id=self.object.id)
+        context['fin_garantia'] = Fecha.fecha + relativedelta(months=6)
+        context['dispositivo_total'] = Total_Entregado
+        return context
+
+
+class LaptopPrintView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
+    """Vista encargada para imprimir las :class:`Laptop` de las salidas correspondiente
+    """
+    model = inv_m.SalidaInventario
+    template_name = 'inventario/salida/laptop_print.html'
+    group_required = [u"inv_tecnico", u"inv_admin", u"inv_cc"]
+
+    def get_context_data(self, **kwargs):
+        context = super(LaptopPrintView, self).get_context_data(**kwargs)
+        nuevas_laptops = []
+        cpu_servidor = ""
+        Laptop = inv_m.PaqueteTipo.objects.get(nombre="Laptop")
+        cpu = inv_m.PaqueteTipo.objects.get(nombre="CPU")
+        Total_Laptop = inv_m.DispositivoPaquete.objects.filter(
+            paquete__salida__id=self.object.id,
+            paquete__tipo_paquete=Laptop)
+        total_cpu = inv_m.DispositivoPaquete.objects.filter(
+            paquete__salida__id=self.object.id,
+            paquete__tipo_paquete=cpu,
+            )
+        cantidad_total = inv_m.DispositivoPaquete.objects.filter(
+            paquete__salida__id=self.object.id,
+            paquete__tipo_paquete=Laptop).count()
+        for triage_cpu in total_cpu:
+            nuevo_cpu = inv_m.Dispositivo.objects.get(triage=triage_cpu.dispositivo).cast()
+            try:
+                if nuevo_cpu.servidor is True:
+                    print(nuevo_cpu.version_sistema)
+                    cpu_servidor = str(nuevo_cpu.version_sistema)
+            except Exception as e:
+                print(e)
+        for triage in Total_Laptop:
+            nuevo_laptop = inv_m.Dispositivo.objects.get(triage=triage.dispositivo).cast()
+            nuevas_laptops.append(nuevo_laptop)
+        escuela = inv_m.SalidaInventario.objects.get(id=self.object.id)
+        try:
+            encargado = escuela_m.EscContacto.objects.get(escuela=escuela.escuela)
+            context['Encargado'] = str(encargado.nombre)+" "+str(encargado.apellido)
+        except ObjectDoesNotExist as e:
+            print(e)
+            context['Encargado'] = "No Tiene Encargado"
+        context['Laptos'] = nuevas_laptops
+        context['Total'] = cantidad_total
+        context['Servidor'] = cpu_servidor
         return context
