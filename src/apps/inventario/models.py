@@ -530,7 +530,7 @@ class Dispositivo(models.Model):
 
     @classmethod
     def obtener_modelo_hijo(cls, tipo_dispositivo):
-        """Obitne el modelo hijo de `Dispositivo` a partir de un `DispositivoTipo`"""
+        """Obtiene el modelo hijo de `Dispositivo` a partir de un `DispositivoTipo`"""
         modelo = next(
             (
                 f.related_model for f in cls._meta.get_fields()
@@ -867,6 +867,7 @@ class CPU(Dispositivo):
     disco_duro = models.ForeignKey(HDD, on_delete=models.PROTECT, null=True, blank=True, related_name='cpus')
     ram = models.PositiveIntegerField(null=True, blank=True)
     ram_medida = models.ForeignKey(DispositivoMedida, null=True, blank=True)
+    servidor = models.BooleanField(default=False)
 
     class Meta:
         verbose_name = "CPU"
@@ -1503,6 +1504,7 @@ class Prestamo(models.Model):
     creado_por = models.ForeignKey(User, on_delete=models.CASCADE, related_name='prestamos_creados')
     prestado_a = models.ForeignKey(User, on_delete=models.CASCADE, related_name='prestamos')
     devuelto = models.BooleanField(default=False, blank=True)
+    observaciones = models.TextField(null=True, blank=True)
 
     class Meta:
         verbose_name = 'Préstamo'

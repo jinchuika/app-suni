@@ -15,10 +15,11 @@
 								{% csrf_token %}
 							</div>
 							<div class="col-md-6">
-								{%if prestamo.devuelto == True%}								
+								{%if prestamo.devuelto == True%}
 								{%else%}
 									<a id='devolver' data-devolucion="{{prestamo.id}}"  class='btn btn-primary btn-devolver' data-urldevolucion = "{% url 'inventario_api:api_prestamo-devolver-prestamo'%}">Devolver</a>
 								{%endif%}
+								  <a target='_blank' href="{% url 'prestamo_print' pk=object.id%}" class="btn btn-success">Informe de prestamo</a>
 
 						</div>
 						</div>

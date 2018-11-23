@@ -81,6 +81,18 @@ urlpatterns = [
         inv_v.DispositivoAsignados.as_view(),
         name='dispositivo_asignados'
     ),
+    # Imprimir Garantia
+    url(
+        r'^salida/(?P<pk>\d+)/garantia/$',
+        inv_v.GarantiaPrintView.as_view(),
+        name='garantia_print'
+    ),
+    # Imprimir informe de laptops
+    url(
+        r'^salida/(?P<pk>\d+)/laptop/$',
+        inv_v.LaptopPrintView.as_view(),
+        name='laptop_print'
+    ),
 
 
 ]

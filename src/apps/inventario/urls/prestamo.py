@@ -21,5 +21,11 @@ urlpatterns = [
         inventario_v.PrestamoDetailView.as_view(),
         name='prestamo_detail'
         ),
+    # url para imprimir los detalles  de prestamos
+    url(
+        r'^prestamo/(?P<pk>\d+)/print/$',
+        inventario_v.PrestamoPrintView.as_view(),
+        name='prestamo_print'
+        ),
 
 ]
