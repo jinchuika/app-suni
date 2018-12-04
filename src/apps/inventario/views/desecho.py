@@ -5,6 +5,7 @@ from braces.views import (
 )
 from apps.inventario import models as inv_m
 from apps.inventario import forms as inv_f
+from django.db.models import Sum
 
 
 class DesechoEmpresaCreateView(LoginRequiredMixin, CreateView, GroupRequiredMixin):
@@ -80,3 +81,22 @@ class DesechoSalidaUpdateView(LoginRequiredMixin, UpdateView, GroupRequiredMixin
 
     def get_success_url(self):
         return reverse('desechosalida_update', kwargs={'pk': self.object.id})
+
+
+class DesechoSalidaPrintView(LoginRequiredMixin, DetailView, GroupRequiredMixin):
+    """Vista encargada de mostrar los detalles de la :class:`SalidaInventario`
+    """
+    model = inv_m.DesechoSalida
+    template_name = 'inventario/desecho/desecho_print.html'
+    group_required = [u"inv_bodega", u"inv_admin", u"inv_monitoreo"]
+
+    def get_context_data(self, **kwargs):
+        context = super(DesechoSalidaPrintView, self).get_context_data(**kwargs)
+        context['desechodetalles'] = inv_m.DesechoDetalle.objects.filter(desecho=self.object.id)
+        context['desechodispositivo'] = inv_m.DesechoDispositivo.objects.filter(desecho=self.object.id)
+        total_detalles = inv_m.DesechoDetalle.objects.filter(
+            desecho=self.object.id).aggregate(total_util=Sum('cantidad'))
+        total_dispositivo = inv_m.DesechoDispositivo.objects.filter(desecho=self.object.id).count()
+        cantidad_total = total_dispositivo + total_detalles['total_util']
+        context['cantidad_total'] = cantidad_total
+        return context

@@ -34,19 +34,13 @@ class PrecioEstandarForm(forms.ModelForm):
     class Meta:
         model = conta_m.PrecioEstandar
         fields = '__all__'
+        exclude = ['periodo', 'creado_por']
         widgets = {
-            'periodo': forms.Select(attrs={'class': 'form-control select2'}),
             'tipo_dispositivo': forms.Select(attrs={'class': 'form-control select2'}),
             'activo': forms.HiddenInput(),
             'precio': forms.TextInput(attrs={'class': 'form-control'}),
-            'inventario': forms.Select(attrs={'class': 'form-control select2'}),
-            'creado_por': forms.Select(attrs={'class': 'form-control select2'})
+            'inventario': forms.Select(attrs={'class': 'form-control select2'})
         }
-
-    def __init__(self, *args, **kwargs):
-        super(PrecioEstandarForm, self).__init__(*args, **kwargs)
-        print(self)
-        self.fields['periodo'].queryset = conta_m.PeriodoFiscal.objects.filter(actual='True')
 
 
 class PrecioEstandarInformeForm(forms.Form):

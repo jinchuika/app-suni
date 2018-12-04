@@ -93,6 +93,24 @@ urlpatterns = [
         inv_v.LaptopPrintView.as_view(),
         name='laptop_print'
     ),
+    # Imprimir informe de Tablets
+    url(
+        r'^salida/(?P<pk>\d+)/tablets/$',
+        inv_v.TabletPrintView.as_view(),
+        name='tablet_print'
+    ),
+    # Imprimir informe de TPE
+    url(
+        r'^salida/(?P<pk>\d+)/tpe/$',
+        inv_v.TpePrintView.as_view(),
+        name='tpe_print'
+    ),
+    # Imprimir informe de mineduc
+    url(
+        r'^salida/(?P<pk>\d+)/mineduc/$',
+        inv_v.MineducPrintView.as_view(),
+        name='mineduc_print'
+    ),
 
 
 ]

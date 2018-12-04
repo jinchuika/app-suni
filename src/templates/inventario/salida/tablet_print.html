@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>ENTREGA LAPTOP</title>
+	<title>ENTREGA TABLET</title>
 </head>
 <!--ENCABEZADO DE DATOS E IMAGENES -->
 <header>
@@ -62,45 +62,37 @@ TELÉFONO 2435-2739 / 24319639</b>
 <!--TITULOS DE LA TABLA-->
 <center>
 <table  bgcolor="lightgray" style="font-size: 20px"  width="975" height="10">
-<center><th><center>LAPTOP</center></th></center>
+<center><th><center>TABLET</center></th></center>
 
 </table>
 	<table class="datos">
 	<tr>
 		<th bgcolor="#b3c4dd" width="75" height="25"><center>Triage</center></th>
 		<th bgcolor="#b3c4dd"width="100"><center>Marca</center></th>
-		<th bgcolor="#b3c4dd"width="150"><center>Modelo</center></th>
-		<th bgcolor="#b3c4dd"width="75"><center>HDD</center></th>
-		<th bgcolor="#b3c4dd"width="75"><center>CAPACIDAD</center></th>
-		<th bgcolor="#b3c4dd"width="150"><center>PROCESADOR</center></th>
-		<th bgcolor="#b3c4dd"width="75"><center>RAM</center></th>
-		<th bgcolor="#b3c4dd"width="75"><center>WINDOWS</center></th>
+		<th bgcolor="#b3c4dd"width="75"><center>Modelo</center></th>
+		<th bgcolor="#b3c4dd"width="75"><center>Capacidad</center></th>
+		<th bgcolor="#b3c4dd"width="75"><center>Ram</center></th>
+		<th bgcolor="#b3c4dd"width="75"><center>Sistema</center></th>
 	</tr>
-	{% for laptop in Laptos %}
+	{% for tablet in Tablets %}
 	<tr>
 		<td>
-			{{laptop|default_if_none:""}}
+			{{tablet|default_if_none:""}}
 		</td>
 		<td>
-			{{laptop.marca |default_if_none:"" }}
+			{{tablet.marca |default_if_none:"" }}
 		</td>
 		<td>
-			{{laptop.modelo |default_if_none:""}}
+			{{tablet.modelo |default_if_none:"" }}
 		</td>
 		<td>
-			{{laptop.disco_duro|default_if_none:""}}
+			{{tablet.almacenamiento|default_if_none:""}}
 		</td>
 		<td>
-			{{laptop.disco_duro.capacidad|default_if_none:""}}
+			{{tablet.ram|default_if_none:""}}
 		</td>
 		<td>
-			{{laptop.procesador|default_if_none:""}}
-		</td>
-		<td>
-			{{laptop.ram|default_if_none:""}}
-		</td>
-		<td>
-			{{laptop.version_sistema|default_if_none:""}}
+			{{tablet.version_sistema|default_if_none:""}}
 		</td>
 	</tr>
 	{% endfor %}
@@ -110,22 +102,8 @@ TELÉFONO 2435-2739 / 24319639</b>
 <table class="contador">
 	<td width="75">Total</td>
 	<td style="border-bottom:solid;" width="150"> <center>{{Total}}</center></td>
-	{% if Servidor %}
-		<td width="200"><center><input type="checkbox" checked>Servidor</center></td>
-	{% else %}
-	<td width="200"><center><input type="checkbox" >Servidor</center></td>
-	{% endif %}
-
-	<td style="border:solid; border-width: 1px;border-color:gray" width="150" height="25">{{Servidor}}</td>
-	<td width="100"><center>Red</center></td>
-	<td style="border:solid; border-width: 1px;border-color:gray" width="150" height="25"></td>
-
-	{% if salidainventario.tipo_salida|stringformat:"s"  == "Renovaciones" %}
- 	<td width="200"><center><input type="checkbox" checked>Renovación</center></td>
-	{% else %}
-	<td width="200"><center><input type="checkbox">Renovación</center></td>
-	{% endif %}
-
+	<td width="100"><center>Jornada</center></td>
+	<td style="border:solid; border-width: 1px;border-color:gray" width="150" height="25">{{Jornada}}</td>
 </table>
 <!--FIN DE CELDAS -->
 <!--INICIO DE FIRMA Y SELLO -->
@@ -152,8 +130,8 @@ TELÉFONO 2435-2739 / 24319639</b>
 		<td >
 			<hr width="430" style="border-color:black; border-width: 1px;">
 
-			<center>REPRESENTANTE DE LA ESCUELA
-			<p><center>NOMBRE Y FIRMA</center></p></center>
+			<center>REPRESENTANTE DE FUNSEPA
+			<p><center>LIC. KARLA DEL VALLE</center></p></center>
 		</td>
 
 	</table>
