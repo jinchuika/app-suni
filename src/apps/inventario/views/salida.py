@@ -56,20 +56,27 @@ class SalidaInventarioUpdateView(LoginRequiredMixin, GroupRequiredMixin, UpdateV
     model = inv_m.SalidaInventario
     form_class = inv_f.SalidaInventarioUpdateForm
     template_name = 'inventario/salida/salida_edit.html'
-    # permission_required = 'inventario.salidainventario_change'
     group_required = [u"inv_cc", u"inv_admin"]
 
     def get_context_data(self, *args, **kwargs):
         context = super(SalidaInventarioUpdateView, self).get_context_data(*args, **kwargs)
         context['paquetes_form'] = inv_f.PaqueteCantidadForm()
         Laptop = inv_m.PaqueteTipo.objects.get(nombre="Laptop")
+        Tablet = inv_m.PaqueteTipo.objects.get(nombre="Tablet")
+        cpu = inv_m.PaqueteTipo.objects.get(nombre="CPU")
+        Total_Tablet = inv_m.DispositivoPaquete.objects.filter(
+            paquete__salida__id=self.object.id,
+            paquete__tipo_paquete=Tablet)
         Total_Laptop = inv_m.DispositivoPaquete.objects.filter(
             paquete__salida__id=self.object.id,
             paquete__tipo_paquete=Laptop)
-        print(Total_Laptop.count())
+        total_cpu = inv_m.DispositivoPaquete.objects.filter(
+            paquete__salida__id=self.object.id,
+            paquete__tipo_paquete=cpu,
+            )
+        context['CPU'] = total_cpu.count()
         context['Laptops'] = Total_Laptop.count()
-        """if self.request.user.has_perm("inventario.salidainventario_change"):
-            context['paquetes_form'] = inv_f.PaqueteCantidadForm()"""
+        context['Tablets'] = Total_Tablet.count()
         return context
 
 
@@ -79,6 +86,26 @@ class SalidaInventarioDetailView(LoginRequiredMixin, GroupRequiredMixin, DetailV
     model = inv_m.SalidaInventario
     template_name = 'inventario/salida/salida_detail.html'
     group_required = [u"inv_cc", u"inv_admin"]
+
+    def get_context_data(self, *args, **kwargs):
+        context = super(SalidaInventarioDetailView, self).get_context_data(*args, **kwargs)
+        Laptop = inv_m.PaqueteTipo.objects.get(nombre="Laptop")
+        Tablet = inv_m.PaqueteTipo.objects.get(nombre="Tablet")
+        cpu = inv_m.PaqueteTipo.objects.get(nombre="CPU")
+        total_cpu = inv_m.DispositivoPaquete.objects.filter(
+            paquete__salida__id=self.object.id,
+            paquete__tipo_paquete=cpu,
+            )
+        context['CPU'] = total_cpu.count()
+        Total_Tablet = inv_m.DispositivoPaquete.objects.filter(
+            paquete__salida__id=self.object.id,
+            paquete__tipo_paquete=Tablet)
+        Total_Laptop = inv_m.DispositivoPaquete.objects.filter(
+            paquete__salida__id=self.object.id,
+            paquete__tipo_paquete=Laptop)
+        context['Laptops'] = Total_Laptop.count()
+        context['Tablets'] = Total_Tablet.count()
+        return context
 
 
 class SalidaPaqueteUpdateView(LoginRequiredMixin, GroupRequiredMixin, UpdateView):
@@ -330,7 +357,7 @@ class DispositivoAsignados(LoginRequiredMixin, GroupRequiredMixin, DetailView):
 
 
 class GarantiaPrintView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
-    """Vista encargada para imprimir las Garantias de las :class:`SalidaInventario` 
+    """Vista encargada para imprimir las Garantias de las :class:`SalidaInventario`
     """
     model = inv_m.SalidaInventario
     template_name = 'inventario/salida/garantia_print.html'
@@ -406,5 +433,148 @@ class LaptopPrintView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
             context['Encargado'] = "No Tiene Encargado"
         context['Laptos'] = nuevas_laptops
         context['Total'] = cantidad_total
+        context['Servidor'] = cpu_servidor
+        return context
+
+
+class TabletPrintView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
+    """Vista encargada para imprimir las :class:`Tablets` de las salidas correspondiente
+    """
+    model = inv_m.SalidaInventario
+    template_name = 'inventario/salida/tablet_print.html'
+    group_required = [u"inv_tecnico", u"inv_admin", u"inv_cc"]
+
+    def get_context_data(self, **kwargs):
+        context = super(TabletPrintView, self).get_context_data(**kwargs)
+        nuevas_tablets = []
+        Tablet = inv_m.PaqueteTipo.objects.get(nombre="Tablet")
+        Total_Tablet = inv_m.DispositivoPaquete.objects.filter(
+            paquete__salida__id=self.object.id,
+            paquete__tipo_paquete=Tablet)
+        for triage in Total_Tablet:
+            nueva_tablet = inv_m.Dispositivo.objects.get(triage=triage.dispositivo).cast()
+            nuevas_tablets.append(nueva_tablet)
+        escuela = inv_m.SalidaInventario.objects.get(id=self.object.id)
+        try:
+            encargado = escuela_m.EscContacto.objects.get(escuela=escuela.escuela)
+            context['Encargado'] = str(encargado.nombre)+" "+str(encargado.apellido)
+            context['Jornada'] = encargado.escuela.jornada
+            print(encargado.escuela.jornada)
+        except ObjectDoesNotExist as e:
+            print(e)
+            context['Jornada'] = "No tiene Jornada"
+            context['Encargado'] = "No Tiene Encargado"
+        context['Tablets'] = nuevas_tablets
+        context['Total'] = Total_Tablet.count()
+        print(nuevas_tablets)
+        return context
+
+
+class TpePrintView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
+    """Vista encargada para imprimir las :class:`SalidaInventario` de las salidas correspondiente
+    """
+    model = inv_m.SalidaInventario
+    template_name = 'inventario/salida/tpe_print.html'
+    group_required = [u"inv_tecnico", u"inv_admin", u"inv_cc"]
+
+    def get_context_data(self, **kwargs):
+        context = super(TpePrintView, self).get_context_data(**kwargs)
+        cpu_servidor = ""
+        nuevos_cpus = []
+        nuevos_teclados = []
+        nuevos_monitores = []
+        nuevos_mouse = []
+        cpu = inv_m.PaqueteTipo.objects.get(nombre="CPU")
+        monitor = inv_m.PaqueteTipo.objects.get(nombre="Monitor")
+        mouse = inv_m.PaqueteTipo.objects.get(nombre="Mouse")
+        teclado = inv_m.PaqueteTipo.objects.get(nombre="Teclados")
+        total_cpu = inv_m.DispositivoPaquete.objects.filter(
+            paquete__salida__id=self.object.id,
+            paquete__tipo_paquete=cpu,
+            )
+        total_monitor = inv_m.DispositivoPaquete.objects.filter(
+            paquete__salida__id=self.object.id,
+            paquete__tipo_paquete=monitor,
+            )
+        total_teclado = inv_m.DispositivoPaquete.objects.filter(
+            paquete__salida__id=self.object.id,
+            paquete__tipo_paquete=teclado,
+            )
+        total_mouse = inv_m.DispositivoPaquete.objects.filter(
+            paquete__salida__id=self.object.id,
+            paquete__tipo_paquete=mouse,
+            )
+        for triage in total_cpu:
+            nueva_cpu = inv_m.Dispositivo.objects.get(triage=triage.dispositivo).cast()
+            nuevos_cpus.append(nueva_cpu)
+            try:
+                if nueva_cpu.servidor is True:
+                    print(nueva_cpu.version_sistema)
+                    cpu_servidor = str(nueva_cpu.version_sistema)
+            except Exception as e:
+                print(e)
+        for triage_monitor in total_monitor:
+            nuevo_monitor = inv_m.Dispositivo.objects.get(triage=triage_monitor.dispositivo).cast()
+            nuevos_monitores.append(nuevo_monitor)
+        for triage_teclado in total_teclado:
+            nuevo_teclado = inv_m.Dispositivo.objects.get(triage=triage_teclado.dispositivo).cast()
+            nuevos_teclados.append(nuevo_teclado)
+        for triage_mouse in total_mouse:
+            nuevo_mouse = inv_m.Dispositivo.objects.get(triage=triage_mouse.dispositivo).cast()
+            nuevos_mouse.append(nuevo_mouse)
+        escuela = inv_m.SalidaInventario.objects.get(id=self.object.id)
+        try:
+            encargado = escuela_m.EscContacto.objects.get(escuela=escuela.escuela)
+            context['Encargado'] = str(encargado.nombre)+" "+str(encargado.apellido)
+            context['Jornada'] = encargado.escuela.jornada
+        except ObjectDoesNotExist as e:
+            print(e)
+            context['Jornada'] = "No tiene Jornada"
+            context['Encargado'] = "No Tiene Encargado"
+        context['CPUs'] = nuevos_cpus
+        context['Monitores'] = nuevos_monitores
+        context['Teclados'] = nuevos_teclados
+        context['Mouses'] = nuevos_mouse
+        context['Total'] = total_cpu.count()
+        context['Servidor'] = cpu_servidor
+        return context
+
+
+class MineducPrintView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
+    """Vista encargada para imprimir las :class:`CPU` y la :class:`HDD` de las salidas correspondiente
+    """
+    model = inv_m.SalidaInventario
+    template_name = 'inventario/salida/mineduc_print.html'
+    group_required = [u"inv_tecnico", u"inv_admin", u"inv_cc"]
+
+    def get_context_data(self, **kwargs):
+        context = super(MineducPrintView, self).get_context_data(**kwargs)
+        nuevos_cpus = []
+        cpu_servidor = ""
+        cpu = inv_m.PaqueteTipo.objects.get(nombre="CPU")
+        total_cpu = inv_m.DispositivoPaquete.objects.filter(
+            paquete__salida__id=self.object.id,
+            paquete__tipo_paquete=cpu,
+            )
+        for triage in total_cpu:
+            nueva_cpu = inv_m.Dispositivo.objects.get(triage=triage.dispositivo).cast()
+            nuevos_cpus.append(nueva_cpu)
+            try:
+                if nueva_cpu.servidor is True:
+                    print(nueva_cpu.version_sistema)
+                    cpu_servidor = str(nueva_cpu.version_sistema)
+            except Exception as e:
+                print(e)
+        escuela = inv_m.SalidaInventario.objects.get(id=self.object.id)
+        try:
+            encargado = escuela_m.EscContacto.objects.get(escuela=escuela.escuela)
+            context['Encargado'] = str(encargado.nombre)+" "+str(encargado.apellido)
+            context['Jornada'] = encargado.escuela.jornada
+        except ObjectDoesNotExist as e:
+            print(e)
+            context['Jornada'] = "No tiene Jornada"
+            context['Encargado'] = "No Tiene Encargado"
+        context['CPUs'] = nuevos_cpus
+        context['Total'] = total_cpu.count()
         context['Servidor'] = cpu_servidor
         return context

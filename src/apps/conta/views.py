@@ -44,7 +44,7 @@ class PeriodoFiscalUpdateView(LoginRequiredMixin, UpdateView):
     model = conta_m.PeriodoFiscal
     template_name = 'conta/periodo_edit.html'
     form_class = conta_f.PeriodoFiscalUpdateForm
-    
+
     def get_success_url(self):
         return reverse_lazy('periodo_list')
 
@@ -59,8 +59,13 @@ class PrecioEstandarCreateView(LoginRequiredMixin, CreateView):
     form_class = conta_f.PrecioEstandarForm
 
     def form_valid(self, form):
+        periodo_activo = conta_m.PeriodoFiscal.objects.get(actual=True)
         form.instance.creado_por = self.request.user
+        form.instance.periodo = periodo_activo
         return super(PrecioEstandarCreateView, self).form_valid(form)
+        
+    def get_success_url(self):
+        return reverse_lazy('precioestandar_list')
 
 
 class PrecioEstandarListView(LoginRequiredMixin, FormView):

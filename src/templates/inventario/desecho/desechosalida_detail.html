@@ -15,6 +15,7 @@
 								{% csrf_token %}
 							</div>
 							<div class="col-md-6">
+									<a target='_blank' href="{% url 'desechosalida_print' pk=object.id%}" class="btn btn-success">Constancia de desecho</a>
 						</div>
 						</div>
 					</div>
