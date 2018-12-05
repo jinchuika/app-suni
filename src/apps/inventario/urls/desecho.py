@@ -33,6 +33,16 @@ urlpatterns = [
         inventario_v.DesechoSalidaUpdateView.as_view(),
         name='desechosalida_update'
     ),
-
-
+    # Detalles de la salida de desecho
+    url(
+        r'^desecho/(?P<pk>\d+)/detail/$',
+        inventario_v.DesechoSalidaDetailView.as_view(),
+        name='desechosalida_detail'
+    ),
+    # Imprimir de la salida de desecho
+    url(
+        r'^desecho/(?P<pk>\d+)/print/$',
+        inventario_v.DesechoSalidaPrintView.as_view(),
+        name='desechosalida_print'
+    ),
 ]

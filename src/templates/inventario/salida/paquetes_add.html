@@ -1,4 +1,5 @@
-{% if perms.inventario.salidainventario_change %}
+{% for  permiso in user.groups.all  %}
+{% if permiso.name == "inv_cc" or permiso.name == 'inv_admin'%}
     {% load widget_tweaks %}
     {% block page_title %}
         <title>Cantidad de Paquetes</title>
@@ -25,3 +26,5 @@
 
     {% endblock content %}
 {% endif %}
+
+{% endfor %}

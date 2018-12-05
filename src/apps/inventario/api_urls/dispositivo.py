@@ -2,7 +2,7 @@ from rest_framework import routers
 from apps.inventario import api_views
 
 dispositivo_router = routers.DefaultRouter()
-# ruta de acceso al api de Desecho
+# ruta de acceso al api de Dispositivos
 dispositivo_router.register(
     r'dispositivo',
     api_views.DispositivoViewSet,

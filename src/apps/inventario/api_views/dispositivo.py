@@ -59,14 +59,20 @@ class DispositivoViewSet(viewsets.ModelViewSet):
 
     @action(methods=['post'], detail=False)
     def impresion_dispositivo(self, request, pk=None):
-        triage = request.data['triage']
-        dispositivo = inv_m.Dispositivo.objects.get(triage=triage)
-        dispositivo.impreso = True
-        dispositivo.save()
-        return Response(
-            {'mensaje': 'Dispositivo impreso'},
-            status=status.HTTP_200_OK
-        )
+        if "inv_tecnico" in self.request.user.groups.values_list('name', flat=True):
+            return Response(
+                {'mensaje': 'No Tienes la Autorizacion para esta accion'},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+        else:
+            triage = request.data['triage']
+            dispositivo = inv_m.Dispositivo.objects.get(triage=triage)
+            dispositivo.impreso = True
+            dispositivo.save()
+            return Response(
+                {'mensaje': 'Dispositivo impreso'},
+                status=status.HTTP_200_OK
+            )
 
 
 class PaquetesFilter(filters.FilterSet):
@@ -116,22 +122,28 @@ class DispositivosPaqueteFilter(filters.FilterSet):
         fields = ['salida', 'listo', 'aprobado']
 
     def filter_salida(self, qs, name, value):
-        qs = qs.filter(paquete__salida=value, dispositivo__etapa=inv_m.DispositivoEtapa.objects.get(id=inv_m.DispositivoEtapa.CC))
+        qs = qs.filter(
+            paquete__salida=value,
+            dispositivo__etapa=inv_m.DispositivoEtapa.objects.get(id=inv_m.DispositivoEtapa.CC))
         return qs
 
     def filter_listo(self, qs, name, value):
-        qs = qs.filter(paquete__salida=value, dispositivo__etapa=inv_m.DispositivoEtapa.objects.get(id=inv_m.DispositivoEtapa.LS))
+        qs = qs.filter(
+            paquete__salida=value,
+            dispositivo__etapa=inv_m.DispositivoEtapa.objects.get(id=inv_m.DispositivoEtapa.LS))
         return qs
 
 
 class DispositivosPaquetesViewSet(viewsets.ModelViewSet):
+    """ ViewSet para generar informe de  :class:`DisposiitivoPaquete`
+    """
     serializer_class = inv_s.DispositivoPaqueteSerializerConta
     queryset = inv_m.DispositivoPaquete.objects.all()
     filter_class = DispositivosPaqueteFilter
 
     @action(methods=['post'], detail=False)
     def aprobar_conta_dispositivos(self, request, pk=None):
-        """
+        """ Metodo para aprobar los dispositivo en el area de contabilidad
         """
         triage = request.data["triage"]
         cambio_estado = inv_m.Dispositivo.objects.get(triage=triage)
@@ -146,7 +158,7 @@ class DispositivosPaquetesViewSet(viewsets.ModelViewSet):
 
     @action(methods=['post'], detail=False)
     def rechazar_conta_dispositivos(self, request, pk=None):
-        """
+        """ Metodo para rechazar los dispositivo en el area de contabilidad
         """
         triage = request.data["triage"]
         cambio_estado = inv_m.Dispositivo.objects.get(triage=triage)

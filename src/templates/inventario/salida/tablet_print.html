@@ -1,0 +1,217 @@
+{% load staticfiles%}
+<!DOCTYPE html>
+<html>
+<head>
+	<title>ENTREGA TABLET</title>
+</head>
+<!--ENCABEZADO DE DATOS E IMAGENES -->
+<header>
+	<div class="logo_izquierdo">
+	<img  width= "125" height="100" style="float:left; margin:10px;"src="{% static "image/funsepalogo.png" %}">
+	</div>
+	<center>
+<div class="encabezado" >
+<h3 style="	color: #154458; ">
+<b>
+	POR CUALQUIER FALLA EN EL EQUIPO COMUNÍCATE A NUESTROS NÚMEROS  DE
+<br>
+TELÉFONO 2435-2739 / 24319639</b>
+</h3>
+<a class="encabezado2" ><b>ENTREGA DE EQUIPO</b></a>
+<b>
+<table class="encabezado3"  width="830" heigth="125">
+
+	<center>
+
+	<td>Fecha de entrega</td>
+	<td style="border:solid; border-width: 1px" width="100" height="18">{{salidainventario.fecha}}</td>
+	<td  width="18"></td>
+	<td>Código UDI</td>
+	<td style="border:solid; border-width: 1px" width="100" height="18">{{salidainventario.escuela.codigo}}</td>
+	<td  width="18			"></td>
+	<td>No. Entrega:</td>
+	<td style="border:solid; border-width: 1px" width="100" height="18	">{{salidainventario}}</td>
+	</center>
+
+<table class="info" >
+	<b>
+	<br>
+	<td width="	250" >NOMBRE DE LA INSTITUCIÓN</td>
+	<td style="border:solid; border-width: 1px;border-color:gray" width="675" height="28">{{salidainventario.escuela}}</td>
+	<td  width="20"></td>
+	<td>DIRECCIÓN</td>
+	<td style="border:solid; border-width: 1px;border-color:gray" width="675" height="28">{{salidainventario.escuela.direccion}}</td>
+	</b>
+</table>
+
+<table class="info2" >
+
+	<td width="	250" >NOMBRE DEL ENCARGADO(A)</td>
+	<td style="border:solid; border-width: 1px;border-color:gray" width="700" height="28">{{Encargado}}</td>
+	<td  width="20"></td>
+	<td>TELEFONO(S)</td>
+	<td style="border:solid; border-width: 1px;border-color:gray" width="700" height="28">{{salidainventario.escuela.telefono}}</td>
+</table>
+</table>
+</b>
+</center>
+</header>
+<!--FIN DE DATOS E IMAGENES-->
+<body>
+
+<!--TITULOS DE LA TABLA-->
+<center>
+<table  bgcolor="lightgray" style="font-size: 20px"  width="975" height="10">
+<center><th><center>TABLET</center></th></center>
+
+</table>
+	<table class="datos">
+	<tr>
+		<th bgcolor="#b3c4dd" width="75" height="25"><center>Triage</center></th>
+		<th bgcolor="#b3c4dd"width="100"><center>Marca</center></th>
+		<th bgcolor="#b3c4dd"width="75"><center>Modelo</center></th>
+		<th bgcolor="#b3c4dd"width="75"><center>Capacidad</center></th>
+		<th bgcolor="#b3c4dd"width="75"><center>Ram</center></th>
+		<th bgcolor="#b3c4dd"width="75"><center>Sistema</center></th>
+	</tr>
+	{% for tablet in Tablets %}
+	<tr>
+		<td>
+			{{tablet|default_if_none:""}}
+		</td>
+		<td>
+			{{tablet.marca |default_if_none:"" }}
+		</td>
+		<td>
+			{{tablet.modelo |default_if_none:"" }}
+		</td>
+		<td>
+			{{tablet.almacenamiento|default_if_none:""}}
+		</td>
+		<td>
+			{{tablet.ram|default_if_none:""}}
+		</td>
+		<td>
+			{{tablet.version_sistema|default_if_none:""}}
+		</td>
+	</tr>
+	{% endfor %}
+<!--FIN DE TITULOS DE LA TABLA-->
+</table>
+</center>
+<table class="contador">
+	<td width="75">Total</td>
+	<td style="border-bottom:solid;" width="150"> <center>{{Total}}</center></td>
+	<td width="100"><center>Jornada</center></td>
+	<td style="border:solid; border-width: 1px;border-color:gray" width="150" height="25">{{Jornada}}</td>
+</table>
+<!--FIN DE CELDAS -->
+<!--INICIO DE FIRMA Y SELLO -->
+</body>
+<footer>
+	<br>
+	<br>
+<br>
+	<br>
+	<br>
+
+<center>
+	<table style="font-size: 20px;">
+
+		<td  >
+			<hr width="430" style="border-color:black; border-width: 1px;">
+			<center>REPRESENTANTE DE LA ESCUELA
+			<p><center>NOMBRE Y FIRMA</center></p></center>
+		</td>
+
+		<td width="200" valign="center" ><center>SELLO</center>
+		</td>
+
+		<td >
+			<hr width="430" style="border-color:black; border-width: 1px;">
+
+			<center>REPRESENTANTE DE FUNSEPA
+			<p><center>LIC. KARLA DEL VALLE</center></p></center>
+		</td>
+
+	</table>
+
+	</center>
+<!--TERMINAR TABLAS DE FIRMA Y SELLO-->
+
+
+</body>
+
+<!--PIE DE PAGINA-->
+<footer>
+
+
+	<br>
+	<br>
+	<br>
+
+	<table style="margin-left: 0px;">
+		<td width="1100">Nota: Todas las computadoras cuentan con sus respectivo cargador.</td>
+		<td style="font-size: 12px">Latitud</td>
+		<td style="border:solid; border-width: 1px;border-color:gray" width="200" height="14">{{salidainventario.escuela.mapa.lat}}</td>
+				<td  width="30"></td>
+
+		<td style="font-size: 12px">Longitud</td>
+		<td style="border:solid; border-width: 1px;border-color:gray" width="200" height="14">{{salidainventario.escuela.mapa.lng}}</td>
+	</table>
+</footer>
+
+
+<!--TERMINA PIE DE PAGINA-->
+
+
+<!--CSS -->
+<style type="text/css">
+	@page{
+	margin-top: 0mm;
+	margin-bottom: 0mm;
+}
+body{
+	font-family: arial;
+	 background-image: none;
+	-webkit-print-color-adjust: exact; /*economy | exact*/
+    color-adjust: exact;
+}
+.encabezado{
+	margin:10px;
+	margin-top:10mm;
+}
+.encabezado2{
+	font-size:12px;
+	text-align: center;
+}
+.encabezado3{
+	border-bottom:solid;
+	border-top:solid;
+	border-width: 1.5px;
+	margin-top:0mm;
+	font-size:14px;
+}
+.info{
+	width: 1750px
+}
+}
+.datos tr:nth-child(odd){
+	background-color: #F2F2F2;
+}
+.datos tr:nth-child(even){
+	background-color: #e5e5e5;
+}
+.contador {
+	margin-left:  370px;
+	font-family: arial;
+	font-size: 18px
+}
+</style>
+
+{% block extra_js %}
+<script>
+window.onload= function () { window.print();window.close();   }
+</script>
+{% endblock extra_js %}
+</html>

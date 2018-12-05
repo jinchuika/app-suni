@@ -8,7 +8,7 @@ from django.urls import reverse_lazy
 from django.shortcuts import reverse
 from django.views.generic import DetailView, UpdateView, CreateView, ListView, FormView
 from braces.views import (
-    LoginRequiredMixin, PermissionRequiredMixin
+    LoginRequiredMixin, PermissionRequiredMixin, GroupRequiredMixin
 )
 from apps.inventario import models as inv_m
 from apps.inventario import forms as inv_f
@@ -96,7 +96,7 @@ class SolicitudMovimientoCreateView(LoginRequiredMixin, CreateView):
         tipo_dis = self.request.user.tipos_dispositivos.tipos.all()
         form.fields['tipo_dispositivo'].queryset = self.request.user.tipos_dispositivos.tipos.all()
         return form
-        
+
 
 class DevolucionCreateView(LoginRequiredMixin, CreateView):
     """Vista   para obtener los datos de Solicitudslug_field = "triage"
@@ -143,9 +143,11 @@ class SolicitudMovimientoUpdateView(LoginRequiredMixin, UpdateView):
 
     def get_form(self, form_class=None):
         form = super(SolicitudMovimientoUpdateView, self).get_form(form_class)
+        estado = inv_m.DispositivoEstado.objects.get(id=inv_m.DispositivoEstado.PD)
         form.fields['dispositivos'].widget = forms.SelectMultiple(attrs={
             'data-api-url': reverse_lazy('inventario_api:api_dispositivo-list'),
             'data-etapa-inicial': self.object.etapa_inicial.id,
+            'data-estado-inicial': estado.id,
             'data-tipo-dispositivo': self.object.tipo_dispositivo.id,
             'data-slug': self.object.tipo_dispositivo.slug,
         })
@@ -165,11 +167,15 @@ class SolicitudMovimientoUpdateView(LoginRequiredMixin, UpdateView):
 
 
 class SolicitudMovimientoDetailView(LoginRequiredMixin, DetailView):
+    """ Vista para ver los detalles de la :class:`SolicitudMovimiento`
+    """
     model = inv_m.SolicitudMovimiento
     template_name = 'inventario/dispositivo/solicitudmovimiento_detail.html'
 
 
 class SolicitudMovimientoListView(LoginRequiredMixin, ListView):
+    """ Vista para ver la lista  de la :class:`SolicitudMovimiento`
+    """
     model = inv_m.SolicitudMovimiento
     template_name = 'inventario/dispositivo/solicitudmovimiento_list.html'
 
@@ -178,10 +184,11 @@ class SolicitudMovimientoListView(LoginRequiredMixin, ListView):
 # FALLAS DE DISPOSITIVOS #
 ##########################
 
-class DispositivoFallaCreateView(LoginRequiredMixin, CreateView):
+class DispositivoFallaCreateView(LoginRequiredMixin, GroupRequiredMixin, CreateView):
     """Creación de :class:`DispositivoFalla`, no admite el método GET"""
     model = inv_m.DispositivoFalla
     form_class = inv_f.DispositivoFallaCreateForm
+    group_required = [u"inv_tecnico", u"inv_admin"]
 
     def form_valid(self, form):
         form.instance.reportada_por = self.request.user
@@ -191,10 +198,13 @@ class DispositivoFallaCreateView(LoginRequiredMixin, CreateView):
         return reverse_lazy('dispositivofalla_update', kwargs={'pk': self.object.id})
 
 
-class DispositivoFallaUpdateView(LoginRequiredMixin, UpdateView):
+class DispositivoFallaUpdateView(LoginRequiredMixin, GroupRequiredMixin, UpdateView):
+    """ Vista para actualizar los detalles de la :class:`DispositivoFalla`
+    """
     model = inv_m.DispositivoFalla
     form_class = inv_f.DispositivoFallaUpdateForm
     template_name = 'inventario/dispositivo/falla/dispositivofalla_update.html'
+    group_required = [u"inv_admin"]
 
     def form_valid(self, form):
         if form.cleaned_data['terminada']:
@@ -215,6 +225,8 @@ class DispositivoFallaUpdateView(LoginRequiredMixin, UpdateView):
 
 
 class TecladoUpdateView(LoginRequiredMixin, UpdateView):
+    """ Vista para actualizar los detalles de la :class:`Teclado`
+    """
     model = inv_m.Teclado
     form_class = inv_f.TecladoForm
     slug_field = "triage"
@@ -224,6 +236,8 @@ class TecladoUpdateView(LoginRequiredMixin, UpdateView):
 
 
 class TecladoDetailView(LoginRequiredMixin, DispositivoDetailView):
+    """ Vista para ver los detalles de la :class:`Teclado`
+    """
     model = inv_m.Teclado
     template_name = 'inventario/dispositivo/teclado/teclado_detail.html'
 
@@ -354,6 +368,7 @@ class DispositivoRedUptadeView(LoginRequiredMixin, UpdateView):
     query_pk_and_slug = True
     template_name = 'inventario/dispositivo/red/red_edit.html'
 
+
 class DispositivoAccessPointDetailView(LoginRequiredMixin, DispositivoDetailView):
     """Vista de detalle de dispositivos tipo :class:`DispositivoRed`"""
     model = inv_m.AccessPoint
@@ -388,7 +403,7 @@ class DispositivoTipoCreateView(LoginRequiredMixin, CreateView):
         return reverse('dispositivo_list')
 
 
-class DispositivoQRprint(LoginRequiredMixin, DetailView):
+class DispositivoQRprint(LoginRequiredMixin, GroupRequiredMixin, DetailView):
     """ Vista encargada de imprimir los codigos qr de  la class `Dispositivo`
     """
     model = inv_m.Dispositivo
@@ -396,6 +411,7 @@ class DispositivoQRprint(LoginRequiredMixin, DetailView):
     slug_field = "triage"
     slug_url_kwarg = "triage"
     query_pk_and_slug = True
+    group_required = [u"inv_bodega", u"inv_admin"]
 
 
 class DispositivosTarimaListView(LoginRequiredMixin, FormView):
@@ -419,5 +435,5 @@ class DispositivosTarimaQr(LoginRequiredMixin, DetailView):
         context['dispositivo_qr'] = inv_m.Dispositivo.objects.filter(tarima=tarima,
                                                                      estado=inv_m.DispositivoEstado.PD,
                                                                      etapa=inv_m.DispositivoEtapa.AB)
-        print(context['dispositivo_qr'])
+
         return context

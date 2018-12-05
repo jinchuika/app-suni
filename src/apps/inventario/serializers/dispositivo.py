@@ -15,6 +15,9 @@ class DispositivoPaqueteSerializer(serializers.ModelSerializer):
 
 
 class DispositivoPaqueteSerializerConta(serializers.ModelSerializer):
+    """ Serializer para generar los datos que se mostraran de la :class:`DispositivoPaquete`
+    en el area de contabilidad
+    """
     salida = serializers.StringRelatedField(source='paquete.salida')
     dispositivo = serializers.StringRelatedField(source='dispositivo.triage')
     etapa = serializers.StringRelatedField(source='dispositivo.etapa')

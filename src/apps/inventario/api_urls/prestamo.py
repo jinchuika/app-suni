@@ -2,7 +2,7 @@ from rest_framework import routers
 from apps.inventario import api_views
 
 prestamo_router = routers.DefaultRouter()
-# ruta de acceso al api de salidas
+# ruta de acceso al api de prestamos
 prestamo_router.register(
     r'prestamo',
     api_views.PrestamoViewSet,

@@ -446,7 +446,11 @@ class Dispositivo(models.Model):
     triage = models.SlugField(unique=True, blank=True, editable=False)
     tipo = models.ForeignKey(DispositivoTipo, on_delete=models.CASCADE)
     entrada = models.ForeignKey(Entrada, on_delete=models.PROTECT, related_name='dispositivos')
-    entrada_detalle = models.ForeignKey(EntradaDetalle, on_delete=models.PROTECT, null=True, related_name='detalle_dispositivos')
+    entrada_detalle = models.ForeignKey(
+        EntradaDetalle,
+        on_delete=models.PROTECT,
+        null=True,
+        related_name='detalle_dispositivos')
     impreso = models.BooleanField(default=False, blank=True, verbose_name='Impreso')
     estado = models.ForeignKey(
         DispositivoEstado,
@@ -526,7 +530,7 @@ class Dispositivo(models.Model):
 
     @classmethod
     def obtener_modelo_hijo(cls, tipo_dispositivo):
-        """Obitne el modelo hijo de `Dispositivo` a partir de un `DispositivoTipo`"""
+        """Obtiene el modelo hijo de `Dispositivo` a partir de un `DispositivoTipo`"""
         modelo = next(
             (
                 f.related_model for f in cls._meta.get_fields()
@@ -863,6 +867,7 @@ class CPU(Dispositivo):
     disco_duro = models.ForeignKey(HDD, on_delete=models.PROTECT, null=True, blank=True, related_name='cpus')
     ram = models.PositiveIntegerField(null=True, blank=True)
     ram_medida = models.ForeignKey(DispositivoMedida, null=True, blank=True)
+    servidor = models.BooleanField(default=False)
 
     class Meta:
         verbose_name = "CPU"
@@ -935,6 +940,7 @@ class DispositivoRed(Dispositivo):
     def get_absolute_url(self):
         return reverse_lazy('red_detail', kwargs={'triage': self.triage})
 
+
 class AccessPoint(Dispositivo):
     SLUG_TIPO = 'AP'
     indice = models.PositiveIntegerField(editable=False, unique=True)
@@ -974,7 +980,11 @@ class RepuestoEstado(models.Model):
 
 class Repuesto(models.Model):
     entrada = models.ForeignKey(Entrada, on_delete=models.CASCADE, related_name='repuestos')
-    entrada_detalle = models.ForeignKey(EntradaDetalle, on_delete=models.PROTECT, null=True, related_name='detalle_repuesto')
+    entrada_detalle = models.ForeignKey(
+        EntradaDetalle,
+        on_delete=models.PROTECT,
+        null=True,
+        related_name='detalle_repuesto')
     impreso = models.BooleanField(default=False, blank=True, verbose_name='Impreso')
     tipo = models.ForeignKey(DispositivoTipo, on_delete=models.PROTECT, related_name='repuestos')
     estado = models.ForeignKey(RepuestoEstado, on_delete=models.PROTECT)
@@ -1078,8 +1088,9 @@ class DesechoDetalle(models.Model):
         on_delete=models.PROTECT,
         null=True,
         blank=True)
-    cantidad = models.DecimalField(max_digits=12, decimal_places=2)
+    cantidad = models.PositiveIntegerField(default=0)
     tipo_dispositivo = models.ForeignKey(DispositivoTipo, on_delete=models.PROTECT, related_name='salidas_desecho')
+    aprobado = models.BooleanField(default=False, blank=True)
 
     class Meta:
         verbose_name = "Detalle de salida de desecho"
@@ -1089,6 +1100,21 @@ class DesechoDetalle(models.Model):
         return '{desecho} {entrada}'.format(
             desecho=self.desecho,
             entrada=self.entrada_detalle)
+
+
+class DesechoDispositivo(models.Model):
+    desecho = models.ForeignKey(DesechoSalida, on_delete=models.PROTECT, related_name='detalles_dispositivos')
+    dispositivo = models.ForeignKey(Dispositivo, on_delete=models.CASCADE, related_name='desecho')
+    aprobado = models.BooleanField(default=False, blank=True)
+
+    class Meta:
+        verbose_name = "Dispositivo de desecho"
+        verbose_name_plural = "Dispositivos de desecho"
+
+    def __str__(self):
+        return '{desecho} -> {dispositivo}'.format(
+            desecho=self.desecho,
+            dispositivo=self.dispositivo)
 
 
 class SalidaTipo(models.Model):
@@ -1199,7 +1225,6 @@ class PaqueteTipo(models.Model):
     """
     nombre = models.CharField(max_length=35, verbose_name='Nombre del tipo')
     tipo_dispositivo = models.ForeignKey(DispositivoTipo, verbose_name='Tipos de dispositivo', null=True, blank=True)
-    # tipo_dispositivo = models.ManyToManyField(DispositivoTipo, verbose_name='Tipos de dispositivo')
 
     class Meta:
         verbose_name = "Tipo de paquete"
@@ -1227,8 +1252,6 @@ class Paquete(models.Model):
         blank=True)
     aprobado = models.BooleanField(default=False, blank=True)
     entrada = models.ManyToManyField(Entrada, related_name='tipo_entrada', blank=True, null=True)
-
-    # dispositivos = models.ManyToManyField(Dispositivo, through='DispositivoPaquete', related_name='paquetes')
 
     class Meta:
         verbose_name = "Paquete de salida"
@@ -1462,7 +1485,7 @@ class PrestamoTipo(models.Model):
 
 
 class Prestamo(models.Model):
-    dispositivo = models.ForeignKey(Dispositivo, on_delete=models.CASCADE, related_name='prestamos')
+    dispositivo = models.ManyToManyField(Dispositivo, related_name='prestamos')
     tipo_dispositivo = models.ForeignKey(
         DispositivoTipo,
         null=True,
@@ -1477,13 +1500,15 @@ class Prestamo(models.Model):
         related_name='prestamo_tipo')
     fecha_inicio = models.DateField()
     fecha_fin = models.DateField(null=True, blank=True)
+    fecha_estimada = models.DateField(null=True, blank=True)
     creado_por = models.ForeignKey(User, on_delete=models.CASCADE, related_name='prestamos_creados')
     prestado_a = models.ForeignKey(User, on_delete=models.CASCADE, related_name='prestamos')
     devuelto = models.BooleanField(default=False, blank=True)
+    observaciones = models.TextField(null=True, blank=True)
 
     class Meta:
         verbose_name = 'Préstamo'
         verbose_name_plural = 'Préstamos'
 
     def __str__(self):
-        return '{} - {}'.format(self.fecha_inicio, self.dispositivo)
+        return '{} - {}'.format(self.fecha_inicio, self.id)

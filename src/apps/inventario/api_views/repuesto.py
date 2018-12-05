@@ -31,7 +31,6 @@ class RepuestoInventarioViewSet(viewsets.ModelViewSet):
         """ Metodo para asignar repuestos
         """
         periodo_actual = conta_m.PeriodoFiscal.objects.get(actual=True)
-
         try:
             triage = request.data['triage']
             repuesto_id = request.data['repuesto']
@@ -45,7 +44,6 @@ class RepuestoInventarioViewSet(viewsets.ModelViewSet):
                 asignado_por=request.user
             )
             repuesto_estado = inv_m.Repuesto.objects.get(id=repuesto_id)
-            print(repuesto_estado.estado)
             repuesto_estado.estado = inv_m.RepuestoEstado.objects.get(id=2)
             repuesto_estado.save()
             repuesto_dispositivos.save()
@@ -55,7 +53,6 @@ class RepuestoInventarioViewSet(viewsets.ModelViewSet):
                 tipo_movimiento=conta_m.MovimientoRepuesto.BAJA,
                 referencia='Salida {}'.format(salida),
                 precio=precio_dispositivo.precio)
-            print(movimiento)
             movimiento.save()
 
         except ObjectDoesNotExist as e:

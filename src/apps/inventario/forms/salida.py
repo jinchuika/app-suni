@@ -27,17 +27,14 @@ class SalidaInventarioForm(forms.ModelForm):
             'escuela': forms.TextInput({'class': 'form-control'}),
             'observaciones': forms.Textarea({'class': 'form-control'}),
             'reasignado_por': forms.HiddenInput(),
-            'entrega': forms.CheckboxInput(attrs={'disabled': 'False'})
+            'entrega': forms.CheckboxInput(attrs={'style': "visibility:hidden"})
         }
 
     def __init__(self, *args, **kwargs):
         super(SalidaInventarioForm, self).__init__(*args, **kwargs)
         if self.instance.en_creacion:
-            self.fields['beneficiario'].empty_label = None
-            self.fields['beneficiario'].label = ' '
             self.fields['beneficiario'].widget = forms.Select(
                 attrs={'class': 'form-control', 'style': "visibility:hidden"})
-            self.fields['beneficiario'].initial = "-----------"
             self.fields['beneficiario'].queryset = crm_m.Donante.objects.all()
         else:
             self.fields['udi'].widget = forms.HiddenInput()
@@ -84,7 +81,7 @@ class RevisionSalidaCreateForm(forms.ModelForm):
 
     salida = forms.ModelChoiceField(
         queryset=inv_m.SalidaInventario.objects.filter(en_creacion=True, necesita_revision=True),
-        widget=forms.Select(attrs={'class': 'form-control'})
+        widget=forms.Select(attrs={'class': 'form-control select2'})
     )
 
     class Meta:

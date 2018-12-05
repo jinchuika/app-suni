@@ -47,7 +47,7 @@ class RepuestosUpdateView(LoginRequiredMixin, UpdateView):
 
 
 class RepuestosQRprint(LoginRequiredMixin, DetailView):
-    """
+    """Vista encargada de imprimir los Qr de la :class:`Repuesto`
     """
     model = inv_m.Repuesto
     template_name = 'inventario/repuesto/repuesto_print.html'

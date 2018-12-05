@@ -10,10 +10,14 @@ class SalidaInventarioSerializer(serializers.ModelSerializer):
     estado = serializers.StringRelatedField()
     url = serializers.StringRelatedField(source='get_absolute_url')
     escuela = serializers.StringRelatedField(source='escuela.codigo')
+    detail_url = serializers.SerializerMethodField()
 
     class Meta:
         model = inv_m.SalidaInventario
         fields = '__all__'
+
+    def get_detail_url(self, object):
+        return reverse_lazy('salidainventario_detail', kwargs={'pk': object.id})
 
 
 class RevisionSalidaSerializer(serializers.ModelSerializer):

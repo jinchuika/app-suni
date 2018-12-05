@@ -1,0 +1,137 @@
+{% extends "base/base.html" %}
+{% load staticfiles %}
+{% block page_title %}
+<title>Detalle desecho</title>
+{% endblock page_title %} {% block content %}
+<section class="content">
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-md-9">
+				<div class="box">
+					<div class="box-header">
+						<div class="row">
+							<div class="col-md-6">
+								<h3 class="box-title"><b>Desecho No. {{desechosalida}}</b></h3>
+								{% csrf_token %}
+							</div>
+							<div class="col-md-6">
+									<a target='_blank' href="{% url 'desechosalida_print' pk=object.id%}" class="btn btn-success">Constancia de desecho</a>
+						</div>
+						</div>
+					</div>
+					<div class="box-body">
+						<table class="table table-condensed">
+							<tr>
+								<th>Numero de desecho: </th>
+								<td>{{ desechosalida }}</td>
+							</tr>
+              <tr>
+                <th>Fecha</th>
+                <td>
+                  {{desechosalida.fecha}}
+                </td>
+              </tr>
+							<tr >
+								<th>Recicladora</th>
+								<td>
+									{{desechosalida.empresa}}
+								</td>
+							</tr>
+              <tr>
+                <th>Precio</th>
+                <td>
+                  {{desechosalida.precio_total}}
+                </td>
+              </tr>
+              <tr>
+                <th>Peso</th>
+                <td>
+									{{desechosalida.peso}} Lbs.
+                </td>
+              </tr>
+              <tr>
+                <th>Responsable</th>
+                <td>
+                  {{desechosalida.creado_por.get_full_name}}
+                  <br>
+                </td>
+              </tr>
+							<tr>
+								<th>Observaciones</th>
+								<td>
+									{{desechosalida.observaciones}}
+								</td>
+							</tr>
+						</table>
+					</div>
+				</div>
+			</div>
+				<div class="col-md-6">
+				</div>
+		</div>
+		<div class="row">
+			<div class="col-md-6">
+				<h3><b>Desecho de Entrada</b></h3>
+				<table class="table table-condensed">
+					<thead>
+						<tr>
+							<th>Entrada No</th>
+							<th>Tipo</th>
+							<th>Cantidad</th>
+
+						</tr>
+					</thead>
+					<tbody>
+						{%for desecho in desechodetalles %}
+							<tr>
+								<td>
+									{{desecho.entrada_detalle.entrada}}
+								</td>
+								<td>
+									{{desecho.tipo_dispositivo}}
+								</td>
+								<td>
+									{{desecho.cantidad}}
+								</td>
+
+
+
+							</tr>
+						{%endfor%}
+					</tbody>
+				</table>
+			</div>
+			<div class="col-md-6">
+				<h3><b>Desecho de Dispositivo</b></h3>
+				<table class="table table-condensed">
+					<thead>
+						<tr>
+							<th>Triage</th>
+							<th>Tipo</th>
+						</tr>
+					</thead>
+					<tbody>
+						{%for dispositivo in desechodispositivo %}
+							<tr>
+								<td>
+									{{dispositivo.dispositivo.triage}}
+								</td>
+								<td>
+									{{dispositivo.dispositivo.tipo}}
+								</td>
+							</tr>
+						{%endfor%}
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+</section>
+{% endblock content %}
+{% block extra_js %}
+{% include "base/dataTables.html" %}
+<script src="{% static "js/extrajs/inventario.js" %}"></script>
+<script>
+	let ListadoPrestamos = new PrestamoList();
+</script>
+{% endblock extra_js %}
