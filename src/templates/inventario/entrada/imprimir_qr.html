@@ -1,12 +1,34 @@
 {% load staticfiles %}
+<!DOCTYPE html>
+<html>
+<body>
+    {%for codigos_qr in dispositivo_qr%}
+  <div style="width:2.8cm; height:1.5cm;">
+    <center>
+      <img src="{{codigos_qr.codigo_qr.url}}" class="img-thumbnail" alt="{{codigos_qr}}" width="60">
+    </center>
+  </div>
+  <div style="width:2.8cm; height:0.5cm;">
+    <center>
+      <font size="2"><b>{{codigos_qr}}</b></font>
+    </center>
+  </div>
+    {%endfor%}
+</body>
+</html>
+<style type="text/css">
+	@page{
+	margin: 0;
+  padding: -1px;
+}
+img {
+    display: inline-block;
 
-{%for codigos_qr in dispositivo_qr%}
-<div>
-  <img src="{{codigos_qr.codigo_qr.url}}" class="img-thumbnail" alt="" width="85" height="85">
-    <p><small>  &nbsp;&nbsp;&nbsp;&nbsp; {{codigos_qr}}</small></p>
-</div>
-
-{%endfor%}
+}
+div{
+  page-break-inside: always;
+}
+</style>
 {% block extra_js %}
 <script>
 window.onload= function () { window.print();window.close();   }
