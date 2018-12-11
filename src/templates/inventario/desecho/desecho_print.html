@@ -1,0 +1,202 @@
+{%load staticfiles %}
+<!DOCTYPE html>
+<html>
+<head><title>
+Constancia Desecho
+  </title>
+</head>
+  <meta charset="utf-8" />
+<body>
+  <div class="encabezado">
+    <img src="{% static "image/funsepalogo.png" %}" width="150" height="150" />
+
+  </div>
+
+<div class="fecha">
+  <td>
+  Guatemala, {{desechosalida.fecha}}
+  </td>
+</div>
+<!--Saludo y presentacion-->
+<div class="presentacion">
+</div>
+<br />
+<p class="saludo">
+Por este medio se hace constar que se esta entregando a "NOMBRE" representante de  {{desechosalida.empresa}} lo siguiente en desecho:
+</p>
+<center>
+<table class="cuerpo">
+  <thead>
+    <tr>
+      <th width="34%">
+      <center>
+        Entrada</center>
+      </th>
+      <th >
+      <center>Cantidad</center>
+      </th>
+      <th width="33%">
+      <center>Desecho</center>
+      </th>
+    </tr>
+  </thead>
+  <tbody>
+    {%for desecho in desechodetalles%}
+      <tr>
+        <td>
+          <center>
+            {{desecho.entrada_detalle.entrada}}
+          </center>
+        </td>
+        <td style="border:solid; border-width: 1px;border-color:gray">
+          {{desecho.cantidad}}
+        </td>
+        <td>
+          {{desecho.entrada_detalle.tipo_dispositivo}}
+        </td>
+      </tr>
+      {%endfor%}
+  </tbody>
+  <tfoot>
+    <table class="cuerpo">
+      <thead>
+        <tr>
+          <th>
+            <center>
+              Varias
+            </br/>
+              Entradas
+            </center>
+          </th>
+          <th width="34%" style="border:solid; border-width: 1px;border-color:gray">
+
+          </th>
+          <th width="34%" style="border:solid; border-width: 1px;border-color:gray">
+
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for dispositivos in desechodispositivo  %}
+          <tr>
+            <td>
+            </td>
+            <td style="border:solid; border-width: 1px;border-color:gray">
+            {{  dispositivos.dispositivo}}
+            </td>
+            <td>
+              {{dispositivos.dispositivo.tipo}}
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+      <tfoot>
+        <tr>
+          <td>
+            Total:
+          </td>
+          <td style="border:solid; border-width: 1px;border-color:gray">
+              {{cantidad_total}}
+          </td>
+          <td></td>
+        </tr>
+      </tfoot>
+    </table>
+  </tfoot>
+</table>
+</center>
+<br />
+<br />
+<br />
+<br />
+<table  width="100%">
+  <thead>
+    <tr>
+      <th>
+        _______________________
+        <br />
+        Tenico Encargado
+      </th>
+      <th>
+        _________________
+        <br />
+        Esdin Pacaja
+      </th>
+      <th>
+        __________________
+        <br/>
+        Tecnico Senior
+      </th>
+    </tr>
+  </thead>
+</table>
+  <footer>
+    <center>
+      Centro de Reacondicionamiento Gueatemala.
+    </br>
+    14 Ave 19-50 Z.4 de Mixco Condado el Naranjo OfiBodegas San Sebastian No.36
+  </br>
+  Telefono 2435-2612 / 2435-2739
+    </center>
+  </footer>
+</body>
+<!--INICIA EL CSS-->
+<style type="text/css">
+
+body{
+  font-size: 12px;
+  font-family: tahoma;
+}
+@page{
+  margin-top: 0mm;
+  margin-bottom: 0mm;
+  margin-left: 10mm;
+  margin-right: 10mm;
+
+}
+.encabezado{
+margin-top: 50px;
+}
+.fecha{
+  text-align: right;
+  margin-top: -40px;
+}
+.presentacion{
+  margin-top: 40px;
+  margin-left: 7mm;
+}
+.cuerpo tr:nth-child(odd) {
+	background-color:#9d9fae;
+  border:solid;
+  border-width: 1px;
+  border-color:gray;
+}
+.cuerpo td:nth-child(odd) {
+border:solid;
+border-width: 1px;
+border-color:gray;
+
+}
+
+.cuerpo tr:nth-child(even) {
+
+background-color:#aeafb5;
+
+}style="border:solid; border-width: 1px;border-color:gray
+.saludostyle="border:solid; border-width: 1px;border-color:gray{
+  margin-left: 7mm;
+}
+
+.despedida{
+  margin-left: 7mm;
+}
+footer{
+  color: darkblue;
+  margin-top: 75px;
+}
+</style>
+{% block extra_js %}
+<script>
+window.onload= function () { window.print();window.close();   }
+</script>
+{% endblock extra_js %}

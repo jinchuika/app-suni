@@ -1,7 +1,7 @@
 import django_filters
 from django.db.utils import OperationalError
 from django.core.exceptions import ObjectDoesNotExist
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from django_filters import rest_framework as filters
 from rest_framework import status, viewsets
@@ -35,8 +35,10 @@ class PrestamoInformeFilter(filters.FilterSet):
         return queryset
 
     def filter_devuelto(self, queryset, name, value):
-        if value == 'on':
+        if value == 'True':
             queryset = queryset.filter(devuelto=True)
+        else:
+            queryset = queryset.filter(devuelto=False)
         return queryset
 
 
@@ -49,16 +51,19 @@ class PrestamoViewSet(viewsets.ModelViewSet):
 
     @action(methods=['post'], detail=False)
     def devolver_prestamo(self, request, pk=None):
+        """Metodo para devolver los dispositivos que fueron prestados
+        """
         id_prestamo = request.data['prestamo']
-        triage = request.data['triage']
         prestamo = inv_m.Prestamo.objects.get(id=id_prestamo)
-        dispositivo = inv_m.Dispositivo.objects.get(triage=triage)
         etapa_bodega = inv_m.DispositivoEtapa.objects.get(id=inv_m.DispositivoEtapa.AB)
         estado_pendiente = inv_m.DispositivoEstado.objects.get(id=inv_m.DispositivoEstado.PD)
-        dispositivo.etapa = etapa_bodega
-        dispositivo.estado = estado_pendiente
-        dispositivo.save()
+        for asignacion in prestamo.dispositivo.all():
+            dispositivo = inv_m.Dispositivo.objects.get(triage=asignacion.triage)
+            dispositivo.etapa = etapa_bodega
+            dispositivo.estado = estado_pendiente
+            dispositivo.save()
         prestamo.devuelto = True
+        prestamo.fecha_fin = datetime.now()
         prestamo.save()
         return Response(
                 {

@@ -8,5 +8,10 @@ desecho_router.register(
     api_views.DesechoDetalleViewSet,
     base_name='api_desechodetalle'
 ),
+desecho_router.register(
+    r'desechodispositivo',
+    api_views.DesechoDispositivoViewSet,
+    base_name='api_desechodispositivo'
+),
 desecho_urlpatterns = []
 desecho_urlpatterns += desecho_router.urls

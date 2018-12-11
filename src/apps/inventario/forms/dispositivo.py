@@ -181,6 +181,7 @@ class DispositivoRedForm(forms.ModelForm):
             'velocidad_medida': forms.Select(attrs={'class': 'form-control select2'}),
         }
 
+
 class DispositivoAccessPointForm(forms.ModelForm):
     """Formulario para la creación de :class:`DispositivoRed`.
     Se utiliza desde la vistas de DispositivoRed."""
@@ -364,7 +365,7 @@ class SolicitudMovimientoCreateForm(forms.ModelForm):
         cleaned_data = super(SolicitudMovimientoCreateForm, self).clean()
         if cleaned_data['etapa_inicial'] == cleaned_data['etapa_final']:
             raise forms.ValidationError('Las etapas no pueden ser iguales.')"""
-            
+
 
 class DevolucionCreateForm(forms.ModelForm):
     """Formulario para el control de las Solicitud de Movimiento de la empresa.

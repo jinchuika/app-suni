@@ -18,13 +18,14 @@ class DetalleInformeFilter(filters.FilterSet):
     """
     tipo = django_filters.CharFilter(name='entrada')
     asignacion = filters.NumberFilter(name='asignacion', method='filter_asignacion')
+    desecho = filters.NumberFilter(lookup_expr='gt')
 
     class Meta:
         model = inv_m.EntradaDetalle
-        fields = ['entrada']
+        fields = ['entrada', 'tipo_dispositivo', 'desecho']
 
     def filter_asignacion(self, qs, name, value):
-        tipo_dis = self.request.user.tipos_dispositivos.tipos.all()        
+        tipo_dis = self.request.user.tipos_dispositivos.tipos.all()
         return qs.filter(entrada=value, tipo_dispositivo__in=tipo_dis)
 
 
@@ -43,118 +44,149 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
         """Metodo para imprimir los qr de dispositivo y repuestos por medio del detalle
         de entrada
         """
-        diferenciar = request.data['tipo']
-        detalles_id = request.data['detalles_id']
-        if(diferenciar == "dispositivo"):
-            entrada_detalle = inv_m.EntradaDetalle.objects.get(id=detalles_id)
-            entrada_detalle.qr_dispositivo = True
-            entrada_detalle.save()
-            print(entrada_detalle)
+        if "inv_tecnico" in self.request.user.groups.values_list('name', flat=True):
+            return Response(
+                {'mensaje': 'No Tienes la Autorizacion para esta accion'},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
         else:
-            entrada_detalle = inv_m.EntradaDetalle.objects.get(id=detalles_id)
-            entrada_detalle.qr_repuestos = True
-            entrada_detalle.save()
-            print(entrada_detalle)
-        return Response(
-            {'mensaje': 'Dispositivos impresos'},
-            status=status.HTTP_200_OK
-        )
+            diferenciar = request.data['tipo']
+            detalles_id = request.data['detalles_id']
+            if(diferenciar == "dispositivo"):
+                entrada_detalle = inv_m.EntradaDetalle.objects.get(id=detalles_id)
+                entrada_detalle.qr_dispositivo = True
+                entrada_detalle.save()
+            else:
+                entrada_detalle = inv_m.EntradaDetalle.objects.get(id=detalles_id)
+                entrada_detalle.qr_repuestos = True
+                entrada_detalle.save()
+            return Response(
+                {'mensaje': 'Dispositivos impresos'},
+                status=status.HTTP_200_OK
+            )
 
     @action(methods=['post'], detail=False)
     def cuadrar_salida(self, request, pk=None):
         """ Metodo para cuadrar los dispositivos de la :class:`EntradaDetalle`
         """
-        mensaje_cuadrar = ""
-        entrad_id = request.data['primary_key']
-        dispositivos_utiles = inv_m.EntradaDetalle.objects.filter(Q(entrada=entrad_id),Q(util__gt = 0)).count()
-        repuestos_utiles = inv_m.EntradaDetalle.objects.filter(Q(entrada=entrad_id),Q(repuesto__gt = 0)).count()
-        validar_dispositivos = inv_m.EntradaDetalle.objects.filter(Q(entrada=entrad_id),Q(util__gt = 0) , dispositivos_creados=True).count()
-        validar_repuestos = inv_m.EntradaDetalle.objects.filter(Q(entrada=entrad_id),Q(repuesto__gt = 0), repuestos_creados=True).count()
 
-        tipo_dispositivo = inv_m.EntradaDetalle.objects.filter(entrada=entrad_id).values('tipo_dispositivo').distinct()
-        tipos_sin_cuadrar = []
-        for tipo in tipo_dispositivo:
-            acumulado_totales = 0
-            acumulador_total = 0
-            cuadrar_dispositivo = inv_m.EntradaDetalle.objects.filter(
-                entrada=entrad_id,
-                tipo_dispositivo=tipo['tipo_dispositivo'])
-            for datos in cuadrar_dispositivo:
-                acumulado_totales = acumulado_totales + datos.util + datos.repuesto + datos.desecho
-                acumulador_total = acumulador_total + datos.total
-                mensaje_cuadrar = datos.tipo_dispositivo
-            if(acumulador_total != acumulado_totales):
-                tipos_sin_cuadrar.append("<br><b>" + str(datos.tipo_dispositivo) + "</b>")
-
-        if(len(tipos_sin_cuadrar) > 0):
+        if "inv_tecnico" in self.request.user.groups.values_list('name', flat=True):
             return Response(
-                {'mensaje': 'La entrada no esta cuadrada revisar:' + ', '.join(str(x) for x in tipos_sin_cuadrar)},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        elif(dispositivos_utiles != validar_dispositivos or repuestos_utiles != validar_repuestos):
-            return Response(
-                {'mensaje': 'Los dispositivos o repuestos no  han sido creados'},
-                status=status.HTTP_400_BAD_REQUEST
+                {'mensaje': 'No Tienes la Autorizacion para esta accion'},
+                status=status.HTTP_401_UNAUTHORIZED
             )
         else:
-            return Response(
-                {'mensaje': 'Entrada Cuadrada'},
-                status=status.HTTP_200_OK
-            )
+            mensaje_cuadrar = ""
+            entrad_id = request.data['primary_key']
+            dispositivos_utiles = inv_m.EntradaDetalle.objects.filter(Q(entrada=entrad_id), Q(util__gt=0)).count()
+            repuestos_utiles = inv_m.EntradaDetalle.objects.filter(Q(entrada=entrad_id), Q(repuesto__gt=0)).count()
+            validar_dispositivos = inv_m.EntradaDetalle.objects.filter(
+                Q(entrada=entrad_id),
+                Q(util__gt=0),
+                dispositivos_creados=True).count()
+            validar_repuestos = inv_m.EntradaDetalle.objects.filter(
+                Q(entrada=entrad_id),
+                Q(repuesto__gt=0),
+                repuestos_creados=True).count()
+            tipo_dispositivo = inv_m.EntradaDetalle.objects.filter(
+                entrada=entrad_id
+                ).values('tipo_dispositivo').distinct()
+            tipos_sin_cuadrar = []
+            for tipo in tipo_dispositivo:
+                acumulado_totales = 0
+                acumulador_total = 0
+                cuadrar_dispositivo = inv_m.EntradaDetalle.objects.filter(
+                    entrada=entrad_id,
+                    tipo_dispositivo=tipo['tipo_dispositivo'])
+                for datos in cuadrar_dispositivo:
+                    acumulado_totales = acumulado_totales + datos.util + datos.repuesto + datos.desecho
+                    acumulador_total = acumulador_total + datos.total
+                    mensaje_cuadrar = datos.tipo_dispositivo
+                if(acumulador_total != acumulado_totales):
+                    tipos_sin_cuadrar.append("<br><b>" + str(datos.tipo_dispositivo) + "</b>")
+
+            if(len(tipos_sin_cuadrar) > 0):
+                return Response(
+                      {'mensaje': 'La entrada no esta cuadrada revisar:'
+                       + ', '.join(str(x) for x in tipos_sin_cuadrar)},
+                      status=status.HTTP_400_BAD_REQUEST
+                  )
+            elif(dispositivos_utiles != validar_dispositivos or repuestos_utiles != validar_repuestos):
+                return Response(
+                    {'mensaje': 'Los dispositivos o repuestos no  han sido creados'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            else:
+                return Response(
+                    {'mensaje': 'Entrada Cuadrada'},
+                    status=status.HTTP_200_OK
+                )
 
     @action(methods=['post'], detail=True)
     def crear_dispositivos(self, request, pk=None):
         """ Metodo para la Creacion de Dispositivos
         """
-        entrada_detalle = self.get_object()
-        try:
-            entrada = entrada_detalle.entrada
-            if not entrada.tipo.contenedor:
-                total = entrada_detalle.util + entrada_detalle.repuesto + entrada_detalle.desecho
-                if entrada_detalle.total != total:
-                    return Response(
-                        {'mensaje': 'La línea de detalle no cuadra, revisar'},
-                        status=status.HTTP_400_BAD_REQUEST)
+        if "inv_tecnico" in self.request.user.groups.values_list('name', flat=True):
+            return Response(
+                {'mensaje': 'No Tienes la Autorizacion para esta accion'},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+        else:
+            entrada_detalle = self.get_object()
+            try:
+                entrada = entrada_detalle.entrada
+                if not entrada.tipo.contenedor:
+                    total = entrada_detalle.util + entrada_detalle.repuesto + entrada_detalle.desecho
+                    if entrada_detalle.total != total:
+                        return Response(
+                            {'mensaje': 'La línea de detalle no cuadra, revisar'},
+                            status=status.HTTP_400_BAD_REQUEST)
 
-            creacion = entrada_detalle.crear_dispositivos()
-            validar_dispositivos = inv_m.EntradaDetalle.objects.get(id=pk)
-            validar_dispositivos.dispositivos_creados = True
-            validar_dispositivos.save()
-            return Response(
-                creacion,
-                status=status.HTTP_200_OK)
-        except OperationalError as e:
-            return Response(
-                {'mensaje': str(e)},
-                status=status.HTTP_400_BAD_REQUEST)
+                creacion = entrada_detalle.crear_dispositivos()
+                validar_dispositivos = inv_m.EntradaDetalle.objects.get(id=pk)
+                validar_dispositivos.dispositivos_creados = True
+                validar_dispositivos.save()
+                return Response(
+                    creacion,
+                    status=status.HTTP_200_OK)
+            except OperationalError as e:
+                return Response(
+                    {'mensaje': str(e)},
+                    status=status.HTTP_400_BAD_REQUEST)
 
     @action(methods=['post'], detail=True)
     def crear_repuestos(self, request, pk=None):
         """ Metodo para la creacion de Repuestos
         """
-        entrada_detalle = self.get_object()
-        try:
-            entrada = entrada_detalle.entrada
-            if not entrada.tipo.contenedor:
-                total = entrada_detalle.util + entrada_detalle.repuesto + entrada_detalle.desecho
-                if entrada_detalle.total != total:
-                    return Response(
-                        {'mensaje': 'La línea de detalle no cuadra, revisar'},
-                        status=status.HTTP_400_BAD_REQUEST)
-                    
-            creacion = entrada_detalle.crear_repuestos()
-            validar_dispositivos = inv_m.EntradaDetalle.objects.get(id=pk)
-            validar_dispositivos.repuestos_creados = True
-            validar_dispositivos.save()
+        if "inv_tecnico" in self.request.user.groups.values_list('name', flat=True):
             return Response(
-                creacion,
-                status=status.HTTP_200_OK
+                {'mensaje': 'No Tienes la Autorizacion para esta accion'},
+                status=status.HTTP_401_UNAUTHORIZED
             )
-        except OperationalError as e:
-            return Response(
-                {'mensaje': str(e)},
-                status=status.HTTP_400_BAD_REQUEST
-            )
+        else:
+            entrada_detalle = self.get_object()
+            try:
+                entrada = entrada_detalle.entrada
+                if not entrada.tipo.contenedor:
+                    total = entrada_detalle.util + entrada_detalle.repuesto + entrada_detalle.desecho
+                    if entrada_detalle.total != total:
+                        return Response(
+                            {'mensaje': 'La línea de detalle no cuadra, revisar'},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+                creacion = entrada_detalle.crear_repuestos()
+                validar_dispositivos = inv_m.EntradaDetalle.objects.get(id=pk)
+                validar_dispositivos.repuestos_creados = True
+                validar_dispositivos.save()
+                return Response(
+                    creacion,
+                    status=status.HTTP_200_OK
+                )
+            except OperationalError as e:
+                return Response(
+                    {'mensaje': str(e)},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
 
 
 class EntradaFilter(filters.FilterSet):

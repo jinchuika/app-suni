@@ -34,20 +34,12 @@ class PeriodoFiscalViewSet(viewsets.ModelViewSet):
             actual = True
         else:
             actual = False
-        print(actual)
-        periodo_activo = conta_m.PeriodoFiscal.objects.filter(actual=True).count()
-        if periodo_activo >= 1:
-            return Response(
-                {
-                 'Ya existe un periodo activo por favor desactive el periodo activo'
-                },
-                status=status.HTTP_406_NOT_ACCEPTABLE
-            )
-        else:
+        periodo_activo = conta_m.PeriodoFiscal.objects.filter(actual=True)
+        if periodo_activo.count() >= 1:
             validar_fecha_fin = conta_m.PeriodoFiscal.objects.filter()
             for nuevafecha in validar_fecha_fin:
                 if (str(fecha_inicio) >= str(nuevafecha.fecha_fin)) and (str(fecha_fin) > str(fecha_inicio)):
-                    print("La No Existe")
+                    print("La fecha no existe")
                 else:
                     print("La fecha Existe")
                     return Response(
@@ -56,6 +48,9 @@ class PeriodoFiscalViewSet(viewsets.ModelViewSet):
                         },
                         status=status.HTTP_406_NOT_ACCEPTABLE
                     )
+            for nuevo in periodo_activo:
+                nuevo.actual = False
+                nuevo.save()
         nuevo_periodo = conta_m.PeriodoFiscal(
             fecha_fin=fecha_fin,
             fecha_inicio=fecha_fin,
@@ -84,8 +79,9 @@ class PrecioEstandarViewSet(viewsets.ModelViewSet):
         etapa = inv_m.DispositivoEtapa.objects.get(id=inv_m.DispositivoEtapa.EN)
         tipo = request.data['tipo_dispositivo']
         periodo_activo = conta_m.PeriodoFiscal.objects.get(actual=True)
-        precios_dispositivo = conta_m.PrecioDispositivo.objects.filter(periodo=periodo_activo,
-                                                                       dispositivo__tipo=tipo).exclude(dispositivo__etapa=etapa)
+        precios_dispositivo = conta_m.PrecioDispositivo.objects.filter(
+            periodo=periodo_activo,
+            dispositivo__tipo=tipo).exclude(dispositivo__etapa=etapa)
         precios_repuesto = conta_m.PrecioRepuesto.objects.filter(periodo=periodo_activo,
                                                                  repuesto__tipo=tipo,
                                                                  repuesto__estado=1)

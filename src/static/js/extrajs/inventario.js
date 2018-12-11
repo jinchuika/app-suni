@@ -109,7 +109,7 @@ class EntradaUpdate {
                 {data: "creado_por"},
                 {
                     data: "",render: function(data, type, full, meta){
-                      if(full.dispositivos_creados == true || full.repuestos_creados == true){
+                      if(full.dispositivos_creados == true || full.repuestos_creados == true ){
                           if(full.usa_triage == "False"){
                             return "<a href="+full.update_url+" class='btn btn-info btn-editar'>Editar</a>";
                           }else{
@@ -536,6 +536,14 @@ class EntradaDetalleDetail {
     var valor = $('#salida-table').data("api");
     var pk = $('#salida-table').data("pk");
     var urlapi = valor + "?entrada=" + pk;
+    var urlDispositivo =  $('#dispositivo-table').data("api");
+    var urlAprobar =  $('#salida-table').data("apiaprobar");
+    var urlRechazar =  $('#salida-table').data("apirechazar");
+    var urlAprobarDispositivo = $('#dispositivo-table').data("apiaprobar");
+    var urlRechazarDispositivo = $('#dispositivo-table').data("apirechazar");
+    var urlTipoDispositivo = $('#dispositivo-table').data("tipo");
+    var urlFinalizar = $('#salida-table').data("finalizar");
+    $('#id_entrada_detalle').empty();
     var tabla = $('#salida-table').DataTable({
         searching: false,
         paging: true,
@@ -545,9 +553,8 @@ class EntradaDetalleDetail {
             url: urlapi,
             dataSrc: '',
             cache: true,
-            data: function () {
-                var cont = $('#salida-table').data("api");
-                return cont;
+            data: {
+              desecho : pk
             }
         },
         columns: [
@@ -555,13 +562,229 @@ class EntradaDetalleDetail {
             {data: "cantidad"},
             {data: "desecho"},
             {data: "entrada_detalle"},
+            {data: "",render: function(data, type, full, meta){
+              if(full.aprobado == false){
+                return "<a id='desecho-aprobar' data-id="+full.id+"  class='btn btn-success btn-aprobar-desecho'>Aprobar</a>";
+              }else{
+                return ""
+              }
+
+            }},
+            {data: "",render: function(data, type, full, meta){
+              if(full.aprobado == false){
+                 return "<a id='desecho-rechazar' data-id="+full.id+"  class='btn btn-warning btn-rechazar-desecho'>Rechazar</a>";
+              }else{
+                return "";
+              }
+
+            }},
         ]
     });
+
+    /**/
+    var tablaDispositivo = $('#dispositivo-table').DataTable({
+        searching: false,
+        paging: true,
+        ordering: false,
+        processing: true,
+        ajax: {
+            url: urlDispositivo,
+            dataSrc: '',
+            cache: true,
+            data: {
+              desecho : pk
+            }
+        },
+        columns: [
+            {data: "triage"},
+            {data: "tipo"},
+            {data: "",render: function(data, type, full, meta){
+              if(full.aprobado == false){
+                  return "<a id='desecho-aprobar' data-triage="+full.dispositivo+"  class='btn btn-success btn-aprobar-dispositivo'>Aprobar</a>";
+              }else{
+                return "";
+              }
+
+
+            }},
+            {data: "",render: function(data, type, full, meta){
+                if(full.aprobado == false){
+                  return "<a id='desecho-rechazar' data-triage="+full.dispositivo+"  class='btn btn-warning btn-rechazar-dispositivo'>Rechazar</a>";
+                }else{
+                  return "";
+                }
+
+            }},
+        ]
+    });
+    /**/
+    /*Aprobar detalle de desecho*/
+    tabla.on('click', '.btn-aprobar-desecho', function () {
+            let data_fila = tabla.row($(this).parents('tr')).data();
+            $.ajax({
+              type: "POST",
+              url: urlAprobar,
+              dataType: 'json',
+              data: {
+                csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
+                detalle:data_fila.id
+              },
+              success: function (response) {
+                   location.reload();
+              },
+              error: function (response) {
+                var mensaje = JSON.parse(response.responseText)
+                bootbox.alert(mensaje['mensaje']);
+              }
+          });
+
+
+        });
+        /**/
+        /*Rechazar detalle de desecho*/
+        tabla.on('click', '.btn-rechazar-desecho', function () {
+                let data_fila = tabla.row($(this).parents('tr')).data();
+                bootbox.confirm({
+                    message: "¿Esta seguro que quiere rechazar este detalle de desecho?",
+                    buttons: {
+                        confirm: {
+                            label: 'Yes',
+                            className: 'btn-success'
+                        },
+                        cancel: {
+                            label: 'No',
+                            className: 'btn-danger'
+                        }
+                    },
+                    callback: function (result) {
+                        if (result == true) {
+                          $.ajax({
+                            type: "POST",
+                            url: urlRechazar,
+                            dataType: 'json',
+                            data: {
+                              csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
+                              detalle:data_fila.id
+                            },
+                            success: function (response) {
+                                 location.reload();
+                            },
+                            error: function (response) {
+                              var mensaje = JSON.parse(response.responseText)
+                              bootbox.alert(mensaje['mensaje']);
+                            }
+                        });
+                        }
+
+                    }
+                });
+
+
+            });
+            /**/
+          /*Aprobar Dispositivo de desecho*/
+          tablaDispositivo.on('click', '.btn-aprobar-dispositivo', function () {
+                  let data_fila = tablaDispositivo.row($(this).parents('tr')).data();
+                  $.ajax({
+                    type: "POST",
+                    url: urlAprobarDispositivo,
+                    dataType: 'json',
+                    data: {
+                      csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
+                      detalle:data_fila.id
+                    },
+                    success: function (response) {
+                         location.reload();
+                    },
+                    error: function (response) {
+                      var mensaje = JSON.parse(response.responseText)
+                      bootbox.alert(mensaje['mensaje']);
+                    }
+                });
+
+
+              });
+              /**/
+              /*Rechazar Dispositivo de desecho*/
+              tablaDispositivo.on('click', '.btn-rechazar-dispositivo', function () {
+                      let data_fila = tablaDispositivo.row($(this).parents('tr')).data();
+                      bootbox.confirm({
+                          message: "¿Esta seguro que quiere rechazar este dispositivo?",
+                          buttons: {
+                              confirm: {
+                                  label: 'Yes',
+                                  className: 'btn-success'
+                              },
+                              cancel: {
+                                  label: 'No',
+                                  className: 'btn-danger'
+                              }
+                          },
+                          callback: function (result) {
+                            $.ajax({
+                              type: "POST",
+                              url: urlRechazarDispositivo,
+                              dataType: 'json',
+                              data: {
+                                csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
+                                detalle:data_fila.id
+                              },
+                              success: function (response) {
+                                   location.reload();
+                              },
+                              error: function (response) {
+                                var mensaje = JSON.parse(response.responseText)
+                                bootbox.alert(mensaje['mensaje']);
+                              }
+                          });
+
+
+                          }
+                      });
+
+
+
+                  });
+                  /**/
+                  $('#id_tipo_dispositivo').change(function() {
+                      if($('#id_tipo_dispositivo').val()==""){
+                      }else{
+                        /****/
+                          var tipo = $(this).val();
+                          $.ajax({
+                            url:urlTipoDispositivo,
+                            dataType:'json',
+                            data:{
+                              tipo_dispositivo:tipo,
+                              desecho:0
+                            },
+                            error:function(){
+                              console.log("Error");
+                            },
+                            success:function(data){
+                                $('#id_entrada_detalle').empty();
+                                $('#id_entrada_detalle').append('<option value=""'+'>'+"---------"+'</option>');
+                                for (var i in data){
+                                  var label = data[i].entrada +"-"+data[i].tdispositivo+"("+data[i].desecho+")";
+                                  $('#id_entrada_detalle').append('<option value='+data[i].id + '>'+label+'</option>');
+                              }
+                             $('#id_entrada_detalle').val();
+                            },
+                            type: 'GET'
+                          }
+                        );
+                        /****/
+
+                      }
+
+                    });
+
+
 
     SalidaDetalleList.init = function () {
         $('#btn-terminar').click(function () {
             bootbox.confirm({
-                message: "¿Esta Seguro que quiere Terminara la Creacion de la Entrada?",
+                message: "¿Esta seguro que quiere terminar la salida de desechos?",
                 buttons: {
                     confirm: {
                         label: 'Yes',
@@ -574,8 +797,23 @@ class EntradaDetalleDetail {
                 },
                 callback: function (result) {
                     if (result == true) {
-                        document.getElementById("id_en_creacion").checked = false;
-                        document.getElementById("desechosalida-form").submit();
+                      $.ajax({
+                        type: "POST",
+                        url: urlFinalizar,
+                        dataType: 'json',
+                        data: {
+                          csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
+                          id:pk
+                        },
+                        success: function (response) {
+                             bootbox.alert(response.mensaje);
+                        },
+                        error: function (response) {
+                          var mensaje = JSON.parse(response.responseText)
+                          bootbox.alert(mensaje['mensaje']);
+                        }
+                    });
+
                     }
 
                 }
@@ -600,6 +838,22 @@ class EntradaDetalleDetail {
             tabla.ajax.reload();
             document.getElementById("detalleForm").reset();
         });
+      /** uso de DRF**/
+      $('#dispositivoForm').submit(function (e) {
+          e.preventDefault()
+         $.ajax({
+              type: "POST",
+              url: $('#dispositivoForm').attr('action'),
+              data: $('#dispositivoForm').serialize(),
+              success: function (response) {
+                  console.log("datos ingresados correctamente");
+
+              },
+          });
+          tablaDispositivo.clear().draw();
+          tablaDispositivo.ajax.reload();
+          document.getElementById("dispositivoForm").reset();
+      });
     }
 }(window.SalidaDetalleList = window.SalidaDetalleList || {}, jQuery));
 
@@ -655,40 +909,21 @@ class SolicitudMovimiento {
 
 class SolicitudMovimientoUpdate {
     constructor() {
-        this.sel_dispositivos = $('#id_dispositivos');
-        let api_url = this.sel_dispositivos.data('api-url');
-        let etapa_inicial = this.sel_dispositivos.data('etapa-inicial');
-        let tipo_dipositivo = this.sel_dispositivos.data('tipo-dispositivo');
-        let slug = this.sel_dispositivos.data('slug');
-        let cantidad = $("#solicitud-table").data("cantidad");
-
-        this.sel_dispositivos.select2({
+        var sel_dispositivos = $('#id_dispositivos');
+        let api_url = sel_dispositivos.data('api-url');
+        let etapa_inicial = sel_dispositivos.data('etapa-inicial');
+        let estado_inicial = sel_dispositivos.data('estado-inicial');
+        let tipo_dipositivo = sel_dispositivos.data('tipo-dispositivo');
+        let slug = sel_dispositivos.data('slug');
+        var cantidad = $("#solicitud-table").data("cantidad");
+        $('#id_dispositivos').val("").trigger('change');
+        var lista_triage = [];
+        sel_dispositivos.select2({
             maximumSelectionLength : cantidad,
-            debug: true,
             placeholder: "Ingrese los triage",
-            ajax: {
-                url: api_url,
-                dataType: 'json',
-                data: function (params) {
-                    return {
-                        search: params.term,
-                        etapa: etapa_inicial,
-                        tipo: tipo_dipositivo,
-                        buscador: slug + "-" + params.term
-                    };
-                },
-                processResults: function (data) {
-                    return {
-                        results: data.map(dispositivo => {
-                            return {id: dispositivo["id"], text: dispositivo['triage']};
-                        })
-                    };
-                },
-                cache: true
-            },
-            width : '100%'
+            width : '50%'
         });
-        let cantidad_dispositivos = this.sel_dispositivos;
+        let cantidad_dispositivos = sel_dispositivos;
         $('form').on('submit', function(e){
            let restante  = cantidad - cantidad_dispositivos.select2('data').length;
 
@@ -698,8 +933,210 @@ class SolicitudMovimientoUpdate {
             e.preventDefault();
           }
         });
+        /*Scanner*/
+        var inputStart, inputStop, firstKey, lastKey, timing, userFinishedEntering;
+        var minChars = 3;
+
+        // handle a key value being entered by either keyboard or scanner
+        $("#area_scanner").keypress(function (e) {
+            // restart the timer
+            if (timing) {
+                clearTimeout(timing);
+            }
+
+            // handle the key event
+            if (e.which == 13) {
+                // Enter key was entered
+
+                // don't submit the form
+                e.preventDefault();
+
+                // has the user finished entering manually?
+                if ($("#area_scanner").val().length >= minChars){
+                    userFinishedEntering = true; // incase the user pressed the enter key
+                    inputComplete();
+                }
+            }
+            else {
+                // some other key value was entered
+
+                // could be the last character
+                inputStop = performance.now();
+                lastKey = e.which;
+                // don't assume it's finished just yet
+                userFinishedEntering = false;
+
+                // is this the first character?
+                if (!inputStart) {
+                    firstKey = e.which;
+                    inputStart = inputStop;
+
+                    // watch for a loss of focus
+                    $("body").on("blur", "#area_scanner", inputBlur);
+                }
+
+                // start the timer again
+                timing = setTimeout(inputTimeoutHandler, 500);
+            }
+        });
+
+        // Assume that a loss of focus means the value has finished being entered
+        function inputBlur(){
+            clearTimeout(timing);
+            if ($("#area_scanner").val().length >= minChars){
+                userFinishedEntering = true;
+                inputComplete();
+            }
+        };
 
 
+        // reset the page
+        $("#reset").click(function (e) {
+            e.preventDefault();
+            resetValues();
+        });
+
+        function resetValues() {
+            // clear the variables
+            inputStart = null;
+            inputStop = null;
+            firstKey = null;
+            lastKey = null;
+            // clear the results
+            inputComplete();
+        }
+
+        // Assume that it is from the scanner if it was entered really fast
+        function isScannerInput() {
+            return (((inputStop - inputStart) / $("#area_scanner").val().length) < 15);
+        }
+
+        // Determine if the user is just typing slowly
+        function isUserFinishedEntering(){
+            return !isScannerInput() && userFinishedEntering;
+        }
+
+        function inputTimeoutHandler(){
+            // stop listening for a timer event
+            clearTimeout(timing);
+            // if the value is being entered manually and hasn't finished being entered
+            if (!isUserFinishedEntering() || $("#area_scanner").val().length < 3) {
+                // keep waiting for input
+                return;
+            }
+            else{
+                reportValues();
+            }
+        }
+
+        // here we decide what to do now that we know a value has been completely entered
+        function inputComplete(){
+            // stop listening for the input to lose focus
+            $("body").off("blur", "#area_scanner", inputBlur);
+            // report the results
+            reportValues();
+        }
+
+        function reportValues() {
+            var inputMethod = isScannerInput() ? "Scanner" : "Keyboard";
+             if(inputMethod == "Scanner"){
+                var datos = {};
+                var seleccion = new Array(cantidad);
+                var triage = $("#area_scanner").val();
+                 var mensaje = JSON.parse(triage);
+                 datos['text'] = mensaje.triage;
+                 datos['id'] = mensaje.id;
+                 /*Api*/
+                 $.ajax({
+                   url:api_url,
+                   dataType:'json',
+                   data:{
+                     etapa: etapa_inicial,
+                     estado: estado_inicial,
+                     id: mensaje.id
+                   },
+                   error:function(){
+                     console.log("Error");
+                   },
+                   success:function(data){
+                     if(data.length >0){
+                       /*asignar datos*/
+                       lista_triage.push(datos);
+                       $("#area_scanner").val("");
+                       inputStart = null;
+                       inputStop = null;
+                       firstKey = null;
+                       lastKey = null;
+                       sel_dispositivos.select2({
+                           maximumSelectionLength : cantidad,
+                           debug: true,
+                           placeholder: "Ingrese los triage",
+                           data:lista_triage,
+                           processResults: function (data){
+                             return {
+                               results : data.map(lista_triage =>{
+                                 return {id: lista_triage["value"], text:lista_triage["triage"]};
+                               })
+                             };
+                           },
+                           width : '100%'
+                       });
+                      for(var i = 0; i<(lista_triage.length);i++){
+                          seleccion[i] = lista_triage[i].id;
+                     }
+                       $('#id_dispositivos').val(seleccion).trigger('change');
+                       /**/
+
+                     }else{
+                       bootbox.alert("Este dispositivo no esta disponible");
+                       $("#area_scanner").val("");
+
+                     }
+                   },
+                   type: 'GET'
+                 }
+               );
+                 /**/
+             }
+        }
+        $("#area_scanner").focus();
+        /*Fin scanner*/
+        $("#btn-manual").click(function(e){
+          $("#area_scanner").attr('type','hidden');
+          $("[for='area_scanner']").css({"visibility":"hidden"});
+          $('#id_dispositivos').val(" ").trigger('change');
+          $("#btn-manual").css({"visibility":"hidden"});
+
+          /**/
+          sel_dispositivos.select2({
+              maximumSelectionLength : cantidad,
+              debug: true,
+              placeholder: "Ingrese los triage",
+              ajax: {
+                  url: api_url,
+                  dataType: 'json',
+                  data: function (params) {
+                      return {
+                          search: params.term,
+                          etapa: etapa_inicial,
+                          estado: estado_inicial,
+                          buscador: slug + "-" + params.term
+                      };
+                  },
+                  processResults: function (data) {
+                      return {
+                          results: data.map(dispositivo => {
+                              return {id: dispositivo["id"], text: dispositivo['triage']};
+                          })
+                      };
+                  },
+                  cache: true
+              },
+              width : '50%'
+          });
+          /**/
+
+        });
 
     }
 }
@@ -876,7 +1313,7 @@ class SalidasRevisarList {
 
       },
       columns:[
-        {data:"id", render: function( data, type, full, meta){
+        {data:"salida", render: function( data, type, full, meta){
           return '<a href="'+full.urlSalida+'">'+data+'</a>'
         }},
         {data:"fecha_revision", render: function(data, type, full, meta){
@@ -884,7 +1321,6 @@ class SalidasRevisarList {
          var options = {year: 'numeric', month:'long', day:'numeric', hour:'numeric',minute:'numeric'};
           return newDate.toLocaleDateString("es-Es",options);
         }},
-        {data:"salida"},
         {data:"revisado_por"},
         {data:"estado"},
       ]
@@ -900,27 +1336,35 @@ class Salidas {
     var salida_pk= $("#salidas-paquete-table").data("pk");
     var url_cuadrar = $("#salidas-paquete-table").data("cuadrar");
     var url_finalizar = $("#salidas-paquete-table").data("urlfin");
-    console.log(url_finalizar);
+    var url_detail = $("#salidas-paquete-table").data("urldetail");
+    var fecha = new Date();
+    var dia = fecha.getDate();
+    var mes = fecha.getMonth()+1;
+    var year = fecha.getFullYear();
+    if(dia<10){
+        dia='0'+dia;
+    }
+    if(mes<10){
+        mes='0'+mes;
+    }
+    var fecha = year+'-'+mes+'-'+dia;
+    $('#id_fecha').val(fecha);
+    $("[for='id_entrega']").css({"visibility":"hidden"});
+    $("[for='id_beneficiario']").css({"visibility":"hidden"});
 
     $('#id_entrega').click(function () {
         if ($("#id_entrega").is(':checked')) {
-
           $("[for='id_udi']").css({"visibility":"visible"});
-
           $("#id_udi").attr('type','visible');
-
+          $("#id_udi").val(" ");
           $("#id_beneficiario").css({"visibility":"hidden"});
-
-
-          $("[for='id_beneficiario']").text("Beneficiario");
           $("[for='id_beneficiario']").css({"visibility":"hidden"});
         } else {
-          $("#id_beneficiario").append('<option value="" selected=""> ------- </option>');
           $("#id_udi").attr('type','hidden');
           $("[for='id_udi']").css({"visibility":"hidden"});
-          $("[for='id_beneficiario']").text("Beneficiario");
           $("[for='id_beneficiario']").css({"visibility":"visible"});
           $("#id_beneficiario").css({"visibility":"visible"});
+          $("#id_udi").val(" ");
         }
     });
     $('#salidaform').on('submit', function(e){
@@ -965,7 +1409,7 @@ class Salidas {
         {data:"beneficiario"},
         {data:"", render: function(data, type, full, meta){
           if(full.estado == 'Entregado'){
-            return "<a target='_blank' rel='noopener noreferrer' href="+full.url+" class='btn btn-success'>Abrir</a>";
+            return "<a target='_blank' rel='noopener noreferrer' href="+full.detail_url+" class='btn btn-success'>Abrir</a>";
           }else{
             return "<a target='_blank' rel='noopener noreferrer' href="+full.url+" class='btn btn-success'>Abrir</a>";
           }
@@ -1009,18 +1453,8 @@ class Salidas {
           if(full.tipo_salida == "Especial" ){
             return ""
           }else{
-            /*for(var i = 0; i<(full.asignacion.length);i++){
-              console.log(full.asignacion[i].dispositivo.triage)
-              if(full.asignacion[i].dispositivo.triage.length == 0){
-                return "";
-
-              }else{
-                return "HOLA";
-              }
-            }*/
             return "<a target='_blank' rel='noopener noreferrer' href="+full.url_detail+" class='btn btn-success'>Ver Dispositivos</a>";
           }
-
         }},
         {data:"", render: function(data, type, full, meta){
           if(full.aprobado ==false){
@@ -1108,11 +1542,6 @@ class Salidas {
                                     tipo:tipo
                                 },
                                 success: function (response) {
-                                  /*  bootbox.confirm("Salida Creada",
-                                    function(result){
-                                       location.reload();
-                                     });*/
-                                     /****/
                                      $.ajax({
                                        type: "POST",
                                        url: url_finalizar,
@@ -1122,8 +1551,7 @@ class Salidas {
                                            salida :salida_pk,
                                        },
                                        success: function (response){
-                                         console.log(response);
-
+                                        window.location.href = url_detail;
                                        },
                                      });
                                      /***/
@@ -1146,16 +1574,27 @@ class Salidas {
     $('#id_tipo_salida').change(function(){
       var tipoSalida = $(this).val();
       var tipoSalidaText = $('#id_tipo_salida option:selected').text()
-      console.log(tipoSalida);
-      console.log(tipoSalidaText);
       if(tipoSalida == 3 || tipoSalidaText =='Especial'){
-        $('#id_entrega').prop("disabled",false);
+        $("[for='id_entrega']").css({"visibility":"visible"});
+        $("#id_entrega").css({"visibility":"visible"});
+      }else{
+        $("[for='id_entrega']").css({"visibility":"hidden"});
+        $("#id_entrega").css({"visibility":"hidden"});
+        $("#id_entrega").prop('checked',true);
+        /**/
+        $("[for='id_udi']").css({"visibility":"visible"});
+        $("#id_udi").attr('type','visible');
+        $("#id_udi").val(" ");
+        $("#id_beneficiario").css({"visibility":"hidden"});
+        $("[for='id_beneficiario']").css({"visibility":"hidden"});
+        /**/
 
       }
     });
     /**Reasignar**/
     var asignacion =   $('#id-reasignar').data('entrega');
     var urlrechazar = $('#id-reasignar').data('urlreasignar');
+    var urldonantes = $('#id-reasignar').data('urldonantes');
     if(asignacion == "None"){
       var mensaje = "Ingrese el UDI a Reasignar";
         var es_beneficiario = false;
@@ -1163,36 +1602,91 @@ class Salidas {
       var mensaje = "Ingrese el Beneficiario a Reasignar";
       var es_beneficiario = true;
     }
-    $('#id-reasignar').click( function(){
-      bootbox.prompt({
-        title: mensaje,
-        callback: function (result) {
-          if (result) {
-            $.ajax({
-             type: "POST",
-             url:urlrechazar,
-             data:{
-               csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
-               data:result,
-               id_salida:salida_pk,
-               beneficiario:es_beneficiario
-             },
-             success:function (response){
-               bootbox.alert(response.mensaje);
-
-             },
-             error: function (response) {
-                  var jsonResponse = JSON.parse(response.responseText);
-                  bootbox.alert(jsonResponse["mensaje"]);
-
+    if(es_beneficiario == true){
+      $('#id-reasignar').click( function(){
+        $.ajax({
+             url:urldonantes,
+             data:function (){
+             return {
+               asignacion: salida_pk,
              }
-           });
-          }
-        }
-      });
-    });
+            },
+             error:function(error){
+               console.log(error);
+             },
+             success:function(data){
+               var listaDeDonantes = [];
+               for (var i in data){
+                 var donante = {}
+                 donante['text'] = data[i].nombre;
+                 donante['value'] =data[i].id;
+                 listaDeDonantes.push(donante);
+             }
+               bootbox.prompt({
+             title: "Seleccione el Donante",
+             inputType: 'select',
+             inputOptions: listaDeDonantes,
+             callback: function (result) {
+                 //
+                 $.ajax({
+                  type: "POST",
+                  url:urlrechazar,
+                  data:{
+                    csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
+                    data:result,
+                    id_salida:salida_pk,
+                    beneficiario:es_beneficiario
+                  },
+                  success:function (response){
+                    bootbox.alert(response.mensaje);
+                    location.reload();
 
+                  },
+                  error: function (response) {
+                       bootbox.alert("Seleccione un  Donante dela lista");
 
+                  }
+                });
+                 //
+             }
+             });
+
+             },
+             type: 'GET'
+           }
+         );
+       });
+    }else{
+      $('#id-reasignar').click( function(){
+       bootbox.prompt({
+           title: mensaje,
+           callback: function (result) {
+             if (result) {
+               $.ajax({
+                type: "POST",
+                url:urlrechazar,
+                data:{
+                  csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
+                  data:result,
+                  id_salida:salida_pk,
+                  beneficiario:es_beneficiario
+                },
+                success:function (response){
+                  bootbox.alert(response.mensaje);
+                  location.reload();
+
+                },
+                error: function (response) {
+                     var jsonResponse = JSON.parse(response.responseText);
+                     bootbox.alert(jsonResponse["mensaje"]);
+                }
+              });
+             }
+           }
+         });
+
+       });
+    }
 
   }
 }
@@ -1420,6 +1914,8 @@ class PaqueteDetail {
     let tablabodyRechazar = $("#rechazar-dispositivo tbody tr");
     var urlCambio = $("#salida-id").data('url');
     var urlAprobar = $("#salida-id").data('urlaprobar');
+    var lista_triage = [];
+    var estado_inicial = $('#id_dispositivos').data('estado-inicial');
     tablabodyRechazar.on('click','.btn-rechazar', function () {
       let data_triage = $(this).attr("data-triage");
       let data_paquete=$(this).attr("data-paquete");
@@ -1453,7 +1949,7 @@ class PaqueteDetail {
                    title: "Por que rechazo este dispositivo?",
                    inputType: 'textarea',
                    callback: function (result) {
-                     if (result) {                      
+                     if (result) {
                        crear_historial_salidas(url, id_comentario, result);
                      }
                    }
@@ -1515,7 +2011,7 @@ class PaqueteDetail {
     var crear_historial_salidas = function(url, id_comentario, comentario){
       var data = {
         "id_comentario":id_comentario,
-        "comentario":"El Dispositivo con Triage: "+ $("#id-rechazar").data('triage')+" del paquete no: "+$("#id-rechazar").data('idpaquete') +" "+ comentario
+        "comentario":"El Dispositivo con Triage: "+ $("#id-rechazar").data('triage')+" del paquete no: "+$("#id-rechazar").data('triagepaquete') +" "+ comentario
       }
 
       $.post(url, JSON.stringify(data)).then(function (response){
@@ -1524,6 +2020,7 @@ class PaqueteDetail {
       var td = $('<td></td>').text(response.comentario);
       var tr = $('<tr></tr>').append(td).append(td_data);
     $('#body-salidas-' + id_comentario).append(tr);
+    location.reload();
 
     },function(response){
       alert("Error al crear datos");
@@ -1538,7 +2035,6 @@ class PaqueteDetail {
     let cantidad = this.asig_dispositivos.data('cantidad');
     let cantidad_disponible = $('#rechazar-dispositivo').data('dispo');
     let cantidad_asignar = cantidad - cantidad_disponible;
-    console.log(cantidad_asignar);
     if(cantidad_asignar == 0){
       var activar = true
     }else{
@@ -1582,6 +2078,175 @@ class PaqueteDetail {
       }
     });
     /****/
+    //Scanner
+    var inputStart, inputStop, firstKey, lastKey, timing, userFinishedEntering;
+      var minChars = 3;
+
+      // handle a key value being entered by either keyboard or scanner
+      $("#area_scanner").keypress(function (e) {
+          // restart the timer
+          if (timing) {
+              clearTimeout(timing);
+          }
+
+          // handle the key event
+          if (e.which == 13) {
+              // Enter key was entered
+
+              // don't submit the form
+              e.preventDefault();
+
+              // has the user finished entering manually?
+              if ($("#area_scanner").val().length >= minChars){
+                  userFinishedEntering = true; // incase the user pressed the enter key
+                  inputComplete();
+              }
+          }
+          else {
+              // some other key value was entered
+
+              // could be the last character
+              inputStop = performance.now();
+              lastKey = e.which;
+              // don't assume it's finished just yet
+              userFinishedEntering = false;
+
+              // is this the first character?
+              if (!inputStart) {
+                  firstKey = e.which;
+                  inputStart = inputStop;
+
+                  // watch for a loss of focus
+                  $("body").on("blur", "#area_scanner", inputBlur);
+              }
+
+              // start the timer again
+              timing = setTimeout(inputTimeoutHandler, 500);
+          }
+      });
+
+      // Assume that a loss of focus means the value has finished being entered
+      function inputBlur(){
+          clearTimeout(timing);
+          if ($("#area_scanner").val().length >= minChars){
+              userFinishedEntering = true;
+              inputComplete();
+          }
+      };
+
+
+      // reset the page
+      $("#reset").click(function (e) {
+          e.preventDefault();
+          resetValues();
+      });
+
+      function resetValues() {
+          // clear the variables
+          inputStart = null;
+          inputStop = null;
+          firstKey = null;
+          lastKey = null;
+          // clear the results
+          inputComplete();
+      }
+
+      // Assume that it is from the scanner if it was entered really fast
+      function isScannerInput() {
+          return (((inputStop - inputStart) / $("#area_scanner").val().length) < 15);
+      }
+
+      // Determine if the user is just typing slowly
+      function isUserFinishedEntering(){
+          return !isScannerInput() && userFinishedEntering;
+      }
+
+      function inputTimeoutHandler(){
+          // stop listening for a timer event
+          clearTimeout(timing);
+          // if the value is being entered manually and hasn't finished being entered
+          if (!isUserFinishedEntering() || $("#area_scanner").val().length < 3) {
+              // keep waiting for input
+              return;
+          }
+          else{
+              reportValues();
+          }
+      }
+
+      // here we decide what to do now that we know a value has been completely entered
+      function inputComplete(){
+          // stop listening for the input to lose focus
+          $("body").off("blur", "#area_scanner", inputBlur);
+          // report the results
+          reportValues();
+      }
+
+      function reportValues() {
+          var inputMethod = isScannerInput() ? "Scanner" : "Keyboard";
+           if(inputMethod == "Scanner"){
+              var datos = {};
+              var seleccion = new Array(cantidad);
+              var triage = $("#area_scanner").val();
+               var mensaje = JSON.parse(triage);
+               datos['text'] = mensaje.triage;
+               datos['id'] = mensaje.id;
+               /*Api*/
+               $.ajax({
+                 url:api_url,
+                 dataType:'json',
+                 data:{
+                   etapa: etapa_inicial,
+                   estado: estado_inicial,
+                   id: mensaje.id
+                 },
+                 error:function(){
+                   console.log("Error");
+                 },
+                 success:function(data){
+                   if(data.length >0){
+                     /*asignar datos*/
+                     lista_triage.push(datos);
+                     $("#area_scanner").val("");
+                     inputStart = null;
+                     inputStop = null;
+                     firstKey = null;
+                     lastKey = null;
+                     $('#id_dispositivos').select2({
+                         maximumSelectionLength : cantidad,
+                         debug: true,
+                         placeholder: "Ingrese los triage",
+                         data:lista_triage,
+                         processResults: function (data){
+                           return {
+                             results : data.map(lista_triage =>{
+                               return {id: lista_triage["value"], text:lista_triage["triage"]};
+                             })
+                           };
+                         },
+                         width : '100%'
+                     });
+                    for(var i = 0; i<(lista_triage.length);i++){
+                        seleccion[i] = lista_triage[i].id;
+                   }
+                     $('#id_dispositivos').val(seleccion).trigger('change');
+                     /**/
+
+                   }else{
+                     bootbox.alert("Este dispositivo no esta disponible");
+                     $("#area_scanner").val("");
+
+                   }
+                 },
+                 type: 'GET'
+               }
+             );
+               /**/
+           }
+      }
+      $("#area_scanner").focus();
+
+    //Fin Scanner
 
   }
 }
@@ -1701,7 +2366,11 @@ class DispositivosQR {
        success:function (response){
          location.reload();
 
-       }
+       },
+       error: function (response) {
+            var jsonResponse = JSON.parse(response.responseText);
+             bootbox.alert(jsonResponse["mensaje"]);
+        }
      });
     })
 
@@ -1754,36 +2423,21 @@ class DispositivosTarimaList {
 }
 class Prestamo {
   constructor() {
+      /**/
 
-      $('#id_dispositivo').append('<option value=""'+'>'+"---------"+'</option>');
-      var api_url = $('#prestamoDispositivo').data("url")
-      $('#id_tipo_dispositivo').change(function() {
-        var tipo = $(this).val();
-        var urlDispositivo = api_url+"?buscador=&tipo="+tipo+"&estado=1&etapa=1&asignaciones=0";
-        console.log(tipo);
-          console.log(urlDispositivo);
-         $.ajax({
-              url:urlDispositivo,
-              dataType:'json',
-              data:{
-                format:'json'
-              },
-              error:function(){
-                console.log("Error");
-              },
-              success:function(data){
-                  $('#id_dispositivo').empty();
-                  $('#id_dispositivo').append('<option value=""'+'>'+"---------"+'</option>');
-                  for (var i in data){
-                    $('#id_dispositivo').append('<option value='+data[i].id + '>'+data[i].triage+'</option>');
-                }
-               $('#id_dispositivo').val();
-              },
-              type: 'GET'
-            }
-          );
-
-      })
+      document.getElementById("id_fecha_inicio").disabled = true;
+      var fecha = new Date();
+      var dia = fecha.getDate();
+      var mes = fecha.getMonth()+1;
+      var year = fecha.getFullYear();
+      if(dia<10){
+          dia='0'+dia;
+      }
+      if(mes<10){
+          mes='0'+mes;
+      }
+      var fecha = year+'-'+mes+'-'+dia;
+      $('#id_fecha_inicio').text("Fecha de Inicio:"+ fecha);
 
   }
 }
@@ -1791,6 +2445,7 @@ class PrestamoList {
   constructor() {
     var tabla_prestamo = $('#prestamo-table');
     var url_devolucion = $('#prestamo-table').data("devolucion");
+    var acumulador = "";
     /****/
     var tabla=tabla_prestamo.DataTable({
      dom: 'lfrtipB',
@@ -1826,14 +2481,16 @@ class PrestamoList {
          }
        }},
        {data:"prestado_a",className:"nowrap"},
-       {data:"tipo_dispositivo",className:"nowrap"},
-
-       {data:"dispositivo", className:"nowrap"},
+       {data:"cantidad",className:"nowrap"},
+       {data:"", className:"nowrap", render:function(data, type, full, meta){
+           return "<a target='_blank' id='dispositivo' href="+full.url_detail+" data-devolucion="+full.id+"  class='btn btn-primary'>Dispositivos</a>";
+        }
+      },
        {data:"", className:"nowrap", render:function(data, type, full, meta){
           if(full.devuelto == true){
             return ""
           }else{
-           return "<a id='devolver' data-triage="+full.dispositivo+"  class='btn btn-success btn-devolver'>Devolver</a>";
+           return "<a id='devolver' data-devolucion="+full.id+"  class='btn btn-success btn-devolver'>Devolver</a>";
           }
         }
       }
@@ -1844,7 +2501,7 @@ class PrestamoList {
  tablabody.on('click', '.btn-devolver', function () {
            var data_fila = tabla.row($(this).parents('tr')).data();
            bootbox.confirm({
-                       message: "Esta Seguro que quiere devolver este dispositivo",
+                       message: "Esta Seguro que quiere devolver este prestamo",
                        buttons: {
                            confirm: {
                                label: 'Si',
@@ -1864,7 +2521,6 @@ class PrestamoList {
                                  dataType: 'json',
                                  data: {
                                      csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
-                                     triage :data_fila.dispositivo,
                                      prestamo:data_fila.id
 
                                  },
@@ -1889,5 +2545,63 @@ class PrestamoList {
         tabla.ajax.reload();
     });
 /****/
+$("#devolver").click( function(){
+  var data_fila =$("#devolver").data("devolucion");
+  var url_devolucion =$("#devolver").data("urldevolucion");
+  bootbox.confirm({
+              message: "Esta Seguro que quiere devolver este prestamo",
+              buttons: {
+                  confirm: {
+                      label: 'Si',
+                      className: 'btn-success'
+                  },
+                  cancel: {
+                      label: 'No',
+                      className: 'btn-danger'
+                  }
+              },
+              callback: function (result) {
+                  if(result == true){
+                    /**/
+                    $.ajax({
+                        type: 'POST',
+                        url: url_devolucion,
+                        dataType: 'json',
+                        data: {
+                            csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
+                            prestamo:data_fila
+
+                        },
+                        success: function (response) {
+                          bootbox.alert(response.mensaje);
+                          tabla.ajax.reload();
+                        },
+                        error: function (response) {
+                             var jsonResponse = JSON.parse(response.responseText);
+                             bootbox.alert(jsonResponse["mensaje"]);
+                        }
+                    });
+                    /**/
+                  }
+              }
+            });
+})
+  }
+}
+class Desecho {
+  constructor() {
+    var fecha = new Date();
+    var dia = fecha.getDate();
+    var mes = fecha.getMonth()+1;
+    var year = fecha.getFullYear();
+    if(dia<10){
+        dia='0'+dia;
+    }
+    if(mes<10){
+        mes='0'+mes;
+    }
+    var fecha = year+'-'+mes+'-'+dia;
+    $('#id_fecha').val(fecha);
+
   }
 }
