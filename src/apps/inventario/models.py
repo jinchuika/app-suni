@@ -468,7 +468,7 @@ class Dispositivo(models.Model):
     )
 
     marca = models.ForeignKey(DispositivoMarca, on_delete=models.CASCADE, null=True, blank=True)
-    modelo = models.ForeignKey(DispositivoModelo, on_delete=models.CASCADE, null=True, blank=True)
+    modelo = models.CharField(max_length=80, null=True, blank=True)
     serie = models.CharField(max_length=80, null=True, blank=True)
     codigo_qr = et_fields.ThumbnailerImageField(upload_to='qr_dispositivo', blank=True, null=True)
     tarima = models.ForeignKey(Tarima, on_delete=models.PROTECT, blank=True, null=True, related_name='dispositivos')
