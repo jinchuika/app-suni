@@ -526,6 +526,7 @@ class Dispositivo(models.Model):
         img.save(buffer)
         filename = 'dispositivo-{}.png'.format(self.id)
         filebuffer = InMemoryUploadedFile(buffer, None, filename, 'image/png', buffer.getbuffer().nbytes, None)
+        print(filebuffer)
         self.codigo_qr.save(filename, filebuffer)
 
     @classmethod
