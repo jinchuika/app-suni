@@ -28,9 +28,10 @@ class DispositivoAdmin(admin.ModelAdmin):
 		print(dispositivos)
 		if len(dispositivos) > 0:
 			for dispositivo in dispositivos:
-				print(dispositivo)
-			if not dispositivo.codigo_qr:
-				dispositivo.crear_qrcode()
+				if not dispositivo.codigo_qr:
+					print(dispositivo)
+					dispositivo.crear_qrcode()
+					dispositivo.save()
 		else:
 			print("No hay")
 		return HttpResponseRedirect("../")

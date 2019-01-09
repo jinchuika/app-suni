@@ -123,9 +123,14 @@ DATABASE_ROUTERS = ['apps.legacy.dbrouters.LegacyRouter', ]
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'suni',
+        'USER': 'suni',
+        'PASSWORD': 'SuN1.Fun53p@!2',
+        'HOST': '142.44.193.149',
+        'PORT': '3306',
     },
+
     'legacy': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(BASE_DIR, 'legacy.sqlite3'),
