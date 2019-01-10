@@ -476,7 +476,7 @@ class Dispositivo(models.Model):
 
     class Meta:
         verbose_name = "Dispositivo"
-        verbose_name_plural = "Dispositivos"
+        verbose_name_plural = "Dispositivos"        
         indexes = [
             models.Index(fields=['triage']),
         ]
