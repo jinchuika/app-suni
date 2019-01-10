@@ -2309,7 +2309,6 @@ class RepuestosList {
 }
 class DispositivoList {
   constructor() {
-
     $('#dispositivo-list-form').submit(function (e) {
         e.preventDefault();
         /**/
@@ -2378,12 +2377,17 @@ class DispositivosQR {
 }
 class DispositivosTarimaList {
   constructor() {
+    $("[for='id_estado']").css({"visibility":"hidden"});
+    $("[for='id_etapa']").css({"visibility":"hidden"});
+    $('#id_tipo').change( function() {
+     var selected_tipo = $('#id_tipo option:selected').val();
+     console.log(selected_tipo);
     $('#dispositivo-tarima-list-form').submit(function (e) {
         e.preventDefault();
         /**/
 
          let tarima  = $("#id_tarima").val();
-         let url = $("#qr-botton").data("url")+"?tarima="+tarima;
+         let url = $("#qr-botton").data("url")+"?tarima="+tarima+"&tipo="+selected_tipo;
          document.getElementById("qr-botton").setAttribute("href", url);
          $('#qr-botton').css({"display":"block"});
         var tablaDispositivos = $('#dispositivo-tarima-table').DataTable({
@@ -2418,6 +2422,8 @@ class DispositivosTarimaList {
 
 
     });
+   });
+
 
   }
 }
