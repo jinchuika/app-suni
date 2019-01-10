@@ -197,8 +197,10 @@ class ImprimirQr(LoginRequiredMixin, GroupRequiredMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super(ImprimirQr, self).get_context_data(**kwargs)
+        print(inv_m.Dispositivo.objects.filter(entrada=self.object.id,
+                                               entrada_detalle=self.kwargs['detalle']).order_by('triage'))
         context['dispositivo_qr'] = inv_m.Dispositivo.objects.filter(entrada=self.object.id,
-                                                                     entrada_detalle=self.kwargs['detalle'])
+                                                                     entrada_detalle=self.kwargs['detalle']).order_by('entrada')
         return context
 
 

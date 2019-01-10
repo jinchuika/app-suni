@@ -33,6 +33,7 @@ class DispositivoViewSet(viewsets.ModelViewSet):
     serializer_class = inv_s.DispositivoSerializer
     queryset = inv_m.Dispositivo.objects.all()
     filter_class = DispositivoFilter
+    ordering = ('entrada')
 
     @action(methods=['get'], detail=False)
     def paquete(self, request, pk=None):

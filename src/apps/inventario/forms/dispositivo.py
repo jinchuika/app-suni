@@ -429,9 +429,10 @@ class DispositivosTarimaForm(forms.ModelForm):
     """
     class Meta:
         model = inv_m.Dispositivo
-        fields = ('tarima', 'estado', 'etapa', )
+        fields = ('tarima', 'tipo', 'estado', 'etapa',)
         widgets = {
             'tarima': forms.TextInput({'class': 'form-control'}),
+            'tipo': forms.Select(attrs={'class': 'form-control'}),
             'estado': forms.HiddenInput(),
             'etapa': forms.HiddenInput(),
         }

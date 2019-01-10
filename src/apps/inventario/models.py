@@ -476,7 +476,7 @@ class Dispositivo(models.Model):
 
     class Meta:
         verbose_name = "Dispositivo"
-        verbose_name_plural = "Dispositivos"
+        verbose_name_plural = "Dispositivos"        
         indexes = [
             models.Index(fields=['triage']),
         ]
@@ -866,7 +866,7 @@ class CPU(Dispositivo):
     procesador = models.ForeignKey(Procesador, on_delete=models.PROTECT, null=True, blank=True)
     version_sistema = models.ForeignKey(VersionSistema, on_delete=models.PROTECT, null=True, blank=True)
     disco_duro = models.ForeignKey(HDD, on_delete=models.PROTECT, null=True, blank=True, related_name='cpus')
-    ram = models.PositiveIntegerField(null=True, blank=True)
+    ram = models.DecimalField(max_digits=4, decimal_places=2, null=True, blank=True)
     ram_medida = models.ForeignKey(DispositivoMedida, null=True, blank=True)
     servidor = models.BooleanField(default=False)
 

@@ -79,6 +79,12 @@ dispositivos_children = (
         weight=12,
         icon=" fa-mobile-phone",
     ),
+    ViewMenuItem(
+        "Dispositivos por tarima  ",
+        reverse_lazy('dispositivo_tarima'),
+        weight=12,
+        icon="fa-desktop",
+    ),
 )
 # Repuestos
 repuestos_children = (
