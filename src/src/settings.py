@@ -132,8 +132,12 @@ DATABASES = {
     },
 
     'legacy': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'legacy.sqlite3'),
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'suni2',
+        'USER': 'suni2',
+        'PASSWORD': 'Fun53P@!2',
+        'HOST': 'suni2.db.4541636.hostedresource.com',
+        'PORT': '3306',
     },
 }
 
@@ -245,10 +249,10 @@ CRONJOBS = [
 
 # Para conectar a SUNI1
 LEGACY_URL = {
-    'cyd_informe': ''
+    'cyd_informe': 'http://funsepa.net/suni/app/src/libs/informe_ca_escuela.php'
 }
-LEGACY_CONNECTION = False
-LEGACY_TESTING = True
+LEGACY_CONNECTION = True
+LEGACY_TESTING = False
 
 GOOGLE_ANALYTICS_PROPERTY_ID = ''
 GOOGLE_ANALYTICS_DOMAIN = ''
