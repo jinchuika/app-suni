@@ -432,10 +432,13 @@ class DispositivosTarimaQr(LoginRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         tarima = self.request.GET['tarima']
         tipo = self.request.GET['tipo']
+        tarima_print = inv_m.Dispositivo.objects.filter(
+            tarima=tarima,
+            tipo=tipo,
+            estado=inv_m.DispositivoEstado.PD,
+            etapa=inv_m.DispositivoEtapa.AB).order_by('triage')
+
         context = super(DispositivosTarimaQr, self).get_context_data(**kwargs)
-        context['dispositivo_qr'] = inv_m.Dispositivo.objects.filter(tarima=tarima,
-                                                                     tipo=tipo,
-                                                                     estado=inv_m.DispositivoEstado.PD,
-                                                                     etapa=inv_m.DispositivoEtapa.AB).order_by('entrada')
+        context['dispositivo_qr'] = tarima_print
 
         return context
