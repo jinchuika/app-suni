@@ -3,6 +3,7 @@ from django.urls import reverse
 from menu import Menu
 from apps.main.menus import ViewMenuItem
 
+
 # Inventario
 # Entrada
 entrada_children = (
@@ -145,7 +146,7 @@ desecho_children = (
 contabilidad_children = (
     ViewMenuItem(
         "Periodo Fiscal",
-        reverse_lazy('desechoempresa_list'),
+        reverse_lazy('periodo_add'),
         weight=12,
         perm="conta.add_periodofiscal",
         icon="fa-calendar-check-o",
@@ -247,7 +248,7 @@ Menu.add_item(
         reverse_lazy('entrada_list'),
         weight=10,
         icon="fa-archive",
-        group="inventario_conta",
+        group="inventario",
         children=contabilidad_children
     )
 )
