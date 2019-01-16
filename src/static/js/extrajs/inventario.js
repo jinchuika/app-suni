@@ -2381,11 +2381,9 @@ class DispositivosTarimaList {
     $("[for='id_etapa']").css({"visibility":"hidden"});
     $('#id_tipo').change( function() {
      var selected_tipo = $('#id_tipo option:selected').val();
-     console.log(selected_tipo);
     $('#dispositivo-tarima-list-form').submit(function (e) {
         e.preventDefault();
         /**/
-
          let tarima  = $("#id_tarima").val();
          let url = $("#qr-botton").data("url")+"?tarima="+tarima+"&tipo="+selected_tipo;
          document.getElementById("qr-botton").setAttribute("href", url);
@@ -2407,6 +2405,7 @@ class DispositivosTarimaList {
            columns: [
 
                {data: "triage", render: function(data, type, full, meta){
+                 console.log(full);
                  return '<a href="'+full.url+'">'+data+'</a>'
                }},
                {data: "tipo", className: "nowrap"},
@@ -2415,7 +2414,7 @@ class DispositivosTarimaList {
                {data: "serie", className: "nowrap"},
                {data: "tarima", className: "nowrap"}
            ]
-              });
+         });
         /**/
         tablaDispositivos.clear().draw();
         tablaDispositivos.ajax.reload();
