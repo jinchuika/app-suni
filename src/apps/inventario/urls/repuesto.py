@@ -25,5 +25,11 @@ urlpatterns = [
         r'^repuesto/reporteqr/(?P<pk>\d+)/$',
         inv_v.RepuestosQRprint.as_view(),
         name='repuestoqr_print'
+    ),
+    # Imprimir Listado de Qr por tarima
+    url(
+        r'^repuesto/reporteqrlist/(?P<pk>\d+)/$',
+        inv_v.RepuestosQRprintList.as_view(),
+        name='repuestoqr_list'
     )
 ]

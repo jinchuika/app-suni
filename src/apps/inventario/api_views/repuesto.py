@@ -24,7 +24,7 @@ class RepuestoInventarioViewSet(viewsets.ModelViewSet):
     """
     serializer_class = inv_s.RepuestoInventarioSerializer
     queryset = inv_m.Repuesto.objects.all()
-    filter_fields = ('tipo', 'estado',)
+    filter_fields = ('tipo', 'estado', 'tarima')
 
     @action(methods=['post'], detail=False)
     def asignar_repuesto(self, request, pk=None):
