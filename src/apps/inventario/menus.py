@@ -54,13 +54,6 @@ dispositivos_children = (
         icon="fa-gear",
     ),
     ViewMenuItem(
-        "Dispositivos x Tarima",
-        reverse_lazy('reportelistado_qr'),
-        weight=12,
-        group="inv_bodega",
-        icon="fa-gear",
-    ),
-    ViewMenuItem(
         "Sistema Operativo",
         reverse_lazy('versionsistema_list'),
         perm="inventario.add_versionsistema",
