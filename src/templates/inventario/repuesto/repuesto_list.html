@@ -29,9 +29,16 @@
                 </div>
             </div>
             <div id="cuerpo-repuesto" class="col-md-9 col-sm-9">
-              <div class="box">
+              <div class="box box-primary">
                   <div class="box-header">
-                      <h3 class="box-title">Listado de Repuestos</h3>
+                    <div class="row">
+                      <div class="col-md-9">
+                          <h3 class="box-title">Listado de Repuestos</h3>
+                      </div>
+                      <div class="col-md-3">
+                          <a id="qr-botton" target='_blank' rel='noopener noreferrer'  data-url = "{%url 'repuestoqr_list' pk=1%}" class="btn btn-block btn-success" style="display:none" >Imprimir QR </a>
+                      </div>
+                    </div>
                   </div>
                   <div  class="box-body table-responsive">
                     <table id="repuesto-table" class="table table-striped table-hover table-bordered table-condensed">
