@@ -2305,6 +2305,50 @@ class RepuestosList {
          });
       });
     });
+
+    //Boton  tarima
+
+    $(document).on('keypress',function(e) {
+    if(e.which == 13) {
+       e.preventDefault();
+       /**/
+       var tipo = $("#id_tipo option:selected").val();
+       let tarima  = $("#id_tarima").val();
+       let url = $("#qr-botton").data("url")+"?tarima="+tarima+"&tipo="+tipo;
+       document.getElementById("qr-botton").setAttribute("href", url);
+       $('#qr-botton').css({"display":"block"});
+       var tabla = repuesto_tabla.DataTable({
+         destroy:true,
+         searching:true,
+         paging:true,
+         ordering:true,
+         processing:true,
+         ajax:{
+           url:url_repuestos,
+           dataSrc:'',
+           cache:true,
+           data: function() {
+             return{
+               tarima:$("#id_tarima").val(),
+               estado:1
+             }
+           }
+         },
+         columns:[
+           {data:"No"},
+           {data:"tipo"},
+           {data:"descripcion"},
+           {data:"tarima"},
+           {
+                 data: "",
+                 defaultContent: "<button  id='button-repuesto' class='btn btn-info repuesto-btn'>Asignar</button>"
+             }
+         ]
+       });
+       /**/
+
+    }
+});
    }
 }
 class DispositivoList {
@@ -2386,38 +2430,49 @@ class DispositivosTarimaList {
         /**/
          let tarima  = $("#id_tarima").val();
          let url = $("#qr-botton").data("url")+"?tarima="+tarima+"&tipo="+selected_tipo;
+         //let url = $("#qr-botton").data("url")+"?tarima="+tarima;
          document.getElementById("qr-botton").setAttribute("href", url);
          $('#qr-botton').css({"display":"block"});
-        var tablaDispositivos = $('#dispositivo-tarima-table').DataTable({
-           dom: 'lfrtipB',
-           destroy:true,
-           buttons: ['excel', 'pdf'],
-           processing: true,
-           ajax: {
-               url: $('#dispositivo-tarima-list-form').attr('action'),
-               deferRender: true,
-               dataSrc: '',
-               cache: true,
-               data: function () {
-                   return $('#dispositivo-tarima-list-form').serializeObject(true);
-               }
-           },
-           columns: [
+           var tablaDispositivos = $('#dispositivo-tarima-table').DataTable({
+              dom: 'lfrtipB',
+              destroy:true,
+              buttons: ['excel', 'pdf'],
+              processing: true,
+              ajax: {
+                  url: $('#dispositivo-tarima-list-form').attr('action'),
+                  deferRender: true,
+                  dataSrc: '',
+                  cache: true,
+                  data:function (params){
+                    return {
+                      csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
+                      tarima:tarima,
+                      tipo:selected_tipo,
+                      estado:1,
+                      etapa:1,
+                    };
 
-               {data: "triage", render: function(data, type, full, meta){
-                 console.log(full);
-                 return '<a href="'+full.url+'">'+data+'</a>'
-               }},
-               {data: "tipo", className: "nowrap"},
-               {data: "marca", className: "nowrap"},
-               {data: "modelo", className: "nowrap"},
-               {data: "serie", className: "nowrap"},
-               {data: "tarima", className: "nowrap"}
-           ]
-         });
-        /**/
-        tablaDispositivos.clear().draw();
-        tablaDispositivos.ajax.reload();
+
+                  }
+              },
+              columns: [
+
+                  {data: "triage", render: function(data, type, full, meta){
+                    return '<a href="'+full.url+'">'+data+'</a>'
+                  }},
+                  {data: "tipo", className: "nowrap"},
+                  {data: "marca", className: "nowrap"},
+                  {data: "modelo", className: "nowrap"},
+                  {data: "serie", className: "nowrap"},
+                  {data: "tarima", className: "nowrap"}
+              ]
+            });
+           /**/
+           tablaDispositivos.clear().draw();
+           tablaDispositivos.ajax.reload();
+
+
+
 
 
     });

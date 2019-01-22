@@ -2,16 +2,18 @@
 <!DOCTYPE html>
 <html>
 <body>
+    {%for codigos_qr in dispositivo_qr%}
   <div style="width:2.8cm; height:1.5cm;">
     <center>
-      <img src="{{object.codigo_qr.url}}" class="img-thumbnail" alt="{{object.codigo_qr}}" width="60">
+      <img src="{{codigos_qr.codigo_qr.url}}" class="img-thumbnail" alt="{{codigos_qr}}" width="60">
     </center>
   </div>
   <div style="width:2.8cm; height:0.5cm;">
     <center>
-      <font size="2"><b>{{object}}</b></font>
+      <font size="2"><b>{{codigos_qr}}</b></font>
     </center>
   </div>
+    {%endfor%}
 </body>
 </html>
 <style type="text/css">
