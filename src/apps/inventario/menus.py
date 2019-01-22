@@ -47,6 +47,13 @@ solicitudes_children = (
 # Dispositivos
 dispositivos_children = (
     ViewMenuItem(
+        "Tipos de Dispositivos",
+        reverse_lazy('dispositivotipo_add'),
+        weight=12,
+        perm="inventario.add_dispositivotipo",
+        icon="fa-gear",
+    ),
+    ViewMenuItem(
         "Sistema Operativo",
         reverse_lazy('versionsistema_list'),
         perm="inventario.add_versionsistema",
