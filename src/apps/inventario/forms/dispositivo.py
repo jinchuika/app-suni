@@ -436,3 +436,17 @@ class DispositivosTarimaForm(forms.ModelForm):
             'estado': forms.HiddenInput(),
             'etapa': forms.HiddenInput(),
         }
+
+
+class DispositivosTarimaFormNew(forms.Form):
+    """Este Formulario se encarga de enviar los filtros para  su respectivo informe de Ofertas
+    """
+    tarima = forms.CharField(
+        label='Tarima',
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-control'}))
+    tipo = forms.ModelChoiceField(
+        queryset=inv_m.DispositivoTipo.objects.all(),
+        label='Tipo',
+        widget=forms.Select(attrs={'class': 'form-control'}),
+        required=True)

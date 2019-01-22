@@ -76,6 +76,7 @@ dispositivos_children = (
     ViewMenuItem(
         "Dispositivos por tarima  ",
         reverse_lazy('dispositivo_tarima'),
+        group="inv_bodega",
         weight=12,
         icon="fa-desktop",
     ),
@@ -162,6 +163,13 @@ admin_children = (
         perm="conta.add_precioestandar",
         icon="fa-money",
     ),
+    ViewMenuItem(
+        "Tipos de Dispositivos",
+        reverse_lazy('dispositivotipo_add'),
+        weight=12,
+        perm="inventario.add_dispositivotipo",
+        icon="fa-gear",
+    ),
 )
 
 ##################################################################
@@ -230,7 +238,7 @@ Menu.add_item(
         reverse_lazy('entrada_list'),
         weight=10,
         icon="fa-trash-o",
-        group="inventario_bodega",
+        group="inventario_bodega,inventario_monitoreo",
         children=desecho_children
     )
 )
@@ -241,7 +249,7 @@ Menu.add_item(
         reverse_lazy('entrada_list'),
         weight=10,
         icon="fa-archive",
-        group="inventario",
+        group="inventario_conta",
         children=contabilidad_children
     )
 )

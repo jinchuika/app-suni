@@ -420,7 +420,7 @@ class DispositivosTarimaListView(LoginRequiredMixin, FormView):
     """
     model = inv_m.Dispositivo
     template_name = 'inventario/dispositivo/dispositivo_tarima_list.html'
-    form_class = inv_f.DispositivosTarimaForm
+    form_class = inv_f.DispositivosTarimaFormNew
 
 
 class DispositivosTarimaQr(LoginRequiredMixin, DetailView):
