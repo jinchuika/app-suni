@@ -10,8 +10,13 @@ class RepuestoForm(forms.Form):
     tipo = forms.ModelChoiceField(
         queryset=inv_m.DispositivoTipo.objects.all(),
         label='Tipo de dispositivo',
+        required=False,
         widget=forms.Select(attrs={'class': 'form-control'})
     )
+    tarima = forms.CharField(
+        label='Tarima',
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-control'}))
 
 
 class RepuestosUpdateForm(forms.ModelForm):

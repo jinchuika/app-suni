@@ -6,7 +6,7 @@ from apps.inventario import models as inv_m
 class DispositivoSerializer(serializers.ModelSerializer):
     """Serializer para generar los datos que se consumiran en la app de la :class:`Dispositivo`
     """
-    tipo = serializers.StringRelatedField()
+    tipo = serializers.StringRelatedField(allow_null=True)
     estado = serializers.StringRelatedField()
     etapa = serializers.StringRelatedField()
     marca = serializers.StringRelatedField()

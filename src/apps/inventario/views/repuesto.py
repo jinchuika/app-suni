@@ -51,3 +51,22 @@ class RepuestosQRprint(LoginRequiredMixin, DetailView):
     """
     model = inv_m.Repuesto
     template_name = 'inventario/repuesto/repuesto_print.html'
+
+
+class RepuestosQRprintList(LoginRequiredMixin, DetailView):
+    """Vista encargada de imprimir los Qr de la :class:`Repuesto`
+    """
+    model = inv_m.Repuesto
+    template_name = 'inventario/repuesto/imprimir_qr_list.html'
+
+    def get_context_data(self, **kwargs):
+        print(self.request)
+        tarima = self.request.GET['tarima']
+        tipo = self.request.GET['tipo']
+        tarima_print = inv_m.Repuesto.objects.filter(
+            tarima=tarima,
+            tipo=tipo
+            ).order_by('id')
+        context = super(RepuestosQRprintList, self).get_context_data(**kwargs)
+        context['dispositivo_qr'] = tarima_print
+        return context
