@@ -27,16 +27,4 @@
         <th>RAM</th>
         <td>{{ object.ram|default_if_none:"" }} {{ object.ram_medida|default_if_none:"" }}</td>
     </tr>
-    <tr>
-        <th>Servidor</th>
-        <th>
-            <input type="checkbox" name="servidor" disabled  {% if object.servidor %} checked {% endif %} />
-        </th>
-    </tr>
-    <tr>
-        <th>All In One</th>
-        <th>
-            <input type="checkbox" name="all_in_one" disabled  {% if object.all_in_one %} checked {% endif %} />
-        </th>
-    </tr>
 {% endblock info_dispositivo %}
