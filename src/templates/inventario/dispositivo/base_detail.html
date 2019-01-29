@@ -17,7 +17,7 @@
                               <div class="col-md-3">
                                   {% csrf_token %}
                                   {%for permiso in user.groups.all  %}
-                                    {% if permiso.name == "inv_bodega" or permiso.name == 'inv_admin' %}
+                                    {% if permiso.name == "inv_bodega" %}
                                     {%if not object.impreso%}
                                       <a id="qr-botton" target='_blank' rel='noopener noreferrer' href="{%url 'reportedispositivo_qr' triage=object.triage %}" data-dispositivo ="{{object.triage}}" data-url="{%url 'inventario_api:api_dispositivo-impresion-dispositivo'%}" class="btn btn-block btn-success">Imprimir QR </a>
                                     {%endif%}

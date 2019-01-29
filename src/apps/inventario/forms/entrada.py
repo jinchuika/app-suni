@@ -154,10 +154,16 @@ class EntradaDetalleUpdateForm(forms.ModelForm):
 class EntradaInformeForm(forms.Form):
     """Este Formulario se encarga de enviar los filtros para  su respectivo informe de Entradas
     """
+
+    id = forms.CharField(
+        label='No. Entrada',
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-control'}))
+
     proveedor = forms.ModelChoiceField(
         queryset=crm_m.Donante.objects.all(),
         label='Proveedor',
-        widget=forms.Select(attrs={'class': 'form-control'}),
+        widget=forms.Select(attrs={'class': 'form-control select2'}),
         required=False)
     tipo = forms.ModelChoiceField(
         queryset=inv_m.EntradaTipo.objects.all(),
@@ -166,10 +172,10 @@ class EntradaInformeForm(forms.Form):
         widget=forms.Select(attrs={'class': 'form-control'}))
 
     recibida_por = forms.ModelChoiceField(
-        queryset=User.objects.all(),
+        queryset=User.objects.filter(groups__name="inventario"),
         label='Persona Que Recibe',
         required=False,
-        widget=forms.Select(attrs={'class': 'form-control'}))
+        widget=forms.Select(attrs={'class': 'form-control select2'}))
 
     fecha_min = forms.CharField(
         label='Fecha (min)',

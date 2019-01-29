@@ -192,7 +192,7 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
 class EntradaFilter(filters.FilterSet):
     """ Filtros para generar informe de Entrada
     """
-
+    id = django_filters.NumberFilter(name="id")
     proveedor = django_filters.CharFilter(name='proveedor')
     tipo = django_filters.CharFilter(name='tipo')
     recibida_por = django_filters.CharFilter(name='recibida_por')
@@ -217,3 +217,18 @@ class EntradaViewSet(viewsets.ModelViewSet):
     serializer_class = inv_s.EntradaSerializer
     queryset = inv_m.Entrada.objects.all()
     filter_class = EntradaFilter
+
+    def get_queryset(self):
+        id = self.request.query_params.get('id', None)
+        proveedor = self.request.query_params.get('proveedor', None)
+        tipo = self.request.query_params.get('tipo', None)
+        recibida_por = self.request.query_params.get('recibida_por', None)
+        fecha_min = self.request.query_params.get('fecha_min', None)
+        fecha_max = self.request.query_params.get('fecha_max', None)
+
+        if id or proveedor or tipo or recibida_por or fecha_min or fecha_max:
+            return inv_m.Entrada.objects.all()
+
+        return inv_m.Entrada.objects.all().filter(en_creacion=True)
+
+

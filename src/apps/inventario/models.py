@@ -491,7 +491,11 @@ class Dispositivo(models.Model):
             super(Dispositivo, self).save(*args, **kwargs)
 
     def get_absolute_url(self):
-        return self.cast().get_absolute_url()
+        cast = self.cast()
+        if cast: 
+            return cast.get_absolute_url()
+        else:
+            return ''
 
     def cast(self):
         """Se encarga de obtener el dispositivo del modelo que ha heredado este objeto.
@@ -869,6 +873,7 @@ class CPU(Dispositivo):
     ram = models.DecimalField(max_digits=4, decimal_places=2, null=True, blank=True)
     ram_medida = models.ForeignKey(DispositivoMedida, null=True, blank=True)
     servidor = models.BooleanField(default=False)
+    all_in_one = models.BooleanField(default=False)
 
     class Meta:
         verbose_name = "CPU"
@@ -994,6 +999,8 @@ class Repuesto(models.Model):
     codigo_qr = et_fields.ThumbnailerImageField(upload_to='qr_repuestos', blank=True, null=True)
     tarima = models.ForeignKey(Tarima, on_delete=models.PROTECT, blank=True, null=True, related_name='repuestos')
     valido = models.BooleanField(default=True, blank=True, verbose_name='Válido')
+    marca = models.ForeignKey(DispositivoMarca, on_delete=models.CASCADE, null=True, blank=True)
+    modelo = models.CharField(max_length=80, null=True, blank=True)
 
     class Meta:
         verbose_name = "Repuesto"
@@ -1004,6 +1011,7 @@ class Repuesto(models.Model):
 
     def save(self, *args, **kwargs):
         super(Repuesto, self).save(*args, **kwargs)
+        print(self)
         if not self.codigo_qr:
             self.crear_qrcode()
             super(Repuesto, self).save(*args, **kwargs)

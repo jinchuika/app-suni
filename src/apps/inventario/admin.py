@@ -2,9 +2,10 @@ from django.contrib import admin
 from django.apps import apps
 from django.conf.urls import url
 from django.http import HttpResponseRedirect
-from .models import Dispositivo, Tarima, Sector, SalidaInventario, EntradaDetalle
+from .models import Dispositivo, Tarima, Sector, SalidaInventario
 from apps.tpe import models as tpe
 from apps.conta import models as conta_m
+from apps.inventario import models as inv_m
 
 for model in apps.get_app_config('inventario').models.values():
 	if model.__name__ not in ("Dispositivo","Tarima","Sector","SalidaInventario"):
@@ -22,22 +23,58 @@ class SalidaInventarioAdmin(admin.ModelAdmin):
 		        self.admin_site.admin_view(self.set_escuelas),
 		        name='salida_escuelas'
 		    ),
+		    url(
+		        r'^salida_inventario/movimientos/$',
+		        self.admin_site.admin_view(self.set_movimiento_salida),
+		        name='movimiento_salida'
+		    ),
 		]
 		return my_urls + urls
 
 	def set_escuelas(self, request):
 		salidas = self.model.objects.all().filter(entrega=1, escuela__isnull=True)
-		print(salidas)
 		if len(salidas) > 0:
 			for salida in salidas:
-				print(salida.id)
 				entrega = tpe.Equipamiento.objects.filter(id=salida.id)
-				print(entrega)
 				if len(entrega) > 0:
 					salida.escuela = entrega[0].escuela
 					salida.save()
 		else:
 			print("No hay")
+		return HttpResponseRedirect("../")
+
+	def set_movimiento_salida(self, request):
+		dispositivos_baja = inv_m.Dispositivo.objects.filter(valido = False)
+		for dispositivo in dispositivos_baja:
+			existe_movimiento = conta_m.MovimientoDispositivo.objects.filter(dispositivo = dispositivo, tipo_movimiento = conta_m.MovimientoDispositivo.BAJA)
+			print(dispositivo)
+			if len(existe_movimiento) == 0:
+				precio = conta_m.PrecioDispositivo.objects.get(dispositivo = dispositivo, activo= True)
+				paquete_dispositivo = inv_m.DispositivoPaquete.objects.filter(dispositivo = dispositivo)
+				if len(paquete_dispositivo) > 0:
+					salida = paquete_dispositivo[0].paquete.salida
+					periodo_fiscal = conta_m.PeriodoFiscal.objects.get(fecha_inicio__lte = salida.fecha, fecha_fin__gte= salida.fecha)
+					movimiento = conta_m.MovimientoDispositivo(
+						fecha=salida.fecha,
+						dispositivo=dispositivo,
+						periodo_fiscal=periodo_fiscal,
+						tipo_movimiento=conta_m.MovimientoDispositivo.BAJA,
+						referencia='Salida {}'.format(salida.id),
+						precio=precio.precio)
+					movimiento.save()
+					print(movimiento)
+				else:
+					periodo_fiscal = conta_m.PeriodoFiscal.objects.get(id=1)
+					movimiento = conta_m.MovimientoDispositivo(
+						fecha='2015-01-01',
+						dispositivo=dispositivo,
+						periodo_fiscal=periodo_fiscal,
+						tipo_movimiento=conta_m.MovimientoDispositivo.BAJA,
+						referencia='SALIDA POR DESECHO',
+						precio=precio.precio)
+					movimiento.save()
+					print(movimiento)
+
 		return HttpResponseRedirect("../")
 
 @admin.register(Dispositivo)
@@ -62,7 +99,6 @@ class DispositivoAdmin(admin.ModelAdmin):
 
 	def set_qr(self, request):
 		dispositivos = self.model.objects.all().filter(valido=True)
-		print(dispositivos)
 		if len(dispositivos) > 0:
 			for dispositivo in dispositivos:
 				if not dispositivo.codigo_qr:
@@ -77,7 +113,7 @@ class DispositivoAdmin(admin.ModelAdmin):
 		if len(dispositivos) > 0:
 			for dispositivo in dispositivos:
 				periodo_fiscal = conta_m.PeriodoFiscal.objects.get(fecha_inicio__lte = dispositivo.entrada.fecha, fecha_fin__gte= dispositivo.entrada.fecha)
-				entrada_detalle =  EntradaDetalle.objects.filter(entrada = dispositivo.entrada, tipo_dispositivo = dispositivo.tipo)
+				entrada_detalle =  inv_m.EntradaDetalle.objects.filter(entrada = dispositivo.entrada, tipo_dispositivo = dispositivo.tipo)
 				precio=None
 
 				if periodo_fiscal and len(entrada_detalle) > 0:
