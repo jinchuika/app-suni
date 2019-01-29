@@ -18,7 +18,7 @@ class DispositivoFilter(filters.FilterSet):
 
     class Meta:
         model = inv_m.Dispositivo
-        fields = ('tarima', 'id', 'etapa', 'estado', 'tipo', 'triage')
+        fields = ('tarima', 'id', 'etapa', 'estado', 'tipo', 'triage','marca','modelo')
 
     def filter_buscador(self, qs, name, value):
         return qs.filter(triage__istartswith=value)
@@ -31,9 +31,23 @@ class DispositivoViewSet(viewsets.ModelViewSet):
     """ ViewSet para generar informes de :class:`Dispositivo`
     """
     serializer_class = inv_s.DispositivoSerializer
-    queryset = inv_m.Dispositivo.objects.all()
     filter_class = DispositivoFilter
     ordering = ('entrada')
+
+    def get_queryset(self):
+        triage = self.request.query_params.get('triage', None)
+        tipo = self.request.query_params.get('tipo', None)
+        marca = self.request.query_params.get('marca', None)
+        modelo = self.request.query_params.get('modelo', None)
+        tarima = self.request.query_params.get('tarima', None)
+        tipo_dis = self.request.user.tipos_dispositivos.tipos.all()
+
+        if triage:
+            return inv_m.Dispositivo.objects.all().filter(tipo__in=tipo_dis)
+        elif tipo or marca or modelo or tarima:
+            return inv_m.Dispositivo.objects.all().filter(valido=True, tipo__in=tipo_dis)
+        else:
+            return inv_m.Dispositivo.objects.all().filter(valido=True, tipo__in=tipo_dis, etapa=inv_m.DispositivoEtapa.TR)
 
     @action(methods=['get'], detail=False)
     def paquete(self, request, pk=None):

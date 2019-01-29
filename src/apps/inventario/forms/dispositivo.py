@@ -24,7 +24,7 @@ class TecladoForm(forms.ModelForm):
             'codigo_qr']
         widgets = {
             'marca': forms.Select(attrs={'class': 'form-control select2'}),
-            'modelo': forms.Select(attrs={'class': 'form-control select2'}),
+            'modelo': forms.TextInput(attrs={'class': 'form-control'}),
             'serie': forms.TextInput({'class': 'form-control'}),
             'tarima': forms.Select(attrs={'class': 'form-control select2'}),
             'puerto': forms.Select(attrs={'class': 'form-control select2'}),
@@ -50,7 +50,7 @@ class CPUForm(forms.ModelForm):
             ]
         widgets = {
             'marca': forms.Select(attrs={'class': 'form-control select2'}),
-            'modelo': forms.Select(attrs={'class': 'form-control select2'}),
+            'modelo': forms.TextInput(attrs={'class': 'form-control'}),
             'serie': forms.TextInput({'class': 'form-control'}),
             'tarima': forms.Select(attrs={'class': 'form-control select2'}),
             'puerto': forms.Select(attrs={'class': 'form-control select2'}),
@@ -82,7 +82,7 @@ class LaptopForm(forms.ModelForm):
             ]
         widgets = {
             'marca': forms.Select(attrs={'class': 'form-control select2'}),
-            'modelo': forms.Select(attrs={'class': 'form-control select2'}),
+            'modelo': forms.TextInput(attrs={'class': 'form-control'}),
             'serie': forms.TextInput({'class': 'form-control'}),
             'tarima': forms.Select(attrs={'class': 'form-control select2'}),
             'procesador': forms.Select(attrs={'class': 'form-control select2'}),
@@ -114,7 +114,7 @@ class MonitorForm(forms.ModelForm):
             ]
         widgets = {
             'marca': forms.Select(attrs={'class': 'form-control select2'}),
-            'modelo': forms.Select(attrs={'class': 'form-control select2'}),
+            'modelo': forms.TextInput(attrs={'class': 'form-control'}),
             'serie': forms.TextInput({'class': 'form-control '}),
             'tarima': forms.Select(attrs={'class': 'form-control select2'}),
             'tipo_monitor': forms.Select(attrs={'class': 'form-control select2'}),
@@ -142,7 +142,7 @@ class MouseForm(forms.ModelForm):
             ]
         widgets = {
             'marca': forms.Select(attrs={'class': 'form-control select2'}),
-            'modelo': forms.Select(attrs={'class': 'form-control select2'}),
+            'modelo': forms.TextInput(attrs={'class': 'form-control'}),
             'serie': forms.TextInput({'class': 'form-control '}),
             'tarima': forms.Select(attrs={'class': 'form-control select2'}),
             'tipo_mouse': forms.Select(attrs={'class': 'form-control select2'}),
@@ -169,7 +169,7 @@ class DispositivoRedForm(forms.ModelForm):
             ]
         widgets = {
             'marca': forms.Select(attrs={'class': 'form-control select2'}),
-            'modelo': forms.Select(attrs={'class': 'form-control select2'}),
+            'modelo': forms.TextInput(attrs={'class': 'form-control'}),
             'serie': forms.TextInput({'class': 'form-control '}),
             'tarima': forms.Select(attrs={'class': 'form-control select2'}),
             'procesador': forms.Select(attrs={'class': 'form-control select2'}),
@@ -201,7 +201,7 @@ class DispositivoAccessPointForm(forms.ModelForm):
             ]
         widgets = {
             'marca': forms.Select(attrs={'class': 'form-control select2'}),
-            'modelo': forms.Select(attrs={'class': 'form-control select2'}),
+            'modelo': forms.TextInput(attrs={'class': 'form-control'}),
             'serie': forms.TextInput({'class': 'form-control '}),
             'tarima': forms.Select(attrs={'class': 'form-control select2'}),
             'procesador': forms.Select(attrs={'class': 'form-control select2'}),
@@ -233,7 +233,7 @@ class TabletForm(forms.ModelForm):
             ]
         widgets = {
             'marca': forms.Select(attrs={'class': 'form-control select2'}),
-            'modelo': forms.Select(attrs={'class': 'form-control select2'}),
+            'modelo': forms.TextInput(attrs={'class': 'form-control'}),
             'serie': forms.TextInput({'class': 'form-control '}),
             'tarima': forms.Select(attrs={'class': 'form-control select2'}),
             'version_sistema': forms.Select(attrs={'class': 'form-control select2'}),
@@ -266,7 +266,7 @@ class HDDForm(forms.ModelForm):
             ]
         widgets = {
             'marca': forms.Select(attrs={'class': 'form-control select2'}),
-            'modelo': forms.Select(attrs={'class': 'form-control select2'}),
+            'modelo': forms.TextInput(attrs={'class': 'form-control'}),
             'serie': forms.TextInput({'class': 'form-control'}),
             'tarima': forms.Select(attrs={'class': 'form-control select2'}),
             'medida': forms.Select(attrs={'class': 'form-control select2'}),
@@ -313,6 +313,23 @@ class DispositivoInformeForm(forms.Form):
         label='Tipo',
         required=False,
         widget=forms.Select(attrs={'class': 'form-control'}))
+
+    marca = forms.ModelChoiceField(
+        queryset=inv_m.DispositivoMarca.objects.all(),
+        label='Marca',
+        required=False,
+        widget=forms.Select(attrs={'class': 'form-control select2'}))
+
+    modelo = forms.CharField(
+        label='Modelo',
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-control'}))
+
+    tarima = forms.ModelChoiceField(
+        queryset=inv_m.Tarima.objects.all(),
+        label='Tarima',
+        required=False,
+        widget=forms.Select(attrs={'class': 'form-control select2'}))
 
 
 class AsignacionTecnicoForm(forms.ModelForm):

@@ -109,14 +109,14 @@ salidas_children = (
         "Revisiones",
         reverse_lazy('revisionsalida_list'),
         weight=12,
-        group="inventario_conta",
+        group="inv_conta",
         icon="fa-check",
     ),
     ViewMenuItem(
         "Agregar Revision",
         reverse_lazy('revisionsalida_add'),
         weight=12,
-        group="inventario_conta",
+        group="inv_conta",
         icon="fa-plus-square",
     ),
 )
@@ -238,7 +238,7 @@ Menu.add_item(
         reverse_lazy('entrada_list'),
         weight=10,
         icon="fa-trash-o",
-        group="inventario_bodega,inventario_monitoreo",
+        group="inv_bodega,inv_monitoreo",
         children=desecho_children
     )
 )
@@ -249,7 +249,7 @@ Menu.add_item(
         reverse_lazy('entrada_list'),
         weight=10,
         icon="fa-archive",
-        group="inventario_conta",
+        group="inv_conta",
         children=contabilidad_children
     )
 )
@@ -260,7 +260,7 @@ Menu.add_item(
         reverse_lazy('entrada_list'),
         weight=10,
         icon="fa-user",
-        group="inventario_admin",
+        group="inv_admin",
         children=admin_children
     )
 )
