@@ -17,7 +17,7 @@
 					</div>
 					<div class="box-body">
 						<table class="table table-condensed">
-              <tr>
+							<tr>
 								<th>Entrada</th>
 								<td>{{ repuesto.entrada |default_if_none:"" }}</td>
 							</tr>
@@ -26,48 +26,49 @@
 								<td>{{ repuesto.tipo |default_if_none:"" }}</td>
 							</tr>
 							<tr>
-								<th>Estado</th>
+								<th>Descripcion</th>
 								<td>
-									{{repuesto.estado |default_if_none:""}}
+									{{repuesto.descripcion |default_if_none:"" }}
+								</td>
+							</tr>
+							<tr>
+								<th>Marca</th>
+								<td>
+									{{repuesto.marca |default_if_none:""}}
 									<br>
 								</td>
 							</tr>
-              <tr>
-								<th>Descripcion</th>
+							<tr>
+								<th>Modelo</th>
 								<td>
-                  {{repuesto.descripcion |default_if_none:"" }}
+									{{repuesto.modelo |default_if_none:""}}
+									<br>
 								</td>
 							</tr>
-              <tr>
-								<th>Disponible</th>
-								<td>
-                  {%if repuesto.disponible == True%}
-                  SI
-                  {%else%}
-                    NO
-                  {%endif%}
-                  <br>
-								</td>
-							</tr>
-              <tr>
+							<tr>
 								<th>Tarima</th>
 								<td>
 									{{repuesto.tarima |default_if_none:""}}
 									<br>
 								</td>
 							</tr>
-              <tr>
-								<th>Valido</th>
+							<tr>
+								<th>Estado</th>
 								<td>
-									{{repuesto.valido |default_if_none:""}}
+									{{repuesto.estado |default_if_none:""}}
 									<br>
 								</td>
 							</tr>
-              <tr>
-								<th>QR</th>
+							<tr>
+								<th>Disponible</th>
 								<td>
-									{{repuesto.codigo_qr |default_if_none:""}}
-									<br>
+									<input type="checkbox" name="disponible" disabled  {% if object.disponible %} checked {% endif %} />
+								</td>
+							</tr>
+							<tr>
+								<th>Valido</th>
+								<td>
+									<input type="checkbox" name="valido" disabled  {% if object.valido %} checked {% endif %} />
 								</td>
 							</tr>
 						</table>

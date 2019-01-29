@@ -31,10 +31,7 @@
                                           primary_key :primary_key
                                       },
                                       success: function (response) {
-                                          bootbox.confirm("Entrada Cuadrada",
-                                          function(result){
-                                             location.reload();
-                                            });
+                                          bootbox.alert("Entrada Cuadrada");
                                       },
                                       error: function (response) {
                                            var jsonResponse = JSON.parse(response.responseText);
@@ -97,6 +94,7 @@ class EntradaUpdate {
             },
             columns: [
                 {data: "tdispositivo"},
+                {data:"descripcion"},
                 {data: "util"},
                 {data: "repuesto"},
                 {data: "desecho"},
@@ -105,7 +103,6 @@ class EntradaUpdate {
                 {data: "precio_subtotal"},
                 {data: "precio_descontado"},
                 {data: "precio_total"},
-                {data:"descripcion"},
                 {data: "creado_por"},
                 {
                     data: "",render: function(data, type, full, meta){
@@ -2252,10 +2249,23 @@ class PaqueteDetail {
 }
 class RepuestosList {
   constructor() {
-    var url_repuestos = $("#repuesto-list").attr('action');
-    let repuesto_tabla = $("#repuesto-table");
-    $("#id_tipo").change(function() {
-      var tipo = $(this).val();
+    $('#repuesto-list').submit(function (e) {
+      e.preventDefault();
+      var url_repuestos = $("#repuesto-list").attr('action');
+      let repuesto_tabla = $("#repuesto-table");
+
+      var no=$('#id_id').val();
+      var tipo = $('#id_tipo option:selected').val();
+      var marca = $('#id_marca option:selected').val();
+      var modelo = $('#id_modelo').val();
+      var tarima = $('#id_tarima option:selected').val();
+
+      if($('#qr-botton').length){
+        let url = $("#qr-botton").data("url")+"?id="+no+"&tarima="+tarima+"&tipo="+tipo+"&marca="+marca+"&modelo="+modelo;
+        document.getElementById("qr-botton").setAttribute("href", url);
+        $('#qr-botton').css({"display":"block"});
+      }
+
       var tabla = repuesto_tabla.DataTable({
         destroy:true,
         searching:true,
@@ -2267,26 +2277,29 @@ class RepuestosList {
           dataSrc:'',
           cache:true,
           data: function() {
-            return{
-              tipo:tipo,
-              estado:1
-            }
+            return $('#repuesto-list').serializeObject(true);
           }
         },
         columns:[
-          {data:"No"},
+          {data: "No", render: function(data, type, full, meta){
+            return '<a href="'+full.url+'">'+data+'</a>'
+          }},
           {data:"tipo"},
           {data:"descripcion"},
+          {data:"marca"},
+          {data:"modelo"},
           {data:"tarima"},
+          {data:"estado"},
           {
                 data: "",
                 defaultContent: "<button  id='button-repuesto' class='btn btn-info repuesto-btn'>Asignar</button>"
-            }
+          }
         ]
       });
+
       tabla.clear().draw();
       tabla.ajax.reload();
-      var tablabodyRepuesto = $("#repuesto-table tbody");
+
       tabla.on('click','.repuesto-btn',function () {
         let repuesto = tabla.row($(this).parents('tr')).data();
         bootbox.prompt("Ingrese el Triage del Dispositivo", function(result){
@@ -2304,52 +2317,9 @@ class RepuestosList {
            });
          });
       });
+
     });
-
-    //Boton  tarima
-
-    $(document).on('keypress',function(e) {
-    if(e.which == 13) {
-       e.preventDefault();
-       /**/
-       var tipo = $("#id_tipo option:selected").val();
-       let tarima  = $("#id_tarima").val();
-       let url = $("#qr-botton").data("url")+"?tarima="+tarima+"&tipo="+tipo;
-       document.getElementById("qr-botton").setAttribute("href", url);
-       $('#qr-botton').css({"display":"block"});
-       var tabla = repuesto_tabla.DataTable({
-         destroy:true,
-         searching:true,
-         paging:true,
-         ordering:true,
-         processing:true,
-         ajax:{
-           url:url_repuestos,
-           dataSrc:'',
-           cache:true,
-           data: function() {
-             return{
-               tarima:$("#id_tarima").val(),
-               estado:1
-             }
-           }
-         },
-         columns:[
-           {data:"No"},
-           {data:"tipo"},
-           {data:"descripcion"},
-           {data:"tarima"},
-           {
-                 data: "",
-                 defaultContent: "<button  id='button-repuesto' class='btn btn-info repuesto-btn'>Asignar</button>"
-             }
-         ]
-       });
-       /**/
-
-    }
-});
-   }
+  }
 }
 class DispositivoList {
   constructor() {

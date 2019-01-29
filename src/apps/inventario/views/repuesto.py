@@ -18,6 +18,11 @@ class RepuestosAsignacionCreateView(LoginRequiredMixin, FormView):
     template_name = 'inventario/repuesto/repuesto_list.html'
     form_class = inv_f.RepuestoForm
 
+    def get_form(self, form_class=None):
+        form = super(RepuestosAsignacionCreateView, self).get_form(form_class)
+        form.fields['tipo'].queryset = self.request.user.tipos_dispositivos.tipos.all().filter(usa_triage=True)
+        return form
+
 
 class RepuestosDetailView(LoginRequiredMixin, DetailView):
     """Generar detalles de la :class:`Repuesto`   con sus respectivos campos.
@@ -61,12 +66,25 @@ class RepuestosQRprintList(LoginRequiredMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         print(self.request)
+        no = self.request.GET['id']
         tarima = self.request.GET['tarima']
         tipo = self.request.GET['tipo']
-        tarima_print = inv_m.Repuesto.objects.filter(
-            tarima=tarima,
-            tipo=tipo
-            ).order_by('id')
+        marca = self.request.GET['marca']
+        modelo = self.request.GET['modelo']
+
+        tarima_print = inv_m.Repuesto.objects.all()
+        if no:
+            tarima_print = inv_m.Repuesto.objects.filter(id=no)
+        else: 
+            if tarima:
+                tarima_print = tarima_print.filter(tarima=tarima).order_by('id')
+            if tipo:
+                tarima_print = tarima_print.filter(tipo=tipo).order_by('id')
+            if marca:
+                tarima_print = tarima_print.filter(marca=marca).order_by('id')
+            if modelo:
+                tarima_print = tarima_print.filter(modelo=modelo).order_by('id')
+
         context = super(RepuestosQRprintList, self).get_context_data(**kwargs)
         context['dispositivo_qr'] = tarima_print
         return context

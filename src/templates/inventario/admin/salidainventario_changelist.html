@@ -6,6 +6,10 @@
             {% csrf_token %}
                 <button type="submit">Asignar Escuelas a Salidas</button>
         </form>
+        <form action="{% url 'admin:movimiento_salida' %}" method="POST">
+            {% csrf_token %}
+                <button type="submit">Generar Movimientos de Salida</button>
+        </form>
     </div>
     <br />
     {{ block.super }}

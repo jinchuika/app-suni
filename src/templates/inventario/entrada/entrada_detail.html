@@ -11,10 +11,10 @@
 				<div class="box">
 					<div class="box-header">
 						<div class="row">
-							<div class="col-md-8">
+							<div class="col-md-6">
 								<h3 class="box-title">Entrada No. {{ entrada.id }}</h3>
 							</div>
-							<div class="col-md-4">
+							<div class="col-md-6">
 									<a href="{% url 'carta_agradecimiento' pk=object.id%}" class="btn btn-success">Carta Agradecimiento</a>
 									<a href="{% url 'reporte_sucio' pk=object.id%}" class="btn btn-primary">Constancia Útil</a>
 									<a href="{% url 'constancia_entrada' pk=object.id%}" class="btn btn-danger">Constancia Entrada</a>
