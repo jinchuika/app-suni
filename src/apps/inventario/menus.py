@@ -158,7 +158,7 @@ admin_children = (
     ),
     ViewMenuItem(
         "Precio Estándar",
-        reverse('asignaciontecnico_list'),
+        reverse_lazy('precioestandar_list'),
         weight=12,
         perm="conta.add_precioestandar",
         icon="fa-money",
