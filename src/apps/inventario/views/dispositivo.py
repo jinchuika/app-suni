@@ -64,6 +64,11 @@ class DispositivoListView(LoginRequiredMixin, FormView):
     template_name = 'inventario/dispositivo/dispositivos_list.html'
     form_class = inv_f.DispositivoInformeForm
 
+    def get_form(self, form_class=None):
+        form = super(DispositivoListView, self).get_form(form_class)
+        form.fields['tipo'].queryset = self.request.user.tipos_dispositivos.tipos.all().filter(usa_triage=True)
+        return form
+
 
 class SolicitudMovimientoCreateView(LoginRequiredMixin, CreateView):
     """Vista   para obtener los datos de Solicitudslug_field = "triage"
