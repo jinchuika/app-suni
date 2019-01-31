@@ -2635,3 +2635,16 @@ class Desecho {
 
   }
 }
+
+class EntradaDetalle_Dispositivo {
+  constructor() {
+    var tabla = $('#entradadetalle-dispositivos').DataTable({
+      searching:false,
+      paging:false,
+      ordering:true,
+      processing:true,
+      destroy:true
+    });
+    tabla.clear().draw();
+  }
+}

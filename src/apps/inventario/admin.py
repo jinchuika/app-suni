@@ -47,7 +47,6 @@ class SalidaInventarioAdmin(admin.ModelAdmin):
 		dispositivos_baja = inv_m.Dispositivo.objects.filter(valido = False)
 		for dispositivo in dispositivos_baja:
 			existe_movimiento = conta_m.MovimientoDispositivo.objects.filter(dispositivo = dispositivo, tipo_movimiento = conta_m.MovimientoDispositivo.BAJA)
-			print(dispositivo)
 			if len(existe_movimiento) == 0:
 				precio = conta_m.PrecioDispositivo.objects.get(dispositivo = dispositivo, activo= True)
 				paquete_dispositivo = inv_m.DispositivoPaquete.objects.filter(dispositivo = dispositivo)
@@ -62,7 +61,6 @@ class SalidaInventarioAdmin(admin.ModelAdmin):
 						referencia='Salida {}'.format(salida.id),
 						precio=precio.precio)
 					movimiento.save()
-					print(movimiento)
 				else:
 					periodo_fiscal = conta_m.PeriodoFiscal.objects.get(id=1)
 					movimiento = conta_m.MovimientoDispositivo(
@@ -73,7 +71,6 @@ class SalidaInventarioAdmin(admin.ModelAdmin):
 						referencia='SALIDA POR DESECHO',
 						precio=precio.precio)
 					movimiento.save()
-					print(movimiento)
 
 		return HttpResponseRedirect("../")
 
