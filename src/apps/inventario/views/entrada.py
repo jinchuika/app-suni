@@ -228,7 +228,7 @@ class EntradaDetalleDispositivos(LoginRequiredMixin, GroupRequiredMixin, DetailV
     def get_context_data(self, **kwargs):
         context = super(EntradaDetalleDispositivos, self).get_context_data(**kwargs)
         context['dispositivo_qr'] = inv_m.Dispositivo.objects.filter(entrada=self.object.id,
-                                                                     entrada_detalle=self.kwargs['detalle'])
+                                                                     entrada_detalle=self.kwargs['detalle']).order_by('triage')
         return context
 
 
@@ -242,7 +242,7 @@ class EntradaDetalleRepuesto(LoginRequiredMixin, GroupRequiredMixin, DetailView)
     def get_context_data(self, **kwargs):
         context = super(EntradaDetalleRepuesto, self).get_context_data(**kwargs)
         context['repuesto_qr'] = inv_m.Repuesto.objects.filter(entrada=self.object.id,
-                                                               entrada_detalle=self.kwargs['detalle'])
+                                                               entrada_detalle=self.kwargs['detalle']).order_by('id')
         return context
 
 

@@ -473,6 +473,7 @@ class Dispositivo(models.Model):
     codigo_qr = et_fields.ThumbnailerImageField(upload_to='qr_dispositivo', blank=True, null=True)
     tarima = models.ForeignKey(Tarima, on_delete=models.PROTECT, blank=True, null=True, related_name='dispositivos')
     valido = models.BooleanField(default=True, blank=True, verbose_name='Válido')
+    descripcion = models.TextField(null=True, blank=True)
 
     class Meta:
         verbose_name = "Dispositivo"
@@ -870,7 +871,7 @@ class CPU(Dispositivo):
     procesador = models.ForeignKey(Procesador, on_delete=models.PROTECT, null=True, blank=True)
     version_sistema = models.ForeignKey(VersionSistema, on_delete=models.PROTECT, null=True, blank=True)
     disco_duro = models.ForeignKey(HDD, on_delete=models.PROTECT, null=True, blank=True, related_name='cpus')
-    ram = models.DecimalField(max_digits=4, decimal_places=2, null=True, blank=True)
+    ram = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
     ram_medida = models.ForeignKey(DispositivoMedida, null=True, blank=True)
     servidor = models.BooleanField(default=False)
     all_in_one = models.BooleanField(default=False)
