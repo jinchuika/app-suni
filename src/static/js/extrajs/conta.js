@@ -26,9 +26,9 @@ class PrecioEstandar {
   precioestandar_informe.submit(function (e){
     e.preventDefault();
     var tablaPrecio = $('#precioestandar-table').DataTable({
-      searching:false,
+      searching:true,
       paging:true,
-      ordering:false,
+      ordering:true,
       processing:true,
       destroy:true,
       ajax:{
@@ -43,10 +43,16 @@ class PrecioEstandar {
       columns: [
         {data: "id"},
         {data: "periodo"},
-        {data: "id_dispositivo"},
-        {data: "activo"},
+        {data: "id_dispositivo"},  
         {data: "precio"},
         {data: "inventario"},
+        {data: "activo", render: function(data, type, full, meta){
+          if(full.activo == true){
+               return "<input type='checkbox' name='activo' disabled checked />";
+             }else{
+               return "<input type='checkbox' name='activo' disabled />";;
+             }
+        }},
         {data: "creado_por"},
         {data: "activo", render: function(data, type, full, meta){
              if(full.activo == true){
