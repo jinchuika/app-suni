@@ -14,6 +14,7 @@ from apps.inventario import models as inv_m
 from apps.inventario import forms as inv_f
 
 
+
 #################################################
 # MOVIMIENTOS Y GESTIÓN GENERAL DE DISPOSITIVOS #
 #################################################
@@ -24,6 +25,9 @@ class AsignacionTecnicoCreateView(LoginRequiredMixin, CreateView):
     model = inv_m.AsignacionTecnico
     form_class = inv_f.AsignacionTecnicoForm
     template_name = 'inventario/dispositivo/asignaciontecnico_form.html'
+
+    def get_success_url(self):
+        return reverse('asignaciontecnico_list')
 
 
 class AsignacionTecnicoListView(LoginRequiredMixin, ListView):
@@ -37,6 +41,9 @@ class AsignacionTecnicoUpdateView(LoginRequiredMixin, UpdateView):
     model = inv_m.AsignacionTecnico
     form_class = inv_f.AsignacionTecnicoForm
     template_name = 'inventario/dispositivo/asignaciontecnico_form.html'
+
+    def get_success_url(self):
+        return reverse('asignaciontecnico_list')
 
 
 class DispositivoDetailView(DetailView):
@@ -239,6 +246,12 @@ class TecladoUpdateView(LoginRequiredMixin, UpdateView):
     query_pk_and_slug = True
     template_name = 'inventario/dispositivo/teclado/teclado_form.html'
 
+    def get_success_url(self):
+        if self.object.entrada_detalle:
+            return reverse_lazy('detalles_dispositivos', kwargs={'pk': self.object.entrada, 'detalle': self.object.entrada_detalle.id})
+        else:
+            return reverse_lazy('cpu_detail', kwargs={'triage': self.object.triage})
+
 
 class TecladoDetailView(LoginRequiredMixin, DispositivoDetailView):
     """ Vista para ver los detalles de la :class:`Teclado`
@@ -266,6 +279,12 @@ class MonitorUptadeView(LoginRequiredMixin, UpdateView):
     query_pk_and_slug = True
     template_name = 'inventario/dispositivo/monitor/monitor_edit.html'
 
+    def get_success_url(self):
+        if self.object.entrada_detalle:
+            return reverse_lazy('detalles_dispositivos', kwargs={'pk': self.object.entrada, 'detalle': self.object.entrada_detalle.id})
+        else:
+            return reverse_lazy('monitor_detail', kwargs={'triage': self.object.triage})
+
 
 class MouseDetailView(LoginRequiredMixin, DispositivoDetailView):
     """Vista de detalle de dispositivos tipo :class:`Mouse`"""
@@ -283,6 +302,12 @@ class MouseUptadeView(LoginRequiredMixin, UpdateView):
     slug_url_kwarg = "triage"
     query_pk_and_slug = True
     template_name = 'inventario/dispositivo/mouse/mouse_edit.html'
+
+    def get_success_url(self):
+        if self.object.entrada_detalle:
+            return reverse_lazy('detalles_dispositivos', kwargs={'pk': self.object.entrada, 'detalle': self.object.entrada_detalle.id})
+        else:
+            return reverse_lazy('mouse_detail', kwargs={'triage': self.object.triage})
 
 
 class CPUDetailView(LoginRequiredMixin, DispositivoDetailView):
@@ -302,6 +327,12 @@ class CPUptadeView(LoginRequiredMixin, UpdateView):
     query_pk_and_slug = True
     template_name = 'inventario/dispositivo/cpu/cpu_edit.html'
 
+    def get_success_url(self):
+        if self.object.entrada_detalle:
+            return reverse_lazy('detalles_dispositivos', kwargs={'pk': self.object.entrada, 'detalle': self.object.entrada_detalle.id})
+        else:
+            return reverse_lazy('cpu_detail', kwargs={'triage': self.object.triage})
+
 
 class LaptopDetailView(LoginRequiredMixin, DispositivoDetailView):
     """Vista de detalle de dispositivos tipo :class:`Laptop`"""
@@ -319,6 +350,12 @@ class LaptopUptadeView(LoginRequiredMixin, UpdateView):
     slug_url_kwarg = "triage"
     query_pk_and_slug = True
     template_name = 'inventario/dispositivo/laptop/laptop_edit.html'
+
+    def get_success_url(self):
+        if self.object.entrada_detalle:
+            return reverse_lazy('detalles_dispositivos', kwargs={'pk': self.object.entrada, 'detalle': self.object.entrada_detalle.id})
+        else:
+            return reverse_lazy('laptop_detail', kwargs={'triage': self.object.triage})
 
 
 class TabletDetailView(LoginRequiredMixin, DispositivoDetailView):
@@ -338,6 +375,12 @@ class TabletUptadeView(LoginRequiredMixin, UpdateView):
     query_pk_and_slug = True
     template_name = 'inventario/dispositivo/tablet/tablet_edit.html'
 
+    def get_success_url(self):
+        if self.object.entrada_detalle:
+            return reverse_lazy('detalles_dispositivos', kwargs={'pk': self.object.entrada, 'detalle': self.object.entrada_detalle.id})
+        else:
+            return reverse_lazy('tablet_detail', kwargs={'triage': self.object.triage})
+
 
 class HDDDetailView(LoginRequiredMixin, DispositivoDetailView):
     """Vista de detalle de dispositivos tipo :class:`HDD`"""
@@ -356,6 +399,12 @@ class HDDUptadeView(LoginRequiredMixin, UpdateView):
     query_pk_and_slug = True
     template_name = 'inventario/dispositivo/hdd/hdd_edit.html'
 
+    def get_success_url(self):
+        if self.object.entrada_detalle:
+            return reverse_lazy('detalles_dispositivos', kwargs={'pk': self.object.entrada, 'detalle': self.object.entrada_detalle.id})
+        else:
+            return reverse_lazy('hdd_detail', kwargs={'triage': self.object.triage})
+
 
 class DispositivoRedDetailView(LoginRequiredMixin, DispositivoDetailView):
     """Vista de detalle de dispositivos tipo :class:`DispositivoRed`"""
@@ -373,6 +422,12 @@ class DispositivoRedUptadeView(LoginRequiredMixin, UpdateView):
     query_pk_and_slug = True
     template_name = 'inventario/dispositivo/red/red_edit.html'
 
+    def get_success_url(self):
+        if self.object.entrada_detalle:
+            return reverse_lazy('detalles_dispositivos', kwargs={'pk': self.object.entrada, 'detalle': self.object.entrada_detalle.id})
+        else:
+            return reverse_lazy('red_detail', kwargs={'triage': self.object.triage})
+
 
 class DispositivoAccessPointDetailView(LoginRequiredMixin, DispositivoDetailView):
     """Vista de detalle de dispositivos tipo :class:`DispositivoRed`"""
@@ -389,6 +444,12 @@ class DispositivoAccessPointUptadeView(LoginRequiredMixin, UpdateView):
     slug_url_kwarg = "triage"
     query_pk_and_slug = True
     template_name = 'inventario/dispositivo/ap/ap_edit.html'
+
+    def get_success_url(self):
+        if self.object.entrada_detalle:
+            return reverse_lazy('detalles_dispositivos', kwargs={'pk': self.object.entrada, 'detalle': self.object.entrada_detalle.id})
+        else:
+            return reverse_lazy('ap_detail', kwargs={'triage': self.object.triage})
 
 
 class DispositivoTipoCreateView(LoginRequiredMixin, CreateView):

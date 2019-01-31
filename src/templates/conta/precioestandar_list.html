@@ -44,9 +44,9 @@
 								<th>No.</th>
 								<th>Periodo</th>
 								<th>Tipo Dispositivo</th>
-								<th>Activo</th>
 								<th>Precio</th>
 								<th>Inventario</th>
+								<th>Activo</th>
 								<th>Creado por</th>
 								<th></th>
 							</thead>
@@ -63,6 +63,6 @@
 {% block extra_js %}
 <script src="{% static "js/extrajs/conta.js" %}"></script>
 <script>
-  let Precio= new PrecioEstandar()
+  let Precio= new PrecioEstandar();
 </script>
 {% endblock extra_js %}
