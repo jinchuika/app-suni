@@ -2357,9 +2357,6 @@ class DispositivoList {
               });
         /**/
         tablaDispositivos.clear().draw();
-        tablaDispositivos.ajax.reload();
-
-
     });
 
   }

@@ -247,10 +247,10 @@ class TecladoUpdateView(LoginRequiredMixin, UpdateView):
     template_name = 'inventario/dispositivo/teclado/teclado_form.html'
 
     def get_success_url(self):
-        if self.object.entrada_detalle:
+        if self.object.entrada_detalle.id != 1:
             return reverse_lazy('detalles_dispositivos', kwargs={'pk': self.object.entrada, 'detalle': self.object.entrada_detalle.id})
         else:
-            return reverse_lazy('cpu_detail', kwargs={'triage': self.object.triage})
+            return reverse_lazy('teclado_detail', kwargs={'triage': self.object.triage})
 
 
 class TecladoDetailView(LoginRequiredMixin, DispositivoDetailView):
@@ -280,7 +280,7 @@ class MonitorUptadeView(LoginRequiredMixin, UpdateView):
     template_name = 'inventario/dispositivo/monitor/monitor_edit.html'
 
     def get_success_url(self):
-        if self.object.entrada_detalle:
+        if self.object.entrada_detalle.id != 1:
             return reverse_lazy('detalles_dispositivos', kwargs={'pk': self.object.entrada, 'detalle': self.object.entrada_detalle.id})
         else:
             return reverse_lazy('monitor_detail', kwargs={'triage': self.object.triage})
@@ -304,7 +304,7 @@ class MouseUptadeView(LoginRequiredMixin, UpdateView):
     template_name = 'inventario/dispositivo/mouse/mouse_edit.html'
 
     def get_success_url(self):
-        if self.object.entrada_detalle:
+        if self.object.entrada_detalle.id != 1:
             return reverse_lazy('detalles_dispositivos', kwargs={'pk': self.object.entrada, 'detalle': self.object.entrada_detalle.id})
         else:
             return reverse_lazy('mouse_detail', kwargs={'triage': self.object.triage})
@@ -328,7 +328,7 @@ class CPUptadeView(LoginRequiredMixin, UpdateView):
     template_name = 'inventario/dispositivo/cpu/cpu_edit.html'
 
     def get_success_url(self):
-        if self.object.entrada_detalle:
+        if self.object.entrada_detalle.id != 1:
             return reverse_lazy('detalles_dispositivos', kwargs={'pk': self.object.entrada, 'detalle': self.object.entrada_detalle.id})
         else:
             return reverse_lazy('cpu_detail', kwargs={'triage': self.object.triage})
@@ -352,7 +352,7 @@ class LaptopUptadeView(LoginRequiredMixin, UpdateView):
     template_name = 'inventario/dispositivo/laptop/laptop_edit.html'
 
     def get_success_url(self):
-        if self.object.entrada_detalle:
+        if self.object.entrada_detalle.id != 1:
             return reverse_lazy('detalles_dispositivos', kwargs={'pk': self.object.entrada, 'detalle': self.object.entrada_detalle.id})
         else:
             return reverse_lazy('laptop_detail', kwargs={'triage': self.object.triage})
@@ -376,7 +376,7 @@ class TabletUptadeView(LoginRequiredMixin, UpdateView):
     template_name = 'inventario/dispositivo/tablet/tablet_edit.html'
 
     def get_success_url(self):
-        if self.object.entrada_detalle:
+        if self.object.entrada_detalle.id != 1:
             return reverse_lazy('detalles_dispositivos', kwargs={'pk': self.object.entrada, 'detalle': self.object.entrada_detalle.id})
         else:
             return reverse_lazy('tablet_detail', kwargs={'triage': self.object.triage})
@@ -400,7 +400,7 @@ class HDDUptadeView(LoginRequiredMixin, UpdateView):
     template_name = 'inventario/dispositivo/hdd/hdd_edit.html'
 
     def get_success_url(self):
-        if self.object.entrada_detalle:
+        if self.object.entrada_detalle.id != 1:
             return reverse_lazy('detalles_dispositivos', kwargs={'pk': self.object.entrada, 'detalle': self.object.entrada_detalle.id})
         else:
             return reverse_lazy('hdd_detail', kwargs={'triage': self.object.triage})
@@ -423,7 +423,7 @@ class DispositivoRedUptadeView(LoginRequiredMixin, UpdateView):
     template_name = 'inventario/dispositivo/red/red_edit.html'
 
     def get_success_url(self):
-        if self.object.entrada_detalle:
+        if self.object.entrada_detalle.id != 1:
             return reverse_lazy('detalles_dispositivos', kwargs={'pk': self.object.entrada, 'detalle': self.object.entrada_detalle.id})
         else:
             return reverse_lazy('red_detail', kwargs={'triage': self.object.triage})
@@ -446,7 +446,7 @@ class DispositivoAccessPointUptadeView(LoginRequiredMixin, UpdateView):
     template_name = 'inventario/dispositivo/ap/ap_edit.html'
 
     def get_success_url(self):
-        if self.object.entrada_detalle:
+        if self.object.entrada_detalle.id != 1:
             return reverse_lazy('detalles_dispositivos', kwargs={'pk': self.object.entrada, 'detalle': self.object.entrada_detalle.id})
         else:
             return reverse_lazy('ap_detail', kwargs={'triage': self.object.triage})
