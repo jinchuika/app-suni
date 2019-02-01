@@ -15,30 +15,22 @@
 						<div class="row">
 							<div class="col-md-7">
 								<h3 class="box-title">Repuesto No. {{ repuesto.id }}</h3>
-							</div>
-							<div class="col-md-5">
+              </div>
+              <div class="col-md-5">
 								<div class="row">
 									<div class="col-md-6">
 										<a href="{%url 'repuesto_edit' pk=object.id%}" class="btn btn-block btn-success">Editar</a>
 									</div>
 									<div class="col-md-6">
-										{% csrf_token %}
-										{%for permiso in user.groups.all  %}
-											{% if permiso.name == "inv_bodega" %}
-												{%if not object.impreso%}
-													<a href="{%url 'repuestoqr_print' pk=object.id%}" class="btn btn-block btn-primary">Imprimir QR</a>
-												{%endif%}
-											{%endif%}
-										{% endfor %}  
-
+											<a href="{%url 'repuesto_edit' pk=object.id%}" class="btn btn-block btn-primary">Imprimir QR</a>
 									</div>
 								</div>
-							</div>
+              </div>
 						</div>
 					</div>
 					<div class="box-body">
 						<table class="table table-condensed">
-							<tr>
+              <tr>
 								<th>Entrada</th>
 								<td>{{ repuesto.entrada |default_if_none:"" }}</td>
 							</tr>
@@ -47,50 +39,41 @@
 								<td>{{ repuesto.tipo |default_if_none:"" }}</td>
 							</tr>
 							<tr>
-								<th>Descripcion</th>
-								<td>
-									{{ repuesto.descripcion |default_if_none:"" }}
-								</td>
-							</tr>
-							<tr>
-								<th>Marca</th>
-								<td>
-									{{repuesto.marca |default_if_none:""}}
-									<br>
-								</td>
-							</tr>
-							<tr>
-								<th>Modelo</th>
-								<td>
-									{{repuesto.modelo |default_if_none:""}}
-									<br>
-								</td>
-							</tr>
-							<tr>
-								<th>Tarima</th>
-								<td>
-									{{repuesto.tarima |default_if_none:""}}
-									<br>
-								</td>
-							</tr>
-							<tr>
 								<th>Estado</th>
 								<td>
 									{{repuesto.estado |default_if_none:""}}
 									<br>
 								</td>
 							</tr>
-							
-							<tr>
-								<th>Disponible</th>
+              <tr>
+								<th>Descripcion</th>
 								<td>
-									<input type="checkbox" name="disponible" disabled  {% if object.disponible %} checked {% endif %} />
+                  {{ repuesto.descripcion |default_if_none:"" }}
 								</td>
 							</tr>
-							<tr>
+              <tr>
+								<th>Disponible</th>
+								<td>
+                  {%if repuesto.disponible == True%}
+                  SI
+                  {%else%}
+                    NO
+                  {%endif%}
+                  <br>
+								</td>
+							</tr>
+              <tr>
+								<th>Tarima</th>
+								<td>
+									{{repuesto.tarima |default_if_none:""}}
+									<br>
+								</td>
+							</tr>
+              <tr>
 								<th>Valido</th>
 								<td>
-									<input type="checkbox" name="valido" disabled  {% if object.valido %} checked {% endif %} />
+									{{repuesto.valido |default_if_none:""}}
+									<br>
 								</td>
 							</tr>
 						</table>
@@ -108,7 +91,7 @@
 					</div>
 					<div class="box-body">
 						<table class="table table-condensed">
-							<tr>
+              <tr>
 								<th>Triage</th>
 								<td>{{ dispositivo.triage |default_if_none:"" }}</td>
 							</tr>
@@ -123,50 +106,59 @@
 									<br>
 								</td>
 							</tr>
-							<tr>
+              <tr>
 								<th>Estado</th>
 								<td>
-									{{dispositivo.estado |default_if_none:""}}
+                  {{dispositivo.estado |default_if_none:""}}
 								</td>
 							</tr>
-							<tr>
+              <tr>
 								<th>Etapa</th>
 								<td>
-									{{dispositivo.estapa |default_if_none:""}}<br>
+                  {{dispositivo.estapa |default_if_none:""}}
+                  <br>
 								</td>
 							</tr>
-							<tr>
+              <tr>
 								<th>Marca</th>
 								<td>
 									{{dispositivo.marca |default_if_none:""}}
 									<br>
 								</td>
 							</tr>
-							<tr>
+              <tr>
 								<th>Modelo</th>
 								<td>
 									{{dispositivo.modelo |default_if_none:""}}
 									<br>
 								</td>
 							</tr>
-							<tr>
+              <tr>
 								<th>Serie</th>
 								<td>
 									{{dispositivo.valido |default_if_none:""}}
 									<br>
 								</td>
 							</tr>
-							<tr>
+              <tr>
 								<th>Tarima</th>
 								<td>
 									{{dispositivo.tarima |default_if_none:""}}
 									<br>
 								</td>
 							</tr>
-							<tr>
+              <tr>
 								<th>Valido</th>
 								<td>
-									<input type="checkbox" name="dispositivo_valido" disabled  {% if dispositivo.valido %} checked {% endif %} />
+									{{dispositivo.valido |default_if_none:""}}
+									<br>
+								</td>
+							</tr>
+							<tr>
+								<th>Codigo Qr</th>
+								<td>
+									<img src="{{dispositivo.codigo_qr.url}}" class="img-thumbnail" alt="">
+									<br>
 								</td>
 							</tr>
 						</table>
