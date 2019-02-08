@@ -1012,7 +1012,6 @@ class Repuesto(models.Model):
 
     def save(self, *args, **kwargs):
         super(Repuesto, self).save(*args, **kwargs)
-        print(self)
         if not self.codigo_qr:
             self.crear_qrcode()
             super(Repuesto, self).save(*args, **kwargs)
