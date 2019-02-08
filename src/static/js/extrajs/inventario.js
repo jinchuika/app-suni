@@ -1348,6 +1348,7 @@ class Salidas {
     $('#id_fecha').val(fecha);
     $("[for='id_entrega']").css({"visibility":"hidden"});
     $("[for='id_beneficiario']").css({"visibility":"hidden"});
+    $('#id_beneficiario').next(".select2-container").hide();
 
     $('#id_entrega').click(function () {
         if ($("#id_entrega").is(':checked')) {
@@ -1356,12 +1357,14 @@ class Salidas {
           $("#id_udi").val(" ");
           $("#id_beneficiario").css({"visibility":"hidden"});
           $("[for='id_beneficiario']").css({"visibility":"hidden"});
+          $('#id_beneficiario').next(".select2-container").hide();
         } else {
           $("#id_udi").attr('type','hidden');
           $("[for='id_udi']").css({"visibility":"hidden"});
           $("[for='id_beneficiario']").css({"visibility":"visible"});
           $("#id_beneficiario").css({"visibility":"visible"});
           $("#id_udi").val(" ");
+          $('#id_beneficiario').next(".select2-container").show();
         }
     });
     $('#salidaform').on('submit', function(e){
@@ -1574,7 +1577,25 @@ class Salidas {
       if(tipoSalida == 3 || tipoSalidaText =='Especial'){
         $("[for='id_entrega']").css({"visibility":"visible"});
         $("#id_entrega").css({"visibility":"visible"});
-      }else{
+        /**/
+        $("[for='id_udi']").css({"visibility":"visible"});
+        $("#id_udi").attr('type','visible');
+        $("#id_udi").val(" ");
+        $("#id_beneficiario").css({"visibility":"hidden"});
+        $("[for='id_beneficiario']").css({"visibility":"hidden"});
+        $('#id_beneficiario').next(".select2-container").hide();
+      }else if(tipoSalida == 4 || tipoSalidaText =='A terceros') {
+        $("[for='id_entrega']").css({"visibility":"hidden"});
+        $("#id_entrega").css({"visibility":"hidden"});
+        $("#id_entrega").prop('checked',true);
+        /**/
+        $("#id_udi").attr('type','hidden');
+        $("[for='id_udi']").css({"visibility":"hidden"});
+        $("[for='id_beneficiario']").css({"visibility":"visible"});
+        $("#id_beneficiario").css({"visibility":"visible"});
+        $("#id_udi").val(" ");
+        $('#id_beneficiario').next(".select2-container").show();
+      }else {
         $("[for='id_entrega']").css({"visibility":"hidden"});
         $("#id_entrega").css({"visibility":"hidden"});
         $("#id_entrega").prop('checked',true);
@@ -1584,8 +1605,9 @@ class Salidas {
         $("#id_udi").val(" ");
         $("#id_beneficiario").css({"visibility":"hidden"});
         $("[for='id_beneficiario']").css({"visibility":"hidden"});
+        $("#id_beneficiario").attr('type','visible');
+        $('#id_beneficiario').next(".select2-container").hide();
         /**/
-
       }
     });
     /**Reasignar**/
@@ -2290,10 +2312,13 @@ class RepuestosList {
           {data:"modelo"},
           {data:"tarima"},
           {data:"estado"},
-          {
-                data: "",
-                defaultContent: "<button  id='button-repuesto' class='btn btn-info repuesto-btn'>Asignar</button>"
-          }
+          {data:"", className:"nowrap", render:function(data, type, full, meta){
+            if(full.valido == true){
+              return ""
+            }else{
+              return "<button  id='button-repuesto' class='btn btn-info repuesto-btn'>Asignar</button>"
+            }
+          }}
         ]
       });
 
