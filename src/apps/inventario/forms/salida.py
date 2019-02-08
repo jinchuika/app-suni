@@ -34,7 +34,7 @@ class SalidaInventarioForm(forms.ModelForm):
         super(SalidaInventarioForm, self).__init__(*args, **kwargs)
         if self.instance.en_creacion:
             self.fields['beneficiario'].widget = forms.Select(
-                attrs={'class': 'form-control', 'style': "visibility:hidden"})
+                attrs={'class': 'form-control select2', 'style': "visibility:hidden"})
             self.fields['beneficiario'].queryset = crm_m.Donante.objects.all()
         else:
             self.fields['udi'].widget = forms.HiddenInput()
