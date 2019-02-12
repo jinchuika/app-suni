@@ -1,7 +1,6 @@
 import django_filters
 from django_filters import rest_framework as filters
-
-from rest_framework import viewsets, status
+from rest_framework import viewsets, status, views
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from braces.views import LoginRequiredMixin
@@ -102,3 +101,23 @@ class PrecioEstandarViewSet(viewsets.ModelViewSet):
             },
             status=status.HTTP_200_OK
         )
+
+
+class PeriodoFiscalPorExistenciaViewSet(viewsets.ModelViewSet):
+    """ViewSet para generar informe de la :class: `PrecioEstandar`.
+    """
+    # serializer_class = conta_s.PeriodoFiscalPorExistenciaSerializer
+    serializer_class = conta_s.DispositivosContaSerializer
+    # queryset = conta_m.PeriodoFiscal.objects.filter(actual=True)
+    # queryset = conta_m.MovimientoDispositivo.objects.all()
+    queryset = inv_m.Dispositivo.objects.all()
+    # filter_fields = ('periodo_fiscal', 'dispositivo__tipo', )
+
+
+class PruebaJson(views.APIView):
+    def get(self, request):
+        return Response({'some': 'data'})
+
+    @classmethod
+    def get_extra_actions(cls):
+        return []

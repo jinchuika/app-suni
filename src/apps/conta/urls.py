@@ -38,6 +38,28 @@ urlpatterns = [
      conta_v.PrecioEstandarListView.as_view(),
      name='precioestandar_list'
    ),
+ # Informe de  precio estandar
+ url(
+     r'^precioestandar/informe/$',
+     conta_v.PrecioEstandarInformeListView.as_view(),
+     name='precioestandar_informe'
+   ),
+ url(
+     r'^precioestandar/informecantidad/$',
+     conta_v.InformeCantidadJson.as_view(),
+     name='prueba'
+    ),
+ url(
+    r'^precioestandar/informentrada/$',
+    conta_v.ContabilidadEntradaInformeListView.as_view(),
+    name='contabilidad_entrada'
+   ),
+ url(
+  r'^precioestandar/informentradapi/$',
+  conta_v.InformeEntradaJson.as_view(),
+  name='contabilidad_api_entrada'
+ ),
+
 
  # Api
  url(r'^api/', include(('apps.conta.api_urls', 'conta'), namespace='conta_api'))
