@@ -145,6 +145,14 @@ contabilidad_children = (
         perm="conta.add_periodofiscal",
         icon="fa-calendar-check-o",
     ),
+    ViewMenuItem(
+        "Informe Periodo Fiscal",
+        reverse_lazy('precioestandar_informe'),
+        weight=12,
+        perm="conta.add_periodofiscal",
+        group="inventario_conta",
+        icon="fa-file-pdf-o",
+    ),
 )
 
 # Administrador
