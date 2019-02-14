@@ -5,6 +5,7 @@ from django_filters import rest_framework as filters
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from datetime import datetime
 from braces.views import LoginRequiredMixin
 from django.db.models import Q
 from apps.inventario import (
@@ -117,6 +118,10 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
                     status=status.HTTP_400_BAD_REQUEST
                 )
             else:
+                fecha_cierre = inv_m.Entrada.objects.get(id=entrad_id)
+                fecha_cierre.fecha_cierre = datetime.now()
+                fecha_cierre.save()
+                print(datetime.now())
                 return Response(
                     {'mensaje': 'Entrada Cuadrada'},
                     status=status.HTTP_200_OK
@@ -145,6 +150,7 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
                 creacion = entrada_detalle.crear_dispositivos()
                 validar_dispositivos = inv_m.EntradaDetalle.objects.get(id=pk)
                 validar_dispositivos.dispositivos_creados = True
+                validar_dispositivos.fecha_dispositivo = datetime.now()
                 validar_dispositivos.save()
                 return Response(
                     creacion,
@@ -177,6 +183,7 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
                 creacion = entrada_detalle.crear_repuestos()
                 validar_dispositivos = inv_m.EntradaDetalle.objects.get(id=pk)
                 validar_dispositivos.repuestos_creados = True
+                validar_dispositivos.fecha_repuesto = datetime.now()
                 validar_dispositivos.save()
                 return Response(
                     creacion,

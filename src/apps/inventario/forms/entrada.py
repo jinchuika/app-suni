@@ -30,7 +30,7 @@ class EntradaUpdateForm(forms.ModelForm):
     class Meta:
         model = inv_m.Entrada
         fields = '__all__'
-        exclude = ['observaciones', 'factura']
+        exclude = ['observaciones', 'factura', 'fecha_cierre']
         widgets = {
                 'recibida_por': forms.HiddenInput(),
                 'fecha': forms.HiddenInput(),
@@ -139,7 +139,7 @@ class EntradaDetalleUpdateForm(forms.ModelForm):
             if total < suma:
                 raise forms.ValidationError(
                     _('Los valores de depuración superan el total de dispositivos.')
-                )         
+                )
 
     def as_table(self):
         "Returns this form rendered as HTML <tr>s -- excluding the <table></table>."

@@ -14,6 +14,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from dateutil.relativedelta import relativedelta
 from django.utils.datastructures import MultiValueDictKeyError
 from datetime import datetime, timedelta
+from django.db.models import Sum
 
 
 class PeriodoFiscalCreateView(LoginRequiredMixin, CreateView):
@@ -123,77 +124,179 @@ class InformeCantidadJson(views.APIView):
         lista_dispositivos = {}
         lista = []
         acumulador_anterior = 0
-        acumulador_total = 0
-        acumulador_total_compra = 0
+        acumulador = 0
         periodo = conta_m.PeriodoFiscal.objects.get(id=id_periodo)
         nueva_fecha = periodo.fecha_fin - timedelta(days=365)
         nueva_fecha_inicio = periodo.fecha_inicio - timedelta(days=365)
         periodo_anterior = conta_m.PeriodoFiscal.objects.get(fecha_fin=nueva_fecha)
+        periodos_anteriores = conta_m.PeriodoFiscal.objects.filter(fecha_fin__lt=periodo.fecha_inicio).values('id')
+        print(nueva_fecha_inicio)
         try:
             for tipo in dispositivos:
+                precio_tipo_dispositivo = 0
+                precio_tipo_compras = 0
                 dispositivo = {}
                 if repuesto_dispositivo == str(1):
-                    altas = conta_m.MovimientoDispositivo.objects.filter(
-                        tipo_movimiento=1,
-                        dispositivo__tipo=tipo,
-                        fecha__lt=nueva_fecha).count()
+                    # Obtener Listado de bajas, compras y útiles
                     bajas = conta_m.MovimientoDispositivo.objects.filter(
                         tipo_movimiento=-1,
                         dispositivo__tipo=tipo,
-                        fecha__lt=nueva_fecha).count()
-                    precio = conta_m.PrecioDispositivo.objects.filter(
-                        dispositivo__tipo=tipo,
-                        periodo__fecha_fin__lte=nueva_fecha).first()
-                    altas_compra = conta_m.MovimientoDispositivo.objects.filter(
+                        fecha__lte=nueva_fecha).values('dispositivo')
+                    compras = conta_m.MovimientoDispositivo.objects.filter(
                         tipo_movimiento=1,
                         dispositivo__tipo=tipo,
                         fecha__lte=nueva_fecha,
-                        dispositivo__entrada__tipo__nombre="Compra").values_list('dispositivo__triage')
-                    bajas_compra = conta_m.MovimientoDispositivo.objects.filter(
-                        tipo_movimiento=-1,
+                        dispositivo__entrada__tipo__contable=True).exclude(dispositivo__in=bajas).values('dispositivo')
+                    utiles = conta_m.MovimientoDispositivo.objects.filter(
+                        tipo_movimiento=1,
                         dispositivo__tipo=tipo,
-                        fecha__lte=nueva_fecha,
-                        dispositivo__entrada__tipo__nombre="Compra").values_list('dispositivo__triage')
-                    lista_altas = list(altas_compra)
-                    lista_bajas = list(bajas_compra)
-                    lista_total = [item for item in lista_altas if item not in set(lista_bajas)]
-                    for data_precio in lista_total:
-                        precio_compra = conta_m.PrecioDispositivo.objects.filter(dispositivo__triage__in=data_precio)
-                        for data in precio_compra:
-                            if data.precio != 0:
-                                acumulador_anterior = acumulador_anterior + data.precio
+                        fecha__lte=nueva_fecha).exclude(
+                            dispositivo__in=bajas).exclude(dispositivo__in=compras).values('dispositivo')
+
+                    # Obtener Total Anterior
+                    if periodo_anterior.fecha_fin.year <= 2018:
+                        precio_tipo_dispositivo = conta_m.PrecioDispositivo.objects.filter(
+                            dispositivo__in=utiles,
+                            periodo__in=periodos_anteriores).aggregate(Sum('precio'))
+                    else:
+                        precio_tipo_dispositivo = conta_m.PrecioDispositivo.objects.filter(
+                            dispositivo__in=utiles,
+                            periodo=periodo_anterior).aggregate(Sum('precio'))
+
+                    precio_tipo_compras = conta_m.PrecioDispositivo.objects.filter(
+                        dispositivo__in=compras,
+                        activo=True).aggregate(Sum('precio'))
+
+                    if precio_tipo_dispositivo['precio__sum'] is not None:
+                        precio_tipo_dispositivo = precio_tipo_dispositivo['precio__sum']
+                    else:
+                        precio_tipo_dispositivo = 0
+
+                    if precio_tipo_compras['precio__sum'] is not None:
+                        precio_tipo_compras = precio_tipo_compras['precio__sum']
+                    else:
+                        precio_tipo_compras = 0
+
+                    precio_total_anterior = precio_tipo_dispositivo + precio_tipo_compras
+                    acumulador_anterior += precio_total_anterior
+
+                    # Obtener Precio Estandar Actual y Anterior
+                    precio = conta_m.PrecioEstandar.objects.filter(
+                        tipo_dispositivo=tipo,
+                        periodo=periodo,
+                        inventario='dispositivo').first()
+
+                    precio_anterior = conta_m.PrecioEstandar.objects.filter(
+                        tipo_dispositivo=tipo,
+                        periodo=periodo_anterior,
+                        inventario='dispositivo').first()
+
+                    # Obtener Total Actual
+                    precio_tipo_dispositivo = conta_m.PrecioDispositivo.objects.filter(
+                        dispositivo__in=utiles,
+                        periodo=periodo).aggregate(Sum('precio'))
+                    precio_tipo_compras = conta_m.PrecioDispositivo.objects.filter(
+                        dispositivo__in=compras,
+                        activo=True).aggregate(Sum('precio'))
+
+                    if precio_tipo_dispositivo['precio__sum'] is not None:
+                        precio_tipo_dispositivo = precio_tipo_dispositivo['precio__sum']
+                    else:
+                        if precio is not None:
+                            precio_tipo_dispositivo = len(utiles) * precio.precio
+                        else:
+                            precio_tipo_dispositivo = 0
+
+                    if precio_tipo_compras['precio__sum'] is not None:
+                        precio_tipo_compras = precio_tipo_compras['precio__sum']
+                    else:
+                        precio_tipo_compras = 0
+
+                    precio_total = precio_tipo_dispositivo + precio_tipo_compras
+                    acumulador += precio_total
                 else:
-                    altas = conta_m.MovimientoRepuesto.objects.filter(
-                        tipo_movimiento=1,
-                        repuesto__tipo=tipo,
-                        fecha__lte=periodo.fecha_inicio).count()
                     bajas = conta_m.MovimientoRepuesto.objects.filter(
                         tipo_movimiento=-1,
                         repuesto__tipo=tipo,
-                        fecha__lte=periodo.fecha_inicio).count()
+                        fecha__lte=nueva_fecha).values('repuesto')
+                    compras = conta_m.MovimientoRepuesto.objects.filter(
+                        tipo_movimiento=1,
+                        repuesto__tipo=tipo,
+                        fecha__lte=nueva_fecha,
+                        repuesto__entrada__tipo__contable=True).exclude(repuesto__in=bajas).values('repuesto')
+                    utiles = conta_m.MovimientoRepuesto.objects.filter(
+                        tipo_movimiento=1,
+                        repuesto__tipo=tipo,
+                        fecha__lte=nueva_fecha).exclude(
+                            repuesto__in=bajas).exclude(repuesto__in=compras).values('repuesto')
+                    # Obtener Total Anterior
+                    if periodo_anterior.fecha_fin.year <= 2018:
+                        precio_tipo_dispositivo = conta_m.PrecioRepuesto.objects.filter(
+                            repuesto__in=utiles,
+                            periodo__in=periodos_anteriores).aggregate(Sum('precio'))
+                    else:
+                        precio_tipo_dispositivo = conta_m.PrecioRepuesto.objects.filter(
+                            repuesto__in=utiles,
+                            periodo=periodo_anterior).aggregate(Sum('precio'))
+
+                    precio_tipo_compras = conta_m.PrecioRepuesto.objects.filter(
+                        repuesto__in=compras,
+                        activo=True).aggregate(Sum('precio'))
+
+                    if precio_tipo_dispositivo['precio__sum'] is not None:
+                        precio_tipo_dispositivo = precio_tipo_dispositivo['precio__sum']
+                    else:
+                        precio_tipo_dispositivo = 0
+
+                    if precio_tipo_compras['precio__sum'] is not None:
+                        precio_tipo_compras = precio_tipo_compras['precio__sum']
+                    else:
+                        precio_tipo_compras = 0
+                    precio_total_anterior = precio_tipo_dispositivo + precio_tipo_compras
+                    acumulador_anterior += precio_total_anterior
+                    # Obtener Precio Estandar Actual y Anterior
                     precio = conta_m.PrecioEstandar.objects.filter(
                         tipo_dispositivo=tipo,
-                        inventario='Repuesto',
-                        periodo=periodo).first()
+                        periodo=periodo,
+                        inventario='repuesto').first()
+
                     precio_anterior = conta_m.PrecioEstandar.objects.filter(
                         tipo_dispositivo=tipo,
-                        inventario='Repuesto',
-                        periodo=periodo_anterior).first()
-                disponible = altas - bajas
-                if disponible != 0:
-                    acumulador_total = acumulador_total + (disponible * precio.precio)
-                    print(str(disponible)+" "+str(precio.precio)+"  "+str((disponible * precio.precio))+" "+str(tipo.tipo))
-                # disponible_compras = altas_compra - bajas_compra
-                total = acumulador_total
-                if precio is not None:
+                        periodo=periodo_anterior,
+                        inventario='repuesto').first()
+                    # Obtener Total Actual
+                    precio_tipo_dispositivo = conta_m.PrecioRepuesto.objects.filter(
+                        repuesto__in=utiles,
+                        periodo=periodo).aggregate(Sum('precio'))
+                    precio_tipo_compras = conta_m.PrecioRepuesto.objects.filter(
+                        repuesto__in=compras,
+                        activo=True).aggregate(Sum('precio'))
+
+                    if precio_tipo_dispositivo['precio__sum'] is not None:
+                        precio_tipo_dispositivo = precio_tipo_dispositivo['precio__sum']
+                    else:
+                        if precio is not None:
+                            precio_tipo_dispositivo = len(utiles) * precio.precio
+                        else:
+                            precio_tipo_dispositivo = 0
+
+                    if precio_tipo_compras['precio__sum'] is not None:
+                        precio_tipo_compras = precio_tipo_compras['precio__sum']
+                    else:
+                        precio_tipo_compras = 0
+
+                    precio_total = precio_tipo_dispositivo + precio_tipo_compras
+                    acumulador += precio_total
+                disponible = len(utiles) + len(compras)
+                if precio is not None and precio_anterior is not None:
                     dispositivo['tipo'] = tipo.tipo
                     dispositivo['cantidad'] = disponible
                     dispositivo['precio'] = str(precio.precio)
-                    dispositivo['precio_anterior'] = 0
-                    dispositivo['total_anterior'] = disponible * precio.precio
-                    dispositivo['total'] = 0
-                    dispositivo['acumulador_total'] = 0
-                    dispositivo['acumulador_anterior'] = total
+                    dispositivo['precio_anterior'] = precio_anterior.precio
+                    dispositivo['total_anterior'] = precio_total_anterior
+                    dispositivo['total'] = precio_total
+                    dispositivo['acumulador_total'] = acumulador
+                    dispositivo['acumulador_anterior'] = acumulador_anterior
                     lista.append(dispositivo)
                     lista_dispositivos[tipo.tipo] = dispositivo
             return Response(lista)
@@ -232,8 +335,8 @@ class InformeEntradaJson(views.APIView):
                 print("no hay donante")
                 if(tipo_entrada == 0):
                     entrada = inv_m.EntradaDetalle.objects.filter(
-                        entrada__fecha__gte=fecha_inicio,
-                        entrada__fecha__lte=fecha_fin,
+                        entrada__fecha_cierre__gte=fecha_inicio,
+                        entrada__fecha_cierre__lte=fecha_fin,
                         tipo_dispositivo=tipo_dispositivo,
                         ).exclude(entrada__tipo__nombre='Especial')
                     new_tipo_dispositivo = inv_m.EntradaTipo.objects.all().exclude(nombre='Especial')
@@ -284,8 +387,8 @@ class InformeEntradaJson(views.APIView):
                 else:
                     entrada = inv_m.EntradaDetalle.objects.filter(
                         entrada__tipo=tipo_entrada,
-                        entrada__fecha__gte=fecha_inicio,
-                        entrada__fecha__lte=fecha_fin,
+                        entrada__fecha_cierre__gte=fecha_inicio,
+                        entrada__fecha_cierre__lte=fecha_fin,
                         tipo_dispositivo=tipo_dispositivo,
                         ).exclude(entrada__tipo__nombre='Especial')
                     new_tipo_dispositivo = inv_m.EntradaTipo.objects.get(id=tipo_entrada)
@@ -335,8 +438,8 @@ class InformeEntradaJson(views.APIView):
                 print("si hay donante")
                 if(tipo_entrada == 0):
                     entrada = inv_m.EntradaDetalle.objects.filter(
-                        entrada__fecha__gte=fecha_inicio,
-                        entrada__fecha__lte=fecha_fin,
+                        entrada__fecha_cierre__gte=fecha_inicio,
+                        entrada__fecha_cierre__lte=fecha_fin,
                         tipo_dispositivo=tipo_dispositivo,
                         entrada__proveedor=donante
                         ).exclude(entrada__tipo__nombre='Especial')
@@ -390,8 +493,8 @@ class InformeEntradaJson(views.APIView):
                 else:
                     entrada = inv_m.EntradaDetalle.objects.filter(
                         entrada__tipo=tipo_entrada,
-                        entrada__fecha__gte=fecha_inicio,
-                        entrada__fecha__lte=fecha_fin,
+                        entrada__fecha_cierre__gte=fecha_inicio,
+                        entrada__fecha_cierre__lte=fecha_fin,
                         tipo_dispositivo=tipo_dispositivo,
                         entrada__proveedor=donante
                         ).exclude(entrada__tipo__nombre='Especial')
@@ -440,14 +543,9 @@ class InformeEntradaJson(views.APIView):
                         total_costo_despues = precio_despues.precio * total_despues
                     else:
                         total_costo_despues = 1 * total_despues
-                    altas_despues2 = conta_m.MovimientoDispositivo.objects.filter(
-                        tipo_movimiento=1,
-                        dispositivo__tipo=tipo_dispositivo,
-                        fecha__range=[fecha_inicio, fecha_fin],
-                        dispositivo__entrada__proveedor=donante,
-                        dispositivo__entrada__tipo=tipo_entrada
-                        ).count()
-                    print(altas_despues2)
+                    # cantidad = entrada.aggregate(total=Sum('util'))
+                    print(entrada.first())
+                    # print(cantidad)
             if(new_tipo_dispositivo == "Compra"):
                 for datos_entrada in entrada:
                     dispositivo = {}
