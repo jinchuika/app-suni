@@ -4,6 +4,8 @@ from django.forms import ModelForm
 from django.contrib.auth.models import User
 
 from apps.conta import models as conta_m
+from apps.inventario import models as inv_m
+from apps.crm import models as crm_m
 from apps.inventario import models as inventario_m
 
 
@@ -58,3 +60,49 @@ class PrecioEstandarInformeForm(forms.Form):
         widget=forms.Select(attrs={'class': 'form-control'}),
         required=False
     )
+
+
+class CantidadInformeForm(forms.Form):
+    """ Formulario para la aplicacion de filtros de busqueda de precio estandar
+    """
+    inventario = (('', '----------'), ('1', 'Dispositivos'), ('2', 'Repuestos'))
+    periodo = forms.ModelChoiceField(
+        queryset=conta_m.PeriodoFiscal.objects.all(),
+        label="Periodo Fiscal",
+        widget=forms.Select(attrs={'class': 'form-control'}),
+        required=False
+    )
+    dispositivo = forms.ChoiceField(
+        widget=forms.Select(attrs={'class': 'form-control'}),
+        choices=inventario,
+        label="Tipo")
+
+
+class EntradaInformeForm(forms.Form):
+    """Este Formulario se encarga de enviar los filtros para  su respectivo informe de Ofertas
+    """
+    donante = forms.ModelChoiceField(
+        queryset=crm_m.Donante.objects.all(),
+        label='Proveedor / Donante',
+        widget=forms.Select(attrs={'class': 'form-control'}),
+        required=False)
+    tipo_entrada = forms.ModelChoiceField(
+        queryset=inv_m.EntradaTipo.objects.all().exclude(nombre='Especial'),
+        label='Tipo de Entrada',
+        required=False,
+        widget=forms.Select(attrs={'class': 'form-control'}))
+
+    tipo_dispositivo = forms.ModelChoiceField(
+        queryset=inv_m.DispositivoTipo.objects.filter(usa_triage=True),
+        label='Tipo de Dispositivo',
+        required=True,
+        widget=forms.Select(attrs={'class': 'form-control'}))
+
+    fecha_min = forms.CharField(
+        label='Fecha (min)',
+        required=True,
+        widget=forms.TextInput(attrs={'class': 'form-control datepicker'}))
+    fecha_max = forms.CharField(
+        label='Fecha (max)',
+        required=True,
+        widget=forms.TextInput(attrs={'class': 'form-control datepicker'}))

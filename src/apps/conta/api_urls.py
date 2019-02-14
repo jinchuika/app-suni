@@ -1,6 +1,7 @@
 from rest_framework import routers
 from apps.conta import api_views
 
+
 router = routers.DefaultRouter()
 
 # Acceso al api de Periodo Fiscal
@@ -11,6 +12,15 @@ router.register(r'periodofiscal',
 router.register(r'precioestandar',
                 api_views.PrecioEstandarViewSet,
                 base_name='precioestandar')
+
+# Accesi al api de periodo fiscal por existencia
+router.register(r'periodofiscalinforme',
+                api_views.PeriodoFiscalPorExistenciaViewSet,
+                base_name='precioestandarexistencia')
+
+router.register(r'prueba',
+                api_views.PruebaJson,
+                base_name='prueba')
 
 urlpatterns = []
 urlpatterns += router.urls
