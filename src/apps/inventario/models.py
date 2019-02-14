@@ -61,6 +61,7 @@ class Entrada(models.Model):
 
     tipo = models.ForeignKey(EntradaTipo, on_delete=models.PROTECT, related_name='entradas')
     fecha = models.DateField()
+    fecha_cierre = models.DateField(blank=True, null=True)
     en_creacion = models.BooleanField(default=True)
     creada_por = models.ForeignKey(User, on_delete=models.PROTECT, related_name='entradas_creadas')
     recibida_por = models.ForeignKey(User, on_delete=models.PROTECT, related_name='entradas_recibidas')
@@ -148,6 +149,9 @@ class EntradaDetalle(models.Model):
     qr_repuestos = models.BooleanField(default=False, blank=True, verbose_name='Imprimir Qr Repuesto')
     qr_dispositivo = models.BooleanField(default=False, blank=True, verbose_name='Imprimir Qr Dispositivo')
     impreso = models.BooleanField(default=False, blank=True, verbose_name='Impreso')
+    # Creacion de fechas
+    fecha_dispositivo = models.DateField(blank=True, null=True)
+    fecha_repuesto = models.DateField(blank=True, null=True)
     # Campos sobre contabilidad
     precio_unitario = models.DecimalField(max_digits=8, decimal_places=2, blank=True, null=True)
     precio_subtotal = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
@@ -477,7 +481,7 @@ class Dispositivo(models.Model):
 
     class Meta:
         verbose_name = "Dispositivo"
-        verbose_name_plural = "Dispositivos"        
+        verbose_name_plural = "Dispositivos"
         indexes = [
             models.Index(fields=['triage']),
         ]
