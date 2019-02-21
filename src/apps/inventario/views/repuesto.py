@@ -64,7 +64,8 @@ class RepuestosQRprintList(LoginRequiredMixin, DetailView):
     model = inv_m.Repuesto
     template_name = 'inventario/repuesto/imprimir_qr_list.html'
 
-    def get_context_data(self, **kwargs):        
+    def get_context_data(self, **kwargs):
+        print(self.request)
         no = self.request.GET['id']
         tarima = self.request.GET['tarima']
         tipo = self.request.GET['tipo']
@@ -74,7 +75,7 @@ class RepuestosQRprintList(LoginRequiredMixin, DetailView):
         tarima_print = inv_m.Repuesto.objects.all()
         if no:
             tarima_print = inv_m.Repuesto.objects.filter(id=no)
-        else:
+        else: 
             if tarima:
                 tarima_print = tarima_print.filter(tarima=tarima).order_by('id')
             if tipo:
