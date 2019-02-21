@@ -68,8 +68,7 @@ class CPUForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(CPUForm, self).__init__(*args, **kwargs)
-        self.fields['disco_duro'].queryset = inv_m.HDD.objects.filter(valido = True)
-
+        self.fields['disco_duro'].queryset = inv_m.HDD.objects.filter(valido=True)
 
 
 class LaptopForm(forms.ModelForm):
@@ -105,7 +104,7 @@ class LaptopForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(LaptopForm, self).__init__(*args, **kwargs)
-        self.fields['disco_duro'].queryset = inv_m.HDD.objects.filter(valido = True)
+        self.fields['disco_duro'].queryset = inv_m.HDD.objects.filter(valido=True)
 
 
 class MonitorForm(forms.ModelForm):

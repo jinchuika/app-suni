@@ -13,7 +13,7 @@ for model in apps.get_app_config('inventario').models.values():
 
 @admin.register(SalidaInventario)
 class SalidaInventarioAdmin(admin.ModelAdmin):
-	change_list_template = "inventario/admin/salidainventario_changelist.html"
+	# change_list_template = "inventario/admin/salidainventario_changelist.html"
 
 	def get_urls(self):
 		urls = super().get_urls()
@@ -194,4 +194,3 @@ class SectorAdmin(admin.ModelAdmin):
 		else:
 			print("No hay")
 		return HttpResponseRedirect("../")
-

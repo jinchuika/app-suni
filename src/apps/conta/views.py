@@ -14,7 +14,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from dateutil.relativedelta import relativedelta
 from django.utils.datastructures import MultiValueDictKeyError
 from datetime import datetime, timedelta
-from django.db.models import Sum
+from django.db.models import Sum, Count
 
 
 class PeriodoFiscalCreateView(LoginRequiredMixin, CreateView):
@@ -314,6 +314,13 @@ class InformeEntradaJson(views.APIView):
     en caso contrario desde el precio_unitario del detalle de entrada
     """
     def get(self, request):
+        acumulador_anterior = 0
+        acumulador = 0
+        acumulador_final = 0
+        acumulador_saldo_final = 0
+        acumulador_anterior_final = 0
+        acumulador_final_total = 0
+
         try:
             donante = self.request.GET['donante']
         except MultiValueDictKeyError as e:
@@ -326,171 +333,516 @@ class InformeEntradaJson(views.APIView):
         fecha_inicio = self.request.GET['fecha_min']
         fecha_fin = self.request.GET['fecha_max']
         validar_fecha = conta_m.PeriodoFiscal.objects.filter(fecha_inicio__lte=fecha_inicio, fecha_fin__gte=fecha_fin)
+        periodo = conta_m.PeriodoFiscal.objects.get(actual=True)
+        nueva_fecha = periodo.fecha_inicio
+        nueva_fecha_fin = periodo.fecha_fin
+        periodo_anterior = conta_m.PeriodoFiscal.objects.get(fecha_fin=periodo.fecha_fin)
+        periodos_anteriores = conta_m.PeriodoFiscal.objects.filter(fecha_fin__lt=periodo.fecha_inicio).values('id')
+        # periodo_anterios = conta_m.PeriodoFiscal.objects.filter(fecha_fin__in=)
+        print(periodo_anterior)
+        # Obtener Listado de bajas, compras y útiles
         new_dispositivo = inv_m.DispositivoTipo.objects.get(id=tipo_dispositivo)
         if validar_fecha.count() == 1:
             print("Si existe en el periodo fiscal")
             lista_dispositivos = {}
             lista = []
             if(donante == 0):
-                print("no hay donante")
+                print("no hay donante **")
                 if(tipo_entrada == 0):
+                    print("no hay entrada *")
                     entrada = inv_m.EntradaDetalle.objects.filter(
                         entrada__fecha_cierre__gte=fecha_inicio,
                         entrada__fecha_cierre__lte=fecha_fin,
                         tipo_dispositivo=tipo_dispositivo,
-                        ).exclude(entrada__tipo__nombre='Especial')
+                        ).exclude(fecha_dispositivo__isnull=True).exclude(entrada__tipo__nombre='Especial').distinct()
                     new_tipo_dispositivo = inv_m.EntradaTipo.objects.all().exclude(nombre='Especial')
-                    # totale cuando no hay donante
-                    altas = conta_m.MovimientoDispositivo.objects.filter(
-                        tipo_movimiento=1,
-                        dispositivo__tipo=tipo_dispositivo,
-                        fecha__lte=fecha_inicio,
-                        ).count()
+                    # Obtener Listado de bajas, compras y útiles
                     bajas = conta_m.MovimientoDispositivo.objects.filter(
                         tipo_movimiento=-1,
                         dispositivo__tipo=tipo_dispositivo,
-                        fecha__lte=fecha_inicio,
-                        ).count()
-                    total_final = altas - bajas
-                    precio = conta_m.PrecioEstandar.objects.filter(
-                        tipo_dispositivo=tipo_dispositivo,
-                        inventario='dispositivo',
-                        periodo__fecha_inicio__lte=fecha_inicio,
-                        periodo__fecha_fin__gte=fecha_fin).first()
-                    if precio is not None:
-                        total_costo = precio.precio * total_final
-                    else:
-                        total_costo = 1 * total_final
-                    # totales finales
-                    altas_despues = conta_m.MovimientoDispositivo.objects.filter(
+                        fecha__lte=nueva_fecha).values('dispositivo')
+                    compras = conta_m.MovimientoDispositivo.objects.filter(
                         tipo_movimiento=1,
                         dispositivo__tipo=tipo_dispositivo,
-                        fecha__range=[fecha_inicio, fecha_fin],
-                        ).count()
-                    bajas_despues = conta_m.MovimientoDispositivo.objects.filter(
+                        fecha__lte=nueva_fecha,
+                        dispositivo__entrada__tipo__contable=True).exclude(dispositivo__in=bajas).values('dispositivo')
+                    utiles = conta_m.MovimientoDispositivo.objects.filter(
+                        tipo_movimiento=1,
+                        dispositivo__tipo=tipo_dispositivo,
+                        fecha__lte=nueva_fecha).exclude(
+                            dispositivo__in=bajas).exclude(dispositivo__in=compras).values('dispositivo')
+                    # Obtener Total Anterior
+                    if periodo_anterior.fecha_fin.year <= 2018:
+                        precio_tipo_dispositivo = conta_m.PrecioDispositivo.objects.filter(
+                            dispositivo__in=utiles,
+                            periodo__in=periodos_anteriores).aggregate(Sum('precio'))
+                    else:
+                        precio_tipo_dispositivo = conta_m.PrecioDispositivo.objects.filter(
+                            dispositivo__in=utiles,
+                            periodo=periodo_anterior).aggregate(Sum('precio'))
+
+                    precio_tipo_compras = conta_m.PrecioDispositivo.objects.filter(
+                        dispositivo__in=compras,
+                        activo=True).aggregate(Sum('precio'))
+
+                    if precio_tipo_dispositivo['precio__sum'] is not None:
+                        precio_tipo_dispositivo = precio_tipo_dispositivo['precio__sum']
+                    else:
+                        precio_tipo_dispositivo = 0
+
+                    if precio_tipo_compras['precio__sum'] is not None:
+                        precio_tipo_compras = precio_tipo_compras['precio__sum']
+                    else:
+                        precio_tipo_compras = 0
+
+                    precio_total_anterior = precio_tipo_dispositivo + precio_tipo_compras
+                    acumulador_anterior += precio_total_anterior
+
+                    # Obtener Precio Estandar Actual y Anterior
+                    precio = conta_m.PrecioEstandar.objects.filter(
+                        tipo_dispositivo=tipo_dispositivo,
+                        periodo=periodo,
+                        inventario='dispositivo').first()
+
+                    precio_anterior = conta_m.PrecioEstandar.objects.filter(
+                        tipo_dispositivo=tipo_dispositivo,
+                        periodo=periodo_anterior,
+                        inventario='dispositivo').first()
+
+                    # Obtener Total Actual
+                    precio_tipo_dispositivo = conta_m.PrecioDispositivo.objects.filter(
+                        dispositivo__in=utiles,
+                        periodo=periodo).aggregate(Sum('precio'))
+                    precio_tipo_compras = conta_m.PrecioDispositivo.objects.filter(
+                        dispositivo__in=compras,
+                        activo=True).aggregate(Sum('precio'))
+
+                    if precio_tipo_dispositivo['precio__sum'] is not None:
+                        precio_tipo_dispositivo = precio_tipo_dispositivo['precio__sum']
+                    else:
+                        if precio is not None:
+                            precio_tipo_dispositivo = len(utiles) * precio.precio
+                        else:
+                            precio_tipo_dispositivo = 0
+
+                    if precio_tipo_compras['precio__sum'] is not None:
+                        precio_tipo_compras = precio_tipo_compras['precio__sum']
+                    else:
+                        precio_tipo_compras = 0
+
+                    precio_total = precio_tipo_dispositivo + precio_tipo_compras
+                    acumulador += precio_total
+                    # ------ ACA ---->
+                    #  Saldos finales
+                    bajas_finales = conta_m.MovimientoDispositivo.objects.filter(
                         tipo_movimiento=-1,
                         dispositivo__tipo=tipo_dispositivo,
-                        fecha__range=[fecha_inicio, fecha_fin],
-                        ).count()
-                    total_despues = altas_despues - bajas_despues
-                    precio_despues = conta_m.PrecioEstandar.objects.filter(
-                        tipo_dispositivo=tipo_dispositivo,
-                        inventario='dispositivo',
-                        periodo__fecha_inicio__lte=fecha_inicio,
-                        periodo__fecha_fin__gte=fecha_fin).first()
-                    if precio is not None:
-                        total_costo_despues = precio_despues.precio * total_despues
+                        fecha__lte=nueva_fecha_fin).values('dispositivo')
+                    compras_finales = conta_m.MovimientoDispositivo.objects.filter(
+                        tipo_movimiento=1,
+                        dispositivo__tipo=tipo_dispositivo,
+                        fecha__lte=nueva_fecha_fin,
+                        dispositivo__entrada__tipo__contable=True).exclude(dispositivo__in=bajas).values('dispositivo')
+                    utiles_finales = conta_m.MovimientoDispositivo.objects.filter(
+                        tipo_movimiento=1,
+                        dispositivo__tipo=tipo_dispositivo,
+                        fecha__lte=nueva_fecha_fin).exclude(
+                            dispositivo__in=bajas).exclude(dispositivo__in=compras).values('dispositivo')
+                    # Obtener Total Anterior
+                    if periodo_anterior.fecha_fin.year <= 2018:
+                        precio_tipo_dispositivo_final = conta_m.PrecioDispositivo.objects.filter(
+                            dispositivo__in=utiles,
+                            periodo__in=periodos_anteriores).aggregate(Sum('precio'))
                     else:
-                        total_costo_despues = 1 * total_despues
+                        precio_tipo_dispositivo_final = conta_m.PrecioDispositivo.objects.filter(
+                            dispositivo__in=utiles,
+                            periodo=periodo_anterior).aggregate(Sum('precio'))
 
-                    # fin totales cuando no hay donante
+                    precio_tipo_compras_final = conta_m.PrecioDispositivo.objects.filter(
+                        dispositivo__in=compras,
+                        activo=True).aggregate(Sum('precio'))
+
+                    if precio_tipo_dispositivo_final['precio__sum'] is not None:
+                        precio_tipo_dispositivo_final = precio_tipo_dispositivo_final['precio__sum']
+                    else:
+                        precio_tipo_dispositivo_final = 0
+
+                    if precio_tipo_compras_final['precio__sum'] is not None:
+                        precio_tipo_compras_final = precio_tipo_compras_final['precio__sum']
+                    else:
+                        precio_tipo_compras_final = 0
+
+                    precio_total_anterior_final = precio_tipo_dispositivo_final + precio_tipo_compras_final
+                    acumulador_anterior_final += precio_total_anterior_final
+
+                    # Obtener Precio Estandar Actual y Anterior
+                    precio_final = conta_m.PrecioEstandar.objects.filter(
+                        tipo_dispositivo=tipo_dispositivo,
+                        periodo=periodo,
+                        inventario='dispositivo').first()
+
+                    precio_anterior_final = conta_m.PrecioEstandar.objects.filter(
+                        tipo_dispositivo=tipo_dispositivo,
+                        periodo=periodo_anterior,
+                        inventario='dispositivo').first()
+
+                    # Obtener Total Actual
+                    precio_tipo_dispositivo_final = conta_m.PrecioDispositivo.objects.filter(
+                        dispositivo__in=utiles,
+                        periodo=periodo).aggregate(Sum('precio'))
+                    precio_tipo_compras_final = conta_m.PrecioDispositivo.objects.filter(
+                        dispositivo__in=compras,
+                        activo=True).aggregate(Sum('precio'))
+
+                    if precio_tipo_dispositivo_final['precio__sum'] is not None:
+                        precio_tipo_dispositivo_final = precio_tipo_dispositivo_final['precio__sum']
+                    else:
+                        if precio_final is not None:
+                            precio_tipo_dispositivo_final = len(utiles_finales) * precio_final.precio
+                        else:
+                            precio_tipo_dispositivo_final = 0
+
+                    if precio_tipo_compras_final['precio__sum'] is not None:
+                        precio_tipo_compras_final = precio_tipo_compras_final['precio__sum']
+                    else:
+                        precio_tipo_compras_final = 0
+
+                    precio_total_final = precio_tipo_dispositivo_final + precio_tipo_compras_final
+                    acumulador_final_total += precio_total_final
+                    print("<-----0---->")
+                    # Termina saldos finales
+
                 else:
+                    print("Si hay tipo entrada*")
                     entrada = inv_m.EntradaDetalle.objects.filter(
                         entrada__tipo=tipo_entrada,
                         entrada__fecha_cierre__gte=fecha_inicio,
                         entrada__fecha_cierre__lte=fecha_fin,
                         tipo_dispositivo=tipo_dispositivo,
-                        ).exclude(entrada__tipo__nombre='Especial')
+                        ).exclude(fecha_dispositivo__isnull=True).exclude(entrada__tipo__nombre='Especial').distinct()
                     new_tipo_dispositivo = inv_m.EntradaTipo.objects.get(id=tipo_entrada)
-                    altas = conta_m.MovimientoDispositivo.objects.filter(
-                        tipo_movimiento=1,
-                        dispositivo__tipo=tipo_dispositivo,
-                        fecha__lte=fecha_inicio,
-                        dispositivo__entrada__tipo=tipo_entrada).count()
+                    # Obtener Listado de bajas, compras y útiles
                     bajas = conta_m.MovimientoDispositivo.objects.filter(
                         tipo_movimiento=-1,
                         dispositivo__tipo=tipo_dispositivo,
-                        fecha__lte=fecha_inicio,
-                        dispositivo__entrada__tipo=tipo_entrada).count()
-                    total_final = altas - bajas
-                    precio = conta_m.PrecioEstandar.objects.filter(
-                        tipo_dispositivo=tipo_dispositivo,
-                        inventario='dispositivo',
-                        periodo__fecha_inicio__lte=fecha_inicio,
-                        periodo__fecha_fin__gte=fecha_fin).first()
-                    if precio is not None:
-                        total_costo = precio.precio * total_final
-                    else:
-                        total_costo = 1 * total_final
-                    # totales
-                    altas_despues = conta_m.MovimientoDispositivo.objects.filter(
+                        fecha__lte=nueva_fecha).values('dispositivo')
+                    compras = conta_m.MovimientoDispositivo.objects.filter(
                         tipo_movimiento=1,
                         dispositivo__tipo=tipo_dispositivo,
-                        fecha__range=[fecha_inicio, fecha_fin],
-                        dispositivo__entrada__tipo=tipo_entrada).count()
-                    bajas_despues = conta_m.MovimientoDispositivo.objects.filter(
+                        fecha__lte=nueva_fecha,
+                        dispositivo__entrada__tipo__contable=True).exclude(dispositivo__in=bajas).values('dispositivo')
+                    utiles = conta_m.MovimientoDispositivo.objects.filter(
+                        tipo_movimiento=1,
+                        dispositivo__tipo=tipo_dispositivo,
+                        fecha__lte=nueva_fecha).exclude(
+                            dispositivo__in=bajas).exclude(dispositivo__in=compras).values('dispositivo')
+                    # Obtener Total Anterior
+                    if periodo_anterior.fecha_fin.year <= 2018:
+                        precio_tipo_dispositivo = conta_m.PrecioDispositivo.objects.filter(
+                            dispositivo__in=utiles,
+                            periodo__in=periodos_anteriores).aggregate(Sum('precio'))
+                    else:
+                        precio_tipo_dispositivo = conta_m.PrecioDispositivo.objects.filter(
+                            dispositivo__in=utiles,
+                            periodo=periodo_anterior).aggregate(Sum('precio'))
+
+                    precio_tipo_compras = conta_m.PrecioDispositivo.objects.filter(
+                        dispositivo__in=compras,
+                        activo=True).aggregate(Sum('precio'))
+
+                    if precio_tipo_dispositivo['precio__sum'] is not None:
+                        precio_tipo_dispositivo = precio_tipo_dispositivo['precio__sum']
+                    else:
+                        precio_tipo_dispositivo = 0
+
+                    if precio_tipo_compras['precio__sum'] is not None:
+                        precio_tipo_compras = precio_tipo_compras['precio__sum']
+                    else:
+                        precio_tipo_compras = 0
+
+                    precio_total_anterior = precio_tipo_dispositivo + precio_tipo_compras
+                    acumulador_anterior += precio_total_anterior
+
+                    # Obtener Precio Estandar Actual y Anterior
+                    precio = conta_m.PrecioEstandar.objects.filter(
+                        tipo_dispositivo=tipo_dispositivo,
+                        periodo=periodo,
+                        inventario='dispositivo').first()
+
+                    precio_anterior = conta_m.PrecioEstandar.objects.filter(
+                        tipo_dispositivo=tipo_dispositivo,
+                        periodo=periodo_anterior,
+                        inventario='dispositivo').first()
+
+                    # Obtener Total Actual
+                    precio_tipo_dispositivo = conta_m.PrecioDispositivo.objects.filter(
+                        dispositivo__in=utiles,
+                        periodo=periodo).aggregate(Sum('precio'))
+                    precio_tipo_compras = conta_m.PrecioDispositivo.objects.filter(
+                        dispositivo__in=compras,
+                        activo=True).aggregate(Sum('precio'))
+
+                    if precio_tipo_dispositivo['precio__sum'] is not None:
+                        precio_tipo_dispositivo = precio_tipo_dispositivo['precio__sum']
+                    else:
+                        if precio is not None:
+                            precio_tipo_dispositivo = len(utiles) * precio.precio
+                        else:
+                            precio_tipo_dispositivo = 0
+
+                    if precio_tipo_compras['precio__sum'] is not None:
+                        precio_tipo_compras = precio_tipo_compras['precio__sum']
+                    else:
+                        precio_tipo_compras = 0
+
+                    precio_total = precio_tipo_dispositivo + precio_tipo_compras
+                    acumulador += precio_total
+                    #  Saldos finales
+                    bajas_finales = conta_m.MovimientoDispositivo.objects.filter(
                         tipo_movimiento=-1,
                         dispositivo__tipo=tipo_dispositivo,
-                        fecha__range=[fecha_inicio, fecha_fin],
-                        dispositivo__entrada__tipo=tipo_entrada).count()
-                    total_despues = altas_despues - bajas_despues
-                    precio_despues = conta_m.PrecioEstandar.objects.filter(
-                        tipo_dispositivo=tipo_dispositivo,
-                        inventario='dispositivo',
-                        periodo__fecha_inicio__lte=fecha_inicio,
-                        periodo__fecha_fin__gte=fecha_fin).first()
-                    if precio is not None:
-                        total_costo_despues = precio_despues.precio * total_despues
+                        fecha__lte=nueva_fecha_fin).values('dispositivo')
+                    compras_finales = conta_m.MovimientoDispositivo.objects.filter(
+                        tipo_movimiento=1,
+                        dispositivo__tipo=tipo_dispositivo,
+                        fecha__lte=nueva_fecha_fin,
+                        dispositivo__entrada__tipo__contable=True).exclude(dispositivo__in=bajas).values('dispositivo')
+                    utiles_finales = conta_m.MovimientoDispositivo.objects.filter(
+                        tipo_movimiento=1,
+                        dispositivo__tipo=tipo_dispositivo,
+                        fecha__lte=nueva_fecha_fin).exclude(
+                            dispositivo__in=bajas).exclude(dispositivo__in=compras).values('dispositivo')
+                    # Obtener Total Anterior
+                    if periodo_anterior.fecha_fin.year <= 2018:
+                        precio_tipo_dispositivo_final = conta_m.PrecioDispositivo.objects.filter(
+                            dispositivo__in=utiles,
+                            periodo__in=periodos_anteriores).aggregate(Sum('precio'))
                     else:
-                        total_costo_despues = 1 * total_despues
-                    # fin totales
+                        precio_tipo_dispositivo_final = conta_m.PrecioDispositivo.objects.filter(
+                            dispositivo__in=utiles,
+                            periodo=periodo_anterior).aggregate(Sum('precio'))
+
+                    precio_tipo_compras_final = conta_m.PrecioDispositivo.objects.filter(
+                        dispositivo__in=compras,
+                        activo=True).aggregate(Sum('precio'))
+
+                    if precio_tipo_dispositivo_final['precio__sum'] is not None:
+                        precio_tipo_dispositivo_final = precio_tipo_dispositivo_final['precio__sum']
+                    else:
+                        precio_tipo_dispositivo_final = 0
+
+                    if precio_tipo_compras_final['precio__sum'] is not None:
+                        precio_tipo_compras_final = precio_tipo_compras_final['precio__sum']
+                    else:
+                        precio_tipo_compras_final = 0
+
+                    precio_total_anterior_final = precio_tipo_dispositivo_final + precio_tipo_compras_final
+                    acumulador_anterior_final += precio_total_anterior_final
+
+                    # Obtener Precio Estandar Actual y Anterior
+                    precio_final = conta_m.PrecioEstandar.objects.filter(
+                        tipo_dispositivo=tipo_dispositivo,
+                        periodo=periodo,
+                        inventario='dispositivo').first()
+
+                    precio_anterior_final = conta_m.PrecioEstandar.objects.filter(
+                        tipo_dispositivo=tipo_dispositivo,
+                        periodo=periodo_anterior,
+                        inventario='dispositivo').first()
+
+                    # Obtener Total Actual
+                    precio_tipo_dispositivo_final = conta_m.PrecioDispositivo.objects.filter(
+                        dispositivo__in=utiles,
+                        periodo=periodo).aggregate(Sum('precio'))
+                    precio_tipo_compras_final = conta_m.PrecioDispositivo.objects.filter(
+                        dispositivo__in=compras,
+                        activo=True).aggregate(Sum('precio'))
+
+                    if precio_tipo_dispositivo_final['precio__sum'] is not None:
+                        precio_tipo_dispositivo_final = precio_tipo_dispositivo_final['precio__sum']
+                    else:
+                        if precio_final is not None:
+                            precio_tipo_dispositivo_final = len(utiles_finales) * precio_final.precio
+                        else:
+                            precio_tipo_dispositivo_final = 0
+
+                    if precio_tipo_compras_final['precio__sum'] is not None:
+                        precio_tipo_compras_final = precio_tipo_compras_final['precio__sum']
+                    else:
+                        precio_tipo_compras_final = 0
+
+                    precio_total_final = precio_tipo_dispositivo_final + precio_tipo_compras_final
+                    acumulador_final_total += precio_total_final
+                    print("<-----1---->")
+                    # Termina saldos finales
+
             else:
                 print("si hay donante")
                 if(tipo_entrada == 0):
+                    print("no hay tipo de entrada")
                     entrada = inv_m.EntradaDetalle.objects.filter(
                         entrada__fecha_cierre__gte=fecha_inicio,
                         entrada__fecha_cierre__lte=fecha_fin,
                         tipo_dispositivo=tipo_dispositivo,
                         entrada__proveedor=donante
-                        ).exclude(entrada__tipo__nombre='Especial')
+                        ).exclude(fecha_dispositivo__isnull=True).exclude(entrada__tipo__nombre='Especial').distinct()
                     new_tipo_dispositivo = inv_m.EntradaTipo.objects.all().exclude(nombre='Especial')
-                    # totales
-                    altas = conta_m.MovimientoDispositivo.objects.filter(
-                        tipo_movimiento=1,
-                        dispositivo__tipo=tipo_dispositivo,
-                        fecha__lte=fecha_inicio,
-                        dispositivo__entrada__proveedor=donante,
-                        ).count()
+                    # Obtener Listado de bajas, compras y útiles
                     bajas = conta_m.MovimientoDispositivo.objects.filter(
                         tipo_movimiento=-1,
                         dispositivo__tipo=tipo_dispositivo,
-                        fecha__lte=fecha_inicio,
-                        dispositivo__entrada__proveedor=donante,
-                        ).count()
-                    total_final = altas - bajas
-                    precio = conta_m.PrecioEstandar.objects.filter(
-                        tipo_dispositivo=tipo_dispositivo,
-                        inventario='dispositivo',
-                        periodo__fecha_inicio__lte=fecha_inicio,
-                        periodo__fecha_fin__gte=fecha_fin).first()
-                    if precio is not None:
-                        total_costo = precio.precio * total_final
-                    else:
-                        total_costo = 1 * total_final
-                    altas_despues = conta_m.MovimientoDispositivo.objects.filter(
+                        fecha__lte=nueva_fecha).values('dispositivo')
+                    compras = conta_m.MovimientoDispositivo.objects.filter(
                         tipo_movimiento=1,
                         dispositivo__tipo=tipo_dispositivo,
-                        fecha__range=[fecha_inicio, fecha_fin],
-                        dispositivo__entrada__proveedor=donante,
-                        ).count()
-                    bajas_despues = conta_m.MovimientoDispositivo.objects.filter(
+                        fecha__lte=nueva_fecha,
+                        dispositivo__entrada__tipo__contable=True).exclude(dispositivo__in=bajas).values('dispositivo')
+                    utiles = conta_m.MovimientoDispositivo.objects.filter(
+                        tipo_movimiento=1,
+                        dispositivo__tipo=tipo_dispositivo,
+                        fecha__lte=nueva_fecha).exclude(
+                            dispositivo__in=bajas).exclude(dispositivo__in=compras).values('dispositivo')
+                    # Obtener Total Anterior
+                    if periodo_anterior.fecha_fin.year <= 2018:
+                        precio_tipo_dispositivo = conta_m.PrecioDispositivo.objects.filter(
+                            dispositivo__in=utiles,
+                            periodo__in=periodos_anteriores).aggregate(Sum('precio'))
+                    else:
+                        precio_tipo_dispositivo = conta_m.PrecioDispositivo.objects.filter(
+                            dispositivo__in=utiles,
+                            periodo=periodo_anterior).aggregate(Sum('precio'))
+
+                    precio_tipo_compras = conta_m.PrecioDispositivo.objects.filter(
+                        dispositivo__in=compras,
+                        activo=True).aggregate(Sum('precio'))
+
+                    if precio_tipo_dispositivo['precio__sum'] is not None:
+                        precio_tipo_dispositivo = precio_tipo_dispositivo['precio__sum']
+                    else:
+                        precio_tipo_dispositivo = 0
+
+                    if precio_tipo_compras['precio__sum'] is not None:
+                        precio_tipo_compras = precio_tipo_compras['precio__sum']
+                    else:
+                        precio_tipo_compras = 0
+
+                    precio_total_anterior = precio_tipo_dispositivo + precio_tipo_compras
+                    acumulador_anterior += precio_total_anterior
+
+                    # Obtener Precio Estandar Actual y Anterior
+                    precio = conta_m.PrecioEstandar.objects.filter(
+                        tipo_dispositivo=tipo_dispositivo,
+                        periodo=periodo,
+                        inventario='dispositivo').first()
+
+                    precio_anterior = conta_m.PrecioEstandar.objects.filter(
+                        tipo_dispositivo=tipo_dispositivo,
+                        periodo=periodo_anterior,
+                        inventario='dispositivo').first()
+
+                    # Obtener Total Actual
+                    precio_tipo_dispositivo = conta_m.PrecioDispositivo.objects.filter(
+                        dispositivo__in=utiles,
+                        periodo=periodo).aggregate(Sum('precio'))
+                    precio_tipo_compras = conta_m.PrecioDispositivo.objects.filter(
+                        dispositivo__in=compras,
+                        activo=True).aggregate(Sum('precio'))
+
+                    if precio_tipo_dispositivo['precio__sum'] is not None:
+                        precio_tipo_dispositivo = precio_tipo_dispositivo['precio__sum']
+                    else:
+                        if precio is not None:
+                            precio_tipo_dispositivo = len(utiles) * precio.precio
+                        else:
+                            precio_tipo_dispositivo = 0
+
+                    if precio_tipo_compras['precio__sum'] is not None:
+                        precio_tipo_compras = precio_tipo_compras['precio__sum']
+                    else:
+                        precio_tipo_compras = 0
+
+                    precio_total = precio_tipo_dispositivo + precio_tipo_compras
+                    acumulador += precio_total
+                    #  Saldos finales
+                    bajas_finales = conta_m.MovimientoDispositivo.objects.filter(
                         tipo_movimiento=-1,
                         dispositivo__tipo=tipo_dispositivo,
-                        fecha__range=[fecha_inicio, fecha_fin],
-                        dispositivo__entrada__proveedor=donante,
-                        ).count()
-                    total_despues = altas_despues - bajas_despues
-                    precio_despues = conta_m.PrecioEstandar.objects.filter(
-                        tipo_dispositivo=tipo_dispositivo,
-                        inventario='dispositivo',
-                        periodo__fecha_inicio__lte=fecha_inicio,
-                        periodo__fecha_fin__gte=fecha_fin).first()
-                    if precio is not None:
-                        total_costo_despues = precio_despues.precio * total_despues
+                        fecha__lte=nueva_fecha_fin).values('dispositivo')
+                    compras_finales = conta_m.MovimientoDispositivo.objects.filter(
+                        tipo_movimiento=1,
+                        dispositivo__tipo=tipo_dispositivo,
+                        fecha__lte=nueva_fecha_fin,
+                        dispositivo__entrada__tipo__contable=True).exclude(dispositivo__in=bajas).values('dispositivo')
+                    utiles_finales = conta_m.MovimientoDispositivo.objects.filter(
+                        tipo_movimiento=1,
+                        dispositivo__tipo=tipo_dispositivo,
+                        fecha__lte=nueva_fecha_fin).exclude(
+                            dispositivo__in=bajas).exclude(dispositivo__in=compras).values('dispositivo')
+                    # Obtener Total Anterior
+                    if periodo_anterior.fecha_fin.year <= 2018:
+                        precio_tipo_dispositivo_final = conta_m.PrecioDispositivo.objects.filter(
+                            dispositivo__in=utiles,
+                            periodo__in=periodos_anteriores).aggregate(Sum('precio'))
                     else:
-                        total_costo_despues = 1 * total_despues
-                    # fin totales
+                        precio_tipo_dispositivo_final = conta_m.PrecioDispositivo.objects.filter(
+                            dispositivo__in=utiles,
+                            periodo=periodo_anterior).aggregate(Sum('precio'))
+
+                    precio_tipo_compras_final = conta_m.PrecioDispositivo.objects.filter(
+                        dispositivo__in=compras,
+                        activo=True).aggregate(Sum('precio'))
+
+                    if precio_tipo_dispositivo_final['precio__sum'] is not None:
+                        precio_tipo_dispositivo_final = precio_tipo_dispositivo_final['precio__sum']
+                    else:
+                        precio_tipo_dispositivo_final = 0
+
+                    if precio_tipo_compras_final['precio__sum'] is not None:
+                        precio_tipo_compras_final = precio_tipo_compras_final['precio__sum']
+                    else:
+                        precio_tipo_compras_final = 0
+
+                    precio_total_anterior_final = precio_tipo_dispositivo_final + precio_tipo_compras_final
+                    acumulador_anterior_final += precio_total_anterior_final
+
+                    # Obtener Precio Estandar Actual y Anterior
+                    precio_final = conta_m.PrecioEstandar.objects.filter(
+                        tipo_dispositivo=tipo_dispositivo,
+                        periodo=periodo,
+                        inventario='dispositivo').first()
+
+                    precio_anterior_final = conta_m.PrecioEstandar.objects.filter(
+                        tipo_dispositivo=tipo_dispositivo,
+                        periodo=periodo_anterior,
+                        inventario='dispositivo').first()
+
+                    # Obtener Total Actual
+                    precio_tipo_dispositivo_final = conta_m.PrecioDispositivo.objects.filter(
+                        dispositivo__in=utiles,
+                        periodo=periodo).aggregate(Sum('precio'))
+                    precio_tipo_compras_final = conta_m.PrecioDispositivo.objects.filter(
+                        dispositivo__in=compras,
+                        activo=True).aggregate(Sum('precio'))
+
+                    if precio_tipo_dispositivo_final['precio__sum'] is not None:
+                        precio_tipo_dispositivo_final = precio_tipo_dispositivo_final['precio__sum']
+                    else:
+                        if precio_final is not None:
+                            precio_tipo_dispositivo_final = len(utiles_finales) * precio_final.precio
+                        else:
+                            precio_tipo_dispositivo_final = 0
+
+                    if precio_tipo_compras_final['precio__sum'] is not None:
+                        precio_tipo_compras_final = precio_tipo_compras_final['precio__sum']
+                    else:
+                        precio_tipo_compras_final = 0
+
+                    precio_total_final = precio_tipo_dispositivo_final + precio_tipo_compras_final
+                    acumulador_final_total += precio_total_final
+                    print("<-----2---->")
+                    # Termina saldos finales
                 else:
+                    print("si hay tipo de entrada")
                     entrada = inv_m.EntradaDetalle.objects.filter(
                         entrada__tipo=tipo_entrada,
                         entrada__fecha_cierre__gte=fecha_inicio,
@@ -499,54 +851,162 @@ class InformeEntradaJson(views.APIView):
                         entrada__proveedor=donante
                         ).exclude(entrada__tipo__nombre='Especial')
                     new_tipo_dispositivo = inv_m.EntradaTipo.objects.get(id=tipo_entrada)
-                    altas = conta_m.MovimientoDispositivo.objects.filter(
-                        tipo_movimiento=1,
-                        dispositivo__tipo=tipo_dispositivo,
-                        fecha__lte=fecha_inicio,
-                        dispositivo__entrada__proveedor=donante,
-                        dispositivo__entrada__tipo=tipo_entrada).count()
+                    # Obtener Listado de bajas, compras y útiles
                     bajas = conta_m.MovimientoDispositivo.objects.filter(
                         tipo_movimiento=-1,
                         dispositivo__tipo=tipo_dispositivo,
-                        fecha__lte=fecha_inicio,
-                        dispositivo__entrada__proveedor=donante,
-                        dispositivo__entrada__tipo=tipo_entrada).count()
-                    total_final = altas - bajas
-                    precio = conta_m.PrecioEstandar.objects.filter(
-                        tipo_dispositivo=tipo_dispositivo,
-                        inventario='dispositivo',
-                        periodo__fecha_inicio__lte=fecha_inicio,
-                        periodo__fecha_fin__gte=fecha_fin).first()
-                    if precio is not None:
-                        total_costo = precio.precio * total_final
-                    else:
-                        total_costo = 1 * total_final
-                    altas_despues = conta_m.MovimientoDispositivo.objects.filter(
+                        fecha__lte=nueva_fecha).values('dispositivo')
+                    compras = conta_m.MovimientoDispositivo.objects.filter(
                         tipo_movimiento=1,
                         dispositivo__tipo=tipo_dispositivo,
-                        fecha__range=[fecha_inicio, fecha_fin],
-                        dispositivo__entrada__proveedor=donante,
-                        dispositivo__entrada__tipo=tipo_entrada).count()
-                    bajas_despues = conta_m.MovimientoDispositivo.objects.filter(
+                        fecha__lte=nueva_fecha,
+                        dispositivo__entrada__tipo__contable=True).exclude(dispositivo__in=bajas).values('dispositivo')
+                    utiles = conta_m.MovimientoDispositivo.objects.filter(
+                        tipo_movimiento=1,
+                        dispositivo__tipo=tipo_dispositivo,
+                        fecha__lte=nueva_fecha).exclude(
+                            dispositivo__in=bajas).exclude(dispositivo__in=compras).values('dispositivo')
+                    # Obtener Total Anterior
+                    if periodo_anterior.fecha_fin.year <= 2018:
+                        precio_tipo_dispositivo = conta_m.PrecioDispositivo.objects.filter(
+                            dispositivo__in=utiles,
+                            periodo__in=periodos_anteriores).aggregate(Sum('precio'))
+                    else:
+                        precio_tipo_dispositivo = conta_m.PrecioDispositivo.objects.filter(
+                            dispositivo__in=utiles,
+                            periodo=periodo_anterior).aggregate(Sum('precio'))
+
+                    precio_tipo_compras = conta_m.PrecioDispositivo.objects.filter(
+                        dispositivo__in=compras,
+                        activo=True).aggregate(Sum('precio'))
+
+                    if precio_tipo_dispositivo['precio__sum'] is not None:
+                        precio_tipo_dispositivo = precio_tipo_dispositivo['precio__sum']
+                    else:
+                        precio_tipo_dispositivo = 0
+
+                    if precio_tipo_compras['precio__sum'] is not None:
+                        precio_tipo_compras = precio_tipo_compras['precio__sum']
+                    else:
+                        precio_tipo_compras = 0
+
+                    precio_total_anterior = precio_tipo_dispositivo + precio_tipo_compras
+                    acumulador_anterior += precio_total_anterior
+
+                    # Obtener Precio Estandar Actual y Anterior
+                    precio = conta_m.PrecioEstandar.objects.filter(
+                        tipo_dispositivo=tipo_dispositivo,
+                        periodo=periodo,
+                        inventario='dispositivo').first()
+
+                    precio_anterior = conta_m.PrecioEstandar.objects.filter(
+                        tipo_dispositivo=tipo_dispositivo,
+                        periodo=periodo_anterior,
+                        inventario='dispositivo').first()
+
+                    # Obtener Total Actual
+                    precio_tipo_dispositivo = conta_m.PrecioDispositivo.objects.filter(
+                        dispositivo__in=utiles,
+                        periodo=periodo).aggregate(Sum('precio'))
+                    precio_tipo_compras = conta_m.PrecioDispositivo.objects.filter(
+                        dispositivo__in=compras,
+                        activo=True).aggregate(Sum('precio'))
+
+                    if precio_tipo_dispositivo['precio__sum'] is not None:
+                        precio_tipo_dispositivo = precio_tipo_dispositivo['precio__sum']
+                    else:
+                        if precio is not None:
+                            precio_tipo_dispositivo = len(utiles) * precio.precio
+                        else:
+                            precio_tipo_dispositivo = 0
+
+                    if precio_tipo_compras['precio__sum'] is not None:
+                        precio_tipo_compras = precio_tipo_compras['precio__sum']
+                    else:
+                        precio_tipo_compras = 0
+
+                    precio_total = precio_tipo_dispositivo + precio_tipo_compras
+                    acumulador += precio_total
+                    #  Saldos finales
+                    bajas_finales = conta_m.MovimientoDispositivo.objects.filter(
                         tipo_movimiento=-1,
                         dispositivo__tipo=tipo_dispositivo,
-                        fecha__range=[fecha_inicio, fecha_fin],
-                        dispositivo__entrada__proveedor=donante,
-                        dispositivo__entrada__tipo=tipo_entrada).count()
-                    total_despues = altas_despues - bajas_despues
-                    precio_despues = conta_m.PrecioEstandar.objects.filter(
-                        tipo_dispositivo=tipo_dispositivo,
-                        inventario='dispositivo',
-                        periodo__fecha_inicio__lte=fecha_inicio,
-                        periodo__fecha_fin__gte=fecha_fin).first()
-                    if precio is not None:
-                        total_costo_despues = precio_despues.precio * total_despues
+                        fecha__lte=nueva_fecha_fin).values('dispositivo')
+                    compras_finales = conta_m.MovimientoDispositivo.objects.filter(
+                        tipo_movimiento=1,
+                        dispositivo__tipo=tipo_dispositivo,
+                        fecha__lte=nueva_fecha_fin,
+                        dispositivo__entrada__tipo__contable=True).exclude(dispositivo__in=bajas).values('dispositivo')
+                    utiles_finales = conta_m.MovimientoDispositivo.objects.filter(
+                        tipo_movimiento=1,
+                        dispositivo__tipo=tipo_dispositivo,
+                        fecha__lte=nueva_fecha_fin).exclude(
+                            dispositivo__in=bajas).exclude(dispositivo__in=compras).values('dispositivo')
+                    # Obtener Total Anterior
+                    if periodo_anterior.fecha_fin.year <= 2018:
+                        precio_tipo_dispositivo_final = conta_m.PrecioDispositivo.objects.filter(
+                            dispositivo__in=utiles,
+                            periodo__in=periodos_anteriores).aggregate(Sum('precio'))
                     else:
-                        total_costo_despues = 1 * total_despues
-                    # cantidad = entrada.aggregate(total=Sum('util'))
-                    print(entrada.first())
-                    # print(cantidad)
-            if(new_tipo_dispositivo == "Compra"):
+                        precio_tipo_dispositivo_final = conta_m.PrecioDispositivo.objects.filter(
+                            dispositivo__in=utiles,
+                            periodo=periodo_anterior).aggregate(Sum('precio'))
+
+                    precio_tipo_compras_final = conta_m.PrecioDispositivo.objects.filter(
+                        dispositivo__in=compras,
+                        activo=True).aggregate(Sum('precio'))
+
+                    if precio_tipo_dispositivo_final['precio__sum'] is not None:
+                        precio_tipo_dispositivo_final = precio_tipo_dispositivo_final['precio__sum']
+                    else:
+                        precio_tipo_dispositivo_final = 0
+
+                    if precio_tipo_compras_final['precio__sum'] is not None:
+                        precio_tipo_compras_final = precio_tipo_compras_final['precio__sum']
+                    else:
+                        precio_tipo_compras_final = 0
+
+                    precio_total_anterior_final = precio_tipo_dispositivo_final + precio_tipo_compras_final
+                    acumulador_anterior_final += precio_total_anterior_final
+
+                    # Obtener Precio Estandar Actual y Anterior
+                    precio_final = conta_m.PrecioEstandar.objects.filter(
+                        tipo_dispositivo=tipo_dispositivo,
+                        periodo=periodo,
+                        inventario='dispositivo').first()
+
+                    precio_anterior_final = conta_m.PrecioEstandar.objects.filter(
+                        tipo_dispositivo=tipo_dispositivo,
+                        periodo=periodo_anterior,
+                        inventario='dispositivo').first()
+
+                    # Obtener Total Actual
+                    precio_tipo_dispositivo_final = conta_m.PrecioDispositivo.objects.filter(
+                        dispositivo__in=utiles,
+                        periodo=periodo).aggregate(Sum('precio'))
+                    precio_tipo_compras_final = conta_m.PrecioDispositivo.objects.filter(
+                        dispositivo__in=compras,
+                        activo=True).aggregate(Sum('precio'))
+
+                    if precio_tipo_dispositivo_final['precio__sum'] is not None:
+                        precio_tipo_dispositivo_final = precio_tipo_dispositivo_final['precio__sum']
+                    else:
+                        if precio_final is not None:
+                            precio_tipo_dispositivo_final = len(utiles_finales) * precio_final.precio
+                        else:
+                            precio_tipo_dispositivo_final = 0
+
+                    if precio_tipo_compras_final['precio__sum'] is not None:
+                        precio_tipo_compras_final = precio_tipo_compras_final['precio__sum']
+                    else:
+                        precio_tipo_compras_final = 0
+
+                    precio_total_final = precio_tipo_dispositivo_final + precio_tipo_compras_final
+                    acumulador_final_total += precio_total_final
+                    print("<-----3---->")
+                    # Termina saldos finales
+            if(str(new_tipo_dispositivo) == "Compra"):
+                print("es una compra")
                 for datos_entrada in entrada:
                     dispositivo = {}
                     total = datos_entrada.util * datos_entrada.precio_unitario
@@ -569,24 +1029,38 @@ class InformeEntradaJson(views.APIView):
                     tipo_dispositivo=tipo_dispositivo,
                     periodo__actual=True,
                     inventario="dispositivo")
-                for datos_entrada in entrada:
+                lista_entradas = entrada.values_list('entrada').distinct()
+                disponible = len(utiles) + len(compras)
+                disponible_finales = len(utiles_finales) + len(compras_finales)
+                for data in lista_entradas:
                     dispositivo = {}
-                    total = datos_entrada.util * precio_compra.precio
-                    dispositivo['fecha'] = datos_entrada.entrada.fecha
-                    dispositivo['id'] = datos_entrada.entrada.id
-                    dispositivo['util'] = datos_entrada.util
-                    dispositivo['precio'] = precio_compra.precio
-                    dispositivo['total'] = total
-                    dispositivo['tipo'] = datos_entrada.entrada.tipo.nombre
-                    dispositivo['proveedor'] = datos_entrada.entrada.proveedor.nombre
-                    dispositivo['total_costo'] = total_costo
-                    dispositivo['total_final'] = total_final
-                    dispositivo['rango_fechas'] = str(fecha_inicio)+" "+str(fecha_fin)
-                    dispositivo['tipo_dispositivo'] = new_dispositivo.tipo
-                    dispositivo['total_costo_despues'] = total_costo_despues
-                    dispositivo['total_despues'] = total_despues
-                    lista.append(dispositivo)
-            # print(lista)
+                    registro = inv_m.EntradaDetalle.objects.filter(
+                        tipo_dispositivo=tipo_dispositivo,
+                        entrada__in=data
+                        ).exclude(entrada__tipo__nombre='Especial').aggregate(total=Sum('util'))
+                    registro2 = inv_m.EntradaDetalle.objects.filter(
+                        tipo_dispositivo=tipo_dispositivo,
+                        entrada__in=data
+                        ).exclude(entrada__tipo__nombre='Especial').first()
+
+                    if registro['total'] != 0:
+                        acumulador_final += registro['total']
+                        total = registro['total'] * precio_compra.precio
+                        acumulador_saldo_final += total
+                        dispositivo['fecha'] = registro2.entrada.fecha
+                        dispositivo['id'] = registro2.entrada.id
+                        dispositivo['util'] = registro['total']
+                        dispositivo['precio'] = precio_compra.precio
+                        dispositivo['total'] = total
+                        dispositivo['tipo'] = registro2.entrada.tipo.nombre
+                        dispositivo['proveedor'] = registro2.entrada.proveedor.nombre
+                        dispositivo['total_costo'] = acumulador
+                        dispositivo['total_final'] = disponible
+                        dispositivo['rango_fechas'] = str(fecha_inicio)+" "+str(fecha_fin)
+                        dispositivo['tipo_dispositivo'] = new_dispositivo.tipo
+                        dispositivo['total_costo_despues'] = acumulador_saldo_final + acumulador_final_total# total_costo_despues
+                        dispositivo['total_despues'] = disponible_finales # total_despues
+                        lista.append(dispositivo)
             return Response(lista)
         else:
             print("No existe en el periodo fiscal")

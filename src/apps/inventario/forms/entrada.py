@@ -13,7 +13,7 @@ class EntradaForm(forms.ModelForm):
     class Meta:
         model = inv_m.Entrada
         fields = '__all__'
-        exclude = ['en_creacion', 'creada_por', 'recibida_por']
+        exclude = ['en_creacion', 'creada_por', 'recibida_por', 'fecha_cierre']
         widgets = {
             'tipo': forms.Select(attrs={'class': 'form-control select2'}),
             'fecha': forms.TextInput({'class': 'form-control datepicker'}),
@@ -65,6 +65,8 @@ class EntradaDetalleForm(forms.ModelForm):
             'util',
             'repuesto',
             'desecho',
+            'fecha_dispositivo',
+            'fecha_repuesto'
             ]
         widgets = {
             'entrada': forms.HiddenInput(),
@@ -103,7 +105,9 @@ class EntradaDetalleUpdateForm(forms.ModelForm):
                     'repuestos_creados',
                     'qr_repuestos',
                     'qr_dispositivo',
-                    'impreso'
+                    'impreso',
+                    'fecha_dispositivo',
+                    'fecha_repuesto'
                     ]
         widgets = {
             'util': forms.NumberInput({'class': 'form-control'}),
