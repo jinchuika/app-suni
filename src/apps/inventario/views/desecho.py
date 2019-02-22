@@ -45,6 +45,11 @@ class DesechoSalidaCreateView(LoginRequiredMixin, CreateView, GroupRequiredMixin
     template_name = 'inventario/desecho/desechosalida_add.html'
     group_required = [u"inv_bodega", u"inv_admin", u"inv_monitoreo"]
 
+    def form_valid(self, form):
+        print(self.request.user)
+        form.instance.creado_por = self.request.user
+        return super(DesechoSalidaCreateView, self).form_valid(form)
+
     def get_context_data(self, **kwargs):
         context = super(DesechoSalidaCreateView, self).get_context_data(**kwargs)
         context['desechosalida'] = inv_m.DesechoSalida.objects.all()

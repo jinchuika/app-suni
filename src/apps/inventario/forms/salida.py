@@ -27,6 +27,7 @@ class SalidaInventarioForm(forms.ModelForm):
             'escuela': forms.TextInput({'class': 'form-control'}),
             'observaciones': forms.Textarea({'class': 'form-control'}),
             'reasignado_por': forms.HiddenInput(),
+            'garantia': forms.Select(attrs={'class': 'form-control select2'}),
             'entrega': forms.CheckboxInput(attrs={'style': "visibility:hidden"})
         }
 
@@ -34,7 +35,7 @@ class SalidaInventarioForm(forms.ModelForm):
         super(SalidaInventarioForm, self).__init__(*args, **kwargs)
         if self.instance.en_creacion:
             self.fields['beneficiario'].widget = forms.Select(
-                attrs={'class': 'form-control select2', 'style': "visibility:hidden"})
+                attrs={'style': "visibility:hidden", 'class': 'form-control select2'})
             self.fields['beneficiario'].queryset = crm_m.Donante.objects.all()
         else:
             self.fields['udi'].widget = forms.HiddenInput()

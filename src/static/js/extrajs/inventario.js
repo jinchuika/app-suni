@@ -1347,7 +1347,9 @@ class Salidas {
     var fecha = year+'-'+mes+'-'+dia;
     $('#id_fecha').val(fecha);
     $("[for='id_entrega']").css({"visibility":"hidden"});
+    $("[for='id_garantia']").css({"visibility":"hidden"});
     $("[for='id_beneficiario']").css({"visibility":"hidden"});
+    $('#id_garantia').next(".select2-container").hide();
     $('#id_beneficiario').next(".select2-container").hide();
 
     $('#id_entrega').click(function () {
@@ -1376,9 +1378,13 @@ class Salidas {
               e.preventDefault();
         }
       }else{
-        if(beneficiario.length == 0){
-          bootbox.alert("Necesita Ingresar un Beneficiario");
-            e.preventDefault();
+        if(tipoSalida == 7 || tipoSalidaText =='Garantia') {
+            $("#id_beneficiario").val(" ");
+        }else{
+          if(beneficiario.length == 0){
+            bootbox.alert("Necesita Ingresar un Beneficiario");
+              e.preventDefault();
+          }
         }
       }
 
@@ -1584,6 +1590,8 @@ class Salidas {
         $("#id_beneficiario").css({"visibility":"hidden"});
         $("[for='id_beneficiario']").css({"visibility":"hidden"});
         $('#id_beneficiario').next(".select2-container").hide();
+        $("[for='id_garantia']").css({"visibility":"hidden"});
+        $('#id_garantia').next(".select2-container").hide();
       }else if(tipoSalida == 4 || tipoSalidaText =='A terceros') {
         $("[for='id_entrega']").css({"visibility":"hidden"});
         $("#id_entrega").css({"visibility":"hidden"});
@@ -1595,7 +1603,22 @@ class Salidas {
         $("#id_beneficiario").css({"visibility":"visible"});
         $("#id_udi").val(" ");
         $('#id_beneficiario').next(".select2-container").show();
-      }else {
+        $("[for='id_garantia']").css({"visibility":"hidden"});
+        $('#id_garantia').next(".select2-container").hide();
+      }else if(tipoSalida == 7 || tipoSalidaText =='Garantia') {
+        $("[for='id_entrega']").css({"visibility":"hidden"});
+        $("#id_entrega").css({"visibility":"hidden"});
+        $("#id_entrega").prop('checked',false);
+        $("[for='id_garantia']").css({"visibility":"visible"});
+        $('#id_garantia').next(".select2-container").show();
+        /**/
+        $("#id_udi").attr('type','hidden');
+        $("[for='id_udi']").css({"visibility":"hidden"});
+        $("[for='id_beneficiario']").css({"visibility":"hidden"});
+        $("#id_beneficiario").css({"visibility":"hidden"});
+        $("#id_udi").val(" ");
+        $('#id_beneficiario').next(".select2-container").hide();
+      } else {
         $("[for='id_entrega']").css({"visibility":"hidden"});
         $("#id_entrega").css({"visibility":"hidden"});
         $("#id_entrega").prop('checked',true);
@@ -1608,6 +1631,8 @@ class Salidas {
         $("#id_beneficiario").attr('type','visible');
         $('#id_beneficiario').next(".select2-container").hide();
         /**/
+        $("[for='id_garantia']").css({"visibility":"hidden"});
+        $('#id_garantia').next(".select2-container").hide();
       }
     });
     /**Reasignar**/

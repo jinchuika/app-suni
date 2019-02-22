@@ -12,6 +12,7 @@ from django.db.models import Sum
 from apps.escuela import models as escuela_m
 from apps.inventario import models as inv_m
 from apps.inventario import forms as inv_f
+from apps.tpe import models as tpe_m
 from django import forms
 from dateutil.relativedelta import relativedelta
 
@@ -44,7 +45,13 @@ class SalidaInventarioCreateView(LoginRequiredMixin, GroupRequiredMixin, CreateV
                 form.add_error('udi', 'El UDI no es válido o no existe.')
                 return self.form_invalid(form)
         else:
-            form.instance.escuela = None
+            # form.instance.escuela = None
+            if form.instance.garantia is not None:
+                escuela = tpe_m.TicketSoporte.objects.get(id=str(form.instance.garantia))
+                nueva_escuela = escuela.garantia.equipamiento.escuela.codigo
+                form.instance.escuela = escuela_m.Escuela.objects.get(codigo=nueva_escuela)
+            else:
+                form.instance.escuela = None
         return super(SalidaInventarioCreateView, self).form_valid(form)
 
 
@@ -171,7 +178,7 @@ class SalidaPaqueteDetailView(LoginRequiredMixin, GroupRequiredMixin, UpdateView
     model = inv_m.Paquete
     template_name = 'inventario/salida/paquetes_detail.html'
     form_class = inv_f.PaqueteUpdateForm
-    group_required = [u"inv_cc", u"inv_admin"]
+    group_required = [u"inv_tecnico", u"inv_cc", u"inv_admin"]
 
     def get_form(self, form_class=None):
         form = super(SalidaPaqueteDetailView, self).get_form(form_class)

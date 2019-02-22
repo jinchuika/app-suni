@@ -31,6 +31,17 @@
                   <br>
                 </td>
               </tr>
+							{% if salidainventario.tipo_salida|stringformat:"s" == "Garantia" %}
+							<tr>
+							 <th>Garantia</th>
+							 <td>
+								 <a href="{% url 'garantia_detail' pk=salidainventario.garantia.garantia%}">
+									 {{salidainventario.garantia}}
+								 </a>
+								 <br>
+							 </td>
+						 </tr>
+							{% endif %}
 							<tr >
 								<th>Fecha Creación</th>
 								<td>

@@ -18,6 +18,7 @@ from easy_thumbnails import fields as et_fields
 
 from apps.inventario import transacciones
 from apps.crm import models as crm_m
+from apps.tpe import models as tpe_m
 from apps.escuela import models as escuela_m
 
 
@@ -534,7 +535,7 @@ class Dispositivo(models.Model):
         buffer = BytesIO()
         img.save(buffer)
         filename = 'dispositivo-{}.png'.format(self.id)
-        filebuffer = InMemoryUploadedFile(buffer, None, filename, 'image/png', buffer.getbuffer().nbytes, None)        
+        filebuffer = InMemoryUploadedFile(buffer, None, filename, 'image/png', buffer.getbuffer().nbytes, None)
         self.codigo_qr.save(filename, filebuffer)
 
     @classmethod
@@ -1089,8 +1090,8 @@ class DesechoSalida(models.Model):
     def __str__(self):
         return str(self.id)
 
-    """def get_absolute_url(self):
-        return reverse_lazy('desechosalida_update', kwargs={'pk': self.id})"""
+    def get_absolute_url(self):
+        return reverse_lazy('desechosalida_update', kwargs={'pk': self.id})
 
 
 class DesechoDetalle(models.Model):
@@ -1167,6 +1168,12 @@ class SalidaInventario(models.Model):
         escuela_m.Escuela,
         on_delete=models.PROTECT,
         related_name='entregas',
+        null=True,
+        blank=True)
+    garantia = models.ForeignKey(
+        tpe_m.TicketSoporte,
+        on_delete=models.PROTECT,
+        related_name='garantias',
         null=True,
         blank=True)
     observaciones = models.TextField(null=True, blank=True)
