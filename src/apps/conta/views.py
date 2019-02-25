@@ -120,7 +120,7 @@ class InformeCantidadJson(views.APIView):
     def get(self, request):
         repuesto_dispositivo = self.request.GET['dispositivo']
         id_periodo = self.request.GET['periodo']
-        dispositivos = inv_m.DispositivoTipo.objects.all()
+        dispositivos = inv_m.DispositivoTipo.objects.all().exclude(conta=False)
         lista_dispositivos = {}
         lista = []
         acumulador_anterior = 0

@@ -44,16 +44,19 @@ urlpatterns = [
      conta_v.PrecioEstandarInformeListView.as_view(),
      name='precioestandar_informe'
    ),
+ # Devolver Data de Informe de Precio Estandar
  url(
      r'^precioestandar/informecantidad/$',
      conta_v.InformeCantidadJson.as_view(),
      name='prueba'
     ),
+ # Informe de Entradas
  url(
     r'^precioestandar/informentrada/$',
     conta_v.ContabilidadEntradaInformeListView.as_view(),
     name='contabilidad_entrada'
    ),
+ # Devolver Data de Informe de Entradas
  url(
   r'^precioestandar/informentradapi/$',
   conta_v.InformeEntradaJson.as_view(),
