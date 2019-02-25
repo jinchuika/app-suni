@@ -102,6 +102,7 @@ class DispositivoTipo(models.Model):
     tipo = models.CharField(max_length=20)
     slug = models.SlugField(unique=True)
     usa_triage = models.BooleanField(default=False)
+    conta = models.BooleanField(default=False)
 
     class Meta:
         verbose_name = "Tipo de dispositivo"
@@ -875,7 +876,7 @@ class CPU(Dispositivo):
     procesador = models.ForeignKey(Procesador, on_delete=models.PROTECT, null=True, blank=True)
     version_sistema = models.ForeignKey(VersionSistema, on_delete=models.PROTECT, null=True, blank=True)
     disco_duro = models.ForeignKey(HDD, on_delete=models.PROTECT, null=True, blank=True, related_name='cpus')
-    ram = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
+    ram = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True)
     ram_medida = models.ForeignKey(DispositivoMedida, null=True, blank=True)
     servidor = models.BooleanField(default=False)
     all_in_one = models.BooleanField(default=False)
