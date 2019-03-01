@@ -76,9 +76,20 @@ class EntradaUpdate {
         this.api_url = entrada_table.data("api");
         this.pk = entrada_table.data("pk");
         this.url_filtrada = this.api_url + "?asignacion=" + this.pk;
+        var key = entrada_table.data("pk");
+        $("[for='id_proveedor_kardex']").css({"visibility":"hidden"});
+        $('#id_proveedor_kardex').next(".select2-container").hide();
+        $("[for='id_estado_kardex']").css({"visibility":"hidden"});
+        $('#id_estado_kardex').next(".select2-container").hide();
+        $("[for='id_tipo_entrada_kardex']").css({"visibility":"hidden"});
+        $('#id_tipo_entrada_kardex').next(".select2-container").hide();
 
         $('#id_tipo_dispositivo').change( function() {
           $('#id_descripcion').val($('#id_tipo_dispositivo option:selected').text());
+          console.log($('#id_tipo_dispositivo option:selected').val());
+          let urldispositivo = tabla_temp.api_url + key + "/validar_kardex/";
+          let tipo_dispositivo=$('#id_tipo_dispositivo option:selected').val();
+          EntradaUpdate.validar_kardex(urldispositivo, tipo_dispositivo);
         });
 
         this.tabla = entrada_table.DataTable({
@@ -108,11 +119,14 @@ class EntradaUpdate {
                     data: "",render: function(data, type, full, meta){
                       if(full.dispositivos_creados == true || full.repuestos_creados == true ){
                           if(full.usa_triage == "False"){
-                            return "<a href="+full.update_url+" class='btn btn-info btn-editar'>Editar</a>";
+                            if(full.ingresado_kardex == true){
+                              return "";
+                            }else{
+                              return "<a href="+full.update_url+" class='btn btn-info btn-editar'>Editar</a>";
+                            }
                           }else{
                               return "";
                           }
-
                       }else{
                         return "<a href="+full.update_url+" class='btn btn-info btn-editar'>Editar</a>";
                       }
@@ -122,12 +136,27 @@ class EntradaUpdate {
                     data: "", render: function(data, type, full, meta){
                       if(full.tipo_entrada != "Especial"){
                           if(full.dispositivos_creados == false){
-                            if(full.usa_triage == "True" && full.util > 0){
+                            if(full.usa_triage == "True" && full.util >= 1){
                               return "<button class='btn btn-primary btn-dispositivo'>Crear Disp</button>";
                             }else{
                               return "";
                             }
                           }else{
+                             if(full.enviar_kardex == true){
+                               if(full.ingresado_kardex == true){
+                                 return "<a target='_blank' rel='noopener noreferrer' href="+full.url_kardex+" class='btn btn-success btn-ulrKardex'>Detalle</a>";
+                               }else{
+                                 if(full.util > 0){
+                                  return "<a target='_blank' rel='noopener noreferrer' class='btn btn-success btn-kardex'>Agregar a kardex</a>";
+                                }else{
+                                  return "";
+                                }
+
+                               }
+
+                             }else{
+
+                             }
                               if(full.qr_dispositivo == true){
                                 if(full.usa_triage == "True"){
                                     return "<a target='_blank' rel='noopener noreferrer' href="+full.dispositivo_list+" class='btn btn-success'>Listado Dispositivo</a>";
@@ -277,12 +306,39 @@ class EntradaUpdate {
                     });
 
         });
+        //kardex
+        tablabody.on('click', '.btn-kardex', function () {
+            let data_fila = tabla_temp.tabla.row($(this).parents('tr')).data();
+          bootbox.confirm({
+                      message: "Esta seguro que desea crear estos dispositivos al kardex",
+                      buttons: {
+                          confirm: {
+                              label: 'Si',
+                              className: 'btn-success'
+                          },
+                          cancel: {
+                              label: 'No',
+                              className: 'btn-danger'
+                          }
+                      },
+                      callback: function (result) {
+                          if(result == true){
+                            /**/
+
+                              let urldispositivo = tabla_temp.api_url + data_fila.id + "/crear_kardex/";
+                              let detalle_entrada= data_fila.id
+                              //alert(urldispositivo);
+                              EntradaUpdate.enviar_kardex(urldispositivo, detalle_entrada);
+                          }
+                      }
+                    });
+
+        });
 
         /** Uso de DRF**/
         let detalle_form = $('#detalleForm');
         detalle_form.submit(function (e) {
             e.preventDefault();
-
             $.ajax({
                 type: "POST",
                 url: detalle_form.attr('action'),
@@ -337,6 +393,56 @@ class EntradaUpdate {
               alert( "Error al crear los Repuestos: " + mensaje['mensaje']);
             }
 
+        });
+    }
+    static enviar_kardex(url_kardex, detalle_entrada){
+      $.ajax({
+          type: 'POST',
+          url: url_kardex,
+          data: {
+              csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
+              detalle_entrada: detalle_entrada
+          },
+          success: function (response) {
+              bootbox.confirm("Dispositivos Ingresados al kardex",
+              function(result){
+                 location.reload();
+                });
+
+          },
+          error: function (response) {
+            var mensaje = JSON.parse(response.responseText)
+            alert( "Error al crear los dispositivos al kardex: " + mensaje['mensaje']);
+          }
+
+      });
+
+    }
+    static validar_kardex(url_validar_kardex, tipo_dispositivo) {
+        $.ajax({
+            type: 'POST',
+            url: url_validar_kardex,
+            dataType: 'json',
+            data: {
+                csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
+                tipo_dispositivo: tipo_dispositivo
+            },
+            success: function (response) {
+              $("[for='id_proveedor_kardex']").css({"visibility":"visible"});
+              $('#id_proveedor_kardex').next(".select2-container").show();
+              $("[for='id_estado_kardex']").css({"visibility":"visible"});
+              $('#id_estado_kardex').next(".select2-container").show();
+              $("[for='id_tipo_entrada_kardex']").css({"visibility":"visible"});
+              $('#id_tipo_entrada_kardex').next(".select2-container").show();
+            },
+            error: function (response) {
+              $("[for='id_proveedor_kardex']").css({"visibility":"hidden"});
+              $('#id_proveedor_kardex').next(".select2-container").hide();
+              $("[for='id_estado_kardex']").css({"visibility":"hidden"});
+              $('#id_estado_kardex').next(".select2-container").hide();
+              $("[for='id_tipo_entrada_kardex']").css({"visibility":"hidden"});
+              $('#id_tipo_entrada_kardex').next(".select2-container").hide();
+            }
         });
     }
 }
@@ -1050,7 +1156,7 @@ class SolicitudMovimientoUpdate {
                    data:{
                      etapa: etapa_inicial,
                      estado: estado_inicial,
-                     id: mensaje.id
+                     triage: mensaje.triage
                    },
                    error:function(){
                      console.log("Error");

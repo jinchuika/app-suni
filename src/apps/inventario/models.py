@@ -100,7 +100,7 @@ class DispositivoTipo(models.Model):
     los SLUG disponibles en los modelos que heredan :class:`Dispositivo`.
     """
 
-    tipo = models.CharField(max_length=20)
+    tipo = models.CharField(max_length=100)
     slug = models.SlugField(unique=True)
     usa_triage = models.BooleanField(default=False)
 
@@ -162,6 +162,27 @@ class EntradaDetalle(models.Model):
 
     # Registro
     creado_por = models.ForeignKey(User, on_delete=models.PROTECT)
+    # Kardex
+    enviar_kardex = models.BooleanField(default=False, blank=True, verbose_name='kardex')
+    ingresado_kardex = models.BooleanField(default=False, blank=True, verbose_name='Guardar en kardex')
+    proveedor_kardex = models.ForeignKey(
+        'kardex.Proveedor',
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True,
+        related_name='proveedor_kardex')
+    estado_kardex = models.ForeignKey(
+        'kardex.EstadoEquipo',
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True,
+        related_name='estado_kardex')
+    tipo_entrada_kardex = models.ForeignKey(
+        'kardex.TipoEntrada',
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True,
+        related_name='tipo_entrada_kardex')
 
     class Meta:
         verbose_name = "Detalle de entrada"
@@ -180,9 +201,10 @@ class EntradaDetalle(models.Model):
         los descuentos que hayan sido aplicados a la entrada.
         El cálculo de todos los campos se realiza desde las funciones definidas en `signals.py`.
         """
-        if self.tipo_dispositivo.usa_triage is False:
+        if self.tipo_dispositivo.usa_triage is False:            
             self.dispositivos_creados = True
             self.repuestos_creados = True
+            self.enviar_kardex = True
         if self.entrada.tipo.contable and not self.precio_subtotal:
             raise ValidationError(
                 'El tipo de entrada requiere un precio total', code='entrada_precio_total')
