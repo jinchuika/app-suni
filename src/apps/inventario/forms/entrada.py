@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 from django.utils.translation import gettext_lazy as _
 from apps.inventario import models as inv_m
 from apps.crm import models as crm_m
+from apps.kardex import models as kax_m
 
 
 class EntradaForm(forms.ModelForm):
@@ -65,6 +66,10 @@ class EntradaDetalleForm(forms.ModelForm):
             'util',
             'repuesto',
             'desecho',
+            'fecha_dispositivo',
+            'fecha_repuesto',
+            'enviar_kardex',
+            'ingresado_kardex'
             ]
         widgets = {
             'entrada': forms.HiddenInput(),
@@ -72,6 +77,9 @@ class EntradaDetalleForm(forms.ModelForm):
             'total': forms.TextInput({'class': 'form-control r'}),
             'precio_subtotal': forms.TextInput({'class': 'form-control'}),
             'descripcion': forms.TextInput({'class': 'form-control'}),
+            'proveedor_kardex': forms.Select(attrs={'class': 'form-control select2'}),
+            'estado_kardex': forms.Select(attrs={'class': 'form-control select2'}),
+            'tipo_entrada_kardex': forms.Select(attrs={'class': 'form-control select2'})
         }
 
     def __init__(self, *args, **kwargs):
@@ -103,7 +111,14 @@ class EntradaDetalleUpdateForm(forms.ModelForm):
                     'repuestos_creados',
                     'qr_repuestos',
                     'qr_dispositivo',
-                    'impreso'
+                    'impreso',
+                    'fecha_dispositivo',
+                    'fecha_repuesto',
+                    'enviar_kardex',
+                    'ingresado_kardex',
+                    'proveedor_kardex',
+                    'tipo_entrada_kardex',
+                    'estado_kardex'
                     ]
         widgets = {
             'util': forms.NumberInput({'class': 'form-control'}),

@@ -2,8 +2,9 @@ from django.core.exceptions import ValidationError
 
 from django.db import models
 from django.urls import reverse_lazy
-
 from django.contrib.auth.models import User
+from apps.inventario.models import Entrada as EntradaInventario
+from apps.inventario.models import SolicitudMovimiento as SolicitudMovimiento
 
 
 class Equipo(models.Model):
@@ -135,6 +136,12 @@ class Entrada(models.Model):
     factura = models.IntegerField(null=True, blank=True)
     observacion = models.TextField(null=True, blank=True, verbose_name='Observaciones')
     terminada = models.BooleanField(blank=True, default=False)
+    inventario_entrada = models.ForeignKey(
+        EntradaInventario,
+        on_delete=models.PROTECT,
+        related_name='inventario',
+        null=True,
+        blank=True)
 
     class Meta:
         verbose_name = 'Entrada'
@@ -169,7 +176,7 @@ class EntradaDetalle(models.Model):
     class Meta:
         verbose_name = 'Detalle de entrada'
         verbose_name_plural = 'Detalles de entrada'
-        unique_together = ('entrada', 'equipo')
+        # unique_together = ('entrada', 'equipo')
 
     def __str__(self):
         return '{} - {}'.format(self.entrada, self.equipo)
@@ -188,6 +195,12 @@ class Salida(models.Model):
     tipo = models.ForeignKey(TipoSalida, on_delete=models.PROTECT)
     observacion = models.TextField(null=True, blank=True, verbose_name='Observaciones')
     terminada = models.BooleanField(blank=True, default=False)
+    inventario_movimiento = models.ForeignKey(
+        SolicitudMovimiento,
+        on_delete=models.PROTECT,
+        related_name='movimiento_salida',
+        null=True,
+        blank=True)
 
     class Meta:
         verbose_name = 'Salida'

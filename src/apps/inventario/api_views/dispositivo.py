@@ -3,11 +3,13 @@ from django_filters import rest_framework as filters
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from datetime import datetime
 from braces.views import LoginRequiredMixin
 from apps.inventario import (
     serializers as inv_s,
     models as inv_m
 )
+from apps.kardex import models as kax_m
 from django.db.models import Count
 
 
@@ -18,7 +20,7 @@ class DispositivoFilter(filters.FilterSet):
 
     class Meta:
         model = inv_m.Dispositivo
-        fields = ('tarima', 'id', 'etapa', 'estado', 'tipo', 'triage','marca','modelo')
+        fields = ('tarima', 'id', 'etapa', 'estado', 'tipo', 'triage', 'marca', 'modelo')
 
     def filter_buscador(self, qs, name, value):
         return qs.filter(triage__istartswith=value)
@@ -89,6 +91,48 @@ class DispositivoViewSet(viewsets.ModelViewSet):
                 {'mensaje': 'Dispositivo impreso'},
                 status=status.HTTP_200_OK
             )
+
+    @action(methods=['post'], detail=False)
+    def solicitud_kardex(self, request, pk=None):
+        id = request.data['id']
+        respuesta = request.data['respuesta']
+        if respuesta == str(1):
+            print("Se aprobo la salida")
+            solicitudes_movimiento = inv_m.SolicitudMovimiento.objects.get(id=id)
+            tipo_salida = kax_m.TipoSalida.objects.get(tipo="Inventario SUNI")
+            nuevo = kax_m.Salida(
+                tecnico=self.request.user,
+                fecha=datetime.now(),
+                tipo=tipo_salida,
+                inventario_movimiento=solicitudes_movimiento,
+                terminada=True
+                )
+            nuevo.save()
+
+            nuevo_detalle = kax_m.Salida.objects.get(inventario_movimiento=id)
+            detalle_salida = kax_m.SalidaDetalle(
+                salida=nuevo_detalle,
+                equipo=kax_m.Equipo.objects.get(nombre=solicitudes_movimiento.tipo_dispositivo),
+                cantidad=solicitudes_movimiento.cantidad
+                )
+            detalle_salida.save()
+            solicitudes_movimiento.terminada = True
+            solicitudes_movimiento.salida_kardex = nuevo_detalle
+            solicitudes_movimiento.save()
+            return Response(
+                {'mensaje': nuevo_detalle.id},
+                status=status.HTTP_200_OK
+            )
+
+        else:
+            print("se rechazo la salida")
+        solicitudes_movimiento = inv_m.SolicitudMovimiento.objects.get(id=id)
+        solicitudes_movimiento.rechazar = True
+        solicitudes_movimiento.save()
+        return Response(
+            {'mensaje': 'Solicitud Recibida'},
+            status=status.HTTP_200_OK
+        )
 
 
 class PaquetesFilter(filters.FilterSet):
