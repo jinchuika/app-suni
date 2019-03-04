@@ -382,7 +382,10 @@ class SolicitudMovimientoCreateForm(forms.ModelForm):
             'recibida',
             'recibida_por',
             'devolucion',
-            'desecho'
+            'desecho',
+            'rechazar',
+            'salida_kardex'
+
             ]
         widgets = {
             'tipo_dispositivo': forms.Select(attrs={'class': 'form-control'}),

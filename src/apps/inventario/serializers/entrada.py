@@ -22,6 +22,8 @@ class EntradaDetalleSerializer(serializers.ModelSerializer):
     repuesto_list = serializers.SerializerMethodField(read_only=True)
     dispositivo_qr = serializers.SerializerMethodField(read_only=True)
     repuesto_qr = serializers.SerializerMethodField(read_only=True)
+    # Kardex
+    url_kardex = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = inv_m.EntradaDetalle
@@ -50,9 +52,14 @@ class EntradaDetalleSerializer(serializers.ModelSerializer):
             'qr_repuestos',
             'qr_dispositivo',
             'dispositivo_list',
-            'repuesto_list'
-
-        )
+            'repuesto_list',
+            'enviar_kardex',
+            'proveedor_kardex',
+            'estado_kardex',
+            'tipo_entrada_kardex',
+            'ingresado_kardex',
+            'url_kardex'
+            )
 
     def get_tdispositivo(self, object):
         return object.tipo_dispositivo.__str__()
@@ -71,6 +78,9 @@ class EntradaDetalleSerializer(serializers.ModelSerializer):
 
     def get_repuesto_list(self, object):
         return reverse_lazy('detalles_repuesto', kwargs={'pk': object.entrada, 'detalle': object.id})
+
+    def get_url_kardex(self, object):
+        return reverse_lazy('kardex_entrada_detail', kwargs={'pk': object.entrada})
 
 
 class EntradaSerializer(serializers.ModelSerializer):
