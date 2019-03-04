@@ -962,7 +962,7 @@ class EntradaDetalleDetail {
 
 class SolicitudMovimiento {
   constructor() {
-
+    var url =  $('#recibido-kardex').data("url");
     $('#movimientos-table-body').DataTable({
       dom: 'lfrtipB',
       buttons: ['excel','pdf']
@@ -1002,10 +1002,78 @@ class SolicitudMovimiento {
 
             }
         });
-
-
     });
 
+    $('#aprobar-kardex').click(function (e) {
+       e.preventDefault();
+        bootbox.confirm({
+            message: "¿Esta Seguro de aprobar esta peticion de dispositivos?",
+            buttons: {
+                confirm: {
+                    label: 'Yes',
+                    className: 'btn-success'
+                },
+                cancel: {
+                    label: 'No',
+                    className: 'btn-danger'
+                }
+            },
+            callback: function (result) {
+                if (result == true) {
+                  $.ajax({
+                      type: "POST",
+                      url: $('#aprobar-kardex').attr('href'),
+                      dataType: 'json',
+                      data: {
+                        csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
+                        id: $('#aprobar-kardex').data("id"),
+                        respuesta: 1
+
+                      },
+                      success: function (response) {
+                        location.reload();                        
+                      },
+                  });
+                }
+            }
+        });
+    });
+
+    $('#recibido-kardex').click(function (e) {
+       e.preventDefault();
+        bootbox.confirm({
+            message: "¿Esta Seguro que desea rechazar estos dispositivos?",
+            buttons: {
+                confirm: {
+                    label: 'Yes',
+                    className: 'btn-success'
+                },
+                cancel: {
+                    label: 'No',
+                    className: 'btn-danger'
+                }
+            },
+            callback: function (result) {
+                if (result == true) {
+                  $.ajax({
+                      type: "POST",
+                      url: $('#aprobar-kardex').attr('href'),
+                      dataType: 'json',
+                      data: {
+                        csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
+                        id: $('#aprobar-kardex').data("id"),
+                        respuesta: 2
+
+                      },
+                      success: function (response) {
+                          window.location.href = url;
+
+                      },
+                  });
+                }
+            }
+        });
+    });
   }
 }
 

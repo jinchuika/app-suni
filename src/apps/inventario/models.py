@@ -201,7 +201,7 @@ class EntradaDetalle(models.Model):
         los descuentos que hayan sido aplicados a la entrada.
         El cálculo de todos los campos se realiza desde las funciones definidas en `signals.py`.
         """
-        if self.tipo_dispositivo.usa_triage is False:            
+        if self.tipo_dispositivo.usa_triage is False:
             self.dispositivos_creados = True
             self.repuestos_creados = True
             self.enviar_kardex = True
@@ -1411,7 +1411,14 @@ class SolicitudMovimiento(models.Model):
     terminada = models.BooleanField(default=False)
     recibida = models.BooleanField(default=False)
     devolucion = models.BooleanField(default=False)
+    rechazar = models.BooleanField(default=False)
     desecho = models.BooleanField(default=False)
+    salida_kardex = models.ForeignKey(
+        'kardex.Salida',
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True,
+        related_name='salida_kardex')
 
     class Meta:
         verbose_name = 'Solicitud de movimiento'

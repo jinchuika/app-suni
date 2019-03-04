@@ -84,7 +84,6 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
                 entrada=entrad_id,
                 ingresado_kardex=False,
                 enviar_kardex=True).count()
-            print(detalles_kardex)
             dispositivos_utiles = inv_m.EntradaDetalle.objects.filter(Q(entrada=entrad_id), Q(util__gt=0)).count()
             repuestos_utiles = inv_m.EntradaDetalle.objects.filter(Q(entrada=entrad_id), Q(repuesto__gt=0)).count()
             validar_dispositivos = inv_m.EntradaDetalle.objects.filter(

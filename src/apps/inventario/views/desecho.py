@@ -46,7 +46,6 @@ class DesechoSalidaCreateView(LoginRequiredMixin, CreateView, GroupRequiredMixin
     group_required = [u"inv_bodega", u"inv_admin", u"inv_monitoreo"]
 
     def form_valid(self, form):
-        print(self.request.user)
         form.instance.creado_por = self.request.user
         return super(DesechoSalidaCreateView, self).form_valid(form)
 
