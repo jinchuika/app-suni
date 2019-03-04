@@ -122,22 +122,14 @@ WSGI_APPLICATION = 'src.wsgi.application'
 DATABASE_ROUTERS = ['apps.legacy.dbrouters.LegacyRouter', ]
 
 DATABASES = {
-     'default': {
-      'ENGINE': 'django.db.backends.mysql',
-      'NAME': 'suni',
-      'USER': 'root',
-      'PASSWORD': '123456',
-      'HOST': 'localhost',
-      'PORT': '3306',
-       },
-   'legacy': {
-       'ENGINE': 'django.db.backends.mysql',
-       'NAME': 'suni2',
-       'USER': 'suni2',
-       'PASSWORD': 'Fun53P@!2',
-       'HOST': 'suni2.db.4541636.hostedresource.com',
-       'PORT': '3306',
-       },
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+    },
+    'legacy': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'legacy.sqlite3'),
+    },
 }
 
 

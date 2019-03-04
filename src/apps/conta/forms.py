@@ -7,6 +7,7 @@ from apps.conta import models as conta_m
 from apps.inventario import models as inv_m
 from apps.crm import models as crm_m
 from apps.inventario import models as inventario_m
+from apps.escuela import models as escuela_m
 
 
 class PeriodoFiscalForm(forms.ModelForm):
@@ -84,20 +85,96 @@ class EntradaInformeForm(forms.Form):
     donante = forms.ModelChoiceField(
         queryset=crm_m.Donante.objects.all(),
         label='Proveedor / Donante',
-        widget=forms.Select(attrs={'class': 'form-control'}),
+        widget=forms.Select(attrs={'class': 'form-control select2'}),
         required=False)
-    tipo_entrada = forms.ModelChoiceField(
+    tipo_entrada = forms.ModelMultipleChoiceField(
         queryset=inv_m.EntradaTipo.objects.all().exclude(nombre='Especial'),
         label='Tipo de Entrada',
         required=False,
-        widget=forms.Select(attrs={'class': 'form-control'}))
+        widget=forms.SelectMultiple(attrs={'class': 'select2', 'multiple': 'multiple'}))
 
     tipo_dispositivo = forms.ModelChoiceField(
         queryset=inv_m.DispositivoTipo.objects.filter(usa_triage=True),
         label='Tipo de Dispositivo',
         required=True,
-        widget=forms.Select(attrs={'class': 'form-control'}))
+        widget=forms.Select(attrs={'class': 'form-control select2'}))
 
+    fecha_min = forms.CharField(
+        label='Fecha (min)',
+        required=True,
+        widget=forms.TextInput(attrs={'class': 'form-control datepicker'}))
+    fecha_max = forms.CharField(
+        label='Fecha (max)',
+        required=True,
+        widget=forms.TextInput(attrs={'class': 'form-control datepicker'}))
+
+class SalidasInformeForm(forms.Form):
+    """Este Formulario se encarga de enviar los filtros para  su respectivo informe de Salidas
+    """
+    udi = forms.CharField(
+        label='UDI',
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-control'}))
+
+    beneficiado = forms.ModelChoiceField(
+        queryset=crm_m.Donante.objects.all(),
+        label='Beneficiado',
+        widget=forms.Select(attrs={'class': 'form-control select2'}),
+        required=False)
+    tipo_salida = forms.ModelMultipleChoiceField(
+        queryset=inv_m.SalidaTipo.objects.all().exclude(especial=True),
+        label='Tipo de Entrada',
+        required=False,
+        widget=forms.SelectMultiple(attrs={'class': 'select2', 'multiple': 'multiple'}))
+
+    compras = forms.BooleanField(
+        label="Compras",
+        required=False,
+        widget=forms.CheckboxInput({'class': 'flat-red'}))
+
+    tipo_dispositivo = forms.ModelChoiceField(
+        queryset=inv_m.DispositivoTipo.objects.filter(usa_triage=True),
+        label='Tipo de Dispositivo',
+        required=True,
+        widget=forms.Select(attrs={'class': 'form-control select2'}))
+
+    fecha_min = forms.CharField(
+        label='Fecha (min)',
+        required=True,
+        widget=forms.TextInput(attrs={'class': 'form-control datepicker'}))
+    fecha_max = forms.CharField(
+        label='Fecha (max)',
+        required=True,
+        widget=forms.TextInput(attrs={'class': 'form-control datepicker'}))
+
+
+class DesechoInformeForm(forms.Form):
+    """Este Formulario se encarga de enviar los filtros para  su respectivo informe de Salidas por desecho
+    """
+    empresa = forms.ModelChoiceField(
+        queryset=inv_m.DesechoEmpresa.objects.all(),
+        label='Recolectora',
+        widget=forms.Select(attrs={'class': 'form-control select2'}),
+        required=False)
+
+    tipo_dispositivo = forms.ModelChoiceField(
+        queryset=inv_m.DispositivoTipo.objects.filter(usa_triage=True),
+        label='Tipo de Dispositivo',
+        required=True,
+        widget=forms.Select(attrs={'class': 'form-control select2'}))
+
+    fecha_min = forms.CharField(
+        label='Fecha (min)',
+        required=True,
+        widget=forms.TextInput(attrs={'class': 'form-control datepicker'}))
+    fecha_max = forms.CharField(
+        label='Fecha (max)',
+        required=True,
+        widget=forms.TextInput(attrs={'class': 'form-control datepicker'}))
+
+class ResumenInformeForm(forms.Form):
+    """Este Formulario se encarga de enviar los filtros para  su respectivo informe de Resumen
+    """
     fecha_min = forms.CharField(
         label='Fecha (min)',
         required=True,

@@ -14,6 +14,7 @@
 	<link rel="stylesheet" type="text/css" href="{% static "css/dataTables.bootstrap.css" %}">
 	<link rel="stylesheet" type="text/css" href="{% static "css/pace-theme-corner-indicator.css" %}">
 	<link rel="stylesheet" type="text/css" href="{% static "css/noty.css" %}">
+	<link rel="stylesheet" type="text/css" href="{% static "css/noty.css" %}">
 	<link rel="icon" type="image/ico" href="{% static 'image/favicon.ico'%}">
 
 
@@ -80,7 +81,8 @@
 <script src="{% static "js/main.js" %}"></script>
 {% block extra_js %}
 <script>
- $(document).on('focus', '.select2', function (e) {
+
+$(document).on('focus', '.select2', function (e) {
     if (e.originalEvent) {
         var s2element = $(this).siblings('select');
         s2element.select2('open');
