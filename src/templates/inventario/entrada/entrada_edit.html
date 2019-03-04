@@ -142,7 +142,7 @@
 
                     </div>
                     <div class="box-body table-responsive">
-                        <table id="entrada-table" class="table table-condensed"
+                        <table id="entrada-table" class="table  table-condensed "
                                data-api="{% url 'inventario_api:api_detalles-list' %}"
                                data-pk="{{ form.instance.id }}">
                             <thead>
@@ -178,6 +178,8 @@
 <script src="{% static "js/extrajs/inventario.js" %}"></script>
 <script>
     AlertaEnCreacion.init();
-    let pagina = new EntradaUpdate();
+    $(document).ready(function(){
+        let pagina = new EntradaUpdate();
+    });    
 </script>
 {% endblock extra_js %}

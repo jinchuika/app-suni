@@ -1,5 +1,5 @@
 from django.db.utils import OperationalError
-
+from django.core.exceptions import ObjectDoesNotExist
 import django_filters
 from django_filters import rest_framework as filters
 from rest_framework import status, viewsets
@@ -12,6 +12,7 @@ from apps.inventario import (
     serializers as inv_s,
     models as inv_m
 )
+from apps.kardex import models as kax_m
 
 
 class DetalleInformeFilter(filters.FilterSet):
@@ -79,6 +80,10 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
         else:
             mensaje_cuadrar = ""
             entrad_id = request.data['primary_key']
+            detalles_kardex = inv_m.EntradaDetalle.objects.filter(
+                entrada=entrad_id,
+                ingresado_kardex=False,
+                enviar_kardex=True).count()
             dispositivos_utiles = inv_m.EntradaDetalle.objects.filter(Q(entrada=entrad_id), Q(util__gt=0)).count()
             repuestos_utiles = inv_m.EntradaDetalle.objects.filter(Q(entrada=entrad_id), Q(repuesto__gt=0)).count()
             validar_dispositivos = inv_m.EntradaDetalle.objects.filter(
@@ -117,11 +122,16 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
                     {'mensaje': 'Los dispositivos o repuestos no  han sido creados'},
                     status=status.HTTP_400_BAD_REQUEST
                 )
+            elif(detalles_kardex > 0):
+                return Response(
+                    {'mensaje': 'Aun hay dispositivo que no han sido enviados al Kardex'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
             else:
                 fecha_cierre = inv_m.Entrada.objects.get(id=entrad_id)
                 fecha_cierre.fecha_cierre = datetime.now()
                 fecha_cierre.save()
-                print(datetime.now())
                 return Response(
                     {'mensaje': 'Entrada Cuadrada'},
                     status=status.HTTP_200_OK
@@ -195,6 +205,67 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
                     status=status.HTTP_400_BAD_REQUEST
                 )
 
+    @action(methods=['post'], detail=True)
+    def crear_kardex(self, request, pk=None):
+        id = request.data['detalle_entrada']
+        entrada_detalle = inv_m.EntradaDetalle.objects.get(id=id)
+        if entrada_detalle.precio_unitario is None:
+            precio_unitario = 0
+        else:
+            precio_unitario = entrada_detalle.precio_unitario
+
+        equipo_kardex = kax_m.Equipo.objects.get(nombre=entrada_detalle.tipo_dispositivo)
+        try:
+            entrada_kardex = kax_m.Entrada.objects.get(inventario_entrada=entrada_detalle.entrada)
+            nuevo_detalle_kardez = kax_m.EntradaDetalle(
+                entrada=entrada_kardex,
+                equipo=equipo_kardex,
+                cantidad=entrada_detalle.util,
+                precio=precio_unitario
+            )
+            nuevo_detalle_kardez.save()
+        except ObjectDoesNotExist as e:
+            nuevo = kax_m.Entrada(
+                inventario_entrada=entrada_detalle.entrada,
+                estado=entrada_detalle.estado_kardex,
+                proveedor=entrada_detalle.proveedor_kardex,
+                tipo=entrada_detalle.tipo_entrada_kardex,
+                fecha=datetime.now(),
+                terminada=True)
+            nuevo.save()
+            entrada_kardex = kax_m.Entrada.objects.get(inventario_entrada=entrada_detalle.entrada)
+            nuevo_detalle_kardez = kax_m.EntradaDetalle(
+                entrada=entrada_kardex,
+                equipo=kax_m.Equipo.objects.get(nombre=entrada_detalle.tipo_dispositivo),
+                cantidad=entrada_detalle.util,
+                precio=precio_unitario,
+            )
+            nuevo_detalle_kardez.save()
+            return Response(
+                {'mensaje': "Detalle creado exitosamente"},
+                status=status.HTTP_200_OK
+            )
+        entrada_detalle.ingresado_kardex = True
+        entrada_detalle.save()
+        return Response(
+            {'mensaje': 'Creado exitosamente'},
+            status=status.HTTP_200_OK
+        )
+
+    @action(methods=['post'], detail=True)
+    def validar_kardex(self, request, pk=None):
+        tipo_dispositivo = request.data['tipo_dispositivo']
+        validar_dispositivos = inv_m.DispositivoTipo.objects.get(id=tipo_dispositivo)
+        if validar_dispositivos.usa_triage is True:
+            return Response(
+                {'mensaje': 'Usa Triage'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        return Response(
+            {'mensaje': 'NO usa Triage'},
+            status=status.HTTP_200_OK
+        )
+
 
 class EntradaFilter(filters.FilterSet):
     """ Filtros para generar informe de Entrada
@@ -237,5 +308,3 @@ class EntradaViewSet(viewsets.ModelViewSet):
             return inv_m.Entrada.objects.all()
 
         return inv_m.Entrada.objects.all().filter(en_creacion=True)
-
-
