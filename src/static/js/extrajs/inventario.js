@@ -93,9 +93,11 @@ class EntradaUpdate {
         });
 
         this.tabla = entrada_table.DataTable({
-            searching: false,
-            paging: true,
-            ordering: false,
+            dom: 'Bfrtip',
+            buttons: ['excel', 'pdf', 'copy'],
+            paging: false,
+            searching:true,
+            ordering: true,
             processing: true,
             ajax: {
                 url: this.url_filtrada,
@@ -568,7 +570,7 @@ class EntradaDetail {
 (function (EntradaList, $, undefined) {
     var tabla = $('#entrada2-table').DataTable({
         dom: 'lfrtipB',
-        buttons: ['excel', 'pdf'],
+        buttons: ['excel', 'pdf', 'copy'],
         processing: true,
         ajax: {
             url: $('#entrada2-list-form').attr('action'),

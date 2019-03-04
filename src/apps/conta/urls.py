@@ -44,22 +44,62 @@ urlpatterns = [
      conta_v.PrecioEstandarInformeListView.as_view(),
      name='precioestandar_informe'
    ),
+ # Devolver Data de Informe de Precio Estandar
  url(
      r'^precioestandar/informecantidad/$',
      conta_v.InformeCantidadJson.as_view(),
      name='prueba'
     ),
+ # Informe de Entradas
  url(
     r'^precioestandar/informentrada/$',
     conta_v.ContabilidadEntradaInformeListView.as_view(),
     name='contabilidad_entrada'
    ),
+ # Devolver Data de Informe de Entradas
  url(
-  r'^precioestandar/informentradapi/$',
-  conta_v.InformeEntradaJson.as_view(),
-  name='contabilidad_api_entrada'
- ),
+    r'^precioestandar/informentradapi/$',
+    conta_v.InformeEntradaJson.as_view(),
+    name='contabilidad_api_entrada'
+    ),
+  # Informe de Salidas por Donación
+ url(
+    r'^precioestandar/informesalidas/$',
+    conta_v.ContabilidadSalidasInformeListView.as_view(),
+    name='contabilidad_salidas'
+   ),
+ # Devolver Data de Informe de Entradas
+ url(
+    r'^precioestandar/informesalidasapi/$',
+    conta_v.InformeSalidaJson.as_view(),
+    name='contabilidad_api_salidas'
+    ),
 
+   # Informe de Salidas por Desecho
+ url(
+    r'^precioestandar/informedesecho/$',
+    conta_v.ContabilidadDesechoInformeListView.as_view(),
+    name='contabilidad_desecho'
+   ),
+ # Devolver Data de Informe de Entradas
+ url(
+    r'^precioestandar/informedesechoapi/$',
+    conta_v.InformeDesechoJson.as_view(),
+    name='contabilidad_api_desecho'
+    ),
+
+    # Informe de Resumen
+ url(
+    r'^precioestandar/informeresumen/$',
+    conta_v.ContabilidadResumenInformeListView.as_view(),
+    name='contabilidad_resumen'
+   ),
+ # Devolver Data de Resumen
+ url(
+    r'^precioestandar/informeresumenapi/$',
+    conta_v.InformeResumenJson.as_view(),
+    name='contabilidad_api_resumen'
+    ),
 
  # Api
  url(r'^api/', include(('apps.conta.api_urls', 'conta'), namespace='conta_api'))

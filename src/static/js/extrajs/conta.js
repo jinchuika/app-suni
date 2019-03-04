@@ -181,21 +181,23 @@ class EntradaInforme {
     var tablaPrecio = $('#precioestandar-table').DataTable({
     headerCallback:function (thead, data, start, end, display ){
       for(var i in data){
-        $(thead).find('th').eq(0).html( "Tipo dispositivo:" + data[i].tipo_dispositivo );
-        $(thead).find('th').eq(1).html( "Fecha:" + data[i].rango_fechas);
-        $(thead).find('th').eq(2).html( "Saldo inicial cantidad:"+ data[i].total_final );
-        $(thead).find('th').eq(3).html( "Saldo inicial dinero:" + data[i].total_costo );
+        $(thead).find('th').eq(0).html( data[i].tipo_dispositivo );
+        $(thead).find('th').eq(1).html( data[i].rango_fechas);
+        $(thead).find('th').eq(2).html( "EXISTENCIA INICIAL: "+ parseFloat(data[i].total_final).toLocaleString('en') );
+        $(thead).find('th').eq(3).html( "SALDO INICIAL: " + parseFloat(data[i].total_costo).toLocaleString('en') );
       };
 
     },
     footerCallback: function( tfoot, data, start, end, display){
         for (var i in data){
-          $(tfoot).find('th').eq(0).html( "Saldo Final Cantidad : "+ data[i].total_despues );
-          $(tfoot).find('th').eq(1).html( "Saldo Final Dinero : "+ data[i].total_costo_despues );
+          $(tfoot).find('th').eq(0).html( "EXISTENCIA FINAL: "+ parseFloat(data[i].total_despues).toLocaleString('en') );
+          $(tfoot).find('th').eq(1).html( "SALDO FINAL: "+ parseFloat(data[i].total_costo_despues).toLocaleString('en') );
         };
       },
-      searching:false,
-      paging:true,
+      dom: 'Bfrtip',
+      buttons: ['excel', 'pdf', 'copy'],
+      searching:true,
+      paging:false,
       ordering:true,
       processing:true,
       destroy:true,
@@ -210,12 +212,202 @@ class EntradaInforme {
       },
       columns: [
         {data: "fecha"},
-        {data: "id"},
+        {data: "id", render: function(data, type, full, meta){
+          return "<a href="+full.url+">"+full.id+"</a>";
+        }},
         {data: "util"},
-        {data: "precio"},
-        {data: "total"},
+        {data: "precio", render: function(data, type, full, meta){
+          return parseFloat(full.precio).toLocaleString('en');
+        }},
+        {data: "total", render: function(data, type, full, meta){
+          return parseFloat(full.total).toLocaleString('en');
+        }},
         {data: "tipo"},
         {data: "proveedor"},
+      ]
+    });
+    tablaPrecio.clear().draw();
+    //tablaPrecio.ajax.reload();
+  });
+  }
+}
+class SalidaInforme {
+  constructor() {
+  let precioestandar_informe = $("#precioestandar-list-form");
+  var urlPrecio= $('#precioestandar-table').data("api");
+  precioestandar_informe.submit(function (e){
+    e.preventDefault();
+    var tablaPrecio = $('#precioestandar-table').DataTable({
+    headerCallback:function (thead, data, start, end, display ){
+      for(var i in data){
+        $(thead).find('th').eq(0).html( data[i].tipo_dispositivo );
+        $(thead).find('th').eq(1).html( data[i].rango_fechas);
+        $(thead).find('th').eq(2).html( "EXISTENCIA INICIAL: "+ parseFloat(data[i].total_final).toLocaleString('en') );
+        $(thead).find('th').eq(3).html( "SALDO INICIAL: " + parseFloat(data[i].total_costo).toLocaleString('en') );
+      };
+
+    },
+    footerCallback: function( tfoot, data, start, end, display){
+        for (var i in data){
+          $(tfoot).find('th').eq(0).html( "EXISTENCIA FINAL: "+ parseFloat(data[i].total_despues).toLocaleString('en') );
+          $(tfoot).find('th').eq(1).html( "SALDO FINAL: "+ parseFloat(data[i].total_costo_despues).toLocaleString('en') );
+        };
+      },
+      dom: 'Bfrtip',
+      buttons: ['excel', 'pdf', 'copy'],
+      searching:true,
+      paging:false,
+      ordering:true,
+      processing:true,
+      destroy:true,
+      ajax:{
+        url:urlPrecio,
+        dataSrc:'',
+        cache:false,
+        processing:true,
+        data: function () {
+          return $('#precioestandar-list-form').serializeObject(true);
+        }
+      },
+      columns: [
+        {data: "fecha"},
+        {data: "id", render: function(data, type, full, meta){
+          return "<a href="+full.url+">"+full.id+"</a>";
+        }},
+        {data: "util"},
+        {data: "precio", render: function(data, type, full, meta){
+          return parseFloat(full.precio).toLocaleString('en');
+        }},
+        {data: "total", render: function(data, type, full, meta){
+          return parseFloat(full.total).toLocaleString('en');
+        }},
+        {data: "tipo"},
+        {data: "beneficiado"},
+      ]
+    });
+    tablaPrecio.clear().draw();
+    //tablaPrecio.ajax.reload();
+  });
+  }
+}
+
+
+class DesechoInforme {
+  constructor() {
+  let precioestandar_informe = $("#precioestandar-list-form");
+  var urlPrecio= $('#precioestandar-table').data("api");
+  precioestandar_informe.submit(function (e){
+    e.preventDefault();
+    var tablaPrecio = $('#precioestandar-table').DataTable({
+    headerCallback:function (thead, data, start, end, display ){
+      for(var i in data){
+        $(thead).find('th').eq(0).html( data[i].tipo_dispositivo );
+        $(thead).find('th').eq(1).html( data[i].rango_fechas);
+        $(thead).find('th').eq(2).html( "EXISTENCIA INICIAL: "+ parseFloat(data[i].total_final).toLocaleString('en') );
+        $(thead).find('th').eq(3).html( "SALDO INICIAL: " + parseFloat(data[i].total_costo).toLocaleString('en') );
+      };
+
+    },
+    footerCallback: function( tfoot, data, start, end, display){
+        for (var i in data){
+          $(tfoot).find('th').eq(0).html( "EXISTENCIA FINAL: "+ parseFloat(data[i].total_despues).toLocaleString('en') );
+          $(tfoot).find('th').eq(1).html( "SALDO FINAL: "+ parseFloat(data[i].total_costo_despues).toLocaleString('en') );
+        };
+      },
+      dom: 'Bfrtip',
+      buttons: ['excel', 'pdf', 'copy'],
+      searching:true,
+      paging:false,
+      ordering:true,
+      processing:true,
+      destroy:true,
+      ajax:{
+        url:urlPrecio,
+        dataSrc:'',
+        cache:false,
+        processing:true,
+        data: function () {
+          return $('#precioestandar-list-form').serializeObject(true);
+        }
+      },
+      columns: [
+        {data: "fecha"},
+        {data: "id", render: function(data, type, full, meta){
+          return "<a href="+full.url+">"+full.id+"</a>";
+        }},
+        {data: "util"},
+        {data: "precio", render: function(data, type, full, meta){
+          return parseFloat(full.precio).toLocaleString('en');
+        }},
+        {data: "total", render: function(data, type, full, meta){
+          return parseFloat(full.total).toLocaleString('en');
+        }},
+        {data: "recolectora"},
+      ]
+    });
+    tablaPrecio.clear().draw();
+    //tablaPrecio.ajax.reload();
+  });
+  }
+}
+
+class ResumenInforme {
+  constructor() {
+  let precioestandar_informe = $("#precioestandar-list-form");
+  var urlPrecio= $('#precioestandar-table').data("api");
+  precioestandar_informe.submit(function (e){
+    e.preventDefault();
+    var tablaPrecio = $('#precioestandar-table').DataTable({
+    headerCallback:function (thead, data, start, end, display ){
+      for(var i in data){
+        $(thead).find('th').eq(0).html( data[i].rango_fechas);
+        $(thead).find('th').eq(1).html( "EXISTENCIA INICIAL: "+ parseFloat(data[i].total_inicial).toLocaleString('en') );
+        $(thead).find('th').eq(2).html( "SALDO INICIAL: " + parseFloat(data[i].costo_inicial).toLocaleString('en') );
+      };
+
+    },
+    footerCallback: function( tfoot, data, start, end, display){
+        for (var i in data){
+          $(tfoot).find('th').eq(0).html( "EXISTENCIA FINAL: "+ parseFloat(data[i].total_final).toLocaleString('en') );
+          $(tfoot).find('th').eq(1).html( "SALDO FINAL: "+ parseFloat(data[i].costo_final).toLocaleString('en') );
+        };
+      },
+      dom: 'Bfrtip',
+      buttons: ['excel', 'pdf', 'copy'],
+      searching:true,
+      paging:false,
+      ordering:true,
+      processing:true,
+      destroy:true,
+      ajax:{
+        url:urlPrecio,
+        dataSrc:'',
+        cache:false,
+        processing:true,
+        data: function () {
+          return $('#precioestandar-list-form').serializeObject(true);
+        }
+      },
+      columns: [
+        {data: "tipo"},
+        {data: "existencia_anterior", render: function(data, type, full, meta){
+          return parseFloat(full.existencia_anterior).toLocaleString('en');
+        }},
+        {data: "saldo_anterior", render: function(data, type, full, meta){
+          return parseFloat(full.saldo_anterior).toLocaleString('en');
+        }},
+        {data: "entradas", render: function(data, type, full, meta){
+          return parseFloat(full.entradas).toLocaleString('en');
+        }},
+        {data: "salidas", render: function(data, type, full, meta){
+          return parseFloat(full.salidas).toLocaleString('en');
+        }},
+        {data: "existencia", render: function(data, type, full, meta){
+          return parseFloat(full.existencia).toLocaleString('en');
+        }},
+        {data: "saldo_actual", render: function(data, type, full, meta){
+          return parseFloat(full.saldo_actual).toLocaleString('en');
+        }},
       ]
     });
     tablaPrecio.clear().draw();

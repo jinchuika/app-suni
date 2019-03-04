@@ -424,6 +424,7 @@ class LaptopPrintView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
             nuevo_cpu = inv_m.Dispositivo.objects.get(triage=triage_cpu.dispositivo).cast()
             try:
                 if nuevo_cpu.servidor is True:
+                    print(nuevo_cpu.version_sistema)
                     cpu_servidor = str(nuevo_cpu.version_sistema)
             except Exception as e:
                 print(e)
@@ -435,6 +436,7 @@ class LaptopPrintView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
             encargado = escuela_m.EscContacto.objects.get(escuela=escuela.escuela)
             context['Encargado'] = str(encargado.nombre)+" "+str(encargado.apellido)
         except ObjectDoesNotExist as e:
+            print(e)
             context['Encargado'] = "No Tiene Encargado"
         context['Laptos'] = nuevas_laptops
         context['Total'] = cantidad_total
@@ -464,11 +466,14 @@ class TabletPrintView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
             encargado = escuela_m.EscContacto.objects.get(escuela=escuela.escuela)
             context['Encargado'] = str(encargado.nombre)+" "+str(encargado.apellido)
             context['Jornada'] = encargado.escuela.jornada
+            print(encargado.escuela.jornada)
         except ObjectDoesNotExist as e:
+            print(e)
             context['Jornada'] = "No tiene Jornada"
             context['Encargado'] = "No Tiene Encargado"
         context['Tablets'] = nuevas_tablets
         context['Total'] = Total_Tablet.count()
+        print(nuevas_tablets)
         return context
 
 
@@ -511,6 +516,7 @@ class TpePrintView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
             nuevos_cpus.append(nueva_cpu)
             try:
                 if nueva_cpu.servidor is True:
+                    print(nueva_cpu.version_sistema)
                     cpu_servidor = str(nueva_cpu.version_sistema)
             except Exception as e:
                 print(e)
@@ -529,6 +535,7 @@ class TpePrintView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
             context['Encargado'] = str(encargado.nombre)+" "+str(encargado.apellido)
             context['Jornada'] = encargado.escuela.jornada
         except ObjectDoesNotExist as e:
+            print(e)
             context['Jornada'] = "No tiene Jornada"
             context['Encargado'] = "No Tiene Encargado"
         context['CPUs'] = nuevos_cpus
@@ -561,6 +568,7 @@ class MineducPrintView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
             nuevos_cpus.append(nueva_cpu)
             try:
                 if nueva_cpu.servidor is True:
+                    print(nueva_cpu.version_sistema)
                     cpu_servidor = str(nueva_cpu.version_sistema)
             except Exception as e:
                 print(e)

@@ -14,7 +14,7 @@ class EntradaForm(forms.ModelForm):
     class Meta:
         model = inv_m.Entrada
         fields = '__all__'
-        exclude = ['en_creacion', 'creada_por', 'recibida_por', 'fecha_cierre']
+        exclude = ['en_creacion', 'creada_por', 'recibida_por']
         widgets = {
             'tipo': forms.Select(attrs={'class': 'form-control select2'}),
             'fecha': forms.TextInput({'class': 'form-control datepicker'}),
