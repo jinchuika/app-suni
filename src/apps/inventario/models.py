@@ -498,7 +498,7 @@ class Dispositivo(models.Model):
 
     def get_absolute_url(self):
         cast = self.cast()
-        if cast:
+        if cast: 
             return cast.get_absolute_url()
         else:
             return ''
@@ -535,7 +535,8 @@ class Dispositivo(models.Model):
         buffer = BytesIO()
         img.save(buffer)
         filename = 'dispositivo-{}.png'.format(self.id)
-        filebuffer = InMemoryUploadedFile(buffer, None, filename, 'image/png', buffer.getbuffer().nbytes, None)        
+        filebuffer = InMemoryUploadedFile(buffer, None, filename, 'image/png', buffer.getbuffer().nbytes, None)
+        print(filebuffer)
         self.codigo_qr.save(filename, filebuffer)
 
     @classmethod
