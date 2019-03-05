@@ -20,7 +20,7 @@
           </div>
           <div class="box-body">
             <table class="table table-condensed">
-              <form action="{% url 'red_edit' triage=form.instance.triage%}" method="post">
+              <form action="{% url 'ap_edit' triage=form.instance.triage%}" method="post">
                 {%csrf_token%}
                 <table>
                   {{ form.as_table }}

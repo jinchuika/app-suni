@@ -18,9 +18,5 @@ router.register(r'periodofiscalinforme',
                 api_views.PeriodoFiscalPorExistenciaViewSet,
                 base_name='precioestandarexistencia')
 
-router.register(r'prueba',
-                api_views.PruebaJson,
-                base_name='prueba')
-
 urlpatterns = []
 urlpatterns += router.urls

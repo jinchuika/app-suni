@@ -37,6 +37,7 @@ class DispositivoViewSet(viewsets.ModelViewSet):
     ordering = ('entrada')
 
     def get_queryset(self):
+        dispositivo = self.request.query_params.get('id', None)
         triage = self.request.query_params.get('triage', None)
         tipo = self.request.query_params.get('tipo', None)
         marca = self.request.query_params.get('marca', None)
@@ -44,7 +45,7 @@ class DispositivoViewSet(viewsets.ModelViewSet):
         tarima = self.request.query_params.get('tarima', None)
         tipo_dis = self.request.user.tipos_dispositivos.tipos.all()
 
-        if triage:
+        if triage or dispositivo:
             return inv_m.Dispositivo.objects.all().filter(tipo__in=tipo_dis)
         elif tipo or marca or modelo or tarima:
             return inv_m.Dispositivo.objects.all().filter(valido=True, tipo__in=tipo_dis)

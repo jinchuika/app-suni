@@ -103,6 +103,7 @@ class DispositivoTipo(models.Model):
     tipo = models.CharField(max_length=100)
     slug = models.SlugField(unique=True)
     usa_triage = models.BooleanField(default=False)
+    conta = models.BooleanField(default=False)
 
     class Meta:
         verbose_name = "Tipo de dispositivo"
@@ -520,7 +521,7 @@ class Dispositivo(models.Model):
 
     def get_absolute_url(self):
         cast = self.cast()
-        if cast:
+        if cast: 
             return cast.get_absolute_url()
         else:
             return ''
@@ -708,6 +709,7 @@ class Teclado(Dispositivo):
         related_name='teclados',
         null=True,
         blank=True)
+    caja = models.CharField(max_length=30)
 
     class Meta:
         verbose_name = "Teclado"
@@ -750,6 +752,7 @@ class Mouse(Dispositivo):
         null=True,
         blank=True)
     tipo_mouse = models.ForeignKey(MouseTipo, on_delete=models.CASCADE, null=True, blank=True)
+    caja = models.CharField(max_length=30)
 
     class Meta:
         verbose_name = "Mouse"
@@ -826,9 +829,9 @@ class Tablet(Dispositivo):
         blank=True,
         null=True,
         related_name='almacenamiento_tablets')
-    pulgadas = models.PositiveIntegerField(null=True, blank=True)
+    pulgadas = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True)
     procesador = models.ForeignKey(Procesador, blank=True, null=True)
-    ram = models.PositiveIntegerField(null=True, blank=True)
+    ram = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True)
     medida_ram = models.ForeignKey(DispositivoMedida, null=True, blank=True, related_name='ram_tables')
     almacenamiento_externo = models.BooleanField(default=False)
 
@@ -897,7 +900,7 @@ class CPU(Dispositivo):
     procesador = models.ForeignKey(Procesador, on_delete=models.PROTECT, null=True, blank=True)
     version_sistema = models.ForeignKey(VersionSistema, on_delete=models.PROTECT, null=True, blank=True)
     disco_duro = models.ForeignKey(HDD, on_delete=models.PROTECT, null=True, blank=True, related_name='cpus')
-    ram = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
+    ram = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True)
     ram_medida = models.ForeignKey(DispositivoMedida, null=True, blank=True)
     servidor = models.BooleanField(default=False)
     all_in_one = models.BooleanField(default=False)
