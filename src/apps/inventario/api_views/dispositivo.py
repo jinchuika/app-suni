@@ -96,33 +96,53 @@ class DispositivoViewSet(viewsets.ModelViewSet):
         id = request.data['id']
         respuesta = request.data['respuesta']
         if respuesta == str(1):
-            print("Se aprobo la salida")
             solicitudes_movimiento = inv_m.SolicitudMovimiento.objects.get(id=id)
-            tipo_salida = kax_m.TipoSalida.objects.get(tipo="Inventario SUNI")
-            nuevo = kax_m.Salida(
-                tecnico=self.request.user,
-                fecha=datetime.now(),
-                tipo=tipo_salida,
-                inventario_movimiento=solicitudes_movimiento,
-                terminada=True
+            usado = kax_m.EstadoEquipo.objects.get(estado='Usado')
+            area_tecnica = kax_m.Proveedor.objects.get(nombre="Area Tecnica")
+            devolucion = kax_m.TipoEntrada.objects.get(tipo="Devolucion")
+            if solicitudes_movimiento.devolucion is True:
+                nuevo = kax_m.Entrada(
+                    estado=usado,
+                    proveedor=area_tecnica,
+                    tipo=devolucion,
+                    fecha=datetime.now(),
+                    terminada=True)
+                nuevo.save()
+                salida_creada = kax_m.Entrada.objects.all().last()
+                nuevo_detalle_kardez = kax_m.EntradaDetalle(
+                    entrada=salida_creada,
+                    equipo=kax_m.Equipo.objects.get(nombre=solicitudes_movimiento.tipo_dispositivo),
+                    cantidad=solicitudes_movimiento.cantidad,
+                    precio=0,
                 )
-            nuevo.save()
-
-            nuevo_detalle = kax_m.Salida.objects.get(inventario_movimiento=id)
-            detalle_salida = kax_m.SalidaDetalle(
-                salida=nuevo_detalle,
-                equipo=kax_m.Equipo.objects.get(nombre=solicitudes_movimiento.tipo_dispositivo),
-                cantidad=solicitudes_movimiento.cantidad
+                nuevo_detalle_kardez.save()
+                solicitudes_movimiento.terminada = True
+                solicitudes_movimiento.entrada_kardex = salida_creada.id
+                solicitudes_movimiento.save()
+            else:
+                tipo_salida = kax_m.TipoSalida.objects.get(tipo="Inventario SUNI")
+                nuevo = kax_m.Salida(
+                    tecnico=self.request.user,
+                    fecha=datetime.now(),
+                    tipo=tipo_salida,
+                    inventario_movimiento=solicitudes_movimiento,
+                    terminada=True
+                    )
+                nuevo.save()
+                nuevo_detalle = kax_m.Salida.objects.get(inventario_movimiento=id)
+                detalle_salida = kax_m.SalidaDetalle(
+                    salida=nuevo_detalle,
+                    equipo=kax_m.Equipo.objects.get(nombre=solicitudes_movimiento.tipo_dispositivo),
+                    cantidad=solicitudes_movimiento.cantidad
+                    )
+                detalle_salida.save()
+                solicitudes_movimiento.terminada = True
+                solicitudes_movimiento.salida_kardex = nuevo_detalle
+                solicitudes_movimiento.save()
+                return Response(
+                    {'mensaje': nuevo_detalle.id},
+                    status=status.HTTP_200_OK
                 )
-            detalle_salida.save()
-            solicitudes_movimiento.terminada = True
-            solicitudes_movimiento.salida_kardex = nuevo_detalle
-            solicitudes_movimiento.save()
-            return Response(
-                {'mensaje': nuevo_detalle.id},
-                status=status.HTTP_200_OK
-            )
-
         else:
             print("se rechazo la salida")
         solicitudes_movimiento = inv_m.SolicitudMovimiento.objects.get(id=id)
