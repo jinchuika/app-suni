@@ -194,6 +194,14 @@ class EntradaDetalle(models.Model):
             entrada=self.entrada,
             tipo=self.tipo_dispositivo)
 
+    def inventario_desecho(self):
+        queryset = self.detalle_entrada.all()
+        return sum(detalle.cantidad for detalle in queryset)
+
+    @property
+    def existencia_desecho(self):
+        return self.desecho - self.inventario_desecho()
+
     def save(self, *args, **kwargs):
         """Se debe validar que el detalle de una entrada que involucre precio, por ejemplo, una compra,
         incluya el precio total.
@@ -256,7 +264,6 @@ class EntradaDetalle(models.Model):
 
     def get_absolute_url(self):
         return self.entrada.get_absolute_url()
-
 
 class DescuentoEntrada(models.Model):
     entrada = models.ForeignKey(Entrada, on_delete=models.CASCADE, related_name='descuentos')
@@ -1125,7 +1132,8 @@ class DesechoDetalle(models.Model):
         EntradaDetalle,
         on_delete=models.PROTECT,
         null=True,
-        blank=True)
+        blank=True,
+        related_name="detalle_entrada")
     cantidad = models.PositiveIntegerField(default=0)
     tipo_dispositivo = models.ForeignKey(DispositivoTipo, on_delete=models.PROTECT, related_name='salidas_desecho')
     aprobado = models.BooleanField(default=False, blank=True)
@@ -1138,7 +1146,6 @@ class DesechoDetalle(models.Model):
         return '{desecho} {entrada}'.format(
             desecho=self.desecho,
             entrada=self.entrada_detalle)
-
 
 class DesechoDispositivo(models.Model):
     desecho = models.ForeignKey(DesechoSalida, on_delete=models.PROTECT, related_name='detalles_dispositivos')

@@ -647,6 +647,7 @@ class EntradaDetalleDetail {
     var urlRechazarDispositivo = $('#dispositivo-table').data("apirechazar");
     var urlTipoDispositivo = $('#dispositivo-table').data("tipo");
     var urlFinalizar = $('#salida-table').data("finalizar");
+    var urlredireccion = $('#salida-table').data("redireccion");
     $('#id_entrada_detalle').empty();
     var tabla = $('#salida-table').DataTable({
         searching: false,
@@ -664,13 +665,12 @@ class EntradaDetalleDetail {
         columns: [
             {data: "tdispositivo"},
             {data: "cantidad"},
-            {data: "desecho"},
-            {data: "entrada_detalle"},
+            {data: "entrada"},
             {data: "",render: function(data, type, full, meta){
               if(full.aprobado == false){
                 return "<a id='desecho-aprobar' data-id="+full.id+"  class='btn btn-success btn-aprobar-desecho'>Aprobar</a>";
               }else{
-                return ""
+                return "<span class='label label-success'>Aprobado</span>"
               }
 
             }},
@@ -734,7 +734,8 @@ class EntradaDetalleDetail {
                 detalle:data_fila.id
               },
               success: function (response) {
-                   location.reload();
+                tabla.clear().draw();
+                tabla.ajax.reload();
               },
               error: function (response) {
                 var mensaje = JSON.parse(response.responseText)
@@ -771,7 +772,8 @@ class EntradaDetalleDetail {
                               detalle:data_fila.id
                             },
                             success: function (response) {
-                                 location.reload();
+                              tabla.clear().draw();
+                              tabla.ajax.reload();
                             },
                             error: function (response) {
                               var mensaje = JSON.parse(response.responseText)
@@ -798,7 +800,8 @@ class EntradaDetalleDetail {
                       detalle:data_fila.id
                     },
                     success: function (response) {
-                         location.reload();
+                        tablaDispositivo.clear().draw();
+                        tablaDispositivo.ajax.reload();
                     },
                     error: function (response) {
                       var mensaje = JSON.parse(response.responseText)
@@ -834,7 +837,8 @@ class EntradaDetalleDetail {
                                 detalle:data_fila.id
                               },
                               success: function (response) {
-                                   location.reload();
+                                tablaDispositivo.clear().draw();
+                                tablaDispositivo.ajax.reload();
                               },
                               error: function (response) {
                                 var mensaje = JSON.parse(response.responseText)
@@ -855,6 +859,8 @@ class EntradaDetalleDetail {
                       }else{
                         /****/
                           var tipo = $(this).val();
+                          var data_result = []
+                          $("#id_entrada_detalle").select2("destroy");
                           $.ajax({
                             url:urlTipoDispositivo,
                             dataType:'json',
@@ -867,23 +873,63 @@ class EntradaDetalleDetail {
                             },
                             success:function(data){
                                 $('#id_entrada_detalle').empty();
-                                $('#id_entrada_detalle').append('<option value=""'+'>'+"---------"+'</option>');
+                                data_result.push('<optgroup class="def-cursor" label="Entrada" data-tipo="Tipo" data-cantidad="Existencia">')
+                                data_result.push('<option value="" data-tipo="-------" data-cantidad="-------">-------</option>');
                                 for (var i in data){
-                                  var label = data[i].entrada +"-"+data[i].tdispositivo+"("+data[i].desecho+")";
-                                  $('#id_entrada_detalle').append('<option value='+data[i].id + '>'+label+'</option>');
-                              }
-                             $('#id_entrada_detalle').val();
+                                  cantidad = data[i].existencia_desecho
+                                  if(cantidad > 0){
+                                    data_result.push('<option value='+data[i].id + ' data-tipo="'+data[i].tdispositivo+'" data-cantidad="'+cantidad+'">'+data[i].entrada+'</option>');
+                                  }
+                                }
+                                data_result.push('</optgroup>')
+                                $('#id_entrada_detalle').append(data_result);
                             },
                             type: 'GET'
                           }
                         );
-                        /****/
+                        $('#id_entrada_detalle').select2({
+                          width: '100%',
+                          tags: true,
+                          createTag: function (params) {
+                            return {
+                                id: params.term,
+                                text: params.term + $('#id_entrada_detalle').data(),
+                                newOption: true
+                            }
+                          },
+                          templateResult: function(data) {
+                            var tipo = $(data.element).data('tipo');
+                            var cantidad = $(data.element).data('cantidad');
+                            var classAttr = $(data.element).attr('class');
+                            var hasClass = typeof classAttr != 'undefined';
+                            classAttr = hasClass ? ' ' + classAttr : '';
 
+                              var $result = $(
+                                  '<div class="row">' +
+                                  '<div class="col-md-3 col-xs-6' + classAttr + '">' + data.text + '</div>' +
+                                  '<div class="col-md-4 col-xs-6' + classAttr + '">' + tipo + '</div>' +
+                                  '<div class="col-md-4 col-xs-6' + classAttr + '">' + cantidad + '</div>' +
+                                  '</div>');
+                              return $result;       
+                          },
+                          templateSelection: function (data) {
+                            if(!data.id) { return data.text }
+                            var tipo = $(data.element).data('tipo');
+                            var cantidad = $(data.element).data('cantidad');
+
+                            var result = data.text + ' - ' + tipo + '(' + cantidad + ')'
+                            return result
+                          }
+                        }).on('select2:select', function (e) {
+                          if (e.params.data.text != '') {
+
+                            var id = $(this).attr('id');
+                            var select2 = $("span[aria-labelledby=select2-" + id + "-container]");
+                            select2.removeAttr('style');
+                          }
+                        }); 
                       }
-
                     });
-
-
 
     SalidaDetalleList.init = function () {
         $('#btn-terminar').click(function () {
@@ -911,6 +957,7 @@ class EntradaDetalleDetail {
                         },
                         success: function (response) {
                              bootbox.alert(response.mensaje);
+                             window.location= urlredireccion;
                         },
                         error: function (response) {
                           var mensaje = JSON.parse(response.responseText)
@@ -937,7 +984,18 @@ class EntradaDetalleDetail {
                     console.log("datos ingresados correctamente");
 
                 },
+                error: function (response) {
+                  var mensaje = JSON.parse(response.responseText)
+                  bootbox.alert(mensaje.error[0]);
+                }
             });
+            $("#id_tipo_dispositivo").select2("destroy").select2();
+            $("#id_tipo_dispositivo").select2("val", "");
+
+
+            $("#id_entrada_detalle").select2("destroy").select2();
+            $("#id_entrada_detalle").select2("val", "");
+            $('#id_entrada_detalle').html('');
             tabla.clear().draw();
             tabla.ajax.reload();
             document.getElementById("detalleForm").reset();
@@ -951,7 +1009,6 @@ class EntradaDetalleDetail {
               data: $('#dispositivoForm').serialize(),
               success: function (response) {
                   console.log("datos ingresados correctamente");
-
               },
           });
           tablaDispositivo.clear().draw();
@@ -2868,5 +2925,18 @@ class EntradaDetalle_Dispositivo {
       destroy:true
     });
     tabla.clear().draw();
+
+    $('#selectSubstance').select2({
+      templateResult: function(data) {
+          var r = data.text.split('|');
+          var $result = $(
+              '<div class="row">' +
+                  '<div class="col-md-3">' + r[0] + '</div>' +
+                  '<div class="col-md-9">' + r[1] + '</div>' +
+              '</div>'
+          );
+          return $result;
+      }
+    });
   }
 }

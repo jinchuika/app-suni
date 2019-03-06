@@ -1,0 +1,1 @@
+from .inventario_extras import *

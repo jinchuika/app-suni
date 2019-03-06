@@ -1,5 +1,6 @@
 {% extends "base/base.html" %}
 {% load staticfiles widget_tweaks %}
+{% load inventario_extras %}
 {% block page_title %}
 <title>Salidas {{salidainventario}} y Paquetes</title>
 {% endblock page_title %}
@@ -11,8 +12,7 @@
 <section class="content">
 	<div class="container-fluid">
 		<div class="row">
-			{% for permiso in user.groups.all   %}
-			{%if permiso.name == "inv_cc" or permiso.name == 'inv_admin' %}
+			{% if request.user|has_group:"inv_bodega" or request.user|has_group:"inv_admin" %} 
 			<!-- Comienza el formulario -->
 			<div class="col-md-3 col-sm-3">
 				<div class="box">
@@ -109,8 +109,6 @@
 			</div>
 			<!--Aca termina el formulario-->
 			{%endif%}
-
-			{% endfor %}
 
 			<div class="col-md-9 col-sm-9">
 				<div class="box box-primary">

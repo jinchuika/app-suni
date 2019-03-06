@@ -1,5 +1,5 @@
-{% for  permiso in user.groups.all  %}
-{% if permiso.name == "inv_cc" or permiso.name == 'inv_admin'%}
+{% load inventario_extras %}
+{% if request.user|has_group:"inv_bodega" or request.user|has_group:"inv_admin" %} 
     {% load widget_tweaks %}
     {% block page_title %}
         <title>Cantidad de Paquetes</title>
@@ -28,5 +28,3 @@
         </form>
     {% endblock content %}
 {% endif %}
-
-{% endfor %}
