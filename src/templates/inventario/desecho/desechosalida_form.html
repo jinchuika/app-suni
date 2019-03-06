@@ -1,5 +1,6 @@
 {% extends "base/base.html" %}
 {%load staticfiles widget_tweaks %}
+{%load inventario_extras %}
 {% block page_title %}
 {%if form.instance.id%}
 <title>Desecho: {{form.instance.id}}</title>
@@ -67,8 +68,7 @@
           </div>
         </div>
         <!--Fin de la Informacion-->
-        {% for permiso in user.groups.all   %}
-        	{%if permiso.name == "inv_monitoreo" or permiso.name == 'inv_admin' %}
+        {% if request.user|has_group:"inv_monitoreo" or request.user|has_group:"inv_admin" %} 
         <div class="box">
           <div class="box-header">
             <div class="row">
@@ -100,11 +100,9 @@
           </div>
         </div>
         {%endif%}
-        {%endfor%}
         <!--Fin de Entrada-->
           {%if  form.instance.id%}
-          {% for permiso in user.groups.all   %}
-          	{%if permiso.name == "inv_bodega" or permiso.name == 'inv_admin' %}
+          {% if request.user|has_group:"inv_bodega" or request.user|has_group:"inv_admin" %} 
           <div class="box">
               <div class="box-header">
                 <div class="box-title">
@@ -126,7 +124,6 @@
               </div>
           </div>
           {%endif%}
-          {%endfor%}
           {%endif%}
       </div>
       <div class="col-md-8">
@@ -138,13 +135,13 @@
               </div>
             </div>
             <div class="box-body">
-              <table id="salida-table" class="table table-condensed" data-api="{% url 'inventario_api:api_desechodetalle-list' %}" data-pk ="{{form.instance.id}}" data-apiaprobar="{% url 'inventario_api:api_desechodispositivo-aprobar-detalle' %}" data-apirechazar="{% url 'inventario_api:api_desechodispositivo-rechazar-detalle' %}" data-finalizar="{% url 'inventario_api:api_desechodispositivo-finalizar-desecho' %}">
+              <table id="salida-table" class="table table-condensed" data-api="{% url 'inventario_api:api_desechodetalle-list' %}" data-pk ="{{form.instance.id}}" data-apiaprobar="{% url 'inventario_api:api_desechodispositivo-aprobar-detalle' %}" data-apirechazar="{% url 'inventario_api:api_desechodispositivo-rechazar-detalle' %}" data-finalizar="{% url 'inventario_api:api_desechodispositivo-finalizar-desecho' %}"
+              data-redireccion="{% url 'desechosalida_detail' pk=form.instance.id%}">
                 <thead>
                   <tr>
                     <th>Dispositivo</th>
                     <th>Cantidad</th>
-                    <th>Desecho</th>
-                    <th>Entrada No</th>
+                    <th>No. Entrada</th>
                     <th></th>
                     <th></th>
                   </tr>
