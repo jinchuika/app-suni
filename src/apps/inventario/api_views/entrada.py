@@ -20,7 +20,7 @@ class DetalleInformeFilter(filters.FilterSet):
     """
     tipo = django_filters.CharFilter(name='entrada')
     asignacion = filters.NumberFilter(name='asignacion', method='filter_asignacion')
-    desecho = filters.NumberFilter(lookup_expr='gt')
+    desecho = filters.NumberFilter(lookup_expr='gt', method='filter_desecho')
 
     class Meta:
         model = inv_m.EntradaDetalle
@@ -30,6 +30,8 @@ class DetalleInformeFilter(filters.FilterSet):
         tipo_dis = self.request.user.tipos_dispositivos.tipos.all()
         return qs.filter(entrada=value, tipo_dispositivo__in=tipo_dis)
 
+    def filter_desecho(self, qs, name, value):
+        return qs.filter(entrada__fecha__gte='2019-01-01')
 
 class EntradaDetalleViewSet(viewsets.ModelViewSet):
     """ ViewSet para generar las tablas de la :class:'EntradaDetalle'
