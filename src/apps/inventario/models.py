@@ -1429,6 +1429,12 @@ class SolicitudMovimiento(models.Model):
         blank=True,
         null=True,
         related_name='salida_kardex')
+    entrada_kardex = models.ForeignKey(
+        'kardex.Entrada',
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True,
+        related_name='entrada_kardex')
 
     class Meta:
         verbose_name = 'Solicitud de movimiento'
