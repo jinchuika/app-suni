@@ -86,7 +86,6 @@ class EntradaUpdate {
 
         $('#id_tipo_dispositivo').change( function() {
           $('#id_descripcion').val($('#id_tipo_dispositivo option:selected').text());
-          console.log($('#id_tipo_dispositivo option:selected').val());
           let urldispositivo = tabla_temp.api_url + key + "/validar_kardex/";
           let tipo_dispositivo=$('#id_tipo_dispositivo option:selected').val();
           EntradaUpdate.validar_kardex(urldispositivo, tipo_dispositivo);
@@ -1033,7 +1032,7 @@ class SolicitudMovimiento {
 
                       },
                       success: function (response) {
-                        location.reload();                        
+                        location.reload();
                       },
                   });
                 }

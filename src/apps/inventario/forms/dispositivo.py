@@ -384,7 +384,8 @@ class SolicitudMovimientoCreateForm(forms.ModelForm):
             'devolucion',
             'desecho',
             'rechazar',
-            'salida_kardex'
+            'salida_kardex',
+            'entrada_kardex'
 
             ]
         widgets = {
@@ -416,7 +417,10 @@ class DevolucionCreateForm(forms.ModelForm):
             'etapa_final',
             'recibida',
             'recibida_por',
-            'devolucion'
+            'devolucion',
+            'rechazar',
+            'salida_kardex',
+            'entrada_kardex'
             ]
         widgets = {
             'tipo_dispositivo': forms.Select(attrs={'class': 'form-control'}),

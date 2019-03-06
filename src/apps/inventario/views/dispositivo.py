@@ -143,8 +143,11 @@ class DevolucionCreateView(LoginRequiredMixin, CreateView):
         form.fields['tipo_dispositivo'].queryset = self.request.user.tipos_dispositivos.tipos.all()
         return form
 
-    def get_success_url(self):
-        return reverse('solicitudmovimiento_update', kwargs={'pk': self.object.id})
+    def get_success_url(self):        
+        if self.object.tipo_dispositivo.usa_triage:
+            return reverse('solicitudmovimiento_update', kwargs={'pk': self.object.id})
+        else:
+            return reverse('solicitudmovimiento_detail', kwargs={'pk': self.object.id})
 
 
 class SolicitudMovimientoUpdateView(LoginRequiredMixin, UpdateView):
