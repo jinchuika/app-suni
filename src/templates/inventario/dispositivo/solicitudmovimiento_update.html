@@ -4,7 +4,6 @@
     <title>Solicitud de movimiento</title>
 {% endblock page_title %}
 {% block content %}
-{% if object.rechazar %}
 <section class="content">
     <div class="container-fluid">
         <div class="row">
@@ -70,7 +69,6 @@
         </div>
     </div>
 </section>
-{% endif %}
 {% endblock content %}
 {% block extra_js %}
     <script src="{% static "js/extrajs/inventario.js" %}"></script>

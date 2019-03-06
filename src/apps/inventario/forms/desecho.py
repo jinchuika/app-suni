@@ -59,7 +59,6 @@ class DesechoDetalleForm(forms.ModelForm):
                 'cantidad': forms.TextInput({'class': 'form-control'}),
                 }
 
-
 class DesechoDispositivoForm(forms.ModelForm):
     """Formulario para ingresar dispositivos a desechar"""
     dispositivo = forms.ModelMultipleChoiceField(
