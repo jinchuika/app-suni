@@ -24,7 +24,7 @@ urlpatterns = [
     # Actualizar datos de la empresa
     url(
         r'^desechoempresa/(?P<pk>\d+)/edit$',
-        inventario_v.DesechoEmpresaDetailView.as_view(),
+        inventario_v.DesechoEmpresaUpdateView.as_view(),
         name='desechoempresa_update'
     ),
     # Creacion de salidas de desecho

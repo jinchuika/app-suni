@@ -25,7 +25,7 @@ class EntradaDetalleSerializer(serializers.ModelSerializer):
     # Kardex
     url_kardex = serializers.SerializerMethodField(read_only=True)
     # Desecho
-    existencia_desecho = serializers.IntegerField()
+    existencia_desecho = serializers.IntegerField(read_only=True)
 
 
     class Meta:
