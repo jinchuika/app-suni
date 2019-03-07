@@ -7,7 +7,7 @@ from apps.inventario import models as inv_m
 class DesechoDetalleSerializer(serializers.ModelSerializer):
     """ Serializer para generar informes de la :class:'DesechoDetalle'
     """
-    tdispositivo = serializers.StringRelatedField(source='tipo_dispositivo', read_only=True)
+    tdispositivo = serializers.StringRelatedField(source='entrada_detalle.descripcion', read_only=True)
     entrada = serializers.StringRelatedField(source='entrada_detalle.entrada', read_only=True)
 
     class Meta:

@@ -66,7 +66,7 @@ class EntradaDetalleSerializer(serializers.ModelSerializer):
             )
 
     def get_tdispositivo(self, object):
-        return object.tipo_dispositivo.__str__()
+        return object.descripcion
 
     def get_update_url(self, object):
         return reverse_lazy('entradadetalle_update', kwargs={'pk': object.id})
