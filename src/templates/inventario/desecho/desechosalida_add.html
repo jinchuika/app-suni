@@ -32,6 +32,24 @@
             </div>
           </div>
         </div>
+        <div class="box">
+          <div class="box-header">
+            <div class="box-title">
+                <h3><b>Desecho Pendiente</b></h3>
+            </div>
+            <div class="box-body">
+              <table id="desecho-pendiente-table" class="table table-condensed" data-tipo="{% url 'inventario_api:api_detalles-list' %}">
+                <thead>
+                  <th>Entrada </th>
+                  <th>Dispositivo</th>
+                  <th>Cantidad</th>
+                </thead>
+                <tbody>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
       </div>
       {%endif%}
       <div class="col-md-6">
