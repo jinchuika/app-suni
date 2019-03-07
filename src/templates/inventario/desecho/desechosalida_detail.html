@@ -59,7 +59,13 @@
 							<tr>
 								<th>Observaciones</th>
 								<td>
-									{{desechosalida.observaciones}}
+									{{desechosalida.observaciones|default_if_none:""}}
+								</td>
+							</tr>
+							<tr>
+								<th>Fotos</th>
+								<td>
+									{{desechosalida.url|default_if_none:""}}
 								</td>
 							</tr>
 						</table>
