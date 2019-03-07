@@ -31,7 +31,9 @@ class DetalleInformeFilter(filters.FilterSet):
         return qs.filter(entrada=value, tipo_dispositivo__in=tipo_dis)
 
     def filter_desecho(self, qs, name, value):
-        return qs.filter(entrada__fecha__gte='2019-01-01')
+        queryset = qs.filter(entrada__fecha__gte='2019-01-01')
+        queryset = [obj for obj in queryset if obj.existencia_desecho > value]
+        return queryset
 
 class EntradaDetalleViewSet(viewsets.ModelViewSet):
     """ ViewSet para generar las tablas de la :class:'EntradaDetalle'

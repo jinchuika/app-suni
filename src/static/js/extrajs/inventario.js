@@ -650,9 +650,9 @@ class EntradaDetalleDetail {
     var urlredireccion = $('#salida-table').data("redireccion");
     $('#id_entrada_detalle').empty();
     var tabla = $('#salida-table').DataTable({
-        searching: false,
+        searching: true,
         paging: true,
-        ordering: false,
+        ordering: true,
         processing: true,
         ajax: {
             url: urlapi,
@@ -687,9 +687,9 @@ class EntradaDetalleDetail {
 
     /**/
     var tablaDispositivo = $('#dispositivo-table').DataTable({
-        searching: false,
+        searching: true,
         paging: true,
-        ordering: false,
+        ordering: true,
         processing: true,
         ajax: {
             url: urlDispositivo,
@@ -2899,6 +2899,7 @@ $("#devolver").click( function(){
 }
 class Desecho {
   constructor() {
+    var urlDispositivo = $('#desecho-pendiente-table').data("tipo");
     var fecha = new Date();
     var dia = fecha.getDate();
     var mes = fecha.getMonth()+1;
@@ -2911,6 +2912,23 @@ class Desecho {
     }
     var fecha = year+'-'+mes+'-'+dia;
     $('#id_fecha').val(fecha);
+
+    var tablaDispositivo = $('#desecho-pendiente-table').DataTable({
+        ajax: {
+            url: urlDispositivo,
+            dataType: 'json',
+            dataSrc: '',
+            cache: true,
+            data: {
+              desecho : 0
+            }
+        },
+        columns: [
+            {data: "entrada"},
+            {data: "tdispositivo"},
+            {data: "existencia_desecho"},
+        ]
+    });
 
   }
 }
