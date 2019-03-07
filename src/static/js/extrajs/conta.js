@@ -55,10 +55,10 @@ class PrecioEstandar {
         }},
         {data: "creado_por"},
         {data: "activo", render: function(data, type, full, meta){
-             if(full.activo == true){
-               return "<button id='buttonrevaluar'"+"data-tipo='"+full.tipo_dispositivo+"'class='btn btn-info btn-revaluar'>Reevaluar</button>";
+             if(full.revaluar == false && full.activo == true){
+              return "<a id='revaluar-precio' data-id="+full.id+"  class='btn btn-info btn-revaluar'>Revaluar</a>";
              }else{
-               return "";
+               return "<span class='label label-success'>Revaluado</span>";
              }
         }}
       ]
@@ -68,13 +68,13 @@ class PrecioEstandar {
     tablaPrecio.ajax.reload();
     var tablaPreciobody = $('#precioestandar-table tbody');
     tablaPreciobody.on('click', '.btn-revaluar',function (){
-      let tipo= tablaPrecio.row($(this).parents('tr')).data();
+      let data_fila= tablaPrecio.row($(this).parents('tr')).data();
       $.ajax({
             type: 'POST',
             url: urlPrecio+"reevaluar/",
             data: {
                 csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
-                tipo_dispositivo:tipo.tipo_dispositivo
+                id:data_fila.id
             },
             success: function (response) {
               bootbox.alert("Reevaluacion completa");
@@ -84,9 +84,6 @@ class PrecioEstandar {
 
     });
   });
-
-
-
   }
 }
 class PrecioEstandarInforme {

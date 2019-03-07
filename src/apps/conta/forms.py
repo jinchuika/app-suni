@@ -37,11 +37,11 @@ class PrecioEstandarForm(forms.ModelForm):
     class Meta:
         model = conta_m.PrecioEstandar
         fields = '__all__'
-        exclude = ['periodo', 'creado_por']
+        exclude = ['periodo', 'creado_por','revaluar']
         widgets = {
             'tipo_dispositivo': forms.Select(attrs={'class': 'form-control select2'}),
             'activo': forms.HiddenInput(),
-            'precio': forms.TextInput(attrs={'class': 'form-control'}),
+            'precio': forms.NumberInput(attrs={'class': 'form-control'}),
             'inventario': forms.Select(attrs={'class': 'form-control select2'})
         }
 
