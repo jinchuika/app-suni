@@ -18,7 +18,7 @@ class DesechoEmpresaCreateView(LoginRequiredMixin, CreateView, GroupRequiredMixi
     template_name = 'inventario/desecho/desechoempresa_form.html'
     group_required = [u"inv_bodega", u"inv_admin", u"inv_monitoreo"]
 
-class DesechoEmpresaUpdateView(LoginRequiredMixin, CreateView, GroupRequiredMixin):
+class DesechoEmpresaUpdateView(LoginRequiredMixin, UpdateView, GroupRequiredMixin):
     """Vista   para obtener los datos de Entrada mediante una :class:`DesechoEmpresa`
     Funciona  para recibir los datos de un  'DesechoEmpresaForm' mediante el metodo  POST.  y
     nos muestra el template de visitas mediante el metodo GET.
@@ -29,7 +29,7 @@ class DesechoEmpresaUpdateView(LoginRequiredMixin, CreateView, GroupRequiredMixi
     group_required = [u"inv_bodega", u"inv_admin", u"inv_monitoreo"]
 
     def get_success_url(self):
-        return reverse('desechoempresa_list', kwargs={'pk': self.object.id})
+        return reverse('desechoempresa_list')
 
 
 class DesechoEmpresaDetailView(LoginRequiredMixin, DetailView, GroupRequiredMixin):
