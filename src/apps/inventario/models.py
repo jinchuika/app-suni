@@ -1094,6 +1094,9 @@ class DispositivoRepuesto(models.Model):
 
 class DesechoEmpresa(models.Model):
     nombre = models.CharField(max_length=50)
+    encargado = models.CharField(max_length=100)
+    telefono = models.IntegerField(verbose_name="Número Telefónico")
+    dpi = models.CharField(max_length=14)
 
     class Meta:
         verbose_name = "Empresa de desecho"
@@ -1103,7 +1106,7 @@ class DesechoEmpresa(models.Model):
         return self.nombre
 
     def get_absolute_url(self):
-        return reverse_lazy('desechoempresa_detail', kwargs={'pk': self.id})
+        return reverse_lazy('desechoempresa_update', kwargs={'pk': self.id})
 
 
 class DesechoSalida(models.Model):
@@ -1114,6 +1117,7 @@ class DesechoSalida(models.Model):
     creado_por = models.ForeignKey(User, on_delete=models.PROTECT)
     observaciones = models.TextField(null=True, blank=True)
     en_creacion = models.BooleanField(default=True, blank=True, verbose_name='En creación')
+    url = models.TextField(null=True, blank=True)
 
     class Meta:
         verbose_name = "Salida de desecho"
