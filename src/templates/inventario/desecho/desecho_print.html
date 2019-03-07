@@ -22,7 +22,7 @@ Constancia Desecho
 </div>
 <br />
 <p class="saludo">
-Por este medio se hace constar que se esta entregando a la recicladora {{desechosalida.empresa}} lo siguiente en desecho:
+Por este medio se hace constar que se esta entregando a la empresa {{desechosalida.empresa}} lo siguiente en desecho:
 </p>
 <center>
 <table class="cuerpo">
@@ -52,7 +52,7 @@ Por este medio se hace constar que se esta entregando a la recicladora {{desecho
           {{desecho.cantidad}}
         </td>
         <td>
-          {{desecho.entrada_detalle.tipo_dispositivo}}
+          {{desecho.entrada_detalle.descripcion}}
         </td>
       </tr>
       {%endfor%}
@@ -129,6 +129,27 @@ Por este medio se hace constar que se esta entregando a la recicladora {{desecho
         <br/>
         Técnico Senior
       </th>
+    </tr>
+  </thead>
+</table>
+<br/><br/><br/>
+<table width="50%">
+  <thead>
+    <tr>
+      <td>Empresa de Desecho: </td>
+      <td>{{desechosalida.empresa.nombre}}</td>
+    </tr>
+    <tr>
+      <td>Encargado: </td>
+      <td>{{desechosalida.empresa.encargado}}</td>
+    </tr>
+    <tr>
+      <td>DPI: </td>
+      <td>{{desechosalida.empresa.dpi}}</td>
+    </tr>
+    <tr>
+      <td>Firma: </td>
+      <td><br/>__________________</td>
     </tr>
   </thead>
 </table>

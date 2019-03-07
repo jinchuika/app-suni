@@ -706,7 +706,7 @@ class EntradaDetalleDetail {
               if(full.aprobado == false){
                   return "<a id='desecho-aprobar' data-triage="+full.dispositivo+"  class='btn btn-success btn-aprobar-dispositivo'>Aprobar</a>";
               }else{
-                return "";
+                return "<span class='label label-success'>Aprobado</span>"
               }
 
 
