@@ -521,7 +521,7 @@ class Dispositivo(models.Model):
 
     def get_absolute_url(self):
         cast = self.cast()
-        if cast: 
+        if cast:
             return cast.get_absolute_url()
         else:
             return ''
@@ -709,7 +709,7 @@ class Teclado(Dispositivo):
         related_name='teclados',
         null=True,
         blank=True)
-    caja = models.CharField(max_length=30)
+    caja = models.CharField(max_length=30, null=True, blank=True)
 
     class Meta:
         verbose_name = "Teclado"
@@ -752,7 +752,7 @@ class Mouse(Dispositivo):
         null=True,
         blank=True)
     tipo_mouse = models.ForeignKey(MouseTipo, on_delete=models.CASCADE, null=True, blank=True)
-    caja = models.CharField(max_length=30)
+    caja = models.CharField(max_length=30,  null=True, blank=True)
 
     class Meta:
         verbose_name = "Mouse"
@@ -1295,6 +1295,8 @@ class Paquete(models.Model):
         null=True,
         blank=True)
     aprobado = models.BooleanField(default=False, blank=True)
+    aprobado_kardex = models.BooleanField(default=False, blank=True)
+    desactivado = models.BooleanField(default=False, blank=True)
     entrada = models.ManyToManyField(Entrada, related_name='tipo_entrada', blank=True, null=True)
 
     class Meta:

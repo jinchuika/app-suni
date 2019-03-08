@@ -1503,6 +1503,11 @@ class SalidasRevisarList {
 
 class Salidas {
   constructor() {
+    let tabla_paquetes = $('#salidas-paquete-table');
+    var disponible =0;
+    var dispositivo_triage = 0;
+    var urlrechazar_kardex = $("#id-reasignar").data("kardexrechazar");
+    var urlraprobar_kardex = $("#id-reasignar").data("kardexaprobar");
     var url_salida= $("#salidas-table").data("url");
     var url_salida_paquete= $("#salidas-paquete-table").data("url");
     var salida_pk= $("#salidas-paquete-table").data("pk");
@@ -1599,7 +1604,7 @@ class Salidas {
       ]
     });
 
-    $('#salidas-paquete-table').DataTable({
+    var nueva_tabla = tabla_paquetes.DataTable({
       dom: 'lfrtipB',
       buttons: ['excel','pdf'],
       ajax:{
@@ -1609,6 +1614,7 @@ class Salidas {
         data: function () {
           return {
             asignacion: salida_pk,
+            desactivado:false
           }
         }
 
@@ -1634,12 +1640,27 @@ class Salidas {
           if(full.tipo_salida == "Especial" ){
             return ""
           }else{
-            return "<a target='_blank' rel='noopener noreferrer' href="+full.url_detail+" class='btn btn-success'>Ver Dispositivos</a>";
+            if(full.usa_triage == "False"){
+              if(full.aprobado == true){
+                return " ";
+              }else{
+                return "<a id='conta-aprobar'  class='btn btn-success btn-aprobar-conta'>Aprobar</a>";
+              }
+            }else{
+              return "<a target='_blank' rel='noopener noreferrer' href="+full.url_detail+" class='btn btn-success'>Ver Dispositivos</a>";
+            }
+
           }
         }},
         {data:"", render: function(data, type, full, meta){
           if(full.aprobado ==false){
-            return "<a target='_blank' rel='noopener noreferrer' href="+full.urlPaquet+" class='btn btn-primary'>Asignar Dispositivos</a>";
+            if(full.usa_triage == "False"){
+              return "<a id='conta-rechazar'  class='btn btn-warning btn-rechazar-conta'>Rechazar</a>";
+
+            }else{
+              return "<a target='_blank' rel='noopener noreferrer' href="+full.urlPaquet+" class='btn btn-primary'>Asignar Dispositivos</a>";
+            }
+
           }else{
             return "";
           }
@@ -1648,6 +1669,62 @@ class Salidas {
       ]
     });
 
+    /**Boton Aprobar Dispositivos**/
+    nueva_tabla.on('click','.btn-aprobar-conta', function () {
+     let data_fila = nueva_tabla.row($(this).parents('tr')).data();
+      $.ajax({
+        type: "POST",
+        url: urlraprobar_kardex,
+        data:{
+          csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
+          id_paquete:data_fila.id_paquete
+        },
+        success: function (response){
+            bootbox.alert("Paquete aprovado");
+            location.reload();
+        },
+      });
+
+    } );
+    /**Boton  de Rechazo de Dispositivos**/
+    nueva_tabla.on('click','.btn-rechazar-conta', function () {
+      let data_fila = nueva_tabla.row($(this).parents('tr')).data();
+      /****/
+     bootbox.confirm({
+         message: "Esta seguro de rechazar el paquete?",
+         buttons: {
+             confirm: {
+                 label: 'Si',
+                 className: 'btn-success'
+             },
+             cancel: {
+                 label: 'No',
+                 className: 'btn-danger'
+             }
+         },
+         callback: function (result) {
+           if(result==true){
+             console.log(urlrechazar);
+             $.ajax({
+               type: "POST",
+               url: urlrechazar_kardex,
+               data:{
+                 csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
+                 id_paquete:data_fila.id_paquete
+               },
+               success: function (response){
+                  bootbox.alert("Paquete Rechazado");
+                  location.reload();
+               },
+             });
+           }
+
+             console.log('This was logged in the callback: ' + result);
+         }
+       });
+      /****/
+    });
+//select2
     this.asig_salidas =$('#id_entrada');
     let api_urlentrada=this.asig_salidas.data('api-url');
     let beneficiario = $('#salidas-paquete-table').data("beneficiario");
@@ -1752,6 +1829,58 @@ class Salidas {
                     });
         }
     });
+
+    /***/
+
+      var url_kardex = $('#id-reasignar').data('kardex');
+      $("#label_kardex").css({"visibility":"hidden"});
+      $('#id_tipo_paquete').change(function(){
+        var cantidad  = $('#id_cantidad').val();
+        var tipo_paquete = $(this).val();
+        $.ajax({
+          type: "POST",
+          url: url_kardex,
+          data:{
+            csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
+            tipo_dispositivo:tipo_paquete
+          },
+          success: function (response){
+            if(response['mensaje']=="Usa Triage"){
+              $('#id_cantidad').val("");
+                dispositivo_triage =1;
+                $("#label_kardex").css({"visibility":"hidden"});
+                $('#existencia_kardex').html(" ");
+            }else{
+              $('#id_cantidad').val("");
+              $("#label_kardex").css({"visibility":"visible"});
+               $('#existencia_kardex').html("<b>"+response['mensaje']);
+               disponible = parseInt(response['mensaje']);
+            }
+          },
+          error:function(error){
+          },
+        });
+      });
+    /***/
+    $('#id_cantidad').focusout(function() {
+      if (dispositivo_triage == 1){
+        $('#paquetes_add').css({"visibility":"visible"});
+        $("#label_kardex").css({"visibility":"hidden"});
+         $('#existencia_kardex').html(" ");
+         dispositivo_triage=0;
+      }else{
+        var cantidad  = $('#id_cantidad').val();
+        if(cantidad > disponible){
+          $('#paquetes_add').css({"visibility":"hidden"});
+          $('#id_cantidad').val("");
+          bootbox.alert("No has dipositivos suficientes para asignar");
+        }else{
+           $('#paquetes_add').css({"visibility":"visible"});
+        }
+      }
+
+    });
+    /**/
     $('#id_tipo_salida').change(function(){
       var tipoSalida = $(this).val();
       var tipoSalidaText = $('#id_tipo_salida option:selected').text()
@@ -1918,6 +2047,10 @@ class PaquetesRevisionList {
     var api_paquete_salida= $('#paquetes-revision').data('id');
     let api_aprobar_salida=$('#aprobar-btn').data('url')
     let  dispositivo_revision_tabla = $('#dispositivo-salida-paquetes-revision');
+    //tablas kardexa
+    let api_paquetes_revision_kardex = $('#paquetes-revision-kardex').data('url');
+    let paquete_revision_aprobado_kardex = $('#dispositivo-salida-paquetes-revision-kardex');
+    let paquetes_revision_tabla_kardex = $('#salida-paquetes-revision-kardex');
     var  tablaPaquetes = paquetes_revision_tabla.DataTable({
       processing:true,
       retrieve:true,
@@ -2124,7 +2257,130 @@ class PaquetesRevisionList {
        }
      });
     });
+    /*Tablas de Kardex*/
+    //Tabla paquetes diponibles de kardex
+    var  tablaPaquetesKardex = paquetes_revision_tabla_kardex.DataTable({
+      processing:true,
+      retrieve:true,
+      ajax:{
+        url:api_paquetes_revision_kardex,
+        dataSrc:'',
+        cache:false,
+        deferRender:true,
+        processing:true,
+        data: function () {
+          return {
+            salida:api_paquete_salida,
+            aprobado_kardex:true,
+            aprobado:false
+          }
+        }
+      },
+      columns:[
+        {data:"id"},
+        {data:"tipo_paquete", render: function(data,type, full, meta){
+          return data
+        }} ,
+        {data:" " ,render: function(data, type, full, meta){
+            return "<a id='conta-aprobar' data-triage="+full.dispositivo+"  class='btn btn-success btn-aprobar-conta-kardex'>Aprobar</a>";
+        }},
+        {data:" " ,render: function(data, type, full, meta){
+            return "<a id='conta-rechazar' data-paquete="+full.paquete+" data-triage="+full.dispositivo+"  class='btn btn-warning btn-rechazar-conta-kardex'>Rechazar</a>";
+        }}
+          ]
 
+    });
+    //Tabla de Paquetes aprobados
+    var  tablaPaquetesDispositivosKardex = paquete_revision_aprobado_kardex.DataTable({
+      processing:true,
+      retrieve:true,
+      ajax:{
+        url:api_paquetes_revision_kardex,
+        dataSrc:'',
+        cache:false,
+        deferRender:true,
+        processing:true,
+        data: function () {
+          return {
+            salida:api_paquete_salida,
+            aprobado:true,
+            aprobado_kardex:true
+          }
+        }
+      },
+      columns:[
+        {data:"id"},
+        {data:"tipo_paquete", render: function(data,type, full, meta){
+          return data
+        }} ,
+          ]
+    });
+
+    /**Boton Aprobar, paquetes de tipo kardex**/
+    tablaPaquetesKardex.on('click','.btn-aprobar-conta-kardex', function () {
+      let data_fila = tablaPaquetesKardex.row($(this).parents('tr')).data();
+      $.ajax({
+        type: "POST",
+        url: urlraprobar,
+        data:{
+          csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
+          paquete:data_fila.id_paquete,
+          kardex:true
+        },
+        success: function (response){
+            bootbox.alert("Paquete aprovado");
+            location.reload();
+        },
+      });
+
+    });
+    /**Boton  de Rechazo, Paquetes, tipo kardex**/
+    tablaPaquetesKardex.on('click','.btn-rechazar-conta-kardex', function () {
+      let data_fila = tablaPaquetesKardex.row($(this).parents('tr')).data();
+      /****/
+     bootbox.confirm({
+         message: "Esta seguro de rechazar este paquete",
+         buttons: {
+             confirm: {
+                 label: 'Si',
+                 className: 'btn-success'
+             },
+             cancel: {
+                 label: 'No',
+                 className: 'btn-danger'
+             }
+         },
+         callback: function (result) {
+           if(result==true){
+             $.ajax({
+               type: "POST",
+               url: urlrechazar,
+               data:{
+                 csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
+                 paquete:data_fila.id_paquete,
+                 kardex:true
+               },
+               success: function (response){
+                var id_comentario = $("#paquetes-revision").data('id');
+                 var url = $("#paquetes-revision").data('urlhistorico');
+                 bootbox.prompt({
+                   title: "Por que rechazo este dispositivo?",
+                   inputType: 'textarea',
+                   callback: function (result) {
+                     if (result) {
+                       crear_historial_salidas(url, id_comentario, result);
+                     }
+                   }
+                 });
+               },
+             });
+           }
+
+             console.log('This was logged in the callback: ' + result);
+         }
+       });
+      /****/
+    });
 
   }
 }

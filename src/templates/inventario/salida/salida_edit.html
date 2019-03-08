@@ -22,7 +22,7 @@
 										<h3 class="box-title">Informacion de Salida</h3>
 								</div>
 								<div class="col-md-3">
-											<button  id="id-reasignar" class="btn btn-danger btn-rechazar" data-entrega={{salidainventario.beneficiario}} data-urlreasignar="{%url 'inventario_api:api_inventariosalidas-reasignar-salida'%}" data-urldonantes="{%url 'crm_api:donante-list'%}">Reasignar</button>
+											<button  id="id-reasignar" class="btn btn-danger btn-rechazar" data-entrega={{salidainventario.beneficiario}} data-urlreasignar="{%url 'inventario_api:api_inventariosalidas-reasignar-salida'%}" data-urldonantes="{%url 'crm_api:donante-list'%}" data-kardex="{%url 'inventario_api:api_inventariosalidas-stock-kardex' pk=object.id%}" data-kardexaprobar="{%url 'inventario_api:api_revisionsalidas-aprobar-paquete-kardex' pk=object.id%}" data-kardexrechazar="{%url 'inventario_api:api_revisionsalidas-rechazar-paquete-kardex' pk=object.id%}">Reasignar</button>
 								</div>
 							</div>
 					</div>

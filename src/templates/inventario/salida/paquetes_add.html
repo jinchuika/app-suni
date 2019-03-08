@@ -10,8 +10,15 @@
             <table class="table table-condensed">
                 {{ paquetes_form.as_table }}
                 <tr>
+                  <td id="label_kardex">
+                      <b>Existencia en Kardex:
+                    </td>
+                    <td id="existencia_kardex">
+                    </td>
+                  </tr>
+                <tr>
                     <td>
-                        <input type="submit" class="btn btn-success" value="Agregar"/>
+                        <input id="paquetes_add" type="submit" class="btn btn-success" value="Agregar"/>
                     </td>
                 </tr>
             </table>
