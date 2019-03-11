@@ -86,13 +86,13 @@ class EntradaDetalleForm(forms.ModelForm):
         entrada = kwargs.pop('initial', None)['entrada']
         super(EntradaDetalleForm, self).__init__(*args, **kwargs)
         self.fields['entrada'].initial = entrada
+
         if not entrada.tipo.contable:
             self.fields['precio_subtotal'].empty_label = None
             self.fields['precio_subtotal'].label = ''
             self.fields['precio_subtotal'].widget = forms.TextInput(
                 attrs={'class': 'form-control', 'style': "visibility:hidden"})
             self.fields['precio_subtotal'].initial = ""
-
 
 class EntradaDetalleUpdateForm(forms.ModelForm):
     """ Formulario para la :`class`:`EntradaDetalleView` que es la encargada de actualizar  los datos

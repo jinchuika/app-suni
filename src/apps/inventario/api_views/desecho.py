@@ -4,6 +4,7 @@ from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from braces.views import LoginRequiredMixin
+from apps.conta import models as conta_m
 from apps.inventario import (
     serializers as inv_s,
     models as inv_m
@@ -126,9 +127,24 @@ class DesechoDispositivoViewSet(viewsets.ModelViewSet):
             aprobar_dispositivos = inv_m.DesechoDispositivo.objects.filter(desecho=id_desecho)
             if detalles_aprobados == detalles:
                 if dispositivos_aprobados == dispositivos:
+                    periodo_actual = conta_m.PeriodoFiscal.objects.get(actual=True)
+                    
                     for aprobar in aprobar_dispositivos:
+                        precio = conta_m.PrecioDispositivo.objects.get(dispositivo = aprobar.dispositivo, activo= True)
                         aprobar.dispositivo.etapa = inv_m.DispositivoEtapa.objects.get(id=inv_m.DispositivoEtapa.DS)
+                        aprobar.dispositivo.valido = False
                         aprobar.dispositivo.save()
+
+                        # Generar movimiento de salida
+                        movimiento = conta_m.MovimientoDispositivo(
+                            fecha=desecho.fecha,
+                            dispositivo=aprobar.dispositivo,
+                            periodo_fiscal=periodo_actual,
+                            tipo_movimiento=conta_m.MovimientoDispositivo.BAJA,
+                            referencia='Salida Desecho{}'.format(desecho.id),
+                            precio=precio.precio)
+                        movimiento.save()
+
                     desecho.en_creacion = False
                     desecho.save()
                     return Response(

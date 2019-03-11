@@ -42,6 +42,7 @@ class PrecioEstandar(models.Model):
     precio = models.DecimalField(max_digits=12, decimal_places=2, default=0.0)
     inventario = models.CharField(max_length=12, choices=INVENTARIO_CHOICES, default=DISPOSITIVO)
     creado_por = models.ForeignKey(User, on_delete=models.PROTECT)
+    revaluar = models.BooleanField(default=False, blank=True)
 
     class Meta:
         unique_together = ('periodo', 'tipo_dispositivo', 'inventario')

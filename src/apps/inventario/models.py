@@ -194,6 +194,14 @@ class EntradaDetalle(models.Model):
             entrada=self.entrada,
             tipo=self.tipo_dispositivo)
 
+    def inventario_desecho(self):
+        queryset = self.detalle_entrada.all()
+        return sum(detalle.cantidad for detalle in queryset)
+
+    @property
+    def existencia_desecho(self):
+        return self.desecho - self.inventario_desecho()
+
     def save(self, *args, **kwargs):
         """Se debe validar que el detalle de una entrada que involucre precio, por ejemplo, una compra,
         incluya el precio total.
@@ -256,7 +264,6 @@ class EntradaDetalle(models.Model):
 
     def get_absolute_url(self):
         return self.entrada.get_absolute_url()
-
 
 class DescuentoEntrada(models.Model):
     entrada = models.ForeignKey(Entrada, on_delete=models.CASCADE, related_name='descuentos')
@@ -1087,6 +1094,9 @@ class DispositivoRepuesto(models.Model):
 
 class DesechoEmpresa(models.Model):
     nombre = models.CharField(max_length=50)
+    encargado = models.CharField(max_length=100)
+    telefono = models.IntegerField(verbose_name="Número Telefónico")
+    dpi = models.CharField(max_length=14)
 
     class Meta:
         verbose_name = "Empresa de desecho"
@@ -1096,7 +1106,7 @@ class DesechoEmpresa(models.Model):
         return self.nombre
 
     def get_absolute_url(self):
-        return reverse_lazy('desechoempresa_detail', kwargs={'pk': self.id})
+        return reverse_lazy('desechoempresa_update', kwargs={'pk': self.id})
 
 
 class DesechoSalida(models.Model):
@@ -1107,6 +1117,7 @@ class DesechoSalida(models.Model):
     creado_por = models.ForeignKey(User, on_delete=models.PROTECT)
     observaciones = models.TextField(null=True, blank=True)
     en_creacion = models.BooleanField(default=True, blank=True, verbose_name='En creación')
+    url = models.TextField(null=True, blank=True)
 
     class Meta:
         verbose_name = "Salida de desecho"
@@ -1125,7 +1136,8 @@ class DesechoDetalle(models.Model):
         EntradaDetalle,
         on_delete=models.PROTECT,
         null=True,
-        blank=True)
+        blank=True,
+        related_name="detalle_entrada")
     cantidad = models.PositiveIntegerField(default=0)
     tipo_dispositivo = models.ForeignKey(DispositivoTipo, on_delete=models.PROTECT, related_name='salidas_desecho')
     aprobado = models.BooleanField(default=False, blank=True)
@@ -1138,7 +1150,6 @@ class DesechoDetalle(models.Model):
         return '{desecho} {entrada}'.format(
             desecho=self.desecho,
             entrada=self.entrada_detalle)
-
 
 class DesechoDispositivo(models.Model):
     desecho = models.ForeignKey(DesechoSalida, on_delete=models.PROTECT, related_name='detalles_dispositivos')

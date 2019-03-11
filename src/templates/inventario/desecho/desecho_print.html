@@ -22,7 +22,7 @@ Constancia Desecho
 </div>
 <br />
 <p class="saludo">
-Por este medio se hace constar que se esta entregando a "NOMBRE" representante de  {{desechosalida.empresa}} lo siguiente en desecho:
+Por este medio se hace constar que se esta entregando a la empresa {{desechosalida.empresa}} lo siguiente en desecho:
 </p>
 <center>
 <table class="cuerpo">
@@ -36,7 +36,7 @@ Por este medio se hace constar que se esta entregando a "NOMBRE" representante d
       <center>Cantidad</center>
       </th>
       <th width="33%">
-      <center>Desecho</center>
+      <center>Dispositivo</center>
       </th>
     </tr>
   </thead>
@@ -48,17 +48,18 @@ Por este medio se hace constar que se esta entregando a "NOMBRE" representante d
             {{desecho.entrada_detalle.entrada}}
           </center>
         </td>
-        <td style="border:solid; border-width: 1px;border-color:gray">
+        <td style="border:none; border-width: 1px;border-color:gray;text-align:center">
           {{desecho.cantidad}}
         </td>
         <td>
-          {{desecho.entrada_detalle.tipo_dispositivo}}
+          {{desecho.entrada_detalle.descripcion}}
         </td>
       </tr>
       {%endfor%}
   </tbody>
   <tfoot>
     <table class="cuerpo">
+      {% if desechodispositivo  %}
       <thead>
         <tr>
           <th>
@@ -68,10 +69,10 @@ Por este medio se hace constar que se esta entregando a "NOMBRE" representante d
               Entradas
             </center>
           </th>
-          <th width="34%" style="border:solid; border-width: 1px;border-color:gray">
+          <th width="34%" style="border:none; border-width: 1px;border-color:gray">
 
           </th>
-          <th width="34%" style="border:solid; border-width: 1px;border-color:gray">
+          <th width="34%" style="border:none; border-width: 1px;border-color:gray">
 
           </th>
         </tr>
@@ -81,7 +82,7 @@ Por este medio se hace constar que se esta entregando a "NOMBRE" representante d
           <tr>
             <td>
             </td>
-            <td style="border:solid; border-width: 1px;border-color:gray">
+            <td style="border:none; border-width: 1px;border-color:gray;text-align:center;">
             {{  dispositivos.dispositivo}}
             </td>
             <td>
@@ -90,13 +91,23 @@ Por este medio se hace constar que se esta entregando a "NOMBRE" representante d
           </tr>
         {% endfor %}
       </tbody>
+      {% endif %}
       <tfoot>
         <tr>
           <td>
-            Total:
+            <b>Total:</b>
           </td>
-          <td style="border:solid; border-width: 1px;border-color:gray">
+          <td style="border:none; border-width: 1px;border-color:gray">
               {{cantidad_total}}
+          </td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>
+            <b>Monto Total:</b>
+          </td>
+          <td style="border:none; border-width: 1px;border-color:gray">
+             Q {{desechosalida.precio_total}}
           </td>
           <td></td>
         </tr>
@@ -115,7 +126,7 @@ Por este medio se hace constar que se esta entregando a "NOMBRE" representante d
       <th>
         _______________________
         <br />
-        Tenico Encargado
+        Técnico Encargado
       </th>
       <th>
         _________________
@@ -125,14 +136,35 @@ Por este medio se hace constar que se esta entregando a "NOMBRE" representante d
       <th>
         __________________
         <br/>
-        Tecnico Senior
+        Técnico Senior
       </th>
+    </tr>
+  </thead>
+</table>
+<br/><br/><br/>
+<table width="50%">
+  <thead>
+    <tr>
+      <td>Empresa de Desecho: </td>
+      <td>{{desechosalida.empresa.nombre}}</td>
+    </tr>
+    <tr>
+      <td>Encargado: </td>
+      <td>{{desechosalida.empresa.encargado}}</td>
+    </tr>
+    <tr>
+      <td>DPI: </td>
+      <td>{{desechosalida.empresa.dpi}}</td>
+    </tr>
+    <tr>
+      <td>Firma: </td>
+      <td><br/>__________________</td>
     </tr>
   </thead>
 </table>
   <footer>
     <center>
-      Centro de Reacondicionamiento Gueatemala.
+      Centro de Reacondicionamiento Guatemala.
     </br>
     14 Ave 19-50 Z.4 de Mixco Condado el Naranjo OfiBodegas San Sebastian No.36
   </br>
@@ -166,24 +198,24 @@ margin-top: 50px;
   margin-left: 7mm;
 }
 .cuerpo tr:nth-child(odd) {
-	background-color:#9d9fae;
-  border:solid;
+  border:none;
   border-width: 1px;
   border-color:gray;
+  align-items: center;
+  text-align: center;
 }
 .cuerpo td:nth-child(odd) {
-border:solid;
+border:none;
 border-width: 1px;
 border-color:gray;
-
+text-align: center;
+align-items: center;
 }
 
 .cuerpo tr:nth-child(even) {
 
-background-color:#aeafb5;
-
-}style="border:solid; border-width: 1px;border-color:gray
-.saludostyle="border:solid; border-width: 1px;border-color:gray{
+}style="border:none; border-width: 1px;border-color:gray
+.saludostyle="border:none; border-width: 1px;border-color:gray{
   margin-left: 7mm;
 }
 

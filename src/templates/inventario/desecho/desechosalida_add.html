@@ -1,5 +1,6 @@
 {% extends "base/base.html" %}
 {%load widget_tweaks static %}
+{%load inventario_extras %}
 {% block page_title %}
 <title>Desechos</title>
 {% endblock page_title %}
@@ -7,8 +8,7 @@
 <section class="content">
   <div class="container-fluid">
     <div class="row">
-      {% for permiso in user.groups.all   %}
-      	{%if permiso.name == "inv_bodega" or permiso.name == 'inv_admin' %}
+      {% if request.user|has_group:"inv_bodega" or request.user|has_group:"inv_admin" %} 
       <div class="col-md-6">
         <div class="box">
           <div class="box-header">
@@ -32,9 +32,26 @@
             </div>
           </div>
         </div>
+        <div class="box">
+          <div class="box-header">
+            <div class="box-title">
+                <h3><b>Desecho Pendiente</b></h3>
+            </div>
+            <div class="box-body">
+              <table id="desecho-pendiente-table" class="table table-condensed" data-tipo="{% url 'inventario_api:api_detalles-list' %}">
+                <thead>
+                  <th>Entrada </th>
+                  <th>Dispositivo</th>
+                  <th>Cantidad</th>
+                </thead>
+                <tbody>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
       </div>
       {%endif%}
-      {% endfor %}
       <div class="col-md-6">
         <div class="box">
           <div class="box-header">

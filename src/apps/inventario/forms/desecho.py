@@ -40,8 +40,7 @@ class DesechoSalidaUpdateForm(forms.ModelForm):
                 'precio_total': forms.TextInput({'class': 'form-control'}),
                 'peso': forms.TextInput({'class': 'form-control'}),
                 'observaciones': forms.Textarea({'class': 'form-control'}),
-
-
+                'url': forms.TextInput({'class': 'form-control'}),
             }
 
 
@@ -58,7 +57,6 @@ class DesechoDetalleForm(forms.ModelForm):
                 'entrada_detalle': forms.Select(attrs={'class': 'form-control select2'}),
                 'cantidad': forms.TextInput({'class': 'form-control'}),
                 }
-
 
 class DesechoDispositivoForm(forms.ModelForm):
     """Formulario para ingresar dispositivos a desechar"""
@@ -77,3 +75,10 @@ class DesechoDispositivoForm(forms.ModelForm):
         widgets = {
                 'desecho': forms.HiddenInput(),
                 }
+
+    def __init__(self, *args, **kwargs):
+        super(DesechoDispositivoForm, self).__init__(*args, **kwargs)
+        dispositivos_desecho = inv_m.DesechoDispositivo.objects.all().values('dispositivo')
+        dispositivos_desechados = inv_m.Dispositivo.objects.filter(estado=inv_m.DispositivoEstado.DS, etapa=inv_m.DispositivoEtapa.AB)
+        self.fields['dispositivo'].queryset = inv_m.Dispositivo.objects.filter(estado=inv_m.DispositivoEstado.DS, etapa=inv_m.DispositivoEtapa.AB).exclude(id__in=dispositivos_desecho)
+

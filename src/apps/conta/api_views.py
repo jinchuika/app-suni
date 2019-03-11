@@ -75,26 +75,52 @@ class PrecioEstandarViewSet(viewsets.ModelViewSet):
     def reevaluar(self, request, pk=None):
         """ Funcion para reevaluar el inventario
         """
-        etapa = inv_m.DispositivoEtapa.objects.get(id=inv_m.DispositivoEtapa.EN)
-        tipo = request.data['tipo_dispositivo']
-        periodo_activo = conta_m.PeriodoFiscal.objects.get(actual=True)
-        precios_dispositivo = conta_m.PrecioDispositivo.objects.filter(
-            periodo=periodo_activo,
-            dispositivo__tipo=tipo).exclude(dispositivo__etapa=etapa)
-        precios_repuesto = conta_m.PrecioRepuesto.objects.filter(periodo=periodo_activo,
-                                                                 repuesto__tipo=tipo,
-                                                                 repuesto__estado=1)
-        precios_estandar = conta_m.PrecioEstandar.objects.filter(periodo=periodo_activo,
-                                                                 tipo_dispositivo=tipo)
-        for estado_dispositivo in precios_dispositivo:
-            estado_dispositivo.activo = False
-            estado_dispositivo.save()
-        for estado_repuesto in precios_repuesto:
-            estado_repuesto.activo = False
-            estado_repuesto.save()
-        for estado_estandar in precios_estandar:
-            estado_estandar.activo = False
-            estado_estandar.save()
+        # Obtener data a Operar
+        data_id = request.data['id']
+
+        precio_estandar = conta_m.PrecioEstandar.objects.get(pk=data_id)
+        
+        if precio_estandar.inventario == conta_m.PrecioEstandar.DISPOSITIVO:
+            utiles = inv_m.Dispositivo.objects.filter(valido=True, tipo=precio_estandar.tipo_dispositivo)
+            for dispositivo in utiles:
+                # Obtener y Desactivar Precios Anteriores
+                precios_anteriores = conta_m.PrecioDispositivo.objects.filter(dispositivo=dispositivo, activo=True)
+                validar_precio = len(precios_anteriores.filter(periodo=precio_estandar.periodo)) == 0
+                if len(precios_anteriores.filter(periodo=precio_estandar.periodo)) == 0:
+                    if dispositivo.entrada.tipo.contable == False:
+                        for precio in precios_anteriores:
+                            precio.activo = False
+                            precio.save()
+
+                        # Generar nuevo precio de periodo actual
+                        nuevo_precio = conta_m.PrecioDispositivo(
+                            dispositivo=dispositivo,
+                            periodo=precio_estandar.periodo,
+                            precio=precio_estandar.precio
+                            )
+                        nuevo_precio.save()
+        else:
+            utiles = inv_m.Repuesto.objects.filter(valido=True, tipo=precio_estandar.tipo_dispositivo)
+            for repuesto in utiles:
+                # Obtener y Desactivar Precios Anteriores
+                precios_anteriores = conta_m.PrecioRepuesto.objects.filter(repuesto=repuesto, activo=True)
+                if len(precios_anteriores.filter(periodo=precio_estandar.periodo)) == 0:
+                    if repuesto.entrada.tipo.contable == False:
+                        for precio in precios_anteriores:
+                            precio.activo = False
+                            precio.save()
+
+                        # Generar nuevo precio de periodo actual
+                        nuevo_precio = conta_m.PrecioRepuesto(
+                            repuesto=repuesto,
+                            periodo=precio_estandar.periodo,
+                            precio=precio_estandar.precio
+                            )
+                        nuevo_precio.save()
+
+        precio_estandar.revaluar = True
+        precio_estandar.save()
+
         return Response(
             {
                 'mensaje': 'Actualizacion completa'
