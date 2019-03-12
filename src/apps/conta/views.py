@@ -206,7 +206,9 @@ class ContabilidadResumenInformeListView(LoginRequiredMixin, FormView):
     form_class = conta_f.ResumenInformeForm
 
 class InformeCantidadJson(views.APIView):
+    
     def get(self, request):
+        print(self.request)
         repuesto_dispositivo = self.request.GET['dispositivo']
         id_periodo = self.request.GET['periodo']
         dispositivos = inv_m.DispositivoTipo.objects.all().exclude(conta=False)
@@ -538,6 +540,7 @@ class InformeSalidaJson(views.APIView):
 
                 dispositivo['fecha'] = salida.fecha
                 dispositivo['id'] = salida.id
+                dispositivo['no_salida'] = salida.no_salida
                 dispositivo['url'] = salida.get_absolute_url()
                 dispositivo['util'] = cantidad
                 dispositivo['precio'] = precio

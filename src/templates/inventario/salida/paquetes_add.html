@@ -1,5 +1,5 @@
 {% load inventario_extras %}
-{% if request.user|has_group:"inv_bodega" or request.user|has_group:"inv_admin" %} 
+{% if request.user|has_group:"inv_cc" or request.user|has_group:"inv_admin" %} 
     {% load widget_tweaks %}
     {% block page_title %}
         <title>Cantidad de Paquetes</title>

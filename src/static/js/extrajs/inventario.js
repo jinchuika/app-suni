@@ -1633,6 +1633,7 @@ class Salidas {
       },
       columns:[
         {data:"id"},
+        {data:"no_salida"},
         {data:"tipo_salida"},
         {data:"fecha"},
         {data:"estado"},
@@ -2746,7 +2747,7 @@ class Prestamo {
           mes='0'+mes;
       }
       var fecha = year+'-'+mes+'-'+dia;
-      $('#id_fecha_inicio').text("Fecha de Inicio:"+ fecha);
+      $('#id_fecha_inicio').text(fecha);
 
   }
 }
@@ -2773,6 +2774,14 @@ class PrestamoList {
        {data:"id", class:"nowrap"},
        {data:"tipo_prestamo",className:"nowrap"},
        {data:"fecha_inicio",className:"nowrap"},
+       {data:"fecha_estimada",className:"nowrap",
+       render:function(data, type, full, meta){
+         if(full.fecha_fin == null){
+           return data
+         }else{
+           return ""
+         }
+       }},
        {data:"fecha_fin",className:"nowrap",
        render:function(data, type, full, meta){
          if(full.fecha_fin == null){
@@ -2803,7 +2812,18 @@ class PrestamoList {
           }
         }
       }
-     ]
+     ],
+     "fnRowCallback": function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
+        var today = new Date();
+        if ( aData[2] == "5" )
+        {
+          $('td', nRow).css('background-color', 'Red');
+        }
+        else if ( aData[2] == "4" )
+        {
+          $('td', nRow).css('background-color', 'Orange');
+        }
+      }
 
  });
  let tablabody = $('#prestamo-table tbody');
