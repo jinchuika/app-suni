@@ -966,6 +966,7 @@ class TipoRed(models.Model):
 
 
 class DispositivoRed(Dispositivo):
+    # Switch
     SLUG_TIPO = 'R'
     indice = models.PositiveIntegerField(editable=False, unique=True)
     cantidad_puertos = models.PositiveIntegerField(null=True, blank=True)

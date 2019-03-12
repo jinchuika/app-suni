@@ -45,7 +45,7 @@ class SalidaInventarioCreateView(LoginRequiredMixin, GroupRequiredMixin, CreateV
                 form.add_error('udi', 'El UDI no es válido o no existe.')
                 return self.form_invalid(form)
         else:
-            # form.instance.escuela = None
+            form.instance.escuela = None
             if form.instance.garantia is not None:
                 escuela = tpe_m.TicketSoporte.objects.get(id=str(form.instance.garantia))
                 nueva_escuela = escuela.garantia.equipamiento.escuela.codigo
@@ -489,15 +489,59 @@ class TpePrintView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
         nuevos_monitores = []
         nuevos_mouse = []
         cpu = inv_m.PaqueteTipo.objects.get(nombre="CPU")
-        monitor = inv_m.PaqueteTipo.objects.get(nombre="Monitor")
-        mouse = inv_m.PaqueteTipo.objects.get(nombre="Mouse")
-        teclado = inv_m.PaqueteTipo.objects.get(nombre="Teclados")
-        cables_vga = inv_m.PaqueteTipo.objects.get(nombre="Cable VGA")
-        total_cables_vga = inv_m.Paquete.objects.filter(
+        monitor = inv_m.PaqueteTipo.objects.get(nombre="MONITOR")
+        mouse = inv_m.PaqueteTipo.objects.get(nombre="MOUSE")
+        teclado = inv_m.PaqueteTipo.objects.get(nombre="TECLADO")
+        try:
+            cables_vga = inv_m.PaqueteTipo.objects.get(nombre="CABLE VGA")
+        except ObjectDoesNotExist as e:
+            cables_vga = 0
+        try:
+            cables_poder = inv_m.PaqueteTipo.objects.get(nombre="CABLE DE PODER")
+        except ObjectDoesNotExist as e:
+            cables_poder = 0
+        try:
+            access_point = inv_m.PaqueteTipo.objects.get(nombre="ACCESS POINT")
+        except ObjectDoesNotExist as e:
+            access_point = 0
+        try:
+            switch = inv_m.PaqueteTipo.objects.get(nombre="SWITCH")
+        except ObjectDoesNotExist as e:
+            switch = 0
+        try:
+            alambricas = inv_m.PaqueteTipo.objects.get(nombre="TARJETA DE RED ALAMBRICA")
+        except ObjectDoesNotExist as e:
+            alambricas = 0
+        try:
+            inalambricas = inv_m.PaqueteTipo.objects.get(nombre="TARJETA DE RED INALAMBRICA")
+        except ObjectDoesNotExist as e:
+            inalambricas = 0
+        total_inalambricas = inv_m.Paquete.objects.filter(
             salida=self.object.id,
-            tipo_paquete=cables_vga,
+            tipo_paquete=inalambricas,
             desactivado=False
-            ).aggregate(total_cables_vga=Sum('cantidad'))
+            ).aggregate(total_inalambricas=Sum('cantidad'))
+        total_alambricas = inv_m.Paquete.objects.filter(
+            salida=self.object.id,
+            tipo_paquete=alambricas,
+            desactivado=False
+            ).aggregate(total_alambricas=Sum('cantidad'))
+        total_switch = inv_m.Paquete.objects.filter(
+            salida=self.object.id,
+            tipo_paquete=switch,
+            desactivado=False
+            ).aggregate(total_switch=Sum('cantidad'))
+        total_access_point = inv_m.Paquete.objects.filter(
+            salida=self.object.id,
+            tipo_paquete=access_point,
+            desactivado=False
+            ).aggregate(total_access_point=Sum('cantidad'))
+        print(total_switch)
+        total_cables_poder = inv_m.Paquete.objects.filter(
+            salida=self.object.id,
+            tipo_paquete=cables_poder,
+            desactivado=False
+            ).aggregate(total_cables_poder=Sum('cantidad'))
         total_cpu = inv_m.DispositivoPaquete.objects.filter(
             paquete__salida__id=self.object.id,
             paquete__tipo_paquete=cpu,
@@ -514,6 +558,11 @@ class TpePrintView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
             paquete__salida__id=self.object.id,
             paquete__tipo_paquete=mouse,
             )
+        total_cables_vga = inv_m.Paquete.objects.filter(
+            salida=self.object.id,
+            tipo_paquete=cables_vga,
+            desactivado=False
+            ).aggregate(total_cables_vga=Sum('cantidad'))
         for triage in total_cpu:
             nueva_cpu = inv_m.Dispositivo.objects.get(triage=triage.dispositivo).cast()
             nuevos_cpus.append(nueva_cpu)
@@ -547,6 +596,15 @@ class TpePrintView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
         context['Total'] = total_cpu.count()
         context['Servidor'] = cpu_servidor
         context['CablesVga'] = total_cables_vga['total_cables_vga']
+        context['CablesPoder'] = total_cables_poder['total_cables_poder']
+        context['Switch'] = total_switch['total_switch']
+        context['Wifi'] = total_inalambricas['total_inalambricas']
+        context['Ethernet'] = total_alambricas['total_alambricas']
+        context['Access'] = total_access_point['total_access_point']
+        try:
+            context['Red'] = total_inalambricas['total_inalambricas'] + total_alambricas['total_alambricas']
+        except TypeError as e:
+            context['Red'] = 0
         return context
 
 

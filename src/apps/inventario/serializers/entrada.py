@@ -2,6 +2,7 @@ from rest_framework import serializers
 from django.urls import reverse_lazy
 
 from apps.inventario import models as inv_m
+from apps.kardex import models as kax_m
 
 
 class EntradaDetalleSerializer(serializers.ModelSerializer):
@@ -26,7 +27,6 @@ class EntradaDetalleSerializer(serializers.ModelSerializer):
     url_kardex = serializers.SerializerMethodField(read_only=True)
     # Desecho
     existencia_desecho = serializers.IntegerField(read_only=True)
-
 
     class Meta:
         model = inv_m.EntradaDetalle
@@ -84,7 +84,12 @@ class EntradaDetalleSerializer(serializers.ModelSerializer):
         return reverse_lazy('detalles_repuesto', kwargs={'pk': object.entrada, 'detalle': object.id})
 
     def get_url_kardex(self, object):
-        return reverse_lazy('kardex_entrada_detail', kwargs={'pk': object.entrada})
+        detalle_kardex = kax_m.Entrada.objects.get(inventario_entrada=object.entrada)        
+        return reverse_lazy('kardex_entrada_detail', kwargs={'pk': detalle_kardex.id})
+
+    def get_existencia_desecho(self, obj):
+        inventario_desecho = obj.existencia_desecho.all()
+        return inventario_desecho
 
     def get_existencia_desecho(self, obj):
         inventario_desecho = obj.existencia_desecho.all()
