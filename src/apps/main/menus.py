@@ -12,7 +12,7 @@ class ViewMenuItem(MenuItem):
     def check(self, request):
         """ Revisa por grupo """
         if hasattr(self, 'group'):
-            if request.user.groups.filter(name=self.group).exists():
+            if request.user.groups.filter(name__in=self.group.split(',')).exists():
                 self.visible = True
                 return True
             else:

@@ -8,22 +8,21 @@ class PrestamoForm(forms.ModelForm):
     """ Formulario para  la creacion de prestamos.
     """
     dispositivo = forms.ModelMultipleChoiceField(
-        queryset=inv_m.Dispositivo.objects.filter(
-            estado=inv_m.DispositivoEstado.PD,
-            etapa=inv_m.DispositivoEtapa.AB
-        ),
-        widget=forms.SelectMultiple(attrs={'class': 'form-control select2'})
-    )
+        queryset=inv_m.Dispositivo.objects.none(),
+        widget=forms.SelectMultiple(attrs={'class': 'form-control select2'}))
+
+    tipo_dispositivo = forms.ModelChoiceField(
+        queryset=inv_m.DispositivoTipo.objects.all().exclude(usa_triage=False),
+        label='Tipo Dispositivo',
+        required=True,
+        widget=forms.Select(attrs={'class': 'form-control select2 '}))
 
     class Meta:
         model = inv_m.Prestamo
-        fields = ('tipo_prestamo', 'prestado_a', 'dispositivo')
+        fields = ('tipo_prestamo', 'prestado_a', 'tipo_dispositivo', 'dispositivo')
         widgets = {
             'tipo_prestamo': forms.Select(attrs={'class': 'form-control select2 '}),
             'prestado_a': forms.Select(attrs={'class': 'form-control select2'}),
-
-
-
         }
 
     def __init__(self, *args, **kwargs):
@@ -47,7 +46,7 @@ class PrestamoInformeForm(forms.Form):
         queryset=User.objects.all(),
         label='Prestado a',
         required=False,
-        widget=forms.Select(attrs={'class': 'form-control'}))
+        widget=forms.Select(attrs={'class': 'form-control select2'}))
 
     fecha_inicio = forms.CharField(
         label='Fecha (min)',

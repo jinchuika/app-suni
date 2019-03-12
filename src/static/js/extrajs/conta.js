@@ -45,12 +45,18 @@ class PrecioEstandar {
         {data: "periodo"},
         {data: "id_dispositivo"},  
         {data: "precio"},
-        {data: "inventario"},
+        {data: "inventario", render: function(data, type, full, meta){
+          if(full.inventario == 'dispositivo'){
+               return "<span class='label label-primary'>Dispositivo</span>";
+             }else{
+               return "<span class='label label-danger'>Repuesto</span>";
+             }
+        }},
         {data: "activo", render: function(data, type, full, meta){
           if(full.activo == true){
-               return "<input type='checkbox' name='activo' disabled checked />";
+               return "<input type='checkbox' class='icheckbox_flat-green' name='activo' disabled checked />";
              }else{
-               return "<input type='checkbox' name='activo' disabled />";;
+               return "<input type='checkbox' class='icheckbox_flat-green' name='activo' disabled />";;
              }
         }},
         {data: "creado_por"},
@@ -61,8 +67,7 @@ class PrecioEstandar {
                return "<span class='label label-success'>Revaluado</span>";
              }
         }}
-      ]
-
+      ],
     });
     tablaPrecio.clear().draw();
     tablaPrecio.ajax.reload();
@@ -81,7 +86,6 @@ class PrecioEstandar {
               console.log("Reevaluacion completa");
             },
         });
-
     });
   });
   }
@@ -269,7 +273,7 @@ class SalidaInforme {
       columns: [
         {data: "fecha"},
         {data: "id", render: function(data, type, full, meta){
-          return "<a href="+full.url+">"+full.id+"</a>";
+          return "<a href="+full.url+">"+full.no_salida+"</a>";
         }},
         {data: "util"},
         {data: "precio", render: function(data, type, full, meta){
