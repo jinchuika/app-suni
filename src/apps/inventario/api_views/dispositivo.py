@@ -118,7 +118,7 @@ class DispositivoViewSet(viewsets.ModelViewSet):
                 )
                 nuevo_detalle_kardez.save()
                 solicitudes_movimiento.terminada = True
-                solicitudes_movimiento.entrada_kardex = salida_creada.id
+                solicitudes_movimiento.entrada_kardex = salida_creada
                 solicitudes_movimiento.save()
             else:
                 tipo_salida = kax_m.TipoSalida.objects.get(tipo="Inventario SUNI")
@@ -169,7 +169,7 @@ class PaquetesFilter(filters.FilterSet):
 
     class Meta:
         model = inv_m.Paquete
-        fields = ['tipo_paquete', 'salida', 'aprobado']
+        fields = ['tipo_paquete', 'salida', 'aprobado', 'aprobado_kardex', 'desactivado']
 
     def filter_tipo_dispositivo(self, qs, name, value):
         qs = qs.filter(tipo_paquete__tipo_dispositivo__tipo=value)
@@ -225,11 +225,17 @@ class DispositivosPaquetesViewSet(viewsets.ModelViewSet):
     def aprobar_conta_dispositivos(self, request, pk=None):
         """ Metodo para aprobar los dispositivo en el area de contabilidad
         """
-        triage = request.data["triage"]
-        cambio_estado = inv_m.Dispositivo.objects.get(triage=triage)
-        cambio_estado.etapa = inv_m.DispositivoEtapa.objects.get(id=inv_m.DispositivoEtapa.LS)
-        cambio_estado.save()
-
+        kardex = request.data["kardex"]
+        if kardex == 'true':
+            paquete = request.data["paquete"]
+            nuevo_paquete = inv_m.Paquete.objects.get(id=paquete)
+            nuevo_paquete.aprobado = True
+            nuevo_paquete.save()
+        else:
+            triage = request.data["triage"]
+            cambio_estado = inv_m.Dispositivo.objects.get(triage=triage)
+            cambio_estado.etapa = inv_m.DispositivoEtapa.objects.get(id=inv_m.DispositivoEtapa.LS)
+            cambio_estado.save()
         return Response({
             'mensaje': 'El dispositivo a sido Aprobado'
         },
@@ -240,13 +246,20 @@ class DispositivosPaquetesViewSet(viewsets.ModelViewSet):
     def rechazar_conta_dispositivos(self, request, pk=None):
         """ Metodo para rechazar los dispositivo en el area de contabilidad
         """
-        triage = request.data["triage"]
-        cambio_estado = inv_m.Dispositivo.objects.get(triage=triage)
-        cambio_estado.estado = inv_m.DispositivoEstado.objects.get(id=inv_m.DispositivoEstado.PD)
-        cambio_estado.save()
-        desasignar_paquete = inv_m.DispositivoPaquete.objects.get(dispositivo__triage=triage)
-        desasignar_paquete.aprobado = False
-        desasignar_paquete.save()
+        kardex = request.data["kardex"]
+        if kardex == 'true':
+            paquete = request.data["paquete"]
+            nuevo_paquete = inv_m.Paquete.objects.get(id=paquete)
+            nuevo_paquete.aprobado_kardex = False
+            nuevo_paquete.save()
+        else:
+            triage = request.data["triage"]
+            cambio_estado = inv_m.Dispositivo.objects.get(triage=triage)
+            cambio_estado.estado = inv_m.DispositivoEstado.objects.get(id=inv_m.DispositivoEstado.PD)
+            cambio_estado.save()
+            desasignar_paquete = inv_m.DispositivoPaquete.objects.get(dispositivo__triage=triage)
+            desasignar_paquete.aprobado = False
+            desasignar_paquete.save()
         return Response({
             'mensaje': 'El dispositivo a sido Rechazado'
         },
