@@ -265,7 +265,6 @@ class EntradaDetalle(models.Model):
     def get_absolute_url(self):
         return self.entrada.get_absolute_url()
 
-
 class DescuentoEntrada(models.Model):
     entrada = models.ForeignKey(Entrada, on_delete=models.CASCADE, related_name='descuentos')
     monto = models.DecimalField(max_digits=10, decimal_places=2)

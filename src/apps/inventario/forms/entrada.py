@@ -93,7 +93,6 @@ class EntradaDetalleForm(forms.ModelForm):
             self.fields['precio_subtotal'].widget = forms.TextInput(
                 attrs={'class': 'form-control', 'style': "visibility:hidden"})
             self.fields['precio_subtotal'].initial = ""
-            
 
 class EntradaDetalleUpdateForm(forms.ModelForm):
     """ Formulario para la :`class`:`EntradaDetalleView` que es la encargada de actualizar  los datos
