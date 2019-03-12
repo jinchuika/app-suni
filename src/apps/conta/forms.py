@@ -56,7 +56,7 @@ class PrecioEstandarInformeForm(forms.Form):
         required=False
     )
     tipo_dispositivo = forms.ModelChoiceField(
-        queryset=inventario_m.DispositivoTipo.objects.all(),
+        queryset=inventario_m.DispositivoTipo.objects.all().exclude(usa_triage=False),
         label="Tipo de Dispositivo",
         widget=forms.Select(attrs={'class': 'form-control'}),
         required=False

@@ -1169,8 +1169,11 @@ class DesechoDispositivo(models.Model):
 
 class SalidaTipo(models.Model):
     nombre = models.CharField(max_length=30)
+    slug = models.SlugField(null=True, blank=True,)
     necesita_revision = models.BooleanField(default=True, blank=True, verbose_name='Necesita revisión')
     especial = models.BooleanField(default=False, blank=True, verbose_name='especial')
+    equipamiento = models.BooleanField(default=False, blank=True, verbose_name='equipamiento')
+    renovacion = models.BooleanField(default=False, blank=True, verbose_name='equipamiento')
 
     class Meta:
         verbose_name = "Tipo de salida"
@@ -1223,6 +1226,7 @@ class SalidaInventario(models.Model):
         blank=True)
     estado = models.ForeignKey(SalidaEstado, on_delete=models.PROTECT, related_name='estados',  null=True, blank=True)
     reasignado_por = models.ForeignKey(User, on_delete=models.PROTECT, related_name='reasignar', null=True, blank=True)
+    no_salida= models.CharField(max_length=10 , blank=True, editable=False, db_index=True)
 
     class Meta:
         verbose_name = "Salida"
@@ -1232,7 +1236,7 @@ class SalidaInventario(models.Model):
         return reverse_lazy('salidainventario_edit', kwargs={'pk': self.id})
 
     def __str__(self):
-        return str(self.id)
+        return str(self.no_salida)
 
     def crear_paquetes(self, cantidad, usuario, entrada, tipo_paquete=None):
         creados = 0
@@ -1546,6 +1550,7 @@ class PrestamoTipo(models.Model):
     """
 
     nombre = models.CharField(max_length=25)
+    dias = models.PositiveIntegerField(default=0)
 
     class Meta:
         verbose_name = "Tipo de Prestamo"

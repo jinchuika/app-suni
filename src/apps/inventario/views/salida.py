@@ -342,7 +342,7 @@ class ControlCalidadListView(LoginRequiredMixin, GroupRequiredMixin, ListView):
     """
     model = inv_m.SalidaInventario
     template_name = 'inventario/salida/controlcalidad_list.html'
-    group_required = [u"inv_cc", u"inv_admin"]
+    group_required = [u"inv_cc", u"inv_admin", u"inv_tecnico"]
 
     def get_context_data(self, **kwargs):
         context = super(ControlCalidadListView, self).get_context_data(**kwargs)

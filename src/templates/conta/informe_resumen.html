@@ -1,5 +1,6 @@
 {% extends "base/base.html" %}
 {% load staticfiles %}
+{% load staticfiles has_group %}
 {% block page_title %}
 <title>Resumen </title>
 {% endblock page_title %}
@@ -43,7 +44,9 @@
 								<tr style="font-size:large; background-color: darkslategrey; color: white;">
 									<th>FECHA</th>
 									<th colspan="2">EXISTENCIA INICIAL</th>
+									{% if request.user|has_group:"inv_conta" %}
 									<th colspan="2">SALDO INICIAL</th>
+									{% endif %}
 								</tr>
 								<tr>
 									<th>Tipo</th>
@@ -59,7 +62,9 @@
 							</tbody>
 							<tfoot style="font-size:large">
 								<th colspan="3">EXISTENCIA FINAL</th>
+								{% if request.user|has_group:"inv_conta" %}
 								<th colspan="3">SALDO FINAL</th>
+								{% endif %}
 							</tfoot>
 						</table>
 					</div>

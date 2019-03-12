@@ -107,7 +107,7 @@
           </div>
           <div class="box-body  table-responsive">
             <!--	<div class="col-md-12 table-responsive"> -->
-            <table  id="salidas-paquete-table" class="table table-striped table-hover table-bordered table-condensed" data-url="{%url 'inventario_api:api_paquete-list'%}" data-pk="{{salidainventario}}">
+            <table  id="salidas-paquete-table" class="table table-striped table-hover table-bordered table-condensed" data-url="{%url 'inventario_api:api_paquete-list'%}" data-pk="{{salidainventario.id}}">
               <thead>
                 <tr>
                   <th>Paquete</th>
@@ -117,7 +117,6 @@
                   <th>Estado</th>
                   <th></th>
                   <th></th>
-
                 </tr>
               </thead>
               <tbody>
