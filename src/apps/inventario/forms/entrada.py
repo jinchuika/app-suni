@@ -14,7 +14,7 @@ class EntradaForm(forms.ModelForm):
     class Meta:
         model = inv_m.Entrada
         fields = '__all__'
-        exclude = ['en_creacion', 'creada_por', 'recibida_por']
+        exclude = ['en_creacion', 'creada_por', 'recibida_por', 'fecha_cierre']
         widgets = {
             'tipo': forms.Select(attrs={'class': 'form-control select2'}),
             'fecha': forms.TextInput({'class': 'form-control datepicker'}),
@@ -93,6 +93,7 @@ class EntradaDetalleForm(forms.ModelForm):
             self.fields['precio_subtotal'].widget = forms.TextInput(
                 attrs={'class': 'form-control', 'style': "visibility:hidden"})
             self.fields['precio_subtotal'].initial = ""
+            
 
 class EntradaDetalleUpdateForm(forms.ModelForm):
     """ Formulario para la :`class`:`EntradaDetalleView` que es la encargada de actualizar  los datos
