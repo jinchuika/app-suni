@@ -37,6 +37,7 @@ class PaqueteSerializer(serializers.ModelSerializer):
     id = serializers.StringRelatedField(source='__str__')
     id_paquete = serializers.StringRelatedField(source='id')
     tipo_paquete = serializers.StringRelatedField()
+    usa_triage = serializers.StringRelatedField(source='tipo_paquete.tipo_dispositivo.usa_triage')
     urlPaquet = serializers.StringRelatedField(source='get_absolute_url')
     cantidad_dispositivos = serializers.SerializerMethodField()
     tipo_salida = serializers.StringRelatedField(source='salida.tipo_salida')
@@ -58,6 +59,9 @@ class PaqueteSerializer(serializers.ModelSerializer):
             'tipo_salida',
             'cantidad',
             'url_detail',
+            'usa_triage',
+            'aprobado_kardex',
+            'desactivado',
             'asignacion'
 
             )

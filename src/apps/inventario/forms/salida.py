@@ -56,12 +56,12 @@ class SalidaInventarioUpdateForm(forms.ModelForm):
 class PaqueteCantidadForm(forms.ModelForm):
     """ Formulario para  la creacion de la cantidad de paquetes.
         """
-    cantidad = forms.IntegerField(
-        widget=forms.TextInput(attrs={'class': 'form-control'}))
     tipo_paquete = forms.ModelChoiceField(
         queryset=inv_m.PaqueteTipo.objects.all(),
         widget=forms.Select(attrs={'class': 'form-control'})
     )
+    cantidad = forms.IntegerField(
+        widget=forms.TextInput(attrs={'class': 'form-control'}))
     entrada = forms.ModelMultipleChoiceField(
         required=False,
         queryset=inv_m.Entrada.objects.none(),
@@ -72,7 +72,7 @@ class PaqueteCantidadForm(forms.ModelForm):
 
     class Meta:
         model = inv_m.Paquete
-        fields = ('cantidad', 'tipo_paquete', 'entrada',)
+        fields = ('tipo_paquete', 'cantidad', 'entrada',)
 
 
 class RevisionSalidaCreateForm(forms.ModelForm):

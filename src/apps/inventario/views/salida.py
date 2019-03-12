@@ -424,7 +424,6 @@ class LaptopPrintView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
             nuevo_cpu = inv_m.Dispositivo.objects.get(triage=triage_cpu.dispositivo).cast()
             try:
                 if nuevo_cpu.servidor is True:
-                    print(nuevo_cpu.version_sistema)
                     cpu_servidor = str(nuevo_cpu.version_sistema)
             except Exception as e:
                 print(e)
@@ -466,14 +465,12 @@ class TabletPrintView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
             encargado = escuela_m.EscContacto.objects.get(escuela=escuela.escuela)
             context['Encargado'] = str(encargado.nombre)+" "+str(encargado.apellido)
             context['Jornada'] = encargado.escuela.jornada
-            print(encargado.escuela.jornada)
         except ObjectDoesNotExist as e:
             print(e)
             context['Jornada'] = "No tiene Jornada"
             context['Encargado'] = "No Tiene Encargado"
         context['Tablets'] = nuevas_tablets
         context['Total'] = Total_Tablet.count()
-        print(nuevas_tablets)
         return context
 
 
@@ -495,6 +492,12 @@ class TpePrintView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
         monitor = inv_m.PaqueteTipo.objects.get(nombre="Monitor")
         mouse = inv_m.PaqueteTipo.objects.get(nombre="Mouse")
         teclado = inv_m.PaqueteTipo.objects.get(nombre="Teclados")
+        cables_vga = inv_m.PaqueteTipo.objects.get(nombre="Cable VGA")
+        total_cables_vga = inv_m.Paquete.objects.filter(
+            salida=self.object.id,
+            tipo_paquete=cables_vga,
+            desactivado=False
+            ).aggregate(total_cables_vga=Sum('cantidad'))
         total_cpu = inv_m.DispositivoPaquete.objects.filter(
             paquete__salida__id=self.object.id,
             paquete__tipo_paquete=cpu,
@@ -516,7 +519,6 @@ class TpePrintView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
             nuevos_cpus.append(nueva_cpu)
             try:
                 if nueva_cpu.servidor is True:
-                    print(nueva_cpu.version_sistema)
                     cpu_servidor = str(nueva_cpu.version_sistema)
             except Exception as e:
                 print(e)
@@ -544,6 +546,7 @@ class TpePrintView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
         context['Mouses'] = nuevos_mouse
         context['Total'] = total_cpu.count()
         context['Servidor'] = cpu_servidor
+        context['CablesVga'] = total_cables_vga['total_cables_vga']
         return context
 
 
@@ -568,7 +571,6 @@ class MineducPrintView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
             nuevos_cpus.append(nueva_cpu)
             try:
                 if nueva_cpu.servidor is True:
-                    print(nueva_cpu.version_sistema)
                     cpu_servidor = str(nueva_cpu.version_sistema)
             except Exception as e:
                 print(e)
