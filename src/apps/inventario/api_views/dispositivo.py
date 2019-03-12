@@ -50,7 +50,10 @@ class DispositivoViewSet(viewsets.ModelViewSet):
         elif tipo or marca or modelo or tarima:
             return inv_m.Dispositivo.objects.all().filter(valido=True, tipo__in=tipo_dis)
         else:
-            return inv_m.Dispositivo.objects.all().filter(valido=True, tipo__in=tipo_dis, etapa=inv_m.DispositivoEtapa.TR)
+            return inv_m.Dispositivo.objects.all().filter(
+                valido=True,
+                tipo__in=tipo_dis,
+                etapa=inv_m.DispositivoEtapa.TR)
 
     @action(methods=['get'], detail=False)
     def paquete(self, request, pk=None):
@@ -99,7 +102,7 @@ class DispositivoViewSet(viewsets.ModelViewSet):
         if respuesta == str(1):
             solicitudes_movimiento = inv_m.SolicitudMovimiento.objects.get(id=id)
             usado = kax_m.EstadoEquipo.objects.get(estado='Usado')
-            area_tecnica = kax_m.Proveedor.objects.get(nombre="Area Tecnica")
+            area_tecnica = kax_m.Proveedor.objects.get(nombre="AREA TECNICA")
             devolucion = kax_m.TipoEntrada.objects.get(tipo="Devolucion")
             if solicitudes_movimiento.devolucion is True:
                 nuevo = kax_m.Entrada(

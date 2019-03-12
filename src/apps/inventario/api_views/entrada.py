@@ -213,6 +213,8 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
     def crear_kardex(self, request, pk=None):
         id = request.data['detalle_entrada']
         entrada_detalle = inv_m.EntradaDetalle.objects.get(id=id)
+        entrada_detalle.ingresado_kardex = True
+        entrada_detalle.save()
         if entrada_detalle.precio_unitario is None:
             precio_unitario = 0
         else:
@@ -249,8 +251,6 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
                 {'mensaje': "Detalle creado exitosamente"},
                 status=status.HTTP_200_OK
             )
-        entrada_detalle.ingresado_kardex = True
-        entrada_detalle.save()
         return Response(
             {'mensaje': 'Creado exitosamente'},
             status=status.HTTP_200_OK
