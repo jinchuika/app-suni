@@ -910,7 +910,7 @@ class EntradaDetalleDetail {
                                   '<div class="col-md-4 col-xs-6' + classAttr + '">' + tipo + '</div>' +
                                   '<div class="col-md-4 col-xs-6' + classAttr + '">' + cantidad + '</div>' +
                                   '</div>');
-                              return $result;       
+                              return $result;
                           },
                           templateSelection: function (data) {
                             if(!data.id) { return data.text }
@@ -927,7 +927,7 @@ class EntradaDetalleDetail {
                             var select2 = $("span[aria-labelledby=select2-" + id + "-container]");
                             select2.removeAttr('style');
                           }
-                        }); 
+                        });
                       }
                     });
 
@@ -1602,7 +1602,7 @@ class Salidas {
           $("[for='id_udi']").css({"visibility":"hidden"});
           $("[for='id_beneficiario']").css({"visibility":"visible"});
           $("#id_beneficiario").css({"visibility":"visible"});
-          $("#id_udi").val(" ");
+          $("#id_udi").val(0);
           $('#id_beneficiario').next(".select2-container").show();
         }
     });
@@ -1701,7 +1701,12 @@ class Salidas {
               if(full.aprobado == true){
                 return " ";
               }else{
-                return "<a id='conta-aprobar'  class='btn btn-success btn-aprobar-conta'>Aprobar</a>";
+                if(full.aprobado_kardex == true){
+                  return " ";
+                }else{
+                  return "<a id='conta-aprobar'  class='btn btn-success btn-aprobar-conta'>Aprobar</a>";
+                }
+
               }
             }else{
               return "<a target='_blank' rel='noopener noreferrer' href="+full.url_detail+" class='btn btn-success'>Ver Dispositivos</a>";
@@ -1712,7 +1717,12 @@ class Salidas {
         {data:"", render: function(data, type, full, meta){
           if(full.aprobado ==false){
             if(full.usa_triage == "False"){
-              return "<a id='conta-rechazar'  class='btn btn-warning btn-rechazar-conta'>Rechazar</a>";
+              if(full.aprobado_kardex == true){
+                return " ";
+              }else{
+                  return "<a id='conta-rechazar'  class='btn btn-warning btn-rechazar-conta'>Rechazar</a>";
+              }
+
 
             }else{
               return "<a target='_blank' rel='noopener noreferrer' href="+full.urlPaquet+" class='btn btn-primary'>Asignar Dispositivos</a>";
@@ -1953,10 +1963,10 @@ class Salidas {
         $('#id_beneficiario').next(".select2-container").hide();
         $("[for='id_garantia']").css({"visibility":"hidden"});
         $('#id_garantia').next(".select2-container").hide();
-      }else if(tipoSalida == 4 || tipoSalidaText =='A terceros') {
+      }else if(tipoSalida == 4 || tipoSalidaText =='A terceros') {        
         $("[for='id_entrega']").css({"visibility":"hidden"});
         $("#id_entrega").css({"visibility":"hidden"});
-        $("#id_entrega").prop('checked',true);
+        $("#id_entrega").prop('checked',false);
         /**/
         $("#id_udi").attr('type','hidden');
         $("[for='id_udi']").css({"visibility":"hidden"});
@@ -2170,7 +2180,8 @@ class PaquetesRevisionList {
         url: urlraprobar,
         data:{
           csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
-          triage:data_fila.dispositivo
+          triage:data_fila.dispositivo,
+          kardex:false
         },
         success: function (response){
             bootbox.alert("Dispositivos aprovados");
@@ -2202,7 +2213,8 @@ class PaquetesRevisionList {
                url: urlrechazar,
                data:{
                  csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
-                 triage:data_fila.dispositivo
+                 triage:data_fila.dispositivo,
+                 kardex:false
                },
                success: function (response){
                  var id_comentario = $("#paquetes-revision").data('id');

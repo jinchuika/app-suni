@@ -355,7 +355,7 @@ class RevisionSalidaViewSet(viewsets.ModelViewSet):
         """
         triage = request.data["triage"]
         paquete = request.data["paquete"]
-        id_paquete = request.data["idpaquete"]
+        id_paquete = request.data["idpaquete"]        
         asignacion_fecha = inv_m.DispositivoPaquete.objects.get(dispositivo__triage=triage)
         asignacion_fecha.aprobado = True
         asignacion_fecha.fecha_aprobacion = datetime.now()
