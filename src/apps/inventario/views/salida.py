@@ -63,7 +63,7 @@ class SalidaInventarioUpdateView(LoginRequiredMixin, GroupRequiredMixin, UpdateV
     model = inv_m.SalidaInventario
     form_class = inv_f.SalidaInventarioUpdateForm
     template_name = 'inventario/salida/salida_edit.html'
-    group_required = [u"inv_cc", u"inv_admin"]
+    group_required = [u"inv_cc", u"inv_admin", u"inv_tecnico"]
 
     def get_context_data(self, *args, **kwargs):
         context = super(SalidaInventarioUpdateView, self).get_context_data(*args, **kwargs)
@@ -318,7 +318,8 @@ class RevisionComentarioSalidaCreate(CsrfExemptMixin, JsonRequestResponseMixin, 
     def post(self, request, *args, **kwargs):
         try:
             id_comentario = self.request_json["id_comentario"]
-            revision_salida = inv_m.SalidaInventario.objects.filter(id=id_comentario)
+            print(id_comentario)
+            revision_salida = inv_m.SalidaInventario.objects.filter(no_salida=id_comentario)
             comentario = self.request_json["comentario"]
             if not len(comentario) or len(revision_salida) == 0:
                 raise KeyError
@@ -385,7 +386,7 @@ class GarantiaPrintView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
             salida__id=self.object.id,
             tipo_paquete=Tablet).aggregate(total_tablet=Sum('cantidad'))
         if Total_Cpu['total_cpu'] is None:
-            Total_Cpu = 0
+            Total_Cpu['total_cpu'] = 0
         if Total_Laptop['total_laptop'] is None:
             Total_Laptop['total_laptop'] = 0
         if Total_Tablet['total_tablet'] is None:

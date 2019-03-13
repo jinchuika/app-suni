@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from django.urls import reverse_lazy
+from django.core.exceptions import ObjectDoesNotExist
 
 from apps.inventario import models as inv_m
 from apps.kardex import models as kax_m
@@ -66,7 +67,7 @@ class EntradaDetalleSerializer(serializers.ModelSerializer):
             )
 
     def get_tdispositivo(self, object):
-        return object.descripcion
+        return object.tipo_dispositivo.tipo
 
     def get_update_url(self, object):
         return reverse_lazy('entradadetalle_update', kwargs={'pk': object.id})
@@ -84,8 +85,14 @@ class EntradaDetalleSerializer(serializers.ModelSerializer):
         return reverse_lazy('detalles_repuesto', kwargs={'pk': object.entrada, 'detalle': object.id})
 
     def get_url_kardex(self, object):
-        detalle_kardex = kax_m.Entrada.objects.get(inventario_entrada=object.entrada)        
-        return reverse_lazy('kardex_entrada_detail', kwargs={'pk': detalle_kardex.id})
+        try:
+            detalle_kardex = kax_m.Entrada.objects.get(inventario_entrada=object.entrada)
+            if(object.tipo_dispositivo.usa_triage is False):
+                return reverse_lazy('kardex_entrada_detail', kwargs={'pk': detalle_kardex.id})
+            else:
+                return ""
+        except ObjectDoesNotExist as e:
+            print("Aun no se a creado el detalle")
 
     def get_existencia_desecho(self, obj):
         inventario_desecho = obj.existencia_desecho.all()
