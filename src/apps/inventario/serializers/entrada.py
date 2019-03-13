@@ -66,7 +66,7 @@ class EntradaDetalleSerializer(serializers.ModelSerializer):
             )
 
     def get_tdispositivo(self, object):
-        return object.descripcion
+        return object.tipo_dispositivo.tipo
 
     def get_update_url(self, object):
         return reverse_lazy('entradadetalle_update', kwargs={'pk': object.id})
@@ -84,8 +84,11 @@ class EntradaDetalleSerializer(serializers.ModelSerializer):
         return reverse_lazy('detalles_repuesto', kwargs={'pk': object.entrada, 'detalle': object.id})
 
     def get_url_kardex(self, object):
-        detalle_kardex = kax_m.Entrada.objects.get(inventario_entrada=object.entrada)        
-        return reverse_lazy('kardex_entrada_detail', kwargs={'pk': detalle_kardex.id})
+        try:
+            detalle_kardex = kax_m.Entrada.objects.get(inventario_entrada=object.entrada)
+            return reverse_lazy('kardex_entrada_detail', kwargs={'pk': detalle_kardex.id})
+        except kax_m.Entrada.DoesNotExist:
+            return ''    
 
     def get_existencia_desecho(self, obj):
         inventario_desecho = obj.existencia_desecho.all()

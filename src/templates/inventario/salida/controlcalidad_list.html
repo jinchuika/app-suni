@@ -24,7 +24,7 @@
                   {%for salida in controlcalidad_list %}
                     <tr>
                       <td>
-                        <a href="{%url 'salidainventario_edit' pk=salida%}">{{salida}}</a>
+                        <a href="{%url 'salidainventario_edit' pk=salida.id%}">{{salida}}</a>
                       </td>
                       <td>
                         {{salida.tipo_salida}}

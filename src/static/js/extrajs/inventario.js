@@ -878,7 +878,7 @@ class EntradaDetalleDetail {
                                 for (var i in data){
                                   cantidad = data[i].existencia_desecho
                                   if(cantidad > 0){
-                                    data_result.push('<option value='+data[i].id + ' data-tipo="'+data[i].tdispositivo+'" data-cantidad="'+cantidad+'">'+data[i].entrada+'</option>');
+                                    data_result.push('<option value='+data[i].id + ' data-tipo="'+data[i].descripcion+'" data-cantidad="'+cantidad+'">'+data[i].entrada+'</option>');
                                   }
                                 }
                                 data_result.push('</optgroup>')
@@ -3213,7 +3213,7 @@ class Desecho {
         },
         columns: [
             {data: "entrada"},
-            {data: "tdispositivo"},
+            {data: "descripcion"},
             {data: "existencia_desecho"},
         ]
     });
