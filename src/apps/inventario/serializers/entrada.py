@@ -98,6 +98,10 @@ class EntradaDetalleSerializer(serializers.ModelSerializer):
         inventario_desecho = obj.existencia_desecho.all()
         return inventario_desecho
 
+    def get_existencia_desecho(self, obj):
+        inventario_desecho = obj.existencia_desecho.all()
+        return inventario_desecho
+
 
 class EntradaSerializer(serializers.ModelSerializer):
     """ Serializer para generar el infome de la `class`:`Entrada`

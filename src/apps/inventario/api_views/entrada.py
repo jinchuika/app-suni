@@ -34,7 +34,6 @@ class DetalleInformeFilter(filters.FilterSet):
         queryset = qs.filter(entrada__fecha__gte='2019-01-01')
         queryset = [obj for obj in queryset if obj.existencia_desecho > value]
         return queryset
-        
 
 class EntradaDetalleViewSet(viewsets.ModelViewSet):
     """ ViewSet para generar las tablas de la :class:'EntradaDetalle'
