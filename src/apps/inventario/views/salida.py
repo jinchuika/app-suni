@@ -385,7 +385,7 @@ class GarantiaPrintView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
             salida__id=self.object.id,
             tipo_paquete=Tablet).aggregate(total_tablet=Sum('cantidad'))
         if Total_Cpu['total_cpu'] is None:
-            Total_Cpu = 0
+            Total_Cpu['total_cpu'] = 0
         if Total_Laptop['total_laptop'] is None:
             Total_Laptop['total_laptop'] = 0
         if Total_Tablet['total_tablet'] is None:
