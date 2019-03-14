@@ -14,14 +14,7 @@
 	<center>
 <b>
 <div class="encabezado">
-<h4>
-POR CUALQUIER FALLA EN EL EQUIPO COMUNÍCATE A NUESTROS NÚMEROS  DE
-<p>TELÉFONO 2435-2739 / 24319639</p></b>
-</h4>
-
-<a class="encabezado2" style="font-size: 14px;"><b>ENTREGA DE EQUIPO</b></a>
-
-
+<a class="encabezado2" style="font-size: 14px;"><h1><b>ENTREGA DE EQUIPO</b></h1></a>
 </div>
 </b>
 <b>
@@ -214,51 +207,50 @@ POR CUALQUIER FALLA EN EL EQUIPO COMUNÍCATE A NUESTROS NÚMEROS  DE
 			<td>
 				Red
 			</td>
+			<td width="1%"></td>
 			<td style="border:solid; border-width: 1px;border-color:gray"><center>{{Red}}</center></td>
 			<td width="2%">
 			</td>
 			<td>
 				Tarjetas Wifi
 			</td>
+			<td width="1%"></td>
 			<td style="border:solid; border-width: 1px;border-color:gray"><center>{{Wifi|default_if_none:"0"}}</center></td>
 			<td width="2%">
 			</td>
 			<td> Ethernet</td>
-			<td width="2%">
-			</td>
+			<td width="1%"></td>
 			<td style="border:solid; border-width: 1px;border-color:gray"><center>{{Ethernet|default_if_none:"0"}}</center></td>
 			<td width="2%">
 			</td>
 			<td>
 				Ap
 			</td>
+			<td width="1%"></td>
 			<td style="border:solid; border-width: 1px;border-color:gray"><center>{{Access|default_if_none:"0"}}</center></td>
 			<td width="2%">
 			</td>
 			<td>
 				Switch
 			</td>
+			<td width="1%"></td>
 			<td style="border:solid; border-width: 1px;border-color:gray"><center>{{Switch|default_if_none:"0"}}</center></td>
 			<td width="2%">
 			</td>
 			<td>
 				Cables de poder
 			</td>
+			<td width="1%"></td>
 			<td style="border:solid; border-width: 1px;border-color:gray"><center>{{CablesPoder|default_if_none:"0"}}</center></td>
 			<td width="2%">
 			</td>
 			<td>Cables VGA</td>
+			<td width="1%"></td>
 			<td style="border:solid; border-width: 1px;border-color:gray"><center>{{CablesVga|default_if_none:"0"}}</center></td>
-			<td width="2%">
-			</td>
-			{% if salidainventario.tipo_salida|stringformat:"s"  == "Renovacion" %}
-			<td width="200"><center><input type="checkbox" checked>Renovación</center></td>
-			{% else %}
-			<td width="200"><center><input type="checkbox">Renovación</center></td>
-			{% endif %}
 	</table>
 <br>
 <br>
+	<br>
 	<br>
 	<br>
 <center>
@@ -270,7 +262,7 @@ POR CUALQUIER FALLA EN EL EQUIPO COMUNÍCATE A NUESTROS NÚMEROS  DE
 			<p><center>NOMBRE Y FIRMA</center></p></center>
 		</td>
 
-		<td width="200" valign="center" ><center>SELLO</center>
+		<td width="600" valign="center" ><center>SELLO</center>
 		</td>
 
 		<td >
@@ -296,12 +288,17 @@ POR CUALQUIER FALLA EN EL EQUIPO COMUNÍCATE A NUESTROS NÚMEROS  DE
 	<br>
 
 	<table style="margin-left: 0px;">
-		<td width="1100">Todas las tablets cuentan con sus respectivos accesorios y tarjeta microSD de 16 GB.</td>
+		<td width="1100"><h4>POR CUALQUIER FALLA EN EL EQUIPO COMUNÍCATE A NUESTROS NÚMEROS  DE
+			<p>TELÉFONO 2435-2739 / 24319639</p></b>
+			</h4>
+		</td>
 		<td style="font-size: 12px">Latitud</td>
+		<td width="1%"></td>
 		<td style="border:solid; border-width: 1px;border-color:gray" width="200" height="14">{{salidainventario.escuela.mapa.lat}}</td>
 				<td  width="30"></td>
 
 		<td style="font-size: 12px">Longitud</td>
+		<td width="1%"></td>
 		<td style="border:solid; border-width: 1px;border-color:gray" width="200" height="14">{{salidainventario.escuela.mapa.lng}}</td>
 	</table>
 
