@@ -250,7 +250,7 @@ class DispositivosPaquetesViewSet(viewsets.ModelViewSet):
                     status=status.HTTP_400_BAD_REQUEST)
 
         return Response({
-            'mensaje': 'El dispositivo a sido Aprobado'
+            'mensaje': 'El dispositivo ha sido Aprobado'
         },
             status=status.HTTP_200_OK
         )
