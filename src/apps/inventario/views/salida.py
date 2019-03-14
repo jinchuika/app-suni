@@ -603,7 +603,13 @@ class TpePrintView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
         context['Ethernet'] = total_alambricas['total_alambricas']
         context['Access'] = total_access_point['total_access_point']
         try:
-            context['Red'] = total_inalambricas['total_inalambricas'] + total_alambricas['total_alambricas']
+            red = "Mixta"
+            if total_inalambricas['total_inalambricas'] > 0 and total_alambricas['total_alambricas'] == 0:
+                red = "Inalambrica"
+            elif total_inalambricas['total_inalambricas'] == 0 and total_alambricas['total_alambricas'] > 0:
+                red = "Alambrica"
+                
+            context['Red'] = red
         except TypeError as e:
             context['Red'] = 0
         return context
