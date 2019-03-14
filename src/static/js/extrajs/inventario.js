@@ -1452,7 +1452,7 @@ class SolicitudEstadoTipo {
                 paquete:data_fila.id_paquete
               },
               success: function (response){
-                  bootbox.alert("Paquete y Dispositivos aprovados");
+                  bootbox.alert("Paquete y Dispositivos aprobados");
                   tablaSignar.clear().draw();
                   tablaSignar.ajax.reload();
               },
@@ -1543,7 +1543,7 @@ class SalidasRevisarList {
       },
       columns:[
         {data:"salida", render: function( data, type, full, meta){
-          return '<a href="'+full.urlSalida+'">'+data+'</a>'
+          return '<a href="'+full.urlSalida+'">'+full.no_salida+'</a>'
         }},
         {data:"fecha_revision", render: function(data, type, full, meta){
          var newDate = new Date(full.fecha_revision);
@@ -2274,7 +2274,8 @@ class PaquetesRevisionList {
                     salida:api_paquete_salida
                   },
                   success: function (response){
-                      bootbox.alert("Dispositivos aprovados");
+                      var jsonResponse = JSON.parse(response.responseText);
+                      bootbox.alert(jsonResponse["mensaje"]);
                       location.reload();
                   },
                   error: function (response) {
@@ -2491,6 +2492,7 @@ class PaquetesRevisionList {
         {data:"tipo_paquete", render: function(data,type, full, meta){
           return data
         }} ,
+        {data:"cantidad"},
         {data:" " ,render: function(data, type, full, meta){
             return "<a id='conta-aprobar' data-triage="+full.dispositivo+"  class='btn btn-success btn-aprobar-conta-kardex'>Aprobar</a>";
         }},
@@ -2523,6 +2525,7 @@ class PaquetesRevisionList {
         {data:"tipo_paquete", render: function(data,type, full, meta){
           return data
         }} ,
+        {data:"cantidad"},
           ]
     });
 
@@ -2574,7 +2577,7 @@ class PaquetesRevisionList {
                 var id_comentario = $("#paquetes-revision").data('id');
                  var url = $("#paquetes-revision").data('urlhistorico');
                  bootbox.prompt({
-                   title: "Por que rechazo este dispositivo?",
+                   title: "Por qué rechazo este dispositivo?",
                    inputType: 'textarea',
                    callback: function (result) {
                      if (result) {
