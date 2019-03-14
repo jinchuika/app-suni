@@ -2119,6 +2119,9 @@ class PaquetesRevisionList {
     let api_paquetes_revision_kardex = $('#paquetes-revision-kardex').data('url');
     let paquete_revision_aprobado_kardex = $('#dispositivo-salida-paquetes-revision-kardex');
     let paquetes_revision_tabla_kardex = $('#salida-paquetes-revision-kardex');
+
+           
+
     var  tablaPaquetes = paquetes_revision_tabla.DataTable({
       processing:true,
       retrieve:true,
@@ -2150,6 +2153,143 @@ class PaquetesRevisionList {
 
     });
     /****/
+
+     /*Scanner*/
+        var inputStart, inputStop, firstKey, lastKey, timing, userFinishedEntering;
+        var minChars = 3;
+
+        // handle a key value being entered by either keyboard or scanner
+        $("#area_scanner").keypress(function (e) {
+            // restart the timer
+            if (timing) {
+                clearTimeout(timing);
+            }
+
+            // handle the key event
+            if (e.which == 13) {
+                // Enter key was entered
+
+                // don't submit the form
+                e.preventDefault();
+
+                // has the user finished entering manually?
+                if ($("#area_scanner").val().length >= minChars){
+                    userFinishedEntering = true; // incase the user pressed the enter key
+                    inputComplete();
+                }
+            }
+            else {
+                // some other key value was entered
+
+                // could be the last character
+                inputStop = performance.now();
+                lastKey = e.which;
+                // don't assume it's finished just yet
+                userFinishedEntering = false;
+
+                // is this the first character?
+                if (!inputStart) {
+                    firstKey = e.which;
+                    inputStart = inputStop;
+
+                    // watch for a loss of focus
+                    $("body").on("blur", "#area_scanner", inputBlur);
+                }
+
+                // start the timer again
+                timing = setTimeout(inputTimeoutHandler, 500);
+            }
+        });
+
+        // Assume that a loss of focus means the value has finished being entered
+        function inputBlur(){
+            clearTimeout(timing);
+            if ($("#area_scanner").val().length >= minChars){
+                userFinishedEntering = true;
+                inputComplete();
+            }
+        };
+
+
+        // reset the page
+        $("#reset").click(function (e) {
+            e.preventDefault();
+            resetValues();
+        });
+
+        function resetValues() {
+            // clear the variables
+            inputStart = null;
+            inputStop = null;
+            firstKey = null;
+            lastKey = null;
+            // clear the results
+            inputComplete();
+        }
+
+        // Assume that it is from the scanner if it was entered really fast
+        function isScannerInput() {
+            return (((inputStop - inputStart) / $("#area_scanner").val().length) < 15);
+        }
+
+        // Determine if the user is just typing slowly
+        function isUserFinishedEntering(){
+            return !isScannerInput() && userFinishedEntering;
+        }
+
+        function inputTimeoutHandler(){
+            // stop listening for a timer event
+            clearTimeout(timing);
+            // if the value is being entered manually and hasn't finished being entered
+            if (!isUserFinishedEntering() || $("#area_scanner").val().length < 3) {
+                // keep waiting for input
+                return;
+            }
+            else{
+                reportValues();
+            }
+        }
+
+        // here we decide what to do now that we know a value has been completely entered
+        function inputComplete(){
+            // stop listening for the input to lose focus
+            $("body").off("blur", "#area_scanner", inputBlur);
+            // report the results
+            reportValues();
+        }
+
+        function reportValues() {
+            var inputMethod = isScannerInput() ? "Scanner" : "Keyboard";
+            if(inputMethod == "Scanner"){
+                var triage = $("#area_scanner").val();
+                var mensaje = JSON.parse(triage);
+                 /*Api*/
+                $.ajax({
+                  type: "POST",
+                  url: urlraprobar,
+                  data:{
+                    csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
+                    triage:mensaje.triage,
+                    kardex:false,
+                    salida:api_paquete_salida
+                  },
+                  success: function (response){
+                      bootbox.alert("Dispositivos aprovados");
+                      location.reload();
+                  },
+                  error: function (response) {
+                      var jsonResponse = JSON.parse(response.responseText);
+                      bootbox.alert(jsonResponse["mensaje"]);
+                  }
+                });
+                 /**/
+            }
+          $("#area_scanner").val("");
+          $("#area_scanner").focus();
+        }
+        
+        /*Fin scanner*/
+
     var  tablaPaquetesDispositivos = dispositivo_revision_tabla.DataTable({
       processing:true,
       retrieve:true,

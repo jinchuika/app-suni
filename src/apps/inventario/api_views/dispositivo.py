@@ -236,9 +236,19 @@ class DispositivosPaquetesViewSet(viewsets.ModelViewSet):
             nuevo_paquete.save()
         else:
             triage = request.data["triage"]
-            cambio_estado = inv_m.Dispositivo.objects.get(triage=triage)
-            cambio_estado.etapa = inv_m.DispositivoEtapa.objects.get(id=inv_m.DispositivoEtapa.LS)
-            cambio_estado.save()
+            salida = request.data["salida"]
+            print(triage)
+            print(salida)
+            dispositivo_salida = inv_m.DispositivoPaquete.objects.filter(dispositivo__triage=triage, paquete__salida=salida)
+            if len(dispositivo_salida) > 0:
+                cambio_estado = inv_m.Dispositivo.objects.get(triage=triage)
+                cambio_estado.etapa = inv_m.DispositivoEtapa.objects.get(id=inv_m.DispositivoEtapa.LS)
+                cambio_estado.save()
+            else:
+                return Response({
+                    'mensaje': 'El dispositivo no pertenece a esta salida'},
+                    status=status.HTTP_400_BAD_REQUEST)
+
         return Response({
             'mensaje': 'El dispositivo a sido Aprobado'
         },

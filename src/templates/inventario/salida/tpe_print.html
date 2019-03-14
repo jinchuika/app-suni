@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>entrega tpe</title>
+	<title>Entrega TPE ({{salidainventario}})</title>
 	<link rel="stylesheet" type="text/css" href="{% static "css/bootstrap.min.css" %}">
 </head>
 
@@ -25,20 +25,20 @@ POR CUALQUIER FALLA EN EL EQUIPO COMUNÍCATE A NUESTROS NÚMEROS  DE
 </div>
 </b>
 <b>
-<table class="encabezado3">
+<table class="encabezado3" style="text-align:center">
 	<center>
 	<b>
-	<td width="26%">Fecha de entrega</td>
+	<td width="15%">Fecha de entrega</td>
 	<td style="border:solid; border-width: 1px" >{{salidainventario.fecha}}</td>
-	<td  width="20"></td>
+	<td  width="10%"></td>
 	<td style="font-size: 20px">Jornada</td>
-	<td style="border:solid; border-width: 1px;border-color:gray" width="150" height="25">{{Jornada}}</td>
+	<td style="border:solid; border-width: 1px; " width="150" height="25">{{Jornada}}</td>
 	<td  width="25"></td>
-	<td width="15%">Código UDI</td>
-	<td style="border:solid; border-width: 1px" width="0">{{salidainventario.escuela.codigo}}</td>
-	<td  width="40	"></td>
+	<td width="12%">Código UDI</td>
+	<td width:"15%" style="border:solid; border-width: 1px" width="0">{{salidainventario.escuela.codigo}}</td>
+	<td width="40"></td>
 	<td width="10%">No. Entrega:</td>
-	<td style="border:solid; border-width: 1px" width="50">{{salidainventario}}</td>
+	<td width="10%" style="border:solid; border-width: 1px" width="50">{{salidainventario}}</td>
 	</center>
 </table>
 </b>
@@ -71,12 +71,14 @@ POR CUALQUIER FALLA EN EL EQUIPO COMUNÍCATE A NUESTROS NÚMEROS  DE
 <!--TABLA DE LOS DISPOSITIVOS-->
 
 <!--<center> -->
+<br/>
+<br/>
 <table   class="datos"style="font-size: 20px" >
 	<thead>
 		<tr>
-			<td width="755" bgcolor="lightgray"><center>CPU</center></td>
+			<td width="750" bgcolor="lightgray"><center>CPU</center></td>
 			<td  width="30"></td>
-			<td width="284" bgcolor="lightgray"><center>MONITOR</center></td>
+			<td width="400" bgcolor="lightgray"><center>MONITOR</center></td>
 			<td  width="30"></td>
 			<td width="284" bgcolor="lightgray"><center>TECLADO</center></td>
 			<td  width="30"></td>
@@ -92,15 +94,16 @@ POR CUALQUIER FALLA EN EL EQUIPO COMUNÍCATE A NUESTROS NÚMEROS  DE
 <!--TABLA DE LOS CAMPOS-->
 
 <!--<center> -->
+	<br/>
 	<div class="row">
 		<div class="col-md-5">
-			<table class="datos">
+			<table class="datos" style="text-align:center;">
 				<thead>
 					<tr>
-						<th bgcolor="skyblue" width="8%"><center>Triage</center></th>
-						<th bgcolor="skyblue" width="14%"><center>Marca</center></th>
-						<th bgcolor="skyblue" width="14%"><center>Modelo</center></th>
-						<th bgcolor="skyblue" width="10%"><center>HDD</center></th>
+						<th bgcolor="skyblue" width="15%"><center>Triage</center></th>
+						<th bgcolor="skyblue" width="12%"><center>Marca</center></th>
+						<th bgcolor="skyblue" width="12%"><center>Modelo</center></th>
+						<th bgcolor="skyblue" width="15%"><center>HDD</center></th>
 						<th bgcolor="skyblue" width="10%"><center>Capacidad</center></th>
 						<th bgcolor="skyblue" width="15%"><center>Procesador</center></th>
 						<th bgcolor="skyblue" width="9%"><center>RAM</center></th>
@@ -124,22 +127,22 @@ POR CUALQUIER FALLA EN EL EQUIPO COMUNÍCATE A NUESTROS NÚMEROS  DE
 				</tbody>
 			</table>
 		</div>
-		<div class="col-md-2">
-			<table class="datos">
+		<div class="col-md-3">
+			<table class="datos" style="text-align:center;">
 				<thead>
 					<tr>
-						<th bgcolor="skyblue" width="100%"><center>Triage</center></th>
-						<th bgcolor="skyblue" width="100%"><center>Tipo</center></th>
-						<th bgcolor="skyblue" width="100%"><center>Marca</center></th>
-						<th bgcolor="skyblue" width="100%"><center>Modelo</center></th>
-						<th bgcolor="skyblue" width="100%"><center>Tamaño</center></th>
+						<th bgcolor="skyblue" width="20%"><center>Triage</center></th>
+						<th bgcolor="skyblue" width="20%"><center>Tipo</center></th>
+						<th bgcolor="skyblue" width="20%"><center>Marca</center></th>
+						<th bgcolor="skyblue" width="25%"><center>Modelo</center></th>
+						<th bgcolor="skyblue" width="15%"><center>Tamaño</center></th>
 					</tr>
 				</thead>
 				<tbody>
 					<center>
 						{% for monitor in Monitores  %}
 							<tr>
-		<td style="border:solid; border-width: 1px;border-color:gray" height="25">{{monitor}}</td>
+		<td style="border:solid; border-width: 1px;border-color:gray" height="36">{{monitor}}</td>
 		<td style="border:solid; border-width: 1px;border-color:gray" >{{monitor.tipo}}</td>
 		<td style="border:solid; border-width: 1px;border-color:gray" >{{monitor.marca}}</td>
 		<td style="border:solid; border-width: 1px;border-color:gray" >{{monitor.modelo}}</td>
@@ -153,7 +156,7 @@ POR CUALQUIER FALLA EN EL EQUIPO COMUNÍCATE A NUESTROS NÚMEROS  DE
 
 	</div>
 	<div class="col-md-2">
-		<table class="datos">
+		<table class="datos" style="text-align:center;">
 			<thead>
 				<tr>
 					<th bgcolor="skyblue" width="20%"><center>Triage</center></th>
@@ -173,7 +176,7 @@ POR CUALQUIER FALLA EN EL EQUIPO COMUNÍCATE A NUESTROS NÚMEROS  DE
 		</table>
 </div>
 <div class="col-md-2">
-	<table class="datos">
+	<table class="datos" style="text-align:center;">
 		<thead>
 			<tr>
 				<th bgcolor="skyblue" width="20%"><center>Triage</center></th>
@@ -195,6 +198,7 @@ POR CUALQUIER FALLA EN EL EQUIPO COMUNÍCATE A NUESTROS NÚMEROS  DE
 </div>
 </div>
 <!--</center> -->
+<br/>
 <table>
 		<td  width="13"></td>
 		<td style="border:solid; border-width: 1px;border-color:gray" width="120" height="25"><center>{{Total}}</center></td>
@@ -247,7 +251,7 @@ POR CUALQUIER FALLA EN EL EQUIPO COMUNÍCATE A NUESTROS NÚMEROS  DE
 			<td style="border:solid; border-width: 1px;border-color:gray"><center>{{CablesVga|default_if_none:"0"}}</center></td>
 			<td width="2%">
 			</td>
-			{% if salidainventario.tipo_salida|stringformat:"s"  == "Renovaciones" %}
+			{% if salidainventario.tipo_salida|stringformat:"s"  == "Renovacion" %}
 			<td width="200"><center><input type="checkbox" checked>Renovación</center></td>
 			{% else %}
 			<td width="200"><center><input type="checkbox">Renovación</center></td>
