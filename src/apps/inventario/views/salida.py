@@ -433,7 +433,7 @@ class LaptopPrintView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
             nuevas_laptops.append(nuevo_laptop)
         escuela = inv_m.SalidaInventario.objects.get(id=self.object.id)
         try:
-            encargado = escuela_m.EscContacto.objects.get(escuela=escuela.escuela)
+            encargado = escuela_m.EscContacto.objects.get(escuela=escuela.escuela, rol__rol="Director")
             context['Encargado'] = str(encargado.nombre)+" "+str(encargado.apellido)
         except ObjectDoesNotExist as e:
             print(e)
@@ -583,8 +583,10 @@ class TpePrintView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
             nuevos_mouse.append(nuevo_mouse)
         escuela = inv_m.SalidaInventario.objects.get(id=self.object.id)
         try:
-            encargado = escuela_m.EscContacto.objects.get(escuela=escuela.escuela)
+            encargado = escuela_m.EscContacto.objects.get(escuela=escuela.escuela, rol__rol="Director")
+            telefono = escuela_m.EscContactoTelefono.objects.get(contacto=encargado)
             context['Encargado'] = str(encargado.nombre)+" "+str(encargado.apellido)
+            context['Telefono'] = str(telefono.telefono)
             context['Jornada'] = encargado.escuela.jornada
         except ObjectDoesNotExist as e:
             print(e)
