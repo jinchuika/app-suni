@@ -12,7 +12,7 @@
 <section class="content">
 	<div class="container-fluid">
 		<div class="row">
-			{% if request.user|has_group:"inv_cc" or request.user|has_group:"inv_admin" %} 
+			{% if request.user|has_group:"inv_cc" or request.user|has_group:"inv_admin" %}
 			<!-- Comienza el formulario -->
 			<div class="col-md-3 col-sm-3">
 				<div class="box">
@@ -120,6 +120,7 @@
 							<div class="col-md-9">
 								{% if salidainventario.tipo_salida|stringformat:"s" == "Entrega" %}
 									<a target='_blank' href="{% url 'garantia_print' pk=object.id%}" class="btn btn-success">Constacia de Garantia</a>
+									<a target='_blank' href="{% url 'prestamo_carta_print' pk=object.id%}" class="btn btn-primary">Carta de Prestamo</a>
 								{% endif %}
 								{% if Laptops > 1 %}
 								 <a target='_blank' href="{% url 'laptop_print' pk=object.id%}" class="btn btn-info">Entrega de Laptops</a>
@@ -131,6 +132,7 @@
 								 <a target='_blank' href="{% url 'tpe_print' pk=object.id%}" class="btn btn-info">Entrega TPE</a>
 								 <a target='_blank' href="{% url 'mineduc_print' pk=object.id%}" class="btn btn-success">Entrega MINEDUC</a>
 								{% endif %}
+
 							</div>
 						</div>
 					</div>
