@@ -1746,7 +1746,7 @@ class Salidas {
 
 
             }else{
-              return "<a target='_blank' rel='noopener noreferrer' href="+full.urlPaquet+" class='btn btn-primary'>Asignar Dispositivos</a>";
+              return "<a target='_blank' rel='noopener noreferrer' href="+full.urlPaquet+" class='btn btn-primary btn-asignar'>Asignar Dispositivos</a>";
             }
 
           }else{
@@ -1756,6 +1756,10 @@ class Salidas {
         }}
       ]
     });
+    /**Asignar Dispositivos**/
+    nueva_tabla.on('click','.btn-asignar', function () {
+      location.reload();
+    } );
 
     /**Boton Aprobar Dispositivos**/
     nueva_tabla.on('click','.btn-aprobar-conta', function () {
@@ -1897,6 +1901,7 @@ class Salidas {
                                            salida :salida_pk,
                                        },
                                        success: function (response){
+                                         bootbox.alert("Salida Aprobada");
                                         window.location.href = url_detail;
                                        },
                                      });
@@ -1984,7 +1989,7 @@ class Salidas {
         $('#id_beneficiario').next(".select2-container").hide();
         $("[for='id_garantia']").css({"visibility":"hidden"});
         $('#id_garantia').next(".select2-container").hide();
-      }else if(tipoSalida == 4 || tipoSalidaText =='A terceros') {        
+      }else if(tipoSalida == 4 || tipoSalidaText =='A terceros') {
         $("[for='id_entrega']").css({"visibility":"hidden"});
         $("#id_entrega").css({"visibility":"hidden"});
         $("#id_entrega").prop('checked',false);

@@ -654,3 +654,53 @@ class MineducPrintView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
         context['Total'] = total_cpu.count()
         context['Servidor'] = cpu_servidor
         return context
+
+
+class PrestamoCartaPrintView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
+    """Vista encargada para imprimir las Carta de Prestamo de las :class:`SalidaInventario`
+    """
+    model = inv_m.SalidaInventario
+    template_name = 'inventario/salida/carta_prestamo_print.html'
+    group_required = [u"inv_tecnico", u"inv_admin", u"inv_cc"]
+
+    def get_context_data(self, **kwargs):
+        cpu_servidor = 0
+        context = super(PrestamoCartaPrintView, self).get_context_data(**kwargs)
+        CPU = inv_m.PaqueteTipo.objects.get(nombre="CPU")
+        CPU2 = inv_m.DispositivoTipo.objects.get(tipo="CPU")
+        Laptop = inv_m.PaqueteTipo.objects.get(nombre="Laptop")
+        Tablet = inv_m.PaqueteTipo.objects.get(nombre="Tablet")
+        Total_Servidor = inv_m.DispositivoPaquete.objects.filter(
+            paquete__salida__id=self.object.id,
+            dispositivo__tipo=CPU2)
+        for nuevos in Total_Servidor:
+            if nuevos.dispositivo.cast().servidor is True:
+                cpu_servidor = cpu_servidor + 1
+        Total_Cpu = inv_m.Paquete.objects.filter(
+            salida__id=self.object.id,
+            tipo_paquete=CPU).aggregate(total_cpu=Sum('cantidad'))
+        Total_Laptop = inv_m.Paquete.objects.filter(
+            salida__id=self.object.id,
+            tipo_paquete=Laptop).aggregate(total_laptop=Sum('cantidad'))
+        Total_Tablet = inv_m.Paquete.objects.filter(
+            salida__id=self.object.id,
+            tipo_paquete=Tablet).aggregate(total_tablet=Sum('cantidad'))
+        if Total_Cpu['total_cpu'] is None:
+            Total_Cpu['total_cpu'] = 0
+        if Total_Laptop['total_laptop'] is None:
+            Total_Laptop['total_laptop'] = 0
+        if Total_Tablet['total_tablet'] is None:
+            Total_Tablet['total_tablet'] = 0
+        Total_Entregado = Total_Cpu['total_cpu']+Total_Laptop['total_laptop']+Total_Tablet['total_tablet']
+        context['cpu_servidor'] = cpu_servidor
+        context['dispositivo_total'] = Total_Entregado
+        escuela = inv_m.SalidaInventario.objects.get(id=self.object.id)
+        try:
+            encargado = escuela_m.EscContacto.objects.get(escuela=escuela.escuela, rol=5)
+            context['Encargado'] = str(encargado.nombre)+" "+str(encargado.apellido)
+            context['Jornada'] = encargado.escuela.jornada
+        except ObjectDoesNotExist as e:
+            print(e)
+            context['Jornada'] = "No tiene Jornada"
+            context['Encargado'] = "No Tiene Encargado"
+        return context
