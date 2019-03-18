@@ -78,12 +78,14 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
 
         if "inv_tecnico" in self.request.user.groups.values_list('name', flat=True):
             return Response(
-                {'mensaje': 'No Tienes la Autorizacion para esta accion'},
+                {'mensaje': 'No tienes la autorización para realizar esta acción.'},
                 status=status.HTTP_401_UNAUTHORIZED
             )
         else:
             mensaje_cuadrar = ""
             entrad_id = request.data['primary_key']
+            entrada = inv_m.Entrada.objects.get(pk=entrad_id)
+
             detalles_kardex = inv_m.EntradaDetalle.objects.filter(
                 entrada=entrad_id,
                 ingresado_kardex=False,
@@ -113,22 +115,22 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
                     acumulador_total = acumulador_total + datos.total
                     mensaje_cuadrar = datos.tipo_dispositivo
                 if(acumulador_total != acumulado_totales):
-                    tipos_sin_cuadrar.append("<br><b>" + str(datos.tipo_dispositivo) + "</b>")
+                    tipos_sin_cuadrar.append("<br><b>" + str(datos.descripcion) + "</b>")
 
-            if(len(tipos_sin_cuadrar) > 0):
+            if(len(tipos_sin_cuadrar) > 0 ):
                 return Response(
-                      {'mensaje': 'La entrada no esta cuadrada revisar:'
+                      {'mensaje': 'La entrada no esta cuadrada, revisar los siguientes dispositivos:'
                        + ', '.join(str(x) for x in tipos_sin_cuadrar)},
                       status=status.HTTP_400_BAD_REQUEST
                   )
-            elif(dispositivos_utiles != validar_dispositivos or repuestos_utiles != validar_repuestos):
+            elif(dispositivos_utiles != validar_dispositivos or repuestos_utiles != validar_repuestos and not entrada.tipo.especial):
                 return Response(
-                    {'mensaje': 'Los dispositivos o repuestos no  han sido creados'},
+                    {'mensaje': 'Faltan dispositivos / repuestos por crear.'},
                     status=status.HTTP_400_BAD_REQUEST
                 )
-            elif(detalles_kardex > 0):
+            elif(detalles_kardex > 0 and not entrada.tipo.especial):
                 return Response(
-                    {'mensaje': 'Aun hay dispositivo que no han sido enviados al Kardex'},
+                    {'mensaje': 'Faltan dispositivos por agregar a Kardex'},
                     status=status.HTTP_400_BAD_REQUEST
                 )
 
@@ -211,56 +213,68 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
 
     @action(methods=['post'], detail=True)
     def crear_kardex(self, request, pk=None):
-        id = request.data['detalle_entrada']
-        entrada_detalle = inv_m.EntradaDetalle.objects.get(id=id)
-        entrada_detalle.ingresado_kardex = True
-        entrada_detalle.save()
-        if entrada_detalle.precio_unitario is None:
-            precio_unitario = 0
-        else:
-            precio_unitario = entrada_detalle.precio_unitario
-
-        equipo_kardex = kax_m.Equipo.objects.get(nombre=entrada_detalle.tipo_dispositivo)
-        try:
-            entrada_kardex = kax_m.Entrada.objects.get(inventario_entrada=entrada_detalle.entrada)
-            nuevo_detalle_kardez = kax_m.EntradaDetalle(
-                entrada=entrada_kardex,
-                equipo=equipo_kardex,
-                cantidad=entrada_detalle.util,
-                precio=precio_unitario
-            )
-            nuevo_detalle_kardez.save()
-        except ObjectDoesNotExist as e:
-            nuevo = kax_m.Entrada(
-                inventario_entrada=entrada_detalle.entrada,
-                estado=entrada_detalle.estado_kardex,
-                proveedor=entrada_detalle.proveedor_kardex,
-                tipo=entrada_detalle.tipo_entrada_kardex,
-                fecha=datetime.now(),
-                terminada=True)
-            nuevo.save()
-            entrada_kardex = kax_m.Entrada.objects.get(inventario_entrada=entrada_detalle.entrada)
-            nuevo_detalle_kardez = kax_m.EntradaDetalle(
-                entrada=entrada_kardex,
-                equipo=kax_m.Equipo.objects.get(nombre=entrada_detalle.tipo_dispositivo),
-                cantidad=entrada_detalle.util,
-                precio=precio_unitario,
-            )
-            nuevo_detalle_kardez.save()
+        if "inv_tecnico" in self.request.user.groups.values_list('name', flat=True):
             return Response(
-                {'mensaje': "Detalle creado exitosamente"},
+                {'mensaje': 'No Tienes la Autorizacion para esta accion'},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+        else:
+            id = request.data['detalle_entrada']
+            entrada_detalle = inv_m.EntradaDetalle.objects.get(id=id)
+            total = entrada_detalle.util + entrada_detalle.repuesto + entrada_detalle.desecho
+            if entrada_detalle.total != total:
+                return Response(
+                    {'mensaje': 'La línea de detalle no cuadra, revisar'},
+                    status=status.HTTP_400_BAD_REQUEST)
+
+            entrada_detalle.ingresado_kardex = True
+            entrada_detalle.save()
+            if entrada_detalle.precio_unitario is None:
+                precio_unitario = 0
+            else:
+                precio_unitario = entrada_detalle.precio_unitario
+
+            equipo_kardex = kax_m.Equipo.objects.get(nombre=entrada_detalle.tipo_dispositivo)
+            try:
+                entrada_kardex = kax_m.Entrada.objects.get(inventario_entrada=entrada_detalle.entrada)
+                nuevo_detalle_kardez = kax_m.EntradaDetalle(
+                    entrada=entrada_kardex,
+                    equipo=equipo_kardex,
+                    cantidad=entrada_detalle.util,
+                    precio=precio_unitario
+                )
+                nuevo_detalle_kardez.save()
+            except ObjectDoesNotExist as e:
+                nuevo = kax_m.Entrada(
+                    inventario_entrada=entrada_detalle.entrada,
+                    estado=entrada_detalle.estado_kardex,
+                    proveedor=entrada_detalle.proveedor_kardex,
+                    tipo=entrada_detalle.tipo_entrada_kardex,
+                    fecha=datetime.now(),
+                    terminada=True)
+                nuevo.save()
+                entrada_kardex = kax_m.Entrada.objects.get(inventario_entrada=entrada_detalle.entrada)
+                nuevo_detalle_kardez = kax_m.EntradaDetalle(
+                    entrada=entrada_kardex,
+                    equipo=kax_m.Equipo.objects.get(nombre=entrada_detalle.tipo_dispositivo),
+                    cantidad=entrada_detalle.util,
+                    precio=precio_unitario,
+                )
+                nuevo_detalle_kardez.save()
+                return Response(
+                    {'mensaje': "Detalle creado exitosamente"},
+                    status=status.HTTP_200_OK
+                )
+            return Response(
+                {'mensaje': 'Creado exitosamente'},
                 status=status.HTTP_200_OK
             )
-        return Response(
-            {'mensaje': 'Creado exitosamente'},
-            status=status.HTTP_200_OK
-        )
 
     @action(methods=['post'], detail=True)
     def validar_kardex(self, request, pk=None):
         tipo_dispositivo = request.data['tipo_dispositivo']
         validar_dispositivos = inv_m.DispositivoTipo.objects.get(id=tipo_dispositivo)
-        if validar_dispositivos.usa_triage is True:
+        if validar_dispositivos.kardex is False:
             return Response(
                 {'mensaje': 'Usa Triage'},
                 status=status.HTTP_400_BAD_REQUEST
@@ -276,14 +290,14 @@ class EntradaFilter(filters.FilterSet):
     """
     id = django_filters.NumberFilter(name="id")
     proveedor = django_filters.CharFilter(name='proveedor')
-    tipo = django_filters.CharFilter(name='tipo')
     recibida_por = django_filters.CharFilter(name='recibida_por')
+    tipo = django_filters.CharFilter(name='tipo')
     fecha_min = django_filters.DateFilter(name='fecha_min', method='filter_fecha')
     fecha_max = django_filters.DateFilter(name='fecha_max', method='filter_fecha')
 
     class Meta:
         model = inv_m.Entrada
-        fields = ['proveedor', 'tipo', 'recibida_por', 'fecha_min', 'fecha_max']
+        fields = ['proveedor', 'recibida_por', 'tipo', 'fecha_min', 'fecha_max']
 
     def filter_fecha(self, queryset, name, value):
         if value and name == 'fecha_min':
@@ -301,14 +315,26 @@ class EntradaViewSet(viewsets.ModelViewSet):
     filter_class = EntradaFilter
 
     def get_queryset(self):
+        tipo_entrada = []
+        try:
+            tipo_entrada = self.request.query_params.getlist('tipo[]')
+            if len(tipo_entrada) == 0:
+                tipo = self.request.query_params.get('tipo')
+                if tipo != None:
+                    tipo_entrada.append(tipo)
+        except MultiValueDictKeyError as e:
+            tipo_entrada = 0
+
         id = self.request.query_params.get('id', None)
         proveedor = self.request.query_params.get('proveedor', None)
-        tipo = self.request.query_params.get('tipo', None)
         recibida_por = self.request.query_params.get('recibida_por', None)
         fecha_min = self.request.query_params.get('fecha_min', None)
         fecha_max = self.request.query_params.get('fecha_max', None)
 
-        if id or proveedor or tipo or recibida_por or fecha_min or fecha_max:
+        if id or proveedor or recibida_por or fecha_min or fecha_max:
             return inv_m.Entrada.objects.all()
+
+        if len(tipo_entrada) > 0:
+            return inv_m.Entrada.objects.all().filter(tipo__in=tipo_entrada)
 
         return inv_m.Entrada.objects.all().filter(en_creacion=True)
