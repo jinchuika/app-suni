@@ -1,7 +1,7 @@
 {% extends "base/base.html" %}
 {% load staticfiles %}
 {% block page_title %}
-<title>Entrada - {{ entrada.id }}</title>
+<title>ENTRADA - {{ entrada.id }}</title>
 {% endblock page_title %}
 {% block content %}
 <section class="content">
@@ -12,12 +12,12 @@
 					<div class="box-header">
 						<div class="row">
 							<div class="col-md-6">
-								<h3 class="box-title">Entrada No. {{ entrada.id }}</h3>
+								<h3 class="box-title">ENTRADA NO. {{ entrada.id }}</h3>
 							</div>
 							<div class="col-md-6">
-									<a href="{% url 'carta_agradecimiento' pk=object.id%}" class="btn btn-success">Carta Agradecimiento</a>
-									<a href="{% url 'reporte_sucio' pk=object.id%}" class="btn btn-primary">Constancia Útil</a>
-									<a href="{% url 'constancia_entrada' pk=object.id%}" class="btn btn-danger">Constancia Entrada</a>
+									<a href="{% url 'carta_agradecimiento' pk=object.id%}" class="btn btn-success" target="_blank">Carta Agradecimiento</a>
+									<a href="{% url 'reporte_sucio' pk=object.id%}" class="btn btn-primary" target="_blank">Constancia Útil</a>
+									<a href="{% url 'constancia_entrada' pk=object.id%}" class="btn btn-danger" target="_blank">Constancia Entrada</a>
 							</div>
 						</div>
 					</div>
@@ -29,56 +29,40 @@
 							</tr>
 							<tr>
 								<th>Fecha</th>
+								<td>{{entrada.fecha}}<br></td>
+							</tr>
+							<tr>
+								<th>Estado</th>
 								<td>
-									{{entrada.fecha}}
+									{%if entrada.en_creacion == True%}
+										<span class='label label-primary'>En Desarrollo</span>
+									{%else%}
+										<span class='label label-danger'>Finalizada</span>
+									{%endif%}
 									<br>
 								</td>
 							</tr>
-              <tr>
-								<th>En Creacion</th>
-								<td>
-                  {%if entrada.en_creacion == True%}
-                  SI
-                  {%else%}
-                  	NO
-                  {%endif%}
-
-									<br>
-								</td>
+							<tr>
+								<th>Responsable</th>
+								<td>{{entrada.creada_por.get_full_name}}<br></td>
 							</tr>
-              <tr>
-								<th>Creada por</th>
-								<td>
-									{{entrada.creada_por.get_full_name}}
-									<br>
-								</td>
-							</tr>
-              <tr>
+							<tr>
 								<th>Recibida por</th>
-								<td>
-									{{entrada.recibida_por.get_full_name}}
-									<br>
-								</td>
+								<td>{{entrada.recibida_por.get_full_name}}<br></td>
 							</tr>
-              <tr>
+							<tr>
 								<th>Proveedor</th>
-								<td>
-									{{entrada.proveedor}}
-									<br>
-								</td>
+								<td><a href="{{ entrada.proveedor.get_absolute_url }}">{{ entrada.proveedor }}</a><br></td>
 							</tr>
+							{%if entrada.tipo.contable%}
 							<tr>
 								<th>Factura</th>
-								<td>
-									{{entrada.factura}}
-									<br>
-								</td>
+								<td>{{entrada.factura}}<br></td>
 							</tr>
+							{%endif%}
 							<tr>
 								<th>Observaciones</th>
-								<td>
-									{{entrada.observaciones|default_if_none:"No Existe Observaciones"}}
-								</td>
+								<td>{{entrada.observaciones|default_if_none:"No Existe Observaciones"}}</td>
 							</tr>
 						</table>
 					</div>
