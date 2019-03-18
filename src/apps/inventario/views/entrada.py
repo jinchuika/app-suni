@@ -58,7 +58,11 @@ class EntradaUpdateView(LoginRequiredMixin, GroupRequiredMixin, UpdateView):
     group_required = [u"inv_bodega", u"inv_tecnico", u"inv_admin"]
 
     def get_success_url(self):
-        return reverse('entrada_detail', kwargs={'pk': self.object.id})
+        print(self.object.en_creacion)
+        if self.object.en_creacion:
+            return reverse('entrada_update', kwargs={'pk': self.object.id})
+        else:
+            return reverse('entrada_detail', kwargs={'pk': self.object.id})
 
     def get_context_data(self, **kwargs):
         context = super(EntradaUpdateView, self).get_context_data(**kwargs)
@@ -136,7 +140,7 @@ class ConstanciaUtil(LoginRequiredMixin, GroupRequiredMixin, DetailView):
         context = super(ConstanciaUtil, self).get_context_data(**kwargs)
         context['dispositivotipo_list'] = inv_m.EntradaDetalle.objects.filter(entrada=self.object.id)
         tipo_dispositivo = inv_m.EntradaDetalle.objects.filter(
-            entrada=self.object.id).values('tipo_dispositivo').distinct()
+            entrada=self.object.id, tipo_dispositivo__usa_triage=True).values('tipo_dispositivo').distinct()
         lista = []
         util = []
         total = []

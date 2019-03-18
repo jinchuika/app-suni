@@ -25,6 +25,7 @@ class EntradaDetalleSerializer(serializers.ModelSerializer):
     dispositivo_qr = serializers.SerializerMethodField(read_only=True)
     repuesto_qr = serializers.SerializerMethodField(read_only=True)
     # Kardex
+    es_kardex = serializers.StringRelatedField(source='tipo_dispositivo.kardex')
     url_kardex = serializers.SerializerMethodField(read_only=True)
     # Desecho
     existencia_desecho = serializers.IntegerField(read_only=True)
@@ -63,7 +64,8 @@ class EntradaDetalleSerializer(serializers.ModelSerializer):
             'tipo_entrada_kardex',
             'ingresado_kardex',
             'url_kardex',
-            'existencia_desecho'
+            'existencia_desecho',
+            'es_kardex'
             )
 
     def get_tdispositivo(self, object):
