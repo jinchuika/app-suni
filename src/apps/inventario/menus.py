@@ -163,6 +163,24 @@ contabilidad_children = (
         group="inv_conta",
         icon="fa-file-pdf-o",
     ),
+)
+
+# Administrador
+admin_children = (
+    ViewMenuItem(
+        "Asignacion Usuarios",
+        reverse_lazy('asignaciontecnico_list'),
+        weight=12,
+        group="inv_admin",
+        icon="fa-user-plus",
+    ),
+    ViewMenuItem(
+        "Tipos de Dispositivos",
+        reverse_lazy('dispositivotipo_add'),
+        weight=12,
+        group="inv_admin",
+        icon="fa-gear",
+    ),
     ViewMenuItem(
         "Informe de Entradas",
         reverse_lazy('contabilidad_entrada'),
@@ -186,24 +204,6 @@ contabilidad_children = (
         reverse_lazy('contabilidad_resumen'),
         weight=12,
         icon="fa-file-pdf-o",
-    ),
-)
-
-# Administrador
-admin_children = (
-    ViewMenuItem(
-        "Asignacion Usuarios",
-        reverse_lazy('asignaciontecnico_list'),
-        weight=12,
-        perm="inventario.add_asignaciontecnico",
-        icon="fa-user-plus",
-    ),
-    ViewMenuItem(
-        "Tipos de Dispositivos",
-        reverse_lazy('dispositivotipo_add'),
-        weight=12,
-        perm="inventario.add_dispositivotipo",
-        icon="fa-gear",
     ),
 )
 
@@ -272,7 +272,7 @@ Menu.add_item(
         reverse_lazy('entrada_list'),
         weight=10,
         icon="fa-archive",
-        group="inv_conta,inv_bodega",
+        group="inv_conta,inv_admin",
         children=contabilidad_children
     )
 )
@@ -283,7 +283,7 @@ Menu.add_item(
         reverse_lazy('entrada_list'),
         weight=10,
         icon="fa-user",
-        group="inv_admin",
+        group="inv_admin,inv_conta,inv_tecnico,inv_bodega",
         children=admin_children
     )
 )
