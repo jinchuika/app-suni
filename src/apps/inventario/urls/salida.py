@@ -111,6 +111,12 @@ urlpatterns = [
         inv_v.MineducPrintView.as_view(),
         name='mineduc_print'
     ),
+    # Imprimir carta e prestamo
+    url(
+        r'^salida/(?P<pk>\d+)/prestamo/$',
+        inv_v.PrestamoCartaPrintView.as_view(),
+        name='prestamo_carta_print'
+    ),
 
 
 ]
