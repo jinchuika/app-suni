@@ -20,6 +20,7 @@ from apps.inventario import transacciones
 from apps.crm import models as crm_m
 from apps.tpe import models as tpe_m
 from apps.escuela import models as escuela_m
+from apps.mye import models as mye
 
 
 class EntradaTipo(models.Model):
