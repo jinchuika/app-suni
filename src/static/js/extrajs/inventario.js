@@ -2300,7 +2300,7 @@ class PaquetesRevisionList {
                   },
                   success: function (response){
                       var jsonResponse = JSON.parse(response.responseText);
-                      bootbox.alert(jsonResponse["mensaje"]);
+                      bootbox.alert("El dispositivo ha sido aprobado");
                       location.reload();
                   },
                   error: function (response) {
