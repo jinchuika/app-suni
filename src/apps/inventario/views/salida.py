@@ -606,6 +606,7 @@ class TpePrintView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
         escuela = inv_m.SalidaInventario.objects.get(id=self.object.id)
         try:
             encargado = escuela_m.EscContacto.objects.get(escuela=escuela.escuela, rol=5)
+            telefono = escuela_m.EscContactoTelefono.objects.get(contacto=encargado)
             context['Encargado'] = str(encargado.nombre)+" "+str(encargado.apellido)
             context['Telefono'] = str(telefono.telefono)
             context['Jornada'] = encargado.escuela.jornada
