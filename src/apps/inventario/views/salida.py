@@ -373,9 +373,14 @@ class GarantiaPrintView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super(GarantiaPrintView, self).get_context_data(**kwargs)
+        cpu_servidor = 0
         CPU = inv_m.PaqueteTipo.objects.get(nombre="CPU")
         Laptop = inv_m.PaqueteTipo.objects.get(nombre="Laptop")
         Tablet = inv_m.PaqueteTipo.objects.get(nombre="Tablet")
+        total_cpu = inv_m.DispositivoPaquete.objects.filter(
+            paquete__salida__id=self.object.id,
+            paquete__tipo_paquete=CPU,
+            )
         Total_Cpu = inv_m.Paquete.objects.filter(
             salida__id=self.object.id,
             tipo_paquete=CPU).aggregate(total_cpu=Sum('cantidad'))
@@ -385,16 +390,28 @@ class GarantiaPrintView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
         Total_Tablet = inv_m.Paquete.objects.filter(
             salida__id=self.object.id,
             tipo_paquete=Tablet).aggregate(total_tablet=Sum('cantidad'))
+        for triage_cpu in total_cpu:
+            nuevo_cpu = inv_m.Dispositivo.objects.get(triage=triage_cpu.dispositivo).cast()
+            try:
+                if nuevo_cpu.servidor is True:
+                    cpu_servidor = cpu_servidor + 1
+            except Exception as e:
+                print(e)
         if Total_Cpu['total_cpu'] is None:
             Total_Cpu['total_cpu'] = 0
         if Total_Laptop['total_laptop'] is None:
             Total_Laptop['total_laptop'] = 0
         if Total_Tablet['total_tablet'] is None:
             Total_Tablet['total_tablet'] = 0
-        Total_Entregado = Total_Cpu['total_cpu']+Total_Laptop['total_laptop']+Total_Tablet['total_tablet']
+        Total_Entregado = (Total_Cpu['total_cpu']+Total_Laptop['total_laptop']+Total_Tablet['total_tablet']) - cpu_servidor
+        if Total_Tablet['total_tablet'] > 1:
+            context['cpu'] = 1
+        else:
+            context['cpu'] = 0
         Fecha = inv_m.SalidaInventario.objects.get(id=self.object.id)
         context['fin_garantia'] = Fecha.fecha + relativedelta(months=6)
         context['dispositivo_total'] = Total_Entregado
+        context['cpu_servidor'] = cpu_servidor
         return context
 
 
@@ -433,7 +450,7 @@ class LaptopPrintView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
             nuevas_laptops.append(nuevo_laptop)
         escuela = inv_m.SalidaInventario.objects.get(id=self.object.id)
         try:
-            encargado = escuela_m.EscContacto.objects.get(escuela=escuela.escuela, rol__rol="Director")
+            encargado = escuela_m.EscContacto.objects.get(escuela=escuela.escuela, rol=5)
             context['Encargado'] = str(encargado.nombre)+" "+str(encargado.apellido)
         except ObjectDoesNotExist as e:
             print(e)
@@ -455,15 +472,20 @@ class TabletPrintView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
         context = super(TabletPrintView, self).get_context_data(**kwargs)
         nuevas_tablets = []
         Tablet = inv_m.PaqueteTipo.objects.get(nombre="Tablet")
+        Cargador = inv_m.PaqueteTipo.objects.get(nombre="Cargadores")
+
         Total_Tablet = inv_m.DispositivoPaquete.objects.filter(
             paquete__salida__id=self.object.id,
             paquete__tipo_paquete=Tablet)
+        Total_Cargador = inv_m.Paquete.objects.filter(
+            salida__id=self.object.id,
+            tipo_paquete=Cargador).aggregate(cargadores=Sum('cantidad'))
         for triage in Total_Tablet:
             nueva_tablet = inv_m.Dispositivo.objects.get(triage=triage.dispositivo).cast()
             nuevas_tablets.append(nueva_tablet)
         escuela = inv_m.SalidaInventario.objects.get(id=self.object.id)
         try:
-            encargado = escuela_m.EscContacto.objects.get(escuela=escuela.escuela)
+            encargado = escuela_m.EscContacto.objects.get(escuela=escuela.escuela, rol=5)
             context['Encargado'] = str(encargado.nombre)+" "+str(encargado.apellido)
             context['Jornada'] = encargado.escuela.jornada
         except ObjectDoesNotExist as e:
@@ -472,6 +494,7 @@ class TabletPrintView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
             context['Encargado'] = "No Tiene Encargado"
         context['Tablets'] = nuevas_tablets
         context['Total'] = Total_Tablet.count()
+        context['Cargador'] = Total_Cargador['cargadores']
         return context
 
 
@@ -537,7 +560,6 @@ class TpePrintView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
             tipo_paquete=access_point,
             desactivado=False
             ).aggregate(total_access_point=Sum('cantidad'))
-        print(total_switch)
         total_cables_poder = inv_m.Paquete.objects.filter(
             salida=self.object.id,
             tipo_paquete=cables_poder,
@@ -583,7 +605,7 @@ class TpePrintView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
             nuevos_mouse.append(nuevo_mouse)
         escuela = inv_m.SalidaInventario.objects.get(id=self.object.id)
         try:
-            encargado = escuela_m.EscContacto.objects.get(escuela=escuela.escuela, rol__rol="Director")
+            encargado = escuela_m.EscContacto.objects.get(escuela=escuela.escuela, rol=5)
             telefono = escuela_m.EscContactoTelefono.objects.get(contacto=encargado)
             context['Encargado'] = str(encargado.nombre)+" "+str(encargado.apellido)
             context['Telefono'] = str(telefono.telefono)
@@ -610,7 +632,7 @@ class TpePrintView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
                 red = "Inalambrica"
             elif total_inalambricas['total_inalambricas'] == 0 and total_alambricas['total_alambricas'] > 0:
                 red = "Alambrica"
-                
+
             context['Red'] = red
         except TypeError as e:
             context['Red'] = 0
@@ -643,7 +665,7 @@ class MineducPrintView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
                 print(e)
         escuela = inv_m.SalidaInventario.objects.get(id=self.object.id)
         try:
-            encargado = escuela_m.EscContacto.objects.get(escuela=escuela.escuela)
+            encargado = escuela_m.EscContacto.objects.get(escuela=escuela.escuela, rol=5)
             context['Encargado'] = str(encargado.nombre)+" "+str(encargado.apellido)
             context['Jornada'] = encargado.escuela.jornada
         except ObjectDoesNotExist as e:
@@ -691,7 +713,11 @@ class PrestamoCartaPrintView(LoginRequiredMixin, GroupRequiredMixin, DetailView)
             Total_Laptop['total_laptop'] = 0
         if Total_Tablet['total_tablet'] is None:
             Total_Tablet['total_tablet'] = 0
-        Total_Entregado = Total_Cpu['total_cpu']+Total_Laptop['total_laptop']+Total_Tablet['total_tablet']
+        Total_Entregado = (Total_Cpu['total_cpu']+Total_Laptop['total_laptop']+Total_Tablet['total_tablet']) - cpu_servidor
+        if Total_Tablet['total_tablet'] > 1:
+            context['cpu'] = 1
+        else:
+            context['cpu'] = 0
         context['cpu_servidor'] = cpu_servidor
         context['dispositivo_total'] = Total_Entregado
         escuela = inv_m.SalidaInventario.objects.get(id=self.object.id)

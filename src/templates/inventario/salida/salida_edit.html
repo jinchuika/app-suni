@@ -128,7 +128,7 @@
 								{% if Tablets > 1 %}
 								 <a target='_blank' href="{% url 'tablet_print' pk=object.id%}" class="btn btn-primary">Entrega de Tablets</a>
 								{% endif %}
-								{% if CPU > 1 %}
+								{% if CPU >= 1 %}
 								 <a target='_blank' href="{% url 'tpe_print' pk=object.id%}" class="btn btn-info">Entrega TPE</a>
 								 <a target='_blank' href="{% url 'mineduc_print' pk=object.id%}" class="btn btn-success">Entrega MINEDUC</a>
 								{% endif %}
