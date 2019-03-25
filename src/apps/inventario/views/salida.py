@@ -343,7 +343,7 @@ class ControlCalidadListView(LoginRequiredMixin, GroupRequiredMixin, ListView):
     """
     model = inv_m.SalidaInventario
     template_name = 'inventario/salida/controlcalidad_list.html'
-    group_required = [u"inv_cc", u"inv_admin", u"inv_tecnico"]
+    group_required = [u"inv_cc", u"inv_admin", u"inv_tecnico", u"inv_conta"]
 
     def get_context_data(self, **kwargs):
         context = super(ControlCalidadListView, self).get_context_data(**kwargs)
@@ -607,6 +607,7 @@ class TpePrintView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
         try:
             encargado = escuela_m.EscContacto.objects.get(escuela=escuela.escuela, rol=5)
             context['Encargado'] = str(encargado.nombre)+" "+str(encargado.apellido)
+            context['Telefono'] = str(telefono.telefono)
             context['Jornada'] = encargado.escuela.jornada
         except ObjectDoesNotExist as e:
             print(e)
@@ -625,7 +626,13 @@ class TpePrintView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
         context['Ethernet'] = total_alambricas['total_alambricas']
         context['Access'] = total_access_point['total_access_point']
         try:
-            context['Red'] = total_inalambricas['total_inalambricas'] + total_alambricas['total_alambricas']
+            red = "Mixta"
+            if total_inalambricas['total_inalambricas'] > 0 and total_alambricas['total_alambricas'] == 0:
+                red = "Inalambrica"
+            elif total_inalambricas['total_inalambricas'] == 0 and total_alambricas['total_alambricas'] > 0:
+                red = "Alambrica"
+
+            context['Red'] = red
         except TypeError as e:
             context['Red'] = 0
         return context
