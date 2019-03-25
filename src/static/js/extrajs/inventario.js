@@ -2,14 +2,14 @@
     AlertaEnCreacion.init = function () {
       /* -----MÉTODO DE INICIALIZACIÓN DE LA VISTA EDIT DE ENTRADA ------*/
       /* Confirma si desea finalizar la edición de la entrada, en caso de confirmar, valida y luego cierra la salida*/
-        
+
         var mensaje = document.getElementById("id_en_creacion");
         var urldispositivo = $("#entrada-detalle-form").data("api");
         var primary_key = $("#entrada-detalle-form").data("key");
         $('#id_en_creacion').click(function () {
           if ($("#id_en_creacion").is(':checked')) {
             bootbox.alert({ message: "¡La Salida vuelve a estar en desarrollo!", className:"rubberBand animated" });
-          } else { 
+          } else {
             bootbox.confirm({
               message: "¿Desea dar por terminada la edición de la entrada?",
               buttons: {
@@ -500,7 +500,7 @@ class EntradaDetail {
                     if(full.qr_repuestos == true){
                       return "<a target='_blank' rel='noopener noreferrer' href="+full.repuesto_list+" class='btn btn-primary'>Listado Repuestos</a>";
                     }
-                  } 
+                  }
                   return "";
                 }}
 
@@ -2145,7 +2145,7 @@ class PaquetesRevisionList {
     let paquete_revision_aprobado_kardex = $('#dispositivo-salida-paquetes-revision-kardex');
     let paquetes_revision_tabla_kardex = $('#salida-paquetes-revision-kardex');
 
-           
+
 
     var  tablaPaquetes = paquetes_revision_tabla.DataTable({
       processing:true,
@@ -2313,7 +2313,7 @@ class PaquetesRevisionList {
           $("#area_scanner").val("");
           $("#area_scanner").focus();
         }
-        
+
         /*Fin scanner*/
 
     var  tablaPaquetesDispositivos = dispositivo_revision_tabla.DataTable({
@@ -3045,11 +3045,12 @@ class DispositivoList {
       $('#dispositivo-list-form').submit(function (e) {
           e.preventDefault();
           /**/
-          var tablaDispositivos = $('#dispositivo-table').DataTable({
+          var tablaDispositivos = $('#dispositivo-table-search').DataTable({
              dom: 'lfrtipB',
              destroy:true,
              buttons: ['excel', 'pdf'],
              processing: true,
+             deferLoading: [0],
              ajax: {
                  url: $('#dispositivo-list-form').attr('action'),
                  deferRender: true,
@@ -3071,7 +3072,7 @@ class DispositivoList {
                  {data: "estado", className: "nowrap"},
                  {data: "etapa", className: "nowrap"}
              ]
-                });
+           });
           /**/
           tablaDispositivos.clear().draw();
       });
