@@ -1,10 +1,10 @@
 {% extends "base/base.html" %}
 {% load staticfiles widget_tweaks %}
 {% block page_title %}
-<title>Listado de Entradas</title>
+<title>LISTADO DE ENTRADAS</title>
 {% endblock page_title %} {% block content %}
 <section class="content-header">
-	<h1>Listado de Entradas<i id="spinner" class="fa fa-spinner fa-spin fa-fw"></i></h1>
+	<h1>LISTADO DE ENTRADAS<i id="spinner" class="fa fa-spinner fa-spin fa-fw"></i></h1>
 </section>
 <section class="content">
 	<div class="container-fluid">
@@ -14,8 +14,8 @@
 				<div class="box">
 					<form action="{% url 'inventario_api:api_entrada-list'%}" id="entrada2-list-form">
 						<div class="box-header">
-							<input type="submit" class="btn btn-primary col-md-12" value="Generar Informe" /><br />
-							<h3 class="box-title">Filtros</h3>
+							<input type="submit" class="btn btn-primary col-md-12" value="GENERAR INFORME" /><br />
+							<br /><h3 class="box-title">Filtros</h3>
 						</div>
 						<div class="box-body">
 							{% csrf_token %} {% for field in form %}
@@ -45,11 +45,10 @@
 									<th>No.</th>								
 									<th>Tipo</th>
 									<th>Fecha</th>
-									<th>En Creacion</th>
-									<th>Creada Por</th>
+									<th>Estado</th>
+									<th>Responsable</th>
 									<th>Recibida por</th>
 									<th>Proveedor</th>
-									<th>Accion</th>
 								</tr>
 							</thead>
 							<tbody id="entrada2-table-body">

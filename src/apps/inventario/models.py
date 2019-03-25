@@ -20,6 +20,7 @@ from apps.inventario import transacciones
 from apps.crm import models as crm_m
 from apps.tpe import models as tpe_m
 from apps.escuela import models as escuela_m
+from apps.mye import models as mye
 
 
 class EntradaTipo(models.Model):
@@ -31,6 +32,7 @@ class EntradaTipo(models.Model):
     nombre = models.CharField(max_length=25)
     contable = models.BooleanField(default=False)
     contenedor = models.BooleanField(default=False)
+    especial = models.BooleanField(default=False)
 
     class Meta:
         verbose_name = "Tipo de entrada"
@@ -90,8 +92,14 @@ class Entrada(models.Model):
         return sum(d.precio_total for d in self.detalles.all())
 
     def get_absolute_url(self):
-        return reverse_lazy('entrada_update', kwargs={'pk': self.id})
+        if self.en_creacion:
+            return reverse_lazy('entrada_update', kwargs={'pk': self.id})
+        else:
+            return reverse_lazy('entrada_detail', kwargs={'pk': self.id})
 
+    def save(self,*args, **kwargs):
+        print(self.en_creacion)
+        super(Entrada, self).save(*args, **kwargs)
 
 class DispositivoTipo(models.Model):
 
@@ -104,6 +112,7 @@ class DispositivoTipo(models.Model):
     slug = models.SlugField(unique=True)
     usa_triage = models.BooleanField(default=False)
     conta = models.BooleanField(default=False)
+    kardex = models.BooleanField(default=False)
 
     class Meta:
         verbose_name = "Tipo de dispositivo"
@@ -210,10 +219,11 @@ class EntradaDetalle(models.Model):
         los descuentos que hayan sido aplicados a la entrada.
         El cálculo de todos los campos se realiza desde las funciones definidas en `signals.py`.
         """
+        if self.tipo_dispositivo.kardex:
+            self.enviar_kardex = True
         if self.tipo_dispositivo.usa_triage is False:
             self.dispositivos_creados = True
             self.repuestos_creados = True
-            self.enviar_kardex = True
         if self.entrada.tipo.contable and not self.precio_subtotal:
             raise ValidationError(
                 'El tipo de entrada requiere un precio total', code='entrada_precio_total')

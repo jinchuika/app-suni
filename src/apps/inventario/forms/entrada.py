@@ -1,4 +1,5 @@
 from django import forms
+from datetime import date
 from django.forms import ModelForm
 from django.contrib.auth.models import User
 from django.utils.translation import gettext_lazy as _
@@ -11,16 +12,19 @@ class EntradaForm(forms.ModelForm):
     """Formulario para la :`class`:`EntradaCreateView` que es la encargada de crear los datos
     de entrada.
     """
+    fecha = forms.DateField(
+        initial=date.today(),
+        widget=forms.TextInput({'class': 'form-control datepicker', 'tabindex': '2'}))
+
     class Meta:
         model = inv_m.Entrada
         fields = '__all__'
         exclude = ['en_creacion', 'creada_por', 'recibida_por', 'fecha_cierre']
         widgets = {
-            'tipo': forms.Select(attrs={'class': 'form-control select2'}),
-            'fecha': forms.TextInput({'class': 'form-control datepicker'}),
-            'proveedor': forms.Select(attrs={'class': 'form-control select2'}),
-            'factura': forms.TextInput({'class': 'form-control'}),
-            'observaciones': forms.Textarea({'class': 'form-control'}),
+            'tipo': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '1'}),
+            'proveedor': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '3'}),
+            'factura': forms.NumberInput({'class': 'form-control', 'tabindex': '4'}),
+            'observaciones': forms.Textarea({'class': 'form-control', 'tabindex': '5'}),
         }
 
 
@@ -31,15 +35,19 @@ class EntradaUpdateForm(forms.ModelForm):
     class Meta:
         model = inv_m.Entrada
         fields = '__all__'
-        exclude = ['observaciones', 'factura', 'fecha_cierre']
+        exclude = ['factura', 'fecha_cierre']
+        labels = {
+                'en_creacion': _('En Desarrollo'),
+        }
         widgets = {
                 'recibida_por': forms.HiddenInput(),
                 'fecha': forms.HiddenInput(),
                 'tipo': forms.HiddenInput(),
                 'creada_por': forms.HiddenInput(),
                 'proveedor': forms.HiddenInput(),
-
-            }
+                'observaciones': forms.Textarea({'class': 'form-control', 'tabindex': '1'}),
+                'en_creacion': forms.CheckboxInput({'class': 'icheckbox_flat-green', 'tabindex': '2'}),
+        }
 
     def __init__(self, *args, **kwargs):
         super(EntradaUpdateForm, self).__init__(*args, **kwargs)
@@ -74,8 +82,8 @@ class EntradaDetalleForm(forms.ModelForm):
         widgets = {
             'entrada': forms.HiddenInput(),
             'tipo_dispositivo': forms.Select(attrs={'class': 'form-control select2'}),
-            'total': forms.TextInput({'class': 'form-control r'}),
-            'precio_subtotal': forms.TextInput({'class': 'form-control'}),
+            'total': forms.TextInput({'class': 'form-control', 'min': 1, 'type': 'number'}),
+            'precio_subtotal': forms.NumberInput({'class': 'form-control'}),
             'descripcion': forms.TextInput({'class': 'form-control'}),
             'proveedor_kardex': forms.Select(attrs={'class': 'form-control select2'}),
             'estado_kardex': forms.Select(attrs={'class': 'form-control select2'}),
@@ -90,7 +98,7 @@ class EntradaDetalleForm(forms.ModelForm):
         if not entrada.tipo.contable:
             self.fields['precio_subtotal'].empty_label = None
             self.fields['precio_subtotal'].label = ''
-            self.fields['precio_subtotal'].widget = forms.TextInput(
+            self.fields['precio_subtotal'].widget = forms.NumberInput(
                 attrs={'class': 'form-control', 'style': "visibility:hidden"})
             self.fields['precio_subtotal'].initial = ""
 
@@ -170,21 +178,21 @@ class EntradaInformeForm(forms.Form):
     """Este Formulario se encarga de enviar los filtros para  su respectivo informe de Entradas
     """
 
-    id = forms.CharField(
+    id = forms.IntegerField(
         label='No. Entrada',
         required=False,
-        widget=forms.TextInput(attrs={'class': 'form-control'}))
+        widget=forms.NumberInput(attrs={'class': 'form-control'}))
 
     proveedor = forms.ModelChoiceField(
         queryset=crm_m.Donante.objects.all(),
         label='Proveedor',
         widget=forms.Select(attrs={'class': 'form-control select2'}),
         required=False)
-    tipo = forms.ModelChoiceField(
+    tipo = forms.ModelMultipleChoiceField(
         queryset=inv_m.EntradaTipo.objects.all(),
         label='Tipo',
         required=False,
-        widget=forms.Select(attrs={'class': 'form-control'}))
+        widget=forms.SelectMultiple(attrs={'class': 'form-control select2'}))
 
     recibida_por = forms.ModelChoiceField(
         queryset=User.objects.filter(groups__name="inventario"),

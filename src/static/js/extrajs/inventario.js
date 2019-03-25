@@ -1,54 +1,56 @@
 (function (AlertaEnCreacion, $, undefined) {
     AlertaEnCreacion.init = function () {
+      /* -----MÉTODO DE INICIALIZACIÓN DE LA VISTA EDIT DE ENTRADA ------*/
+      /* Confirma si desea finalizar la edición de la entrada, en caso de confirmar, valida y luego cierra la salida*/
+        
         var mensaje = document.getElementById("id_en_creacion");
         var urldispositivo = $("#entrada-detalle-form").data("api");
         var primary_key = $("#entrada-detalle-form").data("key");
         $('#id_en_creacion').click(function () {
-            if ($("#id_en_creacion").is(':checked')) {
-                bootbox.alert("esta activado");
-            } else {
-                bootbox.confirm({
-                            message: "Esta Seguro que quiere Terminar la Creacion de la Entrada",
-                            buttons: {
-                                confirm: {
-                                    label: 'Si',
-                                    className: 'btn-success'
-                                },
-                                cancel: {
-                                    label: 'No',
-                                    className: 'btn-danger'
-                                }
-                            },
-                            callback: function (result) {
-                                if(result == true){
-                                  /**/
-                                  $.ajax({
-                                      type: 'POST',
-                                      url: urldispositivo,
-                                      dataType: 'json',
-                                      data: {
-                                          csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
-                                          primary_key :primary_key
-                                      },
-                                      success: function (response) {
-                                          bootbox.alert("Entrada Cuadrada");
-                                      },
-                                      error: function (response) {
-                                           var jsonResponse = JSON.parse(response.responseText);
-                                           bootbox.alert(jsonResponse["mensaje"]);
-                                      }
-                                  });
-                                  /**/
-
-                                }
-                            }
-                          });
-            }
+          if ($("#id_en_creacion").is(':checked')) {
+            bootbox.alert({ message: "¡La Salida vuelve a estar en desarrollo!", className:"rubberBand animated" });
+          } else { 
+            bootbox.confirm({
+              message: "¿Desea dar por terminada la edición de la entrada?",
+              buttons: {
+                confirm: {
+                  label: '<i class="fa fa-check"></i> Confirmar',
+                  className: 'btn-success'
+                },
+                cancel: {
+                  label: '<i class="fa fa-times"></i> Cancelar',
+                  className: 'btn-danger'
+                }
+              },
+              callback: function (result) {
+                if(result == true){
+                  /*CONSUMIR API*/
+                  $.ajax({
+                    type: 'POST',
+                    url: urldispositivo,
+                    dataType: 'json',
+                    data: {
+                      csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
+                      primary_key :primary_key
+                    },
+                    success: function (response) {
+                      bootbox.alert("Todo se encuentra correcto");
+                    },
+                    error: function (response) {
+                      $('#id_en_creacion').iCheck('check');
+                      var jsonResponse = JSON.parse(response.responseText);
+                      bootbox.alert({message: jsonResponse["mensaje"], className:"modal modal-danger fade"});
+                    }
+                  });
+                  /*FIN DE CONSUMO*/
+                } else {
+                  $('#id_en_creacion').iCheck('check');
+                }
+              }
+            });
+          }
         });
-
-
     }
-
 }(window.AlertaEnCreacion = window.AlertaEnCreacion || {}, jQuery));
 
 class EntradaCreate {
@@ -147,7 +149,7 @@ class EntradaUpdate {
                                if(full.ingresado_kardex == true){
                                  return "<a target='_blank' rel='noopener noreferrer' href="+full.url_kardex+" class='btn btn-success btn-ulrKardex'>Detalle</a>";
                                }else{
-                                 if(full.util > 0){
+                                 if(full.util > 0 && full.es_kardex == "True"){
                                   return "<a target='_blank' rel='noopener noreferrer' class='btn btn-success btn-kardex'>Agregar a kardex</a>";
                                 }else{
                                   return "";
@@ -484,10 +486,22 @@ class EntradaDetail {
                 {data:"descripcion"},
                 {data: "creado_por"},
                 {data:" ",render: function(data, type, full, meta){
-                    return "<a target='_blank' rel='noopener noreferrer' href="+full.dispositivo_list+" class='btn btn-success'>Listado Dispositivo</a>";
+                  if(full.tipo_entrada != "Especial"){
+                    if(full.ingresado_kardex == true){
+                      return "<a target='_blank' rel='noopener noreferrer' href="+full.url_kardex+" class='btn btn-success btn-ulrKardex'>Detalle</a>";
+                    } else if (full.qr_dispositivo == true) {
+                      return "<a target='_blank' rel='noopener noreferrer' href="+full.dispositivo_list+" class='btn btn-success'>Listado Dispositivo</a>";
+                    }
+                  }
+                  return "";
                 }},
                 {data:" " ,render: function(data, type, full, meta){
-                    return "<a target='_blank' rel='noopener noreferrer' href="+full.repuesto_list+" class='btn btn-primary'>Listado Repuestos</a>";
+                  if(full.tipo_entrada != "Especial"){
+                    if(full.qr_repuestos == true){
+                      return "<a target='_blank' rel='noopener noreferrer' href="+full.repuesto_list+" class='btn btn-primary'>Listado Repuestos</a>";
+                    }
+                  } 
+                  return "";
                 }}
 
             ]
@@ -567,8 +581,10 @@ class EntradaDetail {
 
 
 (function (EntradaList, $, undefined) {
+  /* --- INICIALIZACIÓN DEL METODO INIT DE LA VISTA LIST DE ENTRADAS --*/
+  /* Cargar el listado de entradas en base a los filtros seleccionados*/
     var tabla = $('#entrada2-table').DataTable({
-        dom: 'lfrtipB',
+        dom: 'Bfrtip',
         buttons: ['excel', 'pdf', 'copy'],
         processing: true,
         ajax: {
@@ -581,31 +597,35 @@ class EntradaDetail {
             }
         },
         columns: [
-            {data: "id"},
+            {data: "id", render: function(data, type, full, meta){
+              if(full.en_creacion== "Si"){
+                return "<a href="+full.urlSi+" class='btn btn-block btn-success'>"+data+"</a>";
+
+              }else{
+                return "<a href="+full.urlNo+" class='btn btn-block btn-success'>"+data+"</a>";
+              }
+            }},
             {data: "tipo"},
             {data: "fecha", className: "nowrap"},
-            {data: "en_creacion", className: "nowrap"},
+            {data: "en_creacion", render: function(data, type, full, meta){
+              if(full.en_creacion == 'Si'){
+                return "<span class='label label-primary'>En Desarrollo</span>";
+              }else{
+                return "<span class='label label-danger'>Finalizada</span>";
+              }
+            }},
             {data: "creada_por", className: "nowrap"},
             {data: "recibida_por", className: "nowrap"},
             {data: "proveedor", className: "nowrap"},
-            {data: "urlSi", render: function(data, type, full, meta){
-              if(full.en_creacion== "Si"){
-                return "<a href="+data+" class='btn btn-block btn-success'>Abrir</a>";
-
-              }else{
-                return "<a href="+full.urlNo+" class='btn btn-block btn-success'>Abrir</a>";
-              }
-
-            }}
         ]
-
-
     }).on('xhr.dt', function (e, settings, json, xhr) {
+      /* Ocultar objeto de carga */
         $('#spinner').hide();
     });
 
+    /* Inicialización de clase EntradaList*/
     EntradaList.init = function () {
-
+        /* Al cargar la página ocultar spinner*/
         $('#spinner').hide();
         $('#entrada2-list-form').submit(function (e) {
             e.preventDefault();
@@ -2280,7 +2300,7 @@ class PaquetesRevisionList {
                   },
                   success: function (response){
                       var jsonResponse = JSON.parse(response.responseText);
-                      bootbox.alert(jsonResponse["mensaje"]);
+                      bootbox.alert("El dispositivo ha sido aprobado");
                       location.reload();
                   },
                   error: function (response) {
