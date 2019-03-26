@@ -1243,7 +1243,10 @@ class SalidaInventario(models.Model):
         verbose_name_plural = "Salidas"
 
     def get_absolute_url(self):
-        return reverse_lazy('salidainventario_edit', kwargs={'pk': self.id})
+        if self.en_creacion:
+            return reverse_lazy('salidainventario_edit', kwargs={'pk': self.id})
+        else:
+            return reverse_lazy('salidainventario_detail', kwargs={'pk': self.id})
 
     def __str__(self):
         return str(self.no_salida)

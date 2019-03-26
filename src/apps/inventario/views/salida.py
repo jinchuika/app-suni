@@ -92,7 +92,7 @@ class SalidaInventarioDetailView(LoginRequiredMixin, GroupRequiredMixin, DetailV
     """
     model = inv_m.SalidaInventario
     template_name = 'inventario/salida/salida_detail.html'
-    group_required = [u"inv_cc", u"inv_admin"]
+    group_required = [u"inv_cc", u"inv_admin", u"inv_tecnico"]
 
     def get_context_data(self, *args, **kwargs):
         context = super(SalidaInventarioDetailView, self).get_context_data(*args, **kwargs)

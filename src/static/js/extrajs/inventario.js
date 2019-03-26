@@ -2299,7 +2299,6 @@ class PaquetesRevisionList {
                     salida:api_paquete_salida
                   },
                   success: function (response){
-                      var jsonResponse = JSON.parse(response.responseText);
                       bootbox.alert("El dispositivo ha sido aprobado");
                       location.reload();
                   },

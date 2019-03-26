@@ -485,10 +485,12 @@ class InformeSalidaJson(views.APIView):
             sql_where = """ WHERE id.tipo_id = {tipo_dispositivo}
                     AND isi.en_creacion = 0
                     AND isi.fecha between '{fecha_inicio}' AND '{fecha_fin}'
-                    AND isi.tipo_salida_id <> {especial} """.format(tipo_dispositivo = tipo_dispositivo,
+                    AND isi.tipo_salida_id <> {especial}
+                    AND cpd.periodo_id = {periodo} """.format(tipo_dispositivo = tipo_dispositivo,
                                                                                         fecha_inicio=fecha_inicio,
                                                                                         fecha_fin=fecha_fin,
-                                                                                        especial=salida_especial.id)
+                                                                                        especial=salida_especial.id,
+                                                                                        periodo=periodo.id)
             sql_group = " GROUP BY isi.id, cpd.precio"
 
             if udi and udi != 0:
