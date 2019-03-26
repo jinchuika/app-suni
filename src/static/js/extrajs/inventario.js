@@ -3041,42 +3041,39 @@ class RepuestosList {
 }
 class DispositivoList {
   constructor() {
-    $('#dispositivo-list-form').submit(function (e) {
-        e.preventDefault();
-        /**/
-        var tablaDispositivos = $('#dispositivo-table').DataTable({
-           dom: 'lfrtipB',
-           destroy:true,
-           buttons: ['excel', 'pdf'],
-           processing: true,
-           ajax: {
-               url: $('#dispositivo-list-form').attr('action'),
-               deferRender: true,
-               dataSrc: '',
-               cache: true,
-               data: function () {
-                   return $('#dispositivo-list-form').serializeObject(true);
-               }
-           },
-           columns: [
-
-               {data: "triage", render: function(data, type, full, meta){
-                 return '<a href="'+full.url+'">'+data+'</a>'
-
-               }},
-               {data: "tipo", className: "nowrap"},
-               {data: "marca", className: "nowrap"},
-               {data: "modelo", className: "nowrap"},
-               {data: "serie", className: "nowrap"},
-               {data: "tarima", className: "nowrap"},
-               {data: "estado", className: "nowrap"},
-               {data: "etapa", className: "nowrap"}
-           ]
-              });
-        /**/
-        tablaDispositivos.clear().draw();
-    });
-
+      $('#dispositivo-list-form').submit(function (e) {
+          e.preventDefault();
+          /**/
+          var tablaDispositivos = $('#dispositivo-table').DataTable({
+             dom: 'lfrtipB',
+             destroy:true,
+             buttons: ['excel', 'pdf'],
+             processing: true,
+             ajax: {
+                 url: $('#dispositivo-list-form').attr('action'),
+                 deferRender: true,
+                 dataSrc: '',
+                 cache: true,
+                 data: function (params) {
+                     return $('#dispositivo-list-form').serializeObject(true);
+                 }
+             },
+             columns: [
+                 {data: "triage", render: function(data, type, full, meta){
+                   return '<a href="'+full.url+'">'+data+'</a>'
+                 }},
+                 {data: "tipo", className: "nowrap"},
+                 {data: "marca", className: "nowrap"},
+                 {data: "modelo", className: "nowrap"},
+                 {data: "serie", className: "nowrap"},
+                 {data: "tarima", className: "nowrap"},
+                 {data: "estado", className: "nowrap"},
+                 {data: "etapa", className: "nowrap"}
+             ]
+                });
+          /**/
+          tablaDispositivos.clear().draw();
+      });
   }
 }
 class DispositivosQR {
