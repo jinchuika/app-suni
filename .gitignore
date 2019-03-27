@@ -53,6 +53,7 @@ local_settings.py
 settings_dev.py
 settings_prod.py
 settings_stage.py
+src/src/settings.py
 src/src/settings_dev.py
 src/src/settings_prod.py
 src/src/settings_stage.py
@@ -104,4 +105,3 @@ src/entregas.json
 src/.idea/
 live.wsgi.py
 .idea/
-
