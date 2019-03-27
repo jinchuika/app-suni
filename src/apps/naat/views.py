@@ -73,7 +73,7 @@ class AsignacionesActualesListView(BaseNaatPermission, ListView):
 
     def get_queryset(self):
         return naat_m.AsignacionNaat.objects.filter(
-            capacitador=self.request.user,
+            proceso__capacitador=self.request.user,
             activa=True)
 
 
