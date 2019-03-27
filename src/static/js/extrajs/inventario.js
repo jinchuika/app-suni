@@ -2298,10 +2298,19 @@ class PaquetesRevisionList {
                     kardex:false,
                     salida:api_paquete_salida
                   },
-                  success: function (response){
-                      var jsonResponse = JSON.parse(response.responseText);
-                      bootbox.alert("El dispositivo ha sido aprobado");
-                      location.reload();
+                  success: function (response){                    
+                      if(response.code == 1){
+                        bootbox.alert(response.mensaje, function (){
+                          location.reload();
+                        });
+                      }else{
+                       bootbox.alert("El dispositivo ha sido aprobado");
+                       $("#area_scanner").focus();
+                       location.reload();
+
+                      }
+
+
                   },
                   error: function (response) {
                       var jsonResponse = JSON.parse(response.responseText);
