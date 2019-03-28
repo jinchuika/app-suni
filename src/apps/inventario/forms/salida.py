@@ -5,6 +5,7 @@ from django import forms
 from apps.inventario import models as inv_m
 from apps.crm import models as crm_m
 from django.urls import reverse_lazy
+from django.utils.translation import gettext_lazy as _
 
 
 class SalidaInventarioForm(forms.ModelForm):
@@ -22,20 +23,21 @@ class SalidaInventarioForm(forms.ModelForm):
         widgets = {
             'en_creacion': forms.HiddenInput(),
             'estado': forms.HiddenInput(),
-            'tipo_salida': forms.Select(attrs={'class': 'form-control select2'}),
-            'fecha': forms.TextInput({'class': 'form-control datepicker'}),
-            'escuela': forms.TextInput({'class': 'form-control'}),
-            'observaciones': forms.Textarea({'class': 'form-control'}),
+            'tipo_salida': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '1'}),
+            'fecha': forms.TextInput({'class': 'form-control datepicker', 'tabindex': '2'}),
+            'escuela': forms.TextInput({'class': 'form-control', 'tabindex': '7'}),
+            'observaciones': forms.Textarea({'class': 'form-control', 'tabindex': '5'}),
             'reasignado_por': forms.HiddenInput(),
-            'garantia': forms.Select(attrs={'class': 'form-control select2'}),
-            'entrega': forms.CheckboxInput(attrs={'style': "visibility:hidden"})
+            'garantia': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '4'}),
+            'entrega': forms.CheckboxInput(attrs={'style': "visibility:hidden", 'class': 'icheckbox_flat-green', 'tabindex': '3'}),
+            'cooperante': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '8'}),
         }
 
     def __init__(self, *args, **kwargs):
         super(SalidaInventarioForm, self).__init__(*args, **kwargs)
         if self.instance.en_creacion:
             self.fields['beneficiario'].widget = forms.Select(
-                attrs={'style': "visibility:hidden", 'class': 'form-control select2'})
+                attrs={'style': "visibility:hidden", 'class': 'form-control select2', 'tabindex': '6'})
             self.fields['beneficiario'].queryset = crm_m.Donante.objects.all()
         else:
             self.fields['udi'].widget = forms.HiddenInput()
@@ -46,10 +48,15 @@ class SalidaInventarioUpdateForm(forms.ModelForm):
     """
     class Meta:
         model = inv_m.SalidaInventario
-        fields = ('fecha', 'en_creacion')
+        fields = ('cooperante', 'fecha', 'en_creacion', 'observaciones')
+        labels = {
+                'en_creacion': _('En Desarrollo'),
+        }
         widgets = {
-            'fecha': forms.TextInput({'class': 'form-control datepicker'}),
-
+            'cooperante': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '1'}),
+            'fecha': forms.TextInput({'class': 'form-control datepicker', 'tabindex': '2'}),
+            'observaciones': forms.Textarea({'class': 'form-control', 'tabindex': '4'}),
+            'en_creacion': forms.CheckboxInput(attrs={'class': 'icheckbox_flat-green', 'tabindex': '3'}),
         }
 
 

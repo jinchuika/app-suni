@@ -471,6 +471,7 @@ class InformeSalidaJson(views.APIView):
             # Obtener datos de Periodo Fiscal
             periodo = validar_fecha[0]
             salida_especial = inv_m.SalidaTipo.objects.get(especial=True)
+            tipo_compra =  inv_m.EntradaTipo.objects.get(contable=True)
             lista_dispositivos = {}
             lista = []
 
@@ -480,12 +481,14 @@ class InformeSalidaJson(views.APIView):
                     INNER JOIN inventario_dispositivo id on idp.dispositivo_id = id.id
                     INNER JOIN inventario_paquete ip on idp.paquete_id = ip.id
                     INNER JOIN inventario_salidainventario isi on ip.salida_id = isi.id
+                    INNER JOIN inventario_entrada ie on id.entrada_id = ie.id
                     INNER JOIN conta_preciodispositivo cpd on idp.dispositivo_id = cpd.dispositivo_id'''
 
             sql_where = """ WHERE id.tipo_id = {tipo_dispositivo}
                     AND isi.en_creacion = 0
                     AND isi.fecha between '{fecha_inicio}' AND '{fecha_fin}'
-                    AND isi.tipo_salida_id <> {especial} """.format(tipo_dispositivo = tipo_dispositivo,
+                    AND isi.tipo_salida_id <> {especial}
+                    AND cpd.activo = 1""".format(tipo_dispositivo = tipo_dispositivo,
                                                                                         fecha_inicio=fecha_inicio,
                                                                                         fecha_fin=fecha_fin,
                                                                                         especial=salida_especial.id)
@@ -503,9 +506,9 @@ class InformeSalidaJson(views.APIView):
                 sql_where += " AND isi.tipo_salida_id in (" + ','.join(tipo_salida) + ")"
 
             if compra:
-                tipo_compra =  inv_m.EntradaTipo.objects.get(contable=True)
-                sql_select += " INNER JOIN inventario_entrada ie on id.entrada_id = ie.id"
                 sql_where += " AND ie.tipo_id = " + str(tipo_compra.id)
+            else:
+                sql_where += " AND ie.tipo_id <> " + str(tipo_compra.id)
 
             sql_query = sql_select + sql_where + sql_group
 
@@ -694,7 +697,8 @@ class InformeResumenJson(views.APIView):
                 salidas = len(inv_m.DispositivoPaquete.objects.filter(
                         Q(paquete__salida__fecha__gte=fecha_inicio),
                         Q(paquete__salida__fecha__lte=fecha_fin),
-                        Q(dispositivo__tipo=tipo)))
+                        Q(dispositivo__tipo=tipo),
+                        Q(paquete__salida__en_creacion=False)))
 
                 dispositivo['tipo'] = tipo.tipo
                 dispositivo['existencia_anterior'] = existencia_anterior

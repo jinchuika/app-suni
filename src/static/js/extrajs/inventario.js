@@ -1648,8 +1648,9 @@ class Salidas {
     });
 
     $('#salidas-table').DataTable({
-      dom: 'lfrtipB',
-      buttons: ['excel','pdf'],
+      dom: 'Bfrtip',
+      buttons: ['excel', 'pdf', 'copy'],
+      "order": [[ 3, "desc" ]],
       ajax:{
         url:url_salida,
         dataSrc:'',
@@ -1657,11 +1658,25 @@ class Salidas {
 
       },
       columns:[
+        {data: "no_salida", render: function(data, type, full, meta){
+          if(full.estado == 'Entregado'){
+            return "<a target='_blank' rel='noopener noreferrer' href="+full.detail_url+" class='btn btn-success'>"+data+"</a>";
+          }else{
+            return "<a target='_blank' rel='noopener noreferrer' href="+full.url+" class='btn btn-success'>"+data+"</a>";
+          }
+        }},
         {data:"id"},
-        {data:"no_salida"},
         {data:"tipo_salida"},
         {data:"fecha"},
-        {data:"estado"},
+        {data: "estado", render: function(data, type, full, meta){
+          if(full.estado == 'Pendiente'){
+            return "<span class='label label-danger'>En Desarrollo</span>";
+          }else if(full.estado == 'Listo'){
+            return "<span class='label label-primary'>Listo</span>";
+          } else {
+            return "<span class='label label-success'>Entregado</span>";
+          }
+        }},
         {data:"escuela", render: function(data, type, full, meta){
           if(full.escuela===undefined){
             return " ";
@@ -1671,20 +1686,12 @@ class Salidas {
 
         }},
         {data:"beneficiario"},
-        {data:"", render: function(data, type, full, meta){
-          if(full.estado == 'Entregado'){
-            return "<a target='_blank' rel='noopener noreferrer' href="+full.detail_url+" class='btn btn-success'>Abrir</a>";
-          }else{
-            return "<a target='_blank' rel='noopener noreferrer' href="+full.url+" class='btn btn-success'>Abrir</a>";
-          }
-
-        }}
       ]
     });
 
     var nueva_tabla = tabla_paquetes.DataTable({
-      dom: 'lfrtipB',
-      buttons: ['excel','pdf'],
+      dom: 'Bfrtip',
+      buttons: ['excel', 'pdf', 'copy'],
       ajax:{
         url:url_salida_paquete,
         dataSrc:'',
@@ -2309,8 +2316,6 @@ class PaquetesRevisionList {
                        location.reload();
 
                       }
-
-
                   },
                   error: function (response) {
                       var jsonResponse = JSON.parse(response.responseText);

@@ -1237,13 +1237,17 @@ class SalidaInventario(models.Model):
     estado = models.ForeignKey(SalidaEstado, on_delete=models.PROTECT, related_name='estados',  null=True, blank=True)
     reasignado_por = models.ForeignKey(User, on_delete=models.PROTECT, related_name='reasignar', null=True, blank=True)
     no_salida= models.CharField(max_length=10 , blank=True, editable=False, db_index=True)
+    cooperante = models.ForeignKey(mye.Cooperante, on_delete=models.PROTECT, related_name='cooperante', null=True, blank=True)
 
     class Meta:
         verbose_name = "Salida"
         verbose_name_plural = "Salidas"
 
     def get_absolute_url(self):
-        return reverse_lazy('salidainventario_edit', kwargs={'pk': self.id})
+        if self.en_creacion:
+            return reverse_lazy('salidainventario_edit', kwargs={'pk': self.id})
+        else:
+            return reverse_lazy('salidainventario_detail', kwargs={'pk': self.id})
 
     def __str__(self):
         return str(self.no_salida)
