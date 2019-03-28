@@ -23,7 +23,7 @@ class SalidaInventarioViewSet(viewsets.ModelViewSet):
     """ ViewSet para generar informe de la :class: `SalidaInventario`.
     """
     serializer_class = inv_s.SalidaInventarioSerializer
-    queryset = inv_m.SalidaInventario.objects.all()
+    queryset = inv_m.SalidaInventario.objects.all().order_by('fecha')
 
     @action(methods=['post'], detail=True)
     def stock_kardex(self, request, pk=None):
@@ -297,6 +297,7 @@ class RevisionSalidaViewSet(viewsets.ModelViewSet):
             for dispositivos in dispositivosPaquetes:
                 dispositivos.dispositivo.etapa = inv_m.DispositivoEtapa.objects.get(id=inv_m.DispositivoEtapa.EN)
                 dispositivos.dispositivo.valido = False
+                dispositivos.dispositivo.save()
                 try:
                     cambios_etapa = inv_m.CambioEtapa.objects.get(dispositivo__triage=dispositivos.dispositivo)
                     cambios_etapa.etapa_final = inv_m.DispositivoEtapa.objects.get(id=inv_m.DispositivoEtapa.EN)
@@ -309,7 +310,7 @@ class RevisionSalidaViewSet(viewsets.ModelViewSet):
                 periodo_actual = conta_m.PeriodoFiscal.objects.get(actual=True)
                 salida = dispositivos.paquete.salida
                 triage = dispositivos.dispositivo
-                precio_dispositivo = conta_m.MovimientoDispositivo.objects.get(dispositivo__triage=triage)
+                precio_dispositivo = conta_m.PrecioDispositivo.objects.get(dispositivo__triage=triage, activo=True)
                 movimiento = conta_m.MovimientoDispositivo(
                     dispositivo=dispositivos.dispositivo,
                     periodo_fiscal=periodo_actual,
@@ -317,7 +318,6 @@ class RevisionSalidaViewSet(viewsets.ModelViewSet):
                     referencia='Salida {}'.format(salida),
                     precio=precio_dispositivo.precio)
                 movimiento.save()
-            dispositivos.dispositivo.save()
         salida.aprobada = True
         salida.save()
         finalizar_salida.en_creacion = False
