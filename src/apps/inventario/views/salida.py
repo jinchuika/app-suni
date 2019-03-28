@@ -192,8 +192,6 @@ class SalidaPaqueteDetailView(LoginRequiredMixin, GroupRequiredMixin, UpdateView
                 'data-cantidad': self.object.cantidad,
                 'data-etapa_inicial': etapa.id,
                 'data-estado_inicial': estado.id,
-
-
             }
         )
         form.fields['dispositivos'].queryset = inv_m.Dispositivo.objects.filter(
@@ -605,7 +603,7 @@ class TpePrintView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
             nuevos_mouse.append(nuevo_mouse)
         escuela = inv_m.SalidaInventario.objects.get(id=self.object.id)
         try:
-            encargado = escuela_m.EscContacto.objects.get(escuela=escuela.escuela, rol=5)
+            encargado = escuela_m.EscContacto.objects.filter(escuela=escuela.escuela, rol=5).reverse()[0]
             telefono = escuela_m.EscContactoTelefono.objects.get(contacto=encargado)
             context['Encargado'] = str(encargado.nombre)+" "+str(encargado.apellido)
             context['Telefono'] = str(telefono.telefono)
