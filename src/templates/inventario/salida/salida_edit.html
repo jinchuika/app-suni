@@ -2,13 +2,10 @@
 {% load staticfiles widget_tweaks %}
 {% load inventario_extras %}
 {% block page_title %}
-<title>Salidas {{salidainventario}} y Paquetes</title>
+<title>Salida {{salidainventario}} y Paquetes</title>
 {% endblock page_title %}
 {% block content %}
 {% if salidainventario.en_creacion%}
-<section class="content-header">
-	<h1>Salidas</h1>
-</section>
 <section class="content">
 	<div class="container-fluid">
 		<div class="row">
@@ -17,36 +14,30 @@
 			<div class="col-md-3 col-sm-3">
 				<div class="box">
 					<div class="box-header">
-							<div class="row">
-								<div class="col-md-9">
-										<h3 class="box-title">Informacion de Salida</h3>
-								</div>
-								<div class="col-md-3">
-											<button  id="id-reasignar" class="btn btn-danger btn-rechazar" data-entrega={{salidainventario.beneficiario}} data-urlreasignar="{%url 'inventario_api:api_inventariosalidas-reasignar-salida'%}" data-urldonantes="{%url 'crm_api:donante-list'%}" data-kardex="{%url 'inventario_api:api_inventariosalidas-stock-kardex' pk=object.id%}" data-kardexaprobar="{%url 'inventario_api:api_revisionsalidas-aprobar-paquete-kardex' pk=object.id%}" data-kardexrechazar="{%url 'inventario_api:api_revisionsalidas-rechazar-paquete-kardex' pk=object.id%}">Reasignar</button>
-								</div>
+						<div class="row">
+							<div class="col-md-6">
+								<h3 class="box-title">INFORMACIÓN DE SALIDA</h3>
 							</div>
+							<div class="col-md-3">
+								<button  id="id-reasignar" class="btn btn-danger btn-rechazar" data-entrega={{salidainventario.beneficiario}} data-urlreasignar="{%url 'inventario_api:api_inventariosalidas-reasignar-salida'%}" data-urldonantes="{%url 'crm_api:donante-list'%}" data-kardex="{%url 'inventario_api:api_inventariosalidas-stock-kardex' pk=object.id%}" data-kardexaprobar="{%url 'inventario_api:api_revisionsalidas-aprobar-paquete-kardex' pk=object.id%}" data-kardexrechazar="{%url 'inventario_api:api_revisionsalidas-rechazar-paquete-kardex' pk=object.id%}">Reasignar</button>
+							</div>
+						</div>
 					</div>
 					<div class="box-body">
 						<table class="table table-condensed">
 							<tr>
 								<th>Salida No. </th>
-								<td>{{ salidainventario }}</td>
+								<th>{{ salidainventario }}</th>
 							</tr>
 							<tr>
 								<th>Tipo</th>
-								<td>
-									{{salidainventario.tipo_salida}}
-									<br>
-								</td>
+								<td>{{salidainventario.tipo_salida}}<br></td>
 							</tr>
 							 {% if salidainventario.tipo_salida|stringformat:"s" == "Garantia" %}
 							 <tr>
  								<th>Garantia</th>
  								<td>
-									<a href="{% url 'garantia_detail' pk=salidainventario.garantia.garantia%}">
-										{{salidainventario.garantia}}
-									</a>
- 									<br>
+									<a href="{% url 'garantia_detail' pk=salidainventario.garantia.garantia%}">{{salidainventario.garantia}}</a><br>
  								</td>
  							</tr>
 							 {% endif %}
@@ -60,52 +51,51 @@
 							</tr>
 							<tr>
 								<th>Responsable</th>
-								<td>
-									{{salidainventario.creada_por.get_full_name}}
-									<br>
-								</td>
-							</tr>
-							<tr>
-								<th>Observaciones</th>
-								<td>
-									{{salidainventario.observaciones}}
-									<br>
-								</td>
+								<td>{{salidainventario.creada_por.get_full_name}}<br></td>
 							</tr>
 							<tr>
 								<th>Estado</th>
 								<td>
-									{{salidainventario.estado}}
+									{% if salidainventario.estado.nombre == "Pendiente" %}
+									<span class='label label-danger'>En Desarrollo</span>
+									{% elif salidainventario.estado.nombre == "Listo" %}
+									<span class='label label-primary'>Listo</span>
+									{% else %}
+									<span class='label label-success'>Entregado</span>
+									{% endif %}
 									<br>
 								</td>
 							</tr>
 						</table>
 					</div>
-
+				</div>
+				<div class="box">
+					<div class="box-header">
+						<h3 class="box-title">AGREGAR PAQUETE</h3>
+					</div>
+					<div class="box-body">
+						 {% include "inventario/salida/paquetes_add.html" %}
+					</div>
 				</div>
 				{% if permiso.name == "inv_cc"  %}
 				{% else %}
 				<div class="box">
-					<form action="{{action}}"  method="post">
-						<div class="box-body">
-							{% csrf_token %}
-							<div class="form-group">
-								{{ form.as_table }}
-							</div>
-							<input type="submit" class="btn btn-success" value="Guardar"/>
-						</div>
-					</form>
+					<div class="box-body table-responsive">
+						<table class="table table-condensed">
+							<form action="{{action}}"  method="post">
+								{% csrf_token %}
+								<table class="table table-condensed">
+									{{ form.as_table }}
+									<tr>
+										<td><input type="submit" class="btn btn-success" value="Guardar" tabindex="5" /></td>
+									</tr>
+								</table>
+							</form>
+						</table>
+					</div>
+					
 				</div>
 				{% endif %}
-				 <div class="box">
-										 <div class="box-header">
-												 <h3 class="box-title">Agregar paquetes</h3>
-										 </div>
-										 <div class="box-body">
-												 {% include "inventario/salida/paquetes_add.html" %}
-										 </div>
-				</div>
-
 			</div>
 			<!--Aca termina el formulario-->
 			{%endif%}
@@ -170,6 +160,7 @@
 <script src="{% static "js/i18n/es.js" %}"></script>
 <script>
 $(document).ready(function (){
+	$("#fecha").datepicker( "refresh" )
 	let Rechazado = new Salidas();
 });
 </script>

@@ -62,7 +62,7 @@
               </tr>
             </table>
             {%else%}
-            <table class="table table-condensed table-condensed">
+            <table class="table table-condensed">
               {%if form.instance.id%}
               <form action="{% url 'entrada_update' pk=form.instance.id%}" method="post">
               {%endif%}
