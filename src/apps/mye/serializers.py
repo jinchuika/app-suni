@@ -59,6 +59,7 @@ class SolicitudSerializer(serializers.ModelSerializer):
     class Meta:
         model = mye_m.Solicitud
         fields = (
+            'id',
             'departamento',
             'municipio',
             'escuela',
