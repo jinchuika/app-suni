@@ -2,6 +2,7 @@ import django_filters
 from django.db.utils import OperationalError
 from django.core.exceptions import ObjectDoesNotExist
 from datetime import datetime
+from django.contrib.auth.models import User
 
 from django_filters import rest_framework as filters
 from rest_framework import status, viewsets
@@ -355,7 +356,7 @@ class RevisionSalidaViewSet(viewsets.ModelViewSet):
         """
         triage = request.data["triage"]
         paquete = request.data["paquete"]
-        id_paquete = request.data["idpaquete"]        
+        id_paquete = request.data["idpaquete"]
         asignacion_fecha = inv_m.DispositivoPaquete.objects.get(dispositivo__triage=triage)
         asignacion_fecha.aprobado = True
         asignacion_fecha.fecha_aprobacion = datetime.now()
@@ -407,6 +408,7 @@ class RevisionSalidaViewSet(viewsets.ModelViewSet):
         """Metodo para aprobar la revicion de una salida designanda
         """
         id_salida = request.data["salida"]
+        finalizar_revision = inv_m.RevisionSalida.objects.get(salida=id_salida)
         finalizar_salida = inv_m.SalidaInventario.objects.get(id=id_salida)
         estado_bueno = inv_m.DispositivoEstado.objects.get(id=inv_m.DispositivoEstado.BN)
         etapa_listo = inv_m.DispositivoEtapa.objects.get(id=inv_m.DispositivoEtapa.LS)
@@ -433,8 +435,11 @@ class RevisionSalidaViewSet(viewsets.ModelViewSet):
                 )
         finalizar_salida.estado = inv_m.SalidaEstado.objects.get(nombre="Listo")
         finalizar_salida.save()
+        finalizar_revision.aprobada = True
+        finalizar_revision.save()
         return Response({
-            'mensaje': 'Revision aprobada'
+            'mensaje': 'la revision ha sido aprobada',
+            'usuario':  str(request.user.perfil)
         },
             status=status.HTTP_200_OK
         )
