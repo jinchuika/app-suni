@@ -34,7 +34,7 @@ class DetalleInformeFilter(filters.FilterSet):
         queryset = qs.filter(entrada__fecha__gte='2019-01-01')
         queryset = [obj for obj in queryset if obj.existencia_desecho > value]
         return queryset
-        
+
 
 class EntradaDetalleViewSet(viewsets.ModelViewSet):
     """ ViewSet para generar las tablas de la :class:'EntradaDetalle'
@@ -274,7 +274,7 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
     @action(methods=['post'], detail=True)
     def validar_kardex(self, request, pk=None):
         tipo_dispositivo = request.data['tipo_dispositivo']
-        validar_dispositivos = inv_m.DispositivoTipo.objects.get(id=tipo_dispositivo)
+        validar_dispositivos = inv_m.DispositivoTipo.objects.get(id=tipo_dispositivo)        
         if validar_dispositivos.kardex is False:
             return Response(
                 {'mensaje': 'Usa Triage'},

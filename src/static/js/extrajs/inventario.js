@@ -2135,10 +2135,11 @@ class PaquetesRevisionList {
   constructor() {
     let  paquetes_revision_tabla = $('#salida-paquetes-revision');
     let api_paquetes_revision = $('#paquetes-revision').data('url');
+    let urlredireccion = $('#paquetes-revision').data('redirect');
     let urlraprobar = $('#paquetes-revision').data('urlaprobar');
     let urlrechazar = $('#paquetes-revision').data('urlrechazar');
     var api_paquete_salida= $('#paquetes-revision').data('id');
-    let api_aprobar_salida=$('#aprobar-btn').data('url')
+    let api_aprobar_salida=$('#aprobar-btn').data('url');
     let  dispositivo_revision_tabla = $('#dispositivo-salida-paquetes-revision');
     //tablas kardexa
     let api_paquetes_revision_kardex = $('#paquetes-revision-kardex').data('url');
@@ -2298,7 +2299,7 @@ class PaquetesRevisionList {
                     kardex:false,
                     salida:api_paquete_salida
                   },
-                  success: function (response){                    
+                  success: function (response){
                       if(response.code == 1){
                         bootbox.alert(response.mensaje, function (){
                           location.reload();
@@ -2357,7 +2358,8 @@ class PaquetesRevisionList {
         data:{
           csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
           triage:data_fila.dispositivo,
-          kardex:false
+          kardex:false,
+          salida:api_paquete_salida
         },
         success: function (response){
             bootbox.alert("Dispositivos aprovados");
@@ -2488,11 +2490,14 @@ class PaquetesRevisionList {
                salida:api_paquete_salida
              },
              success: function (response){
-                 bootbox.alert(response.mensaje);
+                 bootbox.alert("¡Felicidades! " + response.usuario + " " + response.mensaje ,function (){
+                   $("#aprobar-btn").css({"visibility":"hidden"});
+                    window.location= urlredireccion;
+                 });
              },
              error: function (response) {
                   var jsonResponse = JSON.parse(response.responseText);
-                  bootbox.alert(jsonResponse["mensaje"]);
+                  bootbox.alert(jsonResponse.mensaje);
 
              }
            });
@@ -2688,8 +2693,8 @@ class PaqueteDetail {
     /****/
     tablabodyRechazar.on('click','.btn-aprobar', function () {
       let data_triage = $(this).attr("data-triage");
-      let data_paquete=$(this).attr("data-paquete");
-      let data_idpaquete=$(this).attr("data-idpaquete");
+      var data_paquete=$(this).attr("data-paquete");
+      var data_idpaquete=$(this).attr("data-idpaquete");
       bootbox.confirm({
          message: "Esta seguro de aprobar el dispositivo",
          buttons: {
@@ -2969,6 +2974,144 @@ class PaqueteDetail {
       $("#area_scanner").focus();
 
     //Fin Scanner
+    /****/
+    //Scanner  aprobar dispositivo paquete
+    var inputStart, inputStop, firstKey, lastKey, timing, userFinishedEntering;
+    var minChars = 3;
+
+    // handle a key value being entered by either keyboard or scanner
+    $("#area_scanner_aprobar").keypress(function (e) {
+        // restart the timer
+        if (timing) {
+            clearTimeout(timing);
+        }
+
+        // handle the key event
+        if (e.which == 13) {
+            // Enter key was entered
+
+            // don't submit the form
+            e.preventDefault();
+
+            // has the user finished entering manually?
+            if ($("#area_scanner_aprobar").val().length >= minChars){
+                userFinishedEntering = true; // incase the user pressed the enter key
+                inputComplete();
+            }
+        }
+        else {
+            // some other key value was entered
+
+            // could be the last character
+            inputStop = performance.now();
+            lastKey = e.which;
+            // don't assume it's finished just yet
+            userFinishedEntering = false;
+
+            // is this the first character?
+            if (!inputStart) {
+                firstKey = e.which;
+                inputStart = inputStop;
+
+                // watch for a loss of focus
+                $("body").on("blur", "#area_scanner_aprobar", inputBlur);
+            }
+
+            // start the timer again
+            timing = setTimeout(inputTimeoutHandler, 500);
+        }
+    });
+
+    // Assume that a loss of focus means the value has finished being entered
+    function inputBlur(){
+        clearTimeout(timing);
+        if ($("#area_scanner_aprobar").val().length >= minChars){
+            userFinishedEntering = true;
+            inputComplete();
+        }
+    };
+
+
+    // reset the page
+    $("#reset").click(function (e) {
+        e.preventDefault();
+        resetValues();
+    });
+
+    function resetValues() {
+        // clear the variables
+        inputStart = null;
+        inputStop = null;
+        firstKey = null;
+        lastKey = null;
+        // clear the results
+        inputComplete();
+    }
+
+    // Assume that it is from the scanner if it was entered really fast
+    function isScannerInput() {
+        return (((inputStop - inputStart) / $("#area_scanner_aprobar").val().length) < 15);
+    }
+
+    // Determine if the user is just typing slowly
+    function isUserFinishedEntering(){
+        return !isScannerInput() && userFinishedEntering;
+    }
+
+    function inputTimeoutHandler(){
+        // stop listening for a timer event
+        clearTimeout(timing);
+        // if the value is being entered manually and hasn't finished being entered
+        if (!isUserFinishedEntering() || $("#area_scanner_aprobar").val().length < 3) {
+            // keep waiting for input
+            return;
+        }
+        else{
+            reportValues();
+        }
+    }
+
+    // here we decide what to do now that we know a value has been completely entered
+    function inputComplete(){
+        // stop listening for the input to lose focus
+        $("body").off("blur", "#area_scanner_aprobar", inputBlur);
+        // report the results
+        reportValues();
+    }
+
+    function reportValues() {
+        var inputMethod = isScannerInput() ? "Scanner" : "Keyboard";
+        if(inputMethod == "Scanner"){
+            var triage = $("#area_scanner_aprobar").val();
+            var mensaje = JSON.parse(triage);            
+             /*Api*/
+             $.ajax({
+               type: "POST",
+               url: urlAprobar,
+               dataType: 'json',
+               data:{
+                 csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
+                 triage:mensaje.triage,
+                 paquete:$('#rechazar-dispositivo').data('paquete'),
+                 idpaquete:$('#rechazar-dispositivo').data('idpaquete')
+               },
+               success: function (response){
+                 bootbox.alert(response.mensaje);
+                  location.reload();
+               },
+               error: function (response){
+                 var jsonResponse = JSON.parse(response.responseText);
+                 bootbox.alert(jsonResponse["mensaje"]);
+               }
+             });
+             /**/
+        }
+      $("#area_scanner_aprobar").val("");
+      $("#area_scanner_aprobar").focus();
+    }
+
+
+    //Fin Scanner aprobar dispositivo paquete
 
   }
 }
