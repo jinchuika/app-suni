@@ -298,7 +298,7 @@ class RevisionSalidaViewSet(viewsets.ModelViewSet):
             for dispositivos in dispositivosPaquetes:
                 dispositivos.dispositivo.etapa = inv_m.DispositivoEtapa.objects.get(id=inv_m.DispositivoEtapa.EN)
                 dispositivos.dispositivo.valido = False
-                dispositivos.dispositivo.save()
+                dispositivos.dispositivo.save()                
                 try:
                     cambios_etapa = inv_m.CambioEtapa.objects.get(dispositivo__triage=dispositivos.dispositivo)
                     cambios_etapa.etapa_final = inv_m.DispositivoEtapa.objects.get(id=inv_m.DispositivoEtapa.EN)

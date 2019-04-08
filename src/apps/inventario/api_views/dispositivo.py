@@ -43,8 +43,11 @@ class DispositivoViewSet(viewsets.ModelViewSet):
         marca = self.request.query_params.get('marca', None)
         modelo = self.request.query_params.get('modelo', None)
         tarima = self.request.query_params.get('tarima', None)
-        tipo_dis = self.request.user.tipos_dispositivos.tipos.all()
-
+        nuevo_tipo = self.request.query_params.get('newtipo', None)
+        if nuevo_tipo is None:
+            tipo_dis = self.request.user.tipos_dispositivos.tipos.all()
+        else:
+            tipo_dis = inv_m.DispositivoTipo.objects.filter(tipo=nuevo_tipo)
         if triage or dispositivo:
             return inv_m.Dispositivo.objects.all().filter(tipo__in=tipo_dis)
         elif tipo or marca or modelo or tarima:
@@ -157,6 +160,19 @@ class DispositivoViewSet(viewsets.ModelViewSet):
             status=status.HTTP_200_OK
         )
 
+    @action(methods=['post'], detail=False)
+    def colocar_tarima(self, request, pk=None):
+        id = request.data['id']        
+        tarima = request.data['tarima']
+        asignar_tarima = inv_m.Tarima.objects.get(id=tarima)
+        nueva_tarima = inv_m.Dispositivo.objects.get(id=id)
+        nueva_tarima.tarima = asignar_tarima
+        nueva_tarima.save()
+        return Response(
+            {'mensaje': 'Asignado correctamente'},
+            status=status.HTTP_200_OK
+        )
+
 
 class PaquetesFilter(filters.FilterSet):
     """ Filtros par el ViewSet de Paquete
@@ -236,7 +252,7 @@ class DispositivosPaquetesViewSet(viewsets.ModelViewSet):
             nuevo_paquete.save()
         else:
             triage = request.data["triage"]
-            salida = request.data["salida"]            
+            salida = request.data["salida"]
             dispositivo_salida = inv_m.DispositivoPaquete.objects.filter(dispositivo__triage=triage, paquete__salida=salida)
             if len(dispositivo_salida) > 0:
                 cambio_estado = inv_m.Dispositivo.objects.get(triage=triage)
