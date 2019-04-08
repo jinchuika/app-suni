@@ -4,6 +4,7 @@ from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from datetime import datetime
+import time
 from braces.views import LoginRequiredMixin
 from apps.inventario import (
     serializers as inv_s,
@@ -37,6 +38,9 @@ class DispositivoViewSet(viewsets.ModelViewSet):
     ordering = ('entrada')
 
     def get_queryset(self):
+        """ Este queryset se encarga de filtrar los dispositivo que se van a mostrar en lista
+            general
+        """
         dispositivo = self.request.query_params.get('id', None)
         triage = self.request.query_params.get('triage', None)
         tipo = self.request.query_params.get('tipo', None)
@@ -51,7 +55,22 @@ class DispositivoViewSet(viewsets.ModelViewSet):
         if triage or dispositivo:
             return inv_m.Dispositivo.objects.all().filter(tipo__in=tipo_dis)
         elif tipo or marca or modelo or tarima:
-            return inv_m.Dispositivo.objects.all().filter(valido=True, tipo__in=tipo_dis)
+            # Se encarga de mostrar mas rapido los dispositivos que se usan con mas frecuencia 
+            # o mayor cantidad en el inventario
+            if (tipo == str(1)):
+                return inv_m.Teclado.objects.filter(valido=True)
+            elif(tipo == str(2)):
+                return inv_m.Mouse.objects.filter(valido=True)
+            elif(tipo == str(3)):
+                return inv_m.HHD.objects.filter(valido=True)
+            elif(tipo == str(4)):
+                return inv_m.Tablet.objects.filter(valido=True)
+            elif(tipo == str(5)):
+                return inv_m.Monitor.objects.filter(valido=True)
+            elif(tipo == str(6)):
+                return inv_m.CPU.objects.filter(valido=True)
+            else:
+                return inv_m.Dispositivo.objects.filter(valido=True, tipo__in=tipo_dis)
         else:
             return inv_m.Dispositivo.objects.all().filter(
                 valido=True,
@@ -162,7 +181,7 @@ class DispositivoViewSet(viewsets.ModelViewSet):
 
     @action(methods=['post'], detail=False)
     def colocar_tarima(self, request, pk=None):
-        id = request.data['id']        
+        id = request.data['id']
         tarima = request.data['tarima']
         asignar_tarima = inv_m.Tarima.objects.get(id=tarima)
         nueva_tarima = inv_m.Dispositivo.objects.get(id=id)
