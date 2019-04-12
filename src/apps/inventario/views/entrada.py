@@ -58,7 +58,6 @@ class EntradaUpdateView(LoginRequiredMixin, GroupRequiredMixin, UpdateView):
     group_required = [u"inv_bodega", u"inv_tecnico", u"inv_admin"]
 
     def get_success_url(self):
-        print(self.object.en_creacion)
         if self.object.en_creacion:
             return reverse('entrada_update', kwargs={'pk': self.object.id})
         else:
