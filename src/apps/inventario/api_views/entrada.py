@@ -86,17 +86,21 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
             mensaje_cuadrar = ""
             entrad_id = request.data['primary_key']
             entrada = inv_m.Entrada.objects.get(pk=entrad_id)
-
             detalles_kardex = inv_m.EntradaDetalle.objects.filter(
                 entrada=entrad_id,
                 ingresado_kardex=False,
                 enviar_kardex=True).count()
             dispositivos_utiles = inv_m.EntradaDetalle.objects.filter(Q(entrada=entrad_id), Q(util__gt=0)).count()
             repuestos_utiles = inv_m.EntradaDetalle.objects.filter(Q(entrada=entrad_id), Q(repuesto__gt=0)).count()
-            validar_dispositivos = inv_m.EntradaDetalle.objects.filter(
-                Q(entrada=entrad_id),
-                Q(util__gt=0),
-                dispositivos_creados=True).count()
+            if (entrada.tipo.especial):
+                validar_dispositivos = inv_m.EntradaDetalle.objects.filter(
+                    Q(entrada=entrad_id),
+                    Q(util__gt=0)).count()
+            else:
+                validar_dispositivos = inv_m.EntradaDetalle.objects.filter(
+                    Q(entrada=entrad_id),
+                    Q(util__gt=0),
+                    dispositivos_creados=True).count()            
             validar_repuestos = inv_m.EntradaDetalle.objects.filter(
                 Q(entrada=entrad_id),
                 Q(repuesto__gt=0),
@@ -274,7 +278,7 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
     @action(methods=['post'], detail=True)
     def validar_kardex(self, request, pk=None):
         tipo_dispositivo = request.data['tipo_dispositivo']
-        validar_dispositivos = inv_m.DispositivoTipo.objects.get(id=tipo_dispositivo)        
+        validar_dispositivos = inv_m.DispositivoTipo.objects.get(id=tipo_dispositivo)
         if validar_dispositivos.kardex is False:
             return Response(
                 {'mensaje': 'Usa Triage'},
