@@ -275,6 +275,7 @@ class EntradaDetalle(models.Model):
     def get_absolute_url(self):
         return self.entrada.get_absolute_url()
 
+
 class DescuentoEntrada(models.Model):
     entrada = models.ForeignKey(Entrada, on_delete=models.CASCADE, related_name='descuentos')
     monto = models.DecimalField(max_digits=10, decimal_places=2)
@@ -1162,6 +1163,7 @@ class DesechoDetalle(models.Model):
             desecho=self.desecho,
             entrada=self.entrada_detalle)
 
+
 class DesechoDispositivo(models.Model):
     desecho = models.ForeignKey(DesechoSalida, on_delete=models.PROTECT, related_name='detalles_dispositivos')
     dispositivo = models.ForeignKey(Dispositivo, on_delete=models.CASCADE, related_name='desecho')
@@ -1252,31 +1254,57 @@ class SalidaInventario(models.Model):
     def __str__(self):
         return str(self.no_salida)
 
-    def crear_paquetes(self, cantidad, usuario, entrada, tipo_paquete=None):
+    def crear_paquetes(self, cantidad, usuario, entrada, tipo_paquete=None):        
         creados = 0
         indice_actual = self.paquetes.count()
-        if entrada.count() == 0:
-            paquete = Paquete(
-                salida=self,
-                indice=(1 + indice_actual),
-                creado_por=usuario,
-                cantidad=cantidad,
-                tipo_paquete=tipo_paquete,
-            )
-            paquete.save()
-        else:
-            paquete = Paquete(
-                salida=self,
-                indice=(1 + indice_actual),
-                creado_por=usuario,
-                cantidad=cantidad,
-                tipo_paquete=tipo_paquete,
+        if self.tipo_salida.especial:
+            if entrada.count() == 0:
+                paquete = Paquete(
+                    salida=self,
+                    indice=(1 + indice_actual),
+                    creado_por=usuario,
+                    cantidad=cantidad,
+                    tipo_paquete=tipo_paquete,
+                    aprobado=True
                 )
-            paquete.save()
-            for numero in entrada:
-                paquete.entrada.add(numero)
-        creados += 1
-        return creados
+                paquete.save()
+            else:
+                paquete = Paquete(
+                    salida=self,
+                    indice=(1 + indice_actual),
+                    creado_por=usuario,
+                    cantidad=cantidad,
+                    tipo_paquete=tipo_paquete,
+                    aprobado=True
+                    )
+                paquete.save()
+                for numero in entrada:
+                    paquete.entrada.add(numero)
+            creados += 1
+            return creados
+        else:
+            if entrada.count() == 0:
+                paquete = Paquete(
+                    salida=self,
+                    indice=(1 + indice_actual),
+                    creado_por=usuario,
+                    cantidad=cantidad,
+                    tipo_paquete=tipo_paquete,
+                )
+                paquete.save()
+            else:
+                paquete = Paquete(
+                    salida=self,
+                    indice=(1 + indice_actual),
+                    creado_por=usuario,
+                    cantidad=cantidad,
+                    tipo_paquete=tipo_paquete,
+                    )
+                paquete.save()
+                for numero in entrada:
+                    paquete.entrada.add(numero)
+            creados += 1
+            return creados
 
 
 class SalidaComentario(models.Model):
