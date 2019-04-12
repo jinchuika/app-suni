@@ -217,7 +217,7 @@ class EntradaUpdate {
         let tabla_temp = this;
 
         tablabody.on('click', '.btn-editar', function () {
-            let data_fila = this.tabla.row($(this).parents('tr')).data();
+           let data_fila = this.tabla.row($(this).parents('tr')).data();
             location.href = data_fila.update_url;
         });
 
@@ -327,10 +327,8 @@ class EntradaUpdate {
                       callback: function (result) {
                           if(result == true){
                             /**/
-
                               let urldispositivo = tabla_temp.api_url + data_fila.id + "/crear_kardex/";
                               let detalle_entrada= data_fila.id
-                              //alert(urldispositivo);
                               EntradaUpdate.enviar_kardex(urldispositivo, detalle_entrada);
                           }
                       }
@@ -357,6 +355,11 @@ class EntradaUpdate {
     }
 
     static crear_dispositivos(urldispositivo) {
+      var dialog = bootbox.dialog({
+      title: 'Creacion de dispositivos ',
+      message: '<p><i class="fa fa-spin fa-spinner"></i> Creando dispositivos: <b style="color:red;">"Por favor espere hasta que confirme la creación de los dispositivos"<b/></p>',
+      closeButton: false
+        });
         $.ajax({
             type: 'POST',
             url: urldispositivo,
@@ -372,7 +375,7 @@ class EntradaUpdate {
             },
             error: function (response) {
               var mensaje = JSON.parse(response.responseText)
-              alert( "Error al crear los dispositivo: " + mensaje['mensaje']);
+              bootbox.alert( "Error al crear los dispositivo: " + mensaje['mensaje']);
             }
         });
     }
@@ -393,7 +396,7 @@ class EntradaUpdate {
             },
             error: function (response) {
               var mensaje = JSON.parse(response.responseText)
-              alert( "Error al crear los Repuestos: " + mensaje['mensaje']);
+              bootbox.alert( "Error al crear los Repuestos: " + mensaje['mensaje']);
             }
 
         });
@@ -415,7 +418,7 @@ class EntradaUpdate {
           },
           error: function (response) {
             var mensaje = JSON.parse(response.responseText)
-            alert( "Error al crear los dispositivos al kardex: " + mensaje['mensaje']);
+            bootbox.alert( "Error al crear los dispositivos al kardex: " + mensaje['mensaje']);
           }
 
       });
@@ -556,7 +559,7 @@ class EntradaDetail {
                 console.log("dispositivos creados exitosamente");
             },
             error: function (response) {
-                alert( "Error al crear los dispositivo:" + response.mensaje);
+                bootbox.alert( "Error al crear los dispositivo:" + response.mensaje);
             }
         });
     }
@@ -572,7 +575,7 @@ class EntradaDetail {
                 console.log("repuestos creados exitosamente");
             },
             error: function (response) {
-                alert( "Error al crear los Repuestos:" + response.mensaje);
+                bootbox.alert( "Error al crear los repuestos:" + response.mensaje);
             }
 
         });
@@ -636,7 +639,6 @@ class EntradaDetail {
 
         $('#entrada2-table tbody').on('click', 'button', function () {
             var data = tabla.row($(this).parents('tr')).data();
-            alert("Si funciona este boton");
         });
 
     }
@@ -1779,7 +1781,7 @@ class Salidas {
           id_paquete:data_fila.id_paquete
         },
         success: function (response){
-            bootbox.alert("Paquete aprovado");
+            bootbox.alert("Paquete aprobado");
             location.reload();
         },
       });
@@ -2367,7 +2369,7 @@ class PaquetesRevisionList {
           salida:api_paquete_salida
         },
         success: function (response){
-            bootbox.alert("Dispositivos aprovados");
+            bootbox.alert("Dispositivos aprobados");
             location.reload();
         },
       });
@@ -2435,7 +2437,7 @@ class PaquetesRevisionList {
       $('#body-salidas-' + id_comentario).append(tr);
       location.reload();
     },function(response){
-      alert("Error al crear datos");
+      bootbox.alert("Error al crear datos");
     });
     }
     $(".SalidaHistorico-btn").click( function(){
@@ -2585,7 +2587,7 @@ class PaquetesRevisionList {
           kardex:true
         },
         success: function (response){
-            bootbox.alert("Paquete aprovado");
+            bootbox.alert("Paquete aprobado");
             location.reload();
         },
       });
@@ -2755,7 +2757,7 @@ class PaqueteDetail {
     location.reload();
 
     },function(response){
-      alert("Error al crear datos");
+      bootbox.alert("Error al crear datos");
     });
     }
     /****/
@@ -2981,14 +2983,14 @@ class PaqueteDetail {
     //Fin Scanner
     /****/
     //Scanner  aprobar dispositivo paquete
-    var inputStart, inputStop, firstKey, lastKey, timing, userFinishedEntering;
-    var minChars = 3;
+    var inputStartAprobar, inputStopAprobar, firstKeyAprobar, lastKeyAprobar, timingAprobar, userFinishedEnteringAprobar;
+    var minCharsAprobar = 3;
 
     // handle a key value being entered by either keyboard or scanner
     $("#area_scanner_aprobar").keypress(function (e) {
         // restart the timer
-        if (timing) {
-            clearTimeout(timing);
+        if (timingAprobar) {
+            clearTimeout(timingAprobar);
         }
 
         // handle the key event
@@ -2999,40 +3001,40 @@ class PaqueteDetail {
             e.preventDefault();
 
             // has the user finished entering manually?
-            if ($("#area_scanner_aprobar").val().length >= minChars){
-                userFinishedEntering = true; // incase the user pressed the enter key
-                inputComplete();
+            if ($("#area_scanner_aprobar").val().length >= minCharsAprobar){
+                userFinishedEnteringAprobar = true; // incase the user pressed the enter key
+                inputCompleteAprobar();
             }
         }
         else {
             // some other key value was entered
 
             // could be the last character
-            inputStop = performance.now();
-            lastKey = e.which;
+            inputStopAprobar = performance.now();
+            lastKeyAprobar = e.which;
             // don't assume it's finished just yet
-            userFinishedEntering = false;
+            userFinishedEnteringAprobar = false;
 
             // is this the first character?
-            if (!inputStart) {
-                firstKey = e.which;
-                inputStart = inputStop;
+            if (!inputStartAprobar) {
+                firstKeyAprobar = e.which;
+                inputStartAprobar = inputStopAprobar;
 
                 // watch for a loss of focus
-                $("body").on("blur", "#area_scanner_aprobar", inputBlur);
+                $("body").on("blur", "#area_scanner_aprobar", inputBlurAprobar);
             }
 
             // start the timer again
-            timing = setTimeout(inputTimeoutHandler, 500);
+            timingAprobar = setTimeout(inputTimeoutHandler, 500);
         }
     });
 
     // Assume that a loss of focus means the value has finished being entered
-    function inputBlur(){
-        clearTimeout(timing);
-        if ($("#area_scanner_aprobar").val().length >= minChars){
-            userFinishedEntering = true;
-            inputComplete();
+    function inputBlurAprobar(){
+        clearTimeout(timingAprobar);
+        if ($("#area_scanner_aprobar").val().length >= minCharsAprobar){
+            userFinishedEnteringAprobar = true;
+            inputCompleteAprobar();
         }
     };
 
@@ -3040,55 +3042,55 @@ class PaqueteDetail {
     // reset the page
     $("#reset").click(function (e) {
         e.preventDefault();
-        resetValues();
+        resetValuesAprobar();
     });
 
-    function resetValues() {
+    function resetValuesAprobar() {
         // clear the variables
-        inputStart = null;
-        inputStop = null;
-        firstKey = null;
-        lastKey = null;
+        inputStartAprobar = null;
+        inputStopAprobar = null;
+        firstKeyAprobar = null;
+        lastKeyAprobar = null;
         // clear the results
-        inputComplete();
+        inputCompleteAprobar();
     }
 
     // Assume that it is from the scanner if it was entered really fast
-    function isScannerInput() {
-        return (((inputStop - inputStart) / $("#area_scanner_aprobar").val().length) < 15);
+    function isScannerInputAprobar() {
+        return (((inputStopAprobar - inputStartAprobar) / $("#area_scanner_aprobar").val().length) < 15);
     }
 
     // Determine if the user is just typing slowly
-    function isUserFinishedEntering(){
-        return !isScannerInput() && userFinishedEntering;
+    function isuserFinishedEnteringAprobar(){
+        return !isScannerInputAprobar() && userFinishedEnteringAprobar;
     }
 
     function inputTimeoutHandler(){
         // stop listening for a timer event
-        clearTimeout(timing);
+        clearTimeout(timingAprobar);
         // if the value is being entered manually and hasn't finished being entered
-        if (!isUserFinishedEntering() || $("#area_scanner_aprobar").val().length < 3) {
+        if (!isuserFinishedEnteringAprobar() || $("#area_scanner_aprobar").val().length < 3) {
             // keep waiting for input
             return;
         }
         else{
-            reportValues();
+            reportValuesAprobar();
         }
     }
 
     // here we decide what to do now that we know a value has been completely entered
-    function inputComplete(){
+    function inputCompleteAprobar(){
         // stop listening for the input to lose focus
-        $("body").off("blur", "#area_scanner_aprobar", inputBlur);
+        $("body").off("blur", "#area_scanner_aprobar", inputBlurAprobar);
         // report the results
-        reportValues();
+        reportValuesAprobar();
     }
 
-    function reportValues() {
-        var inputMethod = isScannerInput() ? "Scanner" : "Keyboard";
+    function reportValuesAprobar() {
+        var inputMethod = isScannerInputAprobar() ? "Scanner" : "Keyboard";
         if(inputMethod == "Scanner"){
             var triage = $("#area_scanner_aprobar").val();
-            var mensaje = JSON.parse(triage);            
+            var mensaje = JSON.parse(triage);
              /*Api*/
              $.ajax({
                type: "POST",
@@ -3117,6 +3119,7 @@ class PaqueteDetail {
 
 
     //Fin Scanner aprobar dispositivo paquete
+
 
   }
 }

@@ -316,7 +316,6 @@ class RevisionComentarioSalidaCreate(CsrfExemptMixin, JsonRequestResponseMixin, 
     def post(self, request, *args, **kwargs):
         try:
             id_comentario = self.request_json["id_comentario"]
-            print(id_comentario)
             revision_salida = inv_m.SalidaInventario.objects.filter(no_salida=id_comentario)
             comentario = self.request_json["comentario"]
             if not len(comentario) or len(revision_salida) == 0:
