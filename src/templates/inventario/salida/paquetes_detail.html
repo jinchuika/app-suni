@@ -102,6 +102,50 @@
 					</div>
 				</div>
 			</div>
+
+
+			<div class="col-md-7">
+				<div class="box">
+					<div class="box-header" >
+							<h3 class="box-title">Dispositivos Asignados</h3>
+					</div>
+				<table id="rechazar-dispositivo" class="table table-condensed" data-dispo={{dispositivos_no}}  class="table table-condensed">
+					<thead>
+						<th>No.</th>
+						<th>Dispositivo</th>
+						<th>Tipo</th>
+						<th>Fecha</th>
+						<th>Tecnico</th>
+						<th></th>
+						<th></th>
+					</thead>
+					<tbody>
+						{%for dispositivo in dispositivos_paquetes%}
+						<tr>
+							<td>
+										{{forloop.counter}}
+							</td>
+							<td>
+									{{dispositivo.dispositivo.triage}}
+							</td>
+							<td>
+									{{dispositivo.dispositivo.tipo}}
+							</td>
+							<td>
+								{{dispositivo.fecha_creacion}}
+							</td>
+							<td>
+									{{dispositivo.asignado_por.get_full_name}}
+							</td>
+						</tr>
+						{%endfor%}
+					</tbody>
+				</table>
+			</div>
+			</div>
+
+
+
 			{% endif %}
 			{% endfor %}
 			{% for permiso in user.groups.all  %}
@@ -117,7 +161,8 @@
 								<label for="area_scanner_aprobar">Area de Scanner:</label>	<input id="area_scanner_aprobar" class="form-control" type="text" name="area_scanner_aprobar" style="width:50%">
 							</div>
 					</div>
-				<table  id="rechazar-dispositivo" class="table table-condensed" data-dispo={{dispositivos_no}} data-paquete={{paquete.salida}} data-idpaquete={{paquete.id}}>
+				<table  id="rechazar-dispositivo" class="table table-condensed" data-dispo={{dispositivos_no}} data-paquete={{paquete.salida}} data-idpaquete={{paquete.id}} data-urlaprobar="{% url 'inventario_api:api_revisionsalidas-aprobar-dispositivo' pk=paquete.salida%}">
+					{% csrf_token %}
 					<thead>
 						<th>No.</th>
 						<th>Dispositivo</th>
