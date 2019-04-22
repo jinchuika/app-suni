@@ -2648,6 +2648,7 @@ class PaqueteDetail {
     let tablabodyRechazar = $("#rechazar-dispositivo tbody tr");
     var urlCambio = $("#salida-id").data('url');
     var urlAprobar = $("#salida-id").data('urlaprobar');
+    var urlAprobarControl = $("#rechazar-dispositivo").data('urlaprobar');
     var lista_triage = [];
     var estado_inicial = $('#id_dispositivos').data('estado-inicial');
     tablabodyRechazar.on('click','.btn-rechazar', function () {
@@ -3092,9 +3093,10 @@ class PaqueteDetail {
             var triage = $("#area_scanner_aprobar").val();
             var mensaje = JSON.parse(triage);
              /*Api*/
+             console.log(urlAprobar);
              $.ajax({
                type: "POST",
-               url: urlAprobar,
+               url: urlAprobarControl,
                dataType: 'json',
                data:{
                  csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
@@ -3104,6 +3106,7 @@ class PaqueteDetail {
                },
                success: function (response){
                  bootbox.alert(response.mensaje);
+                 $("#area_scanner_aprobar").focus();
                   location.reload();
                },
                error: function (response){
@@ -3112,11 +3115,10 @@ class PaqueteDetail {
                }
              });
              /**/
-        }
-      $("#area_scanner_aprobar").val("");
-      $("#area_scanner_aprobar").focus();
+        }      
     }
-
+    $("#area_scanner_aprobar").val("");
+    $("#area_scanner_aprobar").focus();
 
     //Fin Scanner aprobar dispositivo paquete
 

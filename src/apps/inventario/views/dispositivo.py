@@ -87,6 +87,7 @@ class SolicitudMovimientoCreateView(LoginRequiredMixin, CreateView):
     model = inv_m.SolicitudMovimiento
     template_name = 'inventario/dispositivo/solicitudmovimiento_add.html'
     form_class = inv_f.SolicitudMovimientoCreateForm
+    group_required = [u"inv_cc", u"inv_admin", u"inv_tecnico", u"inv_bodega"]
 
     def form_valid(self, form):
         form.instance.creada_por = self.request.user
@@ -143,7 +144,7 @@ class DevolucionCreateView(LoginRequiredMixin, CreateView):
         form.fields['tipo_dispositivo'].queryset = self.request.user.tipos_dispositivos.tipos.all()
         return form
 
-    def get_success_url(self):        
+    def get_success_url(self):
         if self.object.tipo_dispositivo.usa_triage:
             return reverse('solicitudmovimiento_update', kwargs={'pk': self.object.id})
         else:
@@ -155,6 +156,7 @@ class SolicitudMovimientoUpdateView(LoginRequiredMixin, UpdateView):
     model = inv_m.SolicitudMovimiento
     form_class = inv_f.SolicitudMovimientoUpdateForm
     template_name = 'inventario/dispositivo/solicitudmovimiento_update.html'
+    group_required = [u"inv_cc", u"inv_admin", u"inv_tecnico", u"inv_bodega"]
 
     def get_form(self, form_class=None):
         form = super(SolicitudMovimientoUpdateView, self).get_form(form_class)
@@ -186,6 +188,7 @@ class SolicitudMovimientoDetailView(LoginRequiredMixin, DetailView):
     """
     model = inv_m.SolicitudMovimiento
     template_name = 'inventario/dispositivo/solicitudmovimiento_detail.html'
+    group_required = [u"inv_cc", u"inv_admin", u"inv_tecnico", u"inv_bodega"]
 
 
 class SolicitudMovimientoListView(LoginRequiredMixin, ListView):
@@ -193,6 +196,7 @@ class SolicitudMovimientoListView(LoginRequiredMixin, ListView):
     """
     model = inv_m.SolicitudMovimiento
     template_name = 'inventario/dispositivo/solicitudmovimiento_list.html'
+    group_required = [u"inv_cc", u"inv_admin", u"inv_tecnico", u"inv_bodega"]
 
 
 ##########################
