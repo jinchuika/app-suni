@@ -8,7 +8,7 @@
 		<div class="row">
 			{% for permiso in user.groups.all  %}
 			{% if permiso.name == "inv_tecnico" or permiso.name == 'inv_admin' %}
-			<div class="col-md-5">
+			<div class="col-md-7">
 				<div class="box">
 					<div class="box-header">
 						<div class="row">
@@ -104,7 +104,7 @@
 			</div>
 
 
-			<div class="col-md-7">
+			<div class="col-md-5">
 				<div class="box">
 					<div class="box-header" >
 							<h3 class="box-title">Dispositivos Asignados</h3>
@@ -161,7 +161,7 @@
 								<label for="area_scanner_aprobar">Area de Scanner:</label>	<input id="area_scanner_aprobar" class="form-control" type="text" name="area_scanner_aprobar" style="width:50%">
 							</div>
 					</div>
-				<table  id="rechazar-dispositivo" class="table table-condensed" data-dispo={{dispositivos_no}} data-paquete={{paquete.salida}} data-idpaquete={{paquete.id}} data-urlaprobar="{% url 'inventario_api:api_revisionsalidas-aprobar-dispositivo' pk=paquete.salida%}">
+				<table  id="rechazar-dispositivo" class="table table-condensed" data-url="{% url 'inventario_api:api_revisionsalidas-rechazar-dispositivo' pk=paquete.salida%}" data-urlhistorico="{% url 'historico_control' %}" data-id="{{  paquete.salida }}" data-urlaprobar="{% url 'inventario_api:api_revisionsalidas-aprobar-dispositivo' pk=paquete.salida%}" data-dispo={{dispositivos_no}} data-paquete={{paquete.salida}} data-idpaquete={{paquete.id}} data-urlaprobar="{% url 'inventario_api:api_revisionsalidas-aprobar-dispositivo' pk=paquete.salida%}">
 					{% csrf_token %}
 					<thead>
 						<th>No.</th>
@@ -194,7 +194,7 @@
 								{% if  dispositivo.dispositivo.estado.id == 2 %}
 
 								{% else %}
-									<button  id="id-aprobar" class="btn btn-primary btn-aprobar" data-triage="{{dispositivo.dispositivo.triage}}" data-paquete={{paquete.salida}} data-idpaquete={{paquete.id}}>Aprobar</button>
+									<button  id="id-aprobar" class="btn btn-primary btn-aprobar" data-triage="{{dispositivo.dispositivo.triage}}" data-paquete={{paquete.salida}} data-idpaquete={{paquete.id}} data-tipo={{dispositivo.dispositivo.tipo}}>Aprobar</button>
 
 								{% endif %}
 
