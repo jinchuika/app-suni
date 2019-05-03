@@ -34,7 +34,7 @@
                       primary_key :primary_key
                     },
                     success: function (response) {
-                      bootbox.alert("Todo se encuentra correcto");
+                      bootbox.alert({message: "Todo se encuentra correcto", className:"modal modal-success fade in"});
                     },
                     error: function (response) {
                       $('#id_en_creacion').iCheck('check');
@@ -263,11 +263,11 @@ class EntradaUpdate {
                         message: "Esta seguro que desea crear estos dispositivos",
                         buttons: {
                             confirm: {
-                                label: 'Si',
+                                label: '<i class="fa fa-check"></i> Confirmar',
                                 className: 'btn-success'
                             },
                             cancel: {
-                                label: 'No',
+                                label: '<i class="fa fa-times"></i> Cancelar',
                                 className: 'btn-danger'
                             }
                         },
@@ -290,11 +290,11 @@ class EntradaUpdate {
                       message: "Esta seguro que desea crear estos repuestos",
                       buttons: {
                           confirm: {
-                              label: 'Si',
+                              label: '<i class="fa fa-check"></i> Confirmar',
                               className: 'btn-success'
                           },
                           cancel: {
-                              label: 'No',
+                              label: '<i class="fa fa-times"></i> Cancelar',
                               className: 'btn-danger'
                           }
                       },
@@ -316,11 +316,11 @@ class EntradaUpdate {
                       message: "Esta seguro que desea crear estos dispositivos al kardex",
                       buttons: {
                           confirm: {
-                              label: 'Si',
+                              label: '<i class="fa fa-check"></i> Confirmar',
                               className: 'btn-success'
                           },
                           cancel: {
-                              label: 'No',
+                              label: '<i class="fa fa-times"></i> Cancelar',
                               className: 'btn-danger'
                           }
                       },
@@ -347,6 +347,10 @@ class EntradaUpdate {
                 success: function (response) {
                     tabla_temp.tabla.ajax.reload();
                 },
+                error: function(response) {
+                  var mensaje = JSON.parse(response.responseText)
+                  bootbox.alert( "Error al crear los dispositivo: " + mensaje['mensaje']);
+                }
             });
             document.getElementById("detalleForm").reset();
         });
