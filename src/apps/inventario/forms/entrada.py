@@ -3,10 +3,10 @@ from datetime import date
 from django.forms import ModelForm
 from django.contrib.auth.models import User
 from django.utils.translation import gettext_lazy as _
+from django.core.exceptions import ValidationError
 from apps.inventario import models as inv_m
 from apps.crm import models as crm_m
 from apps.kardex import models as kax_m
-
 
 class EntradaForm(forms.ModelForm):
     """Formulario para la :`class`:`EntradaCreateView` que es la encargada de crear los datos
@@ -26,6 +26,19 @@ class EntradaForm(forms.ModelForm):
             'factura': forms.NumberInput({'class': 'form-control', 'tabindex': '4'}),
             'observaciones': forms.Textarea({'class': 'form-control', 'tabindex': '5'}),
         }
+
+    def clean(self):
+        cleaned_data = super(EntradaForm, self).clean()
+
+        id_tipo = cleaned_data.get('tipo')
+        factura = cleaned_data.get('factura')
+
+        tipo_entrada = inv_m.EntradaTipo.objects.get(nombre=str(id_tipo))
+        if tipo_entrada.contable:
+            if factura <= 0:
+                self.add_error(None, ValidationError('NO. FACTURA DEBE SER MAYOR A 0.'))
+
+        return cleaned_data
 
 
 class EntradaUpdateForm(forms.ModelForm):
@@ -95,12 +108,19 @@ class EntradaDetalleForm(forms.ModelForm):
         super(EntradaDetalleForm, self).__init__(*args, **kwargs)
         self.fields['entrada'].initial = entrada
 
+        if entrada.tipo.contenedor:
+            self.fields['total'].widget = forms.NumberInput(
+                attrs={'class': 'form-control', 'min': "0"})
+
         if not entrada.tipo.contable:
             self.fields['precio_subtotal'].empty_label = None
             self.fields['precio_subtotal'].label = ''
             self.fields['precio_subtotal'].widget = forms.NumberInput(
                 attrs={'class': 'form-control', 'style': "visibility:hidden"})
             self.fields['precio_subtotal'].initial = ""
+        else:
+            self.fields['precio_subtotal'].widget = forms.NumberInput(
+                attrs={'class': 'form-control', 'min': "1"})
 
 class EntradaDetalleUpdateForm(forms.ModelForm):
     """ Formulario para la :`class`:`EntradaDetalleView` que es la encargada de actualizar  los datos
