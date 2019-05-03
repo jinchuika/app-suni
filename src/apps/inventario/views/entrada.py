@@ -2,11 +2,13 @@ from django.shortcuts import reverse
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.views.generic import CreateView,  UpdateView, DetailView, FormView
 from django.db.models import Sum
+from django.db.models.functions import ExtractMonth
 from braces.views import (
     LoginRequiredMixin, GroupRequiredMixin
 )
 from apps.inventario import models as inv_m
 from apps.inventario import forms as inv_f
+import calendar
 
 
 class EntradaCreateView(LoginRequiredMixin, GroupRequiredMixin, CreateView):
@@ -111,7 +113,8 @@ class CartaAgradecimiento(LoginRequiredMixin, GroupRequiredMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super(CartaAgradecimiento, self).get_context_data(**kwargs)
-        context['dispositivotipo_list'] = inv_m.EntradaDetalle.objects.filter(entrada=self.object.id)
+        context['dispositivotipo_list'] = inv_m.EntradaDetalle.objects.filter(entrada=self.object.id).values('descripcion').annotate(total = Sum('total'))
+        print(context['dispositivotipo_list'])
         return context
 
 
@@ -136,11 +139,37 @@ class ConstanciaUtil(LoginRequiredMixin, GroupRequiredMixin, DetailView):
     group_required = [u"inv_bodega", u"inv_admin"]
 
     def get_context_data(self, **kwargs):
-        context = super(ConstanciaUtil, self).get_context_data(**kwargs)
-        context['dispositivotipo_list'] = inv_m.EntradaDetalle.objects.filter(entrada=self.object.id)
-        tipo_dispositivo = inv_m.EntradaDetalle.objects.filter(
-            entrada=self.object.id, tipo_dispositivo__usa_triage=True).values('tipo_dispositivo').distinct()
         lista = []
+        contador = 0
+        context = super(ConstanciaUtil, self).get_context_data(**kwargs)
+        tipos_conta = inv_m.DispositivoTipo.objects.filter(conta=True)
+
+        for tipo in tipos_conta:
+            detalles_mes = inv_m.EntradaDetalle.objects.filter(entrada=self.object.id, tipo_dispositivo=tipo).exclude(fecha_dispositivo__isnull=True).annotate(month=ExtractMonth('fecha_dispositivo')).values('month').annotate(util=Sum('util')).annotate(total=Sum('total')).values('month','total','util')
+            for mes in detalles_mes:
+                responsables = []
+                detalles_entrada = inv_m.EntradaDetalle.objects.filter(entrada=self.object.id, tipo_dispositivo=tipo, fecha_dispositivo__month=mes['month'])
+                contador += 1
+                for datos in detalles_entrada:
+                    if datos.creado_por.get_full_name() not in responsables:
+                        responsables.append(datos.creado_por.get_full_name())
+
+                index = contador % 2
+                diccionario = {
+                    'tipo_dispositivo': tipo.tipo,
+                    'cantidad': mes['total'],
+                    'util': mes['util'],
+                    'mes': calendar.month_name[mes['month']],
+                    'index': index,
+                    'creado_por': ', '.join(str(x) for x in responsables),
+                }
+                lista.append(diccionario)
+                print(lista)
+
+        '''tipo_dispositivo = inv_m.EntradaDetalle.objects.filter(
+            entrada=self.object.id, tipo_dispositivo__usa_triage=True).values('tipo_dispositivo').distinct()
+
+        
         util = []
         total = []
 
@@ -185,9 +214,10 @@ class ConstanciaUtil(LoginRequiredMixin, GroupRequiredMixin, DetailView):
             util.append(suma_util)
             lista.append(diccionario)
             total.append(acumulado_util)
-        context['dispositivo_tipo'] = lista
         context['suma_util'] = util
-        context['suma_total'] = total
+        context['suma_total'] = total'''
+        context['dispositivo_tipo'] = lista
+        
         return context
 
 

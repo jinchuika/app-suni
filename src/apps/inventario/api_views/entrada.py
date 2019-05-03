@@ -250,12 +250,15 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
                 )
                 nuevo_detalle_kardez.save()
             except ObjectDoesNotExist as e:
+                descripcion = "Entrada Inventario No. " + str(entrada_detalle.entrada.id) + " " + entrada_detalle.entrada.observaciones
                 nuevo = kax_m.Entrada(
                     inventario_entrada=entrada_detalle.entrada,
                     estado=entrada_detalle.estado_kardex,
                     proveedor=entrada_detalle.proveedor_kardex,
                     tipo=entrada_detalle.tipo_entrada_kardex,
                     fecha=datetime.now(),
+                    factura=entrada_detalle.entrada.factura,
+                    observacion=descripcion,
                     terminada=True)
                 nuevo.save()
                 entrada_kardex = kax_m.Entrada.objects.get(inventario_entrada=entrada_detalle.entrada)
