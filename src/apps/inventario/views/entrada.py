@@ -38,7 +38,7 @@ class EntradaDetailView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
     """
     model = inv_m.Entrada
     template_name = 'inventario/entrada/entrada_detail.html'
-    group_required = [u"inv_bodega", u"inv_tecnico", u"inv_admin"]
+    group_required = [u"inv_bodega", u"inv_tecnico", u"inv_admin", u"inv_cc"]
 
 
 class EntradaListView(LoginRequiredMixin, GroupRequiredMixin, FormView):
@@ -48,7 +48,7 @@ class EntradaListView(LoginRequiredMixin, GroupRequiredMixin, FormView):
     model = inv_m.Entrada
     template_name = 'inventario/entrada/entrada_list.html'
     form_class = inv_f.EntradaInformeForm
-    group_required = [u"inv_bodega", u"inv_tecnico", u"inv_admin"]
+    group_required = [u"inv_bodega", u"inv_tecnico", u"inv_admin", u"inv_cc"]
 
 
 class EntradaUpdateView(LoginRequiredMixin, GroupRequiredMixin, UpdateView):
@@ -57,7 +57,7 @@ class EntradaUpdateView(LoginRequiredMixin, GroupRequiredMixin, UpdateView):
     model = inv_m.Entrada
     form_class = inv_f.EntradaUpdateForm
     template_name = 'inventario/entrada/entrada_edit.html'
-    group_required = [u"inv_bodega", u"inv_tecnico", u"inv_admin"]
+    group_required = [u"inv_bodega", u"inv_tecnico", u"inv_admin", u"inv_cc"]
 
     def get_success_url(self):
         if self.object.en_creacion:
