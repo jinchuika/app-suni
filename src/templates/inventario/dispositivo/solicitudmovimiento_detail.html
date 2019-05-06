@@ -26,14 +26,21 @@
                                   {% endif %}
                                 {%endif%}
                               {%else%}
+
                               {% if not object.terminada %}
-                              <a id="aprobar-kardex" href="{% url 'inventario_api:api_dispositivo-solicitud-kardex' %}" data-id ="{{object.id}}"  class="btn btn-success btn-sm">
-                                Aprobar
-                              </a>
-                              <a id="recibido-kardex" href="{% url 'inventario_api:api_dispositivo-solicitud-kardex' %}" data-id ="{{object.id}}" data-url="{%url 'solicitudmovimiento_list'%}" class="btn btn-warning btn-sm">
-                                  Rechazar
-                              </a>
+                              	{% for permiso in user.groups.all  %}
+                                  	{% if permiso.name == "inv_bodega" or permiso.name == 'inv_admin' %}
+                                        <a id="aprobar-kardex" href="{% url 'inventario_api:api_dispositivo-solicitud-kardex' %}" data-id ="{{object.id}}"  class="btn btn-success btn-sm">
+                                          Aprobar
+                                        </a>
+                                        <a id="recibido-kardex" href="{% url 'inventario_api:api_dispositivo-solicitud-kardex' %}" data-id ="{{object.id}}" data-url="{%url 'solicitudmovimiento_list'%}" class="btn btn-warning btn-sm">
+                                            Rechazar
+                                        </a>
+                                      {%endif%}
+                              {%endfor%}
+
                               {% else %}
+
                               {% if not object.recibida %}
                               <a id="btn-recibido" href="{% url 'inventario_api:api_dispositivo-solicitud' %}" data-id ="{{object.id}}" class="btn btn-info btn-sm">
                                 Recibido
@@ -41,6 +48,9 @@
                               {% endif %}
                               {% endif %}
                               {%endif%}
+
+
+
                             </div>
                         </div>
                         <div class="box-body">
@@ -84,6 +94,7 @@
                                             el {{ object.fecha_creacion|date:"Y-m-d" }}
                                         </td>
                                     </tr>
+                                    <tr>
                                         <th>Estado</th>
                                         <td>
                                             {% if object.terminada and object.recibida%}
