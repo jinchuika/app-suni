@@ -86,10 +86,12 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
             mensaje_cuadrar = ""
             entrad_id = request.data['primary_key']
             entrada = inv_m.Entrada.objects.get(pk=entrad_id)
+            
             detalles_kardex = inv_m.EntradaDetalle.objects.filter(
                 entrada=entrad_id,
                 ingresado_kardex=False,
-                enviar_kardex=True).count()
+                enviar_kardex=True,
+                util__gt=0).count()
             dispositivos_utiles = inv_m.EntradaDetalle.objects.filter(Q(entrada=entrad_id), Q(util__gt=0)).count()
             repuestos_utiles = inv_m.EntradaDetalle.objects.filter(Q(entrada=entrad_id), Q(repuesto__gt=0)).count()
             if (entrada.tipo.especial):
@@ -121,7 +123,10 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
                     mensaje_cuadrar = datos.tipo_dispositivo
                 if(acumulador_total != acumulado_totales):
                     tipos_sin_cuadrar.append("<br><b>" + str(datos.descripcion) + "</b>")
-
+            print(dispositivos_utiles)
+            print(validar_dispositivos)
+            print(repuestos_utiles)
+            print(validar_repuestos)
             if(len(tipos_sin_cuadrar) > 0 ):
                 return Response(
                       {'mensaje': 'La entrada no esta cuadrada, revisar los siguientes dispositivos:'
@@ -138,7 +143,6 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
                     {'mensaje': 'Faltan dispositivos por agregar a Kardex'},
                     status=status.HTTP_400_BAD_REQUEST
                 )
-
             else:
                 fecha_cierre = inv_m.Entrada.objects.get(id=entrad_id)
                 fecha_cierre.fecha_cierre = datetime.now()
