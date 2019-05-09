@@ -35,6 +35,7 @@ class SalidaInventarioViewSet(viewsets.ModelViewSet):
         if validar_dispositivo.tipo_dispositivo.usa_triage is False:
                 altas = inv_m.SolicitudMovimiento.objects.filter(
                     recibida=True,
+                    devolucion=False,
                     tipo_dispositivo__tipo=validar_dispositivo).aggregate(altas_cantidad=Sum('cantidad'))
                 if altas['altas_cantidad'] is None:
                     altas['altas_cantidad'] = 0
@@ -313,8 +314,6 @@ class RevisionSalidaViewSet(viewsets.ModelViewSet):
                 triage = dispositivos.dispositivo
                 precio_dispositivo = conta_m.PrecioDispositivo.objects.get(dispositivo__triage=triage, activo=True)
                 movimiento_dispositivo = conta_m.MovimientoDispositivo.objects.filter(dispositivo__triage = triage, tipo_movimiento = conta_m.MovimientoDispositivo.BAJA)
-                print(triage)
-                print(movimiento_dispositivo.id)
                 if len(movimiento_dispositivo) == 0:
                     movimiento = conta_m.MovimientoDispositivo(
                         dispositivo=dispositivos.dispositivo,
