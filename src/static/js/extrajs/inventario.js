@@ -2308,6 +2308,7 @@ class PaquetesRevisionList {
                   data:{
                     csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
                     triage:mensaje.triage,
+                    tipo:mensaje.tipo,
                     kardex:false,
                     salida:api_paquete_salida
                   },
@@ -2368,6 +2369,7 @@ class PaquetesRevisionList {
         data:{
           csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
           triage:data_fila.dispositivo,
+          tipo:data_fila.tipo,
           kardex:false,
           salida:api_paquete_salida
         },
@@ -2648,9 +2650,9 @@ class PaquetesRevisionList {
 }
 class PaqueteDetail {
   constructor() {
-    let tablabodyRechazar = $("#rechazar-dispositivo tbody tr");
-    var urlCambio = $("#salida-id").data('url');
-    var urlAprobar = $("#salida-id").data('urlaprobar');
+    var tablabodyRechazar = $("#rechazar-dispositivo tbody tr");
+    var urlCambio = $("#rechazar-dispositivo").data('url');
+    var urlAprobar = $("#rechazar-dispositivo").data('urlaprobar');
     var urlAprobarControl = $("#rechazar-dispositivo").data('urlaprobar');
     var lista_triage = [];
     var estado_inicial = $('#id_dispositivos').data('estado-inicial');
@@ -2680,15 +2682,14 @@ class PaqueteDetail {
                  paquete:data_paquete
                },
                success: function (response){
-                 var id_comentario = $("#salida-id").data('id');
-                 var url = $("#salida-id").data('urlhistorico');
-
+                 var id_comentario = $("#rechazar-dispositivo").data('id');
+                 var url = $("#rechazar-dispositivo").data('urlhistorico');                 
                  bootbox.prompt({
                    title: "Por que rechazo este dispositivo?",
                    inputType: 'textarea',
                    callback: function (result) {
                      if (result) {
-                       crear_historial_salidas(url, id_comentario, result);
+                       crear_historial_salidas_cc(url, id_comentario, result);
                      }
                    }
                  });
@@ -2703,6 +2704,7 @@ class PaqueteDetail {
     });
     /****/
     tablabodyRechazar.on('click','.btn-aprobar', function () {
+      var tipo = $(this).data("tipo");
       let data_triage = $(this).attr("data-triage");
       var data_paquete=$(this).attr("data-paquete");
       var data_idpaquete=$(this).attr("data-idpaquete");
@@ -2727,6 +2729,7 @@ class PaqueteDetail {
                data:{
                  csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
                  triage:data_triage,
+                 tipo:tipo,
                  paquete:data_paquete,
                  idpaquete:data_idpaquete
                },
@@ -2746,13 +2749,14 @@ class PaqueteDetail {
        });
     });
     /****/
-    var crear_historial_salidas = function(url, id_comentario, comentario){
+    var crear_historial_salidas_cc = function(url, id_comentario, comentario){
       var data = {
         "id_comentario":id_comentario,
         "comentario":"El Dispositivo con Triage: "+ $("#id-rechazar").data('triage')+" del paquete no: "+$("#id-rechazar").data('triagepaquete') +" "+ comentario
       }
 
       $.post(url, JSON.stringify(data)).then(function (response){
+
       var fecha = new Date(response.fecha);
       var td_data = $('<td></td>').text(fecha.getDate()+"/"+(fecha.getMonth()+1)+"/"+fecha.getFullYear()+","+response.usuario);
       var td = $('<td></td>').text(response.comentario);
@@ -3104,6 +3108,7 @@ class PaqueteDetail {
                data:{
                  csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
                  triage:mensaje.triage,
+                 tipo:mensaje.tipo,
                  paquete:$('#rechazar-dispositivo').data('paquete'),
                  idpaquete:$('#rechazar-dispositivo').data('idpaquete')
                },
@@ -3118,7 +3123,7 @@ class PaqueteDetail {
                }
              });
              /**/
-        }      
+        }
     }
     $("#area_scanner_aprobar").val("");
     $("#area_scanner_aprobar").focus();

@@ -361,13 +361,33 @@ class RevisionSalidaViewSet(viewsets.ModelViewSet):
         triage = request.data["triage"]
         paquete = request.data["paquete"]
         id_paquete = request.data["idpaquete"]
+        tipo = request.data["tipo"]        
         try:
             asignacion_fecha = inv_m.DispositivoPaquete.objects.get(dispositivo__triage=triage)
             asignacion_fecha.aprobado = True
             asignacion_fecha.fecha_aprobacion = datetime.now()
             asignacion_fecha.save()
             cantidad_paquetes = inv_m.Paquete.objects.get(id=id_paquete)
-            cambio_estado = inv_m.Dispositivo.objects.get(triage=triage)
+            if tipo == "TECLADO":
+                cambio_estado = inv_m.Teclado.objects.get(triage=triage)
+            elif tipo == "MOUSE":
+                cambio_estado = inv_m.Mouse.objects.get(triage=triage)
+            elif tipo == "HDD":
+                cambio_estado = inv_m.HDD.objects.get(triage=triage)
+            elif tipo == "MONITOR":
+                cambio_estado = inv_m.Monitor.objects.get(triage=triage)
+            elif tipo == "CPU":
+                cambio_estado = inv_m.CPU.objects.get(triage=triage)
+            elif tipo == "TABLET":
+                cambio_estado = inv_m.Tablet.objects.get(triage=triage)
+            elif tipo == "LAPTOP":
+                cambio_estado = inv_m.Laptop.objects.get(triage=triage)
+            elif tipo == "SWITCH":
+                cambio_estado = inv_m.DispositivoRedobjects.get(triage=triage)
+            elif tipo == "ACCESS POINT":
+                cambio_estado = inv_m.AccessPoint.objects.get(triage=triage)
+            else:
+                cambio_estado = inv_m.Dispositivo.objects.get(triage=triage)
             asignaciones_aprobadas = inv_m.DispositivoPaquete.objects.filter(paquete=id_paquete, aprobado=True).count()
             cambio_estado.estado = inv_m.DispositivoEstado.objects.get(id=inv_m.DispositivoEstado.BN)
             cambio_estado.save()

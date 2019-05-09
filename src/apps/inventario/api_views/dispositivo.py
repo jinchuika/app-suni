@@ -55,7 +55,7 @@ class DispositivoViewSet(viewsets.ModelViewSet):
         if triage or dispositivo:
             return inv_m.Dispositivo.objects.all().filter(tipo__in=tipo_dis)
         elif tipo or marca or modelo or tarima:
-            # Se encarga de mostrar mas rapido los dispositivos que se usan con mas frecuencia 
+            # Se encarga de mostrar mas rapido los dispositivos que se usan con mas frecuencia
             # o mayor cantidad en el inventario
             if (tipo == str(1)):
                 return inv_m.Teclado.objects.filter(valido=True)
@@ -272,9 +272,29 @@ class DispositivosPaquetesViewSet(viewsets.ModelViewSet):
         else:
             triage = request.data["triage"]
             salida = request.data["salida"]
+            tipo = request.data["tipo"]
             dispositivo_salida = inv_m.DispositivoPaquete.objects.filter(dispositivo__triage=triage, paquete__salida=salida)
             if len(dispositivo_salida) > 0:
-                cambio_estado = inv_m.Dispositivo.objects.get(triage=triage)
+                if tipo == "TECLADO":
+                    cambio_estado = inv_m.Teclado.objects.get(triage=triage)
+                elif tipo == "MOUSE":
+                    cambio_estado = inv_m.Mouse.objects.get(triage=triage)
+                elif tipo == "HDD":
+                    cambio_estado = inv_m.HDD.objects.get(triage=triage)
+                elif tipo == "MONITOR":
+                    cambio_estado = inv_m.Monitor.objects.get(triage=triage)
+                elif tipo == "CPU":
+                    cambio_estado = inv_m.CPU.objects.get(triage=triage)
+                elif tipo == "TABLET":
+                    cambio_estado = inv_m.Tablet.objects.get(triage=triage)
+                elif tipo == "LAPTOP":
+                    cambio_estado = inv_m.Laptop.objects.get(triage=triage)
+                elif tipo == "SWITCH":
+                    cambio_estado = inv_m.DispositivoRedobjects.get(triage=triage)
+                elif tipo == "ACCESS POINT":
+                    cambio_estado = inv_m.AccessPoint.objects.get(triage=triage)
+                else:
+                    cambio_estado = inv_m.Dispositivo.objects.get(triage=triage)
                 cambio_estado.etapa = inv_m.DispositivoEtapa.objects.get(id=inv_m.DispositivoEtapa.LS)
                 cambio_estado.save()
             else:
