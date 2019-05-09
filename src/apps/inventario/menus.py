@@ -218,7 +218,7 @@ Menu.add_item(
         reverse_lazy('entrada_list'),
         weight=10,
         icon="fa-sign-in",
-        group="inventario",
+        group="inventario,inv_conta",
         children=entrada_children
     )
 )

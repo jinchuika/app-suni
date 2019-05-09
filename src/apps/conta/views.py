@@ -208,7 +208,6 @@ class ContabilidadResumenInformeListView(LoginRequiredMixin, FormView):
 class InformeCantidadJson(views.APIView):
     
     def get(self, request):
-        print(self.request)
         repuesto_dispositivo = self.request.GET['dispositivo']
         id_periodo = self.request.GET['periodo']
         dispositivos = inv_m.DispositivoTipo.objects.all().exclude(conta=False)
@@ -356,6 +355,7 @@ class InformeEntradaJson(views.APIView):
             tipo_entrada = 0
         tipo_dispositivo = self.request.GET['tipo_dispositivo']
         fecha_inicio = self.request.GET['fecha_min']
+        fecha_inicio = datetime.strptime(fecha_inicio, '%Y-%m-%d') - timedelta(days=1)
         fecha_fin = self.request.GET['fecha_max']
         tipo_dispositivo_nombre = inv_m.DispositivoTipo.objects.get(pk=tipo_dispositivo)
 
@@ -422,7 +422,7 @@ class InformeEntradaJson(views.APIView):
                 dispositivo['total'] = cantidad * precio
                 dispositivo['total_costo'] = precio_total_anterior
                 dispositivo['total_final'] = existencia_anterior
-                dispositivo['rango_fechas'] = str(fecha_inicio)+"  AL  "+str(fecha_fin)
+                dispositivo['rango_fechas'] = str(fecha_inicio.date())+"  AL  "+str(fecha_fin)
                 dispositivo['tipo_dispositivo'] = tipo_dispositivo_nombre.tipo
                 dispositivo['total_costo_despues'] = precio_total
                 dispositivo['total_despues'] = existencia_actual
@@ -461,6 +461,7 @@ class InformeSalidaJson(views.APIView):
 
         tipo_dispositivo = self.request.GET['tipo_dispositivo']
         fecha_inicio = self.request.GET['fecha_min']
+        fecha_inicio = datetime.strptime(fecha_inicio, '%Y-%m-%d') - timedelta(days=1)
         fecha_fin = self.request.GET['fecha_max']
         tipo_dispositivo_nombre = inv_m.DispositivoTipo.objects.get(pk=tipo_dispositivo)
 
@@ -552,7 +553,7 @@ class InformeSalidaJson(views.APIView):
                 dispositivo['total'] = total
                 dispositivo['total_costo'] = precio_total_anterior
                 dispositivo['total_final'] = existencia_anterior
-                dispositivo['rango_fechas'] = str(fecha_inicio)+"  AL  "+str(fecha_fin)
+                dispositivo['rango_fechas'] = str(fecha_inicio.date())+"  AL  "+str(fecha_fin)
                 dispositivo['tipo_dispositivo'] = tipo_dispositivo_nombre.tipo
                 dispositivo['total_costo_despues'] = precio_total
                 dispositivo['total_despues'] = existencia_actual
@@ -573,6 +574,7 @@ class InformeDesechoJson(views.APIView):
 
         tipo_dispositivo = self.request.GET['tipo_dispositivo']
         fecha_inicio = self.request.GET['fecha_min']
+        fecha_inicio = datetime.strptime(fecha_inicio, '%Y-%m-%d') - timedelta(days=1)
         fecha_fin = self.request.GET['fecha_max']
         tipo_dispositivo_nombre = inv_m.DispositivoTipo.objects.get(pk=tipo_dispositivo)
 
@@ -601,6 +603,8 @@ class InformeDesechoJson(views.APIView):
                         reduce(AND,q)
                         ).annotate(Count('dispositivo'))
 
+            print(salida_detalle)
+
 
             # Obtener Existencia Inicial y Saldo Inicial
             totales_anterior = get_existencia(tipo_dispositivo,fecha_inicio,periodo)
@@ -613,9 +617,10 @@ class InformeDesechoJson(views.APIView):
             precio_actual = total_actual['precio_estandar']
             precio_total = total_actual['saldo_total']
             existencia_actual = total_actual['existencia']
+            
             for datos_desecho in salida_detalle:
                 salida = inv_m.DesechoSalida.objects.get(pk=datos_desecho['desecho'])
-                cantidad = datos_entrada['dispositivo__count']
+                cantidad = datos_desecho['dispositivo__count']
                 dispositivo = {}
                 
                 # Obtener Precio Estandar
@@ -633,7 +638,7 @@ class InformeDesechoJson(views.APIView):
                 dispositivo['total'] = cantidad * precio
                 dispositivo['total_costo'] = precio_total_anterior
                 dispositivo['total_final'] = existencia_anterior
-                dispositivo['rango_fechas'] = str(fecha_inicio)+"  AL  "+str(fecha_fin)
+                dispositivo['rango_fechas'] = str(fecha_inicio.date())+"  AL  "+str(fecha_fin)
                 dispositivo['tipo_dispositivo'] = tipo_dispositivo_nombre.tipo
                 dispositivo['total_costo_despues'] = precio_total
                 dispositivo['total_despues'] = existencia_actual
@@ -648,6 +653,7 @@ class InformeResumenJson(views.APIView):
     """
     def get(self, request):
         fecha_inicio = self.request.GET['fecha_min']
+        fecha_inicio = datetime.strptime(fecha_inicio, '%Y-%m-%d') - timedelta(days=1)
         fecha_fin = self.request.GET['fecha_max']
 
         # Validar que el rango de fechas pertenezcan a un solo período fiscal
@@ -700,6 +706,14 @@ class InformeResumenJson(views.APIView):
                         Q(dispositivo__tipo=tipo),
                         Q(paquete__salida__en_creacion=False)))
 
+                desecho = len(inv_m.DesechoDispositivo.objects.filter(
+                        Q(desecho__fecha__gte=fecha_inicio),
+                        Q(desecho__fecha__lte=fecha_fin),
+                        Q(dispositivo__tipo=tipo),
+                        Q(desecho__en_creacion=False)))
+
+                salidas += desecho
+
                 dispositivo['tipo'] = tipo.tipo
                 dispositivo['existencia_anterior'] = existencia_anterior
                 dispositivo['saldo_anterior'] = precio_total_anterior
@@ -709,7 +723,7 @@ class InformeResumenJson(views.APIView):
                 dispositivo['saldo_actual'] = precio_total
                 dispositivo['costo_inicial'] = acumulador_anterior
                 dispositivo['total_inicial'] = acumulador_ant_ex
-                dispositivo['rango_fechas'] = str(fecha_inicio)+"  AL  "+str(fecha_fin)
+                dispositivo['rango_fechas'] = str(fecha_inicio.date())+"  AL  "+str(fecha_fin)
                 dispositivo['costo_final'] = acumulador
                 dispositivo['total_final'] = acumulador_act_ex
                 lista.append(dispositivo)
