@@ -34,6 +34,7 @@ solicitudes_children = (
         reverse_lazy('solicitudmovimiento_add'),
         weight=12,
         perm="inventario.add_solicitudmovimiento",
+        group="inventario, inv_cc, inv_tecnico",
         icon="fa-clock-o",
     ),
     ViewMenuItem(
@@ -228,7 +229,7 @@ Menu.add_item(
         reverse_lazy('entrada_list'),
         weight=10,
         icon="fa-exchange",
-        group="inventario,inv_cc",
+        group="inv_tecnico,inv_cc",
         children=solicitudes_children
     )
 )
