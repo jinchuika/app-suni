@@ -123,10 +123,6 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
                     mensaje_cuadrar = datos.tipo_dispositivo
                 if(acumulador_total != acumulado_totales):
                     tipos_sin_cuadrar.append("<br><b>" + str(datos.descripcion) + "</b>")
-            print(dispositivos_utiles)
-            print(validar_dispositivos)
-            print(repuestos_utiles)
-            print(validar_repuestos)
             if(len(tipos_sin_cuadrar) > 0 ):
                 return Response(
                       {'mensaje': 'La entrada no esta cuadrada, revisar los siguientes dispositivos:'

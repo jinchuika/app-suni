@@ -603,9 +603,6 @@ class InformeDesechoJson(views.APIView):
                         reduce(AND,q)
                         ).annotate(Count('dispositivo'))
 
-            print(salida_detalle)
-
-
             # Obtener Existencia Inicial y Saldo Inicial
             totales_anterior = get_existencia(tipo_dispositivo,fecha_inicio,periodo)
             precio_anterior = totales_anterior['precio_estandar']

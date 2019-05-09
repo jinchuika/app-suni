@@ -232,6 +232,9 @@ class ImprimirQr(LoginRequiredMixin, GroupRequiredMixin, DetailView):
         context = super(ImprimirQr, self).get_context_data(**kwargs)
         imprimir_qr = inv_m.Dispositivo.objects.filter(entrada=self.object.id,
                                                        entrada_detalle=self.kwargs['detalle']).order_by('triage')
+        for dispositivo in imprimir_qr:
+            dispositivo.impreso = True
+            dispositivo.save()
         context['dispositivo_qr'] = imprimir_qr
         return context
 
