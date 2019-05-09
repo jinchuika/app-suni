@@ -8,7 +8,7 @@
         var primary_key = $("#entrada-detalle-form").data("key");
         $('#id_en_creacion').click(function () {
           if ($("#id_en_creacion").is(':checked')) {
-            bootbox.alert({ message: "¡La Salida vuelve a estar en desarrollo!", className:"rubberBand animated" });
+            bootbox.alert({ message: "<h2>¡La Entrada vuelve a estar en desarrollo!</h2>", className:"modal modal-info fade in" });
           } else {
             bootbox.confirm({
               message: "¿Desea dar por terminada la edición de la entrada?",
@@ -34,12 +34,12 @@
                       primary_key :primary_key
                     },
                     success: function (response) {
-                      bootbox.alert({message: "Todo se encuentra correcto", className:"modal modal-success fade in"});
+                      bootbox.alert({message: "<h2>Todo se encuentra correcto</h2>", className:"modal modal-success fade in"});
                     },
                     error: function (response) {
                       $('#id_en_creacion').iCheck('check');
                       var jsonResponse = JSON.parse(response.responseText);
-                      bootbox.alert({message: jsonResponse["mensaje"], className:"modal modal-danger fade"});
+                      bootbox.alert({message: "<h3><i class='fa fa-frown-o' style='font-size: 45px;'></i>&nbsp;&nbsp;&nbsp;HA OCURRIDO UN ERROR!!</h3></br>" + jsonResponse["mensaje"], className:"modal modal-danger fade"});
                     }
                   });
                   /*FIN DE CONSUMO*/
@@ -233,7 +233,7 @@ class EntradaUpdate {
                 tipo:"dispositivo"
               },
               success: function (response) {
-                   location.reload();
+                   tabla_temp.tabla.ajax.reload();
               },
           });
 
@@ -251,7 +251,7 @@ class EntradaUpdate {
                 tipo:"repuestos"
               },
               success: function (response) {
-                 location.reload();
+                 tabla_temp.tabla.ajax.reload();
               },
           });
 
@@ -274,14 +274,11 @@ class EntradaUpdate {
                         callback: function (result) {
                             if(result == true){
                               /**/
-
                                 let urldispositivo = tabla_temp.api_url + data_fila.id + "/crear_dispositivos/";
                                 EntradaUpdate.crear_dispositivos(urldispositivo);
                             }
                         }
                       });
-
-
         });
 
         tablabody.on('click', '.btn-repuesto', function () {
@@ -349,7 +346,7 @@ class EntradaUpdate {
                 },
                 error: function(response) {
                   var mensaje = JSON.parse(response.responseText)
-                  bootbox.alert( "Error al crear los dispositivo: " + mensaje['mensaje']);
+                  bootbox.alert({message: "<h3><i class='fa fa-frown-o' style='font-size: 45px;'></i>&nbsp;&nbsp;&nbsp;HA OCURRIDO UN ERROR!!</h3></br>" + mensaje['mensaje'], className:"modal modal-danger fade"});
                 }
             });
             document.getElementById("detalleForm").reset();
@@ -361,7 +358,7 @@ class EntradaUpdate {
     static crear_dispositivos(urldispositivo) {
       var dialog = bootbox.dialog({
       title: 'Creacion de dispositivos ',
-      message: '<p><i class="fa fa-spin fa-spinner"></i> Creando dispositivos: <b style="color:red;">"Por favor espere hasta que confirme la creación de los dispositivos"<b/></p>',
+      message: '<p><i class="fa fa-spin fa-spinner"></i> Creando dispositivos: <b style="color:red;"></br>"Por favor espere hasta que confirme la creación de los dispositivos"<b/></p>',
       closeButton: false
         });
         $.ajax({
@@ -372,14 +369,17 @@ class EntradaUpdate {
                 csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val()
             },
             success: function (response) {
-                bootbox.confirm("dispositivos creados exitosamente!",
-                function(result){
-                   location.reload();
-                  });
+                $('.modal').modal('hide');
+                bootbox.alert({message: "<h2>Dispositivos creados exitosamente!</h2>", className:"modal modal-success fade in",
+                callback: function(result){
+                   $("#entrada-table").DataTable().ajax.reload();
+                  }});
             },
             error: function (response) {
+              $('.modal').modal('hide');
               var mensaje = JSON.parse(response.responseText)
-              bootbox.alert( "Error al crear los dispositivo: " + mensaje['mensaje']);
+              bootbox.alert({message: "<h3><i class='fa fa-frown-o' style='font-size: 45px;'></i>&nbsp;&nbsp;&nbsp;HA OCURRIDO UN ERROR!!</h3></br>" + mensaje['mensaje'], className:"modal modal-danger fade"});
+              
             }
         });
     }
@@ -392,15 +392,15 @@ class EntradaUpdate {
                 csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val()
             },
             success: function (response) {
-                bootbox.confirm("repuestos creados exitosamente!",
-                function(result){
-                   location.reload();
-                  });
-
+                $('.modal').modal('hide');
+                bootbox.alert({message: "<h2>Repuestos creados exitosamente!</h2>", className:"modal modal-success fade in",
+                callback: function(result){
+                   $("#entrada-table").DataTable().ajax.reload();
+                  }});
             },
             error: function (response) {
               var mensaje = JSON.parse(response.responseText)
-              bootbox.alert( "Error al crear los Repuestos: " + mensaje['mensaje']);
+              bootbox.alert({message: "<h3><i class='fa fa-frown-o' style='font-size: 45px;'></i>&nbsp;&nbsp;&nbsp;HA OCURRIDO UN ERROR!!</h3></br>" + mensaje['mensaje'], className:"modal modal-danger fade"});
             }
 
         });
@@ -414,15 +414,14 @@ class EntradaUpdate {
               detalle_entrada: detalle_entrada
           },
           success: function (response) {
-              bootbox.confirm("Dispositivos Ingresados al kardex",
-              function(result){
-                 location.reload();
-                });
-
-          },
+                bootbox.alert({message: "<h2>Dispositivos Ingresados al kardex!</h2>", className:"modal modal-success fade in",
+                callback: function(result){
+                   $("#entrada-table").DataTable().ajax.reload();
+                  }});
+            },
           error: function (response) {
             var mensaje = JSON.parse(response.responseText)
-            bootbox.alert( "Error al crear los dispositivos al kardex: " + mensaje['mensaje']);
+            bootbox.alert({message: "<h3><i class='fa fa-frown-o' style='font-size: 45px;'></i>&nbsp;&nbsp;&nbsp;HA OCURRIDO UN ERROR!!</h3></br>" + mensaje['mensaje'], className:"modal modal-danger fade"});
           }
 
       });
