@@ -1,5 +1,6 @@
 {% extends "base/base.html" %}
 {% load staticfiles %}
+{% load inventario_extras %}
 {% block page_title %}
 <title>ENTRADA - {{ entrada.id }}</title>
 {% endblock page_title %}
@@ -14,11 +15,13 @@
 							<div class="col-md-6">
 								<h3 class="box-title">ENTRADA NO. {{ entrada.id }}</h3>
 							</div>
+							{% if request.user|has_group:"inv_bodega" or request.user|has_group:"inv_admin" %}
 							<div class="col-md-6">
 									<a href="{% url 'carta_agradecimiento' pk=object.id%}" class="btn btn-success" target="_blank">Carta Agradecimiento</a>
 									<a href="{% url 'reporte_sucio' pk=object.id%}" class="btn btn-primary" target="_blank">Constancia Útil</a>
 									<a href="{% url 'constancia_entrada' pk=object.id%}" class="btn btn-danger" target="_blank">Constancia Entrada</a>
 							</div>
+							{%endif%}
 						</div>
 					</div>
 					<div class="box-body">

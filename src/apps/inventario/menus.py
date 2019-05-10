@@ -229,7 +229,7 @@ Menu.add_item(
         reverse_lazy('entrada_list'),
         weight=10,
         icon="fa-exchange",
-        group="inv_tecnico,inv_cc",
+        group="inv_tecnico,inv_cc,inventario",
         children=solicitudes_children
     )
 )

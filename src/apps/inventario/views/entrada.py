@@ -88,7 +88,7 @@ class EntradaDetalleUpdateView(LoginRequiredMixin, GroupRequiredMixin, UpdateVie
     model = inv_m.EntradaDetalle
     form_class = inv_f.EntradaDetalleUpdateForm
     template_name = 'inventario/entrada/entradadetalle_detail.html'
-    group_required = [u"inv_tecnico", u"inv_admin"]
+    group_required = [u"inv_tecnico", u"inv_admin", u"inv_cc"]
 
     def get_context_data(self, **kwargs):
         context = super(EntradaDetalleUpdateView, self).get_context_data(**kwargs)
@@ -164,58 +164,7 @@ class ConstanciaUtil(LoginRequiredMixin, GroupRequiredMixin, DetailView):
                     'creado_por': ', '.join(str(x) for x in responsables),
                 }
                 lista.append(diccionario)
-                print(lista)
 
-        '''tipo_dispositivo = inv_m.EntradaDetalle.objects.filter(
-            entrada=self.object.id, tipo_dispositivo__usa_triage=True).values('tipo_dispositivo').distinct()
-
-        
-        util = []
-        total = []
-
-        contador = 0
-        for tipo in tipo_dispositivo:
-            responsables = []
-            acumulado_util = 0
-            dispositivo_tipo = inv_m.EntradaDetalle.objects.filter(
-                entrada=self.object.id,
-                tipo_dispositivo=tipo['tipo_dispositivo']
-                )
-            contador = contador + 1
-            for datos in dispositivo_tipo:
-                acumulado_util = acumulado_util + datos.total
-                if datos.creado_por.get_full_name() not in responsables:
-                    responsables.append(datos.creado_por.get_full_name())
-            nuevo_dispositivo = inv_m.DispositivoTipo.objects.get(id=tipo['tipo_dispositivo'])
-            suma_util = inv_m.EntradaDetalle.objects.filter(
-                                                            entrada=self.object.id,
-                                                            tipo_dispositivo=tipo['tipo_dispositivo']).aggregate(
-                                                            total_util=Sum('util')
-                                                            )
-            suma_repuesto = inv_m.EntradaDetalle.objects.filter(
-                entrada=self.object.id,
-                tipo_dispositivo=tipo['tipo_dispositivo']).aggregate(total_repuesto=Sum('repuesto'))
-            suma_desecho = inv_m.EntradaDetalle.objects.filter(
-                entrada=self.object.id,
-                tipo_dispositivo=tipo['tipo_dispositivo']).aggregate(total_desecho=Sum('desecho'))
-            suma_total = inv_m.EntradaDetalle.objects.filter(
-                entrada=self.object.id,
-                tipo_dispositivo=tipo['tipo_dispositivo']).aggregate(total_cantidad=Sum('total'))
-            index = contador % 2
-            diccionario = {
-                'tipo_dipositivo': nuevo_dispositivo,
-                'util': suma_util,
-                'repuesto': suma_repuesto,
-                'desecho': suma_desecho,
-                'total': suma_total,
-                'index': index,
-                'creado_por': ', '.join(str(x) for x in responsables),
-                }
-            util.append(suma_util)
-            lista.append(diccionario)
-            total.append(acumulado_util)
-        context['suma_util'] = util
-        context['suma_total'] = total'''
         context['dispositivo_tipo'] = lista
         
         return context
