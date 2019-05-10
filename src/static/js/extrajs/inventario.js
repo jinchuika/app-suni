@@ -1,3 +1,4 @@
+/*********************** ENTRADAS ************************************/
 (function (AlertaEnCreacion, $, undefined) {
     AlertaEnCreacion.init = function () {
       /* -----MÉTODO DE INICIALIZACIÓN DE LA VISTA EDIT DE ENTRADA ------*/
@@ -414,7 +415,7 @@ class EntradaUpdate {
               detalle_entrada: detalle_entrada
           },
           success: function (response) {
-                bootbox.alert({message: "<h2>Dispositivos Ingresados al kardex!</h2>", className:"modal modal-success fade in",
+                bootbox.alert({message: "<h2>Dispositivos ingresados a Kardex!</h2>", className:"modal modal-success fade in",
                 callback: function(result){
                    $("#entrada-table").DataTable().ajax.reload();
                   }});
