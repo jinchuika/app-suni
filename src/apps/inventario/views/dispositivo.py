@@ -7,6 +7,8 @@ from django.utils import timezone
 from django.urls import reverse_lazy
 from django.shortcuts import reverse
 from django.views.generic import DetailView, UpdateView, CreateView, ListView, FormView
+from django.db.models import Q
+
 from braces.views import (
     LoginRequiredMixin, PermissionRequiredMixin, GroupRequiredMixin
 )
@@ -106,8 +108,7 @@ class SolicitudMovimientoCreateView(LoginRequiredMixin, CreateView):
 
     def get_form(self, form_class=None):
         form = super(SolicitudMovimientoCreateView, self).get_form(form_class)
-        tipo_dis = self.request.user.tipos_dispositivos.tipos.all()
-        form.fields['tipo_dispositivo'].queryset = self.request.user.tipos_dispositivos.tipos.all()
+        form.fields['tipo_dispositivo'].queryset = self.request.user.tipos_dispositivos.tipos.filter(Q(usa_triage=True) | Q(kardex=True))
         return form
 
 
@@ -140,8 +141,7 @@ class DevolucionCreateView(LoginRequiredMixin, CreateView):
 
     def get_form(self, form_class=None):
         form = super(DevolucionCreateView, self).get_form(form_class)
-        tipo_dis = self.request.user.tipos_dispositivos.tipos.all()
-        form.fields['tipo_dispositivo'].queryset = self.request.user.tipos_dispositivos.tipos.all()
+        form.fields['tipo_dispositivo'].queryset = self.request.user.tipos_dispositivos.tipos.filter(Q(usa_triage=True) | Q(kardex=True))
         return form
 
     def get_success_url(self):
@@ -149,6 +149,11 @@ class DevolucionCreateView(LoginRequiredMixin, CreateView):
             return reverse('solicitudmovimiento_update', kwargs={'pk': self.object.id})
         else:
             return reverse('solicitudmovimiento_detail', kwargs={'pk': self.object.id})
+
+    def get_context_data(self, *args, **kwargs):
+        context = super(DevolucionCreateView, self).get_context_data(*args, **kwargs)
+        context['devolucion'] = True
+        return context
 
 
 class SolicitudMovimientoUpdateView(LoginRequiredMixin, UpdateView):
@@ -198,6 +203,13 @@ class SolicitudMovimientoListView(LoginRequiredMixin, ListView):
     template_name = 'inventario/dispositivo/solicitudmovimiento_list.html'
     group_required = [u"inv_cc", u"inv_admin", u"inv_tecnico", u"inv_bodega"]
 
+    def get_context_data(self, **kwargs):
+        context = super(SolicitudMovimientoListView, self).get_context_data(**kwargs)
+        tipo_dis = self.request.user.tipos_dispositivos.tipos.all()
+        solicitudes_list =  inv_m.SolicitudMovimiento.objects.filter(tipo_dispositivo__in=tipo_dis).order_by('terminada','recibida','-fecha_creacion')
+        print(solicitudes_list)
+        context['solicitudmovimiento_list'] = solicitudes_list
+        return context
 
 ##########################
 # FALLAS DE DISPOSITIVOS #
