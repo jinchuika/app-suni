@@ -6,7 +6,26 @@
         });
     }
 
-    var get_promedio_visita = function () {
+    var get_promedio_escuela = function () {
+        /*
+                Actualiza el widget que muestra el promedio de la visita.
+                Se llama cada vez que se actualiza una evaluación mediante x-editable.
+         */
+        var visita = $('#promedio-escuela');     // el widget que muestra el promedio de la visita
+        $.ajax({
+            url: $(visita).data('url'),         // el widget tiene la URL
+            data: {fields: 'promedio_escuela'},         // únicamente pide le promedio para minimizar el tráfico
+            dataType: 'json',
+            success: function (resultado) {
+                // Actualiza la cantidad en el encabezado del widget
+                $(visita).html(resultado.promedio_escuela + "%");
+                // Actualiza la barra de progreso del wdiget
+                $('#progressbar-visita').css('width', parseInt(resultado.promedio_escuela)+'%');
+            },
+        });
+    }
+
+    var get_promedio_visita= function () {
         /*
                 Actualiza el widget que muestra el promedio de la visita.
                 Se llama cada vez que se actualiza una evaluación mediante x-editable.
@@ -24,6 +43,7 @@
             },
         });
     }
+
 
     var get_promedio_individual = function (evaluacion) {
         /*
@@ -262,6 +282,7 @@
             if (resultado.evaluacion) {
                 get_promedio_individual($('#evaluacion-'+resultado.evaluacion));
                 get_promedio_visita();
+                get_promedio_escuela();
             }
         });
         $('#form-grado').hide();

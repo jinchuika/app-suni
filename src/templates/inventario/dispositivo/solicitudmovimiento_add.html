@@ -1,7 +1,11 @@
 {% extends "base/base.html" %}
 
 {% block page_title %}
-    <title>Solicitud de movimiento</title>
+{% if devolucion %}
+    <title>Devolución de Equipo</title>
+{% else %}
+    <title>Solicitud de Movimiento</title>
+{% endif %}
 {% endblock page_title %}
 {% block content %}
     <section class="content">
@@ -10,7 +14,11 @@
                 <div class="col-md-8">
                     <div class="box">
                         <div class="box-header">
-                            <h3 class="box-title">Nueva solicitud</h3>
+                            {% if devolucion %}
+                            <h3 class="box-title">Nueva Devolución</h3>
+                            {% else %}
+                            <h3 class="box-title">Nueva Solicitud</h3>
+                            {% endif %}
                         </div>
                         <div class="box-body">
                             <table class="table table-condensed">
@@ -21,7 +29,7 @@
                                         {{ form.as_table }}
                                         <tr>
                                             <td>
-                                                <input type="submit" class="btn btn-success" value="Guardar"/>
+                                                <input type="submit" class="btn btn-success" value="Guardar" tabindex="5" />
                                             </td>
                                         </tr>
                                     </table>
