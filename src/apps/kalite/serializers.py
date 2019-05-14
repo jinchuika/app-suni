@@ -28,6 +28,7 @@ class EvaluacionSerializer(DynamicFieldsModelSerializer):
 
 class VisitaSerializer(DynamicFieldsModelSerializer):
     promedio = serializers.FloatField(read_only=True)
+    promedio_escuela = serializers.FloatField(read_only=True)
     alcance = serializers.CharField(source='estado.alcance')
     escuela = EscuelaSerializer(fields='nombre,url,codigo')
     capacitador = serializers.StringRelatedField(source='capacitador.get_full_name')

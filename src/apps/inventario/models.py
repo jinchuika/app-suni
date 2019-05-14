@@ -1487,6 +1487,7 @@ class SolicitudMovimiento(models.Model):
         blank=True,
         null=True,
         related_name='entrada_kardex')
+    observaciones = models.TextField(null=True, blank=True)
 
     class Meta:
         verbose_name = 'Solicitud de movimiento'
@@ -1543,6 +1544,7 @@ class CambioEtapa(models.Model):
         if self.etapa_inicial != self.etapa_final:
             super(CambioEtapa, self).save(*args, **kwargs)
             self.dispositivo.etapa = self.etapa_final
+            self.dispositivo.tarima = None
             if self.solicitud.desecho:
                 estado_desecho = DispositivoEstado.objects.get(pk=DispositivoEstado.DS)
                 self.dispositivo.estado = estado_desecho
