@@ -389,18 +389,10 @@ class SolicitudMovimientoCreateForm(forms.ModelForm):
 
             ]
         widgets = {
-            'tipo_dispositivo': forms.Select(attrs={'class': 'form-control'}),
-            'cantidad': forms.TextInput({'class': 'form-control'}),
+            'tipo_dispositivo': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '1'}),
+            'cantidad': forms.TextInput({'class': 'form-control', 'tabindex': '2'}),
+            'observaciones': forms.Textarea({'class': 'form-control', 'tabindex': '3'}),
         }
-
-    def __init__(self, *args, **kwargs):
-        super(SolicitudMovimientoCreateForm, self).__init__(*args, **kwargs)
-        self.fields['tipo_dispositivo'].queryset = inv_m.DispositivoTipo.objects.filter(usa_triage=True)
-
-    """def clean(self):
-        cleaned_data = super(SolicitudMovimientoCreateForm, self).clean()
-        if cleaned_data['etapa_inicial'] == cleaned_data['etapa_final']:
-            raise forms.ValidationError('Las etapas no pueden ser iguales.')"""
 
 
 class DevolucionCreateForm(forms.ModelForm):
@@ -423,13 +415,11 @@ class DevolucionCreateForm(forms.ModelForm):
             'entrada_kardex'
             ]
         widgets = {
-            'tipo_dispositivo': forms.Select(attrs={'class': 'form-control'}),
-            'cantidad': forms.TextInput({'class': 'form-control'}),
+            'tipo_dispositivo': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '1'}),
+            'cantidad': forms.TextInput({'class': 'form-control', 'tabindex': '2'}),
+            'desecho': forms.CheckboxInput({'class': 'icheckbox_square-red', 'tabindex': '3'}),
+            'observaciones': forms.Textarea({'class': 'form-control', 'tabindex': '4'}),
         }
-
-    def __init__(self, *args, **kwargs):
-        super(DevolucionCreateForm, self).__init__(*args, **kwargs)
-        self.fields['tipo_dispositivo'].queryset = inv_m.DispositivoTipo.objects.filter(usa_triage=True)
 
 
 class SolicitudMovimientoUpdateForm(forms.ModelForm):

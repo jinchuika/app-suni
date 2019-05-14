@@ -440,18 +440,31 @@ class EntradaUpdate {
             success: function (response) {
               $("[for='id_proveedor_kardex']").css({"visibility":"visible"});
               $('#id_proveedor_kardex').next(".select2-container").show();
+              $("#id_proveedor_kardex").attr("required", "true");
+              $("#id_proveedor_kardex").removeAttr("disabled");
+
               $("[for='id_estado_kardex']").css({"visibility":"visible"});
               $('#id_estado_kardex').next(".select2-container").show();
+              $("#id_estado_kardex").attr("required", "true");
+              $("#id_estado_kardex").removeAttr("disabled");
+
               $("[for='id_tipo_entrada_kardex']").css({"visibility":"visible"});
               $('#id_tipo_entrada_kardex').next(".select2-container").show();
+              $("#id_tipo_entrada_kardex").attr("required", "true");
+              $("#id_tipo_entrada_kardex").removeAttr("disabled");
             },
             error: function (response) {
               $("[for='id_proveedor_kardex']").css({"visibility":"hidden"});
               $('#id_proveedor_kardex').next(".select2-container").hide();
+              $("#id_proveedor_kardex").attr("disabled", "true");
               $("[for='id_estado_kardex']").css({"visibility":"hidden"});
               $('#id_estado_kardex').next(".select2-container").hide();
+              $("id_estado_kardex").prop('disabled',true);
+              $("#id_estado_kardex").attr("disabled", "true");
               $("[for='id_tipo_entrada_kardex']").css({"visibility":"hidden"});
               $('#id_tipo_entrada_kardex').next(".select2-container").hide();
+              $("id_tipo_entrada_kardex").prop('disabled',true);
+              $("#id_tipo_entrada_kardex").attr("disabled", "true");
             }
         });
     }

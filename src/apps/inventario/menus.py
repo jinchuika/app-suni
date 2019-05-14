@@ -33,15 +33,14 @@ solicitudes_children = (
         "Solicitud Movimiento",
         reverse_lazy('solicitudmovimiento_add'),
         weight=12,
-        perm="inventario.add_solicitudmovimiento",
-        group="inventario, inv_cc, inv_tecnico",
+        group="inv_cc,inv_tecnico",
         icon="fa-clock-o",
     ),
     ViewMenuItem(
         "Devoluciones",
         reverse_lazy('devolucion_add'),
         weight=12,
-        perm="inventario.add_solicitudmovimiento",
+        group="inv_cc,inv_tecnico",
         icon="fa-road",
     ),
 )
