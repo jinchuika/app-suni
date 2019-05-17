@@ -207,7 +207,7 @@ class EntradaDetalleDispositivos(LoginRequiredMixin, GroupRequiredMixin, DetailV
     """ Muestra los QR por Detalle de Entrada Creados
     """
     model = inv_m.Entrada
-    template_name = 'inventario/entrada/entradadetalle_dispositivos.html'
+    template_name = 'inventario/entrada/dispositivos_grid.html'
     group_required = [u"inv_bodega", u"inv_tecnico", u"inv_admin"]
 
     def get_context_data(self, **kwargs):
