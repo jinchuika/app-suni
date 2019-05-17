@@ -105,3 +105,5 @@ src/entregas.json
 src/.idea/
 live.wsgi.py
 .idea/
+#template
+src/templates/inventario/entrada/plantilla.html

@@ -15,6 +15,7 @@ class TarimaViewSet(viewsets.ModelViewSet):
     """
     serializer_class = inv_s.TarimaSerializer
     queryset = inv_m.Tarima.objects.all()
+    filter_fields = ('id',)
 
 
 class SectorViewSet(viewsets.ModelViewSet):
