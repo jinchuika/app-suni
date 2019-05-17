@@ -13,6 +13,7 @@ from django.utils import timezone
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.core.files.uploadedfile import InMemoryUploadedFile
+from django.utils.translation import gettext_lazy as _
 
 from easy_thumbnails import fields as et_fields
 
@@ -211,6 +212,7 @@ class EntradaDetalle(models.Model):
     @property
     def existencia_desecho(self):
         return self.desecho - self.inventario_desecho()
+            
 
     def save(self, *args, **kwargs):
         """Se debe validar que el detalle de una entrada que involucre precio, por ejemplo, una compra,
@@ -225,9 +227,6 @@ class EntradaDetalle(models.Model):
         if self.tipo_dispositivo.usa_triage is False:
             self.dispositivos_creados = True
             self.repuestos_creados = True
-        if self.entrada.tipo.contable and not self.precio_subtotal:
-            raise ValidationError(
-                'El tipo de entrada requiere un precio total', code='entrada_precio_total')
 
         super(EntradaDetalle, self).save(*args, **kwargs)
 
@@ -1489,6 +1488,7 @@ class SolicitudMovimiento(models.Model):
         blank=True,
         null=True,
         related_name='entrada_kardex')
+    observaciones = models.TextField(null=True, blank=True)
 
     class Meta:
         verbose_name = 'Solicitud de movimiento'
@@ -1545,6 +1545,7 @@ class CambioEtapa(models.Model):
         if self.etapa_inicial != self.etapa_final:
             super(CambioEtapa, self).save(*args, **kwargs)
             self.dispositivo.etapa = self.etapa_final
+            self.dispositivo.tarima = None
             if self.solicitud.desecho:
                 estado_desecho = DispositivoEstado.objects.get(pk=DispositivoEstado.DS)
                 self.dispositivo.estado = estado_desecho

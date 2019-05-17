@@ -26,7 +26,6 @@ solicitudes_children = (
     ViewMenuItem(
         "Listado de Solicitudes",
         reverse_lazy('solicitudmovimiento_list'),
-
         weight=12,
         icon="fa-list-ul",
     ),
@@ -34,14 +33,14 @@ solicitudes_children = (
         "Solicitud Movimiento",
         reverse_lazy('solicitudmovimiento_add'),
         weight=12,
-
+        group="inv_cc,inv_tecnico",
         icon="fa-clock-o",
     ),
     ViewMenuItem(
         "Devoluciones",
         reverse_lazy('devolucion_add'),
-        weight=12,        
-
+        weight=12,
+        group="inv_cc,inv_tecnico",
         icon="fa-road",
     ),
 )
@@ -218,7 +217,7 @@ Menu.add_item(
         reverse_lazy('entrada_list'),
         weight=10,
         icon="fa-sign-in",
-        group="inventario",
+        group="inventario,inv_conta",
         children=entrada_children
     )
 )
@@ -229,7 +228,7 @@ Menu.add_item(
         reverse_lazy('entrada_list'),
         weight=10,
         icon="fa-exchange",
-        group="inv_bodega,inv_tecnico,inv_cc",
+        group="inv_tecnico,inv_cc,inventario",
         children=solicitudes_children
     )
 )

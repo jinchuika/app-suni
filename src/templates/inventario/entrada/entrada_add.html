@@ -8,6 +8,23 @@
 {%endif%}
 {% endblock page_title %}
 {% block content %}
+{% if form.errors %}
+    <div class="alert alert-error">
+      <h4>Advertencia!</h4>
+      <ul>
+        {% for field in form %}
+          {% if field.errors %}
+            {% for error in field.errors %}
+              <li><p class="error">{{ error|escape }}</p></li>
+            {% endfor %}
+          {% endif %}
+        {% endfor %}
+      </ul>
+      {% if form.non_field_errors %}
+        {{ form.non_field_errors }}
+      {% endif %}
+    </div>
+  {% endif %}
 <section class="content">
   <div class="container-fluid">
     <div class="row">

@@ -54,12 +54,7 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
         """Metodo para imprimir los qr de dispositivo y repuestos por medio del detalle
         de entrada
         """
-        if "inv_tecnico" in self.request.user.groups.values_list('name', flat=True):
-            return Response(
-                {'mensaje': 'No Tienes la Autorizacion para esta accion'},
-                status=status.HTTP_401_UNAUTHORIZED
-            )
-        else:
+        if "inv_bodega" in self.request.user.groups.values_list('name', flat=True):
             diferenciar = request.data['tipo']
             detalles_id = request.data['detalles_id']
             if(diferenciar == "dispositivo"):
@@ -71,28 +66,31 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
                 entrada_detalle.qr_repuestos = True
                 entrada_detalle.save()
             return Response(
-                {'mensaje': 'Dispositivos impresos'},
+                {'mensaje': 'Dispositivos impresos.'},
                 status=status.HTTP_200_OK
             )
+        else:
+            return Response(
+                {'mensaje': 'No tienes la autorización para realizar esta acción.'},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+            
 
     @action(methods=['post'], detail=False)
     def cuadrar_salida(self, request, pk=None):
         """ Metodo para cuadrar los dispositivos de la :class:`EntradaDetalle`
         """
 
-        if "inv_tecnico" in self.request.user.groups.values_list('name', flat=True):
-            return Response(
-                {'mensaje': 'No tienes la autorización para realizar esta acción.'},
-                status=status.HTTP_401_UNAUTHORIZED
-            )
-        else:
+        if "inv_bodega" in self.request.user.groups.values_list('name', flat=True):
             mensaje_cuadrar = ""
             entrad_id = request.data['primary_key']
             entrada = inv_m.Entrada.objects.get(pk=entrad_id)
+            
             detalles_kardex = inv_m.EntradaDetalle.objects.filter(
                 entrada=entrad_id,
                 ingresado_kardex=False,
-                enviar_kardex=True).count()
+                enviar_kardex=True,
+                util__gt=0).count()
             dispositivos_utiles = inv_m.EntradaDetalle.objects.filter(Q(entrada=entrad_id), Q(util__gt=0)).count()
             repuestos_utiles = inv_m.EntradaDetalle.objects.filter(Q(entrada=entrad_id), Q(repuesto__gt=0)).count()
             if (entrada.tipo.especial):
@@ -124,7 +122,6 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
                     mensaje_cuadrar = datos.tipo_dispositivo
                 if(acumulador_total != acumulado_totales):
                     tipos_sin_cuadrar.append("<br><b>" + str(datos.descripcion) + "</b>")
-
             if(len(tipos_sin_cuadrar) > 0 ):
                 return Response(
                       {'mensaje': 'La entrada no esta cuadrada, revisar los siguientes dispositivos:'
@@ -141,7 +138,6 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
                     {'mensaje': 'Faltan dispositivos por agregar a Kardex'},
                     status=status.HTTP_400_BAD_REQUEST
                 )
-
             else:
                 fecha_cierre = inv_m.Entrada.objects.get(id=entrad_id)
                 fecha_cierre.fecha_cierre = datetime.now()
@@ -150,17 +146,17 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
                     {'mensaje': 'Entrada Cuadrada'},
                     status=status.HTTP_200_OK
                 )
+        else:
+            return Response(
+                {'mensaje': 'No tienes la autorización para realizar esta acción.'},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
 
     @action(methods=['post'], detail=True)
     def crear_dispositivos(self, request, pk=None):
         """ Metodo para la Creacion de Dispositivos
         """
-        if "inv_tecnico" in self.request.user.groups.values_list('name', flat=True):
-            return Response(
-                {'mensaje': 'No Tienes la Autorizacion para esta accion'},
-                status=status.HTTP_401_UNAUTHORIZED
-            )
-        else:
+        if "inv_bodega" in self.request.user.groups.values_list('name', flat=True):
             entrada_detalle = self.get_object()
             try:
                 entrada = entrada_detalle.entrada
@@ -168,7 +164,7 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
                     total = entrada_detalle.util + entrada_detalle.repuesto + entrada_detalle.desecho
                     if entrada_detalle.total != total:
                         return Response(
-                            {'mensaje': 'La línea de detalle no cuadra, revisar'},
+                            {'mensaje': 'La línea de detalle no cuadra, revisar la depuración.'},
                             status=status.HTTP_400_BAD_REQUEST)
 
                 creacion = entrada_detalle.crear_dispositivos()
@@ -183,17 +179,18 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
                 return Response(
                     {'mensaje': str(e)},
                     status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response(
+                {'mensaje': 'No tienes la autorización para realizar esta acción'},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+            
 
     @action(methods=['post'], detail=True)
     def crear_repuestos(self, request, pk=None):
         """ Metodo para la creacion de Repuestos
         """
-        if "inv_tecnico" in self.request.user.groups.values_list('name', flat=True):
-            return Response(
-                {'mensaje': 'No Tienes la Autorizacion para esta accion'},
-                status=status.HTTP_401_UNAUTHORIZED
-            )
-        else:
+        if "inv_bodega" in self.request.user.groups.values_list('name', flat=True):
             entrada_detalle = self.get_object()
             try:
                 entrada = entrada_detalle.entrada
@@ -201,7 +198,7 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
                     total = entrada_detalle.util + entrada_detalle.repuesto + entrada_detalle.desecho
                     if entrada_detalle.total != total:
                         return Response(
-                            {'mensaje': 'La línea de detalle no cuadra, revisar'},
+                            {'mensaje': 'La línea de detalle no cuadra, revisar la depuración.'},
                             status=status.HTTP_400_BAD_REQUEST)
 
                 creacion = entrada_detalle.crear_repuestos()
@@ -218,21 +215,22 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
                     {'mensaje': str(e)},
                     status=status.HTTP_400_BAD_REQUEST
                 )
+        else:
+            return Response(
+                {'mensaje': 'No tienes la autorización para realizar esta acción'},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+            
 
     @action(methods=['post'], detail=True)
     def crear_kardex(self, request, pk=None):
-        if "inv_tecnico" in self.request.user.groups.values_list('name', flat=True):
-            return Response(
-                {'mensaje': 'No Tienes la Autorizacion para esta accion'},
-                status=status.HTTP_401_UNAUTHORIZED
-            )
-        else:
+        if "inv_bodega" in self.request.user.groups.values_list('name', flat=True):
             id = request.data['detalle_entrada']
             entrada_detalle = inv_m.EntradaDetalle.objects.get(id=id)
             total = entrada_detalle.util + entrada_detalle.repuesto + entrada_detalle.desecho
             if entrada_detalle.total != total:
                 return Response(
-                    {'mensaje': 'La línea de detalle no cuadra, revisar'},
+                    {'mensaje': 'La línea de detalle no cuadra, revisar la depuración.'},
                     status=status.HTTP_400_BAD_REQUEST)
 
             entrada_detalle.ingresado_kardex = True
@@ -253,12 +251,15 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
                 )
                 nuevo_detalle_kardez.save()
             except ObjectDoesNotExist as e:
+                descripcion = "Entrada de Inventario No. " + str(entrada_detalle.entrada.id) + " " + entrada_detalle.entrada.observaciones
                 nuevo = kax_m.Entrada(
                     inventario_entrada=entrada_detalle.entrada,
                     estado=entrada_detalle.estado_kardex,
                     proveedor=entrada_detalle.proveedor_kardex,
                     tipo=entrada_detalle.tipo_entrada_kardex,
                     fecha=datetime.now(),
+                    factura=entrada_detalle.entrada.factura,
+                    observacion=descripcion,
                     terminada=True)
                 nuevo.save()
                 entrada_kardex = kax_m.Entrada.objects.get(inventario_entrada=entrada_detalle.entrada)
@@ -270,13 +271,19 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
                 )
                 nuevo_detalle_kardez.save()
                 return Response(
-                    {'mensaje': "Detalle creado exitosamente"},
+                    {'mensaje': "Dispositivo ingresado a kardex con éxito."},
                     status=status.HTTP_200_OK
                 )
             return Response(
-                {'mensaje': 'Creado exitosamente'},
+                {'mensaje': 'Dispositivo ingresado a kardex con éxito.'},
                 status=status.HTTP_200_OK
             )
+        else:
+            return Response(
+                {'mensaje': 'No tienes la autorización para realizar esta acción'},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+            
 
     @action(methods=['post'], detail=True)
     def validar_kardex(self, request, pk=None):
