@@ -1,3 +1,4 @@
+/*********************** ENTRADAS ************************************/
 (function (AlertaEnCreacion, $, undefined) {
     AlertaEnCreacion.init = function () {
       /* -----MÉTODO DE INICIALIZACIÓN DE LA VISTA EDIT DE ENTRADA ------*/
@@ -8,7 +9,7 @@
         var primary_key = $("#entrada-detalle-form").data("key");
         $('#id_en_creacion').click(function () {
           if ($("#id_en_creacion").is(':checked')) {
-            bootbox.alert({ message: "¡La Salida vuelve a estar en desarrollo!", className:"rubberBand animated" });
+            bootbox.alert({ message: "<h2>¡La Entrada vuelve a estar en desarrollo!</h2>", className:"modal modal-info fade in" });
           } else {
             bootbox.confirm({
               message: "¿Desea dar por terminada la edición de la entrada?",
@@ -34,12 +35,12 @@
                       primary_key :primary_key
                     },
                     success: function (response) {
-                      bootbox.alert("Todo se encuentra correcto");
+                      bootbox.alert({message: "<h2>Todo se encuentra correcto</h2>", className:"modal modal-success fade in"});
                     },
                     error: function (response) {
                       $('#id_en_creacion').iCheck('check');
                       var jsonResponse = JSON.parse(response.responseText);
-                      bootbox.alert({message: jsonResponse["mensaje"], className:"modal modal-danger fade"});
+                      bootbox.alert({message: "<h3><i class='fa fa-frown-o' style='font-size: 45px;'></i>&nbsp;&nbsp;&nbsp;HA OCURRIDO UN ERROR!!</h3></br>" + jsonResponse["mensaje"], className:"modal modal-danger fade"});
                     }
                   });
                   /*FIN DE CONSUMO*/
@@ -233,7 +234,7 @@ class EntradaUpdate {
                 tipo:"dispositivo"
               },
               success: function (response) {
-                   location.reload();
+                   tabla_temp.tabla.ajax.reload();
               },
           });
 
@@ -251,7 +252,7 @@ class EntradaUpdate {
                 tipo:"repuestos"
               },
               success: function (response) {
-                 location.reload();
+                 tabla_temp.tabla.ajax.reload();
               },
           });
 
@@ -263,25 +264,22 @@ class EntradaUpdate {
                         message: "Esta seguro que desea crear estos dispositivos",
                         buttons: {
                             confirm: {
-                                label: 'Si',
+                                label: '<i class="fa fa-check"></i> Confirmar',
                                 className: 'btn-success'
                             },
                             cancel: {
-                                label: 'No',
+                                label: '<i class="fa fa-times"></i> Cancelar',
                                 className: 'btn-danger'
                             }
                         },
                         callback: function (result) {
                             if(result == true){
                               /**/
-
                                 let urldispositivo = tabla_temp.api_url + data_fila.id + "/crear_dispositivos/";
                                 EntradaUpdate.crear_dispositivos(urldispositivo);
                             }
                         }
                       });
-
-
         });
 
         tablabody.on('click', '.btn-repuesto', function () {
@@ -290,11 +288,11 @@ class EntradaUpdate {
                       message: "Esta seguro que desea crear estos repuestos",
                       buttons: {
                           confirm: {
-                              label: 'Si',
+                              label: '<i class="fa fa-check"></i> Confirmar',
                               className: 'btn-success'
                           },
                           cancel: {
-                              label: 'No',
+                              label: '<i class="fa fa-times"></i> Cancelar',
                               className: 'btn-danger'
                           }
                       },
@@ -316,11 +314,11 @@ class EntradaUpdate {
                       message: "Esta seguro que desea crear estos dispositivos al kardex",
                       buttons: {
                           confirm: {
-                              label: 'Si',
+                              label: '<i class="fa fa-check"></i> Confirmar',
                               className: 'btn-success'
                           },
                           cancel: {
-                              label: 'No',
+                              label: '<i class="fa fa-times"></i> Cancelar',
                               className: 'btn-danger'
                           }
                       },
@@ -347,6 +345,10 @@ class EntradaUpdate {
                 success: function (response) {
                     tabla_temp.tabla.ajax.reload();
                 },
+                error: function(response) {
+                  var mensaje = JSON.parse(response.responseText)
+                  bootbox.alert({message: "<h3><i class='fa fa-frown-o' style='font-size: 45px;'></i>&nbsp;&nbsp;&nbsp;HA OCURRIDO UN ERROR!!</h3></br>" + mensaje['mensaje'], className:"modal modal-danger fade"});
+                }
             });
             document.getElementById("detalleForm").reset();
         });
@@ -357,7 +359,7 @@ class EntradaUpdate {
     static crear_dispositivos(urldispositivo) {
       var dialog = bootbox.dialog({
       title: 'Creacion de dispositivos ',
-      message: '<p><i class="fa fa-spin fa-spinner"></i> Creando dispositivos: <b style="color:red;">"Por favor espere hasta que confirme la creación de los dispositivos"<b/></p>',
+      message: '<p><i class="fa fa-spin fa-spinner"></i> Creando dispositivos: <b style="color:red;"></br>"Por favor espere hasta que confirme la creación de los dispositivos"<b/></p>',
       closeButton: false
         });
         $.ajax({
@@ -368,14 +370,17 @@ class EntradaUpdate {
                 csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val()
             },
             success: function (response) {
-                bootbox.confirm("dispositivos creados exitosamente!",
-                function(result){
-                   location.reload();
-                  });
+                $('.modal').modal('hide');
+                bootbox.alert({message: "<h2>Dispositivos creados exitosamente!</h2>", className:"modal modal-success fade in",
+                callback: function(result){
+                   $("#entrada-table").DataTable().ajax.reload();
+                  }});
             },
             error: function (response) {
+              $('.modal').modal('hide');
               var mensaje = JSON.parse(response.responseText)
-              bootbox.alert( "Error al crear los dispositivo: " + mensaje['mensaje']);
+              bootbox.alert({message: "<h3><i class='fa fa-frown-o' style='font-size: 45px;'></i>&nbsp;&nbsp;&nbsp;HA OCURRIDO UN ERROR!!</h3></br>" + mensaje['mensaje'], className:"modal modal-danger fade"});
+              
             }
         });
     }
@@ -388,15 +393,15 @@ class EntradaUpdate {
                 csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val()
             },
             success: function (response) {
-                bootbox.confirm("repuestos creados exitosamente!",
-                function(result){
-                   location.reload();
-                  });
-
+                $('.modal').modal('hide');
+                bootbox.alert({message: "<h2>Repuestos creados exitosamente!</h2>", className:"modal modal-success fade in",
+                callback: function(result){
+                   $("#entrada-table").DataTable().ajax.reload();
+                  }});
             },
             error: function (response) {
               var mensaje = JSON.parse(response.responseText)
-              bootbox.alert( "Error al crear los Repuestos: " + mensaje['mensaje']);
+              bootbox.alert({message: "<h3><i class='fa fa-frown-o' style='font-size: 45px;'></i>&nbsp;&nbsp;&nbsp;HA OCURRIDO UN ERROR!!</h3></br>" + mensaje['mensaje'], className:"modal modal-danger fade"});
             }
 
         });
@@ -410,15 +415,14 @@ class EntradaUpdate {
               detalle_entrada: detalle_entrada
           },
           success: function (response) {
-              bootbox.confirm("Dispositivos Ingresados al kardex",
-              function(result){
-                 location.reload();
-                });
-
-          },
+                bootbox.alert({message: "<h2>Dispositivos ingresados a Kardex!</h2>", className:"modal modal-success fade in",
+                callback: function(result){
+                   $("#entrada-table").DataTable().ajax.reload();
+                  }});
+            },
           error: function (response) {
             var mensaje = JSON.parse(response.responseText)
-            bootbox.alert( "Error al crear los dispositivos al kardex: " + mensaje['mensaje']);
+            bootbox.alert({message: "<h3><i class='fa fa-frown-o' style='font-size: 45px;'></i>&nbsp;&nbsp;&nbsp;HA OCURRIDO UN ERROR!!</h3></br>" + mensaje['mensaje'], className:"modal modal-danger fade"});
           }
 
       });
@@ -436,18 +440,31 @@ class EntradaUpdate {
             success: function (response) {
               $("[for='id_proveedor_kardex']").css({"visibility":"visible"});
               $('#id_proveedor_kardex').next(".select2-container").show();
+              $("#id_proveedor_kardex").attr("required", "true");
+              $("#id_proveedor_kardex").removeAttr("disabled");
+
               $("[for='id_estado_kardex']").css({"visibility":"visible"});
               $('#id_estado_kardex').next(".select2-container").show();
+              $("#id_estado_kardex").attr("required", "true");
+              $("#id_estado_kardex").removeAttr("disabled");
+
               $("[for='id_tipo_entrada_kardex']").css({"visibility":"visible"});
               $('#id_tipo_entrada_kardex').next(".select2-container").show();
+              $("#id_tipo_entrada_kardex").attr("required", "true");
+              $("#id_tipo_entrada_kardex").removeAttr("disabled");
             },
             error: function (response) {
               $("[for='id_proveedor_kardex']").css({"visibility":"hidden"});
               $('#id_proveedor_kardex').next(".select2-container").hide();
+              $("#id_proveedor_kardex").attr("disabled", "true");
               $("[for='id_estado_kardex']").css({"visibility":"hidden"});
               $('#id_estado_kardex').next(".select2-container").hide();
+              $("id_estado_kardex").prop('disabled',true);
+              $("#id_estado_kardex").attr("disabled", "true");
               $("[for='id_tipo_entrada_kardex']").css({"visibility":"hidden"});
               $('#id_tipo_entrada_kardex').next(".select2-container").hide();
+              $("id_tipo_entrada_kardex").prop('disabled',true);
+              $("#id_tipo_entrada_kardex").attr("disabled", "true");
             }
         });
     }

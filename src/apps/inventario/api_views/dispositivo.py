@@ -143,6 +143,7 @@ class DispositivoViewSet(viewsets.ModelViewSet):
                     precio=0,
                 )
                 nuevo_detalle_kardez.save()
+                solicitudes_movimiento.autorizada_por = self.request.user
                 solicitudes_movimiento.terminada = True
                 solicitudes_movimiento.entrada_kardex = salida_creada
                 solicitudes_movimiento.autorizada_por = self.request.user
@@ -164,6 +165,7 @@ class DispositivoViewSet(viewsets.ModelViewSet):
                     cantidad=solicitudes_movimiento.cantidad
                     )
                 detalle_salida.save()
+                solicitudes_movimiento.autorizada_por = self.request.user
                 solicitudes_movimiento.terminada = True
                 solicitudes_movimiento.salida_kardex = nuevo_detalle
                 solicitudes_movimiento.autorizada_por = self.request.user
@@ -173,14 +175,15 @@ class DispositivoViewSet(viewsets.ModelViewSet):
                     status=status.HTTP_200_OK
                 )
         else:
-            print("se rechazo la salida")
-        solicitudes_movimiento = inv_m.SolicitudMovimiento.objects.get(id=id)
-        solicitudes_movimiento.rechazar = True
-        solicitudes_movimiento.save()
-        return Response(
-            {'mensaje': 'Solicitud Recibida'},
-            status=status.HTTP_200_OK
-        )
+            solicitudes_movimiento = inv_m.SolicitudMovimiento.objects.get(id=id)
+            solicitudes_movimiento.autorizada_por = self.request.user
+            solicitudes_movimiento.terminada = True
+            solicitudes_movimiento.rechazar = True
+            solicitudes_movimiento.save()
+            return Response(
+                {'mensaje': 'Solicitud Recibida'},
+                status=status.HTTP_200_OK
+            )
 
     @action(methods=['post'], detail=False)
     def colocar_tarima(self, request, pk=None):

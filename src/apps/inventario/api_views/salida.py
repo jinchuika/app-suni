@@ -35,6 +35,7 @@ class SalidaInventarioViewSet(viewsets.ModelViewSet):
         if validar_dispositivo.tipo_dispositivo.usa_triage is False:
                 altas = inv_m.SolicitudMovimiento.objects.filter(
                     recibida=True,
+                    devolucion=False,
                     tipo_dispositivo__tipo=validar_dispositivo).aggregate(altas_cantidad=Sum('cantidad'))
                 if altas['altas_cantidad'] is None:
                     altas['altas_cantidad'] = 0
@@ -300,7 +301,7 @@ class RevisionSalidaViewSet(viewsets.ModelViewSet):
                 dispositivos.dispositivo.valido = False
                 dispositivos.dispositivo.save()
                 try:
-                    cambios_etapa = inv_m.CambioEtapa.objects.get(dispositivo__triage=dispositivos.dispositivo)
+                    cambios_etapa = inv_m.CambioEtapa.objects.filter(dispositivo__triage=dispositivos.dispositivo).order_by('-id')[0]
                     cambios_etapa.etapa_final = inv_m.DispositivoEtapa.objects.get(id=inv_m.DispositivoEtapa.EN)
                     cambios_etapa.creado_por = request.user
                     cambios_etapa.save()
@@ -312,13 +313,16 @@ class RevisionSalidaViewSet(viewsets.ModelViewSet):
                 salida = dispositivos.paquete.salida
                 triage = dispositivos.dispositivo
                 precio_dispositivo = conta_m.PrecioDispositivo.objects.get(dispositivo__triage=triage, activo=True)
-                movimiento = conta_m.MovimientoDispositivo(
-                    dispositivo=dispositivos.dispositivo,
-                    periodo_fiscal=periodo_actual,
-                    tipo_movimiento=conta_m.MovimientoDispositivo.BAJA,
-                    referencia='Salida {}'.format(salida),
-                    precio=precio_dispositivo.precio)
-                movimiento.save()
+                movimiento_dispositivo = conta_m.MovimientoDispositivo.objects.filter(dispositivo__triage = triage, tipo_movimiento = conta_m.MovimientoDispositivo.BAJA)
+                if len(movimiento_dispositivo) == 0:
+                    movimiento = conta_m.MovimientoDispositivo(
+                        dispositivo=dispositivos.dispositivo,
+                        periodo_fiscal=periodo_actual,
+                        tipo_movimiento=conta_m.MovimientoDispositivo.BAJA,
+                        referencia='Salida {}'.format(salida),
+                        precio=precio_dispositivo.precio,
+                        fecha = finalizar_salida.fecha)
+                    movimiento.save()
         salida.aprobada = True
         salida.save()
         finalizar_salida.en_creacion = False

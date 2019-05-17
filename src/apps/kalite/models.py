@@ -103,6 +103,24 @@ class Visita(models.Model):
         return round(promedio, 2)
 
     @property
+    def promedio_escuela(self):
+        visitas_list = Visita.objects.filter(escuela = self.escuela)
+        promedio_total = 0
+        for visita in visitas_list:
+            evaluaciones_count = visita.evaluaciones.count()
+            promedio = 0
+            if evaluaciones_count > 0:
+                promedio = sum(e.promedio for e in visita.evaluaciones.all()) / visita.evaluaciones.count()
+            promedio_total += promedio
+
+        return round(promedio_total / visitas_list.count(), 2)
+
+    @property
+    def visitas_escuela(self):
+        visitas_list = Visita.objects.filter(escuela = self.escuela)
+        return  visitas_list.count()
+
+    @property
     def estado(self):
         promedio = self.promedio
         if promedio >= 75:

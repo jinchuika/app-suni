@@ -9,8 +9,8 @@
     <img src="{% static "image/funsepalogo.png" %}" width="110" height="110" />
 <tr>
 <td>
-<fieldset>
-  <u>CONSTANCIA</u>
+<fieldset style="width: 325px;">
+  <u>CONSTANCIA DE ENTRADA</u>
 </fieldset>
 </td>
 </tr>
@@ -37,40 +37,6 @@
       <td >
           {{entrada}}
       </td>
-    </tr>
-  </table>
-</div>
-<hr size="3" color="darkblue" />
-<!--INFORMACION DEL DONANTE Y RECEPCION DE MATERIAL-->
-<div class="donantes">
-  <table>
-    <tr>
-      <th>
-        Donante:
-      </th>
-      <td>
-        {{entrada.proveedor}}
-      </td>
-      <th>
-        Telefono:
-      </th>
-      <td>
-        {%for telefono in entrada.proveedor.lista_telefonos.all%}
-        {{telefono | default_if_none:""}}
-        {%endfor%}
-      </td>
-    </tr>
-    <tr>
-      <th></th>
-      <td></td>
-      <th>
-        Direccion:
-      </th>
-      <td>
-        {{entrada.proveedor.direccion}}
-      </td>
-    </tr>
-    <tr>
       <th>
         Recibió:
       </th>
@@ -80,7 +46,7 @@
     </tr>
   </table>
 </div>
-<hr size="3" color="darkblue"/>
+<hr size="3" color="darkblue" />
 
 <!--ESTADO DEL EQUIPO DONADO-->
 <div class="encabezado2">
@@ -89,17 +55,21 @@
         <th>Tipo</th>
         <th>Cantidad </th>
         <th>Util</th>
-        <th>Técnico(s)</th>
+        <th>Mes</th>
+        <th>Firmado Digitalmente Por:</th>
       </thead>
       <tbody>
         <tr>
           <td style="width:30%;">
               <hr size="3" color="darkblue"/>
           </td>
-          <td style="width:15%;">
+          <td style="width:10%;">
               <hr size="3" color="darkblue"/>
           </td>
-          <td style="width:15%;">
+          <td style="width:10%;">
+              <hr size="3" color="darkblue"/>
+          </td>
+          <td style="width:10%;">
               <hr size="3" color="darkblue"/>
           </td>
           <td style="width:40%;">
@@ -113,13 +83,16 @@
           <tr style="background-color:#E0E0E0">
           {%endif%}
             <td>
-              {{dispositivo.tipo_dipositivo}}
+              {{dispositivo.tipo_dispositivo}}
             </td>
             <td>
-              {{dispositivo.total.total_cantidad}}
+              {{dispositivo.cantidad}}
             </td>
             <td>
-              {{dispositivo.util.total_util}}
+              {{dispositivo.util}}
+            </td>
+            <td>
+              {{dispositivo.mes}}
             </td>
             <td>
               {{dispositivo.creado_por}}
@@ -135,19 +108,14 @@
   <hr/>
   <table>
     <tr>
-      <th>
-        Vo.Bo.
-      </th>
-      <td>
-        _____________________________________________________
+      <td style="border-bottom: 3px solid black;">
+        {{entrada.creada_por.get_full_name}}
       </td>
     </tr>
     <tr>
-      <td>
-      </td>
       <th>
         <center>
-          Nombre y Firma
+          Firmado Digitalmente Por
         </center>
       </th>
     </tr>
@@ -171,7 +139,7 @@ body{
 .encabezado fieldset{
   color: darkblue;
   margin-top: -70px;
-  margin-left: 39%;
+  margin-left: 29%;
   width: 10px;
   font-weight: bold;
   font-size: 24px;

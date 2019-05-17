@@ -111,7 +111,18 @@
 
 			<!-- Gráficos de resumen -->
 			<div class="col-md-5">
+				<!-- Gráfico de escuela -->
+				<div class="info-box bg-blue">
+					<span class="info-box-icon"><i class="fa fa-bank"></i></span>
 
+					<div class="info-box-content">
+						<span class="info-box-text">Escuela {{ visita.escuela }} ({{ visita.visitas_escuela }} Visitas)</span>
+						<span class="info-box-number" data-url="{% url 'visita_api_detail' pk=visita.id %}" id="promedio-escuela">{{ visita.promedio_escuela }}%</span>
+						<div class="progress">
+							<div class="progress-bar" id="progressbar-visita_escuela" style="width: {{ visita.promedio_escuela|floatformat:"0" }}%"></div>
+						</div>
+					</div>
+				</div>
 				<!-- Gráfico de visita -->
 				<div class="info-box bg-teal">
 					<span class="info-box-icon"><i class="fa fa-check-square-o"></i></span>
