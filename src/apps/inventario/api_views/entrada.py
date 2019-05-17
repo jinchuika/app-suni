@@ -7,12 +7,15 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from datetime import datetime
 from braces.views import LoginRequiredMixin
+from django.http import JsonResponse, HttpResponse
 from django.db.models import Q
 from apps.inventario import (
     serializers as inv_s,
     models as inv_m
 )
 from apps.kardex import models as kax_m
+import json
+from django.forms.models import model_to_dict
 
 
 class DetalleInformeFilter(filters.FilterSet):
@@ -100,7 +103,7 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
                 validar_dispositivos = inv_m.EntradaDetalle.objects.filter(
                     Q(entrada=entrad_id),
                     Q(util__gt=0),
-                    dispositivos_creados=True).count()            
+                    dispositivos_creados=True).count()
             validar_repuestos = inv_m.EntradaDetalle.objects.filter(
                 Q(entrada=entrad_id),
                 Q(repuesto__gt=0),
@@ -288,6 +291,223 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
             {'mensaje': 'NO usa Triage'},
             status=status.HTTP_200_OK
         )
+
+    @action(methods=['post'], detail=False)
+    def nuevo_grid(self, request, pk=None):
+        entrada_detalle = request.data['entrada_detalle']
+        entrada = request.data['entrada']
+        tipo = inv_m.EntradaDetalle.objects.get(id=entrada_detalle).tipo_dispositivo
+        tipos = inv_m.DispositivoMarca.objects.all().values()
+        puertos = inv_m.DispositivoPuerto.objects.all().values()
+        medida = inv_m.DispositivoMedida.objects.all().values()
+        version_sis = inv_m.VersionSistema.objects.all().values()
+        procesador = inv_m.Procesador.objects.all().values()
+        os = inv_m.Software.objects.all().values()
+        disco = inv_m.HDD.objects.filter(
+            estado=inv_m.DispositivoEstado.PD,
+            etapa=inv_m.DispositivoEtapa.AB).values('triage')
+        if str(tipo) == "MOUSE":
+            tipos_mouse = inv_m.MouseTipo.objects.all().values()
+            data = inv_m.Mouse.objects.filter(
+                entrada_detalle=entrada_detalle
+            ).values(
+                'triage',
+                'marca',
+                'modelo',
+                'serie',
+                'tarima',
+                'puerto',
+                'tipo_mouse',
+                'caja')            
+            return JsonResponse({
+                'data': list(data),
+                'marcas': list(tipos),
+                'tipo': list(tipos_mouse),
+                'puertos': list(puertos),
+                'dispositivo': str(tipo)
+                })
+        elif str(tipo) == "TECLADO":
+            data = inv_m.Teclado.objects.filter(
+                entrada_detalle=entrada_detalle
+            ).values(
+                'triage',
+                'marca',
+                'modelo',
+                'serie',
+                'tarima',
+                'puerto',
+                'caja'
+                )
+            return JsonResponse({
+                'data': list(data),
+                'marcas': list(tipos),
+                'puertos': list(puertos),
+                'dispositivo': str(tipo)
+                })
+        elif str(tipo) == "MONITOR":
+            tipos_monitor = inv_m.MonitorTipo.objects.all().values()
+            data = inv_m.Monitor.objects.filter(
+                entrada_detalle=entrada_detalle
+            ).values(
+                'triage',
+                'marca',
+                'modelo',
+                'serie',
+                'tarima',
+                'tipo_monitor',
+                'puerto',
+                'pulgadas')
+            return JsonResponse({
+                'data': list(data),
+                'marcas': list(tipos),
+                'tipo': list(tipos_monitor),
+                'puertos': list(puertos),
+                'dispositivo': str(tipo)
+                })
+        elif str(tipo) == "CPU":
+            data = inv_m.CPU.objects.filter(
+                entrada_detalle=entrada_detalle
+            ).values(
+                'triage',
+                'marca',
+                'modelo',
+                'serie',
+                'tarima',
+                'procesador',
+                'version_sistema',
+                'disco_duro__triage',
+                'ram',
+                'ram_medida',
+                'servidor',
+                'all_in_one'
+                )
+            return JsonResponse({
+                'data': list(data),
+                'marcas': list(tipos),
+                'puertos': list(puertos),
+                'medida': list(medida),
+                'dispositivo': str(tipo),
+                'sistemas': list(version_sis),
+                'procesador': list(procesador),
+                'hdd': list(disco)
+                })
+        elif str(tipo) == "TABLET":
+            data = inv_m.Tablet.objects.filter(
+                entrada_detalle=entrada_detalle
+            ).values(
+                'triage',
+                'marca',
+                'modelo',
+                'serie',
+                'tarima',
+                'procesador',
+                'version_sistema',
+                'so_id',
+                'almacenamiento',
+                'medida_almacenamiento',
+                'ram',
+                'medida_ram',
+                'almacenamiento_externo',
+                'pulgadas'
+                )
+            return JsonResponse({
+                'data': list(data),
+                'marcas': list(tipos),
+                'medida': list(medida),
+                'dispositivo': str(tipo),
+                'sistemas': list(version_sis),
+                'procesador': list(procesador),
+                'hdd': list(disco),
+                'os': list(os)
+                })
+        elif str(tipo) == "LAPTOP":
+            data = inv_m.Laptop.objects.filter(
+                entrada_detalle=entrada_detalle
+            ).values(
+                'triage',
+                'marca',
+                'modelo',
+                'serie',
+                'tarima',
+                'procesador',
+                'version_sistema',
+                'disco_duro__triage',
+                'ram',
+                'ram_medida',
+                'pulgadas'
+                )
+            return JsonResponse({
+                'data': list(data),
+                'marcas': list(tipos),
+                'medida': list(medida),
+                'dispositivo': str(tipo),
+                'sistemas': list(version_sis),
+                'procesador': list(procesador),
+                'hdd': list(disco)
+                })
+        elif str(tipo) == "HDD":
+            data = inv_m.HDD.objects.filter(
+                entrada_detalle=entrada_detalle
+            ).values(
+                'triage',
+                'marca',
+                'modelo',
+                'serie',
+                'tarima',
+                'puerto',
+                'capacidad',
+                'medida'
+                )
+            return JsonResponse({
+                'data': list(data),
+                'marcas': list(tipos),
+                'puertos': list(puertos),
+                'medida': list(medida),
+                'dispositivo': str(tipo)
+                })
+        elif str(tipo) == "SWITCH":
+            data = inv_m.DispositivoRed.objects.filter(
+                entrada_detalle=entrada_detalle
+            ).values(
+                'triage',
+                'marca',
+                'modelo',
+                'serie',
+                'tarima',
+                'puerto',
+                'cantidad_puertos',
+                'velocidad',
+                'velocidad_medida'
+                )
+            return JsonResponse({
+                'data': list(data),
+                'marcas': list(tipos),
+                'puertos': list(puertos),
+                'medida': list(medida),
+                'dispositivo': str(tipo)
+                })
+
+        elif str(tipo) == "ACCESS POINT":
+            data = inv_m.AccessPoint.objects.filter(
+                entrada_detalle=entrada_detalle
+            ).values(
+                'triage',
+                'marca',
+                'modelo',
+                'serie',
+                'tarima',
+                'puerto',
+                'cantidad_puertos',
+                'velocidad',
+                'velocidad_medida'
+                )
+            return JsonResponse({
+                'data': list(data),
+                'marcas': list(tipos),
+                'puertos': list(puertos),
+                'medida': list(medida),
+                'dispositivo': str(tipo)
+                })
 
 
 class EntradaFilter(filters.FilterSet):

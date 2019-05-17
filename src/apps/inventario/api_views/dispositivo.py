@@ -12,6 +12,7 @@ from apps.inventario import (
 )
 from apps.kardex import models as kax_m
 from django.db.models import Count
+import json
 
 
 class DispositivoFilter(filters.FilterSet):
@@ -144,6 +145,7 @@ class DispositivoViewSet(viewsets.ModelViewSet):
                 nuevo_detalle_kardez.save()
                 solicitudes_movimiento.terminada = True
                 solicitudes_movimiento.entrada_kardex = salida_creada
+                solicitudes_movimiento.autorizada_por = self.request.user
                 solicitudes_movimiento.save()
             else:
                 tipo_salida = kax_m.TipoSalida.objects.get(tipo="Inventario SUNI")
@@ -164,6 +166,7 @@ class DispositivoViewSet(viewsets.ModelViewSet):
                 detalle_salida.save()
                 solicitudes_movimiento.terminada = True
                 solicitudes_movimiento.salida_kardex = nuevo_detalle
+                solicitudes_movimiento.autorizada_por = self.request.user
                 solicitudes_movimiento.save()
                 return Response(
                     {'mensaje': nuevo_detalle.id},
@@ -290,7 +293,7 @@ class DispositivosPaquetesViewSet(viewsets.ModelViewSet):
                 elif tipo == "LAPTOP":
                     cambio_estado = inv_m.Laptop.objects.get(triage=triage)
                 elif tipo == "SWITCH":
-                    cambio_estado = inv_m.DispositivoRedobjects.get(triage=triage)
+                    cambio_estado = inv_m.DispositivoRed.objects.get(triage=triage)
                 elif tipo == "ACCESS POINT":
                     cambio_estado = inv_m.AccessPoint.objects.get(triage=triage)
                 else:
@@ -333,3 +336,137 @@ class DispositivosPaquetesViewSet(viewsets.ModelViewSet):
         },
             status=status.HTTP_200_OK
         )
+
+    @action(methods=['post'], detail=False)
+    def actualizar_dispositivos(self, request, pk=None):
+        """ Metodo para actualizar nuevos dispositivos mediante el grid
+        """
+        dispositivos = json.loads(request.data["datos_actualizar"])
+        tipo = request.data["dispositivo"]
+        if tipo == "TECLADO":
+            for datos in dispositivos:
+                new_dispositivo = inv_m.Teclado.objects.get(triage=datos['triage'])
+                new_dispositivo.marca = inv_m.DispositivoMarca.objects.get(id=datos['marca'])
+                new_dispositivo.modelo = datos['modelo']
+                new_dispositivo.serie = datos['serie']
+                new_dispositivo.tarima = inv_m.Tarima.objects.get(id=datos['tarima'])
+                new_dispositivo.puerto = inv_m.DispositivoPuerto.objects.get(id=datos['puerto'])
+                new_dispositivo.caja = datos['caja']
+                new_dispositivo.save()
+        elif tipo == "MOUSE":
+            for datos in dispositivos:
+                new_dispositivo = inv_m.Mouse.objects.get(triage=datos['triage'])
+                new_dispositivo.marca = inv_m.DispositivoMarca.objects.get(id=datos['marca'])
+                new_dispositivo.modelo = datos['modelo']
+                new_dispositivo.serie = datos['serie']
+                new_dispositivo.tarima = inv_m.Tarima.objects.get(id=datos['tarima'])
+                new_dispositivo.puerto = inv_m.DispositivoPuerto.objects.get(id=datos['puerto'])
+                new_dispositivo.caja = datos['caja']
+                new_dispositivo.save()
+        elif tipo == "HDD":
+            for datos in dispositivos:
+                new_dispositivo = inv_m.HDD.objects.get(triage=datos['triage'])
+                new_dispositivo.marca = inv_m.DispositivoMarca.objects.get(id=datos['marca'])
+                new_dispositivo.modelo = datos['modelo']
+                new_dispositivo.serie = datos['serie']
+                new_dispositivo.tarima = inv_m.Tarima.objects.get(id=datos['tarima'])
+                new_dispositivo.puerto = inv_m.DispositivoPuerto.objects.get(id=datos['puerto'])
+                new_dispositivo.capacidad = datos['capacidad']
+                new_dispositivo.medida = inv_m.DispositivoMedida.objects.get(id=datos['medida'])
+                new_dispositivo.save()
+        elif tipo == "MONITOR":
+            for datos in dispositivos:
+                new_dispositivo = inv_m.Monitor.objects.get(triage=datos['triage'])
+                new_dispositivo.marca = inv_m.DispositivoMarca.objects.get(id=datos['marca'])
+                new_dispositivo.modelo = datos['modelo']
+                new_dispositivo.serie = datos['serie']
+                new_dispositivo.tarima = inv_m.Tarima.objects.get(id=datos['tarima'])
+                new_dispositivo.puerto = inv_m.DispositivoPuerto.objects.get(id=datos['puerto'])
+                new_dispositivo.tipo_monitor = inv_m.MonitorTipo.objects.get(id=datos['tipo_monitor'])
+                new_dispositivo.pulgadas = datos['pulgadas']
+                new_dispositivo.save()
+        elif tipo == "CPU":
+            for datos in dispositivos:
+                new_dispositivo = inv_m.CPU.objects.get(triage=datos['triage'])
+                new_dispositivo.marca = inv_m.DispositivoMarca.objects.get(id=datos['marca'])
+                new_dispositivo.modelo = datos['modelo']
+                new_dispositivo.serie = datos['serie']
+                new_dispositivo.tarima = inv_m.Tarima.objects.get(id=datos['tarima'])
+                new_dispositivo.procesador = inv_m.Procesador.objects.get(id=datos['procesador'])
+                new_dispositivo.version_sistema = inv_m.VersionSistema.objects.get(id=datos['version_sistema'])
+                new_dispositivo.disco_duro = inv_m.HDD.objects.get(triage=datos['disco_duro__triage'])
+                new_dispositivo.ram = datos['ram']
+                new_dispositivo.ram_medida = inv_m.DispositivoMedida.objects.get(id=datos['ram_medida'])
+                new_dispositivo.servidor = datos['servidor']
+                new_dispositivo.all_in_one = datos['all_in_one']
+                new_dispositivo.save()
+        elif tipo == "TABLET":
+            for datos in dispositivos:
+                new_dispositivo = inv_m.Tablet.objects.get(triage=datos['triage'])
+                new_dispositivo.marca = inv_m.DispositivoMarca.objects.get(id=datos['marca'])
+                new_dispositivo.modelo = datos['modelo']
+                new_dispositivo.serie = datos['serie']
+                new_dispositivo.tarima = inv_m.Tarima.objects.get(id=datos['tarima'])
+                new_dispositivo.procesador = inv_m.Procesador.objects.get(id=datos['procesador'])
+                new_dispositivo.version_sistema = inv_m.VersionSistema.objects.get(id=datos['version_sistema'])
+                new_dispositivo.so_id = inv_m.Software.objects.get(id=datos['so_id'])
+                new_dispositivo.ram = datos['ram']
+                new_dispositivo.medida_ram = inv_m.DispositivoMedida.objects.get(id=datos['medida_ram'])
+                new_dispositivo.pulgadas = datos['pulgadas']
+                new_dispositivo.almacenamiento = datos['almacenamiento']
+                new_dispositivo.medida_almacenamiento = inv_m.DispositivoMedida.objects.get(
+                    id=datos['medida_almacenamiento']
+                    )
+                if(str(datos['almacenamiento_externo']) == "false"):
+                    new_dispositivo.almacenamiento_externo = False
+                else:
+                    new_dispositivo.almacenamiento_externo = True
+                new_dispositivo.save()
+        elif tipo == "LAPTOP":
+            for datos in dispositivos:
+                new_dispositivo = inv_m.Laptop.objects.get(triage=datos['triage'])
+                new_dispositivo.marca = inv_m.DispositivoMarca.objects.get(id=datos['marca'])
+                new_dispositivo.modelo = datos['modelo']
+                new_dispositivo.serie = datos['serie']
+                new_dispositivo.tarima = inv_m.Tarima.objects.get(id=datos['tarima'])
+                new_dispositivo.procesador = inv_m.Procesador.objects.get(id=datos['procesador'])
+                new_dispositivo.version_sistema = inv_m.VersionSistema.objects.get(id=datos['version_sistema'])
+                new_dispositivo.disco_duro = inv_m.HDD.objects.get(triage=datos['disco_duro__triage'])
+                new_dispositivo.ram = datos['ram']
+                new_dispositivo.ram_medida = inv_m.DispositivoMedida.objects.get(id=datos['ram_medida'])
+                new_dispositivo.pulgadas = datos['pulgadas']
+                new_dispositivo.save()
+        elif tipo == "SWITCH":
+            for datos in dispositivos:
+                new_dispositivo = inv_m.DispositivoRed.objects.get(triage=datos['triage'])
+                new_dispositivo.marca = inv_m.DispositivoMarca.objects.get(id=datos['marca'])
+                new_dispositivo.modelo = datos['modelo']
+                new_dispositivo.serie = datos['serie']
+                new_dispositivo.tarima = inv_m.Tarima.objects.get(id=datos['tarima'])
+                new_dispositivo.puerto = inv_m.DispositivoPuerto.objects.get(id=datos['puerto'])
+                new_dispositivo.cantidad_puertos = datos['cantidad_puertos']
+                new_dispositivo.velocidad = datos['velocidad']
+                new_dispositivo.velocidad_medida = inv_m.DispositivoMedida.objects.get(id=datos['velocidad_medida'])
+                new_dispositivo.save()
+        elif tipo == "ACCESS POINT":
+            for datos in dispositivos:
+                new_dispositivo = inv_m.AccessPoint.objects.get(triage=datos['triage'])
+                new_dispositivo.marca = inv_m.DispositivoMarca.objects.get(id=datos['marca'])
+                new_dispositivo.modelo = datos['modelo']
+                new_dispositivo.serie = datos['serie']
+                new_dispositivo.tarima = inv_m.Tarima.objects.get(id=datos['tarima'])
+                new_dispositivo.puerto = inv_m.DispositivoPuerto.objects.get(id=datos['puerto'])
+                new_dispositivo.cantidad_puertos = datos['cantidad_puertos']
+                new_dispositivo.velocidad = datos['velocidad']
+                new_dispositivo.velocidad_medida = inv_m.DispositivoMedida.objects.get(id=datos['velocidad_medida'])
+                new_dispositivo.save()
+        else:
+            for datos in dispositivos:
+                new_dispositivo = inv_m.Dispositivo.objects.get(triage=datos['triage'])
+                new_dispositivo.serie = datos['serie']
+                new_dispositivo.save()
+
+        return Response({
+            'mensaje': 'El dispositivo a sido Rechazado'
+        },
+            status=status.HTTP_200_OK)

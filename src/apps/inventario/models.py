@@ -97,9 +97,10 @@ class Entrada(models.Model):
         else:
             return reverse_lazy('entrada_detail', kwargs={'pk': self.id})
 
-    def save(self,*args, **kwargs):
+    def save(self, *args, **kwargs):
         print(self.en_creacion)
         super(Entrada, self).save(*args, **kwargs)
+
 
 class DispositivoTipo(models.Model):
 
@@ -1254,7 +1255,7 @@ class SalidaInventario(models.Model):
     def __str__(self):
         return str(self.no_salida)
 
-    def crear_paquetes(self, cantidad, usuario, entrada, tipo_paquete=None):        
+    def crear_paquetes(self, cantidad, usuario, entrada, tipo_paquete=None):
         creados = 0
         indice_actual = self.paquetes.count()
         if self.tipo_salida.especial:

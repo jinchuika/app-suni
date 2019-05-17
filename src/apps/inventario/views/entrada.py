@@ -86,7 +86,7 @@ class EntradaDetalleUpdateView(LoginRequiredMixin, GroupRequiredMixin, UpdateVie
     model = inv_m.EntradaDetalle
     form_class = inv_f.EntradaDetalleUpdateForm
     template_name = 'inventario/entrada/entradadetalle_detail.html'
-    group_required = [u"inv_tecnico", u"inv_admin"]
+    group_required = [u"inv_tecnico", u"inv_admin", u"inv_cc"]
 
     def get_context_data(self, **kwargs):
         context = super(EntradaDetalleUpdateView, self).get_context_data(**kwargs)
@@ -225,7 +225,7 @@ class EntradaDetalleDispositivos(LoginRequiredMixin, GroupRequiredMixin, DetailV
     """ Muestra los QR por Detalle de Entrada Creados
     """
     model = inv_m.Entrada
-    template_name = 'inventario/entrada/entradadetalle_dispositivos.html'
+    template_name = 'inventario/entrada/dispositivos_grid.html'
     group_required = [u"inv_bodega", u"inv_tecnico", u"inv_admin"]
 
     def get_context_data(self, **kwargs):
