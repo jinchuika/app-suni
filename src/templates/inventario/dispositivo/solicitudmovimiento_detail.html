@@ -42,7 +42,7 @@
                                     {%endif%}
                                   {% else %}
                                       {% if not object.recibida and not object.rechazar %}
-                                        {% if request.user|has_group:"inv_bodega" and object.devolucion or request.user|has_group:"inv_tecnico" and not object.devolucion %}
+                                        {% if request.user|has_group:"inv_bodega" and object.devolucion or request.user|has_group:"inv_tecnico" and not object.devolucion or request.user|has_group:"inv_cc" and not object.devolucion %}
                                             <a id="btn-recibido" href="{% url 'inventario_api:api_dispositivo-solicitud' %}" data-id ="{{object.id}}" class="btn btn-info btn-sm">Recibido</a>
                                         {% endif %}
                                       {% endif %}
