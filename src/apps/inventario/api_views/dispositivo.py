@@ -132,6 +132,7 @@ class DispositivoViewSet(viewsets.ModelViewSet):
                     proveedor=area_tecnica,
                     tipo=devolucion,
                     fecha=datetime.now(),
+                    observacion=solicitudes_movimiento.observaciones,
                     terminada=True)
                 nuevo.save()
                 salida_creada = kax_m.Entrada.objects.all().last()
@@ -153,6 +154,7 @@ class DispositivoViewSet(viewsets.ModelViewSet):
                     fecha=datetime.now(),
                     tipo=tipo_salida,
                     inventario_movimiento=solicitudes_movimiento,
+                    observacion=solicitudes_movimiento.observaciones,
                     terminada=True
                     )
                 nuevo.save()
@@ -178,7 +180,7 @@ class DispositivoViewSet(viewsets.ModelViewSet):
             solicitudes_movimiento.rechazar = True
             solicitudes_movimiento.save()
             return Response(
-                {'mensaje': 'Solicitud Recibida'},
+                {'mensaje': 'Solicitud Rechazada'},
                 status=status.HTTP_200_OK
             )
 
@@ -293,7 +295,7 @@ class DispositivosPaquetesViewSet(viewsets.ModelViewSet):
                 elif tipo == "LAPTOP":
                     cambio_estado = inv_m.Laptop.objects.get(triage=triage)
                 elif tipo == "SWITCH":
-                    cambio_estado = inv_m.DispositivoRedobjects.get(triage=triage)
+                    cambio_estado = inv_m.DispositivoRed.objects.get(triage=triage)
                 elif tipo == "ACCESS POINT":
                     cambio_estado = inv_m.AccessPoint.objects.get(triage=triage)
                 else:

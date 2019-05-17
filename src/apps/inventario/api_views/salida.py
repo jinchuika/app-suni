@@ -359,15 +359,20 @@ class RevisionSalidaViewSet(viewsets.ModelViewSet):
         """Metodo para aprobar dispositivos en area de control de calidad
         """
         triage = request.data["triage"]
+        print(triage)
         paquete = request.data["paquete"]
+        print(paquete)
         id_paquete = request.data["idpaquete"]
+        print(id_paquete)
         tipo = request.data["tipo"]        
         try:
             asignacion_fecha = inv_m.DispositivoPaquete.objects.get(dispositivo__triage=triage)
+            print(asignacion_fecha)
             asignacion_fecha.aprobado = True
             asignacion_fecha.fecha_aprobacion = datetime.now()
             asignacion_fecha.save()
             cantidad_paquetes = inv_m.Paquete.objects.get(id=id_paquete)
+            print(tipo)
             if tipo == "TECLADO":
                 cambio_estado = inv_m.Teclado.objects.get(triage=triage)
             elif tipo == "MOUSE":
@@ -383,7 +388,7 @@ class RevisionSalidaViewSet(viewsets.ModelViewSet):
             elif tipo == "LAPTOP":
                 cambio_estado = inv_m.Laptop.objects.get(triage=triage)
             elif tipo == "SWITCH":
-                cambio_estado = inv_m.DispositivoRedobjects.get(triage=triage)
+                cambio_estado = inv_m.DispositivoRed.objects.get(triage=triage)
             elif tipo == "ACCESS POINT":
                 cambio_estado = inv_m.AccessPoint.objects.get(triage=triage)
             else:
