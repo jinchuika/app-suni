@@ -23,7 +23,6 @@ var os =[];
 var grid;
 var urldispositivo = $("#grid_id").data("url");
 //Peticion   de los datos que se van a mostrar en el grid y asi poder actualizarlos
-console.log($('input[name="csrfmiddlewaretoken"]').val());
  $.ajax({
             type: "POST",
             url: $("#grid_id").data("dispo"),
