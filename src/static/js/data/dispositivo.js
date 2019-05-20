@@ -23,6 +23,7 @@ var os =[];
 var grid;
 var urldispositivo = $("#grid_id").data("url");
 //Peticion   de los datos que se van a mostrar en el grid y asi poder actualizarlos
+console.log($('input[name="csrfmiddlewaretoken"]').val());
  $.ajax({
             type: "POST",
             url: $("#grid_id").data("dispo"),
@@ -439,17 +440,17 @@ var urldispositivo = $("#grid_id").data("url");
           url: urldispositivo,
           dataType: 'json',
           data: {
-            csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
             datos_actualizar :JSON.stringify(actualizar),
             dispositivo:dispositivo,
           },
+          headers:{"X-CSRFToken":$('input[name="csrfmiddlewaretoken"]').val()},
           success: function (response) {
             bootbox.alert("Dispositivos actualizados correctamente");
             actualizar=[];
           },
           error: function (response) {
-            var jsonResponse = JSON.parse(response.responseText);
-            bootbox.alert({message: jsonResponse["mensaje"], className:"modal modal-danger fade"});
+            //var jsonResponse = JSON.parse(response.responseText);
+            bootbox.alert({message:"Error al ingresar datos", className:"modal modal-danger fade"});
             actualizar=[];
           }
         });
