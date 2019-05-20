@@ -74,7 +74,7 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
                 {'mensaje': 'No tienes la autorización para realizar esta acción.'},
                 status=status.HTTP_401_UNAUTHORIZED
             )
-            
+
 
     @action(methods=['post'], detail=False)
     def cuadrar_salida(self, request, pk=None):
@@ -85,7 +85,7 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
             mensaje_cuadrar = ""
             entrad_id = request.data['primary_key']
             entrada = inv_m.Entrada.objects.get(pk=entrad_id)
-            
+
             detalles_kardex = inv_m.EntradaDetalle.objects.filter(
                 entrada=entrad_id,
                 ingresado_kardex=False,
@@ -184,7 +184,7 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
                 {'mensaje': 'No tienes la autorización para realizar esta acción'},
                 status=status.HTTP_401_UNAUTHORIZED
             )
-            
+
 
     @action(methods=['post'], detail=True)
     def crear_repuestos(self, request, pk=None):
@@ -220,7 +220,7 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
                 {'mensaje': 'No tienes la autorización para realizar esta acción'},
                 status=status.HTTP_401_UNAUTHORIZED
             )
-            
+
 
     @action(methods=['post'], detail=True)
     def crear_kardex(self, request, pk=None):
@@ -283,7 +283,7 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
                 {'mensaje': 'No tienes la autorización para realizar esta acción'},
                 status=status.HTTP_401_UNAUTHORIZED
             )
-            
+
 
     @action(methods=['post'], detail=True)
     def validar_kardex(self, request, pk=None):
@@ -325,7 +325,7 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
                 'tarima',
                 'puerto',
                 'tipo_mouse',
-                'caja')            
+                'caja')
             return JsonResponse({
                 'data': list(data),
                 'marcas': list(tipos),
@@ -387,7 +387,7 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
                 'ram_medida',
                 'servidor',
                 'all_in_one'
-                )
+                ).order_by('triage')
             return JsonResponse({
                 'data': list(data),
                 'marcas': list(tipos),
