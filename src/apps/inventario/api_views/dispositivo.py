@@ -505,7 +505,6 @@ class DispositivosPaquetesViewSet(viewsets.ModelViewSet):
                 # Datos del checkbox
                 try:
                     new_dispositivo.servidor = bool(datos['servidor'])
-                    print(datos['servidor'])
                 except ObjectDoesNotExist as e:
                     print("El campo servidor no necesita actualizacion")
                 try:
