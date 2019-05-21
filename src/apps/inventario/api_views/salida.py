@@ -383,7 +383,7 @@ class RevisionSalidaViewSet(viewsets.ModelViewSet):
             elif tipo == "LAPTOP":
                 cambio_estado = inv_m.Laptop.objects.get(triage=triage)
             elif tipo == "SWITCH":
-                cambio_estado = inv_m.DispositivoRedobjects.get(triage=triage)
+                cambio_estado = inv_m.DispositivoRed.objects.get(triage=triage)
             elif tipo == "ACCESS POINT":
                 cambio_estado = inv_m.AccessPoint.objects.get(triage=triage)
             else:
