@@ -504,12 +504,14 @@ class DispositivosPaquetesViewSet(viewsets.ModelViewSet):
                     new_dispositivo.ram_medida = inv_m.DispositivoMedida.objects.get(id=datos['ram_medida'])
                 except ObjectDoesNotExist as e:
                     print("Medidad de ram no necesita actualizacion")
+                # Datos del checkbox
                 try:
-                    new_dispositivo.servidor = datos['servidor']
+                    new_dispositivo.servidor = bool(datos['servidor'])
+                    print(datos['servidor'])
                 except ObjectDoesNotExist as e:
                     print("El campo servidor no necesita actualizacion")
                 try:
-                    new_dispositivo.all_in_one = datos['all_in_one']
+                    new_dispositivo.all_in_one = bool(datos['all_in_one'])
                 except ObjectDoesNotExist as e:
                     print("el campor all in one no necesita actualizacion")
                 new_dispositivo.save()
@@ -566,6 +568,7 @@ class DispositivosPaquetesViewSet(viewsets.ModelViewSet):
                         )
                 except ObjectDoesNotExist as e:
                     print("Medida de almacenamiento no necesita actualizacion")
+                # Datos del checkbox
                 try:
                     if(str(datos['almacenamiento_externo']) == "false"):
                         new_dispositivo.almacenamiento_externo = False
