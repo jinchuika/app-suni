@@ -21,6 +21,12 @@ urlpatterns = [
         inventario_v.DesechoEmpresaListView.as_view(),
         name='desechoempresa_list'
     ),
+    # Actualizar datos de la empresa
+    url(
+        r'^desechoempresa/(?P<pk>\d+)/edit$',
+        inventario_v.DesechoEmpresaUpdateView.as_view(),
+        name='desechoempresa_update'
+    ),
     # Creacion de salidas de desecho
     url(
         r'^desecho/add/$',
@@ -33,6 +39,16 @@ urlpatterns = [
         inventario_v.DesechoSalidaUpdateView.as_view(),
         name='desechosalida_update'
     ),
-
-
+    # Detalles de la salida de desecho
+    url(
+        r'^desecho/(?P<pk>\d+)/detail/$',
+        inventario_v.DesechoSalidaDetailView.as_view(),
+        name='desechosalida_detail'
+    ),
+    # Imprimir de la salida de desecho
+    url(
+        r'^desecho/(?P<pk>\d+)/print/$',
+        inventario_v.DesechoSalidaPrintView.as_view(),
+        name='desechosalida_print'
+    ),
 ]

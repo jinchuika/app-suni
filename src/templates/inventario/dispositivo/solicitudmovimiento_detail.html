@@ -1,9 +1,13 @@
 {% extends "base/base.html" %}
 {% load staticfiles widget_tweaks %}
+{% load inventario_extras %}
 {% block page_title %}
+    {%if object.devolucion%}
+    <title>Devolución</title>
+    {%else%}
     <title>Solicitud de movimiento</title>
+    {%endif%}
 {% endblock page_title %}
-
 {% block content %}
     <section class="content">
         <div class="container-fluid">
@@ -11,19 +15,38 @@
                 <div class="col-md-5">
                     <div class="box">
                         <div class="box-header">
-                            <h3 class="box-title">Solicitud de movimiento</h3>
+                            {%if object.devolucion%}
+                                <h3 class="box-title">Devolución</h3>
+                            {%else%}
+                                <h3 class="box-title">Solicitud de movimiento</h3>
+                            {%endif%}
+
                             <div class="box-tools pull-right">
-                              {%if object.recibida%}
+                              {%if object.tipo_dispositivo.usa_triage %}
+                                {%if not object.recibida%}
+                                  {% if object.terminada  %}
+                                    {% if request.user|has_group:"inv_bodega" and object.devolucion or request.user|has_group:"inv_tecnico" and not object.devolucion %}
+                                        <a id="btn-recibido" href="{% url 'inventario_api:api_dispositivo-solicitud' %}" data-id ="{{object.id}}" class="btn btn-info btn-sm">Recibido</a>
+                                    {% endif %}
+                                  {% else %}
+                                    {% if request.user|has_group:"inv_bodega" and not object.devolucion or request.user|has_group:"inv_tecnico" and object.devolucion %}
+                                        <a href="{% url 'solicitudmovimiento_update' pk=object.id %}" class="btn btn-warning btn-sm">Editar</a>
+                                    {% endif %}
+                                  {% endif %}
+                                {%endif%}
                               {%else%}
-                              {% if object.terminada  %}
-                              <a id="btn-recibido" href="{% url 'inventario_api:api_dispositivo-solicitud' %}" data-id ="{{object.id}}" class="btn btn-info btn-sm">
-                                  Recibido
-                              </a>
-                              {% else %}
-                              <a href="{% url 'solicitudmovimiento_update' pk=object.id %}" class="btn btn-warning btn-sm">
-                                  Editar
-                              </a>
-                              {% endif %}
+                                  {% if not object.terminada %}
+                                    {% if request.user|has_group:"inv_bodega" or request.user|has_group:"inv_admin" %}
+                                        <a id="aprobar-kardex" href="{% url 'inventario_api:api_dispositivo-solicitud-kardex' %}" data-id ="{{object.id}}"  class="btn btn-success btn-sm">Aprobar</a>
+                                        <a id="recibido-kardex" href="{% url 'inventario_api:api_dispositivo-solicitud-kardex' %}" data-id ="{{object.id}}" data-url="{%url 'solicitudmovimiento_list'%}" class="btn btn-warning btn-sm">Rechazar</a>
+                                    {%endif%}
+                                  {% else %}
+                                      {% if not object.recibida and not object.rechazar %}
+                                        {% if request.user|has_group:"inv_bodega" and object.devolucion or request.user|has_group:"inv_tecnico" and not object.devolucion or request.user|has_group:"inv_cc" and not object.devolucion %}
+                                            <a id="btn-recibido" href="{% url 'inventario_api:api_dispositivo-solicitud' %}" data-id ="{{object.id}}" class="btn btn-info btn-sm">Recibido</a>
+                                        {% endif %}
+                                      {% endif %}
+                                  {% endif %}
                               {%endif%}
                             </div>
                         </div>
@@ -39,6 +62,7 @@
                                         <th>Tipo</th>
                                         <td>{{ object.tipo_dispositivo }}</td>
                                     </tr>
+                                    {% if  object.tipo_dispositivo.usa_triage %}
                                     <tr>
                                         <th>Etapa inicial</th>
                                         <td>{{ object.etapa_inicial }}</td>
@@ -47,6 +71,19 @@
                                         <th>Etapa final</th>
                                         <td>{{ object.etapa_final }}</td>
                                     </tr>
+                                    {% else %}
+                                    {% if object.devolucion %}
+                                    <tr>
+                                        <th>Entrada del kardex No.:</th>
+                                        <td><a href="{{object.entrada_kardex.get_absolute_url}}">{{object.entrada_kardex |default_if_none:"" }}</a></td>
+                                    </tr>
+                                    {% else %}
+                                    <tr>
+                                        <th>Salida del kardex No.:</th>
+                                        <td><a href="{{object.salida_kardex.get_absolute_url}}">{{object.salida_kardex |default_if_none:"" }}</a></td>
+                                    </tr>
+                                    {% endif %}
+                                    {% endif %}
                                     <tr>
                                         <th>Solicitado por</th>
                                         <td>
@@ -54,12 +91,15 @@
                                             el {{ object.fecha_creacion|date:"Y-m-d" }}
                                         </td>
                                     </tr>
+                                    <tr>
                                         <th>Estado</th>
                                         <td>
-                                            {% if object.terminada and object.recibida%}
-                                                <span class="label label-success">Recibida</span>
+                                            {% if object.rechazar%}
+                                                <span class="label label-danger">RECHAZADA</span>
+                                            {%elif object.terminada and object.recibida%}
+                                                <span class="label label-success">Recibido</span>
                                             {%elif object.terminada and not object.recibida%}
-                                            <span class="label label-warning">Terminada</span>
+                                                <span class="label label-warning">Entregado</span>
                                             {% else %}
                                                 <span class="label label-danger">Pendiente</span> <br>
                                             {% endif %}
@@ -75,7 +115,7 @@
                                     <tr>
                                         <th>Desecho</th>
                                         <td>
-                                            <input type="checkbox" name="desecho" disabled  {% if object.desecho %} checked {% endif %} />
+                                            <input type="checkbox" name="desecho" class="icheckbox_square-red" disabled  {% if object.desecho %} checked {% endif %} />
                                         </td>
                                     </tr>
                                     {% else %}
@@ -86,11 +126,16 @@
                                         </td>
                                     </tr>
                                     {% endif %}
+                                    <tr>
+                                        <th>Observaciones</th>
+                                        <td>{{ object.observaciones }}</td>
+                                    </tr>
                                 </table>
                             </form>
                         </div>
                     </div>
                 </div>
+                {% if  object.tipo_dispositivo.usa_triage  %}
                 <div class="col-md-7">
                     <div class="box box-primary">
                         <div class="box-body">
@@ -117,6 +162,7 @@
                         </div>
                     </div>
                 </div>
+                {% endif %}
             </div>
         </div>
     </section>

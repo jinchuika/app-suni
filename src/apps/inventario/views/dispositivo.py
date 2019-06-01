@@ -7,11 +7,14 @@ from django.utils import timezone
 from django.urls import reverse_lazy
 from django.shortcuts import reverse
 from django.views.generic import DetailView, UpdateView, CreateView, ListView, FormView
+from django.db.models import Q
+
 from braces.views import (
     LoginRequiredMixin, PermissionRequiredMixin, GroupRequiredMixin
 )
 from apps.inventario import models as inv_m
 from apps.inventario import forms as inv_f
+
 
 
 #################################################
@@ -25,6 +28,9 @@ class AsignacionTecnicoCreateView(LoginRequiredMixin, CreateView):
     form_class = inv_f.AsignacionTecnicoForm
     template_name = 'inventario/dispositivo/asignaciontecnico_form.html'
 
+    def get_success_url(self):
+        return reverse('asignaciontecnico_list')
+
 
 class AsignacionTecnicoListView(LoginRequiredMixin, ListView):
     """Listado de :class:`AsignacionTecnico`"""
@@ -37,6 +43,9 @@ class AsignacionTecnicoUpdateView(LoginRequiredMixin, UpdateView):
     model = inv_m.AsignacionTecnico
     form_class = inv_f.AsignacionTecnicoForm
     template_name = 'inventario/dispositivo/asignaciontecnico_form.html'
+
+    def get_success_url(self):
+        return reverse('asignaciontecnico_list')
 
 
 class DispositivoDetailView(DetailView):
@@ -64,6 +73,11 @@ class DispositivoListView(LoginRequiredMixin, FormView):
     template_name = 'inventario/dispositivo/dispositivos_list.html'
     form_class = inv_f.DispositivoInformeForm
 
+    def get_form(self, form_class=None):
+        form = super(DispositivoListView, self).get_form(form_class)
+        form.fields['tipo'].queryset = self.request.user.tipos_dispositivos.tipos.all().filter(usa_triage=True)
+        return form
+
 
 class SolicitudMovimientoCreateView(LoginRequiredMixin, CreateView):
     """Vista   para obtener los datos de Solicitudslug_field = "triage"
@@ -75,6 +89,7 @@ class SolicitudMovimientoCreateView(LoginRequiredMixin, CreateView):
     model = inv_m.SolicitudMovimiento
     template_name = 'inventario/dispositivo/solicitudmovimiento_add.html'
     form_class = inv_f.SolicitudMovimientoCreateForm
+    group_required = [u"inv_cc", u"inv_admin", u"inv_tecnico", u"inv_bodega"]
 
     def form_valid(self, form):
         form.instance.creada_por = self.request.user
@@ -93,8 +108,7 @@ class SolicitudMovimientoCreateView(LoginRequiredMixin, CreateView):
 
     def get_form(self, form_class=None):
         form = super(SolicitudMovimientoCreateView, self).get_form(form_class)
-        tipo_dis = self.request.user.tipos_dispositivos.tipos.all()
-        form.fields['tipo_dispositivo'].queryset = self.request.user.tipos_dispositivos.tipos.all()
+        form.fields['tipo_dispositivo'].queryset = self.request.user.tipos_dispositivos.tipos.filter(Q(usa_triage=True) | Q(kardex=True))
         return form
 
 
@@ -127,12 +141,19 @@ class DevolucionCreateView(LoginRequiredMixin, CreateView):
 
     def get_form(self, form_class=None):
         form = super(DevolucionCreateView, self).get_form(form_class)
-        tipo_dis = self.request.user.tipos_dispositivos.tipos.all()
-        form.fields['tipo_dispositivo'].queryset = self.request.user.tipos_dispositivos.tipos.all()
+        form.fields['tipo_dispositivo'].queryset = self.request.user.tipos_dispositivos.tipos.filter(Q(usa_triage=True) | Q(kardex=True))
         return form
 
     def get_success_url(self):
-        return reverse('solicitudmovimiento_update', kwargs={'pk': self.object.id})
+        if self.object.tipo_dispositivo.usa_triage:
+            return reverse('solicitudmovimiento_update', kwargs={'pk': self.object.id})
+        else:
+            return reverse('solicitudmovimiento_detail', kwargs={'pk': self.object.id})
+
+    def get_context_data(self, *args, **kwargs):
+        context = super(DevolucionCreateView, self).get_context_data(*args, **kwargs)
+        context['devolucion'] = True
+        return context
 
 
 class SolicitudMovimientoUpdateView(LoginRequiredMixin, UpdateView):
@@ -140,12 +161,15 @@ class SolicitudMovimientoUpdateView(LoginRequiredMixin, UpdateView):
     model = inv_m.SolicitudMovimiento
     form_class = inv_f.SolicitudMovimientoUpdateForm
     template_name = 'inventario/dispositivo/solicitudmovimiento_update.html'
+    group_required = [u"inv_cc", u"inv_admin", u"inv_tecnico", u"inv_bodega"]
 
     def get_form(self, form_class=None):
         form = super(SolicitudMovimientoUpdateView, self).get_form(form_class)
+        estado = inv_m.DispositivoEstado.objects.get(id=inv_m.DispositivoEstado.PD)
         form.fields['dispositivos'].widget = forms.SelectMultiple(attrs={
             'data-api-url': reverse_lazy('inventario_api:api_dispositivo-list'),
             'data-etapa-inicial': self.object.etapa_inicial.id,
+            'data-estado-inicial': estado.id,
             'data-tipo-dispositivo': self.object.tipo_dispositivo.id,
             'data-slug': self.object.tipo_dispositivo.slug,
         })
@@ -169,6 +193,7 @@ class SolicitudMovimientoDetailView(LoginRequiredMixin, DetailView):
     """
     model = inv_m.SolicitudMovimiento
     template_name = 'inventario/dispositivo/solicitudmovimiento_detail.html'
+    group_required = [u"inv_cc", u"inv_admin", u"inv_tecnico", u"inv_bodega"]
 
 
 class SolicitudMovimientoListView(LoginRequiredMixin, ListView):
@@ -176,7 +201,15 @@ class SolicitudMovimientoListView(LoginRequiredMixin, ListView):
     """
     model = inv_m.SolicitudMovimiento
     template_name = 'inventario/dispositivo/solicitudmovimiento_list.html'
+    group_required = [u"inv_cc", u"inv_admin", u"inv_tecnico", u"inv_bodega"]
 
+    def get_context_data(self, **kwargs):
+        context = super(SolicitudMovimientoListView, self).get_context_data(**kwargs)
+        tipo_dis = self.request.user.tipos_dispositivos.tipos.all()
+        solicitudes_list =  inv_m.SolicitudMovimiento.objects.filter(tipo_dispositivo__in=tipo_dis).order_by('terminada','recibida','-fecha_creacion')
+        print(solicitudes_list)
+        context['solicitudmovimiento_list'] = solicitudes_list
+        return context
 
 ##########################
 # FALLAS DE DISPOSITIVOS #
@@ -232,6 +265,12 @@ class TecladoUpdateView(LoginRequiredMixin, UpdateView):
     query_pk_and_slug = True
     template_name = 'inventario/dispositivo/teclado/teclado_form.html'
 
+    def get_success_url(self):
+        if self.object.entrada_detalle.id != 1:
+            return reverse_lazy('detalles_dispositivos', kwargs={'pk': self.object.entrada, 'detalle': self.object.entrada_detalle.id})
+        else:
+            return reverse_lazy('teclado_detail', kwargs={'triage': self.object.triage})
+
 
 class TecladoDetailView(LoginRequiredMixin, DispositivoDetailView):
     """ Vista para ver los detalles de la :class:`Teclado`
@@ -259,6 +298,12 @@ class MonitorUptadeView(LoginRequiredMixin, UpdateView):
     query_pk_and_slug = True
     template_name = 'inventario/dispositivo/monitor/monitor_edit.html'
 
+    def get_success_url(self):
+        if self.object.entrada_detalle.id != 1:
+            return reverse_lazy('detalles_dispositivos', kwargs={'pk': self.object.entrada, 'detalle': self.object.entrada_detalle.id})
+        else:
+            return reverse_lazy('monitor_detail', kwargs={'triage': self.object.triage})
+
 
 class MouseDetailView(LoginRequiredMixin, DispositivoDetailView):
     """Vista de detalle de dispositivos tipo :class:`Mouse`"""
@@ -276,6 +321,12 @@ class MouseUptadeView(LoginRequiredMixin, UpdateView):
     slug_url_kwarg = "triage"
     query_pk_and_slug = True
     template_name = 'inventario/dispositivo/mouse/mouse_edit.html'
+
+    def get_success_url(self):
+        if self.object.entrada_detalle.id != 1:
+            return reverse_lazy('detalles_dispositivos', kwargs={'pk': self.object.entrada, 'detalle': self.object.entrada_detalle.id})
+        else:
+            return reverse_lazy('mouse_detail', kwargs={'triage': self.object.triage})
 
 
 class CPUDetailView(LoginRequiredMixin, DispositivoDetailView):
@@ -295,6 +346,12 @@ class CPUptadeView(LoginRequiredMixin, UpdateView):
     query_pk_and_slug = True
     template_name = 'inventario/dispositivo/cpu/cpu_edit.html'
 
+    def get_success_url(self):
+        if self.object.entrada_detalle.id != 1:
+            return reverse_lazy('detalles_dispositivos', kwargs={'pk': self.object.entrada, 'detalle': self.object.entrada_detalle.id})
+        else:
+            return reverse_lazy('cpu_detail', kwargs={'triage': self.object.triage})
+
 
 class LaptopDetailView(LoginRequiredMixin, DispositivoDetailView):
     """Vista de detalle de dispositivos tipo :class:`Laptop`"""
@@ -312,6 +369,12 @@ class LaptopUptadeView(LoginRequiredMixin, UpdateView):
     slug_url_kwarg = "triage"
     query_pk_and_slug = True
     template_name = 'inventario/dispositivo/laptop/laptop_edit.html'
+
+    def get_success_url(self):
+        if self.object.entrada_detalle.id != 1:
+            return reverse_lazy('detalles_dispositivos', kwargs={'pk': self.object.entrada, 'detalle': self.object.entrada_detalle.id})
+        else:
+            return reverse_lazy('laptop_detail', kwargs={'triage': self.object.triage})
 
 
 class TabletDetailView(LoginRequiredMixin, DispositivoDetailView):
@@ -331,6 +394,12 @@ class TabletUptadeView(LoginRequiredMixin, UpdateView):
     query_pk_and_slug = True
     template_name = 'inventario/dispositivo/tablet/tablet_edit.html'
 
+    def get_success_url(self):
+        if self.object.entrada_detalle.id != 1:
+            return reverse_lazy('detalles_dispositivos', kwargs={'pk': self.object.entrada, 'detalle': self.object.entrada_detalle.id})
+        else:
+            return reverse_lazy('tablet_detail', kwargs={'triage': self.object.triage})
+
 
 class HDDDetailView(LoginRequiredMixin, DispositivoDetailView):
     """Vista de detalle de dispositivos tipo :class:`HDD`"""
@@ -349,6 +418,12 @@ class HDDUptadeView(LoginRequiredMixin, UpdateView):
     query_pk_and_slug = True
     template_name = 'inventario/dispositivo/hdd/hdd_edit.html'
 
+    def get_success_url(self):
+        if self.object.entrada_detalle.id != 1:
+            return reverse_lazy('detalles_dispositivos', kwargs={'pk': self.object.entrada, 'detalle': self.object.entrada_detalle.id})
+        else:
+            return reverse_lazy('hdd_detail', kwargs={'triage': self.object.triage})
+
 
 class DispositivoRedDetailView(LoginRequiredMixin, DispositivoDetailView):
     """Vista de detalle de dispositivos tipo :class:`DispositivoRed`"""
@@ -364,7 +439,14 @@ class DispositivoRedUptadeView(LoginRequiredMixin, UpdateView):
     slug_field = "triage"
     slug_url_kwarg = "triage"
     query_pk_and_slug = True
-    template_name = 'inventario/dispositivo/red/red_edit.html'    
+    template_name = 'inventario/dispositivo/red/red_edit.html'
+
+    def get_success_url(self):
+        if self.object.entrada_detalle.id != 1:
+            return reverse_lazy('detalles_dispositivos', kwargs={'pk': self.object.entrada, 'detalle': self.object.entrada_detalle.id})
+        else:
+            return reverse_lazy('red_detail', kwargs={'triage': self.object.triage})
+
 
 class DispositivoAccessPointDetailView(LoginRequiredMixin, DispositivoDetailView):
     """Vista de detalle de dispositivos tipo :class:`DispositivoRed`"""
@@ -381,6 +463,12 @@ class DispositivoAccessPointUptadeView(LoginRequiredMixin, UpdateView):
     slug_url_kwarg = "triage"
     query_pk_and_slug = True
     template_name = 'inventario/dispositivo/ap/ap_edit.html'
+
+    def get_success_url(self):
+        if self.object.entrada_detalle.id != 1:
+            return reverse_lazy('detalles_dispositivos', kwargs={'pk': self.object.entrada, 'detalle': self.object.entrada_detalle.id})
+        else:
+            return reverse_lazy('ap_detail', kwargs={'triage': self.object.triage})
 
 
 class DispositivoTipoCreateView(LoginRequiredMixin, CreateView):
@@ -417,7 +505,7 @@ class DispositivosTarimaListView(LoginRequiredMixin, FormView):
     """
     model = inv_m.Dispositivo
     template_name = 'inventario/dispositivo/dispositivo_tarima_list.html'
-    form_class = inv_f.DispositivosTarimaForm
+    form_class = inv_f.DispositivosTarimaFormNew
 
 
 class DispositivosTarimaQr(LoginRequiredMixin, DetailView):
@@ -428,9 +516,14 @@ class DispositivosTarimaQr(LoginRequiredMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         tarima = self.request.GET['tarima']
+        tipo = self.request.GET['tipo']
+        tarima_print = inv_m.Dispositivo.objects.filter(
+            tarima=tarima,
+            tipo=tipo,
+            estado=inv_m.DispositivoEstado.PD,
+            etapa=inv_m.DispositivoEtapa.AB).order_by('triage')
+
         context = super(DispositivosTarimaQr, self).get_context_data(**kwargs)
-        context['dispositivo_qr'] = inv_m.Dispositivo.objects.filter(tarima=tarima,
-                                                                     estado=inv_m.DispositivoEstado.PD,
-                                                                     etapa=inv_m.DispositivoEtapa.AB)
+        context['dispositivo_qr'] = tarima_print
 
         return context

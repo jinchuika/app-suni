@@ -1,0 +1,16 @@
+{% extends 'admin/change_list.html' %}
+
+{% block object-tools %}
+    <div>
+        <form action="{% url 'admin:qr' %}" method="POST">
+            {% csrf_token %}
+                <button type="submit">Imprimir QR</button>
+        </form>
+        <form action="{% url 'admin:ingresar_conta' %}" method="POST">
+            {% csrf_token %}
+                <button type="submit">Asignar Precios</button>
+        </form>
+    </div>
+    <br />
+    {{ block.super }}
+{% endblock %}

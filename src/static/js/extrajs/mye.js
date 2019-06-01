@@ -92,6 +92,7 @@
             }
         },
         columns: [
+        {"data": "id", "className": "nowrap"},
         {"data": "departamento", "className": "nowrap"},
         {"data": "municipio", "className": "nowrap"},
         {

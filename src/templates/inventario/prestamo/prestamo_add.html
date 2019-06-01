@@ -7,18 +7,17 @@
 <section class="content">
   <div class="container-fluid">
     <div class="row">
-      <div id="prestamoDispositivo" class="col-md-6" data-url="{% url 'inventario_api:api_dispositivo-list' %}">
+      <div id="prestamoDispositivo" class="col-md-4" data-url="{% url 'inventario_api:api_dispositivo-list' %}">
         <div class="box">
           <div class="box-header">
             <div class="box-title">
               <h3><b>Prestamos</b></h3>
             </div>
             <div class="box-body">
-              <h5 id="id_fecha_inicio" ></h5>
-              <table class="table table-condensed">
+              <h4><b>FECHA DE PRÉSTAMO: </b></h4><h4 id="id_fecha_inicio" ></h4>
                 <form id="prestamoform" action="{{ action }}" method="post">
                   {%csrf_token%}
-                  <table>
+                  <table class="table table-condensed">
                       {{ form.as_table }}
                     <tr>
                       <td>
@@ -27,7 +26,6 @@
                     </tr>
                   </table>
                 </form>
-              </table>
             </div>
           </div>
         </div>

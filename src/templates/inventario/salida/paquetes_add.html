@@ -1,5 +1,5 @@
-{% for  permiso in user.groups.all  %}
-{% if permiso.name == "inv_cc" or permiso.name == 'inv_admin'%}
+{% load inventario_extras %}
+{% if request.user|has_group:"inv_cc" or request.user|has_group:"inv_admin" %} 
     {% load widget_tweaks %}
     {% block page_title %}
         <title>Cantidad de Paquetes</title>
@@ -10,14 +10,28 @@
             <table class="table table-condensed">
                 {{ paquetes_form.as_table }}
                 <tr>
+                  <td id="label_kardex">
+                      <b>Existencia en Kardex:
+                    </td>
+                    <td id="existencia_kardex">
+                    </td>
+                  </tr>
+                <tr>
                     <td>
-                        <input type="submit" class="btn btn-success" value="Agregar"/>
+                        <input id="paquetes_add" type="submit" class="btn btn-success" value="Agregar"/>
                     </td>
                 </tr>
             </table>
+            {% if messages %}
+            <ul class="messages">
+                {% for message in messages %}
+                {% if message.tags|stringformat:"s" == "success" %}
+                {% else %}
+                  <li class="{{ message.tags }}">{{ message}}</li>
+                {% endif %}
+                {% endfor %}
+            </ul>
+            {% endif %}
         </form>
-
     {% endblock content %}
 {% endif %}
-
-{% endfor %}

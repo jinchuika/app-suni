@@ -3,6 +3,7 @@ from django.urls import reverse
 from menu import Menu
 from apps.main.menus import ViewMenuItem
 
+
 # Inventario
 # Entrada
 entrada_children = (
@@ -32,14 +33,14 @@ solicitudes_children = (
         "Solicitud Movimiento",
         reverse_lazy('solicitudmovimiento_add'),
         weight=12,
-        perm="inventario.add_solicitudmovimiento",
+        group="inv_cc,inv_tecnico",
         icon="fa-clock-o",
     ),
     ViewMenuItem(
         "Devoluciones",
         reverse_lazy('devolucion_add'),
         weight=12,
-        perm="inventario.add_solicitudmovimiento",
+        group="inv_cc,inv_tecnico",
         icon="fa-road",
     ),
 )
@@ -49,20 +50,13 @@ dispositivos_children = (
         "Tipos de Dispositivos",
         reverse_lazy('dispositivotipo_add'),
         weight=12,
-        perm="inventario.add_dispositivotipo",
-        icon="fa-gear",
-    ),
-    ViewMenuItem(
-        "Dispositivos x Tarima",
-        reverse_lazy('reportelistado_qr'),
-        weight=12,
-        group="inv_bodega",
+        group="inv_admin",
         icon="fa-gear",
     ),
     ViewMenuItem(
         "Sistema Operativo",
         reverse_lazy('versionsistema_list'),
-        perm="inventario.add_versionsistema",
+        group="inv_bodega",
         weight=12,
         icon="fa-linux",
     ),
@@ -70,7 +64,7 @@ dispositivos_children = (
         "Softwate",
         reverse_lazy('software_list'),
         weight=12,
-        perm="inventario.add_software",
+        group="inv_bodega",
         icon="fa-firefox",
     ),
     ViewMenuItem(
@@ -79,9 +73,13 @@ dispositivos_children = (
         weight=12,
         icon=" fa-mobile-phone",
     ),
-)
-# Repuestos
-repuestos_children = (
+    ViewMenuItem(
+        "Dispositivos por tarima  ",
+        reverse_lazy('dispositivo_tarima'),
+        group="inv_bodega",
+        weight=12,
+        icon="fa-desktop",
+    ),
     ViewMenuItem(
         "Asignacion Repuestos",
         reverse_lazy('repuesto_list'),
@@ -101,35 +99,42 @@ salidas_children = (
         "Agregar Salida",
         reverse_lazy('salidainventario_add'),
         weight=12,
-        perm="inventario.add_salidainventario",
+        group="inv_cc,inv_bodega",
         icon="fa-pencil-square-o",
     ),
     ViewMenuItem(
         "Revisiones",
         reverse_lazy('revisionsalida_list'),
         weight=12,
-        group="inventario_conta",
+        group="inv_conta",
         icon="fa-check",
     ),
     ViewMenuItem(
         "Agregar Revision",
         reverse_lazy('revisionsalida_add'),
         weight=12,
-        group="inventario_conta",
+        group="inv_conta",
         icon="fa-plus-square",
+    ),
+    ViewMenuItem(
+        "Prestamos",
+        reverse_lazy('prestamo_list'),
+        weight=12,
+        group="inv_bodega",
+        icon="fa-refresh",
     ),
 )
 # Desechos
 desecho_children = (
     ViewMenuItem(
         "Empresa de Desecho",
-        reverse_lazy('desechoempresa_add'),
+        reverse_lazy('desechoempresa_list'),
         weight=12,
         icon="fa-recycle",
     ),
     ViewMenuItem(
         "Salidas de Desecho",
-        reverse_lazy('desechoempresa_list'),
+        reverse_lazy('desechosalida_add'),
         weight=12,
         icon="fa-archive",
     ),
@@ -139,10 +144,24 @@ desecho_children = (
 contabilidad_children = (
     ViewMenuItem(
         "Periodo Fiscal",
-        reverse_lazy('desechoempresa_list'),
+        reverse_lazy('periodo_add'),
         weight=12,
-        perm="conta.add_periodofiscal",
+        group="inv_conta",
         icon="fa-calendar-check-o",
+    ),
+    ViewMenuItem(
+        "Precio Estándar",
+        reverse_lazy('precioestandar_list'),
+        weight=12,
+        group="inv_conta,inv_admin",
+        icon="fa-money",
+    ),
+    ViewMenuItem(
+        "Informe x Periodo Fiscal",
+        reverse_lazy('precioestandar_informe'),
+        weight=12,
+        group="inv_conta",
+        icon="fa-file-pdf-o",
     ),
 )
 
@@ -152,22 +171,45 @@ admin_children = (
         "Asignacion Usuarios",
         reverse_lazy('asignaciontecnico_list'),
         weight=12,
-        perm="inventario.add_asignaciontecnico",
+        group="inv_admin",
         icon="fa-user-plus",
     ),
     ViewMenuItem(
-        "Precio Estándar",
-        reverse('asignaciontecnico_list'),
+        "Tipos de Dispositivos",
+        reverse_lazy('dispositivotipo_add'),
         weight=12,
-        perm="conta.add_precioestandar",
-        icon="fa-money",
+        group="inv_admin",
+        icon="fa-gear",
+    ),
+    ViewMenuItem(
+        "Informe de Entradas",
+        reverse_lazy('contabilidad_entrada'),
+        weight=12,
+        icon="fa-file-pdf-o",
+    ),
+    ViewMenuItem(
+        "Informe de Salidas",
+        reverse_lazy('contabilidad_salidas'),
+        weight=12,
+        icon="fa-file-pdf-o",
+    ),
+    ViewMenuItem(
+        "Informe Desecho",
+        reverse_lazy('contabilidad_desecho'),
+        weight=12,
+        icon="fa-file-pdf-o",
+    ),
+    ViewMenuItem(
+        "Resumen",
+        reverse_lazy('contabilidad_resumen'),
+        weight=12,
+        icon="fa-file-pdf-o",
     ),
 )
 
 ##################################################################
 # CREACION DE MENÚS
 ##################################################################
-
 Menu.add_item(
     "user",
     ViewMenuItem(
@@ -175,7 +217,7 @@ Menu.add_item(
         reverse_lazy('entrada_list'),
         weight=10,
         icon="fa-sign-in",
-        group="inventario",
+        group="inventario,inv_conta",
         children=entrada_children
     )
 )
@@ -186,7 +228,7 @@ Menu.add_item(
         reverse_lazy('entrada_list'),
         weight=10,
         icon="fa-exchange",
-        group="inventario",
+        group="inv_tecnico,inv_cc,inventario",
         children=solicitudes_children
     )
 )
@@ -204,22 +246,11 @@ Menu.add_item(
 Menu.add_item(
     "user",
     ViewMenuItem(
-        "Repuestos",
-        reverse_lazy('entrada_list'),
-        weight=10,
-        icon="fa-wrench",
-        group="inventario",
-        children=repuestos_children
-    )
-)
-Menu.add_item(
-    "user",
-    ViewMenuItem(
         "Salidas",
         reverse_lazy('entrada_list'),
         weight=10,
         icon="fa-sign-out",
-        group="inventario",
+        group="inventario,inv_conta",
         children=salidas_children
     )
 )
@@ -230,7 +261,7 @@ Menu.add_item(
         reverse_lazy('entrada_list'),
         weight=10,
         icon="fa-trash-o",
-        group="inventario_bodega",
+        group="inv_bodega,inv_monitoreo",
         children=desecho_children
     )
 )
@@ -241,7 +272,7 @@ Menu.add_item(
         reverse_lazy('entrada_list'),
         weight=10,
         icon="fa-archive",
-        group="inventario_conta",
+        group="inv_conta,inv_admin",
         children=contabilidad_children
     )
 )
@@ -252,7 +283,7 @@ Menu.add_item(
         reverse_lazy('entrada_list'),
         weight=10,
         icon="fa-user",
-        group="inventario_admin",
+        group="inv_admin,inv_conta,inv_tecnico,inv_bodega",
         children=admin_children
     )
 )

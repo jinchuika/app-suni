@@ -1,6 +1,6 @@
 from django import forms
 # from django.core.exceptions import ValidationError
-
+from django.contrib.auth.models import User
 from apps.inventario import models as inv_m
 from django.urls import reverse_lazy
 
@@ -23,11 +23,12 @@ class TecladoForm(forms.ModelForm):
             'valido',
             'codigo_qr']
         widgets = {
-            'marca': forms.Select(attrs={'class': 'form-control select2'}),
-            'modelo': forms.Select(attrs={'class': 'form-control select2'}),
-            'serie': forms.TextInput({'class': 'form-control'}),
-            'tarima': forms.Select(attrs={'class': 'form-control select2'}),
-            'puerto': forms.Select(attrs={'class': 'form-control select2'}),
+            'marca': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '1'}),
+            'modelo': forms.TextInput(attrs={'class': 'form-control', 'tabindex': '2'}),
+            'serie': forms.TextInput({'class': 'form-control', 'tabindex': '3'}),
+            'tarima': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '4'}),
+            'puerto': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '6'}),
+            'descripcion': forms.Textarea(attrs={'cols': 30, 'rows': 3, 'class': 'form-control', 'tabindex': '5'}),
                    }
 
 
@@ -49,18 +50,26 @@ class CPUForm(forms.ModelForm):
             'codigo_qr'
             ]
         widgets = {
-            'marca': forms.Select(attrs={'class': 'form-control select2'}),
-            'modelo': forms.Select(attrs={'class': 'form-control select2'}),
-            'serie': forms.TextInput({'class': 'form-control'}),
-            'tarima': forms.Select(attrs={'class': 'form-control select2'}),
+            'marca': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '1'}),
+            'modelo': forms.TextInput(attrs={'class': 'form-control', 'tabindex': '2'}),
+            'serie': forms.TextInput({'class': 'form-control', 'tabindex': '3'}),
+            'tarima': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '4'}),
             'puerto': forms.Select(attrs={'class': 'form-control select2'}),
             'cantidad_puertos': forms.TextInput({'class': 'form-control'}),
-            'ram': forms.TextInput({'class': 'form-control'}),
-            'ram_medida': forms.Select(attrs={'class': 'form-control select2'}),
-            'disco_duro': forms.Select(attrs={'class': 'form-control select2'}),
-            'version_sistema': forms.Select(attrs={'class': 'form-control select2'}),
-            'procesador': forms.Select(attrs={'class': 'form-control select2'}),
+            'ram': forms.NumberInput({'class': 'form-control', 'tabindex': '9'}),
+            'ram_medida': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '10'}),
+            'disco_duro': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '8'}),
+            'version_sistema': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '7'}),
+            'procesador': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '6'}),
+            'descripcion': forms.Textarea(attrs={'cols': 30, 'rows': 3, 'class': 'form-control', 'tabindex': '5'}),
+            'servidor': forms.CheckboxInput({'class': 'icheckbox_square-red', 'tabindex': '11'}),
+            'all_in_one': forms.CheckboxInput({'class': 'icheckbox_square-red', 'tabindex': '12'}),
         }
+
+    def __init__(self, *args, **kwargs):
+        super(CPUForm, self).__init__(*args, **kwargs)
+        self.fields['disco_duro'].queryset = inv_m.HDD.objects.filter(valido = True)
+
 
 
 class LaptopForm(forms.ModelForm):
@@ -81,18 +90,22 @@ class LaptopForm(forms.ModelForm):
             'codigo_qr'
             ]
         widgets = {
-            'marca': forms.Select(attrs={'class': 'form-control select2'}),
-            'modelo': forms.Select(attrs={'class': 'form-control select2'}),
-            'serie': forms.TextInput({'class': 'form-control'}),
-            'tarima': forms.Select(attrs={'class': 'form-control select2'}),
-            'procesador': forms.Select(attrs={'class': 'form-control select2'}),
-            'version_sistema': forms.Select(attrs={'class': 'form-control select2'}),
-            'disco_duro': forms.Select(attrs={'class': 'form-control select2'}),
-            'cantidad_puertos': forms.TextInput({'class': 'form-control'}),
-            'ram': forms.TextInput({'class': 'form-control'}),
-            'ram_medida': forms.Select(attrs={'class': 'form-control select2'}),
-            'pulgadas': forms.TextInput({'class': 'form-control'}),
+            'marca': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '1'}),
+            'modelo': forms.TextInput(attrs={'class': 'form-control', 'tabindex': '2'}),
+            'serie': forms.TextInput({'class': 'form-control', 'tabindex': '3'}),
+            'tarima': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '4'}),
+            'procesador': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '6'}),
+            'version_sistema': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '7'}),
+            'disco_duro': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '8'}),
+            'ram': forms.NumberInput({'class': 'form-control', 'tabindex': '9'}),
+            'ram_medida': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '10'}),
+            'pulgadas': forms.NumberInput({'class': 'form-control', 'tabindex': '11'}),
+            'descripcion': forms.Textarea(attrs={'cols': 30, 'rows': 3, 'class': 'form-control', 'tabindex': '5'}),
         }
+
+    def __init__(self, *args, **kwargs):
+        super(LaptopForm, self).__init__(*args, **kwargs)
+        self.fields['disco_duro'].queryset = inv_m.HDD.objects.filter(valido = True)
 
 
 class MonitorForm(forms.ModelForm):
@@ -113,13 +126,14 @@ class MonitorForm(forms.ModelForm):
             'codigo_qr'
             ]
         widgets = {
-            'marca': forms.Select(attrs={'class': 'form-control select2'}),
-            'modelo': forms.Select(attrs={'class': 'form-control select2'}),
-            'serie': forms.TextInput({'class': 'form-control '}),
-            'tarima': forms.Select(attrs={'class': 'form-control select2'}),
-            'tipo_monitor': forms.Select(attrs={'class': 'form-control select2'}),
-            'pulgadas': forms.TextInput({'class': 'form-control'}),
-            'puerto': forms.Select(attrs={'class': 'form-control select2'}),
+            'marca': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '1'}),
+            'modelo': forms.TextInput(attrs={'class': 'form-control', 'tabindex': '2'}),
+            'serie': forms.TextInput({'class': 'form-control ', 'tabindex': '3'}),
+            'tarima': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '4'}),
+            'tipo_monitor': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '6'}),
+            'pulgadas': forms.NumberInput({'class': 'form-control', 'tabindex': '8'}),
+            'puerto': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '7'}),
+            'descripcion': forms.Textarea(attrs={'cols': 30, 'rows': 3, 'class': 'form-control', 'tabindex': '5'}),
         }
 
 
@@ -141,12 +155,13 @@ class MouseForm(forms.ModelForm):
             'codigo_qr'
             ]
         widgets = {
-            'marca': forms.Select(attrs={'class': 'form-control select2'}),
-            'modelo': forms.Select(attrs={'class': 'form-control select2'}),
-            'serie': forms.TextInput({'class': 'form-control '}),
-            'tarima': forms.Select(attrs={'class': 'form-control select2'}),
-            'tipo_mouse': forms.Select(attrs={'class': 'form-control select2'}),
-            'puerto': forms.Select(attrs={'class': 'form-control select2'}),
+            'marca': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '1'}),
+            'modelo': forms.TextInput(attrs={'class': 'form-control', 'tabindex': '2'}),
+            'serie': forms.TextInput({'class': 'form-control ', 'tabindex': '3'}),
+            'tarima': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '4'}),
+            'tipo_mouse': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '7'}),
+            'puerto': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '6'}),
+            'descripcion': forms.Textarea(attrs={'cols': 30, 'rows': 3, 'class': 'form-control', 'tabindex': '5'}),
         }
 
 
@@ -168,18 +183,17 @@ class DispositivoRedForm(forms.ModelForm):
             'codigo_qr'
             ]
         widgets = {
-            'marca': forms.Select(attrs={'class': 'form-control select2'}),
-            'modelo': forms.Select(attrs={'class': 'form-control select2'}),
-            'serie': forms.TextInput({'class': 'form-control '}),
-            'tarima': forms.Select(attrs={'class': 'form-control select2'}),
-            'procesador': forms.Select(attrs={'class': 'form-control select2'}),
-            'version_sistema': forms.Select(attrs={'class': 'form-control select2'}),
-            'disco_duro': forms.Select(attrs={'class': 'form-control select2'}),
-            'cantidad_puertos': forms.TextInput({'class': 'form-control'}),
-            'puerto': forms.Select(attrs={'class': 'form-control select2'}),
-            'velocidad': forms.TextInput({'class': 'form-control'}),
-            'velocidad_medida': forms.Select(attrs={'class': 'form-control select2'}),
+            'marca': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '1'}),
+            'modelo': forms.TextInput(attrs={'class': 'form-control', 'tabindex': '2'}),
+            'serie': forms.TextInput({'class': 'form-control ', 'tabindex': '3'}),
+            'tarima': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '4'}),
+            'cantidad_puertos': forms.NumberInput({'class': 'form-control', 'tabindex': '6'}),
+            'puerto': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '7'}),
+            'velocidad': forms.NumberInput({'class': 'form-control', 'tabindex': '8'}),
+            'velocidad_medida': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '9'}),
+            'descripcion': forms.Textarea(attrs={'cols': 30, 'rows': 3, 'class': 'form-control', 'tabindex': '5'}),
         }
+
 
 class DispositivoAccessPointForm(forms.ModelForm):
     """Formulario para la creación de :class:`DispositivoRed`.
@@ -199,17 +213,15 @@ class DispositivoAccessPointForm(forms.ModelForm):
             'codigo_qr'
             ]
         widgets = {
-            'marca': forms.Select(attrs={'class': 'form-control select2'}),
-            'modelo': forms.Select(attrs={'class': 'form-control select2'}),
-            'serie': forms.TextInput({'class': 'form-control '}),
-            'tarima': forms.Select(attrs={'class': 'form-control select2'}),
-            'procesador': forms.Select(attrs={'class': 'form-control select2'}),
-            'version_sistema': forms.Select(attrs={'class': 'form-control select2'}),
-            'disco_duro': forms.Select(attrs={'class': 'form-control select2'}),
-            'cantidad_puertos': forms.TextInput({'class': 'form-control'}),
-            'puerto': forms.Select(attrs={'class': 'form-control select2'}),
-            'velocidad': forms.TextInput({'class': 'form-control'}),
-            'velocidad_medida': forms.Select(attrs={'class': 'form-control select2'}),
+            'marca': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '1'}),
+            'modelo': forms.TextInput(attrs={'class': 'form-control', 'tabindex': '2'}),
+            'serie': forms.TextInput({'class': 'form-control ', 'tabindex': '3'}),
+            'tarima': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '4'}),
+            'cantidad_puertos': forms.NumberInput({'class': 'form-control', 'tabindex': '6'}),
+            'puerto': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '7'}),
+            'velocidad': forms.NumberInput({'class': 'form-control', 'tabindex': '8'}),
+            'velocidad_medida': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '9'}),
+            'descripcion': forms.Textarea(attrs={'cols': 30, 'rows': 3, 'class': 'form-control', 'tabindex': '5'}),
         }
 
 
@@ -231,18 +243,20 @@ class TabletForm(forms.ModelForm):
             'codigo_qr'
             ]
         widgets = {
-            'marca': forms.Select(attrs={'class': 'form-control select2'}),
-            'modelo': forms.Select(attrs={'class': 'form-control select2'}),
-            'serie': forms.TextInput({'class': 'form-control '}),
-            'tarima': forms.Select(attrs={'class': 'form-control select2'}),
-            'version_sistema': forms.Select(attrs={'class': 'form-control select2'}),
-            'so_id': forms.Select(attrs={'class': 'form-control select2'}),
-            'almacenamiento': forms.TextInput({'class': 'form-control'}),
-            'medida_almacenamiento': forms.Select(attrs={'class': 'form-control select2'}),
-            'pulgadas': forms.TextInput({'class': 'form-control'}),
-            'procesador': forms.Select(attrs={'class': 'form-control select2'}),
-            'ram': forms.TextInput({'class': 'form-control'}),
-            'medida_ram': forms.Select(attrs={'class': 'form-control select2'}),
+            'marca': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '1'}),
+            'modelo': forms.TextInput(attrs={'class': 'form-control', 'tabindex': '2'}),
+            'serie': forms.TextInput({'class': 'form-control ', 'tabindex': '3'}),
+            'tarima': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '4'}),
+            'version_sistema': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '6'}),
+            'so_id': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '7'}),
+            'almacenamiento': forms.NumberInput({'class': 'form-control', 'tabindex': '8'}),
+            'medida_almacenamiento': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '9'}),
+            'pulgadas': forms.NumberInput({'class': 'form-control', 'tabindex': '10'}),
+            'procesador': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '11'}),
+            'ram': forms.NumberInput({'class': 'form-control', 'tabindex': '12'}),
+            'medida_ram': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '13'}),
+            'almacenamiento_externo': forms.CheckboxInput({'class': 'icheckbox_square-red', 'tabindex': '14'}),
+            'descripcion': forms.Textarea(attrs={'cols': 30, 'rows': 3, 'class': 'form-control', 'tabindex': '5'}),
         }
 
 
@@ -264,13 +278,14 @@ class HDDForm(forms.ModelForm):
             'codigo_qr'
             ]
         widgets = {
-            'marca': forms.Select(attrs={'class': 'form-control select2'}),
-            'modelo': forms.Select(attrs={'class': 'form-control select2'}),
-            'serie': forms.TextInput({'class': 'form-control'}),
-            'tarima': forms.Select(attrs={'class': 'form-control select2'}),
-            'medida': forms.Select(attrs={'class': 'form-control select2'}),
-            'puerto': forms.Select(attrs={'class': 'form-control select2'}),
-            'capacidad': forms.TextInput({'class': 'form-control'}),
+            'marca': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '1'}),
+            'modelo': forms.TextInput(attrs={'class': 'form-control', 'tabindex': '2'}),
+            'serie': forms.TextInput({'class': 'form-control', 'tabindex': '3'}),
+            'tarima': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '4'}),
+            'medida': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '8'}),
+            'puerto': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '6'}),
+            'capacidad': forms.NumberInput({'class': 'form-control', 'tabindex': '7'}),
+            'descripcion': forms.Textarea(attrs={'cols': 30, 'rows': 3, 'class': 'form-control', 'tabindex': '5'}),
         }
 
 
@@ -313,6 +328,23 @@ class DispositivoInformeForm(forms.Form):
         required=False,
         widget=forms.Select(attrs={'class': 'form-control'}))
 
+    marca = forms.ModelChoiceField(
+        queryset=inv_m.DispositivoMarca.objects.all(),
+        label='Marca',
+        required=False,
+        widget=forms.Select(attrs={'class': 'form-control select2'}))
+
+    modelo = forms.CharField(
+        label='Modelo',
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-control'}))
+
+    tarima = forms.ModelChoiceField(
+        queryset=inv_m.Tarima.objects.all(),
+        label='Tarima',
+        required=False,
+        widget=forms.Select(attrs={'class': 'form-control select2'}))
+
 
 class AsignacionTecnicoForm(forms.ModelForm):
     """Formulario para manipulación de :class:`AsignacionTecnico`
@@ -331,6 +363,7 @@ class AsignacionTecnicoForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(AsignacionTecnicoForm, self).__init__(*args, **kwargs)
+        self.fields['usuario'].queryset = User.objects.filter(groups__name="inventario")
         self.fields['usuario'].label_from_instance = lambda usuario: usuario.get_full_name()
 
 
@@ -349,22 +382,18 @@ class SolicitudMovimientoCreateForm(forms.ModelForm):
             'recibida',
             'recibida_por',
             'devolucion',
-            'desecho'
+            'desecho',
+            'rechazar',
+            'salida_kardex',
+            'entrada_kardex'
+
             ]
         widgets = {
-            'tipo_dispositivo': forms.Select(attrs={'class': 'form-control'}),
-            'cantidad': forms.TextInput({'class': 'form-control'}),
+            'tipo_dispositivo': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '1'}),
+            'cantidad': forms.TextInput({'class': 'form-control', 'tabindex': '2'}),
+            'observaciones': forms.Textarea({'class': 'form-control', 'tabindex': '3'}),
         }
 
-    def __init__(self, *args, **kwargs):
-        super(SolicitudMovimientoCreateForm, self).__init__(*args, **kwargs)
-        self.fields['tipo_dispositivo'].queryset = inv_m.DispositivoTipo.objects.filter(usa_triage=True)
-
-    """def clean(self):
-        cleaned_data = super(SolicitudMovimientoCreateForm, self).clean()
-        if cleaned_data['etapa_inicial'] == cleaned_data['etapa_final']:
-            raise forms.ValidationError('Las etapas no pueden ser iguales.')"""
-            
 
 class DevolucionCreateForm(forms.ModelForm):
     """Formulario para el control de las Solicitud de Movimiento de la empresa.
@@ -380,16 +409,17 @@ class DevolucionCreateForm(forms.ModelForm):
             'etapa_final',
             'recibida',
             'recibida_por',
-            'devolucion'
+            'devolucion',
+            'rechazar',
+            'salida_kardex',
+            'entrada_kardex'
             ]
         widgets = {
-            'tipo_dispositivo': forms.Select(attrs={'class': 'form-control'}),
-            'cantidad': forms.TextInput({'class': 'form-control'}),
+            'tipo_dispositivo': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '1'}),
+            'cantidad': forms.TextInput({'class': 'form-control', 'tabindex': '2'}),
+            'desecho': forms.CheckboxInput({'class': 'icheckbox_square-red', 'tabindex': '3'}),
+            'observaciones': forms.Textarea({'class': 'form-control', 'tabindex': '4'}),
         }
-
-    def __init__(self, *args, **kwargs):
-        super(DevolucionCreateForm, self).__init__(*args, **kwargs)
-        self.fields['tipo_dispositivo'].queryset = inv_m.DispositivoTipo.objects.filter(usa_triage=True)
 
 
 class SolicitudMovimientoUpdateForm(forms.ModelForm):
@@ -428,9 +458,24 @@ class DispositivosTarimaForm(forms.ModelForm):
     """
     class Meta:
         model = inv_m.Dispositivo
-        fields = ('tarima', 'estado', 'etapa', )
+        fields = ('tarima', 'tipo', 'estado', 'etapa',)
         widgets = {
             'tarima': forms.TextInput({'class': 'form-control'}),
+            'tipo': forms.Select(attrs={'class': 'form-control'}),
             'estado': forms.HiddenInput(),
             'etapa': forms.HiddenInput(),
         }
+
+
+class DispositivosTarimaFormNew(forms.Form):
+    """Este Formulario se encarga de enviar los filtros para  su respectivo informe de Ofertas
+    """
+    tarima = forms.CharField(
+        label='Tarima',
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-control'}))
+    tipo = forms.ModelChoiceField(
+        queryset=inv_m.DispositivoTipo.objects.all(),
+        label='Tipo',
+        widget=forms.Select(attrs={'class': 'form-control'}),
+        required=True)

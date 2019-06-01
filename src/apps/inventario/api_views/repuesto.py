@@ -23,8 +23,16 @@ class RepuestoInventarioViewSet(viewsets.ModelViewSet):
 
     """
     serializer_class = inv_s.RepuestoInventarioSerializer
-    queryset = inv_m.Repuesto.objects.all()
-    filter_fields = ('tipo', 'estado',)
+    filter_fields = ('id', 'tipo', 'estado', 'tarima', 'marca', 'modelo')
+
+    def get_queryset(self):
+        triage = self.request.query_params.get('id', None)
+        tipo_dis = self.request.user.tipos_dispositivos.tipos.all()
+
+        if triage:
+            return inv_m.Repuesto.objects.all().filter(tipo__in=tipo_dis)
+
+        return inv_m.Repuesto.objects.all().filter(tipo__in=tipo_dis, valido=True)
 
     @action(methods=['post'], detail=False)
     def asignar_repuesto(self, request, pk=None):

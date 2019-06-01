@@ -81,6 +81,42 @@ urlpatterns = [
         inv_v.DispositivoAsignados.as_view(),
         name='dispositivo_asignados'
     ),
+    # Imprimir Garantia
+    url(
+        r'^salida/(?P<pk>\d+)/garantia/$',
+        inv_v.GarantiaPrintView.as_view(),
+        name='garantia_print'
+    ),
+    # Imprimir informe de laptops
+    url(
+        r'^salida/(?P<pk>\d+)/laptop/$',
+        inv_v.LaptopPrintView.as_view(),
+        name='laptop_print'
+    ),
+    # Imprimir informe de Tablets
+    url(
+        r'^salida/(?P<pk>\d+)/tablets/$',
+        inv_v.TabletPrintView.as_view(),
+        name='tablet_print'
+    ),
+    # Imprimir informe de TPE
+    url(
+        r'^salida/(?P<pk>\d+)/tpe/$',
+        inv_v.TpePrintView.as_view(),
+        name='tpe_print'
+    ),
+    # Imprimir informe de mineduc
+    url(
+        r'^salida/(?P<pk>\d+)/mineduc/$',
+        inv_v.MineducPrintView.as_view(),
+        name='mineduc_print'
+    ),
+    # Imprimir carta e prestamo
+    url(
+        r'^salida/(?P<pk>\d+)/prestamo/$',
+        inv_v.PrestamoCartaPrintView.as_view(),
+        name='prestamo_carta_print'
+    ),
 
 
 ]

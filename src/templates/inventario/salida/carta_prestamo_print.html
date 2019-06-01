@@ -1,0 +1,135 @@
+{%load staticfiles%}
+<!DOCTYPE html>
+<html>
+<head>
+  <title>
+    Constancia de préstamo
+  </title>
+</head>
+<meta charset="utf-8"/>
+<body>
+  <div align="center">
+    <div  align="left" class="encabezado">
+      <img src="{% static "image/funsepalogo.png" %}" width="75" height="75" />
+    </div>
+  </div>
+  <div align="justify">
+      <br />
+      <br />
+      <br />
+      Guatemala, {{salidainventario.fecha}}
+      <br />
+      <br />
+    Señor(a)
+    <br />
+    <br />
+    Director(a) <b>{{Encargado}}</b>
+    <br />
+    <b>Establecimiento {{salidainventario.escuela}}</b>
+    <br />
+    <b>Código {{salidainventario.escuela.codigo}} </b>
+    <br />
+    Presente
+    <br />
+    <br />
+    Respetable Sr(a).
+    <br />
+    <br />
+    <div aling="justify">
+      Con la presente nos es grato hacer de su conocimiento que el equipo tecnológico
+entregado al establecimiento que está a su cargo, fue posible gracias al apoyo de <b>{{salidainventario.beneficiario}}</b>
+Como constancia de esta entrega se adjuntan los documentos de “GARANTIA
+FUNSEPA OFICIO No. TPE-G <b>{{salidainventario}}</b>” y “ENTREGA DE EQUIPO No. <b>{{salidainventario}}</b>”; ambos
+con fecha <b>{{salidainventario.fecha}}</b>del presente año.
+Según los documentos antes indicados, las <u><b>&nbsp&nbsp&nbsp{{dispositivo_total}}&nbsp&nbsp&nbsp</b></u> {% if cpu == 1 %}tablets{% else %}computadoras{% endif %}  en las
+que se incluye <u><b>&nbsp&nbsp&nbsp{{cpu_servidor}}&nbsp&nbsp&nbsp </b></u>servidor, cuentan con garantía de seis meses sobre cualquier
+falla que se presente, siempre y cuando esto no sea por mal manejo o descuido del
+equipo.
+Este equipo se entrega en calidad de <b>Préstamo</b>, bajo el entendido que este es
+para uso de los maestros y niños de la escuela; por lo que es responsabilidad de la
+comunidad educativa en general su cuidado y resguardo.
+Funsepa estará en constante comunicación y monitoreo sobre el uso del equipo y
+en caso se compruebe que el mismo no está siendo aprovechado para mejorar la
+educación de los niños se estará en derecho de retirarlo del Centro Educativo.
+Sin otro particular, se suscribe la presente
+<br />
+<br />
+Atentamente,
+
+    </div>
+
+  </div>
+  <div>
+    <table style="width:100%">
+      <tr>
+        <th>
+          <br />
+          <h6>
+            _______________________________
+            <br />
+            Funsepa
+            <br />
+             Licda. Karla del Valle
+            <br/>
+            Coordinadora TPE
+          </h6>
+        </th>
+        <th>
+          <br />
+          <h6>
+            Recibido:
+            ________________________________
+            <br>
+              {{Encargado}}
+          </h6>
+        </th>
+      </tr>
+    </table>
+  </div>
+  <div align="center">
+    <footer>
+      <p>
+        <center>
+          <h6>
+            14 avenida 19-50 Zona 4 de Mixco, Condado el Naranjo. OfiBodegas San Sebastián, Bodega 36 Guatemala.<br />
+            +502 24352739/ 24319639<br />
+            Email: info@funsepa.org www.funsepa.org
+          </h6>
+    </center>
+      </p>
+    </footer>
+  </div>
+</body>
+<style type="text/css">
+body{
+  position: absolute;
+  margin-top: 30px;
+  font-size: 16.5px;
+  z-index: 1;
+}
+@page{
+  margin-top: 0mm;
+  margin-bottom: 0mm;
+  margin-left: 10mm;
+  margin-right: 10mm;
+}
+footer{
+  color: #D3D3D3;
+  margin-top: 50px;
+}
+.encabezado{
+position: absolute;
+margin-top: -30px;
+z-index: 0;
+}
+h6{
+  font-weight: normal;
+  font-style: normal;
+}
+</style>
+</html>
+{% block extra_js %}
+<script>
+window.onload= function () { window.print();window.close();   }
+</script>
+{% endblock extra_js %}

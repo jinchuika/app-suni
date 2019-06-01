@@ -163,10 +163,15 @@ class Escuela(models.Model):
         Returns:
             dict: Diccionario con el nombre de la escuela y el listado de participantes
         """
-        url = settings.LEGACY_URL['cyd_informe']
+        url = '' #settings.LEGACY_URL['cyd_informe']
         if url is not '':
             params = {'udi': self.codigo}
-            resp = requests.post(url=url, data=params)
+            try:
+                resp = requests.post(url=url, data=params)
+            except:
+                time.sleep(5)
+            
+            
             return resp.json()
         else:
             return [[], []]
@@ -174,7 +179,7 @@ class Escuela(models.Model):
     @property
     def info_capacitacion(self):
         try:
-            qs = legacy_m.EscuelaSede.objects.filter(udi=self.codigo)
+            qs = [] #legacy_m.EscuelaSede.objects.filter(udi=self.codigo)
         except:
             qs = []
         return qs
@@ -332,31 +337,52 @@ class EscMatricula(models.Model):
 
     @property
     def m_promovido_p(self):
-        return int(self.m_promovido / self.m_total * 100)
+        if self.m_total != 0:
+            return int(self.m_promovido / self.m_total * 100)
+        else:
+            return 0
 
     @property
     def m_no_promovido_p(self):
-        return int(self.m_no_promovido / self.m_total * 100)
+        if self.m_total != 0:
+            return int(self.m_no_promovido / self.m_total * 100)
+        else:
+            return 0
 
     @property
     def m_retirado_p(self):
-        return int(self.m_retirado / self.m_total * 100)
+        if self.m_total != 0:
+           return int(self.m_retirado / self.m_total * 100)
+        else:
+            return 0
 
     @property
     def h_promovido_p(self):
-        return int(self.h_promovido / self.h_total * 100)
+        if self.h_total != 0:
+            return int(self.h_promovido / self.h_total * 100)
+        else:
+            return 0
 
     @property
     def h_no_promovido_p(self):
-        return int(self.h_no_promovido / self.h_total * 100)
+        if self.h_no_promovido != 0:
+            return int(self.h_no_promovido / self.h_total * 100)
+        else:
+            return 0
 
     @property
     def h_retirado_p(self):
-        return int(self.h_retirado / self.h_total * 100)
+        if self.h_total != 0:
+            return int(self.h_retirado / self.h_total * 100)
+        else:
+            return 0
 
     @property
     def t_promovido_p(self):
-        return int(self.t_promovido / (self.t_promovido + self.t_retirado + self.t_no_promovido) * 100)
+        if self.t_promovido != 0:
+            return int(self.t_promovido / (self.t_promovido + self.t_retirado + self.t_no_promovido) * 100)
+        else:
+            return 0
 
     def get_absolute_url(self):
         return self.escuela.get_absolute_url()

@@ -1,10 +1,33 @@
+
 {% load staticfiles %}
+<!DOCTYPE html>
+<html>
+<body>
+  <div style="width:2.8cm; height:1.5cm;">
+    <center>
+      <img src="{{object.codigo_qr.url}}" class="img-thumbnail" alt="{{object.codigo_qr}}" width="60">
+    </center>
+  </div>
+  <div style="width:2.8cm; height:0.5cm;">
+    <center>
+      <font size="2"><b>{{object}}</b></font>
+    </center>
+  </div>
+</body>
+</html>
+<style type="text/css">
+	@page{
+	margin: 0;
+  padding: -1px;
+}
+img {
+    display: inline-block;
 
-
-<img src="{{object.codigo_qr.url}}" class="img-thumbnail" alt="" width="85" height="85"></td>
-<h5>{{object.triage}} </h5>
-
-
+}
+div{
+  page-break-inside: always;
+}
+</style>
 {% block extra_js %}
 <script>
 window.onload= function () { window.print();window.close();   }

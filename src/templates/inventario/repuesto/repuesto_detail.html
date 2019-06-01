@@ -76,18 +76,12 @@
 									<br>
 								</td>
 							</tr>
-              <tr>
-								<th>QR</th>
-								<td>
-									<img src="{{repuesto.codigo_qr.url}}" class="img-thumbnail" alt="">
-									<br>
-								</td>
-							</tr>
 						</table>
 					</div>
 				</div>
 			</div>
-      <div class="col-md-6">
+			{% if dispositivo %}
+			<div class="col-md-6">
 				<div class="box">
 					<div class="box-header">
 						<div class="row">
@@ -171,6 +165,7 @@
 					</div>
 				</div>
 			</div>
+			{%endif%}
     </div>
   </div>
 </section>

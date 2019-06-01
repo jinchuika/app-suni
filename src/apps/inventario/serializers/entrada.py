@@ -1,7 +1,9 @@
 from rest_framework import serializers
 from django.urls import reverse_lazy
+from django.core.exceptions import ObjectDoesNotExist
 
 from apps.inventario import models as inv_m
+from apps.kardex import models as kax_m
 
 
 class EntradaDetalleSerializer(serializers.ModelSerializer):
@@ -22,6 +24,11 @@ class EntradaDetalleSerializer(serializers.ModelSerializer):
     repuesto_list = serializers.SerializerMethodField(read_only=True)
     dispositivo_qr = serializers.SerializerMethodField(read_only=True)
     repuesto_qr = serializers.SerializerMethodField(read_only=True)
+    # Kardex
+    es_kardex = serializers.StringRelatedField(source='tipo_dispositivo.kardex')
+    url_kardex = serializers.SerializerMethodField(read_only=True)
+    # Desecho
+    existencia_desecho = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = inv_m.EntradaDetalle
@@ -50,12 +57,19 @@ class EntradaDetalleSerializer(serializers.ModelSerializer):
             'qr_repuestos',
             'qr_dispositivo',
             'dispositivo_list',
-            'repuesto_list'
-
-        )
+            'repuesto_list',
+            'enviar_kardex',
+            'proveedor_kardex',
+            'estado_kardex',
+            'tipo_entrada_kardex',
+            'ingresado_kardex',
+            'url_kardex',
+            'existencia_desecho',
+            'es_kardex'
+            )
 
     def get_tdispositivo(self, object):
-        return object.tipo_dispositivo.__str__()
+        return object.tipo_dispositivo.tipo
 
     def get_update_url(self, object):
         return reverse_lazy('entradadetalle_update', kwargs={'pk': object.id})
@@ -71,6 +85,24 @@ class EntradaDetalleSerializer(serializers.ModelSerializer):
 
     def get_repuesto_list(self, object):
         return reverse_lazy('detalles_repuesto', kwargs={'pk': object.entrada, 'detalle': object.id})
+
+    def get_url_kardex(self, object):
+        try:
+            detalle_kardex = kax_m.Entrada.objects.get(inventario_entrada=object.entrada)
+            if(object.tipo_dispositivo.usa_triage is False):
+                return reverse_lazy('kardex_entrada_detail', kwargs={'pk': detalle_kardex.id})
+            else:
+                return ""
+        except ObjectDoesNotExist as e:
+            print("Aun no se a creado el detalle")
+
+    def get_existencia_desecho(self, obj):
+        inventario_desecho = obj.existencia_desecho.all()
+        return inventario_desecho
+
+    def get_existencia_desecho(self, obj):
+        inventario_desecho = obj.existencia_desecho.all()
+        return inventario_desecho
 
 
 class EntradaSerializer(serializers.ModelSerializer):

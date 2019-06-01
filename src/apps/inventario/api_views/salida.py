@@ -2,6 +2,7 @@ import django_filters
 from django.db.utils import OperationalError
 from django.core.exceptions import ObjectDoesNotExist
 from datetime import datetime
+from django.contrib.auth.models import User
 
 from django_filters import rest_framework as filters
 from rest_framework import status, viewsets
@@ -23,7 +24,48 @@ class SalidaInventarioViewSet(viewsets.ModelViewSet):
     """ ViewSet para generar informe de la :class: `SalidaInventario`.
     """
     serializer_class = inv_s.SalidaInventarioSerializer
-    queryset = inv_m.SalidaInventario.objects.all()
+    queryset = inv_m.SalidaInventario.objects.all().order_by('fecha')
+
+    @action(methods=['post'], detail=True)
+    def stock_kardex(self, request, pk=None):
+        """Metodo para obtener la existencia que hay de insumons en kardex
+        """
+        tipo_dispositivo = request.data['tipo_dispositivo']
+        validar_dispositivo = inv_m.PaqueteTipo.objects.get(id=tipo_dispositivo)
+        if validar_dispositivo.tipo_dispositivo.usa_triage is False:
+                altas = inv_m.SolicitudMovimiento.objects.filter(
+                    recibida=True,
+                    devolucion=False,
+                    tipo_dispositivo__tipo=validar_dispositivo).aggregate(altas_cantidad=Sum('cantidad'))
+                if altas['altas_cantidad'] is None:
+                    altas['altas_cantidad'] = 0
+                bajas = inv_m.SolicitudMovimiento.objects.filter(
+                    recibida=True,
+                    devolucion=True,
+                    tipo_dispositivo__tipo=validar_dispositivo).aggregate(bajas_cantidad=Sum('cantidad'))
+                if bajas['bajas_cantidad'] is None:
+                    bajas['bajas_cantidad'] = 0
+                salidas = inv_m.Paquete.objects.filter(
+                    tipo_paquete=validar_dispositivo,
+                    desactivado=False
+                ).aggregate(salidas_cantidad=Sum('cantidad'))
+                if salidas['salidas_cantidad'] is None:
+                    salidas['salidas_cantidad'] = 0
+                total = altas['altas_cantidad'] - (bajas['bajas_cantidad'] + salidas['salidas_cantidad'])
+                return Response(
+                    {'mensaje': total},
+                    status=status.HTTP_200_OK
+                )
+        else:
+            return Response(
+                {'mensaje': 'Usa Triage'},
+                status=status.HTTP_200_OK
+            )
+
+        return Response(
+            {'mensaje': 'Exitoso'},
+            status=status.HTTP_200_OK
+        )
 
     @action(methods=['post'], detail=True)
     def asignar_paquetes(self, request, pk=None):
@@ -87,6 +129,8 @@ class SalidaInventarioViewSet(viewsets.ModelViewSet):
 
     @action(methods=['post'], detail=True)
     def cambios_etapa(self, request, pk=None):
+        """Metodo para cambiar de esta los dipositivos para que contabiliadad pueda verlos
+        """
         id_paquete = request.data["paquete"]
         paquete = inv_m.DispositivoPaquete.objects.filter(paquete=id_paquete)
         for dispositivos in paquete:
@@ -115,10 +159,13 @@ class SalidaInventarioViewSet(viewsets.ModelViewSet):
         if(str(estado.estado) == "Listo"):
             if not tipo_salida.especial:
                 tipo_dis = self.request.user.tipos_dispositivos.tipos.all()
-                tipo_paquete = inv_m.PaqueteTipo.objects.filter(tipo_dispositivo__in=tipo_dis)
+                tipo_paquete = inv_m.PaqueteTipo.objects.filter(
+                    tipo_dispositivo__in=tipo_dis).exclude(tipo_dispositivo__usa_triage=False)
                 cantidad_paquetes = inv_m.Paquete.objects.filter(
                     salida=id_salida,
                     tipo_paquete__in=tipo_paquete).aggregate(total_cantidad=Sum('cantidad'))
+                if(cantidad_paquetes['total_cantidad'] is None):
+                    cantidad_paquetes['total_cantidad'] = 0
                 cantidad_dispositivos = inv_m.DispositivoPaquete.objects.filter(
                     paquete__salida=id_salida,
                     paquete__tipo_paquete__in=tipo_paquete).count()
@@ -243,7 +290,7 @@ class RevisionSalidaViewSet(viewsets.ModelViewSet):
         finalizar_salida = inv_m.SalidaInventario.objects.get(id=id_salida)
         salida = inv_m.RevisionSalida.objects.get(salida=id_salida)
         paquetes = inv_m.Paquete.objects.filter(salida=id_salida,
-                                                aprobado=True)
+                                                aprobado=True).exclude(tipo_paquete__tipo_dispositivo__usa_triage=False)
 
         for paquete in paquetes:
             dispositivosPaquetes = inv_m.DispositivoPaquete.objects.filter(paquete=paquete.id,
@@ -252,8 +299,9 @@ class RevisionSalidaViewSet(viewsets.ModelViewSet):
             for dispositivos in dispositivosPaquetes:
                 dispositivos.dispositivo.etapa = inv_m.DispositivoEtapa.objects.get(id=inv_m.DispositivoEtapa.EN)
                 dispositivos.dispositivo.valido = False
+                dispositivos.dispositivo.save()
                 try:
-                    cambios_etapa = inv_m.CambioEtapa.objects.get(dispositivo__triage=dispositivos.dispositivo)
+                    cambios_etapa = inv_m.CambioEtapa.objects.filter(dispositivo__triage=dispositivos.dispositivo).order_by('-id')[0]
                     cambios_etapa.etapa_final = inv_m.DispositivoEtapa.objects.get(id=inv_m.DispositivoEtapa.EN)
                     cambios_etapa.creado_por = request.user
                     cambios_etapa.save()
@@ -264,15 +312,17 @@ class RevisionSalidaViewSet(viewsets.ModelViewSet):
                 periodo_actual = conta_m.PeriodoFiscal.objects.get(actual=True)
                 salida = dispositivos.paquete.salida
                 triage = dispositivos.dispositivo
-                precio_dispositivo = conta_m.MovimientoDispositivo.objects.get(dispositivo__triage=triage)
-                movimiento = conta_m.MovimientoDispositivo(
-                    dispositivo=dispositivos.dispositivo,
-                    periodo_fiscal=periodo_actual,
-                    tipo_movimiento=conta_m.MovimientoDispositivo.BAJA,
-                    referencia='Salida {}'.format(salida),
-                    precio=precio_dispositivo.precio)
-                movimiento.save()
-            dispositivos.dispositivo.save()
+                precio_dispositivo = conta_m.PrecioDispositivo.objects.get(dispositivo__triage=triage, activo=True)
+                movimiento_dispositivo = conta_m.MovimientoDispositivo.objects.filter(dispositivo__triage = triage, tipo_movimiento = conta_m.MovimientoDispositivo.BAJA)
+                if len(movimiento_dispositivo) == 0:
+                    movimiento = conta_m.MovimientoDispositivo(
+                        dispositivo=dispositivos.dispositivo,
+                        periodo_fiscal=periodo_actual,
+                        tipo_movimiento=conta_m.MovimientoDispositivo.BAJA,
+                        referencia='Salida {}'.format(salida),
+                        precio=precio_dispositivo.precio,
+                        fecha = finalizar_salida.fecha)
+                    movimiento.save()
         salida.aprobada = True
         salida.save()
         finalizar_salida.en_creacion = False
@@ -311,27 +361,85 @@ class RevisionSalidaViewSet(viewsets.ModelViewSet):
         triage = request.data["triage"]
         paquete = request.data["paquete"]
         id_paquete = request.data["idpaquete"]
-        asignacion_fecha = inv_m.DispositivoPaquete.objects.get(dispositivo__triage=triage)
-        asignacion_fecha.aprobado = True
-        asignacion_fecha.fecha_aprobacion = datetime.now()
-        asignacion_fecha.save()
-        cantidad_paquetes = inv_m.Paquete.objects.get(id=id_paquete)
-        cambio_estado = inv_m.Dispositivo.objects.get(triage=triage)
-        asignaciones_aprobadas = inv_m.DispositivoPaquete.objects.filter(paquete=id_paquete, aprobado=True).count()
-        cambio_estado.estado = inv_m.DispositivoEstado.objects.get(id=inv_m.DispositivoEstado.BN)
-        cambio_estado.save()
-        if asignaciones_aprobadas == cantidad_paquetes.cantidad:
-            cantidad_paquetes.aprobado = True
-            cantidad_paquetes.save()
+        tipo = request.data["tipo"]        
+        try:
+            asignacion_fecha = inv_m.DispositivoPaquete.objects.get(dispositivo__triage=triage)
+            asignacion_fecha.aprobado = True
+            asignacion_fecha.fecha_aprobacion = datetime.now()
+            asignacion_fecha.save()
+            cantidad_paquetes = inv_m.Paquete.objects.get(id=id_paquete)
+            if tipo == "TECLADO":
+                cambio_estado = inv_m.Teclado.objects.get(triage=triage)
+            elif tipo == "MOUSE":
+                cambio_estado = inv_m.Mouse.objects.get(triage=triage)
+            elif tipo == "HDD":
+                cambio_estado = inv_m.HDD.objects.get(triage=triage)
+            elif tipo == "MONITOR":
+                cambio_estado = inv_m.Monitor.objects.get(triage=triage)
+            elif tipo == "CPU":
+                cambio_estado = inv_m.CPU.objects.get(triage=triage)
+            elif tipo == "TABLET":
+                cambio_estado = inv_m.Tablet.objects.get(triage=triage)
+            elif tipo == "LAPTOP":
+                cambio_estado = inv_m.Laptop.objects.get(triage=triage)
+            elif tipo == "SWITCH":
+                cambio_estado = inv_m.DispositivoRed.objects.get(triage=triage)
+            elif tipo == "ACCESS POINT":
+                cambio_estado = inv_m.AccessPoint.objects.get(triage=triage)
+            else:
+                cambio_estado = inv_m.Dispositivo.objects.get(triage=triage)
+            asignaciones_aprobadas = inv_m.DispositivoPaquete.objects.filter(paquete=id_paquete, aprobado=True).count()
+            cambio_estado.estado = inv_m.DispositivoEstado.objects.get(id=inv_m.DispositivoEstado.BN)
+            cambio_estado.save()
+            if asignaciones_aprobadas == cantidad_paquetes.cantidad:
+                cantidad_paquetes.aprobado = True
+                cantidad_paquetes.save()
+            return Response({
+                'mensaje': 'Dispositivo aprobado'
+            },
+                status=status.HTTP_200_OK
+            )
+        except Exception as e:
+            return Response({
+                'mensaje': 'Dispositivo no encontrado'
+            },
+                status=status.HTTP_200_OK
+            )
+
+    @action(methods=['post'], detail=True)
+    def aprobar_paquete_kardex(self, request, pk=None):
+        """Metodo para aprobar los paquetes de kardex en Control de calidad
+        """
+        id_paquete = request.data["id_paquete"]
+        paquete = inv_m.Paquete.objects.get(id=id_paquete)
+        paquete.aprobado_kardex = True
+        paquete.save()
         return Response({
-            'mensaje': 'Dispositivo aprobado'
+            'mensaje': 'Paquete de kardex aprobada'
+        },
+            status=status.HTTP_200_OK
+        )
+
+    @action(methods=['post'], detail=True)
+    def rechazar_paquete_kardex(self, request, pk=None):
+        """Metodo para rechazar los paquetes de kardex en Control de calidad
+        """
+        id_paquete = request.data["id_paquete"]
+        paquete = inv_m.Paquete.objects.get(id=id_paquete)
+        paquete.desactivado = True
+        paquete.save()
+        return Response({
+            'mensaje': 'Paquete de kardex rechazado'
         },
             status=status.HTTP_200_OK
         )
 
     @action(methods=['post'], detail=True)
     def aprobar_revision(self, request, pk=None):
+        """Metodo para aprobar la revicion de una salida designanda
+        """
         id_salida = request.data["salida"]
+        finalizar_revision = inv_m.RevisionSalida.objects.get(salida=id_salida)
         finalizar_salida = inv_m.SalidaInventario.objects.get(id=id_salida)
         estado_bueno = inv_m.DispositivoEstado.objects.get(id=inv_m.DispositivoEstado.BN)
         etapa_listo = inv_m.DispositivoEtapa.objects.get(id=inv_m.DispositivoEtapa.LS)
@@ -358,8 +466,11 @@ class RevisionSalidaViewSet(viewsets.ModelViewSet):
                 )
         finalizar_salida.estado = inv_m.SalidaEstado.objects.get(nombre="Listo")
         finalizar_salida.save()
+        finalizar_revision.aprobada = True
+        finalizar_revision.save()
         return Response({
-            'mensaje': 'Revision aprobada'
+            'mensaje': 'la revision ha sido aprobada',
+            'usuario':  str(request.user.perfil)
         },
             status=status.HTTP_200_OK
         )

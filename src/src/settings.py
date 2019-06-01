@@ -122,11 +122,11 @@ WSGI_APPLICATION = 'src.wsgi.application'
 DATABASE_ROUTERS = ['apps.legacy.dbrouters.LegacyRouter', ]
 
 DATABASES = {
-    'default': {
+ 'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     },
-    'legacy': {
+ 'legacy': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(BASE_DIR, 'legacy.sqlite3'),
     },
@@ -240,10 +240,10 @@ CRONJOBS = [
 
 # Para conectar a SUNI1
 LEGACY_URL = {
-    'cyd_informe': ''
+    'cyd_informe': 'http://funsepa.net/suni/app/src/libs/informe_ca_escuela.php'
 }
-LEGACY_CONNECTION = False
-LEGACY_TESTING = True
+LEGACY_CONNECTION = True
+LEGACY_TESTING = False
 
 GOOGLE_ANALYTICS_PROPERTY_ID = ''
 GOOGLE_ANALYTICS_DOMAIN = ''

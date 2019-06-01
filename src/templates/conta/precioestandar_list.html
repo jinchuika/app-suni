@@ -44,9 +44,9 @@
 								<th>No.</th>
 								<th>Periodo</th>
 								<th>Tipo Dispositivo</th>
-								<th>Activo</th>
 								<th>Precio</th>
 								<th>Inventario</th>
+								<th>Activo</th>
 								<th>Creado por</th>
 								<th></th>
 							</thead>
@@ -61,8 +61,16 @@
 </section>
 {% endblock content %}
 {% block extra_js %}
+{% include "base/dataTables.html" %}
 <script src="{% static "js/extrajs/conta.js" %}"></script>
 <script>
-  let Precio= new PrecioEstandar()
+  let Precio= new PrecioEstandar();
+
+  	$(function () {
+		$('input[type="checkbox"].flat-red, input[type="radio"].flat-red').iCheck({
+		    checkboxClass: 'icheckbox_flat-green',
+		    radioClass   : 'iradio_flat-green'
+		})
+	});
 </script>
 {% endblock extra_js %}

@@ -26,6 +26,7 @@ class RevisionSalidaSerializer(serializers.ModelSerializer):
     revisado_por = serializers.StringRelatedField(source='revisado_por.get_full_name')
     urlSalida = serializers.StringRelatedField(source='get_absolute_url')
     estado = serializers.StringRelatedField(source='salida.estado')
+    no_salida = serializers.StringRelatedField(source='salida.no_salida')
 
     class Meta:
         model = inv_m.RevisionSalida

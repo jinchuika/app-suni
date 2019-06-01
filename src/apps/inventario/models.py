@@ -13,12 +13,15 @@ from django.utils import timezone
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.core.files.uploadedfile import InMemoryUploadedFile
+from django.utils.translation import gettext_lazy as _
 
 from easy_thumbnails import fields as et_fields
 
 from apps.inventario import transacciones
 from apps.crm import models as crm_m
+from apps.tpe import models as tpe_m
 from apps.escuela import models as escuela_m
+from apps.mye import models as mye
 
 
 class EntradaTipo(models.Model):
@@ -30,6 +33,7 @@ class EntradaTipo(models.Model):
     nombre = models.CharField(max_length=25)
     contable = models.BooleanField(default=False)
     contenedor = models.BooleanField(default=False)
+    especial = models.BooleanField(default=False)
 
     class Meta:
         verbose_name = "Tipo de entrada"
@@ -61,6 +65,7 @@ class Entrada(models.Model):
 
     tipo = models.ForeignKey(EntradaTipo, on_delete=models.PROTECT, related_name='entradas')
     fecha = models.DateField()
+    fecha_cierre = models.DateField(blank=True, null=True)
     en_creacion = models.BooleanField(default=True)
     creada_por = models.ForeignKey(User, on_delete=models.PROTECT, related_name='entradas_creadas')
     recibida_por = models.ForeignKey(User, on_delete=models.PROTECT, related_name='entradas_recibidas')
@@ -88,7 +93,14 @@ class Entrada(models.Model):
         return sum(d.precio_total for d in self.detalles.all())
 
     def get_absolute_url(self):
-        return reverse_lazy('entrada_update', kwargs={'pk': self.id})
+        if self.en_creacion:
+            return reverse_lazy('entrada_update', kwargs={'pk': self.id})
+        else:
+            return reverse_lazy('entrada_detail', kwargs={'pk': self.id})
+
+    def save(self, *args, **kwargs):
+        print(self.en_creacion)
+        super(Entrada, self).save(*args, **kwargs)
 
 
 class DispositivoTipo(models.Model):
@@ -98,9 +110,11 @@ class DispositivoTipo(models.Model):
     los SLUG disponibles en los modelos que heredan :class:`Dispositivo`.
     """
 
-    tipo = models.CharField(max_length=20)
+    tipo = models.CharField(max_length=100)
     slug = models.SlugField(unique=True)
     usa_triage = models.BooleanField(default=False)
+    conta = models.BooleanField(default=False)
+    kardex = models.BooleanField(default=False)
 
     class Meta:
         verbose_name = "Tipo de dispositivo"
@@ -148,6 +162,9 @@ class EntradaDetalle(models.Model):
     qr_repuestos = models.BooleanField(default=False, blank=True, verbose_name='Imprimir Qr Repuesto')
     qr_dispositivo = models.BooleanField(default=False, blank=True, verbose_name='Imprimir Qr Dispositivo')
     impreso = models.BooleanField(default=False, blank=True, verbose_name='Impreso')
+    # Creacion de fechas
+    fecha_dispositivo = models.DateField(blank=True, null=True)
+    fecha_repuesto = models.DateField(blank=True, null=True)
     # Campos sobre contabilidad
     precio_unitario = models.DecimalField(max_digits=8, decimal_places=2, blank=True, null=True)
     precio_subtotal = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
@@ -157,6 +174,27 @@ class EntradaDetalle(models.Model):
 
     # Registro
     creado_por = models.ForeignKey(User, on_delete=models.PROTECT)
+    # Kardex
+    enviar_kardex = models.BooleanField(default=False, blank=True, verbose_name='kardex')
+    ingresado_kardex = models.BooleanField(default=False, blank=True, verbose_name='Guardar en kardex')
+    proveedor_kardex = models.ForeignKey(
+        'kardex.Proveedor',
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True,
+        related_name='proveedor_kardex')
+    estado_kardex = models.ForeignKey(
+        'kardex.EstadoEquipo',
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True,
+        related_name='estado_kardex')
+    tipo_entrada_kardex = models.ForeignKey(
+        'kardex.TipoEntrada',
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True,
+        related_name='tipo_entrada_kardex')
 
     class Meta:
         verbose_name = "Detalle de entrada"
@@ -167,6 +205,15 @@ class EntradaDetalle(models.Model):
             entrada=self.entrada,
             tipo=self.tipo_dispositivo)
 
+    def inventario_desecho(self):
+        queryset = self.detalle_entrada.all()
+        return sum(detalle.cantidad for detalle in queryset)
+
+    @property
+    def existencia_desecho(self):
+        return self.desecho - self.inventario_desecho()
+            
+
     def save(self, *args, **kwargs):
         """Se debe validar que el detalle de una entrada que involucre precio, por ejemplo, una compra,
         incluya el precio total.
@@ -175,12 +222,11 @@ class EntradaDetalle(models.Model):
         los descuentos que hayan sido aplicados a la entrada.
         El cálculo de todos los campos se realiza desde las funciones definidas en `signals.py`.
         """
+        if self.tipo_dispositivo.kardex:
+            self.enviar_kardex = True
         if self.tipo_dispositivo.usa_triage is False:
             self.dispositivos_creados = True
             self.repuestos_creados = True
-        if self.entrada.tipo.contable and not self.precio_subtotal:
-            raise ValidationError(
-                'El tipo de entrada requiere un precio total', code='entrada_precio_total')
 
         super(EntradaDetalle, self).save(*args, **kwargs)
 
@@ -468,11 +514,12 @@ class Dispositivo(models.Model):
     )
 
     marca = models.ForeignKey(DispositivoMarca, on_delete=models.CASCADE, null=True, blank=True)
-    modelo = models.ForeignKey(DispositivoModelo, on_delete=models.CASCADE, null=True, blank=True)
+    modelo = models.CharField(max_length=80, null=True, blank=True)
     serie = models.CharField(max_length=80, null=True, blank=True)
     codigo_qr = et_fields.ThumbnailerImageField(upload_to='qr_dispositivo', blank=True, null=True)
     tarima = models.ForeignKey(Tarima, on_delete=models.PROTECT, blank=True, null=True, related_name='dispositivos')
     valido = models.BooleanField(default=True, blank=True, verbose_name='Válido')
+    descripcion = models.TextField(null=True, blank=True)
 
     class Meta:
         verbose_name = "Dispositivo"
@@ -491,7 +538,11 @@ class Dispositivo(models.Model):
             super(Dispositivo, self).save(*args, **kwargs)
 
     def get_absolute_url(self):
-        return self.cast().get_absolute_url()
+        cast = self.cast()
+        if cast:
+            return cast.get_absolute_url()
+        else:
+            return ''
 
     def cast(self):
         """Se encarga de obtener el dispositivo del modelo que ha heredado este objeto.
@@ -530,7 +581,7 @@ class Dispositivo(models.Model):
 
     @classmethod
     def obtener_modelo_hijo(cls, tipo_dispositivo):
-        """Obitne el modelo hijo de `Dispositivo` a partir de un `DispositivoTipo`"""
+        """Obtiene el modelo hijo de `Dispositivo` a partir de un `DispositivoTipo`"""
         modelo = next(
             (
                 f.related_model for f in cls._meta.get_fields()
@@ -676,6 +727,7 @@ class Teclado(Dispositivo):
         related_name='teclados',
         null=True,
         blank=True)
+    caja = models.CharField(max_length=30, null=True, blank=True)
 
     class Meta:
         verbose_name = "Teclado"
@@ -718,6 +770,7 @@ class Mouse(Dispositivo):
         null=True,
         blank=True)
     tipo_mouse = models.ForeignKey(MouseTipo, on_delete=models.CASCADE, null=True, blank=True)
+    caja = models.CharField(max_length=30,  null=True, blank=True)
 
     class Meta:
         verbose_name = "Mouse"
@@ -794,9 +847,9 @@ class Tablet(Dispositivo):
         blank=True,
         null=True,
         related_name='almacenamiento_tablets')
-    pulgadas = models.PositiveIntegerField(null=True, blank=True)
+    pulgadas = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True)
     procesador = models.ForeignKey(Procesador, blank=True, null=True)
-    ram = models.PositiveIntegerField(null=True, blank=True)
+    ram = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True)
     medida_ram = models.ForeignKey(DispositivoMedida, null=True, blank=True, related_name='ram_tables')
     almacenamiento_externo = models.BooleanField(default=False)
 
@@ -865,8 +918,10 @@ class CPU(Dispositivo):
     procesador = models.ForeignKey(Procesador, on_delete=models.PROTECT, null=True, blank=True)
     version_sistema = models.ForeignKey(VersionSistema, on_delete=models.PROTECT, null=True, blank=True)
     disco_duro = models.ForeignKey(HDD, on_delete=models.PROTECT, null=True, blank=True, related_name='cpus')
-    ram = models.PositiveIntegerField(null=True, blank=True)
+    ram = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True)
     ram_medida = models.ForeignKey(DispositivoMedida, null=True, blank=True)
+    servidor = models.BooleanField(default=False)
+    all_in_one = models.BooleanField(default=False)
 
     class Meta:
         verbose_name = "CPU"
@@ -922,6 +977,7 @@ class TipoRed(models.Model):
 
 
 class DispositivoRed(Dispositivo):
+    # Switch
     SLUG_TIPO = 'R'
     indice = models.PositiveIntegerField(editable=False, unique=True)
     cantidad_puertos = models.PositiveIntegerField(null=True, blank=True)
@@ -992,6 +1048,8 @@ class Repuesto(models.Model):
     codigo_qr = et_fields.ThumbnailerImageField(upload_to='qr_repuestos', blank=True, null=True)
     tarima = models.ForeignKey(Tarima, on_delete=models.PROTECT, blank=True, null=True, related_name='repuestos')
     valido = models.BooleanField(default=True, blank=True, verbose_name='Válido')
+    marca = models.ForeignKey(DispositivoMarca, on_delete=models.CASCADE, null=True, blank=True)
+    modelo = models.CharField(max_length=80, null=True, blank=True)
 
     class Meta:
         verbose_name = "Repuesto"
@@ -1048,6 +1106,9 @@ class DispositivoRepuesto(models.Model):
 
 class DesechoEmpresa(models.Model):
     nombre = models.CharField(max_length=50)
+    encargado = models.CharField(max_length=100)
+    telefono = models.IntegerField(verbose_name="Número Telefónico")
+    dpi = models.CharField(max_length=14)
 
     class Meta:
         verbose_name = "Empresa de desecho"
@@ -1057,7 +1118,7 @@ class DesechoEmpresa(models.Model):
         return self.nombre
 
     def get_absolute_url(self):
-        return reverse_lazy('desechoempresa_detail', kwargs={'pk': self.id})
+        return reverse_lazy('desechoempresa_update', kwargs={'pk': self.id})
 
 
 class DesechoSalida(models.Model):
@@ -1068,6 +1129,7 @@ class DesechoSalida(models.Model):
     creado_por = models.ForeignKey(User, on_delete=models.PROTECT)
     observaciones = models.TextField(null=True, blank=True)
     en_creacion = models.BooleanField(default=True, blank=True, verbose_name='En creación')
+    url = models.TextField(null=True, blank=True)
 
     class Meta:
         verbose_name = "Salida de desecho"
@@ -1076,8 +1138,8 @@ class DesechoSalida(models.Model):
     def __str__(self):
         return str(self.id)
 
-    """def get_absolute_url(self):
-        return reverse_lazy('desechosalida_update', kwargs={'pk': self.id})"""
+    def get_absolute_url(self):
+        return reverse_lazy('desechosalida_update', kwargs={'pk': self.id})
 
 
 class DesechoDetalle(models.Model):
@@ -1086,9 +1148,11 @@ class DesechoDetalle(models.Model):
         EntradaDetalle,
         on_delete=models.PROTECT,
         null=True,
-        blank=True)
-    cantidad = models.DecimalField(max_digits=12, decimal_places=2)
+        blank=True,
+        related_name="detalle_entrada")
+    cantidad = models.PositiveIntegerField(default=0)
     tipo_dispositivo = models.ForeignKey(DispositivoTipo, on_delete=models.PROTECT, related_name='salidas_desecho')
+    aprobado = models.BooleanField(default=False, blank=True)
 
     class Meta:
         verbose_name = "Detalle de salida de desecho"
@@ -1100,10 +1164,28 @@ class DesechoDetalle(models.Model):
             entrada=self.entrada_detalle)
 
 
+class DesechoDispositivo(models.Model):
+    desecho = models.ForeignKey(DesechoSalida, on_delete=models.PROTECT, related_name='detalles_dispositivos')
+    dispositivo = models.ForeignKey(Dispositivo, on_delete=models.CASCADE, related_name='desecho')
+    aprobado = models.BooleanField(default=False, blank=True)
+
+    class Meta:
+        verbose_name = "Dispositivo de desecho"
+        verbose_name_plural = "Dispositivos de desecho"
+
+    def __str__(self):
+        return '{desecho} -> {dispositivo}'.format(
+            desecho=self.desecho,
+            dispositivo=self.dispositivo)
+
+
 class SalidaTipo(models.Model):
     nombre = models.CharField(max_length=30)
+    slug = models.SlugField(null=True, blank=True,)
     necesita_revision = models.BooleanField(default=True, blank=True, verbose_name='Necesita revisión')
     especial = models.BooleanField(default=False, blank=True, verbose_name='especial')
+    equipamiento = models.BooleanField(default=False, blank=True, verbose_name='equipamiento')
+    renovacion = models.BooleanField(default=False, blank=True, verbose_name='equipamiento')
 
     class Meta:
         verbose_name = "Tipo de salida"
@@ -1140,6 +1222,12 @@ class SalidaInventario(models.Model):
         related_name='entregas',
         null=True,
         blank=True)
+    garantia = models.ForeignKey(
+        tpe_m.TicketSoporte,
+        on_delete=models.PROTECT,
+        related_name='garantias',
+        null=True,
+        blank=True)
     observaciones = models.TextField(null=True, blank=True)
     necesita_revision = models.BooleanField(default=True, blank=True, verbose_name='Necesita revisión')
     beneficiario = models.ForeignKey(
@@ -1150,42 +1238,73 @@ class SalidaInventario(models.Model):
         blank=True)
     estado = models.ForeignKey(SalidaEstado, on_delete=models.PROTECT, related_name='estados',  null=True, blank=True)
     reasignado_por = models.ForeignKey(User, on_delete=models.PROTECT, related_name='reasignar', null=True, blank=True)
+    no_salida= models.CharField(max_length=10 , blank=True, editable=False, db_index=True)
+    cooperante = models.ForeignKey(mye.Cooperante, on_delete=models.PROTECT, related_name='cooperante', null=True, blank=True)
 
     class Meta:
         verbose_name = "Salida"
         verbose_name_plural = "Salidas"
 
     def get_absolute_url(self):
-        return reverse_lazy('salidainventario_edit', kwargs={'pk': self.id})
+        if self.en_creacion:
+            return reverse_lazy('salidainventario_edit', kwargs={'pk': self.id})
+        else:
+            return reverse_lazy('salidainventario_detail', kwargs={'pk': self.id})
 
     def __str__(self):
-        return str(self.id)
+        return str(self.no_salida)
 
     def crear_paquetes(self, cantidad, usuario, entrada, tipo_paquete=None):
         creados = 0
         indice_actual = self.paquetes.count()
-        if entrada.count() == 0:
-            paquete = Paquete(
-                salida=self,
-                indice=(1 + indice_actual),
-                creado_por=usuario,
-                cantidad=cantidad,
-                tipo_paquete=tipo_paquete,
-            )
-            paquete.save()
-        else:
-            paquete = Paquete(
-                salida=self,
-                indice=(1 + indice_actual),
-                creado_por=usuario,
-                cantidad=cantidad,
-                tipo_paquete=tipo_paquete,
+        if self.tipo_salida.especial:
+            if entrada.count() == 0:
+                paquete = Paquete(
+                    salida=self,
+                    indice=(1 + indice_actual),
+                    creado_por=usuario,
+                    cantidad=cantidad,
+                    tipo_paquete=tipo_paquete,
+                    aprobado=True
                 )
-            paquete.save()
-            for numero in entrada:
-                paquete.entrada.add(numero)
-        creados += 1
-        return creados
+                paquete.save()
+            else:
+                paquete = Paquete(
+                    salida=self,
+                    indice=(1 + indice_actual),
+                    creado_por=usuario,
+                    cantidad=cantidad,
+                    tipo_paquete=tipo_paquete,
+                    aprobado=True
+                    )
+                paquete.save()
+                for numero in entrada:
+                    paquete.entrada.add(numero)
+            creados += 1
+            return creados
+        else:
+            if entrada.count() == 0:
+                paquete = Paquete(
+                    salida=self,
+                    indice=(1 + indice_actual),
+                    creado_por=usuario,
+                    cantidad=cantidad,
+                    tipo_paquete=tipo_paquete,
+                )
+                paquete.save()
+            else:
+                paquete = Paquete(
+                    salida=self,
+                    indice=(1 + indice_actual),
+                    creado_por=usuario,
+                    cantidad=cantidad,
+                    tipo_paquete=tipo_paquete,
+                    )
+                paquete.save()
+                for numero in entrada:
+                    paquete.entrada.add(numero)
+            creados += 1
+            return creados
 
 
 class SalidaComentario(models.Model):
@@ -1208,7 +1327,6 @@ class PaqueteTipo(models.Model):
     """
     nombre = models.CharField(max_length=35, verbose_name='Nombre del tipo')
     tipo_dispositivo = models.ForeignKey(DispositivoTipo, verbose_name='Tipos de dispositivo', null=True, blank=True)
-    # tipo_dispositivo = models.ManyToManyField(DispositivoTipo, verbose_name='Tipos de dispositivo')
 
     class Meta:
         verbose_name = "Tipo de paquete"
@@ -1235,9 +1353,9 @@ class Paquete(models.Model):
         null=True,
         blank=True)
     aprobado = models.BooleanField(default=False, blank=True)
+    aprobado_kardex = models.BooleanField(default=False, blank=True)
+    desactivado = models.BooleanField(default=False, blank=True)
     entrada = models.ManyToManyField(Entrada, related_name='tipo_entrada', blank=True, null=True)
-
-    # dispositivos = models.ManyToManyField(Dispositivo, through='DispositivoPaquete', related_name='paquetes')
 
     class Meta:
         verbose_name = "Paquete de salida"
@@ -1356,7 +1474,21 @@ class SolicitudMovimiento(models.Model):
     terminada = models.BooleanField(default=False)
     recibida = models.BooleanField(default=False)
     devolucion = models.BooleanField(default=False)
+    rechazar = models.BooleanField(default=False)
     desecho = models.BooleanField(default=False)
+    salida_kardex = models.ForeignKey(
+        'kardex.Salida',
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True,
+        related_name='salida_kardex')
+    entrada_kardex = models.ForeignKey(
+        'kardex.Entrada',
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True,
+        related_name='entrada_kardex')
+    observaciones = models.TextField(null=True, blank=True)
 
     class Meta:
         verbose_name = 'Solicitud de movimiento'
@@ -1413,6 +1545,7 @@ class CambioEtapa(models.Model):
         if self.etapa_inicial != self.etapa_final:
             super(CambioEtapa, self).save(*args, **kwargs)
             self.dispositivo.etapa = self.etapa_final
+            self.dispositivo.tarima = None
             if self.solicitud.desecho:
                 estado_desecho = DispositivoEstado.objects.get(pk=DispositivoEstado.DS)
                 self.dispositivo.estado = estado_desecho
@@ -1461,6 +1594,7 @@ class PrestamoTipo(models.Model):
     """
 
     nombre = models.CharField(max_length=25)
+    dias = models.PositiveIntegerField(default=0)
 
     class Meta:
         verbose_name = "Tipo de Prestamo"
@@ -1471,7 +1605,7 @@ class PrestamoTipo(models.Model):
 
 
 class Prestamo(models.Model):
-    dispositivo = models.ForeignKey(Dispositivo, on_delete=models.CASCADE, related_name='prestamos')
+    dispositivo = models.ManyToManyField(Dispositivo, related_name='prestamos')
     tipo_dispositivo = models.ForeignKey(
         DispositivoTipo,
         null=True,
@@ -1486,13 +1620,15 @@ class Prestamo(models.Model):
         related_name='prestamo_tipo')
     fecha_inicio = models.DateField()
     fecha_fin = models.DateField(null=True, blank=True)
+    fecha_estimada = models.DateField(null=True, blank=True)
     creado_por = models.ForeignKey(User, on_delete=models.CASCADE, related_name='prestamos_creados')
     prestado_a = models.ForeignKey(User, on_delete=models.CASCADE, related_name='prestamos')
     devuelto = models.BooleanField(default=False, blank=True)
+    observaciones = models.TextField(null=True, blank=True)
 
     class Meta:
         verbose_name = 'Préstamo'
         verbose_name_plural = 'Préstamos'
 
     def __str__(self):
-        return '{} - {}'.format(self.fecha_inicio, self.dispositivo)
+        return '{} - {}'.format(self.fecha_inicio, self.id)

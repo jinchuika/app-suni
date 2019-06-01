@@ -1,26 +1,44 @@
 from django import forms
+from datetime import date
 from django.forms import ModelForm
 from django.contrib.auth.models import User
 from django.utils.translation import gettext_lazy as _
+from django.core.exceptions import ValidationError
 from apps.inventario import models as inv_m
 from apps.crm import models as crm_m
-
+from apps.kardex import models as kax_m
 
 class EntradaForm(forms.ModelForm):
     """Formulario para la :`class`:`EntradaCreateView` que es la encargada de crear los datos
     de entrada.
     """
+    fecha = forms.DateField(
+        initial=date.today(),
+        widget=forms.TextInput({'class': 'form-control datepicker', 'tabindex': '2'}))
+
     class Meta:
         model = inv_m.Entrada
         fields = '__all__'
-        exclude = ['en_creacion', 'creada_por', 'recibida_por']
+        exclude = ['en_creacion', 'creada_por', 'recibida_por', 'fecha_cierre']
         widgets = {
-            'tipo': forms.Select(attrs={'class': 'form-control select2'}),
-            'fecha': forms.TextInput({'class': 'form-control datepicker'}),
-            'proveedor': forms.Select(attrs={'class': 'form-control select2'}),
-            'factura': forms.TextInput({'class': 'form-control'}),
-            'observaciones': forms.Textarea({'class': 'form-control'}),
+            'tipo': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '1'}),
+            'proveedor': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '3'}),
+            'factura': forms.NumberInput({'class': 'form-control', 'tabindex': '4'}),
+            'observaciones': forms.Textarea({'class': 'form-control', 'tabindex': '5'}),
         }
+
+    def clean(self):
+        cleaned_data = super(EntradaForm, self).clean()
+
+        id_tipo = cleaned_data.get('tipo')
+        factura = cleaned_data.get('factura')
+
+        tipo_entrada = inv_m.EntradaTipo.objects.get(nombre=str(id_tipo))
+        if tipo_entrada.contable:
+            if factura <= 0:
+                self.add_error(None, ValidationError('NO. FACTURA DEBE SER MAYOR A 0.'))
+
+        return cleaned_data
 
 
 class EntradaUpdateForm(forms.ModelForm):
@@ -30,15 +48,19 @@ class EntradaUpdateForm(forms.ModelForm):
     class Meta:
         model = inv_m.Entrada
         fields = '__all__'
-        exclude = ['observaciones', 'factura']
+        exclude = ['factura', 'fecha_cierre']
+        labels = {
+                'en_creacion': _('En Desarrollo'),
+        }
         widgets = {
                 'recibida_por': forms.HiddenInput(),
                 'fecha': forms.HiddenInput(),
                 'tipo': forms.HiddenInput(),
                 'creada_por': forms.HiddenInput(),
                 'proveedor': forms.HiddenInput(),
-
-            }
+                'observaciones': forms.Textarea({'class': 'form-control', 'tabindex': '1'}),
+                'en_creacion': forms.CheckboxInput({'class': 'icheckbox_flat-green', 'tabindex': '2'}),
+        }
 
     def __init__(self, *args, **kwargs):
         super(EntradaUpdateForm, self).__init__(*args, **kwargs)
@@ -65,26 +87,40 @@ class EntradaDetalleForm(forms.ModelForm):
             'util',
             'repuesto',
             'desecho',
+            'fecha_dispositivo',
+            'fecha_repuesto',
+            'enviar_kardex',
+            'ingresado_kardex'
             ]
         widgets = {
             'entrada': forms.HiddenInput(),
             'tipo_dispositivo': forms.Select(attrs={'class': 'form-control select2'}),
-            'total': forms.TextInput({'class': 'form-control r'}),
-            'precio_subtotal': forms.TextInput({'class': 'form-control'}),
+            'total': forms.TextInput({'class': 'form-control', 'min': 1, 'type': 'number'}),
+            'precio_subtotal': forms.NumberInput({'class': 'form-control'}),
             'descripcion': forms.TextInput({'class': 'form-control'}),
+            'proveedor_kardex': forms.Select(attrs={'class': 'form-control select2'}),
+            'estado_kardex': forms.Select(attrs={'class': 'form-control select2'}),
+            'tipo_entrada_kardex': forms.Select(attrs={'class': 'form-control select2'})
         }
 
     def __init__(self, *args, **kwargs):
         entrada = kwargs.pop('initial', None)['entrada']
         super(EntradaDetalleForm, self).__init__(*args, **kwargs)
         self.fields['entrada'].initial = entrada
+
+        if entrada.tipo.contenedor:
+            self.fields['total'].widget = forms.NumberInput(
+                attrs={'class': 'form-control', 'min': "0"})
+
         if not entrada.tipo.contable:
             self.fields['precio_subtotal'].empty_label = None
             self.fields['precio_subtotal'].label = ''
-            self.fields['precio_subtotal'].widget = forms.TextInput(
+            self.fields['precio_subtotal'].widget = forms.NumberInput(
                 attrs={'class': 'form-control', 'style': "visibility:hidden"})
             self.fields['precio_subtotal'].initial = ""
-
+        else:
+            self.fields['precio_subtotal'].widget = forms.NumberInput(
+                attrs={'class': 'form-control', 'min': "1"})
 
 class EntradaDetalleUpdateForm(forms.ModelForm):
     """ Formulario para la :`class`:`EntradaDetalleView` que es la encargada de actualizar  los datos
@@ -103,7 +139,14 @@ class EntradaDetalleUpdateForm(forms.ModelForm):
                     'repuestos_creados',
                     'qr_repuestos',
                     'qr_dispositivo',
-                    'impreso'
+                    'impreso',
+                    'fecha_dispositivo',
+                    'fecha_repuesto',
+                    'enviar_kardex',
+                    'ingresado_kardex',
+                    'proveedor_kardex',
+                    'tipo_entrada_kardex',
+                    'estado_kardex'
                     ]
         widgets = {
             'util': forms.NumberInput({'class': 'form-control'}),
@@ -139,7 +182,7 @@ class EntradaDetalleUpdateForm(forms.ModelForm):
             if total < suma:
                 raise forms.ValidationError(
                     _('Los valores de depuración superan el total de dispositivos.')
-                )         
+                )
 
     def as_table(self):
         "Returns this form rendered as HTML <tr>s -- excluding the <table></table>."
@@ -154,22 +197,28 @@ class EntradaDetalleUpdateForm(forms.ModelForm):
 class EntradaInformeForm(forms.Form):
     """Este Formulario se encarga de enviar los filtros para  su respectivo informe de Entradas
     """
+
+    id = forms.IntegerField(
+        label='No. Entrada',
+        required=False,
+        widget=forms.NumberInput(attrs={'class': 'form-control'}))
+
     proveedor = forms.ModelChoiceField(
         queryset=crm_m.Donante.objects.all(),
         label='Proveedor',
-        widget=forms.Select(attrs={'class': 'form-control'}),
+        widget=forms.Select(attrs={'class': 'form-control select2'}),
         required=False)
-    tipo = forms.ModelChoiceField(
+    tipo = forms.ModelMultipleChoiceField(
         queryset=inv_m.EntradaTipo.objects.all(),
         label='Tipo',
         required=False,
-        widget=forms.Select(attrs={'class': 'form-control'}))
+        widget=forms.SelectMultiple(attrs={'class': 'form-control select2'}))
 
     recibida_por = forms.ModelChoiceField(
-        queryset=User.objects.all(),
+        queryset=User.objects.filter(groups__name="inventario"),
         label='Persona Que Recibe',
         required=False,
-        widget=forms.Select(attrs={'class': 'form-control'}))
+        widget=forms.Select(attrs={'class': 'form-control select2'}))
 
     fecha_min = forms.CharField(
         label='Fecha (min)',

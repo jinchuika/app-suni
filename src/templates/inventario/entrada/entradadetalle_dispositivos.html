@@ -14,7 +14,7 @@
             </div>
           </div>
 					<div class="box-body">
-					<table class="table table-condensed">
+					<table class="table table-striped table-hover table-bordered table-condensed" id="entrada-detalle">
 							<thead>
                 <th> Triage</th>
                 <th> Tipo</th>
@@ -40,3 +40,17 @@
 	</div>
 </section>
 {% endblock content %}
+{% block extra_js %}
+{% include "base/dataTables.html" %}
+<script src="{% static "js/extrajs/inventario.js" %}"></script>
+<script>
+    $(document).ready(function(){
+        var tabla = $('#entrada-detalle').DataTable({
+          dom: 'Bfrtip',
+          buttons: ['excel', 'pdf', 'copy'],
+        });
+    });    
+</script>
+{% endblock extra_js %}
+
+

@@ -7,20 +7,22 @@ from django.contrib.auth.models import User
 class PrestamoForm(forms.ModelForm):
     """ Formulario para  la creacion de prestamos.
     """
-    """dispositivo = forms.ModelMultipleChoiceField(
+    dispositivo = forms.ModelMultipleChoiceField(
         queryset=inv_m.Dispositivo.objects.none(),
-        widget=forms.Select(attrs={'class': 'form-control select2'})
-    )"""
+        widget=forms.SelectMultiple(attrs={'class': 'form-control select2'}))
+
+    tipo_dispositivo = forms.ModelChoiceField(
+        queryset=inv_m.DispositivoTipo.objects.all().exclude(usa_triage=False),
+        label='Tipo Dispositivo',
+        required=True,
+        widget=forms.Select(attrs={'class': 'form-control select2 '}))
 
     class Meta:
         model = inv_m.Prestamo
         fields = ('tipo_prestamo', 'prestado_a', 'tipo_dispositivo', 'dispositivo')
-        widgets = {            
+        widgets = {
             'tipo_prestamo': forms.Select(attrs={'class': 'form-control select2 '}),
             'prestado_a': forms.Select(attrs={'class': 'form-control select2'}),
-            'tipo_dispositivo': forms.Select(attrs={'class': 'form-control select2'}),
-            'dispositivo': forms.Select(attrs={'class': 'form-control select2'}),
-
         }
 
     def __init__(self, *args, **kwargs):
@@ -31,6 +33,10 @@ class PrestamoForm(forms.ModelForm):
 class PrestamoInformeForm(forms.Form):
     """Este Formulario se encarga de enviar los filtros para  su respectivo informe de prestamos
     """
+    ESTADO_CHOICES = (
+        (None, '----------'),
+        (False, 'Pendiende'),
+        (True, 'Devuelto'),)
     tipo_prestamo = forms.ModelChoiceField(
         queryset=inv_m.PrestamoTipo.objects.all(),
         label='Tipo de Prestamo',
@@ -40,7 +46,7 @@ class PrestamoInformeForm(forms.Form):
         queryset=User.objects.all(),
         label='Prestado a',
         required=False,
-        widget=forms.Select(attrs={'class': 'form-control'}))
+        widget=forms.Select(attrs={'class': 'form-control select2'}))
 
     fecha_inicio = forms.CharField(
         label='Fecha (min)',
@@ -50,10 +56,11 @@ class PrestamoInformeForm(forms.Form):
         label='Fecha (max)',
         required=False,
         widget=forms.TextInput(attrs={'class': 'form-control datepicker'}))
-    devuelto = forms.BooleanField(
-        label='Devuelto',
+    devuelto = forms.ChoiceField(
+        label='Estado',
         required=False,
-        widget=forms.CheckboxInput())
+        widget=forms.Select(attrs={'class': 'form-control'}),
+        choices=ESTADO_CHOICES)
 
     def __init__(self, *args, **kwargs):
         super(PrestamoInformeForm, self).__init__(*args, **kwargs)

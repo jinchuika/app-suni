@@ -50,7 +50,7 @@
                       {{dispositivo.dispositivo.triage}}
                   </td>
                   <td>
-                    {{dispositivo.fecha_aprobacion}}
+                    {{dispositivo.fecha_aprobacion|default_if_none:""}}
                   </td>
                 </tr>
                 {%endfor%}
@@ -64,3 +64,17 @@
 	</div>
 </section>
 {% endblock content %}
+{% block extra_js %}
+{% include "base/dataTables.html" %}
+<script src="{% static "js/i18n/es.js" %}"></script>
+<script>
+$(document).ready(function (){
+	$("#dispositivosalida-table").DataTable({
+		dom: 'Bfrtip',
+      	buttons: ['excel', 'pdf', 'copy'],
+      	paging:false,
+	});
+});
+</script>
+{% endblock extra_js %}
+

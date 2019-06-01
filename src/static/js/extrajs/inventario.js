@@ -1,57 +1,57 @@
+/*********************** ENTRADAS ************************************/
 (function (AlertaEnCreacion, $, undefined) {
     AlertaEnCreacion.init = function () {
+      /* -----MÉTODO DE INICIALIZACIÓN DE LA VISTA EDIT DE ENTRADA ------*/
+      /* Confirma si desea finalizar la edición de la entrada, en caso de confirmar, valida y luego cierra la salida*/
+
         var mensaje = document.getElementById("id_en_creacion");
         var urldispositivo = $("#entrada-detalle-form").data("api");
         var primary_key = $("#entrada-detalle-form").data("key");
         $('#id_en_creacion').click(function () {
-            if ($("#id_en_creacion").is(':checked')) {
-                bootbox.alert("esta activado");
-            } else {
-                bootbox.confirm({
-                            message: "Esta Seguro que quiere Terminar la Creacion de la Entrada",
-                            buttons: {
-                                confirm: {
-                                    label: 'Si',
-                                    className: 'btn-success'
-                                },
-                                cancel: {
-                                    label: 'No',
-                                    className: 'btn-danger'
-                                }
-                            },
-                            callback: function (result) {
-                                if(result == true){
-                                  /**/
-                                  $.ajax({
-                                      type: 'POST',
-                                      url: urldispositivo,
-                                      dataType: 'json',
-                                      data: {
-                                          csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
-                                          primary_key :primary_key
-                                      },
-                                      success: function (response) {
-                                          bootbox.confirm("Entrada Cuadrada",
-                                          function(result){
-                                             location.reload();
-                                            });
-                                      },
-                                      error: function (response) {
-                                           var jsonResponse = JSON.parse(response.responseText);
-                                           bootbox.alert(jsonResponse["mensaje"]);
-                                      }
-                                  });
-                                  /**/
-
-                                }
-                            }
-                          });
-            }
+          if ($("#id_en_creacion").is(':checked')) {
+            bootbox.alert({ message: "<h2>¡La Entrada vuelve a estar en desarrollo!</h2>", className:"modal modal-info fade in" });
+          } else {
+            bootbox.confirm({
+              message: "¿Desea dar por terminada la edición de la entrada?",
+              buttons: {
+                confirm: {
+                  label: '<i class="fa fa-check"></i> Confirmar',
+                  className: 'btn-success'
+                },
+                cancel: {
+                  label: '<i class="fa fa-times"></i> Cancelar',
+                  className: 'btn-danger'
+                }
+              },
+              callback: function (result) {
+                if(result == true){
+                  /*CONSUMIR API*/
+                  $.ajax({
+                    type: 'POST',
+                    url: urldispositivo,
+                    dataType: 'json',
+                    data: {
+                      csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
+                      primary_key :primary_key
+                    },
+                    success: function (response) {
+                      bootbox.alert({message: "<h2>Todo se encuentra correcto</h2>", className:"modal modal-success fade in"});
+                    },
+                    error: function (response) {
+                      $('#id_en_creacion').iCheck('check');
+                      var jsonResponse = JSON.parse(response.responseText);
+                      bootbox.alert({message: "<h3><i class='fa fa-frown-o' style='font-size: 45px;'></i>&nbsp;&nbsp;&nbsp;HA OCURRIDO UN ERROR!!</h3></br>" + jsonResponse["mensaje"], className:"modal modal-danger fade"});
+                    }
+                  });
+                  /*FIN DE CONSUMO*/
+                } else {
+                  $('#id_en_creacion').iCheck('check');
+                }
+              }
+            });
+          }
         });
-
-
     }
-
 }(window.AlertaEnCreacion = window.AlertaEnCreacion || {}, jQuery));
 
 class EntradaCreate {
@@ -79,15 +79,27 @@ class EntradaUpdate {
         this.api_url = entrada_table.data("api");
         this.pk = entrada_table.data("pk");
         this.url_filtrada = this.api_url + "?asignacion=" + this.pk;
+        var key = entrada_table.data("pk");
+        $("[for='id_proveedor_kardex']").css({"visibility":"hidden"});
+        $('#id_proveedor_kardex').next(".select2-container").hide();
+        $("[for='id_estado_kardex']").css({"visibility":"hidden"});
+        $('#id_estado_kardex').next(".select2-container").hide();
+        $("[for='id_tipo_entrada_kardex']").css({"visibility":"hidden"});
+        $('#id_tipo_entrada_kardex').next(".select2-container").hide();
 
         $('#id_tipo_dispositivo').change( function() {
           $('#id_descripcion').val($('#id_tipo_dispositivo option:selected').text());
+          let urldispositivo = tabla_temp.api_url + key + "/validar_kardex/";
+          let tipo_dispositivo=$('#id_tipo_dispositivo option:selected').val();
+          EntradaUpdate.validar_kardex(urldispositivo, tipo_dispositivo);
         });
 
         this.tabla = entrada_table.DataTable({
-            searching: false,
-            paging: true,
-            ordering: false,
+            dom: 'Bfrtip',
+            buttons: ['excel', 'pdf', 'copy'],
+            paging: false,
+            searching:true,
+            ordering: true,
             processing: true,
             ajax: {
                 url: this.url_filtrada,
@@ -97,6 +109,7 @@ class EntradaUpdate {
             },
             columns: [
                 {data: "tdispositivo"},
+                {data:"descripcion"},
                 {data: "util"},
                 {data: "repuesto"},
                 {data: "desecho"},
@@ -105,17 +118,19 @@ class EntradaUpdate {
                 {data: "precio_subtotal"},
                 {data: "precio_descontado"},
                 {data: "precio_total"},
-                {data:"descripcion"},
                 {data: "creado_por"},
                 {
                     data: "",render: function(data, type, full, meta){
-                      if(full.dispositivos_creados == true ){
+                      if(full.dispositivos_creados == true || full.repuestos_creados == true ){
                           if(full.usa_triage == "False"){
-                            return "<a href="+full.update_url+" class='btn btn-info btn-editar'>Editar</a>";
+                            if(full.ingresado_kardex == true){
+                              return "";
+                            }else{
+                              return "<a href="+full.update_url+" class='btn btn-info btn-editar'>Editar</a>";
+                            }
                           }else{
                               return "";
                           }
-
                       }else{
                         return "<a href="+full.update_url+" class='btn btn-info btn-editar'>Editar</a>";
                       }
@@ -125,12 +140,27 @@ class EntradaUpdate {
                     data: "", render: function(data, type, full, meta){
                       if(full.tipo_entrada != "Especial"){
                           if(full.dispositivos_creados == false){
-                            if(full.usa_triage == "True"){
+                            if(full.usa_triage == "True" && full.util >= 1){
                               return "<button class='btn btn-primary btn-dispositivo'>Crear Disp</button>";
                             }else{
                               return "";
                             }
                           }else{
+                             if(full.enviar_kardex == true){
+                               if(full.ingresado_kardex == true){
+                                 return "<a target='_blank' rel='noopener noreferrer' href="+full.url_kardex+" class='btn btn-success btn-ulrKardex'>Detalle</a>";
+                               }else{
+                                 if(full.util > 0 && full.es_kardex == "True"){
+                                  return "<a target='_blank' rel='noopener noreferrer' class='btn btn-success btn-kardex'>Agregar a kardex</a>";
+                                }else{
+                                  return "";
+                                }
+
+                               }
+
+                             }else{
+
+                             }
                               if(full.qr_dispositivo == true){
                                 if(full.usa_triage == "True"){
                                     return "<a target='_blank' rel='noopener noreferrer' href="+full.dispositivo_list+" class='btn btn-success'>Listado Dispositivo</a>";
@@ -156,7 +186,7 @@ class EntradaUpdate {
                     data: "", render: function(data, type, full, meta){
                       if(full.tipo_entrada != "Especial"){
                         if(full.repuestos_creados == false){
-                          if(full.usa_triage == "True"){
+                          if(full.usa_triage == "True" && full.repuesto > 0){
                               return "<button class='btn btn-warning btn-repuesto'>Crear Rep</button>";
                           }else{
                             return " ";
@@ -188,7 +218,7 @@ class EntradaUpdate {
         let tabla_temp = this;
 
         tablabody.on('click', '.btn-editar', function () {
-            let data_fila = this.tabla.row($(this).parents('tr')).data();
+           let data_fila = this.tabla.row($(this).parents('tr')).data();
             location.href = data_fila.update_url;
         });
 
@@ -204,7 +234,7 @@ class EntradaUpdate {
                 tipo:"dispositivo"
               },
               success: function (response) {
-                   location.reload();
+                   tabla_temp.tabla.ajax.reload();
               },
           });
 
@@ -222,7 +252,7 @@ class EntradaUpdate {
                 tipo:"repuestos"
               },
               success: function (response) {
-                 location.reload();
+                 tabla_temp.tabla.ajax.reload();
               },
           });
 
@@ -234,25 +264,22 @@ class EntradaUpdate {
                         message: "Esta seguro que desea crear estos dispositivos",
                         buttons: {
                             confirm: {
-                                label: 'Si',
+                                label: '<i class="fa fa-check"></i> Confirmar',
                                 className: 'btn-success'
                             },
                             cancel: {
-                                label: 'No',
+                                label: '<i class="fa fa-times"></i> Cancelar',
                                 className: 'btn-danger'
                             }
                         },
                         callback: function (result) {
                             if(result == true){
                               /**/
-
                                 let urldispositivo = tabla_temp.api_url + data_fila.id + "/crear_dispositivos/";
                                 EntradaUpdate.crear_dispositivos(urldispositivo);
                             }
                         }
                       });
-
-
         });
 
         tablabody.on('click', '.btn-repuesto', function () {
@@ -261,11 +288,11 @@ class EntradaUpdate {
                       message: "Esta seguro que desea crear estos repuestos",
                       buttons: {
                           confirm: {
-                              label: 'Si',
+                              label: '<i class="fa fa-check"></i> Confirmar',
                               className: 'btn-success'
                           },
                           cancel: {
-                              label: 'No',
+                              label: '<i class="fa fa-times"></i> Cancelar',
                               className: 'btn-danger'
                           }
                       },
@@ -280,12 +307,37 @@ class EntradaUpdate {
                     });
 
         });
+        //kardex
+        tablabody.on('click', '.btn-kardex', function () {
+            let data_fila = tabla_temp.tabla.row($(this).parents('tr')).data();
+          bootbox.confirm({
+                      message: "Esta seguro que desea crear estos dispositivos al kardex",
+                      buttons: {
+                          confirm: {
+                              label: '<i class="fa fa-check"></i> Confirmar',
+                              className: 'btn-success'
+                          },
+                          cancel: {
+                              label: '<i class="fa fa-times"></i> Cancelar',
+                              className: 'btn-danger'
+                          }
+                      },
+                      callback: function (result) {
+                          if(result == true){
+                            /**/
+                              let urldispositivo = tabla_temp.api_url + data_fila.id + "/crear_kardex/";
+                              let detalle_entrada= data_fila.id
+                              EntradaUpdate.enviar_kardex(urldispositivo, detalle_entrada);
+                          }
+                      }
+                    });
+
+        });
 
         /** Uso de DRF**/
         let detalle_form = $('#detalleForm');
         detalle_form.submit(function (e) {
             e.preventDefault();
-
             $.ajax({
                 type: "POST",
                 url: detalle_form.attr('action'),
@@ -293,6 +345,10 @@ class EntradaUpdate {
                 success: function (response) {
                     tabla_temp.tabla.ajax.reload();
                 },
+                error: function(response) {
+                  var mensaje = JSON.parse(response.responseText)
+                  bootbox.alert({message: "<h3><i class='fa fa-frown-o' style='font-size: 45px;'></i>&nbsp;&nbsp;&nbsp;HA OCURRIDO UN ERROR!!</h3></br>" + mensaje['mensaje'], className:"modal modal-danger fade"});
+                }
             });
             document.getElementById("detalleForm").reset();
         });
@@ -301,6 +357,11 @@ class EntradaUpdate {
     }
 
     static crear_dispositivos(urldispositivo) {
+      var dialog = bootbox.dialog({
+      title: 'Creacion de dispositivos ',
+      message: '<p><i class="fa fa-spin fa-spinner"></i> Creando dispositivos: <b style="color:red;"></br>"Por favor espere hasta que confirme la creación de los dispositivos"<b/></p>',
+      closeButton: false
+        });
         $.ajax({
             type: 'POST',
             url: urldispositivo,
@@ -309,14 +370,17 @@ class EntradaUpdate {
                 csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val()
             },
             success: function (response) {
-                bootbox.confirm("dispositivos creados exitosamente!",
-                function(result){
-                   location.reload();
-                  });
+                $('.modal').modal('hide');
+                bootbox.alert({message: "<h2>Dispositivos creados exitosamente!</h2>", className:"modal modal-success fade in",
+                callback: function(result){
+                   $("#entrada-table").DataTable().ajax.reload();
+                  }});
             },
             error: function (response) {
+              $('.modal').modal('hide');
               var mensaje = JSON.parse(response.responseText)
-              alert( "Error al crear los dispositivo: " + mensaje['mensaje']);
+              bootbox.alert({message: "<h3><i class='fa fa-frown-o' style='font-size: 45px;'></i>&nbsp;&nbsp;&nbsp;HA OCURRIDO UN ERROR!!</h3></br>" + mensaje['mensaje'], className:"modal modal-danger fade"});
+              
             }
         });
     }
@@ -329,17 +393,79 @@ class EntradaUpdate {
                 csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val()
             },
             success: function (response) {
-                bootbox.confirm("repuestos creados exitosamente!",
-                function(result){
-                   location.reload();
-                  });
-
+                $('.modal').modal('hide');
+                bootbox.alert({message: "<h2>Repuestos creados exitosamente!</h2>", className:"modal modal-success fade in",
+                callback: function(result){
+                   $("#entrada-table").DataTable().ajax.reload();
+                  }});
             },
             error: function (response) {
               var mensaje = JSON.parse(response.responseText)
-              alert( "Error al crear los Repuestos: " + mensaje['mensaje']);
+              bootbox.alert({message: "<h3><i class='fa fa-frown-o' style='font-size: 45px;'></i>&nbsp;&nbsp;&nbsp;HA OCURRIDO UN ERROR!!</h3></br>" + mensaje['mensaje'], className:"modal modal-danger fade"});
             }
 
+        });
+    }
+    static enviar_kardex(url_kardex, detalle_entrada){
+      $.ajax({
+          type: 'POST',
+          url: url_kardex,
+          data: {
+              csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
+              detalle_entrada: detalle_entrada
+          },
+          success: function (response) {
+                bootbox.alert({message: "<h2>Dispositivos ingresados a Kardex!</h2>", className:"modal modal-success fade in",
+                callback: function(result){
+                   $("#entrada-table").DataTable().ajax.reload();
+                  }});
+            },
+          error: function (response) {
+            var mensaje = JSON.parse(response.responseText)
+            bootbox.alert({message: "<h3><i class='fa fa-frown-o' style='font-size: 45px;'></i>&nbsp;&nbsp;&nbsp;HA OCURRIDO UN ERROR!!</h3></br>" + mensaje['mensaje'], className:"modal modal-danger fade"});
+          }
+
+      });
+
+    }
+    static validar_kardex(url_validar_kardex, tipo_dispositivo) {
+        $.ajax({
+            type: 'POST',
+            url: url_validar_kardex,
+            dataType: 'json',
+            data: {
+                csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
+                tipo_dispositivo: tipo_dispositivo
+            },
+            success: function (response) {
+              $("[for='id_proveedor_kardex']").css({"visibility":"visible"});
+              $('#id_proveedor_kardex').next(".select2-container").show();
+              $("#id_proveedor_kardex").attr("required", "true");
+              $("#id_proveedor_kardex").removeAttr("disabled");
+
+              $("[for='id_estado_kardex']").css({"visibility":"visible"});
+              $('#id_estado_kardex').next(".select2-container").show();
+              $("#id_estado_kardex").attr("required", "true");
+              $("#id_estado_kardex").removeAttr("disabled");
+
+              $("[for='id_tipo_entrada_kardex']").css({"visibility":"visible"});
+              $('#id_tipo_entrada_kardex').next(".select2-container").show();
+              $("#id_tipo_entrada_kardex").attr("required", "true");
+              $("#id_tipo_entrada_kardex").removeAttr("disabled");
+            },
+            error: function (response) {
+              $("[for='id_proveedor_kardex']").css({"visibility":"hidden"});
+              $('#id_proveedor_kardex').next(".select2-container").hide();
+              $("#id_proveedor_kardex").attr("disabled", "true");
+              $("[for='id_estado_kardex']").css({"visibility":"hidden"});
+              $('#id_estado_kardex').next(".select2-container").hide();
+              $("id_estado_kardex").prop('disabled',true);
+              $("#id_estado_kardex").attr("disabled", "true");
+              $("[for='id_tipo_entrada_kardex']").css({"visibility":"hidden"});
+              $('#id_tipo_entrada_kardex').next(".select2-container").hide();
+              $("id_tipo_entrada_kardex").prop('disabled',true);
+              $("#id_tipo_entrada_kardex").attr("disabled", "true");
+            }
         });
     }
 }
@@ -380,10 +506,22 @@ class EntradaDetail {
                 {data:"descripcion"},
                 {data: "creado_por"},
                 {data:" ",render: function(data, type, full, meta){
-                    return "<a target='_blank' rel='noopener noreferrer' href="+full.dispositivo_list+" class='btn btn-success'>Listado Dispositivo</a>";
+                  if(full.tipo_entrada != "Especial"){
+                    if(full.ingresado_kardex == true){
+                      return "<a target='_blank' rel='noopener noreferrer' href="+full.url_kardex+" class='btn btn-success btn-ulrKardex'>Detalle</a>";
+                    } else if (full.qr_dispositivo == true) {
+                      return "<a target='_blank' rel='noopener noreferrer' href="+full.dispositivo_list+" class='btn btn-success'>Listado Dispositivo</a>";
+                    }
+                  }
+                  return "";
                 }},
                 {data:" " ,render: function(data, type, full, meta){
-                    return "<a target='_blank' rel='noopener noreferrer' href="+full.repuesto_list+" class='btn btn-primary'>Listado Repuestos</a>";
+                  if(full.tipo_entrada != "Especial"){
+                    if(full.qr_repuestos == true){
+                      return "<a target='_blank' rel='noopener noreferrer' href="+full.repuesto_list+" class='btn btn-primary'>Listado Repuestos</a>";
+                    }
+                  }
+                  return "";
                 }}
 
             ]
@@ -438,7 +576,7 @@ class EntradaDetail {
                 console.log("dispositivos creados exitosamente");
             },
             error: function (response) {
-                alert( "Error al crear los dispositivo:" + response.mensaje);
+                bootbox.alert( "Error al crear los dispositivo:" + response.mensaje);
             }
         });
     }
@@ -454,7 +592,7 @@ class EntradaDetail {
                 console.log("repuestos creados exitosamente");
             },
             error: function (response) {
-                alert( "Error al crear los Repuestos:" + response.mensaje);
+                bootbox.alert( "Error al crear los repuestos:" + response.mensaje);
             }
 
         });
@@ -463,9 +601,11 @@ class EntradaDetail {
 
 
 (function (EntradaList, $, undefined) {
+  /* --- INICIALIZACIÓN DEL METODO INIT DE LA VISTA LIST DE ENTRADAS --*/
+  /* Cargar el listado de entradas en base a los filtros seleccionados*/
     var tabla = $('#entrada2-table').DataTable({
-        dom: 'lfrtipB',
-        buttons: ['excel', 'pdf'],
+        dom: 'Bfrtip',
+        buttons: ['excel', 'pdf', 'copy'],
         processing: true,
         ajax: {
             url: $('#entrada2-list-form').attr('action'),
@@ -477,31 +617,35 @@ class EntradaDetail {
             }
         },
         columns: [
-            {data: "id"},
+            {data: "id", render: function(data, type, full, meta){
+              if(full.en_creacion== "Si"){
+                return "<a href="+full.urlSi+" class='btn btn-block btn-success'>"+data+"</a>";
+
+              }else{
+                return "<a href="+full.urlNo+" class='btn btn-block btn-success'>"+data+"</a>";
+              }
+            }},
             {data: "tipo"},
             {data: "fecha", className: "nowrap"},
-            {data: "en_creacion", className: "nowrap"},
+            {data: "en_creacion", render: function(data, type, full, meta){
+              if(full.en_creacion == 'Si'){
+                return "<span class='label label-primary'>En Desarrollo</span>";
+              }else{
+                return "<span class='label label-danger'>Finalizada</span>";
+              }
+            }},
             {data: "creada_por", className: "nowrap"},
             {data: "recibida_por", className: "nowrap"},
             {data: "proveedor", className: "nowrap"},
-            {data: "urlSi", render: function(data, type, full, meta){
-              if(full.en_creacion== "Si"){
-                return "<a href="+data+" class='btn btn-block btn-success'>Abrir</a>";
-
-              }else{
-                return "<a href="+full.urlNo+" class='btn btn-block btn-success'>Abrir</a>";
-              }
-
-            }}
         ]
-
-
     }).on('xhr.dt', function (e, settings, json, xhr) {
+      /* Ocultar objeto de carga */
         $('#spinner').hide();
     });
 
+    /* Inicialización de clase EntradaList*/
     EntradaList.init = function () {
-
+        /* Al cargar la página ocultar spinner*/
         $('#spinner').hide();
         $('#entrada2-list-form').submit(function (e) {
             e.preventDefault();
@@ -512,7 +656,6 @@ class EntradaDetail {
 
         $('#entrada2-table tbody').on('click', 'button', function () {
             var data = tabla.row($(this).parents('tr')).data();
-            alert("Si funciona este boton");
         });
 
     }
@@ -536,32 +679,301 @@ class EntradaDetalleDetail {
     var valor = $('#salida-table').data("api");
     var pk = $('#salida-table').data("pk");
     var urlapi = valor + "?entrada=" + pk;
+    var urlDispositivo =  $('#dispositivo-table').data("api");
+    var urlAprobar =  $('#salida-table').data("apiaprobar");
+    var urlRechazar =  $('#salida-table').data("apirechazar");
+    var urlAprobarDispositivo = $('#dispositivo-table').data("apiaprobar");
+    var urlRechazarDispositivo = $('#dispositivo-table').data("apirechazar");
+    var urlTipoDispositivo = $('#dispositivo-table').data("tipo");
+    var urlFinalizar = $('#salida-table').data("finalizar");
+    var urlredireccion = $('#salida-table').data("redireccion");
+    $('#id_entrada_detalle').empty();
     var tabla = $('#salida-table').DataTable({
-        searching: false,
+        searching: true,
         paging: true,
-        ordering: false,
+        ordering: true,
         processing: true,
         ajax: {
             url: urlapi,
             dataSrc: '',
             cache: true,
-            data: function () {
-                var cont = $('#salida-table').data("api");
-                return cont;
+            data: {
+              desecho : pk
             }
         },
         columns: [
             {data: "tdispositivo"},
             {data: "cantidad"},
-            {data: "desecho"},
-            {data: "entrada_detalle"},
+            {data: "entrada"},
+            {data: "",render: function(data, type, full, meta){
+              if(full.aprobado == false){
+                return "<a id='desecho-aprobar' data-id="+full.id+"  class='btn btn-success btn-aprobar-desecho'>Aprobar</a>";
+              }else{
+                return "<span class='label label-success'>Aprobado</span>"
+              }
+
+            }},
+            {data: "",render: function(data, type, full, meta){
+              if(full.aprobado == false){
+                 return "<a id='desecho-rechazar' data-id="+full.id+"  class='btn btn-warning btn-rechazar-desecho'>Rechazar</a>";
+              }else{
+                return "";
+              }
+
+            }},
         ]
     });
+
+    /**/
+    var tablaDispositivo = $('#dispositivo-table').DataTable({
+        searching: true,
+        paging: true,
+        ordering: true,
+        processing: true,
+        ajax: {
+            url: urlDispositivo,
+            dataSrc: '',
+            cache: true,
+            data: {
+              desecho : pk
+            }
+        },
+        columns: [
+            {data: "triage"},
+            {data: "tipo"},
+            {data: "",render: function(data, type, full, meta){
+              if(full.aprobado == false){
+                  return "<a id='desecho-aprobar' data-triage="+full.dispositivo+"  class='btn btn-success btn-aprobar-dispositivo'>Aprobar</a>";
+              }else{
+                return "<span class='label label-success'>Aprobado</span>"
+              }
+
+
+            }},
+            {data: "",render: function(data, type, full, meta){
+                if(full.aprobado == false){
+                  return "<a id='desecho-rechazar' data-triage="+full.dispositivo+"  class='btn btn-warning btn-rechazar-dispositivo'>Rechazar</a>";
+                }else{
+                  return "";
+                }
+
+            }},
+        ]
+    });
+    /**/
+    /*Aprobar detalle de desecho*/
+    tabla.on('click', '.btn-aprobar-desecho', function () {
+            let data_fila = tabla.row($(this).parents('tr')).data();
+            $.ajax({
+              type: "POST",
+              url: urlAprobar,
+              dataType: 'json',
+              data: {
+                csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
+                detalle:data_fila.id
+              },
+              success: function (response) {
+                tabla.clear().draw();
+                tabla.ajax.reload();
+              },
+              error: function (response) {
+                var mensaje = JSON.parse(response.responseText)
+                bootbox.alert(mensaje['mensaje']);
+              }
+          });
+
+
+        });
+        /**/
+        /*Rechazar detalle de desecho*/
+        tabla.on('click', '.btn-rechazar-desecho', function () {
+                let data_fila = tabla.row($(this).parents('tr')).data();
+                bootbox.confirm({
+                    message: "¿Esta seguro que quiere rechazar este detalle de desecho?",
+                    buttons: {
+                        confirm: {
+                            label: 'Yes',
+                            className: 'btn-success'
+                        },
+                        cancel: {
+                            label: 'No',
+                            className: 'btn-danger'
+                        }
+                    },
+                    callback: function (result) {
+                        if (result == true) {
+                          $.ajax({
+                            type: "POST",
+                            url: urlRechazar,
+                            dataType: 'json',
+                            data: {
+                              csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
+                              detalle:data_fila.id
+                            },
+                            success: function (response) {
+                              tabla.clear().draw();
+                              tabla.ajax.reload();
+                            },
+                            error: function (response) {
+                              var mensaje = JSON.parse(response.responseText)
+                              bootbox.alert(mensaje['mensaje']);
+                            }
+                        });
+                        }
+
+                    }
+                });
+
+
+            });
+            /**/
+          /*Aprobar Dispositivo de desecho*/
+          tablaDispositivo.on('click', '.btn-aprobar-dispositivo', function () {
+                  let data_fila = tablaDispositivo.row($(this).parents('tr')).data();
+                  $.ajax({
+                    type: "POST",
+                    url: urlAprobarDispositivo,
+                    dataType: 'json',
+                    data: {
+                      csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
+                      detalle:data_fila.id
+                    },
+                    success: function (response) {
+                        tablaDispositivo.clear().draw();
+                        tablaDispositivo.ajax.reload();
+                    },
+                    error: function (response) {
+                      var mensaje = JSON.parse(response.responseText)
+                      bootbox.alert(mensaje['mensaje']);
+                    }
+                });
+
+
+              });
+              /**/
+              /*Rechazar Dispositivo de desecho*/
+              tablaDispositivo.on('click', '.btn-rechazar-dispositivo', function () {
+                      let data_fila = tablaDispositivo.row($(this).parents('tr')).data();
+                      bootbox.confirm({
+                          message: "¿Esta seguro que quiere rechazar este dispositivo?",
+                          buttons: {
+                              confirm: {
+                                  label: 'Yes',
+                                  className: 'btn-success'
+                              },
+                              cancel: {
+                                  label: 'No',
+                                  className: 'btn-danger'
+                              }
+                          },
+                          callback: function (result) {
+                            $.ajax({
+                              type: "POST",
+                              url: urlRechazarDispositivo,
+                              dataType: 'json',
+                              data: {
+                                csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
+                                detalle:data_fila.id
+                              },
+                              success: function (response) {
+                                tablaDispositivo.clear().draw();
+                                tablaDispositivo.ajax.reload();
+                              },
+                              error: function (response) {
+                                var mensaje = JSON.parse(response.responseText)
+                                bootbox.alert(mensaje['mensaje']);
+                              }
+                          });
+
+
+                          }
+                      });
+
+
+
+                  });
+                  /**/
+                  $('#id_tipo_dispositivo').change(function() {
+                      if($('#id_tipo_dispositivo').val()==""){
+                      }else{
+                        /****/
+                          var tipo = $(this).val();
+                          var data_result = []
+                          $("#id_entrada_detalle").select2("destroy");
+                          $.ajax({
+                            url:urlTipoDispositivo,
+                            dataType:'json',
+                            data:{
+                              tipo_dispositivo:tipo,
+                              desecho:0
+                            },
+                            error:function(){
+                              console.log("Error");
+                            },
+                            success:function(data){
+                                $('#id_entrada_detalle').empty();
+                                data_result.push('<optgroup class="def-cursor" label="Entrada" data-tipo="Tipo" data-cantidad="Existencia">')
+                                data_result.push('<option value="" data-tipo="-------" data-cantidad="-------">-------</option>');
+                                for (var i in data){
+                                  cantidad = data[i].existencia_desecho
+                                  if(cantidad > 0){
+                                    data_result.push('<option value='+data[i].id + ' data-tipo="'+data[i].descripcion+'" data-cantidad="'+cantidad+'">'+data[i].entrada+'</option>');
+                                  }
+                                }
+                                data_result.push('</optgroup>')
+                                $('#id_entrada_detalle').append(data_result);
+                            },
+                            type: 'GET'
+                          }
+                        );
+                        $('#id_entrada_detalle').select2({
+                          width: '100%',
+                          tags: true,
+                          createTag: function (params) {
+                            return {
+                                id: params.term,
+                                text: params.term + $('#id_entrada_detalle').data(),
+                                newOption: true
+                            }
+                          },
+                          templateResult: function(data) {
+                            var tipo = $(data.element).data('tipo');
+                            var cantidad = $(data.element).data('cantidad');
+                            var classAttr = $(data.element).attr('class');
+                            var hasClass = typeof classAttr != 'undefined';
+                            classAttr = hasClass ? ' ' + classAttr : '';
+
+                              var $result = $(
+                                  '<div class="row">' +
+                                  '<div class="col-md-3 col-xs-6' + classAttr + '">' + data.text + '</div>' +
+                                  '<div class="col-md-4 col-xs-6' + classAttr + '">' + tipo + '</div>' +
+                                  '<div class="col-md-4 col-xs-6' + classAttr + '">' + cantidad + '</div>' +
+                                  '</div>');
+                              return $result;
+                          },
+                          templateSelection: function (data) {
+                            if(!data.id) { return data.text }
+                            var tipo = $(data.element).data('tipo');
+                            var cantidad = $(data.element).data('cantidad');
+
+                            var result = data.text + ' - ' + tipo + '(' + cantidad + ')'
+                            return result
+                          }
+                        }).on('select2:select', function (e) {
+                          if (e.params.data.text != '') {
+
+                            var id = $(this).attr('id');
+                            var select2 = $("span[aria-labelledby=select2-" + id + "-container]");
+                            select2.removeAttr('style');
+                          }
+                        });
+                      }
+                    });
 
     SalidaDetalleList.init = function () {
         $('#btn-terminar').click(function () {
             bootbox.confirm({
-                message: "¿Esta Seguro que quiere Terminara la Creacion de la Entrada?",
+                message: "¿Esta seguro que quiere terminar la salida de desechos?",
                 buttons: {
                     confirm: {
                         label: 'Yes',
@@ -574,8 +986,24 @@ class EntradaDetalleDetail {
                 },
                 callback: function (result) {
                     if (result == true) {
-                        document.getElementById("id_en_creacion").checked = false;
-                        document.getElementById("desechosalida-form").submit();
+                      $.ajax({
+                        type: "POST",
+                        url: urlFinalizar,
+                        dataType: 'json',
+                        data: {
+                          csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
+                          id:pk
+                        },
+                        success: function (response) {
+                             bootbox.alert(response.mensaje);
+                             window.location= urlredireccion;
+                        },
+                        error: function (response) {
+                          var mensaje = JSON.parse(response.responseText)
+                          bootbox.alert(mensaje['mensaje']);
+                        }
+                    });
+
                     }
 
                 }
@@ -595,17 +1023,43 @@ class EntradaDetalleDetail {
                     console.log("datos ingresados correctamente");
 
                 },
+                error: function (response) {
+                  var mensaje = JSON.parse(response.responseText)
+                  bootbox.alert(mensaje.error[0]);
+                }
             });
+            $("#id_tipo_dispositivo").select2("destroy").select2();
+            $("#id_tipo_dispositivo").select2("val", "");
+
+
+            $("#id_entrada_detalle").select2("destroy").select2();
+            $("#id_entrada_detalle").select2("val", "");
+            $('#id_entrada_detalle').html('');
             tabla.clear().draw();
             tabla.ajax.reload();
             document.getElementById("detalleForm").reset();
         });
+      /** uso de DRF**/
+      $('#dispositivoForm').submit(function (e) {
+          e.preventDefault()
+         $.ajax({
+              type: "POST",
+              url: $('#dispositivoForm').attr('action'),
+              data: $('#dispositivoForm').serialize(),
+              success: function (response) {
+                  console.log("datos ingresados correctamente");
+              },
+          });
+          tablaDispositivo.clear().draw();
+          tablaDispositivo.ajax.reload();
+          document.getElementById("dispositivoForm").reset();
+      });
     }
 }(window.SalidaDetalleList = window.SalidaDetalleList || {}, jQuery));
 
 class SolicitudMovimiento {
   constructor() {
-
+    var url =  $('#recibido-kardex').data("url");
     $('#movimientos-table-body').DataTable({
       dom: 'lfrtipB',
       buttons: ['excel','pdf']
@@ -645,50 +1099,99 @@ class SolicitudMovimiento {
 
             }
         });
-
-
     });
 
+    $('#aprobar-kardex').click(function (e) {
+       e.preventDefault();
+        bootbox.confirm({
+            message: "¿Esta Seguro de aprobar esta peticion de dispositivos?",
+            buttons: {
+                confirm: {
+                    label: 'Yes',
+                    className: 'btn-success'
+                },
+                cancel: {
+                    label: 'No',
+                    className: 'btn-danger'
+                }
+            },
+            callback: function (result) {
+                if (result == true) {
+                  $.ajax({
+                      type: "POST",
+                      url: $('#aprobar-kardex').attr('href'),
+                      dataType: 'json',
+                      data: {
+                        csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
+                        id: $('#aprobar-kardex').data("id"),
+                        respuesta: 1
+
+                      },
+                      success: function (response) {
+                        location.reload();
+                      },
+                  });
+                }
+            }
+        });
+    });
+
+    $('#recibido-kardex').click(function (e) {
+       e.preventDefault();
+        bootbox.confirm({
+            message: "¿Esta Seguro que desea rechazar estos dispositivos?",
+            buttons: {
+                confirm: {
+                    label: 'Yes',
+                    className: 'btn-success'
+                },
+                cancel: {
+                    label: 'No',
+                    className: 'btn-danger'
+                }
+            },
+            callback: function (result) {
+                if (result == true) {
+                  $.ajax({
+                      type: "POST",
+                      url: $('#aprobar-kardex').attr('href'),
+                      dataType: 'json',
+                      data: {
+                        csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
+                        id: $('#aprobar-kardex').data("id"),
+                        respuesta: 2
+
+                      },
+                      success: function (response) {
+                          window.location.href = url;
+
+                      },
+                  });
+                }
+            }
+        });
+    });
   }
 }
 
 
 class SolicitudMovimientoUpdate {
     constructor() {
-        this.sel_dispositivos = $('#id_dispositivos');
-        let api_url = this.sel_dispositivos.data('api-url');
-        let etapa_inicial = this.sel_dispositivos.data('etapa-inicial');
-        let tipo_dipositivo = this.sel_dispositivos.data('tipo-dispositivo');
-        let slug = this.sel_dispositivos.data('slug');
-        let cantidad = $("#solicitud-table").data("cantidad");
-
-        this.sel_dispositivos.select2({
+        var sel_dispositivos = $('#id_dispositivos');
+        let api_url = sel_dispositivos.data('api-url');
+        let etapa_inicial = sel_dispositivos.data('etapa-inicial');
+        let estado_inicial = sel_dispositivos.data('estado-inicial');
+        let tipo_dipositivo = sel_dispositivos.data('tipo-dispositivo');
+        let slug = sel_dispositivos.data('slug');
+        var cantidad = $("#solicitud-table").data("cantidad");
+        $('#id_dispositivos').val("").trigger('change');
+        var lista_triage = [];
+        sel_dispositivos.select2({
             maximumSelectionLength : cantidad,
-            debug: true,
             placeholder: "Ingrese los triage",
-            ajax: {
-                url: api_url,
-                dataType: 'json',
-                data: function (params) {
-                    return {
-                        search: params.term,
-                        etapa: etapa_inicial,
-                        tipo: tipo_dipositivo,
-                        buscador: slug + "-" + params.term
-                    };
-                },
-                processResults: function (data) {
-                    return {
-                        results: data.map(dispositivo => {
-                            return {id: dispositivo["id"], text: dispositivo['triage']};
-                        })
-                    };
-                },
-                cache: true
-            },
-            width : '100%'
+            width : '50%'
         });
-        let cantidad_dispositivos = this.sel_dispositivos;
+        let cantidad_dispositivos = sel_dispositivos;
         $('form').on('submit', function(e){
            let restante  = cantidad - cantidad_dispositivos.select2('data').length;
 
@@ -698,8 +1201,210 @@ class SolicitudMovimientoUpdate {
             e.preventDefault();
           }
         });
+        /*Scanner*/
+        var inputStart, inputStop, firstKey, lastKey, timing, userFinishedEntering;
+        var minChars = 3;
+
+        // handle a key value being entered by either keyboard or scanner
+        $("#area_scanner").keypress(function (e) {
+            // restart the timer
+            if (timing) {
+                clearTimeout(timing);
+            }
+
+            // handle the key event
+            if (e.which == 13) {
+                // Enter key was entered
+
+                // don't submit the form
+                e.preventDefault();
+
+                // has the user finished entering manually?
+                if ($("#area_scanner").val().length >= minChars){
+                    userFinishedEntering = true; // incase the user pressed the enter key
+                    inputComplete();
+                }
+            }
+            else {
+                // some other key value was entered
+
+                // could be the last character
+                inputStop = performance.now();
+                lastKey = e.which;
+                // don't assume it's finished just yet
+                userFinishedEntering = false;
+
+                // is this the first character?
+                if (!inputStart) {
+                    firstKey = e.which;
+                    inputStart = inputStop;
+
+                    // watch for a loss of focus
+                    $("body").on("blur", "#area_scanner", inputBlur);
+                }
+
+                // start the timer again
+                timing = setTimeout(inputTimeoutHandler, 500);
+            }
+        });
+
+        // Assume that a loss of focus means the value has finished being entered
+        function inputBlur(){
+            clearTimeout(timing);
+            if ($("#area_scanner").val().length >= minChars){
+                userFinishedEntering = true;
+                inputComplete();
+            }
+        };
 
 
+        // reset the page
+        $("#reset").click(function (e) {
+            e.preventDefault();
+            resetValues();
+        });
+
+        function resetValues() {
+            // clear the variables
+            inputStart = null;
+            inputStop = null;
+            firstKey = null;
+            lastKey = null;
+            // clear the results
+            inputComplete();
+        }
+
+        // Assume that it is from the scanner if it was entered really fast
+        function isScannerInput() {
+            return (((inputStop - inputStart) / $("#area_scanner").val().length) < 15);
+        }
+
+        // Determine if the user is just typing slowly
+        function isUserFinishedEntering(){
+            return !isScannerInput() && userFinishedEntering;
+        }
+
+        function inputTimeoutHandler(){
+            // stop listening for a timer event
+            clearTimeout(timing);
+            // if the value is being entered manually and hasn't finished being entered
+            if (!isUserFinishedEntering() || $("#area_scanner").val().length < 3) {
+                // keep waiting for input
+                return;
+            }
+            else{
+                reportValues();
+            }
+        }
+
+        // here we decide what to do now that we know a value has been completely entered
+        function inputComplete(){
+            // stop listening for the input to lose focus
+            $("body").off("blur", "#area_scanner", inputBlur);
+            // report the results
+            reportValues();
+        }
+
+        function reportValues() {
+            var inputMethod = isScannerInput() ? "Scanner" : "Keyboard";
+             if(inputMethod == "Scanner"){
+                var datos = {};
+                var seleccion = new Array(cantidad);
+                var triage = $("#area_scanner").val();
+                 var mensaje = JSON.parse(triage);
+                 datos['text'] = mensaje.triage;
+                 datos['id'] = mensaje.id;
+                 /*Api*/
+                 $.ajax({
+                   url:api_url,
+                   dataType:'json',
+                   data:{
+                     etapa: etapa_inicial,
+                     estado: estado_inicial,
+                     triage: mensaje.triage
+                   },
+                   error:function(){
+                     console.log("Error");
+                   },
+                   success:function(data){
+                     if(data.length >0){
+                       /*asignar datos*/
+                       lista_triage.push(datos);
+                       $("#area_scanner").val("");
+                       inputStart = null;
+                       inputStop = null;
+                       firstKey = null;
+                       lastKey = null;
+                       sel_dispositivos.select2({
+                           maximumSelectionLength : cantidad,
+                           debug: true,
+                           placeholder: "Ingrese los triage",
+                           data:lista_triage,
+                           processResults: function (data){
+                             return {
+                               results : data.map(lista_triage =>{
+                                 return {id: lista_triage["value"], text:lista_triage["triage"]};
+                               })
+                             };
+                           },
+                           width : '100%'
+                       });
+                      for(var i = 0; i<(lista_triage.length);i++){
+                          seleccion[i] = lista_triage[i].id;
+                     }
+                       $('#id_dispositivos').val(seleccion).trigger('change');
+                       /**/
+
+                     }else{
+                       bootbox.alert("Este dispositivo no esta disponible");
+                       $("#area_scanner").val("");
+
+                     }
+                   },
+                   type: 'GET'
+                 }
+               );
+                 /**/
+             }
+        }
+        $("#area_scanner").focus();
+        /*Fin scanner*/
+        $("#btn-manual").click(function(e){
+          $("#area_scanner").attr('type','hidden');
+          $("[for='area_scanner']").css({"visibility":"hidden"});
+          $('#id_dispositivos').val(" ").trigger('change');
+          $("#btn-manual").css({"visibility":"hidden"});
+
+          /**/
+          sel_dispositivos.select2({
+              maximumSelectionLength : cantidad,
+              debug: true,
+              placeholder: "Ingrese los triage",
+              ajax: {
+                  url: api_url,
+                  dataType: 'json',
+                  data: function (params) {
+                      return {
+                          search: params.term,
+                          etapa: etapa_inicial,
+                          estado: estado_inicial,
+                          buscador: slug + "-" + params.term
+                      };
+                  },
+                  processResults: function (data) {
+                      return {
+                          results: data.map(dispositivo => {
+                              return {id: dispositivo["id"], text: dispositivo['triage']};
+                          })
+                      };
+                  },
+                  cache: true
+              },
+              width : '50%'
+          });
+          /**/
+
+        });
 
     }
 }
@@ -786,7 +1491,7 @@ class SolicitudEstadoTipo {
                 paquete:data_fila.id_paquete
               },
               success: function (response){
-                  bootbox.alert("Paquete y Dispositivos aprovados");
+                  bootbox.alert("Paquete y Dispositivos aprobados");
                   tablaSignar.clear().draw();
                   tablaSignar.ajax.reload();
               },
@@ -877,7 +1582,7 @@ class SalidasRevisarList {
       },
       columns:[
         {data:"salida", render: function( data, type, full, meta){
-          return '<a href="'+full.urlSalida+'">'+data+'</a>'
+          return '<a href="'+full.urlSalida+'">'+full.no_salida+'</a>'
         }},
         {data:"fecha_revision", render: function(data, type, full, meta){
          var newDate = new Date(full.fecha_revision);
@@ -894,6 +1599,11 @@ class SalidasRevisarList {
 
 class Salidas {
   constructor() {
+    let tabla_paquetes = $('#salidas-paquete-table');
+    var disponible =0;
+    var dispositivo_triage = 0;
+    var urlrechazar_kardex = $("#id-reasignar").data("kardexrechazar");
+    var urlraprobar_kardex = $("#id-reasignar").data("kardexaprobar");
     var url_salida= $("#salidas-table").data("url");
     var url_salida_paquete= $("#salidas-paquete-table").data("url");
     var salida_pk= $("#salidas-paquete-table").data("pk");
@@ -911,10 +1621,12 @@ class Salidas {
         mes='0'+mes;
     }
     var fecha = year+'-'+mes+'-'+dia;
-      console.log(fecha);
     $('#id_fecha').val(fecha);
     $("[for='id_entrega']").css({"visibility":"hidden"});
+    $("[for='id_garantia']").css({"visibility":"hidden"});
     $("[for='id_beneficiario']").css({"visibility":"hidden"});
+    $('#id_garantia').next(".select2-container").hide();
+    $('#id_beneficiario').next(".select2-container").hide();
 
     $('#id_entrega').click(function () {
         if ($("#id_entrega").is(':checked')) {
@@ -923,12 +1635,14 @@ class Salidas {
           $("#id_udi").val(" ");
           $("#id_beneficiario").css({"visibility":"hidden"});
           $("[for='id_beneficiario']").css({"visibility":"hidden"});
+          $('#id_beneficiario').next(".select2-container").hide();
         } else {
           $("#id_udi").attr('type','hidden');
           $("[for='id_udi']").css({"visibility":"hidden"});
           $("[for='id_beneficiario']").css({"visibility":"visible"});
           $("#id_beneficiario").css({"visibility":"visible"});
-          $("#id_udi").val(" ");
+          $("#id_udi").val(0);
+          $('#id_beneficiario').next(".select2-container").show();
         }
     });
     $('#salidaform').on('submit', function(e){
@@ -940,17 +1654,22 @@ class Salidas {
               e.preventDefault();
         }
       }else{
-        if(beneficiario.length == 0){
-          bootbox.alert("Necesita Ingresar un Beneficiario");
-            e.preventDefault();
+        if(tipoSalida == 7 || tipoSalidaText =='Garantia') {
+            $("#id_beneficiario").val(" ");
+        }else{
+          if(beneficiario.length == 0){
+            bootbox.alert("Necesita Ingresar un Beneficiario");
+              e.preventDefault();
+          }
         }
       }
 
     });
 
     $('#salidas-table').DataTable({
-      dom: 'lfrtipB',
-      buttons: ['excel','pdf'],
+      dom: 'Bfrtip',
+      buttons: ['excel', 'pdf', 'copy'],
+      "order": [[ 3, "desc" ]],
       ajax:{
         url:url_salida,
         dataSrc:'',
@@ -958,10 +1677,25 @@ class Salidas {
 
       },
       columns:[
+        {data: "no_salida", render: function(data, type, full, meta){
+          if(full.estado == 'Entregado'){
+            return "<a target='_blank' rel='noopener noreferrer' href="+full.detail_url+" class='btn btn-success'>"+data+"</a>";
+          }else{
+            return "<a target='_blank' rel='noopener noreferrer' href="+full.url+" class='btn btn-success'>"+data+"</a>";
+          }
+        }},
         {data:"id"},
         {data:"tipo_salida"},
         {data:"fecha"},
-        {data:"estado"},
+        {data: "estado", render: function(data, type, full, meta){
+          if(full.estado == 'Pendiente'){
+            return "<span class='label label-danger'>En Desarrollo</span>";
+          }else if(full.estado == 'Listo'){
+            return "<span class='label label-primary'>Listo</span>";
+          } else {
+            return "<span class='label label-success'>Entregado</span>";
+          }
+        }},
         {data:"escuela", render: function(data, type, full, meta){
           if(full.escuela===undefined){
             return " ";
@@ -971,20 +1705,12 @@ class Salidas {
 
         }},
         {data:"beneficiario"},
-        {data:"", render: function(data, type, full, meta){
-          if(full.estado == 'Entregado'){
-            return "<a target='_blank' rel='noopener noreferrer' href="+full.detail_url+" class='btn btn-success'>Abrir</a>";
-          }else{
-            return "<a target='_blank' rel='noopener noreferrer' href="+full.url+" class='btn btn-success'>Abrir</a>";
-          }
-
-        }}
       ]
     });
 
-    $('#salidas-paquete-table').DataTable({
-      dom: 'lfrtipB',
-      buttons: ['excel','pdf'],
+    var nueva_tabla = tabla_paquetes.DataTable({
+      dom: 'Bfrtip',
+      buttons: ['excel', 'pdf', 'copy'],
       ajax:{
         url:url_salida_paquete,
         dataSrc:'',
@@ -992,6 +1718,7 @@ class Salidas {
         data: function () {
           return {
             asignacion: salida_pk,
+            desactivado:false
           }
         }
 
@@ -1017,12 +1744,37 @@ class Salidas {
           if(full.tipo_salida == "Especial" ){
             return ""
           }else{
-            return "<a target='_blank' rel='noopener noreferrer' href="+full.url_detail+" class='btn btn-success'>Ver Dispositivos</a>";
+            if(full.usa_triage == "False"){
+              if(full.aprobado == true){
+                return " ";
+              }else{
+                if(full.aprobado_kardex == true){
+                  return " ";
+                }else{
+                  return "<a id='conta-aprobar'  class='btn btn-success btn-aprobar-conta'>Aprobar</a>";
+                }
+
+              }
+            }else{
+              return "<a target='_blank' rel='noopener noreferrer' href="+full.url_detail+" class='btn btn-success'>Ver Dispositivos</a>";
+            }
+
           }
         }},
         {data:"", render: function(data, type, full, meta){
           if(full.aprobado ==false){
-            return "<a target='_blank' rel='noopener noreferrer' href="+full.urlPaquet+" class='btn btn-primary'>Asignar Dispositivos</a>";
+            if(full.usa_triage == "False"){
+              if(full.aprobado_kardex == true){
+                return " ";
+              }else{
+                  return "<a id='conta-rechazar'  class='btn btn-warning btn-rechazar-conta'>Rechazar</a>";
+              }
+
+
+            }else{
+              return "<a target='_blank' rel='noopener noreferrer' href="+full.urlPaquet+" class='btn btn-primary btn-asignar'>Asignar Dispositivos</a>";
+            }
+
           }else{
             return "";
           }
@@ -1030,7 +1782,67 @@ class Salidas {
         }}
       ]
     });
+    /**Asignar Dispositivos**/
+    nueva_tabla.on('click','.btn-asignar', function () {
+      location.reload();
+    } );
 
+    /**Boton Aprobar Dispositivos**/
+    nueva_tabla.on('click','.btn-aprobar-conta', function () {
+     let data_fila = nueva_tabla.row($(this).parents('tr')).data();
+      $.ajax({
+        type: "POST",
+        url: urlraprobar_kardex,
+        data:{
+          csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
+          id_paquete:data_fila.id_paquete
+        },
+        success: function (response){
+            bootbox.alert("Paquete aprobado");
+            location.reload();
+        },
+      });
+
+    } );
+    /**Boton  de Rechazo de Dispositivos**/
+    nueva_tabla.on('click','.btn-rechazar-conta', function () {
+      let data_fila = nueva_tabla.row($(this).parents('tr')).data();
+      /****/
+     bootbox.confirm({
+         message: "Esta seguro de rechazar el paquete?",
+         buttons: {
+             confirm: {
+                 label: 'Si',
+                 className: 'btn-success'
+             },
+             cancel: {
+                 label: 'No',
+                 className: 'btn-danger'
+             }
+         },
+         callback: function (result) {
+           if(result==true){
+             console.log(urlrechazar);
+             $.ajax({
+               type: "POST",
+               url: urlrechazar_kardex,
+               data:{
+                 csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
+                 id_paquete:data_fila.id_paquete
+               },
+               success: function (response){
+                  bootbox.alert("Paquete Rechazado");
+                  location.reload();
+               },
+             });
+           }
+
+             console.log('This was logged in the callback: ' + result);
+         }
+       });
+      /****/
+    });
+//select2
     this.asig_salidas =$('#id_entrada');
     let api_urlentrada=this.asig_salidas.data('api-url');
     let beneficiario = $('#salidas-paquete-table').data("beneficiario");
@@ -1115,9 +1927,8 @@ class Salidas {
                                            salida :salida_pk,
                                        },
                                        success: function (response){
+                                         bootbox.alert("Salida Aprobada");
                                         window.location.href = url_detail;
-                                         console.log(response);
-
                                        },
                                      });
                                      /***/
@@ -1137,15 +1948,114 @@ class Salidas {
                     });
         }
     });
+
+    /***/
+
+      var url_kardex = $('#id-reasignar').data('kardex');
+      $("#label_kardex").css({"visibility":"hidden"});
+      $('#id_tipo_paquete').change(function(){
+        var cantidad  = $('#id_cantidad').val();
+        var tipo_paquete = $(this).val();
+        $.ajax({
+          type: "POST",
+          url: url_kardex,
+          data:{
+            csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
+            tipo_dispositivo:tipo_paquete
+          },
+          success: function (response){
+            if(response['mensaje']=="Usa Triage"){
+              $('#id_cantidad').val("");
+                dispositivo_triage =1;
+                $("#label_kardex").css({"visibility":"hidden"});
+                $('#existencia_kardex').html(" ");
+            }else{
+              $('#id_cantidad').val("");
+              $("#label_kardex").css({"visibility":"visible"});
+               $('#existencia_kardex').html("<b>"+response['mensaje']);
+               disponible = parseInt(response['mensaje']);
+            }
+          },
+          error:function(error){
+          },
+        });
+      });
+    /***/
+    $('#id_cantidad').focusout(function() {
+      if (dispositivo_triage == 1){
+        $('#paquetes_add').css({"visibility":"visible"});
+        $("#label_kardex").css({"visibility":"hidden"});
+         $('#existencia_kardex').html(" ");
+         dispositivo_triage=0;
+      }else{
+        var cantidad  = $('#id_cantidad').val();
+        if(cantidad > disponible){
+          $('#paquetes_add').css({"visibility":"hidden"});
+          $('#id_cantidad').val("");
+          bootbox.alert("No has dipositivos suficientes para asignar");
+        }else{
+           $('#paquetes_add').css({"visibility":"visible"});
+        }
+      }
+
+    });
+    /**/
     $('#id_tipo_salida').change(function(){
       var tipoSalida = $(this).val();
       var tipoSalidaText = $('#id_tipo_salida option:selected').text()
       if(tipoSalida == 3 || tipoSalidaText =='Especial'){
         $("[for='id_entrega']").css({"visibility":"visible"});
         $("#id_entrega").css({"visibility":"visible"});
-      }else{
+        /**/
+        $("[for='id_udi']").css({"visibility":"visible"});
+        $("#id_udi").attr('type','visible');
+        $("#id_udi").val(" ");
+        $("#id_beneficiario").css({"visibility":"hidden"});
+        $("[for='id_beneficiario']").css({"visibility":"hidden"});
+        $('#id_beneficiario').next(".select2-container").hide();
+        $("[for='id_garantia']").css({"visibility":"hidden"});
+        $('#id_garantia').next(".select2-container").hide();
+      }else if(tipoSalida == 4 || tipoSalidaText =='A terceros') {
         $("[for='id_entrega']").css({"visibility":"hidden"});
         $("#id_entrega").css({"visibility":"hidden"});
+        $("#id_entrega").prop('checked',false);
+        /**/
+        $("#id_udi").attr('type','hidden');
+        $("[for='id_udi']").css({"visibility":"hidden"});
+        $("[for='id_beneficiario']").css({"visibility":"visible"});
+        $("#id_beneficiario").css({"visibility":"visible"});
+        $("#id_udi").val(" ");
+        $('#id_beneficiario').next(".select2-container").show();
+        $("[for='id_garantia']").css({"visibility":"hidden"});
+        $('#id_garantia').next(".select2-container").hide();
+      }else if(tipoSalida == 7 || tipoSalidaText =='Garantia') {
+        $("[for='id_entrega']").css({"visibility":"hidden"});
+        $("#id_entrega").css({"visibility":"hidden"});
+        $("#id_entrega").prop('checked',false);
+        $("[for='id_garantia']").css({"visibility":"visible"});
+        $('#id_garantia').next(".select2-container").show();
+        /**/
+        $("#id_udi").attr('type','hidden');
+        $("[for='id_udi']").css({"visibility":"hidden"});
+        $("[for='id_beneficiario']").css({"visibility":"hidden"});
+        $("#id_beneficiario").css({"visibility":"hidden"});
+        $("#id_udi").val(" ");
+        $('#id_beneficiario').next(".select2-container").hide();
+      } else {
+        $("[for='id_entrega']").css({"visibility":"hidden"});
+        $("#id_entrega").css({"visibility":"hidden"});
+        $("#id_entrega").prop('checked',true);
+        /**/
+        $("[for='id_udi']").css({"visibility":"visible"});
+        $("#id_udi").attr('type','visible');
+        $("#id_udi").val(" ");
+        $("#id_beneficiario").css({"visibility":"hidden"});
+        $("[for='id_beneficiario']").css({"visibility":"hidden"});
+        $("#id_beneficiario").attr('type','visible');
+        $('#id_beneficiario').next(".select2-container").hide();
+        /**/
+        $("[for='id_garantia']").css({"visibility":"hidden"});
+        $('#id_garantia').next(".select2-container").hide();
       }
     });
     /**Reasignar**/
@@ -1159,9 +2069,8 @@ class Salidas {
       var mensaje = "Ingrese el Beneficiario a Reasignar";
       var es_beneficiario = true;
     }
-    if(beneficiario == true){
+    if(es_beneficiario == true){
       $('#id-reasignar').click( function(){
-       console.log(url_salida_paquete);
         $.ajax({
              url:urldonantes,
              data:function (){
@@ -1171,7 +2080,6 @@ class Salidas {
             },
              error:function(error){
                console.log(error);
-               console.log("Error");
              },
              success:function(data){
                var listaDeDonantes = [];
@@ -1186,7 +2094,6 @@ class Salidas {
              inputType: 'select',
              inputOptions: listaDeDonantes,
              callback: function (result) {
-                 console.log(result);
                  //
                  $.ajax({
                   type: "POST",
@@ -1218,7 +2125,6 @@ class Salidas {
        });
     }else{
       $('#id-reasignar').click( function(){
-       console.log(url_salida_paquete);
        bootbox.prompt({
            title: mensaje,
            callback: function (result) {
@@ -1255,11 +2161,19 @@ class PaquetesRevisionList {
   constructor() {
     let  paquetes_revision_tabla = $('#salida-paquetes-revision');
     let api_paquetes_revision = $('#paquetes-revision').data('url');
+    let urlredireccion = $('#paquetes-revision').data('redirect');
     let urlraprobar = $('#paquetes-revision').data('urlaprobar');
     let urlrechazar = $('#paquetes-revision').data('urlrechazar');
     var api_paquete_salida= $('#paquetes-revision').data('id');
-    let api_aprobar_salida=$('#aprobar-btn').data('url')
+    let api_aprobar_salida=$('#aprobar-btn').data('url');
     let  dispositivo_revision_tabla = $('#dispositivo-salida-paquetes-revision');
+    //tablas kardexa
+    let api_paquetes_revision_kardex = $('#paquetes-revision-kardex').data('url');
+    let paquete_revision_aprobado_kardex = $('#dispositivo-salida-paquetes-revision-kardex');
+    let paquetes_revision_tabla_kardex = $('#salida-paquetes-revision-kardex');
+
+
+
     var  tablaPaquetes = paquetes_revision_tabla.DataTable({
       processing:true,
       retrieve:true,
@@ -1291,6 +2205,152 @@ class PaquetesRevisionList {
 
     });
     /****/
+
+     /*Scanner*/
+        var inputStart, inputStop, firstKey, lastKey, timing, userFinishedEntering;
+        var minChars = 3;
+
+        // handle a key value being entered by either keyboard or scanner
+        $("#area_scanner").keypress(function (e) {
+            // restart the timer
+            if (timing) {
+                clearTimeout(timing);
+            }
+
+            // handle the key event
+            if (e.which == 13) {
+                // Enter key was entered
+
+                // don't submit the form
+                e.preventDefault();
+
+                // has the user finished entering manually?
+                if ($("#area_scanner").val().length >= minChars){
+                    userFinishedEntering = true; // incase the user pressed the enter key
+                    inputComplete();
+                }
+            }
+            else {
+                // some other key value was entered
+
+                // could be the last character
+                inputStop = performance.now();
+                lastKey = e.which;
+                // don't assume it's finished just yet
+                userFinishedEntering = false;
+
+                // is this the first character?
+                if (!inputStart) {
+                    firstKey = e.which;
+                    inputStart = inputStop;
+
+                    // watch for a loss of focus
+                    $("body").on("blur", "#area_scanner", inputBlur);
+                }
+
+                // start the timer again
+                timing = setTimeout(inputTimeoutHandler, 500);
+            }
+        });
+
+        // Assume that a loss of focus means the value has finished being entered
+        function inputBlur(){
+            clearTimeout(timing);
+            if ($("#area_scanner").val().length >= minChars){
+                userFinishedEntering = true;
+                inputComplete();
+            }
+        };
+
+
+        // reset the page
+        $("#reset").click(function (e) {
+            e.preventDefault();
+            resetValues();
+        });
+
+        function resetValues() {
+            // clear the variables
+            inputStart = null;
+            inputStop = null;
+            firstKey = null;
+            lastKey = null;
+            // clear the results
+            inputComplete();
+        }
+
+        // Assume that it is from the scanner if it was entered really fast
+        function isScannerInput() {
+            return (((inputStop - inputStart) / $("#area_scanner").val().length) < 15);
+        }
+
+        // Determine if the user is just typing slowly
+        function isUserFinishedEntering(){
+            return !isScannerInput() && userFinishedEntering;
+        }
+
+        function inputTimeoutHandler(){
+            // stop listening for a timer event
+            clearTimeout(timing);
+            // if the value is being entered manually and hasn't finished being entered
+            if (!isUserFinishedEntering() || $("#area_scanner").val().length < 3) {
+                // keep waiting for input
+                return;
+            }
+            else{
+                reportValues();
+            }
+        }
+
+        // here we decide what to do now that we know a value has been completely entered
+        function inputComplete(){
+            // stop listening for the input to lose focus
+            $("body").off("blur", "#area_scanner", inputBlur);
+            // report the results
+            reportValues();
+        }
+
+        function reportValues() {
+            var inputMethod = isScannerInput() ? "Scanner" : "Keyboard";
+            if(inputMethod == "Scanner"){
+                var triage = $("#area_scanner").val();
+                var mensaje = JSON.parse(triage);
+                 /*Api*/
+                $.ajax({
+                  type: "POST",
+                  url: urlraprobar,
+                  data:{
+                    csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
+                    triage:mensaje.triage,
+                    tipo:mensaje.tipo,
+                    kardex:false,
+                    salida:api_paquete_salida
+                  },
+                  success: function (response){
+                      if(response.code == 1){
+                        bootbox.alert(response.mensaje, function (){
+                          location.reload();
+                        });
+                      }else{
+                       bootbox.alert("El dispositivo ha sido aprobado");
+                       $("#area_scanner").focus();
+                       location.reload();
+
+                      }
+                  },
+                  error: function (response) {
+                      var jsonResponse = JSON.parse(response.responseText);
+                      bootbox.alert(jsonResponse["mensaje"]);
+                  }
+                });
+                 /**/
+            }
+          $("#area_scanner").val("");
+          $("#area_scanner").focus();
+        }
+
+        /*Fin scanner*/
+
     var  tablaPaquetesDispositivos = dispositivo_revision_tabla.DataTable({
       processing:true,
       retrieve:true,
@@ -1322,10 +2382,13 @@ class PaquetesRevisionList {
         url: urlraprobar,
         data:{
           csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
-          triage:data_fila.dispositivo
+          triage:data_fila.dispositivo,
+          tipo:data_fila.tipo,
+          kardex:false,
+          salida:api_paquete_salida
         },
         success: function (response){
-            bootbox.alert("Dispositivos aprovados");
+            bootbox.alert("Dispositivos aprobados");
             location.reload();
         },
       });
@@ -1354,7 +2417,8 @@ class PaquetesRevisionList {
                url: urlrechazar,
                data:{
                  csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
-                 triage:data_fila.dispositivo
+                 triage:data_fila.dispositivo,
+                 kardex:false
                },
                success: function (response){
                  var id_comentario = $("#paquetes-revision").data('id');
@@ -1392,7 +2456,7 @@ class PaquetesRevisionList {
       $('#body-salidas-' + id_comentario).append(tr);
       location.reload();
     },function(response){
-      alert("Error al crear datos");
+      bootbox.alert("Error al crear datos");
     });
     }
     $(".SalidaHistorico-btn").click( function(){
@@ -1452,11 +2516,14 @@ class PaquetesRevisionList {
                salida:api_paquete_salida
              },
              success: function (response){
-                 bootbox.alert(response.mensaje);
+                 bootbox.alert("¡Felicidades! " + response.usuario + " " + response.mensaje ,function (){
+                   $("#aprobar-btn").css({"visibility":"hidden"});
+                    window.location= urlredireccion;
+                 });
              },
              error: function (response) {
                   var jsonResponse = JSON.parse(response.responseText);
-                  bootbox.alert(jsonResponse["mensaje"]);
+                  bootbox.alert(jsonResponse.mensaje);
 
              }
            });
@@ -1466,15 +2533,143 @@ class PaquetesRevisionList {
        }
      });
     });
+    /*Tablas de Kardex*/
+    //Tabla paquetes diponibles de kardex
+    var  tablaPaquetesKardex = paquetes_revision_tabla_kardex.DataTable({
+      processing:true,
+      retrieve:true,
+      ajax:{
+        url:api_paquetes_revision_kardex,
+        dataSrc:'',
+        cache:false,
+        deferRender:true,
+        processing:true,
+        data: function () {
+          return {
+            salida:api_paquete_salida,
+            aprobado_kardex:true,
+            aprobado:false
+          }
+        }
+      },
+      columns:[
+        {data:"id"},
+        {data:"tipo_paquete", render: function(data,type, full, meta){
+          return data
+        }} ,
+        {data:"cantidad"},
+        {data:" " ,render: function(data, type, full, meta){
+            return "<a id='conta-aprobar' data-triage="+full.dispositivo+"  class='btn btn-success btn-aprobar-conta-kardex'>Aprobar</a>";
+        }},
+        {data:" " ,render: function(data, type, full, meta){
+            return "<a id='conta-rechazar' data-paquete="+full.paquete+" data-triage="+full.dispositivo+"  class='btn btn-warning btn-rechazar-conta-kardex'>Rechazar</a>";
+        }}
+          ]
 
+    });
+    //Tabla de Paquetes aprobados
+    var  tablaPaquetesDispositivosKardex = paquete_revision_aprobado_kardex.DataTable({
+      processing:true,
+      retrieve:true,
+      ajax:{
+        url:api_paquetes_revision_kardex,
+        dataSrc:'',
+        cache:false,
+        deferRender:true,
+        processing:true,
+        data: function () {
+          return {
+            salida:api_paquete_salida,
+            aprobado:true,
+            aprobado_kardex:true
+          }
+        }
+      },
+      columns:[
+        {data:"id"},
+        {data:"tipo_paquete", render: function(data,type, full, meta){
+          return data
+        }} ,
+        {data:"cantidad"},
+          ]
+    });
+
+    /**Boton Aprobar, paquetes de tipo kardex**/
+    tablaPaquetesKardex.on('click','.btn-aprobar-conta-kardex', function () {
+      let data_fila = tablaPaquetesKardex.row($(this).parents('tr')).data();
+      $.ajax({
+        type: "POST",
+        url: urlraprobar,
+        data:{
+          csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
+          paquete:data_fila.id_paquete,
+          kardex:true
+        },
+        success: function (response){
+            bootbox.alert("Paquete aprobado");
+            location.reload();
+        },
+      });
+
+    });
+    /**Boton  de Rechazo, Paquetes, tipo kardex**/
+    tablaPaquetesKardex.on('click','.btn-rechazar-conta-kardex', function () {
+      let data_fila = tablaPaquetesKardex.row($(this).parents('tr')).data();
+      /****/
+     bootbox.confirm({
+         message: "Esta seguro de rechazar este paquete",
+         buttons: {
+             confirm: {
+                 label: 'Si',
+                 className: 'btn-success'
+             },
+             cancel: {
+                 label: 'No',
+                 className: 'btn-danger'
+             }
+         },
+         callback: function (result) {
+           if(result==true){
+             $.ajax({
+               type: "POST",
+               url: urlrechazar,
+               data:{
+                 csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
+                 paquete:data_fila.id_paquete,
+                 kardex:true
+               },
+               success: function (response){
+                var id_comentario = $("#paquetes-revision").data('id');
+                 var url = $("#paquetes-revision").data('urlhistorico');
+                 bootbox.prompt({
+                   title: "Por qué rechazo este dispositivo?",
+                   inputType: 'textarea',
+                   callback: function (result) {
+                     if (result) {
+                       crear_historial_salidas(url, id_comentario, result);
+                     }
+                   }
+                 });
+               },
+             });
+           }
+
+             console.log('This was logged in the callback: ' + result);
+         }
+       });
+      /****/
+    });
 
   }
 }
 class PaqueteDetail {
   constructor() {
-    let tablabodyRechazar = $("#rechazar-dispositivo tbody tr");
-    var urlCambio = $("#salida-id").data('url');
-    var urlAprobar = $("#salida-id").data('urlaprobar');
+    var tablabodyRechazar = $("#rechazar-dispositivo tbody tr");
+    var urlCambio = $("#rechazar-dispositivo").data('url');
+    var urlAprobar = $("#rechazar-dispositivo").data('urlaprobar');
+    var urlAprobarControl = $("#rechazar-dispositivo").data('urlaprobar');
+    var lista_triage = [];
+    var estado_inicial = $('#id_dispositivos').data('estado-inicial');
     tablabodyRechazar.on('click','.btn-rechazar', function () {
       let data_triage = $(this).attr("data-triage");
       let data_paquete=$(this).attr("data-paquete");
@@ -1501,15 +2696,14 @@ class PaqueteDetail {
                  paquete:data_paquete
                },
                success: function (response){
-                 var id_comentario = $("#salida-id").data('id');
-                 var url = $("#salida-id").data('urlhistorico');
-
+                 var id_comentario = $("#rechazar-dispositivo").data('id');
+                 var url = $("#rechazar-dispositivo").data('urlhistorico');                 
                  bootbox.prompt({
                    title: "Por que rechazo este dispositivo?",
                    inputType: 'textarea',
                    callback: function (result) {
                      if (result) {
-                       crear_historial_salidas(url, id_comentario, result);
+                       crear_historial_salidas_cc(url, id_comentario, result);
                      }
                    }
                  });
@@ -1524,9 +2718,10 @@ class PaqueteDetail {
     });
     /****/
     tablabodyRechazar.on('click','.btn-aprobar', function () {
+      var tipo = $(this).data("tipo");
       let data_triage = $(this).attr("data-triage");
-      let data_paquete=$(this).attr("data-paquete");
-      let data_idpaquete=$(this).attr("data-idpaquete");
+      var data_paquete=$(this).attr("data-paquete");
+      var data_idpaquete=$(this).attr("data-idpaquete");
       bootbox.confirm({
          message: "Esta seguro de aprobar el dispositivo",
          buttons: {
@@ -1548,6 +2743,7 @@ class PaqueteDetail {
                data:{
                  csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
                  triage:data_triage,
+                 tipo:tipo,
                  paquete:data_paquete,
                  idpaquete:data_idpaquete
                },
@@ -1567,13 +2763,14 @@ class PaqueteDetail {
        });
     });
     /****/
-    var crear_historial_salidas = function(url, id_comentario, comentario){
+    var crear_historial_salidas_cc = function(url, id_comentario, comentario){
       var data = {
         "id_comentario":id_comentario,
         "comentario":"El Dispositivo con Triage: "+ $("#id-rechazar").data('triage')+" del paquete no: "+$("#id-rechazar").data('triagepaquete') +" "+ comentario
       }
 
       $.post(url, JSON.stringify(data)).then(function (response){
+
       var fecha = new Date(response.fecha);
       var td_data = $('<td></td>').text(fecha.getDate()+"/"+(fecha.getMonth()+1)+"/"+fecha.getFullYear()+","+response.usuario);
       var td = $('<td></td>').text(response.comentario);
@@ -1582,7 +2779,7 @@ class PaqueteDetail {
     location.reload();
 
     },function(response){
-      alert("Error al crear datos");
+      bootbox.alert("Error al crear datos");
     });
     }
     /****/
@@ -1594,7 +2791,6 @@ class PaqueteDetail {
     let cantidad = this.asig_dispositivos.data('cantidad');
     let cantidad_disponible = $('#rechazar-dispositivo').data('dispo');
     let cantidad_asignar = cantidad - cantidad_disponible;
-    console.log(cantidad_asignar);
     if(cantidad_asignar == 0){
       var activar = true
     }else{
@@ -1638,15 +2834,338 @@ class PaqueteDetail {
       }
     });
     /****/
+    //Scanner
+    var inputStart, inputStop, firstKey, lastKey, timing, userFinishedEntering;
+      var minChars = 3;
+
+      // handle a key value being entered by either keyboard or scanner
+      $("#area_scanner").keypress(function (e) {
+          // restart the timer
+          if (timing) {
+              clearTimeout(timing);
+          }
+
+          // handle the key event
+          if (e.which == 13) {
+              // Enter key was entered
+
+              // don't submit the form
+              e.preventDefault();
+
+              // has the user finished entering manually?
+              if ($("#area_scanner").val().length >= minChars){
+                  userFinishedEntering = true; // incase the user pressed the enter key
+                  inputComplete();
+              }
+          }
+          else {
+              // some other key value was entered
+
+              // could be the last character
+              inputStop = performance.now();
+              lastKey = e.which;
+              // don't assume it's finished just yet
+              userFinishedEntering = false;
+
+              // is this the first character?
+              if (!inputStart) {
+                  firstKey = e.which;
+                  inputStart = inputStop;
+
+                  // watch for a loss of focus
+                  $("body").on("blur", "#area_scanner", inputBlur);
+              }
+
+              // start the timer again
+              timing = setTimeout(inputTimeoutHandler, 500);
+          }
+      });
+
+      // Assume that a loss of focus means the value has finished being entered
+      function inputBlur(){
+          clearTimeout(timing);
+          if ($("#area_scanner").val().length >= minChars){
+              userFinishedEntering = true;
+              inputComplete();
+          }
+      };
+
+
+      // reset the page
+      $("#reset").click(function (e) {
+          e.preventDefault();
+          resetValues();
+      });
+
+      function resetValues() {
+          // clear the variables
+          inputStart = null;
+          inputStop = null;
+          firstKey = null;
+          lastKey = null;
+          // clear the results
+          inputComplete();
+      }
+
+      // Assume that it is from the scanner if it was entered really fast
+      function isScannerInput() {
+          return (((inputStop - inputStart) / $("#area_scanner").val().length) < 15);
+      }
+
+      // Determine if the user is just typing slowly
+      function isUserFinishedEntering(){
+          return !isScannerInput() && userFinishedEntering;
+      }
+
+      function inputTimeoutHandler(){
+          // stop listening for a timer event
+          clearTimeout(timing);
+          // if the value is being entered manually and hasn't finished being entered
+          if (!isUserFinishedEntering() || $("#area_scanner").val().length < 3) {
+              // keep waiting for input
+              return;
+          }
+          else{
+              reportValues();
+          }
+      }
+
+      // here we decide what to do now that we know a value has been completely entered
+      function inputComplete(){
+          // stop listening for the input to lose focus
+          $("body").off("blur", "#area_scanner", inputBlur);
+          // report the results
+          reportValues();
+      }
+
+      function reportValues() {
+          var inputMethod = isScannerInput() ? "Scanner" : "Keyboard";
+           if(inputMethod == "Scanner"){
+              var datos = {};
+              var seleccion = new Array(cantidad);
+              var triage = $("#area_scanner").val();
+               var mensaje = JSON.parse(triage);
+               datos['text'] = mensaje.triage;
+               datos['id'] = mensaje.id;
+               /*Api*/
+               $.ajax({
+                 url:api_url,
+                 dataType:'json',
+                 data:{
+                   etapa: etapa_inicial,
+                   estado: estado_inicial,
+                   id: mensaje.id
+                 },
+                 error:function(){
+                   console.log("Error");
+                 },
+                 success:function(data){
+                   if(data.length >0){
+                     /*asignar datos*/
+                     lista_triage.push(datos);
+                     $("#area_scanner").val("");
+                     inputStart = null;
+                     inputStop = null;
+                     firstKey = null;
+                     lastKey = null;
+                     $('#id_dispositivos').select2({
+                         maximumSelectionLength : cantidad,
+                         debug: true,
+                         placeholder: "Ingrese los triage",
+                         data:lista_triage,
+                         processResults: function (data){
+                           return {
+                             results : data.map(lista_triage =>{
+                               return {id: lista_triage["value"], text:lista_triage["triage"]};
+                             })
+                           };
+                         },
+                         width : '100%'
+                     });
+                    for(var i = 0; i<(lista_triage.length);i++){
+                        seleccion[i] = lista_triage[i].id;
+                   }
+                     $('#id_dispositivos').val(seleccion).trigger('change');
+                     /**/
+
+                   }else{
+                     bootbox.alert("Este dispositivo no esta disponible");
+                     $("#area_scanner").val("");
+
+                   }
+                 },
+                 type: 'GET'
+               }
+             );
+               /**/
+           }
+      }
+      $("#area_scanner").focus();
+
+    //Fin Scanner
+    /****/
+    //Scanner  aprobar dispositivo paquete
+    var inputStartAprobar, inputStopAprobar, firstKeyAprobar, lastKeyAprobar, timingAprobar, userFinishedEnteringAprobar;
+    var minCharsAprobar = 3;
+
+    // handle a key value being entered by either keyboard or scanner
+    $("#area_scanner_aprobar").keypress(function (e) {
+        // restart the timer
+        if (timingAprobar) {
+            clearTimeout(timingAprobar);
+        }
+
+        // handle the key event
+        if (e.which == 13) {
+            // Enter key was entered
+
+            // don't submit the form
+            e.preventDefault();
+
+            // has the user finished entering manually?
+            if ($("#area_scanner_aprobar").val().length >= minCharsAprobar){
+                userFinishedEnteringAprobar = true; // incase the user pressed the enter key
+                inputCompleteAprobar();
+            }
+        }
+        else {
+            // some other key value was entered
+
+            // could be the last character
+            inputStopAprobar = performance.now();
+            lastKeyAprobar = e.which;
+            // don't assume it's finished just yet
+            userFinishedEnteringAprobar = false;
+
+            // is this the first character?
+            if (!inputStartAprobar) {
+                firstKeyAprobar = e.which;
+                inputStartAprobar = inputStopAprobar;
+
+                // watch for a loss of focus
+                $("body").on("blur", "#area_scanner_aprobar", inputBlurAprobar);
+            }
+
+            // start the timer again
+            timingAprobar = setTimeout(inputTimeoutHandler, 500);
+        }
+    });
+
+    // Assume that a loss of focus means the value has finished being entered
+    function inputBlurAprobar(){
+        clearTimeout(timingAprobar);
+        if ($("#area_scanner_aprobar").val().length >= minCharsAprobar){
+            userFinishedEnteringAprobar = true;
+            inputCompleteAprobar();
+        }
+    };
+
+
+    // reset the page
+    $("#reset").click(function (e) {
+        e.preventDefault();
+        resetValuesAprobar();
+    });
+
+    function resetValuesAprobar() {
+        // clear the variables
+        inputStartAprobar = null;
+        inputStopAprobar = null;
+        firstKeyAprobar = null;
+        lastKeyAprobar = null;
+        // clear the results
+        inputCompleteAprobar();
+    }
+
+    // Assume that it is from the scanner if it was entered really fast
+    function isScannerInputAprobar() {
+        return (((inputStopAprobar - inputStartAprobar) / $("#area_scanner_aprobar").val().length) < 15);
+    }
+
+    // Determine if the user is just typing slowly
+    function isuserFinishedEnteringAprobar(){
+        return !isScannerInputAprobar() && userFinishedEnteringAprobar;
+    }
+
+    function inputTimeoutHandler(){
+        // stop listening for a timer event
+        clearTimeout(timingAprobar);
+        // if the value is being entered manually and hasn't finished being entered
+        if (!isuserFinishedEnteringAprobar() || $("#area_scanner_aprobar").val().length < 3) {
+            // keep waiting for input
+            return;
+        }
+        else{
+            reportValuesAprobar();
+        }
+    }
+
+    // here we decide what to do now that we know a value has been completely entered
+    function inputCompleteAprobar(){
+        // stop listening for the input to lose focus
+        $("body").off("blur", "#area_scanner_aprobar", inputBlurAprobar);
+        // report the results
+        reportValuesAprobar();
+    }
+
+    function reportValuesAprobar() {
+        var inputMethod = isScannerInputAprobar() ? "Scanner" : "Keyboard";
+        if(inputMethod == "Scanner"){
+            var triage = $("#area_scanner_aprobar").val();
+            var mensaje = JSON.parse(triage);
+             /*Api*/
+             console.log(urlAprobar);
+             $.ajax({
+               type: "POST",
+               url: urlAprobarControl,
+               dataType: 'json',
+               data:{
+                 csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
+                 triage:mensaje.triage,
+                 tipo:mensaje.tipo,
+                 paquete:$('#rechazar-dispositivo').data('paquete'),
+                 idpaquete:$('#rechazar-dispositivo').data('idpaquete')
+               },
+               success: function (response){
+                 bootbox.alert(response.mensaje);
+                 $("#area_scanner_aprobar").focus();
+                  location.reload();
+               },
+               error: function (response){
+                 var jsonResponse = JSON.parse(response.responseText);
+                 bootbox.alert(jsonResponse["mensaje"]);
+               }
+             });
+             /**/
+        }
+    }
+    $("#area_scanner_aprobar").val("");
+    $("#area_scanner_aprobar").focus();
+
+    //Fin Scanner aprobar dispositivo paquete
+
 
   }
 }
 class RepuestosList {
   constructor() {
-    var url_repuestos = $("#repuesto-list").attr('action');
-    let repuesto_tabla = $("#repuesto-table");
-    $("#id_tipo").change(function() {
-      var tipo = $(this).val();
+    $('#repuesto-list').submit(function (e) {
+      e.preventDefault();
+      var url_repuestos = $("#repuesto-list").attr('action');
+      let repuesto_tabla = $("#repuesto-table");
+
+      var no=$('#id_id').val();
+      var tipo = $('#id_tipo option:selected').val();
+      var marca = $('#id_marca option:selected').val();
+      var modelo = $('#id_modelo').val();
+      var tarima = $('#id_tarima option:selected').val();
+
+      if($('#qr-botton').length){
+        let url = $("#qr-botton").data("url")+"?id="+no+"&tarima="+tarima+"&tipo="+tipo+"&marca="+marca+"&modelo="+modelo;
+        document.getElementById("qr-botton").setAttribute("href", url);
+        $('#qr-botton').css({"display":"block"});
+      }
+
       var tabla = repuesto_tabla.DataTable({
         destroy:true,
         searching:true,
@@ -1658,26 +3177,32 @@ class RepuestosList {
           dataSrc:'',
           cache:true,
           data: function() {
-            return{
-              tipo:tipo,
-              estado:1
-            }
+            return $('#repuesto-list').serializeObject(true);
           }
         },
         columns:[
-          {data:"No"},
+          {data: "No", render: function(data, type, full, meta){
+            return '<a href="'+full.url+'">'+data+'</a>'
+          }},
           {data:"tipo"},
           {data:"descripcion"},
+          {data:"marca"},
+          {data:"modelo"},
           {data:"tarima"},
-          {
-                data: "",
-                defaultContent: "<button  id='button-repuesto' class='btn btn-info repuesto-btn'>Asignar</button>"
+          {data:"estado"},
+          {data:"", className:"nowrap", render:function(data, type, full, meta){
+            if(full.valido == true){
+              return ""
+            }else{
+              return "<button  id='button-repuesto' class='btn btn-info repuesto-btn'>Asignar</button>"
             }
+          }}
         ]
       });
+
       tabla.clear().draw();
       tabla.ajax.reload();
-      var tablabodyRepuesto = $("#repuesto-table tbody");
+
       tabla.on('click','.repuesto-btn',function () {
         let repuesto = tabla.row($(this).parents('tr')).data();
         bootbox.prompt("Ingrese el Triage del Dispositivo", function(result){
@@ -1695,51 +3220,46 @@ class RepuestosList {
            });
          });
       });
+
     });
-   }
+  }
 }
 class DispositivoList {
   constructor() {
-
-    $('#dispositivo-list-form').submit(function (e) {
-        e.preventDefault();
-        /**/
-        var tablaDispositivos = $('#dispositivo-table').DataTable({
-           dom: 'lfrtipB',
-           destroy:true,
-           buttons: ['excel', 'pdf'],
-           processing: true,
-           ajax: {
-               url: $('#dispositivo-list-form').attr('action'),
-               deferRender: true,
-               dataSrc: '',
-               cache: true,
-               data: function () {
-                   return $('#dispositivo-list-form').serializeObject(true);
-               }
-           },
-           columns: [
-
-               {data: "triage", render: function(data, type, full, meta){
-                 return '<a href="'+full.url+'">'+data+'</a>'
-
-               }},
-               {data: "tipo", className: "nowrap"},
-               {data: "marca", className: "nowrap"},
-               {data: "modelo", className: "nowrap"},
-               {data: "serie", className: "nowrap"},
-               {data: "tarima", className: "nowrap"},
-               {data: "estado", className: "nowrap"},
-               {data: "etapa", className: "nowrap"}
-           ]
-              });
-        /**/
-        tablaDispositivos.clear().draw();
-        tablaDispositivos.ajax.reload();
-
-
-    });
-
+      $('#dispositivo-list-form').submit(function (e) {
+          e.preventDefault();
+          /**/
+          var tablaDispositivos = $('#dispositivo-table-search').DataTable({
+             dom: 'lfrtipB',
+             destroy:true,
+             buttons: ['excel', 'pdf'],
+             processing: true,
+             deferLoading: [0],
+             ajax: {
+                 url: $('#dispositivo-list-form').attr('action'),
+                 deferRender: true,
+                 dataSrc: '',
+                 cache: true,
+                 data: function (params) {
+                     return $('#dispositivo-list-form').serializeObject(true);
+                 }
+             },
+             columns: [
+                 {data: "triage", render: function(data, type, full, meta){
+                   return '<a href="'+full.url+'">'+data+'</a>'
+                 }},
+                 {data: "tipo", className: "nowrap"},
+                 {data: "marca", className: "nowrap"},
+                 {data: "modelo", className: "nowrap"},
+                 {data: "serie", className: "nowrap"},
+                 {data: "tarima", className: "nowrap"},
+                 {data: "estado", className: "nowrap"},
+                 {data: "etapa", className: "nowrap"}
+             ]
+           });
+          /**/
+          tablaDispositivos.clear().draw();
+      });
   }
 }
 class DispositivosQR {
@@ -1769,46 +3289,63 @@ class DispositivosQR {
 }
 class DispositivosTarimaList {
   constructor() {
+    $("[for='id_estado']").css({"visibility":"hidden"});
+    $("[for='id_etapa']").css({"visibility":"hidden"});
+    $('#id_tipo').change( function() {
+     var selected_tipo = $('#id_tipo option:selected').val();
     $('#dispositivo-tarima-list-form').submit(function (e) {
         e.preventDefault();
         /**/
-
          let tarima  = $("#id_tarima").val();
-         let url = $("#qr-botton").data("url")+"?tarima="+tarima;
+         let url = $("#qr-botton").data("url")+"?tarima="+tarima+"&tipo="+selected_tipo;
+         //let url = $("#qr-botton").data("url")+"?tarima="+tarima;
          document.getElementById("qr-botton").setAttribute("href", url);
          $('#qr-botton').css({"display":"block"});
-        var tablaDispositivos = $('#dispositivo-tarima-table').DataTable({
-           dom: 'lfrtipB',
-           destroy:true,
-           buttons: ['excel', 'pdf'],
-           processing: true,
-           ajax: {
-               url: $('#dispositivo-tarima-list-form').attr('action'),
-               deferRender: true,
-               dataSrc: '',
-               cache: true,
-               data: function () {
-                   return $('#dispositivo-tarima-list-form').serializeObject(true);
-               }
-           },
-           columns: [
+           var tablaDispositivos = $('#dispositivo-tarima-table').DataTable({
+              dom: 'lfrtipB',
+              destroy:true,
+              buttons: ['excel', 'pdf'],
+              processing: true,
+              ajax: {
+                  url: $('#dispositivo-tarima-list-form').attr('action'),
+                  deferRender: true,
+                  dataSrc: '',
+                  cache: true,
+                  data:function (params){
+                    return {
+                      csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
+                      tarima:tarima,
+                      tipo:selected_tipo,
+                      estado:1,
+                      etapa:1,
+                    };
 
-               {data: "triage", render: function(data, type, full, meta){
-                 return '<a href="'+full.url+'">'+data+'</a>'
-               }},
-               {data: "tipo", className: "nowrap"},
-               {data: "marca", className: "nowrap"},
-               {data: "modelo", className: "nowrap"},
-               {data: "serie", className: "nowrap"},
-               {data: "tarima", className: "nowrap"}
-           ]
-              });
-        /**/
-        tablaDispositivos.clear().draw();
-        tablaDispositivos.ajax.reload();
+
+                  }
+              },
+              columns: [
+
+                  {data: "triage", render: function(data, type, full, meta){
+                    return '<a href="'+full.url+'">'+data+'</a>'
+                  }},
+                  {data: "tipo", className: "nowrap"},
+                  {data: "marca", className: "nowrap"},
+                  {data: "modelo", className: "nowrap"},
+                  {data: "serie", className: "nowrap"},
+                  {data: "tarima", className: "nowrap"}
+              ]
+            });
+           /**/
+           tablaDispositivos.clear().draw();
+           tablaDispositivos.ajax.reload();
+
+
+
 
 
     });
+   });
+
 
   }
 }
@@ -1828,38 +3365,7 @@ class Prestamo {
           mes='0'+mes;
       }
       var fecha = year+'-'+mes+'-'+dia;
-      $('#id_fecha_inicio').text("Fecha de Inicio:"+ fecha);
-      /**/
-
-      $('#id_dispositivo').append('<option value=""'+'>'+"---------"+'</option>');
-      var api_url = $('#prestamoDispositivo').data("url")
-      $('#id_tipo_dispositivo').change(function() {
-        var tipo = $(this).val();
-        var urlDispositivo = api_url+"?buscador=&tipo="+tipo+"&estado=1&etapa=1&asignaciones=0";
-        console.log(tipo);
-          console.log(urlDispositivo);
-         $.ajax({
-              url:urlDispositivo,
-              dataType:'json',
-              data:{
-                format:'json'
-              },
-              error:function(){
-                console.log("Error");
-              },
-              success:function(data){
-                  $('#id_dispositivo').empty();
-                  $('#id_dispositivo').append('<option value=""'+'>'+"---------"+'</option>');
-                  for (var i in data){
-                    $('#id_dispositivo').append('<option value='+data[i].id + '>'+data[i].triage+'</option>');
-                }
-               $('#id_dispositivo').val();
-              },
-              type: 'GET'
-            }
-          );
-
-      })
+      $('#id_fecha_inicio').text(fecha);
 
   }
 }
@@ -1867,6 +3373,7 @@ class PrestamoList {
   constructor() {
     var tabla_prestamo = $('#prestamo-table');
     var url_devolucion = $('#prestamo-table').data("devolucion");
+    var acumulador = "";
     /****/
     var tabla=tabla_prestamo.DataTable({
      dom: 'lfrtipB',
@@ -1885,6 +3392,14 @@ class PrestamoList {
        {data:"id", class:"nowrap"},
        {data:"tipo_prestamo",className:"nowrap"},
        {data:"fecha_inicio",className:"nowrap"},
+       {data:"fecha_estimada",className:"nowrap",
+       render:function(data, type, full, meta){
+         if(full.fecha_fin == null){
+           return data
+         }else{
+           return ""
+         }
+       }},
        {data:"fecha_fin",className:"nowrap",
        render:function(data, type, full, meta){
          if(full.fecha_fin == null){
@@ -1902,25 +3417,38 @@ class PrestamoList {
          }
        }},
        {data:"prestado_a",className:"nowrap"},
-       {data:"tipo_dispositivo",className:"nowrap"},
-
-       {data:"dispositivo", className:"nowrap"},
+       {data:"cantidad",className:"nowrap"},
+       {data:"", className:"nowrap", render:function(data, type, full, meta){
+           return "<a target='_blank' id='dispositivo' href="+full.url_detail+" data-devolucion="+full.id+"  class='btn btn-primary'>Dispositivos</a>";
+        }
+      },
        {data:"", className:"nowrap", render:function(data, type, full, meta){
           if(full.devuelto == true){
             return ""
           }else{
-           return "<a id='devolver' data-triage="+full.dispositivo+"  class='btn btn-success btn-devolver'>Devolver</a>";
+           return "<a id='devolver' data-devolucion="+full.id+"  class='btn btn-success btn-devolver'>Devolver</a>";
           }
         }
       }
-     ]
+     ],
+     "fnRowCallback": function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
+        var today = new Date();
+        if ( aData[2] == "5" )
+        {
+          $('td', nRow).css('background-color', 'Red');
+        }
+        else if ( aData[2] == "4" )
+        {
+          $('td', nRow).css('background-color', 'Orange');
+        }
+      }
 
  });
  let tablabody = $('#prestamo-table tbody');
  tablabody.on('click', '.btn-devolver', function () {
            var data_fila = tabla.row($(this).parents('tr')).data();
            bootbox.confirm({
-                       message: "Esta Seguro que quiere devolver este dispositivo",
+                       message: "Esta Seguro que quiere devolver este prestamo",
                        buttons: {
                            confirm: {
                                label: 'Si',
@@ -1940,7 +3468,6 @@ class PrestamoList {
                                  dataType: 'json',
                                  data: {
                                      csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
-                                     triage :data_fila.dispositivo,
                                      prestamo:data_fila.id
 
                                  },
@@ -1965,5 +3492,107 @@ class PrestamoList {
         tabla.ajax.reload();
     });
 /****/
+$("#devolver").click( function(){
+  var data_fila =$("#devolver").data("devolucion");
+  var url_devolucion =$("#devolver").data("urldevolucion");
+  bootbox.confirm({
+              message: "Esta Seguro que quiere devolver este prestamo",
+              buttons: {
+                  confirm: {
+                      label: 'Si',
+                      className: 'btn-success'
+                  },
+                  cancel: {
+                      label: 'No',
+                      className: 'btn-danger'
+                  }
+              },
+              callback: function (result) {
+                  if(result == true){
+                    /**/
+                    $.ajax({
+                        type: 'POST',
+                        url: url_devolucion,
+                        dataType: 'json',
+                        data: {
+                            csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
+                            prestamo:data_fila
+
+                        },
+                        success: function (response) {
+                          bootbox.alert(response.mensaje);
+                          tabla.ajax.reload();
+                        },
+                        error: function (response) {
+                             var jsonResponse = JSON.parse(response.responseText);
+                             bootbox.alert(jsonResponse["mensaje"]);
+                        }
+                    });
+                    /**/
+                  }
+              }
+            });
+})
+  }
+}
+class Desecho {
+  constructor() {
+    var urlDispositivo = $('#desecho-pendiente-table').data("tipo");
+    var fecha = new Date();
+    var dia = fecha.getDate();
+    var mes = fecha.getMonth()+1;
+    var year = fecha.getFullYear();
+    if(dia<10){
+        dia='0'+dia;
+    }
+    if(mes<10){
+        mes='0'+mes;
+    }
+    var fecha = year+'-'+mes+'-'+dia;
+    $('#id_fecha').val(fecha);
+
+    var tablaDispositivo = $('#desecho-pendiente-table').DataTable({
+        ajax: {
+            url: urlDispositivo,
+            dataType: 'json',
+            dataSrc: '',
+            cache: true,
+            data: {
+              desecho : 0
+            }
+        },
+        columns: [
+            {data: "entrada"},
+            {data: "descripcion"},
+            {data: "existencia_desecho"},
+        ]
+    });
+
+  }
+}
+
+class EntradaDetalle_Dispositivo {
+  constructor() {
+    var tabla = $('#entradadetalle-dispositivos').DataTable({
+      searching:false,
+      paging:false,
+      ordering:true,
+      processing:true,
+      destroy:true
+    });
+    tabla.clear().draw();
+
+    $('#selectSubstance').select2({
+      templateResult: function(data) {
+          var r = data.text.split('|');
+          var $result = $(
+              '<div class="row">' +
+                  '<div class="col-md-3">' + r[0] + '</div>' +
+                  '<div class="col-md-9">' + r[1] + '</div>' +
+              '</div>'
+          );
+          return $result;
+      }
+    });
   }
 }
