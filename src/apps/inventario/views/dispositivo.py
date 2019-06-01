@@ -364,8 +364,7 @@ class DispositivoRedUptadeView(LoginRequiredMixin, UpdateView):
     slug_field = "triage"
     slug_url_kwarg = "triage"
     query_pk_and_slug = True
-    template_name = 'inventario/dispositivo/red/red_edit.html'
-    
+    template_name = 'inventario/dispositivo/red/red_edit.html'    
 
 class DispositivoAccessPointDetailView(LoginRequiredMixin, DispositivoDetailView):
     """Vista de detalle de dispositivos tipo :class:`DispositivoRed`"""
