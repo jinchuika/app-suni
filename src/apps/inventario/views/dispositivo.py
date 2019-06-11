@@ -16,11 +16,9 @@ from apps.inventario import models as inv_m
 from apps.inventario import forms as inv_f
 
 
-
 #################################################
 # MOVIMIENTOS Y GESTIÓN GENERAL DE DISPOSITIVOS #
 #################################################
-
 
 class AsignacionTecnicoCreateView(LoginRequiredMixin, CreateView):
     """Crea un registro de :class:`AsignacionTecnico`"""
@@ -206,8 +204,8 @@ class SolicitudMovimientoListView(LoginRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super(SolicitudMovimientoListView, self).get_context_data(**kwargs)
         tipo_dis = self.request.user.tipos_dispositivos.tipos.all()
-        solicitudes_list =  inv_m.SolicitudMovimiento.objects.filter(tipo_dispositivo__in=tipo_dis).order_by('terminada','recibida','-fecha_creacion')
-        print(solicitudes_list)
+        solicitudes_list = inv_m.SolicitudMovimiento.objects.filter(tipo_dispositivo__in=tipo_dis).order_by('terminada','recibida','-fecha_creacion')
+
         context['solicitudmovimiento_list'] = solicitudes_list
         return context
 

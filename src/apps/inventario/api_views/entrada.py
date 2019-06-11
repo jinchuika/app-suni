@@ -75,7 +75,6 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_401_UNAUTHORIZED
             )
 
-
     @action(methods=['post'], detail=False)
     def cuadrar_salida(self, request, pk=None):
         """ Metodo para cuadrar los dispositivos de la :class:`EntradaDetalle`
@@ -185,7 +184,6 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_401_UNAUTHORIZED
             )
 
-
     @action(methods=['post'], detail=True)
     def crear_repuestos(self, request, pk=None):
         """ Metodo para la creacion de Repuestos
@@ -220,7 +218,6 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
                 {'mensaje': 'No tienes la autorización para realizar esta acción'},
                 status=status.HTTP_401_UNAUTHORIZED
             )
-
 
     @action(methods=['post'], detail=True)
     def crear_kardex(self, request, pk=None):
@@ -284,7 +281,6 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_401_UNAUTHORIZED
             )
 
-
     @action(methods=['post'], detail=True)
     def validar_kardex(self, request, pk=None):
         tipo_dispositivo = request.data['tipo_dispositivo']
@@ -301,6 +297,8 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
 
     @action(methods=['post'], detail=False)
     def nuevo_grid(self, request, pk=None):
+        """ Este se conecta con el grid para editar la informacion de los dipositivos y guardarlos
+        """
         entrada_detalle = request.data['entrada_detalle']
         entrada = request.data['entrada']
         tipo = inv_m.EntradaDetalle.objects.get(id=entrada_detalle).tipo_dispositivo

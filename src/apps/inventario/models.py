@@ -212,7 +212,6 @@ class EntradaDetalle(models.Model):
     @property
     def existencia_desecho(self):
         return self.desecho - self.inventario_desecho()
-            
 
     def save(self, *args, **kwargs):
         """Se debe validar que el detalle de una entrada que involucre precio, por ejemplo, una compra,
@@ -1078,7 +1077,7 @@ class Repuesto(models.Model):
         )
         data_qr = {
             'id': str(self.id),
-            'tipo': str(self.tipo)
+            'tipo': str(self.tipo),
         }
         qr.add_data(json.dumps(data_qr, ensure_ascii=False))
         qr.make(fit=True)

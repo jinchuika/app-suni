@@ -46,8 +46,7 @@ var urldispositivo = $("#grid_id").data("url");
                    var token_sin = tokens[c].replace(/['"]+/g,'');
                    var name = token_sin.charAt(0).toUpperCase() + token_sin.slice(1);
                    //Cambio de nombre para mostrar en  los encabezados
-                    if (name =="Marca__marca"){
-                      console.log("ingreso a marca");
+                    if (name =="Marca__marca"){                      
                       name ="Marca";
                     }
                     if (name =="Puerto__nombre"){
