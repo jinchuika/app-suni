@@ -121,6 +121,8 @@ class DispositivoViewSet(viewsets.ModelViewSet):
 
     @action(methods=['post'], detail=False)
     def solicitud_kardex(self, request, pk=None):
+        """ Clase que crea una nueva entrada a kardex y un nuevo detalle
+        """
         id = request.data['id']
         respuesta = request.data['respuesta']
         if respuesta == str(1):
@@ -190,6 +192,8 @@ class DispositivoViewSet(viewsets.ModelViewSet):
 
     @action(methods=['post'], detail=False)
     def colocar_tarima(self, request, pk=None):
+        """ Este se conecta a la app para poder colocar los dipositivos a las tarimas
+        """
         id = request.data['id']
         tarima = request.data['tarima']
         asignar_tarima = inv_m.Tarima.objects.get(id=tarima)
@@ -198,6 +202,19 @@ class DispositivoViewSet(viewsets.ModelViewSet):
         nueva_tarima.save()
         return Response(
             {'mensaje': 'Asignado correctamente'},
+            status=status.HTTP_200_OK
+        )
+
+    @action(methods=['post'], detail=False)
+    def colocar_repuesto_tarima(self, request, pk=None):
+        id = request.data['id']
+        tarima = request.data['tarima']
+        asignar_tarima = inv_m.Tarima.objects.get(id=tarima)
+        nueva_tarima = inv_m.Repuesto.objects.get(id=id)        
+        nueva_tarima.tarima = asignar_tarima
+        nueva_tarima.save()
+        return Response(
+            {'mensaje': 'Asignado repuesto correctamente'},
             status=status.HTTP_200_OK
         )
 
@@ -507,7 +524,6 @@ class DispositivosPaquetesViewSet(viewsets.ModelViewSet):
                 # Datos del checkbox
                 try:
                     new_dispositivo.servidor = bool(datos['servidor'])
-                    print(datos['servidor'])
                 except ObjectDoesNotExist as e:
                     print("El campo servidor no necesita actualizacion")
                 try:
