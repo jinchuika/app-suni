@@ -13,7 +13,6 @@ class RepuestoInventarioSerializer(serializers.ModelSerializer):
     estado = serializers.StringRelatedField()
     url = serializers.StringRelatedField(source='get_absolute_url')
 
-
     class Meta:
         model = inv_m.Repuesto
-        fields = ['id','No','tipo','marca','modelo','descripcion','tarima','url','estado']
+        fields = ['id', 'No', 'tipo', 'marca', 'modelo', 'descripcion', 'tarima', 'url', 'estado']

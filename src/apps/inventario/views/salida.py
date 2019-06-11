@@ -92,7 +92,7 @@ class SalidaInventarioDetailView(LoginRequiredMixin, GroupRequiredMixin, DetailV
     """
     model = inv_m.SalidaInventario
     template_name = 'inventario/salida/salida_detail.html'
-    group_required = [u"inv_cc", u"inv_admin", u"inv_tecnico"]
+    group_required = [u"inv_cc", u"inv_admin", u"inv_tecnico", u"inv_bodega", u"inv_conta"]
 
     def get_context_data(self, *args, **kwargs):
         context = super(SalidaInventarioDetailView, self).get_context_data(*args, **kwargs)
@@ -178,7 +178,7 @@ class SalidaPaqueteDetailView(LoginRequiredMixin, GroupRequiredMixin, UpdateView
     model = inv_m.Paquete
     template_name = 'inventario/salida/paquetes_detail.html'
     form_class = inv_f.PaqueteUpdateForm
-    group_required = [u"inv_tecnico", u"inv_cc", u"inv_admin"]
+    group_required = [u"inv_tecnico", u"inv_cc", u"inv_admin", u"inv_bodega"]
 
     def get_form(self, form_class=None):
         form = super(SalidaPaqueteDetailView, self).get_form(form_class)

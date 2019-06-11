@@ -42,7 +42,7 @@
 		{% if socialaccount_providers %}
 		{% for provider in socialaccount_providers %}
 		<p></p>
-		<a href="{% provider_login_url provider.id process=process scope=scope auth_params=auth_params %}" class="btn btn-block btn-social btn-{{provider.id}} btn-flat"><i class="fa fa-{{provider.name}}"></i> Entrar con 
+		<a href="{% provider_login_url provider.id process=process scope=scope auth_params=auth_params %}" class="btn btn-block btn-social btn-{{provider.id}} btn-flat"><i class="fa fa-{{provider.name}}"></i> Entrar con
 			{{provider.name}}</a>
 		</div>
 		{% endfor %}
@@ -51,5 +51,4 @@
 		<a href="#">Olvidé mi contraseña</a><br>
 	</div>
 </div>
-
 {% endblock content %}
