@@ -353,7 +353,7 @@ class DispositivoAsignados(LoginRequiredMixin, GroupRequiredMixin, DetailView):
     """
     model = inv_m.Paquete
     template_name = 'inventario/salida/dispositivos_salida.html'
-    group_required = [u"inv_tecnico", u"inv_admin", u"inv_cc"]
+    group_required = [u"inv_tecnico", u"inv_admin", u"inv_cc", u"inv_bodega"]
 
     def get_context_data(self, **kwargs):
         context = super(DispositivoAsignados, self).get_context_data(**kwargs)
@@ -406,7 +406,7 @@ class GarantiaPrintView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
         else:
             context['cpu'] = 0
         Fecha = inv_m.SalidaInventario.objects.get(id=self.object.id)
-        context['fin_garantia'] = Fecha.fecha + relativedelta(months=6)
+        context['fin_garantia'] = Fecha.fecha + relativedelta(months=12)
         context['dispositivo_total'] = Total_Entregado
         context['cpu_servidor'] = cpu_servidor
         return context
