@@ -117,6 +117,12 @@ urlpatterns = [
         inv_v.PrestamoCartaPrintView.as_view(),
         name='prestamo_carta_print'
     ),
+    # Grid de dispsotivos en paquetes
+    url(
+        r'^salida/(?P<pk>\d+)/paquetesgrid/$',
+        inv_v.PaquetesDetalleGrid.as_view(),
+        name='paquetes_grid'
+    ),
 
 
 ]

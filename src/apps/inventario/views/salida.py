@@ -727,3 +727,11 @@ class PrestamoCartaPrintView(LoginRequiredMixin, GroupRequiredMixin, DetailView)
             context['Jornada'] = "No tiene Jornada"
             context['Encargado'] = "No Tiene Encargado"
         return context
+
+
+class PaquetesDetalleGrid(LoginRequiredMixin, GroupRequiredMixin, DetailView):
+    """ Muestra los QR por Detalle de Entrada Creados
+    """
+    model = inv_m.DispositivoPaquete
+    template_name = 'inventario/salida/dispositivos_grid_paquetes.html'
+    group_required = [u"inv_bodega", u"inv_tecnico", u"inv_admin"]

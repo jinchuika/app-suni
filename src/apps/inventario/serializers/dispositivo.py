@@ -11,7 +11,7 @@ class DispositivoPaqueteSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = inv_m.DispositivoPaquete
-        fields = '__all__'
+        fields = ('dispositivo', )
 
 
 class DispositivoPaqueteSerializerConta(serializers.ModelSerializer):

@@ -96,12 +96,9 @@ class DispositivoViewSet(viewsets.ModelViewSet):
         """ Este se conecta con el grid para editar la informacion de los dipositivos y guardarlos
         """
         paquete = request.data['paquete']
-        print(paquete)
-        # entrada = request.data['entrada']
         newtipo = inv_m.DispositivoPaquete.objects.filter(paquete=paquete)
         paquetes = inv_m.DispositivoPaquete.objects.filter(paquete=paquete).values('dispositivo__triage')
         tipo = newtipo.first().paquete.tipo_paquete
-        print(tipo.nombre)
         tipos = inv_m.DispositivoMarca.objects.all().values()
         puertos = inv_m.DispositivoPuerto.objects.all().values()
         medida = inv_m.DispositivoMedida.objects.all().values()
@@ -141,7 +138,8 @@ class DispositivoViewSet(viewsets.ModelViewSet):
                 'serie',
                 'tarima',
                 'puerto',
-                'caja'
+                'caja',
+                'clase'
                 )
             return JsonResponse({
                 'data': list(data),
@@ -161,7 +159,9 @@ class DispositivoViewSet(viewsets.ModelViewSet):
                 'tarima',
                 'tipo_monitor',
                 'puerto',
-                'pulgadas')
+                'pulgadas',
+                'clase'
+                )
             return JsonResponse({
                 'data': list(data),
                 'marcas': list(tipos),
@@ -184,7 +184,8 @@ class DispositivoViewSet(viewsets.ModelViewSet):
                 'ram',
                 'ram_medida',
                 'servidor',
-                'all_in_one'
+                'all_in_one',
+                'clase'
                 ).order_by('triage')
             return JsonResponse({
                 'data': list(data),
@@ -213,7 +214,8 @@ class DispositivoViewSet(viewsets.ModelViewSet):
                 'ram',
                 'medida_ram',
                 'almacenamiento_externo',
-                'pulgadas'
+                'pulgadas',
+                'clase'
                 )
             return JsonResponse({
                 'data': list(data),
@@ -239,7 +241,8 @@ class DispositivoViewSet(viewsets.ModelViewSet):
                 'disco_duro__triage',
                 'ram',
                 'ram_medida',
-                'pulgadas'
+                'pulgadas',
+                'clase'
                 )
             return JsonResponse({
                 'data': list(data),
@@ -261,7 +264,8 @@ class DispositivoViewSet(viewsets.ModelViewSet):
                 'tarima',
                 'puerto',
                 'capacidad',
-                'medida'
+                'medida',
+                'clase'
                 )
             return JsonResponse({
                 'data': list(data),
@@ -282,7 +286,8 @@ class DispositivoViewSet(viewsets.ModelViewSet):
                 'puerto',
                 'cantidad_puertos',
                 'velocidad',
-                'velocidad_medida'
+                'velocidad_medida',
+                'clase'
                 )
             return JsonResponse({
                 'data': list(data),
@@ -304,7 +309,8 @@ class DispositivoViewSet(viewsets.ModelViewSet):
                 'puerto',
                 'cantidad_puertos',
                 'velocidad',
-                'velocidad_medida'
+                'velocidad_medida',
+                'clase'
                 )
             return JsonResponse({
                 'data': list(data),
@@ -632,10 +638,10 @@ class DispositivosPaquetesViewSet(viewsets.ModelViewSet):
                     new_dispositivo.caja = datos['caja']
                 except ObjectDoesNotExist as e:
                     print("Caja no necesita actualizacion")
-                """try:
+                try:
                     new_dispositivo.clase = inv_m.DispositivoClase.objects.get(id=datos['clase'])
                 except ObjectDoesNotExist as e:
-                    print("Clase no necesita actualizacion")"""
+                    print("Clase no necesita actualizacion")
                 new_dispositivo.save()
         elif tipo == "MOUSE":
             for datos in dispositivos:
@@ -664,14 +670,13 @@ class DispositivosPaquetesViewSet(viewsets.ModelViewSet):
                     new_dispositivo.caja = datos['caja']
                 except ObjectDoesNotExist as e:
                     print("Caja no necesita actualizacion")
-                """try:
+                try:
                     new_dispositivo.clase = inv_m.DispositivoClase.objects.get(id=datos['clase'])
                 except ObjectDoesNotExist as e:
-                    print("Clase no necesita actualizacion")"""
+                    print("Clase no necesita actualizacion")
                 new_dispositivo.save()
         elif tipo == "HDD":
-            for datos in dispositivos:
-                print(datos)
+            for datos in dispositivos:                
                 new_dispositivo = inv_m.HDD.objects.get(triage=datos['triage'])
                 try:
                     new_dispositivo.marca = inv_m.DispositivoMarca.objects.get(id=datos['marca'])
@@ -701,10 +706,10 @@ class DispositivosPaquetesViewSet(viewsets.ModelViewSet):
                     new_dispositivo.medida = inv_m.DispositivoMedida.objects.get(id=datos['medida'])
                 except ObjectDoesNotExist as e:
                     print("Medida no necesita actualizacion")
-                """try:
+                try:
                     new_dispositivo.clase = inv_m.DispositivoClase.objects.get(id=datos['clase'])
                 except ObjectDoesNotExist as e:
-                    print("Clase no necesita actualizacion")"""
+                    print("Clase no necesita actualizacion")
                 new_dispositivo.save()
         elif tipo == "MONITOR":
             for datos in dispositivos:
@@ -737,10 +742,10 @@ class DispositivosPaquetesViewSet(viewsets.ModelViewSet):
                     new_dispositivo.tipo_monitor = inv_m.MonitorTipo.objects.get(id=datos['tipo_monitor'])
                 except ObjectDoesNotExist as e:
                     print("Tipo monitor no necesita actualizacion")
-                """try:
+                try:
                     new_dispositivo.clase = inv_m.DispositivoClase.objects.get(id=datos['clase'])
                 except ObjectDoesNotExist as e:
-                    print("Clase no necesita actualizacion")"""
+                    print("Clase no necesita actualizacion")
                 new_dispositivo.save()
         elif tipo == "CPU":
             for datos in dispositivos:
@@ -790,10 +795,10 @@ class DispositivosPaquetesViewSet(viewsets.ModelViewSet):
                     new_dispositivo.all_in_one = bool(datos['all_in_one'])
                 except ObjectDoesNotExist as e:
                     print("el campor all in one no necesita actualizacion")
-                """try:
+                try:
                     new_dispositivo.clase = inv_m.DispositivoClase.objects.get(id=datos['clase'])
                 except ObjectDoesNotExist as e:
-                    print("Clase no necesita actualizacion")"""
+                    print("Clase no necesita actualizacion")
                 new_dispositivo.save()
         elif tipo == "TABLET":
             for datos in dispositivos:
@@ -856,10 +861,10 @@ class DispositivosPaquetesViewSet(viewsets.ModelViewSet):
                         new_dispositivo.almacenamiento_externo = True
                 except ObjectDoesNotExist as e:
                     print("almacenamiento externo no necesita actualizacion")
-                """try:
+                try:
                     new_dispositivo.clase = inv_m.DispositivoClase.objects.get(id=datos['clase'])
                 except ObjectDoesNotExist as e:
-                    print("Clase no necesita actualizacion")"""
+                    print("Clase no necesita actualizacion")
                 new_dispositivo.save()
         elif tipo == "LAPTOP":
             for datos in dispositivos:
@@ -904,10 +909,10 @@ class DispositivosPaquetesViewSet(viewsets.ModelViewSet):
                     new_dispositivo.pulgadas = datos['pulgadas']
                 except ObjectDoesNotExist as e:
                     print("Pulgadas del monitor no necesita actualizacion")
-                """try:
+                try:
                     new_dispositivo.clase = inv_m.DispositivoClase.objects.get(id=datos['clase'])
                 except ObjectDoesNotExist as e:
-                    print("Clase no necesita actualizacion")"""
+                    print("Clase no necesita actualizacion")
                 new_dispositivo.save()
         elif tipo == "SWITCH":
             for datos in dispositivos:
@@ -944,10 +949,10 @@ class DispositivosPaquetesViewSet(viewsets.ModelViewSet):
                     new_dispositivo.velocidad_medida = inv_m.DispositivoMedida.objects.get(id=datos['velocidad_medida'])
                 except ObjectDoesNotExist as e:
                     print("Velocidad medida no necesita actualizacion")
-                """try:
+                try:
                     new_dispositivo.clase = inv_m.DispositivoClase.objects.get(id=datos['clase'])
                 except ObjectDoesNotExist as e:
-                    print("Clase no necesita actualizacion")"""
+                    print("Clase no necesita actualizacion")
                 new_dispositivo.save()
         elif tipo == "ACCESS POINT":
             for datos in dispositivos:
@@ -984,10 +989,10 @@ class DispositivosPaquetesViewSet(viewsets.ModelViewSet):
                     new_dispositivo.velocidad_medida = inv_m.DispositivoMedida.objects.get(id=datos['velocidad_medida'])
                 except ObjectDoesNotExist as e:
                     print("Velocidad medida no necesita actualizacion")
-                """try:
+                try:
                     new_dispositivo.clase = inv_m.DispositivoClase.objects.get(id=datos['clase'])
                 except ObjectDoesNotExist as e:
-                    print("Clase no necesita actualizacion")"""
+                    print("Clase no necesita actualizacion")
                 new_dispositivo.save()
         else:
             for datos in dispositivos:

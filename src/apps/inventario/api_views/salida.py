@@ -361,7 +361,7 @@ class RevisionSalidaViewSet(viewsets.ModelViewSet):
         triage = request.data["triage"]
         paquete = request.data["paquete"]
         id_paquete = request.data["idpaquete"]
-        tipo = request.data["tipo"]        
+        tipo = request.data["tipo"]
         try:
             asignacion_fecha = inv_m.DispositivoPaquete.objects.get(dispositivo__triage=triage)
             asignacion_fecha.aprobado = True
@@ -451,16 +451,16 @@ class RevisionSalidaViewSet(viewsets.ModelViewSet):
             paquete__salida=id_salida,
             dispositivo__etapa=etapa_listo,
             dispositivo__estado=estado_bueno).count()
-        if(dispositivos_aprobados != dispositivos_paquetes):
+        if(paquetes_aprobados < dispositivos_paquetes):
             return Response({
-                'mensaje': 'Faltan Dispositivos por aprobar'
+                'mensaje': 'No se ha podido finalizar la revisión, ya que existen paquetes que aún están pendientes de revisar en Control de Calidad'
             },
                 status=status.HTTP_400_BAD_REQUEST
             )
         else:
-            if(paquetes_aprobados < dispositivos_paquetes):
+            if(dispositivos_aprobados != dispositivos_paquetes):
                 return Response({
-                    'mensaje': 'Faltan Paquetes  por aprobar'
+                    'mensaje': 'No se ha podido finalizar la revisión, ya que existen Dispositivos que aún están pendientes de revisar en Contabilidad'
                 },
                     status=status.HTTP_400_BAD_REQUEST
                 )
