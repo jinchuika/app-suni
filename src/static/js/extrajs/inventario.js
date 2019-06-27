@@ -380,7 +380,7 @@ class EntradaUpdate {
               $('.modal').modal('hide');
               var mensaje = JSON.parse(response.responseText)
               bootbox.alert({message: "<h3><i class='fa fa-frown-o' style='font-size: 45px;'></i>&nbsp;&nbsp;&nbsp;HA OCURRIDO UN ERROR!!</h3></br>" + mensaje['mensaje'], className:"modal modal-danger fade"});
-              
+
             }
         });
     }
@@ -1128,7 +1128,23 @@ class SolicitudMovimiento {
 
                       },
                       success: function (response) {
-                        location.reload();
+                        //
+                        bootbox.confirm({
+                            message: "La Existencia del Dispositivo es de:" + response['existencia'],
+                            buttons: {
+                                confirm: {
+                                    label: 'Yes',
+                                    className: 'btn-success'
+                                },
+                            },
+                            callback: function (result) {
+                                if (result == true) {
+                                    location.reload();
+                                }
+                            }
+                        });
+                        //
+
                       },
                   });
                 }
@@ -1174,7 +1190,37 @@ class SolicitudMovimiento {
   }
 }
 
+class SolicitudMovimientoValidar {
+  constructor() {
+    var tipo_dispositivo;
+    $('#tipo_dispositivo_movimiento').change( function() {
+      //$('#id_descripcion').val($('#id_tipo_dispositivo option:selected').text());
+      tipo_dispositivo=$('#tipo_dispositivo_movimiento option:selected').text();
+      $.ajax({
+          type: "POST",
+          async:false,
+          url: $('#solicitud').data('url'),
+          dataType: 'json',
+          data: {
+            csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
+            tipo_dispositivo: tipo_dispositivo,
+          },
+          success: function (response) {
+            var disponibles = response['mensaje'];
+            $("[for='cantidad']").text(disponibles);
+            $("#existencia-head").css({"visibility":"initial"});
+          },
+          error:function(response){
+            var jsonResponse = JSON.parse(response.responseText);
+            bootbox.alert(jsonResponse.mensaje);
+            location.reload();
+          },
+      });
 
+    });
+    $("#existencia-head").css({"visibility":"collapse"});
+  }
+}
 class SolicitudMovimientoUpdate {
     constructor() {
         var sel_dispositivos = $('#id_dispositivos');
@@ -1584,6 +1630,10 @@ class SalidasRevisarList {
         {data:"salida", render: function( data, type, full, meta){
           return '<a href="'+full.urlSalida+'">'+full.no_salida+'</a>'
         }},
+        {data:"escuela", render: function( data, type, full, meta){
+          return '<a target=_blank  href="'+full.escuela_url+'">'+full.escuela+'</a>'
+        }},
+        {data:"beneficiario"},
         {data:"fecha_revision", render: function(data, type, full, meta){
          var newDate = new Date(full.fecha_revision);
          var options = {year: 'numeric', month:'long', day:'numeric', hour:'numeric',minute:'numeric'};
@@ -1699,8 +1749,8 @@ class Salidas {
         {data:"escuela", render: function(data, type, full, meta){
           if(full.escuela===undefined){
             return " ";
-          }else{
-            return full.escuela;
+          }else{            
+            return "<a href="+full.escuela_url+">"+full.escuela+"</a>";
           }
 
         }},
@@ -2495,7 +2545,7 @@ class PaquetesRevisionList {
     });
     $("#aprobar-btn").click( function(){
       bootbox.confirm({
-       message: "Esta  seguro que desea aprobar esta salida?",
+       message: "¿Esta  seguro que desea aprobar esta revicion de salida?",
        buttons: {
            confirm: {
                label: 'Si',
@@ -2697,7 +2747,7 @@ class PaqueteDetail {
                },
                success: function (response){
                  var id_comentario = $("#rechazar-dispositivo").data('id');
-                 var url = $("#rechazar-dispositivo").data('urlhistorico');                 
+                 var url = $("#rechazar-dispositivo").data('urlhistorico');
                  bootbox.prompt({
                    title: "Por que rechazo este dispositivo?",
                    inputType: 'textarea',

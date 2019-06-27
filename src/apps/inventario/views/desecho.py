@@ -17,6 +17,7 @@ class DesechoEmpresaCreateView(LoginRequiredMixin, CreateView, GroupRequiredMixi
     form_class = inv_f.DesechoEmpresaForm
     template_name = 'inventario/desecho/desechoempresa_form.html'
     group_required = [u"inv_bodega", u"inv_admin", u"inv_monitoreo"]
+    
 
 class DesechoEmpresaUpdateView(LoginRequiredMixin, UpdateView, GroupRequiredMixin):
     """Vista   para obtener los datos de Entrada mediante una :class:`DesechoEmpresa`

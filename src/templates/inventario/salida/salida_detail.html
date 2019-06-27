@@ -52,7 +52,7 @@
               <tr>
                 <th>UDI/Beneficiario</th>
                 <td>
-                  {{salidainventario.escuela.codigo | default_if_none:"" }}
+                  	<a href="{{salidainventario.escuela.get_absolute_url}}" target="_blank">	{{salidainventario.escuela.codigo | default_if_none:"" }}</a>
                   {{salidainventario.beneficiario | default_if_none:""}}
                   <br>
                 </td>
@@ -67,7 +67,7 @@
               <tr>
                 <th>Observaciones</th>
                 <td>
-                  {{salidainventario.observaciones}}
+                  {{salidainventario.observaciones | default_if_none:""}}
                   <br>
                 </td>
               </tr>

@@ -6,7 +6,9 @@
     <div class="col-md-9">
     </div>
     <div class="col-md-3">
+      {% if object.estado.id == 1 or object.estado.id == 2  and object.etapa == 1 or object.etapa == 2 or object.etapa == 3 %}
       <a href="{%url 'tablet_edit' triage=object.triage %}" class="btn btn-block btn-warning">Editar</a>
+      {%endif%}
     </div>
   </div>
 </div>

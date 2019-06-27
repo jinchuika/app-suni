@@ -481,6 +481,22 @@ class Tarima(models.Model):
         self.codigo_qr.save(filename, filebuffer)
 
 
+class DispositivoClase(models.Model):
+    """ Genera el tipo de clase de una :class`Dispositivo`
+    """
+    A = 1
+    B = 2
+    C = 3
+    clase = models.CharField(max_length=20)
+
+    class Meta:
+        verbose_name = "Clase de dispositivo"
+        verbose_name_plural = "Clases de dispositivo"
+
+    def __str__(self):
+        return self.clase
+
+
 class Dispositivo(models.Model):
 
     """Cualquier elemento almacenado en la base de datos de inventario que puede ser entregado a una escuela.
@@ -497,6 +513,7 @@ class Dispositivo(models.Model):
         null=True,
         related_name='detalle_dispositivos')
     impreso = models.BooleanField(default=False, blank=True, verbose_name='Impreso')
+    clase = models.ForeignKey(DispositivoClase, on_delete=models.CASCADE, null=True, related_name='clase_dispositivos')
     estado = models.ForeignKey(
         DispositivoEstado,
         on_delete=models.CASCADE,
@@ -1237,8 +1254,11 @@ class SalidaInventario(models.Model):
         blank=True)
     estado = models.ForeignKey(SalidaEstado, on_delete=models.PROTECT, related_name='estados',  null=True, blank=True)
     reasignado_por = models.ForeignKey(User, on_delete=models.PROTECT, related_name='reasignar', null=True, blank=True)
-    no_salida= models.CharField(max_length=10 , blank=True, editable=False, db_index=True)
-    cooperante = models.ForeignKey(mye.Cooperante, on_delete=models.PROTECT, related_name='cooperante', null=True, blank=True)
+    no_salida = models.CharField(max_length=10, blank=True, editable=False, db_index=True)
+    cooperante = models.ForeignKey(
+        mye.Cooperante, on_delete=models.PROTECT,
+        related_name='cooperante',
+        null=True, blank=True)
 
     class Meta:
         verbose_name = "Salida"

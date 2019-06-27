@@ -107,3 +107,6 @@ live.wsgi.py
 .idea/
 #template
 src/templates/inventario/entrada/plantilla.html
+
+#js
+src/static/js/tui-grid.js
