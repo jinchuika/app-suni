@@ -4,7 +4,7 @@
 <title>Tablet</title>
 {% endblock page_title %}
 {% block content %}
-{% if  object.estado.id == 1 or  object.estado.id == 2  and  object.etapa == 1 or object.etapa == 2 or  object.etapa == 3 %}
+{% if object.estado.id == 1 or object.estado.id == 2  and object.etapa.id == 1 or object.etapa.id == 2 or object.etapa.id == 3 %}
 <section class="content">
   <div class="container-fluid">
     <div class="row">
