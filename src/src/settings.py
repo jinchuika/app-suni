@@ -122,7 +122,7 @@ WSGI_APPLICATION = 'src.wsgi.application'
 DATABASE_ROUTERS = ['apps.legacy.dbrouters.LegacyRouter', ]
 
 DATABASES = {
- 'default': {
+  'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(BASE_DIR, 'legacy.sqlite3'),
     },
@@ -130,6 +130,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(BASE_DIR, 'legacy.sqlite3'),
     },
+
 }
 
 

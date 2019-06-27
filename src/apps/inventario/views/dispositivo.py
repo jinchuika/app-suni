@@ -5,6 +5,7 @@ from django import forms
 from django.utils import timezone
 
 from django.urls import reverse_lazy
+from django.contrib import messages
 from django.shortcuts import reverse
 from django.views.generic import DetailView, UpdateView, CreateView, ListView, FormView
 from django.db.models import Q
@@ -14,6 +15,7 @@ from braces.views import (
 )
 from apps.inventario import models as inv_m
 from apps.inventario import forms as inv_f
+from apps.kardex import models as kax_m
 
 
 #################################################
@@ -90,13 +92,38 @@ class SolicitudMovimientoCreateView(LoginRequiredMixin, CreateView):
     group_required = [u"inv_cc", u"inv_admin", u"inv_tecnico", u"inv_bodega"]
 
     def form_valid(self, form):
-        form.instance.creada_por = self.request.user
-        form.instance.etapa_inicial = inv_m.DispositivoEtapa.objects.get(
-            id=inv_m.DispositivoEtapa.AB
-            )
-        form.instance.etapa_final = inv_m.DispositivoEtapa.objects.get(
-            id=inv_m.DispositivoEtapa.TR
-            )
+        cantidad = form.cleaned_data['cantidad']
+        tipo_dispositivo = form.cleaned_data['tipo_dispositivo']
+        etapa_transito = inv_m.DispositivoEtapa.objects.get(id=inv_m.DispositivoEtapa.AB)
+        estado = inv_m.DispositivoEstado.objects.get(id=inv_m.DispositivoEstado.PD)
+        validar_dispositivos = inv_m.DispositivoTipo.objects.get(tipo=tipo_dispositivo)
+        numero_dispositivos = inv_m.Dispositivo.objects.filter(tipo=validar_dispositivos, etapa=etapa_transito, estado=estado).count()
+        if(validar_dispositivos.kardex):
+            cantidad_kardex = kax_m.Equipo.objects.get(nombre=tipo_dispositivo)
+            if(cantidad > cantidad_kardex.existencia):
+                form.add_error('cantidad', 'No  hay suficientes dipositivos para satifacer la solicitud')
+                return self.form_invalid(form)
+            else:
+                form.instance.creada_por = self.request.user
+                form.instance.etapa_inicial = inv_m.DispositivoEtapa.objects.get(
+                    id=inv_m.DispositivoEtapa.AB
+                    )
+                form.instance.etapa_final = inv_m.DispositivoEtapa.objects.get(
+                    id=inv_m.DispositivoEtapa.TR
+                    )
+        else:
+            if(cantidad > numero_dispositivos):
+                form.add_error('cantidad', 'No  hay suficientes dipositivos para satifacer la solicitud')
+                return self.form_invalid(form)
+            else:
+                form.instance.creada_por = self.request.user
+                form.instance.etapa_inicial = inv_m.DispositivoEtapa.objects.get(
+                    id=inv_m.DispositivoEtapa.AB
+                    )
+                form.instance.etapa_final = inv_m.DispositivoEtapa.objects.get(
+                    id=inv_m.DispositivoEtapa.TR
+                    )
+
         return super(SolicitudMovimientoCreateView, self).form_valid(form)
 
     def get_initial(self):

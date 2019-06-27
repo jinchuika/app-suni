@@ -5,6 +5,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.core.exceptions import ObjectDoesNotExist
 from datetime import datetime
+from django.http import JsonResponse
 import time
 from braces.views import LoginRequiredMixin
 from apps.inventario import (
@@ -64,7 +65,7 @@ class DispositivoViewSet(viewsets.ModelViewSet):
             elif(tipo == str(2)):
                 return inv_m.Mouse.objects.filter(valido=True)
             elif(tipo == str(3)):
-                return inv_m.HHD.objects.filter(valido=True)
+                return inv_m.HDD.objects.filter(valido=True)
             elif(tipo == str(4)):
                 return inv_m.Tablet.objects.filter(valido=True)
             elif(tipo == str(5)):
@@ -89,6 +90,240 @@ class DispositivoViewSet(viewsets.ModelViewSet):
         )
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
+
+    @action(methods=['post'], detail=False)
+    def grid_paquetes(self, request, pk=None):
+        """ Este se conecta con el grid para editar la informacion de los dipositivos y guardarlos
+        """
+        paquete = request.data['paquete']
+        newtipo = inv_m.DispositivoPaquete.objects.filter(paquete=paquete)
+        paquetes = inv_m.DispositivoPaquete.objects.filter(paquete=paquete).values('dispositivo__triage')
+        tipo = newtipo.first().paquete.tipo_paquete
+        tipos = inv_m.DispositivoMarca.objects.all().values()
+        puertos = inv_m.DispositivoPuerto.objects.all().values()
+        medida = inv_m.DispositivoMedida.objects.all().values()
+        version_sis = inv_m.VersionSistema.objects.all().values()
+        procesador = inv_m.Procesador.objects.all().values()
+        os = inv_m.Software.objects.all().values()
+        disco = inv_m.HDD.objects.filter(
+            estado=inv_m.DispositivoEstado.PD,
+            etapa=inv_m.DispositivoEtapa.AB).values('triage')
+        if str(tipo) == "MOUSE":
+            tipos_mouse = inv_m.MouseTipo.objects.all().values()
+            data = inv_m.Mouse.objects.filter(
+                triage__in=paquetes
+            ).values(
+                'triage',
+                'marca',
+                'modelo',
+                'serie',
+                'tarima',
+                'puerto',
+                'tipo_mouse',
+                'caja',
+                'clase')
+            return JsonResponse({
+                'data': list(data),
+                'tipo': list(tipos_mouse),
+                'puertos': list(puertos),
+                'dispositivo': str(tipo)
+                })
+        elif str(tipo) == "TECLADO":
+            data = inv_m.Teclado.objects.filter(
+                triage__in=paquetes
+            ).values(
+                'triage',
+                'marca',
+                'modelo',
+                'serie',
+                'tarima',
+                'puerto',
+                'caja',
+                'clase'
+                )
+            return JsonResponse({
+                'data': list(data),
+                'marcas': list(tipos),
+                'puertos': list(puertos),
+                'dispositivo': tipo.nombre,
+                })
+        elif str(tipo) == "MONITOR":
+            tipos_monitor = inv_m.MonitorTipo.objects.all().values()
+            data = inv_m.Monitor.objects.filter(
+                triage__in=paquetes
+            ).values(
+                'triage',
+                'marca',
+                'modelo',
+                'serie',
+                'tarima',
+                'tipo_monitor',
+                'puerto',
+                'pulgadas',
+                'clase'
+                )
+            return JsonResponse({
+                'data': list(data),
+                'marcas': list(tipos),
+                'tipo': list(tipos_monitor),
+                'puertos': list(puertos),
+                'dispositivo': str(tipo)
+                })
+        elif str(tipo) == "CPU":
+            data = inv_m.CPU.objects.filter(
+                triage__in=paquetes
+            ).values(
+                'triage',
+                'marca',
+                'modelo',
+                'serie',
+                'tarima',
+                'procesador',
+                'version_sistema',
+                'disco_duro__triage',
+                'ram',
+                'ram_medida',
+                'servidor',
+                'all_in_one',
+                'clase'
+                ).order_by('triage')
+            return JsonResponse({
+                'data': list(data),
+                'marcas': list(tipos),
+                'puertos': list(puertos),
+                'medida': list(medida),
+                'dispositivo': str(tipo),
+                'sistemas': list(version_sis),
+                'procesador': list(procesador),
+                'hdd': list(disco)
+                })
+        elif str(tipo) == "TABLET":
+            data = inv_m.Tablet.objects.filter(
+                triage__in=paquetes
+            ).values(
+                'triage',
+                'marca',
+                'modelo',
+                'serie',
+                'tarima',
+                'procesador',
+                'version_sistema',
+                'so_id',
+                'almacenamiento',
+                'medida_almacenamiento',
+                'ram',
+                'medida_ram',
+                'almacenamiento_externo',
+                'pulgadas',
+                'clase'
+                )
+            return JsonResponse({
+                'data': list(data),
+                'marcas': list(tipos),
+                'medida': list(medida),
+                'dispositivo': str(tipo),
+                'sistemas': list(version_sis),
+                'procesador': list(procesador),
+                'hdd': list(disco),
+                'os': list(os)
+                })
+        elif str(tipo) == "LAPTOP":
+            data = inv_m.Laptop.objects.filter(
+                triage__in=paquetes
+            ).values(
+                'triage',
+                'marca',
+                'modelo',
+                'serie',
+                'tarima',
+                'procesador',
+                'version_sistema',
+                'disco_duro__triage',
+                'ram',
+                'ram_medida',
+                'pulgadas',
+                'clase'
+                )
+            return JsonResponse({
+                'data': list(data),
+                'marcas': list(tipos),
+                'medida': list(medida),
+                'dispositivo': str(tipo),
+                'sistemas': list(version_sis),
+                'procesador': list(procesador),
+                'hdd': list(disco)
+                })
+        elif str(tipo) == "HDD":
+            data = inv_m.HDD.objects.filter(
+                triage__in=paquetes
+            ).values(
+                'triage',
+                'marca',
+                'modelo',
+                'serie',
+                'tarima',
+                'puerto',
+                'capacidad',
+                'medida',
+                'clase'
+                )
+            return JsonResponse({
+                'data': list(data),
+                'marcas': list(tipos),
+                'puertos': list(puertos),
+                'medida': list(medida),
+                'dispositivo': str(tipo)
+                })
+        elif str(tipo) == "SWITCH":
+            data = inv_m.DispositivoRed.objects.filter(
+                triage__in=paquetes
+            ).values(
+                'triage',
+                'marca',
+                'modelo',
+                'serie',
+                'tarima',
+                'puerto',
+                'cantidad_puertos',
+                'velocidad',
+                'velocidad_medida',
+                'clase'
+                )
+            return JsonResponse({
+                'data': list(data),
+                'marcas': list(tipos),
+                'puertos': list(puertos),
+                'medida': list(medida),
+                'dispositivo': str(tipo)
+                })
+
+        elif str(tipo) == "ACCESS POINT":
+            data = inv_m.AccessPoint.objects.filter(
+                triage__in=paquetes
+            ).values(
+                'triage',
+                'marca',
+                'modelo',
+                'serie',
+                'tarima',
+                'puerto',
+                'cantidad_puertos',
+                'velocidad',
+                'velocidad_medida',
+                'clase'
+                )
+            return JsonResponse({
+                'data': list(data),
+                'marcas': list(tipos),
+                'puertos': list(puertos),
+                'medida': list(medida),
+                'dispositivo': str(tipo)
+                })
+
+        return Response(
+            {'mensaje': 'Solicitud Recibida'},
+            status=status.HTTP_200_OK
+        )
 
     @action(methods=['post'], detail=False)
     def solicitud(self, request, pk=None):
@@ -175,8 +410,10 @@ class DispositivoViewSet(viewsets.ModelViewSet):
                 solicitudes_movimiento.salida_kardex = nuevo_detalle
                 solicitudes_movimiento.autorizada_por = self.request.user
                 solicitudes_movimiento.save()
+                cantidad_kardex = kax_m.Equipo.objects.get(nombre=solicitudes_movimiento.tipo_dispositivo)
+                print(cantidad_kardex.existencia)
                 return Response(
-                    {'mensaje': nuevo_detalle.id},
+                    {'mensaje': nuevo_detalle.id, 'existencia': cantidad_kardex.existencia},
                     status=status.HTTP_200_OK
                 )
         else:
@@ -207,10 +444,12 @@ class DispositivoViewSet(viewsets.ModelViewSet):
 
     @action(methods=['post'], detail=False)
     def colocar_repuesto_tarima(self, request, pk=None):
+        """ Este se conecta ala app para colocar los repuestos a las tarimas
+        """
         id = request.data['id']
         tarima = request.data['tarima']
         asignar_tarima = inv_m.Tarima.objects.get(id=tarima)
-        nueva_tarima = inv_m.Repuesto.objects.get(id=id)        
+        nueva_tarima = inv_m.Repuesto.objects.get(id=id)
         nueva_tarima.tarima = asignar_tarima
         nueva_tarima.save()
         return Response(
@@ -255,6 +494,12 @@ class PaquetesViewSet(viewsets.ModelViewSet):
     filter_class = PaquetesFilter
 
 
+class DispositivoPaqueteViewset(viewsets.ModelViewSet):
+    serializer_class = inv_s.DispositivoPaqueteSerializer
+    queryset = inv_m.DispositivoPaquete.objects.all()
+    filter_fields = ('paquete',)
+
+
 class DispositivosPaqueteFilter(filters.FilterSet):
     """ Filtros par el ViewSet de Paquete
     """
@@ -263,7 +508,7 @@ class DispositivosPaqueteFilter(filters.FilterSet):
 
     class Meta:
         model = inv_m.DispositivoPaquete
-        fields = ['salida', 'listo', 'aprobado']
+        fields = ['salida', 'listo', 'aprobado', 'paquete']
 
     def filter_salida(self, qs, name, value):
         qs = qs.filter(
@@ -393,6 +638,10 @@ class DispositivosPaquetesViewSet(viewsets.ModelViewSet):
                     new_dispositivo.caja = datos['caja']
                 except ObjectDoesNotExist as e:
                     print("Caja no necesita actualizacion")
+                try:
+                    new_dispositivo.clase = inv_m.DispositivoClase.objects.get(id=datos['clase'])
+                except ObjectDoesNotExist as e:
+                    print("Clase no necesita actualizacion")
                 new_dispositivo.save()
         elif tipo == "MOUSE":
             for datos in dispositivos:
@@ -421,9 +670,13 @@ class DispositivosPaquetesViewSet(viewsets.ModelViewSet):
                     new_dispositivo.caja = datos['caja']
                 except ObjectDoesNotExist as e:
                     print("Caja no necesita actualizacion")
+                try:
+                    new_dispositivo.clase = inv_m.DispositivoClase.objects.get(id=datos['clase'])
+                except ObjectDoesNotExist as e:
+                    print("Clase no necesita actualizacion")
                 new_dispositivo.save()
         elif tipo == "HDD":
-            for datos in dispositivos:
+            for datos in dispositivos:                
                 new_dispositivo = inv_m.HDD.objects.get(triage=datos['triage'])
                 try:
                     new_dispositivo.marca = inv_m.DispositivoMarca.objects.get(id=datos['marca'])
@@ -442,6 +695,10 @@ class DispositivosPaquetesViewSet(viewsets.ModelViewSet):
                 except ObjectDoesNotExist as e:
                     print("Tarima no necesita actualizacion")
                 try:
+                    new_dispositivo.puerto = inv_m.DispositivoPuerto.objects.get(id=datos['puerto'])
+                except ObjectDoesNotExist as e:
+                    print("Puerto no necesita actualizacion")
+                try:
                     new_dispositivo.capacidad = datos['capacidad']
                 except ObjectDoesNotExist as e:
                     print("Capacidad no necesita actualizacion")
@@ -449,6 +706,10 @@ class DispositivosPaquetesViewSet(viewsets.ModelViewSet):
                     new_dispositivo.medida = inv_m.DispositivoMedida.objects.get(id=datos['medida'])
                 except ObjectDoesNotExist as e:
                     print("Medida no necesita actualizacion")
+                try:
+                    new_dispositivo.clase = inv_m.DispositivoClase.objects.get(id=datos['clase'])
+                except ObjectDoesNotExist as e:
+                    print("Clase no necesita actualizacion")
                 new_dispositivo.save()
         elif tipo == "MONITOR":
             for datos in dispositivos:
@@ -481,6 +742,10 @@ class DispositivosPaquetesViewSet(viewsets.ModelViewSet):
                     new_dispositivo.tipo_monitor = inv_m.MonitorTipo.objects.get(id=datos['tipo_monitor'])
                 except ObjectDoesNotExist as e:
                     print("Tipo monitor no necesita actualizacion")
+                try:
+                    new_dispositivo.clase = inv_m.DispositivoClase.objects.get(id=datos['clase'])
+                except ObjectDoesNotExist as e:
+                    print("Clase no necesita actualizacion")
                 new_dispositivo.save()
         elif tipo == "CPU":
             for datos in dispositivos:
@@ -530,6 +795,10 @@ class DispositivosPaquetesViewSet(viewsets.ModelViewSet):
                     new_dispositivo.all_in_one = bool(datos['all_in_one'])
                 except ObjectDoesNotExist as e:
                     print("el campor all in one no necesita actualizacion")
+                try:
+                    new_dispositivo.clase = inv_m.DispositivoClase.objects.get(id=datos['clase'])
+                except ObjectDoesNotExist as e:
+                    print("Clase no necesita actualizacion")
                 new_dispositivo.save()
         elif tipo == "TABLET":
             for datos in dispositivos:
@@ -592,6 +861,10 @@ class DispositivosPaquetesViewSet(viewsets.ModelViewSet):
                         new_dispositivo.almacenamiento_externo = True
                 except ObjectDoesNotExist as e:
                     print("almacenamiento externo no necesita actualizacion")
+                try:
+                    new_dispositivo.clase = inv_m.DispositivoClase.objects.get(id=datos['clase'])
+                except ObjectDoesNotExist as e:
+                    print("Clase no necesita actualizacion")
                 new_dispositivo.save()
         elif tipo == "LAPTOP":
             for datos in dispositivos:
@@ -636,6 +909,10 @@ class DispositivosPaquetesViewSet(viewsets.ModelViewSet):
                     new_dispositivo.pulgadas = datos['pulgadas']
                 except ObjectDoesNotExist as e:
                     print("Pulgadas del monitor no necesita actualizacion")
+                try:
+                    new_dispositivo.clase = inv_m.DispositivoClase.objects.get(id=datos['clase'])
+                except ObjectDoesNotExist as e:
+                    print("Clase no necesita actualizacion")
                 new_dispositivo.save()
         elif tipo == "SWITCH":
             for datos in dispositivos:
@@ -672,6 +949,10 @@ class DispositivosPaquetesViewSet(viewsets.ModelViewSet):
                     new_dispositivo.velocidad_medida = inv_m.DispositivoMedida.objects.get(id=datos['velocidad_medida'])
                 except ObjectDoesNotExist as e:
                     print("Velocidad medida no necesita actualizacion")
+                try:
+                    new_dispositivo.clase = inv_m.DispositivoClase.objects.get(id=datos['clase'])
+                except ObjectDoesNotExist as e:
+                    print("Clase no necesita actualizacion")
                 new_dispositivo.save()
         elif tipo == "ACCESS POINT":
             for datos in dispositivos:
@@ -708,6 +989,10 @@ class DispositivosPaquetesViewSet(viewsets.ModelViewSet):
                     new_dispositivo.velocidad_medida = inv_m.DispositivoMedida.objects.get(id=datos['velocidad_medida'])
                 except ObjectDoesNotExist as e:
                     print("Velocidad medida no necesita actualizacion")
+                try:
+                    new_dispositivo.clase = inv_m.DispositivoClase.objects.get(id=datos['clase'])
+                except ObjectDoesNotExist as e:
+                    print("Clase no necesita actualizacion")
                 new_dispositivo.save()
         else:
             for datos in dispositivos:
@@ -716,6 +1001,6 @@ class DispositivosPaquetesViewSet(viewsets.ModelViewSet):
                 new_dispositivo.save()
 
         return Response({
-            'mensaje': 'El dispositivo a sido Rechazado'
+            'mensaje': 'Actualizados'
         },
             status=status.HTTP_200_OK)

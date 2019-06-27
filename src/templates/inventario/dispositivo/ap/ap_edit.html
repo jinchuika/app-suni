@@ -4,6 +4,7 @@
 <title>Access Point</title>
 {% endblock page_title %}
 {% block content %}
+{% if not object.estado.id == 1 or not object.estado.id == 2  and not object.etapa == 1 or not object.etapa == 2 or not object.etapa == 3 %}
 <section class="content">
   <div class="container-fluid">
     <div class="row">
@@ -38,4 +39,5 @@
     </div>
   </div>
 </section>
+{%endif%}
 {% endblock content %}

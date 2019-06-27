@@ -28,7 +28,9 @@ class TecladoForm(forms.ModelForm):
             'serie': forms.TextInput({'class': 'form-control', 'tabindex': '3'}),
             'tarima': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '4'}),
             'puerto': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '6'}),
+            'clase': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '7'}),
             'descripcion': forms.Textarea(attrs={'cols': 30, 'rows': 3, 'class': 'form-control', 'tabindex': '5'}),
+            'caja': forms.TextInput({'class': 'form-control', 'tabindex': '8'}),
                    }
 
 
@@ -64,12 +66,12 @@ class CPUForm(forms.ModelForm):
             'descripcion': forms.Textarea(attrs={'cols': 30, 'rows': 3, 'class': 'form-control', 'tabindex': '5'}),
             'servidor': forms.CheckboxInput({'class': 'icheckbox_square-red', 'tabindex': '11'}),
             'all_in_one': forms.CheckboxInput({'class': 'icheckbox_square-red', 'tabindex': '12'}),
+            'clase': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '13'}),
         }
 
     def __init__(self, *args, **kwargs):
         super(CPUForm, self).__init__(*args, **kwargs)
-        self.fields['disco_duro'].queryset = inv_m.HDD.objects.filter(valido = True)
-
+        self.fields['disco_duro'].queryset = inv_m.HDD.objects.filter(valido=True)
 
 
 class LaptopForm(forms.ModelForm):
@@ -101,11 +103,12 @@ class LaptopForm(forms.ModelForm):
             'ram_medida': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '10'}),
             'pulgadas': forms.NumberInput({'class': 'form-control', 'tabindex': '11'}),
             'descripcion': forms.Textarea(attrs={'cols': 30, 'rows': 3, 'class': 'form-control', 'tabindex': '5'}),
+            'clase': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '11'}),
         }
 
     def __init__(self, *args, **kwargs):
         super(LaptopForm, self).__init__(*args, **kwargs)
-        self.fields['disco_duro'].queryset = inv_m.HDD.objects.filter(valido = True)
+        self.fields['disco_duro'].queryset = inv_m.HDD.objects.filter(valido=True)
 
 
 class MonitorForm(forms.ModelForm):
@@ -134,6 +137,7 @@ class MonitorForm(forms.ModelForm):
             'pulgadas': forms.NumberInput({'class': 'form-control', 'tabindex': '8'}),
             'puerto': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '7'}),
             'descripcion': forms.Textarea(attrs={'cols': 30, 'rows': 3, 'class': 'form-control', 'tabindex': '5'}),
+            'clase': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '9'}),
         }
 
 
@@ -162,6 +166,8 @@ class MouseForm(forms.ModelForm):
             'tipo_mouse': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '7'}),
             'puerto': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '6'}),
             'descripcion': forms.Textarea(attrs={'cols': 30, 'rows': 3, 'class': 'form-control', 'tabindex': '5'}),
+            'clase': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '8'}),
+            'caja': forms.TextInput(attrs={'class': 'form-control', 'tabindex': '9'}),
         }
 
 
@@ -192,6 +198,7 @@ class DispositivoRedForm(forms.ModelForm):
             'velocidad': forms.NumberInput({'class': 'form-control', 'tabindex': '8'}),
             'velocidad_medida': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '9'}),
             'descripcion': forms.Textarea(attrs={'cols': 30, 'rows': 3, 'class': 'form-control', 'tabindex': '5'}),
+            'clase': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '10'}),
         }
 
 
@@ -222,6 +229,7 @@ class DispositivoAccessPointForm(forms.ModelForm):
             'velocidad': forms.NumberInput({'class': 'form-control', 'tabindex': '8'}),
             'velocidad_medida': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '9'}),
             'descripcion': forms.Textarea(attrs={'cols': 30, 'rows': 3, 'class': 'form-control', 'tabindex': '5'}),
+            'clase': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '11'}),
         }
 
 
@@ -257,6 +265,7 @@ class TabletForm(forms.ModelForm):
             'medida_ram': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '13'}),
             'almacenamiento_externo': forms.CheckboxInput({'class': 'icheckbox_square-red', 'tabindex': '14'}),
             'descripcion': forms.Textarea(attrs={'cols': 30, 'rows': 3, 'class': 'form-control', 'tabindex': '5'}),
+            'clase': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '15'}),
         }
 
 
@@ -286,6 +295,7 @@ class HDDForm(forms.ModelForm):
             'puerto': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '6'}),
             'capacidad': forms.NumberInput({'class': 'form-control', 'tabindex': '7'}),
             'descripcion': forms.Textarea(attrs={'cols': 30, 'rows': 3, 'class': 'form-control', 'tabindex': '5'}),
+            'clase': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '9'}),
         }
 
 
@@ -389,7 +399,7 @@ class SolicitudMovimientoCreateForm(forms.ModelForm):
 
             ]
         widgets = {
-            'tipo_dispositivo': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '1'}),
+            'tipo_dispositivo': forms.Select(attrs={'id': 'tipo_dispositivo_movimiento', 'class': 'form-control select2', 'tabindex': '1'}),
             'cantidad': forms.TextInput({'class': 'form-control', 'tabindex': '2'}),
             'observaciones': forms.Textarea({'class': 'form-control', 'tabindex': '3'}),
         }
