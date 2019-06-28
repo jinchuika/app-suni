@@ -1537,7 +1537,7 @@ class SolicitudMovimiento(models.Model):
                     )
                     cambio.save()
             self.terminada = True
-            self.save()
+            # self.save()
         else:
             raise OperationalError('La solicitud ya fue terminada')
 
@@ -1651,3 +1651,51 @@ class Prestamo(models.Model):
 
     def __str__(self):
         return '{} - {}'.format(self.fecha_inicio, self.id)
+
+class AccionBitacora(models.Model):
+    """Estado de un :class:`Dispositivo`. Indica que el dispositivo puede estar en cualquiera de los siguientes estados:
+    - Solicitud Creada
+    - Dispositivos Entregados
+    - Dispositivos Recibidos
+    - Solicitud Aprobada Kardex
+    - Solicitud Rechazada Kardex
+    """
+    SC = 1
+    DE = 2
+    DR = 3
+    SAK = 4
+    SRK = 5
+    estado = models.CharField(max_length=100)
+
+    class Meta:
+        verbose_name = "Regristro Bitacora"
+        verbose_name_plural = "Registros de Bitacora"
+
+    def __str__(self):
+        return self.estado
+
+class SolicitudBitacora(models.Model):
+    fecha_movimiento = models.DateTimeField(default=timezone.now)
+    numero_solicitud = models.ForeignKey(
+        SolicitudMovimiento,
+        null=True,
+        blank=True,
+        on_delete=models.PROTECT,
+        related_name='solicitud_movimiento')
+    enviado = models.BooleanField(default=False, blank=True)
+    accion = models.ForeignKey(
+        AccionBitacora,
+        null=True,
+        blank=True,
+        on_delete=models.PROTECT,
+        related_name='bitacora_accion'
+    )
+    usuario = models.ForeignKey(User, on_delete=models.CASCADE, related_name='bitacora_usuario')
+
+
+    class Meta:
+        verbose_name = 'Bitacora'
+        verbose_name_plural = 'Bitacoras'
+
+    def __str__(self):
+        return '{} - {} - {}'.format(self.accion,self.fecha_movimiento.date(),self.usuario)

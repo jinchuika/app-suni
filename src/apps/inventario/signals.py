@@ -1,5 +1,6 @@
 from django.db import IntegrityError
 from django.db.models.signals import pre_save, post_save
+from datetime import datetime
 
 from apps.inventario import models as inventario_m
 
@@ -102,5 +103,29 @@ pre_save.connect(calcular_salida, sender=inventario_m.SalidaInventario)
 
 
 # pre_save.connect(calcular_indice_paquete, sender=inventario_m.Paquete)
+def crear_bitacora(sender, instance, created, **kwargs):
+    """ Se encarga de crear los registros de la :class:`SolicitudBitacora`
+    """
+    if created:
+        nueva_bitacora = inventario_m.SolicitudBitacora(
+            fecha_movimiento=datetime.now(),
+            numero_solicitud=inventario_m.SolicitudMovimiento.objects.get(id=instance.id),
+            accion=inventario_m.AccionBitacora.objects.get(id=1),
+            usuario=instance.creada_por
+        )
+        nueva_bitacora.save()
+    else:
+        if instance.rechazar is  False:
+            if instance.recibida is False:
+                nueva_bitacora = inventario_m.SolicitudBitacora(
+                    fecha_movimiento=datetime.now(),
+                    numero_solicitud=inventario_m.SolicitudMovimiento.objects.get(id=instance.id),
+                    accion=inventario_m.AccionBitacora.objects.get(id=2),
+                    usuario=instance.creada_por
+                )
+                nueva_bitacora.save()
 
 
+
+
+post_save.connect(crear_bitacora, sender=inventario_m.SolicitudMovimiento)
