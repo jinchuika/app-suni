@@ -710,13 +710,13 @@ class PrestamoCartaPrintView(LoginRequiredMixin, GroupRequiredMixin, DetailView)
             Total_Laptop['total_laptop'] = 0
         if Total_Tablet['total_tablet'] is None:
             Total_Tablet['total_tablet'] = 0
-        Total_Entregado = (Total_Cpu['total_cpu']+Total_Laptop['total_laptop']+Total_Tablet['total_tablet']) - cpu_servidor
+        Total_Entregado = (Total_Cpu['total_cpu'] + Total_Laptop['total_laptop'] + Total_Tablet['total_tablet']) - cpu_servidor
         if Total_Tablet['total_tablet'] > 1:
             context['cpu'] = 1
         else:
             context['cpu'] = 0
         context['cpu_servidor'] = cpu_servidor
-        context['dispositivo_total'] = Total_Entregado
+        context['dispositivo_total'] = Total_Entregado + cpu_servidor 
         escuela = inv_m.SalidaInventario.objects.get(id=self.object.id)
         try:
             encargado = escuela_m.EscContacto.objects.get(escuela=escuela.escuela, rol=5)

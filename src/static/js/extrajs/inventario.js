@@ -1749,7 +1749,7 @@ class Salidas {
         {data:"escuela", render: function(data, type, full, meta){
           if(full.escuela===undefined){
             return " ";
-          }else{            
+          }else{
             return "<a href="+full.escuela_url+">"+full.escuela+"</a>";
           }
 
@@ -2719,7 +2719,7 @@ class PaqueteDetail {
     var urlAprobar = $("#rechazar-dispositivo").data('urlaprobar');
     var urlAprobarControl = $("#rechazar-dispositivo").data('urlaprobar');
     var lista_triage = [];
-    var estado_inicial = $('#id_dispositivos').data('estado-inicial');
+    var estado_inicial = $('#id_dispositivos').data('estado-inicial');    
     tablabodyRechazar.on('click','.btn-rechazar', function () {
       let data_triage = $(this).attr("data-triage");
       let data_paquete=$(this).attr("data-paquete");
@@ -3164,7 +3164,6 @@ class PaqueteDetail {
             var triage = $("#area_scanner_aprobar").val();
             var mensaje = JSON.parse(triage);
              /*Api*/
-             console.log(urlAprobar);
              $.ajax({
                type: "POST",
                url: urlAprobarControl,
@@ -3182,8 +3181,25 @@ class PaqueteDetail {
                   location.reload();
                },
                error: function (response){
-                 var jsonResponse = JSON.parse(response.responseText);
-                 bootbox.alert(jsonResponse["mensaje"]);
+                var jsonResponse = JSON.parse(response.responseText);             
+                /**/               
+                    bootbox.confirm({
+                          message:jsonResponse["mensaje"] ,
+                          buttons: {
+                              confirm: {
+                                  label: 'Ok',
+                                  className: 'btn-danger'
+                              }
+                          },
+                          callback: function (result) {
+                            if(result){
+                                location.reload();
+                            }else{
+                                location.reload();
+                            };
+                          }
+                      });
+                /**/
                }
              });
              /**/

@@ -91,7 +91,7 @@ class SolicitudMovimientoCreateView(LoginRequiredMixin, CreateView):
     form_class = inv_f.SolicitudMovimientoCreateForm
     group_required = [u"inv_cc", u"inv_admin", u"inv_tecnico", u"inv_bodega"]
 
-    def form_valid(self, form):
+    def form_valid(self, form):        
         cantidad = form.cleaned_data['cantidad']
         tipo_dispositivo = form.cleaned_data['tipo_dispositivo']
         etapa_transito = inv_m.DispositivoEtapa.objects.get(id=inv_m.DispositivoEtapa.AB)

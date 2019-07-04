@@ -330,8 +330,16 @@ class DispositivoViewSet(viewsets.ModelViewSet):
         id = request.data['id']
         solicitudes_movimiento = inv_m.SolicitudMovimiento.objects.get(id=id)
         solicitudes_movimiento.recibida_por = self.request.user
+        solicitudes_movimiento.terminada = True
         solicitudes_movimiento.recibida = True
         solicitudes_movimiento.save()
+        nueva_bitacora = inv_m.SolicitudBitacora(
+            fecha_movimiento=datetime.now(),
+            numero_solicitud=inv_m.SolicitudMovimiento.objects.get(id=id),
+            accion=inv_m.AccionBitacora.objects.get(id=3),
+            usuario=self.request.user
+        )
+        nueva_bitacora.save()
         return Response(
             {'mensaje': 'Solicitud Recibida'},
             status=status.HTTP_200_OK
@@ -360,12 +368,12 @@ class DispositivoViewSet(viewsets.ModelViewSet):
         """
         id = request.data['id']
         respuesta = request.data['respuesta']
-        if respuesta == str(1):
+        if respuesta == str(1):            
             solicitudes_movimiento = inv_m.SolicitudMovimiento.objects.get(id=id)
             usado = kax_m.EstadoEquipo.objects.get(estado='Usado')
             area_tecnica = kax_m.Proveedor.objects.get(nombre="AREA TECNICA")
             devolucion = kax_m.TipoEntrada.objects.get(tipo="Devolucion")
-            if solicitudes_movimiento.devolucion is True:
+            if solicitudes_movimiento.devolucion is True:               
                 nuevo = kax_m.Entrada(
                     estado=usado,
                     proveedor=area_tecnica,
@@ -387,7 +395,14 @@ class DispositivoViewSet(viewsets.ModelViewSet):
                 solicitudes_movimiento.entrada_kardex = salida_creada
                 solicitudes_movimiento.autorizada_por = self.request.user
                 solicitudes_movimiento.save()
-            else:
+                nueva_bitacora = inv_m.SolicitudBitacora(
+                    fecha_movimiento=datetime.now(),
+                    numero_solicitud=inv_m.SolicitudMovimiento.objects.get(id=id),
+                    accion=inv_m.AccionBitacora.objects.get(id=4),
+                    usuario=self.request.user
+                )
+                nueva_bitacora.save()
+            else:               
                 tipo_salida = kax_m.TipoSalida.objects.get(tipo="Inventario SUNI")
                 nuevo = kax_m.Salida(
                     tecnico=self.request.user,
@@ -410,18 +425,33 @@ class DispositivoViewSet(viewsets.ModelViewSet):
                 solicitudes_movimiento.salida_kardex = nuevo_detalle
                 solicitudes_movimiento.autorizada_por = self.request.user
                 solicitudes_movimiento.save()
-                cantidad_kardex = kax_m.Equipo.objects.get(nombre=solicitudes_movimiento.tipo_dispositivo)
-                print(cantidad_kardex.existencia)
+                cantidad_kardex = kax_m.Equipo.objects.get(nombre=solicitudes_movimiento.tipo_dispositivo)            
+                nueva_bitacora = inv_m.SolicitudBitacora(
+                    fecha_movimiento=datetime.now(),
+                    numero_solicitud=inv_m.SolicitudMovimiento.objects.get(id=id),
+                    accion=inv_m.AccionBitacora.objects.get(id=4),
+                    usuario=self.request.user
+                )
+                nueva_bitacora.save()
                 return Response(
                     {'mensaje': nuevo_detalle.id, 'existencia': cantidad_kardex.existencia},
                     status=status.HTTP_200_OK
                 )
         else:
+            """ Rechazar dispositivos de kardex
+            """
             solicitudes_movimiento = inv_m.SolicitudMovimiento.objects.get(id=id)
             solicitudes_movimiento.autorizada_por = self.request.user
             solicitudes_movimiento.terminada = True
             solicitudes_movimiento.rechazar = True
             solicitudes_movimiento.save()
+            nueva_bitacora = inv_m.SolicitudBitacora(
+                fecha_movimiento=datetime.now(),
+                numero_solicitud=inv_m.SolicitudMovimiento.objects.get(id=id),
+                accion=inv_m.AccionBitacora.objects.get(id=5),
+                usuario=self.request.user
+            )
+            nueva_bitacora.save()
             return Response(
                 {'mensaje': 'Solicitud Rechazada'},
                 status=status.HTTP_200_OK
@@ -676,7 +706,7 @@ class DispositivosPaquetesViewSet(viewsets.ModelViewSet):
                     print("Clase no necesita actualizacion")
                 new_dispositivo.save()
         elif tipo == "HDD":
-            for datos in dispositivos:                
+            for datos in dispositivos:
                 new_dispositivo = inv_m.HDD.objects.get(triage=datos['triage'])
                 try:
                     new_dispositivo.marca = inv_m.DispositivoMarca.objects.get(id=datos['marca'])
