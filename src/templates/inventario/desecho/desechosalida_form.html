@@ -7,8 +7,9 @@
 {%else%}
 <title>Desecho</title>
 {%endif%}
-{% endblock page_title %}
+{% endblock page_title %} 
 {% block content %}
+{% if desechosalida.en_creacion %}
 <section class="content">
   <div class="container-fluid">
     <div class="row">
@@ -72,11 +73,12 @@
         <div class="box">
           <div class="box-header">
             <div class="row">
-              <div class="col-md-9">
+              <div class="col-md-6">
                 <h3 class="box-title"><b>Actualizar datos de desecho</b></h3>
               </div>
-              <div class="col-md-3">
-                  <input id="btn-terminar" type="submit" class="btn btn-danger" value="Terminar" />
+              <div class="col-md-6">
+               <a target='_blank' href="{% url 'desechoempresa_update' pk=object.empresa.id%}" class="btn btn-success">Editar Empresa</a>
+               <input id="btn-terminar" type="submit" class="btn btn-danger" value="Terminar" />
               </div>
             </div>
           </div>
@@ -176,7 +178,10 @@
   </div>
   {%endif%}
 </section>
+{% else %}
+{% endif %}
 {% endblock content %}
+
 {% block extra_js %}
 <script src="{% static "js/extrajs/inventario.js" %}"></script>
 <script>

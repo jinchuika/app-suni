@@ -23,5 +23,11 @@ dispositivo_router.register(
     api_views.DispositivoPaqueteViewset,
     base_name='api_dispositivopaquetedit'
 )
+dispositivo_router.register(
+    r'solicitudmovimientolist',
+    api_views.SolicitudMovimientoViewSet,
+    base_name='api_solicitudmovimiento'
+
+)
 dispositivo_urlpatterns = []
 dispositivo_urlpatterns += dispositivo_router.urls

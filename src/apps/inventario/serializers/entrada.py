@@ -28,7 +28,8 @@ class EntradaDetalleSerializer(serializers.ModelSerializer):
     es_kardex = serializers.StringRelatedField(source='tipo_dispositivo.kardex')
     url_kardex = serializers.SerializerMethodField(read_only=True)
     # Desecho
-    existencia_desecho = serializers.IntegerField(read_only=True)
+    existencia_desecho = serializers.IntegerField(read_only=True)    
+    fecha_desecho = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = inv_m.EntradaDetalle
@@ -65,7 +66,8 @@ class EntradaDetalleSerializer(serializers.ModelSerializer):
             'ingresado_kardex',
             'url_kardex',
             'existencia_desecho',
-            'es_kardex'
+            'es_kardex',
+            'fecha_desecho'           
             )
 
     def get_tdispositivo(self, object):
@@ -99,10 +101,11 @@ class EntradaDetalleSerializer(serializers.ModelSerializer):
     def get_existencia_desecho(self, obj):
         inventario_desecho = obj.existencia_desecho.all()
         return inventario_desecho
+    
+    def get_fecha_desecho(self, obj):
+         fecha = inv_m.DesechoComentario.objects.filter(entrada_detalle=obj.id).last()        
+         return fecha.fecha_revision.date()
 
-    def get_existencia_desecho(self, obj):
-        inventario_desecho = obj.existencia_desecho.all()
-        return inventario_desecho
 
 
 class EntradaSerializer(serializers.ModelSerializer):

@@ -204,13 +204,18 @@ class SolicitudMovimientoUpdateView(LoginRequiredMixin, UpdateView):
         )
         return form
 
-    def form_valid(self, form):
+    def form_valid(self, form):        
         form.instance.autorizada_por = self.request.user
         form.instance.cambiar_etapa(
             lista_dispositivos=form.cleaned_data['dispositivos'],
             usuario=self.request.user
         )
         return super(SolicitudMovimientoUpdateView, self).form_valid(form)
+
+    def get_context_data(self, *args, **kwargs):
+            context = super(SolicitudMovimientoUpdateView, self).get_context_data(*args, **kwargs)
+            context['dispositivos_no'] = inv_m.CambioEtapa.objects.filter(solicitud=self.object.id).count() 
+            return context
 
 
 class SolicitudMovimientoDetailView(LoginRequiredMixin, DetailView):
@@ -221,20 +226,21 @@ class SolicitudMovimientoDetailView(LoginRequiredMixin, DetailView):
     group_required = [u"inv_cc", u"inv_admin", u"inv_tecnico", u"inv_bodega"]
 
 
-class SolicitudMovimientoListView(LoginRequiredMixin, ListView):
+class SolicitudMovimientoListView(LoginRequiredMixin, FormView):
     """ Vista para ver la lista  de la :class:`SolicitudMovimiento`
     """
     model = inv_m.SolicitudMovimiento
     template_name = 'inventario/dispositivo/solicitudmovimiento_list.html'
+    form_class = inv_f.SolicitudMovimientoInformeForm
     group_required = [u"inv_cc", u"inv_admin", u"inv_tecnico", u"inv_bodega"]
 
-    def get_context_data(self, **kwargs):
+    """def get_context_data(self, **kwargs):
         context = super(SolicitudMovimientoListView, self).get_context_data(**kwargs)
         tipo_dis = self.request.user.tipos_dispositivos.tipos.all()
         solicitudes_list = inv_m.SolicitudMovimiento.objects.filter(tipo_dispositivo__in=tipo_dis).order_by('terminada','recibida','-fecha_creacion')
 
         context['solicitudmovimiento_list'] = solicitudes_list
-        return context
+        return context"""
 
 ##########################
 # FALLAS DE DISPOSITIVOS #
@@ -365,17 +371,30 @@ class CPUptadeView(LoginRequiredMixin, UpdateView):
      mostrando los datos necesarios
     """
     model = inv_m.CPU
-    form_class = inv_f.CPUForm
+    form_class = inv_f.CPUFormUpdate
     slug_field = "triage"
     slug_url_kwarg = "triage"
     query_pk_and_slug = True
     template_name = 'inventario/dispositivo/cpu/cpu_edit.html'
 
+    def get_context_data(self, **kwargs):       
+        context =super(CPUptadeView,self).get_context_data(**kwargs)          
+        try:           
+            context["disco_duro"]=self.object.disco_duro.id
+            disco = inv_m.HDD.objects.get(id=self.object.disco_duro.id)
+            context["triage"]=self.object.disco_duro
+            disco.asignado=True
+            disco.save()         
+        except:          
+            context["disco_duro"]="---------" 
+            context["triage"]="-----------" 
+        return context
+
     def get_success_url(self):
         if self.object.entrada_detalle.id != 1:
             return reverse_lazy('detalles_dispositivos', kwargs={'pk': self.object.entrada, 'detalle': self.object.entrada_detalle.id})
         else:
-            return reverse_lazy('cpu_detail', kwargs={'triage': self.object.triage})
+            return reverse_lazy('cpu_detail', kwargs={'triage': self.object.triage})   
 
 
 class LaptopDetailView(LoginRequiredMixin, DispositivoDetailView):

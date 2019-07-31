@@ -71,25 +71,23 @@ post_save.connect(calcular_precio_descontado, sender=inventario_m.DescuentoEntra
 def calcular_salida(sender, instance, **kwargs):
     """Se encarga de calcular número de salida para los :class:`Salida`.
     El número sigue un correlativo de acuerdo del tipo de salida y si es una entra o no.
-    """
-    if not instance.pk:
+    """    
+    if not instance.pk:    
         indice = 0
         tipo_salida = instance.tipo_salida
-        if instance.tipo_salida.equipamiento or (instance.tipo_salida.especial and instance.entrega):
+        if instance.tipo_salida.equipamiento:
             tipo_salida = inventario_m.SalidaTipo.objects.get(equipamiento=True)
             entregas = inventario_m.SalidaInventario.objects.filter(entrega=True, tipo_salida__renovacion=False)
-        elif instance.tipo_salida.especial and not instance.entrega:
+        elif instance.tipo_salida.especial:
             entregas = inventario_m.SalidaInventario.objects.filter(tipo_salida=instance.tipo_salida, entrega=False).exclude(no_salida__contains='GN')
         else:
             entregas = inventario_m.SalidaInventario.objects.filter(tipo_salida=instance.tipo_salida)
 
         if len(entregas) != 0:
-            ultimo = entregas.only('id').latest('id')
-            print(ultimo)
-            indice = int(ultimo.no_salida.split('-')[1])
-            print(indice)
+            ultimo = entregas.only('id').latest('id')            
+            indice = int(ultimo.no_salida.split('-')[1])            
         instance.no_salida = '{}-{}'.format(tipo_salida.slug, indice + 1)
-        print(instance.no_salida)
+       
 
 pre_save.connect(calcular_salida, sender=inventario_m.SalidaInventario)
 

@@ -114,14 +114,14 @@
 				<tbody>
 					{% for cpu in CPUs  %}
 						<tr>
-						<td style="border:solid; border-width: 1px;border-color:gray" height="36">{{cpu}}</td>
-						<td style="border:solid; border-width: 1px;border-color:gray" >{{cpu.marca}}</td>
-						<td style="border:solid; border-width: 1px;border-color:gray" >{{cpu.modelo}}</td>
-						<td style="border:solid; border-width: 1px;border-color:gray" >{{cpu.disco_duro}}</td>
-						<td style="border:solid; border-width: 1px;border-color:gray" >{{cpu.disco_duro.capacidad}} {{cpu.disco_duro.medida}}</td>
-						<td style="border:solid; border-width: 1px;border-color:gray" >{{cpu.procesador}}</td>
-						<td style="border:solid; border-width: 1px;border-color:gray" >{{cpu.ram}} {{cpu.ram_medida}}</td>
-						<td style="border:solid; border-width: 1px;border-color:gray" >{{cpu.version_sistema}}</td>
+						<td style="border:solid; border-width: 1px;border-color:gray" height="36">{{cpu | default_if_none:"Generico"}}</td>
+						<td style="border:solid; border-width: 1px;border-color:gray" >{{cpu.marca | default_if_none:"Generico"}}</td>
+						<td style="border:solid; border-width: 1px;border-color:gray" >{{cpu.modelo | default_if_none:"Generico"}}</td>
+						<td style="border:solid; border-width: 1px;border-color:gray" >{{cpu.disco_duro | default_if_none:"Generico"}}</td>
+						<td style="border:solid; border-width: 1px;border-color:gray" >{{cpu.disco_duro.capacidad | default_if_none:"Generico"}} {{cpu.disco_duro.medida | default_if_none:"" }}</td>																						
+						<td style="border:solid; border-width: 1px;border-color:gray" >{{cpu.procesador | default_if_none:"Generico"}}</td>
+						<td style="border:solid; border-width: 1px;border-color:gray" >{{cpu.ram| default_if_none:"Generico"}} {{cpu.ram_medida | default_if_none:""}}</td>
+						<td style="border:solid; border-width: 1px;border-color:gray" >{{cpu.version_sistema | default_if_none:"Generico"}}</td>
 						<td  width="25	"></td>
 						</tr>
 						{% endfor %}
@@ -143,11 +143,11 @@
 					<center>
 						{% for monitor in Monitores  %}
 							<tr>
-		<td style="border:solid; border-width: 1px;border-color:gray" height="36">{{monitor}}</td>
-		<td style="border:solid; border-width: 1px;border-color:gray" >{{monitor.tipo}}</td>
-		<td style="border:solid; border-width: 1px;border-color:gray" >{{monitor.marca}}</td>
-		<td style="border:solid; border-width: 1px;border-color:gray" >{{monitor.modelo}}</td>
-		<td style="border:solid; border-width: 1px;border-color:gray" >{{monitor.pulgadas}}</td>
+		<td style="border:solid; border-width: 1px;border-color:gray" height="36">{{monitor | default_if_none:"Generico"}}</td>
+		<td style="border:solid; border-width: 1px;border-color:gray" >{{monitor.tipo | default_if_none:"Generico"}}</td>
+		<td style="border:solid; border-width: 1px;border-color:gray" >{{monitor.marca | default_if_none:"Generico"}}</td>
+		<td style="border:solid; border-width: 1px;border-color:gray" >{{monitor.modelo | default_if_none:"Generico"}}</td>
+		<td style="border:solid; border-width: 1px;border-color:gray" >{{monitor.pulgadas | default_if_none:"Generico"}}</td>
 		<td  width="25	"></td>
 	</tr>
 	{% endfor %}
@@ -168,9 +168,9 @@
 			<tbody>
 				{% for teclado  in Teclados  %}
 				<tr>
-					<td style="border:solid; border-width: 1px;border-color:gray"  height="36">{{teclado}}</td>
-					<td style="border:solid; border-width: 1px;border-color:gray" >{{teclado.marca}}</td>
-					<td style="border:solid; border-width: 1px;border-color:gray" >{{teclado.modelo}}</td>
+					<td style="border:solid; border-width: 1px;border-color:gray"  height="36">{{teclado | default_if_none:"Generico"}}</td>
+					<td style="border:solid; border-width: 1px;border-color:gray" >{{teclado.marca | default_if_none:"Generico"}}</td>
+					<td style="border:solid; border-width: 1px;border-color:gray" >{{teclado.modelo | default_if_none:"Generico"}}</td>
 				</tr>
 {% endfor %}
 			</tbody>
@@ -188,9 +188,9 @@
 		<tbody>
 			{% for mouse in Mouses  %}
 			<tr>
-				<td style="border:solid; border-width: 1px;border-color:gray" height="36">{{mouse}}</td>
-				<td style="border:solid; border-width: 1px;border-color:gray">{{mouse.marca}}</td>
-				<td style="border:solid; border-width: 1px;border-color:gray">{{mouse.modelo}}</td>
+				<td style="border:solid; border-width: 1px;border-color:gray" height="36">{{mouse | default_if_none:"Generico"}}</td>
+				<td style="border:solid; border-width: 1px;border-color:gray">{{mouse.marca | default_if_none:"Generico"}}</td>
+				<td style="border:solid; border-width: 1px;border-color:gray">{{mouse.modelo | default_if_none:"Generico"}}</td>
 			</tr>
 
 {% endfor %}

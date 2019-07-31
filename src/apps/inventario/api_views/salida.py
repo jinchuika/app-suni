@@ -20,11 +20,34 @@ from django.db.models import Count, Sum
 from decimal import Decimal
 
 
+class SalidaInventarioFilter(filters.FilterSet):
+    """ Filtros para generar informe de  Salida
+    """
+    id = django_filters.NumberFilter(name="id")
+    tipo_salida= django_filters.CharFilter(name='tipo_salida')   
+    estado = django_filters.CharFilter(name='estado')
+    fecha_min = django_filters.DateFilter(name='fecha_min', method='filter_fecha')
+    fecha_max = django_filters.DateFilter(name='fecha_max', method='filter_fecha')
+
+    class Meta:
+        model = inv_m.SalidaInventario
+        fields = ['id', 'tipo_salida', 'estado', 'fecha_min', 'fecha_max']
+    
+    def filter_fecha(self, queryset, name, value):
+        if value and name == 'fecha_min':
+            queryset = queryset.filter(fecha__gte=value)
+        if value and name == 'fecha_max':
+            queryset = queryset.filter(fecha__lte=value)
+        return queryset
+
+
 class SalidaInventarioViewSet(viewsets.ModelViewSet):
     """ ViewSet para generar informe de la :class: `SalidaInventario`.
     """
     serializer_class = inv_s.SalidaInventarioSerializer
     queryset = inv_m.SalidaInventario.objects.all().order_by('fecha')
+    #filter_fields = ('id','tipo_salida','estado')
+    filter_class = SalidaInventarioFilter
 
     @action(methods=['post'], detail=True)
     def stock_kardex(self, request, pk=None):

@@ -70,7 +70,7 @@ class CPUForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
-        super(CPUForm, self).__init__(*args, **kwargs)
+        super(CPUForm, self).__init__(*args, **kwargs)        
         self.fields['disco_duro'].queryset = inv_m.HDD.objects.filter(valido=True)
 
 
@@ -284,7 +284,8 @@ class HDDForm(forms.ModelForm):
             'estado',
             'etapa',
             'valido',
-            'codigo_qr'
+            'codigo_qr',
+            'asignado'
             ]
         widgets = {
             'marca': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '1'}),
@@ -354,6 +355,13 @@ class DispositivoInformeForm(forms.Form):
         label='Tarima',
         required=False,
         widget=forms.Select(attrs={'class': 'form-control select2'}))
+    etapa= forms.ModelChoiceField(
+        queryset=inv_m.DispositivoEtapa.objects.all(),
+        label='Etapa',
+        required=False,
+        widget=forms.Select(attrs={'class': 'form-control select2'})
+
+    )
 
 
 class AsignacionTecnicoForm(forms.ModelForm):
@@ -404,6 +412,48 @@ class SolicitudMovimientoCreateForm(forms.ModelForm):
             'observaciones': forms.Textarea({'class': 'form-control', 'tabindex': '3'}),
         }
 
+
+class SolicitudMovimientoInformeForm(forms.Form):
+    """Este Formulario se encarga de enviar los filtros para  su respectivo informe de Entradas
+    """
+    ESTADO_CHOICES = (
+        (None,"--------"),
+        (False,"Solicitud"),
+        (True,"Devolucion"),
+    )
+    ETAPA_CHOICES = (
+        (None,"--------"),
+        (True,"Pendiente"),
+        (False,"Terminada"),
+    )
+
+    devolucion = forms.ChoiceField(
+        label='Estado',
+        required=False,
+        widget=forms.Select(attrs={'class': 'form-control'}),
+        choices=ESTADO_CHOICES)
+
+    terminada = forms.ChoiceField(
+        label='Etapa',
+        required=False,
+        widget=forms.Select(attrs={'class': 'form-control'}),
+        choices=ETAPA_CHOICES)
+
+    tipo_dispositivo = forms.ModelChoiceField(
+        queryset=inv_m.DispositivoTipo.objects.filter(usa_triage=True),
+        label='Tipo',
+        required=False,
+        widget=forms.Select(attrs={'class': 'form-control'}))
+
+    fecha_min = forms.CharField(
+        label='Fecha (min)',
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-control datepicker'}))
+    fecha_max = forms.CharField(
+        label='Fecha (max)',
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-control datepicker'}))
+    
 
 class DevolucionCreateForm(forms.ModelForm):
     """Formulario para el control de las Solicitud de Movimiento de la empresa.
@@ -489,3 +539,44 @@ class DispositivosTarimaFormNew(forms.Form):
         label='Tipo',
         widget=forms.Select(attrs={'class': 'form-control'}),
         required=True)
+
+
+class CPUFormUpdate(forms.ModelForm):
+    """Formulario para la actuliazacion de :class:`CPU`.
+    Se utiliza desde la vistas de CPU."""
+    class Meta:
+        model = inv_m.CPU
+        fields = '__all__'
+        exclude = [
+            'indice',
+            'entrada',
+            'tipo',
+            'entrada_detalle',
+            'impreso',
+            'estado',
+            'etapa',
+            'valido',
+            'codigo_qr'
+            ]
+        widgets = {
+            'marca': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '1'}),
+            'modelo': forms.TextInput(attrs={'class': 'form-control', 'tabindex': '2'}),
+            'serie': forms.TextInput({'class': 'form-control', 'tabindex': '3'}),
+            'tarima': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '4'}),
+            'puerto': forms.Select(attrs={'class': 'form-control select2'}),
+            'cantidad_puertos': forms.TextInput({'class': 'form-control'}),
+            'ram': forms.NumberInput({'class': 'form-control', 'tabindex': '9'}),
+            'ram_medida': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '10'}),
+            'disco_duro': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '8'}),
+            'version_sistema': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '7'}),
+            'procesador': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '6'}),
+            'descripcion': forms.Textarea(attrs={'cols': 30, 'rows': 3, 'class': 'form-control', 'tabindex': '5'}),
+            'servidor': forms.CheckboxInput({'class': 'icheckbox_square-red', 'tabindex': '11'}),
+            'all_in_one': forms.CheckboxInput({'class': 'icheckbox_square-red', 'tabindex': '12'}),
+            'clase': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '13'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super(CPUFormUpdate, self).__init__(*args, **kwargs)
+        instance = getattr(self, 'instance',None) 
+        self.fields['disco_duro'].queryset = inv_m.HDD.objects.filter(valido=True,asignado=False)
