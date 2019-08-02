@@ -65,7 +65,7 @@
 							<tr>
 								<th>Fotos</th>
 								<td>
-									{{desechosalida.url|default_if_none:""}}
+									<a href="{{desechosalida.url}}">{{desechosalida.url|default_if_none:""}}</a>
 								</td>
 							</tr>
 						</table>
@@ -94,7 +94,7 @@
 									{{desecho.entrada_detalle.entrada}}
 								</td>
 								<td>
-									{{desecho.tipo_dispositivo}}
+									{{desecho.entrada_detalle.descripcion}}								
 								</td>
 								<td>
 									{{desecho.cantidad}}

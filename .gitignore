@@ -110,3 +110,6 @@ src/templates/inventario/entrada/plantilla.html
 
 #js
 src/static/js/tui-grid.js
+
+#vs
+.vscode/

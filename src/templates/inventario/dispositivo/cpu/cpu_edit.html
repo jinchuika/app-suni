@@ -13,13 +13,13 @@
           <div class="box-header">
             <div class="row">
               <div class="col-md-9">
-                <h3 class="box-title">Cpu</h3>
+                <h3 class="box-title">Edita Cpu</h3>
               </div>
               <div class="col-md-3">
               </div>
             </div>
           </div>
-          <div class="box-body">
+          <div id="disco"class="box-body" data-id={{disco_duro}} data-triage={{triage}}>
             <table class="table table-condensed">
               <form action="{% url 'cpu_edit' triage=form.instance.triage%}" method="post">
                 {%csrf_token%}
@@ -41,3 +41,14 @@
 </section>
 {%endif%}
 {% endblock content %}
+{% block extra_js %}
+<script>
+  var disco = $("#disco").data("id");  
+  var triage = $("#disco").data("triage");
+  var newOption = new Option(triage,disco,false,false);
+  $("#id_disco_duro").append(newOption).trigger("change");
+  $("#id_disco_duro").select2();
+  $("#id_disco_duro").val(disco).trigger("change");
+</script>
+
+{% endblock extra_js %}

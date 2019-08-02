@@ -80,6 +80,21 @@ class DispositivoViewSet(viewsets.ModelViewSet):
                 tipo__in=tipo_dis,
                 etapa=inv_m.DispositivoEtapa.TR)
 
+
+    @action(methods=['post'], detail=False)
+    def cambiar_cantidad(self,request, pk=None):
+        """ Metodo  que cambia la cantidad de un paquete
+        """       
+        paquete= request.data['idpaquete']
+        cantidad = request.data['cantidad']
+        new_cantidad= inv_m.Paquete.objects.get(id=paquete)        
+        new_cantidad.cantidad = cantidad
+        new_cantidad.save()
+        return Response(
+            {'mensaje': 'Cambio Aceptado'},
+            status=status.HTTP_200_OK
+        )
+
     @action(methods=['get'], detail=False)
     def paquete(self, request, pk=None):
         """Encargada de filtrar los dispositivos que puedan ser elegidos para asignarse a `Paquete`"""
@@ -621,14 +636,16 @@ class DispositivosPaquetesViewSet(viewsets.ModelViewSet):
             nuevo_paquete = inv_m.Paquete.objects.get(id=paquete)
             nuevo_paquete.aprobado_kardex = False
             nuevo_paquete.save()
-        else:
+        else:           
             triage = request.data["triage"]
             cambio_estado = inv_m.Dispositivo.objects.get(triage=triage)
             cambio_estado.estado = inv_m.DispositivoEstado.objects.get(id=inv_m.DispositivoEstado.PD)
             cambio_estado.save()
-            desasignar_paquete = inv_m.DispositivoPaquete.objects.get(dispositivo__triage=triage)
-            desasignar_paquete.aprobado = False
-            desasignar_paquete.save()
+            desasignar_paquete = inv_m.DispositivoPaquete.objects.get(dispositivo__triage=triage)            
+            desasignar_paquete.aprobado = False  
+            desasignar_paquete.save()       
+            desasignar_paquete.paquete.aprobado = False
+            desasignar_paquete.paquete.save()            
         return Response({
             'mensaje': 'El dispositivo a sido Rechazado'
         },
@@ -1034,3 +1051,27 @@ class DispositivosPaquetesViewSet(viewsets.ModelViewSet):
             'mensaje': 'Actualizados'
         },
             status=status.HTTP_200_OK)
+
+class SolicitudMovimientoFilter(filters.FilterSet):
+    """ Filtros para generar informe de  Salida
+    """    
+    fecha_min = django_filters.DateFilter(name='fecha_min', method='filter_fecha')
+    fecha_max = django_filters.DateFilter(name='fecha_max', method='filter_fecha')
+
+    class Meta:
+        model = inv_m.SolicitudMovimiento
+        fields = ['id','tipo_dispositivo','devolucion','terminada','fecha_min', 'fecha_max']
+    
+    def filter_fecha(self, queryset, name, value):
+        if value and name == 'fecha_min':
+            queryset = queryset.filter(fecha_creacion__gte=value)
+        if value and name == 'fecha_max':
+            queryset = queryset.filter(fecha_creacion__lte=value)
+        return queryset
+
+class SolicitudMovimientoViewSet(viewsets.ModelViewSet):
+    """ ViewSet para generar los informe de la :class:`SolicitudMovimiento`
+    """
+    serializer_class = inv_s.SolicitudMovimientoSerializer
+    queryset = inv_m.SolicitudMovimiento.objects.all()
+    filter_class = SolicitudMovimientoFilter

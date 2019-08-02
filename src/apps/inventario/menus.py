@@ -72,20 +72,13 @@ dispositivos_children = (
         reverse_lazy('dispositivo_list'),
         weight=12,
         icon=" fa-mobile-phone",
-    ),
-    ViewMenuItem(
-        "Dispositivos por tarima  ",
-        reverse_lazy('dispositivo_tarima'),
-        group="inv_bodega",
-        weight=12,
-        icon="fa-desktop",
-    ),
+    ),    
     ViewMenuItem(
         "Asignacion Repuestos",
         reverse_lazy('repuesto_list'),
         weight=12,
         icon="fa-archive",
-    ),
+    ),   
 )
 # Salidas
 salidas_children = (

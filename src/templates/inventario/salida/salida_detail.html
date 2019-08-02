@@ -33,7 +33,7 @@
               </tr>
 							{% if salidainventario.tipo_salida|stringformat:"s" == "Garantia" %}
 							<tr>
-							 <th>Garantia</th>
+							 <th>Ticket</th>
 							 <td>
 								 <a href="{% url 'garantia_detail' pk=salidainventario.garantia.garantia%}">
 									 {{salidainventario.garantia}}

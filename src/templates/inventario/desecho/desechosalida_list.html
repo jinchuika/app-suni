@@ -1,7 +1,7 @@
 {% extends "base/base.html" %}
 {%load widget_tweaks staticfiles %}
 {% block page_title %}
-<title>LISTADO SOLICITUD MOVIMIENTO</title>
+<title>LISTADO DESECHO</title>
 {% endblock page_title %}
 {% block content %}
 <section class="content">
@@ -12,7 +12,7 @@
           <div class="box">
             <!---->           
             <div>
-            <form action="{% url 'inventario_api:api_solicitudmovimiento-list'%}" id="movimiento-list-form">
+            <form action="{% url 'inventario_api:api_desecholist-list'%}" id="desecho-list-form">
               <div class="box-header">
                 <input type="submit" class="btn btn-primary col-md-12" value="Generar Informe" /><br /><br />
                 <h3 class="box-title">Filtros</h3>
@@ -35,22 +35,18 @@
         <div class="box">
           <div class="box-header">
             <div class="box-title">
-                <h3><b>Listado de Solictudes de Movimiento</b></h3>
+                <h3><b>Listado de Desecho</b></h3>
             </div>
             <div class="box-body">
-              <table  id="movimiento-list-table" class="table" data-url="{%url 'inventario_api:api_solicitudmovimiento-list' %} ">
+              <table  id="desecho-list-table" class="table" data-url="{%url 'inventario_api:api_desecholist-list' %} ">
                 <thead>
                   <th>No. Desecho </th> 
                   <th>Fecha</th>                
-                  <th>Dispositivo</th>
-                  <th>Cantidad</th>
-                  <th>Solicitada por</th>
-                  <th>Autorizada por</th>
-                  <th>Tipo</th>
-                  <th>Desecho</th>
+                  <th>Empresa</th>
                   <th>Estado</th>
+                  <th>Accion</th>
                 </thead>
-                <tbody id="movimiento-list-table-body">
+                <tbody id="desecho-list-table-body">
                 </tbody>
               </table>
             </div>
@@ -66,7 +62,7 @@
     <script src="{% static "js/extrajs/inventario.js" %}"></script>
     <script> 
     $(document).ready(function(){
-          let Estados = new MovimientoList();
+          let Estados = new DesechoList();
       });
     </script>
 {% endblock extra_js %}

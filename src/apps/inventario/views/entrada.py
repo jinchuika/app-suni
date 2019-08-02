@@ -113,8 +113,7 @@ class CartaAgradecimiento(LoginRequiredMixin, GroupRequiredMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super(CartaAgradecimiento, self).get_context_data(**kwargs)
-        context['dispositivotipo_list'] = inv_m.EntradaDetalle.objects.filter(entrada=self.object.id).values('descripcion').annotate(total = Sum('total'))
-        print(context['dispositivotipo_list'])
+        context['dispositivotipo_list'] = inv_m.EntradaDetalle.objects.filter(entrada=self.object.id).values('descripcion').annotate(total = Sum('total'))      
         return context
 
 
