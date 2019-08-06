@@ -164,6 +164,11 @@ class SolicitudMovimientoUpdateView(LoginRequiredMixin, UpdateView):
     def get_form(self, form_class=None):
         form = super(SolicitudMovimientoUpdateView, self).get_form(form_class)
         estado = inv_m.DispositivoEstado.objects.get(id=inv_m.DispositivoEstado.PD)
+        dispositivos_salida = inv_m.CambioEtapa.objects.filter(
+            solicitud__no_salida = self.object.no_salida,
+            solicitud__devolucion=False
+        ).values('dispositivo')
+
         form.fields['dispositivos'].widget = forms.SelectMultiple(attrs={
             'data-api-url': reverse_lazy('inventario_api:api_dispositivo-list'),
             'data-etapa-inicial': self.object.etapa_inicial.id,
@@ -171,9 +176,11 @@ class SolicitudMovimientoUpdateView(LoginRequiredMixin, UpdateView):
             'data-tipo-dispositivo': self.object.tipo_dispositivo.id,
             'data-slug': self.object.tipo_dispositivo.slug,
         })
+
         form.fields['dispositivos'].queryset = inv_m.Dispositivo.objects.filter(
             etapa=self.object.etapa_inicial,
-            tipo=self.object.tipo_dispositivo
+            tipo=self.object.tipo_dispositivo,
+            id__in=dispositivos_salida
         )
         return form
 
@@ -204,7 +211,7 @@ class SolicitudMovimientoListView(LoginRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super(SolicitudMovimientoListView, self).get_context_data(**kwargs)
         tipo_dis = self.request.user.tipos_dispositivos.tipos.all()
-        solicitudes_list = inv_m.SolicitudMovimiento.objects.filter(tipo_dispositivo__in=tipo_dis).order_by('terminada','recibida','-fecha_creacion')
+        solicitudes_list = inv_m.SolicitudMovimiento.objects.filter(tipo_dispositivo__in=tipo_dis)
 
         context['solicitudmovimiento_list'] = solicitudes_list
         return context

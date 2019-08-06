@@ -19,6 +19,7 @@
                                 <tr>
                                     <th>No.</th>
                                     <th>Fecha</th>
+                                    <th>Salida</th>
                                     <th>Dispositivo</th>
                                     <th>Cantidad</th>
                                     <th>Solicitada por</th>
@@ -33,6 +34,7 @@
                                     <tr>
                                         <td><a href="{{ solicitud.get_absolute_url }}">{{ solicitud }}</a></td>
                                         <td>{{ solicitud.fecha_creacion|date:"Y-m-d" }}</td>
+                                        <td><a href="{{ solicitud.no_salida.get_absolute_url }}" target="_blank">{{ solicitud.no_salida|default_if_none:"" }}</a></td>
                                         <td>{{ solicitud.tipo_dispositivo }}</td>
                                         <td>{{ solicitud.cantidad}}</td>
                                         <td>{{ solicitud.creada_por.get_full_name }}</td>
@@ -80,7 +82,7 @@
         var tabla = $('.table').DataTable({
           dom: 'Blfrtip',
           buttons: ['excel', 'pdf', 'copy'],
-          ordering: false,
+          ordering: true,
           pageLength: 50,
         });
     });    

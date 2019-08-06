@@ -99,7 +99,6 @@ class Entrada(models.Model):
             return reverse_lazy('entrada_detail', kwargs={'pk': self.id})
 
     def save(self, *args, **kwargs):
-        print(self.en_creacion)
         super(Entrada, self).save(*args, **kwargs)
 
 
@@ -1488,6 +1487,7 @@ class SolicitudMovimiento(models.Model):
         null=True,
         related_name='entrada_kardex')
     observaciones = models.TextField(null=True, blank=True)
+    no_salida = models.ForeignKey(SalidaInventario, on_delete=models.PROTECT, related_name='salida_inventario', null=True)
 
     class Meta:
         verbose_name = 'Solicitud de movimiento'

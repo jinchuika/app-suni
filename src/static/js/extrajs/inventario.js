@@ -1610,6 +1610,7 @@ class Salidas {
     var url_cuadrar = $("#salidas-paquete-table").data("cuadrar");
     var url_finalizar = $("#salidas-paquete-table").data("urlfin");
     var url_detail = $("#salidas-paquete-table").data("urldetail");
+    var url_paquetes = $("#salidas-paquete-table").data("urlpaquetes");
     var fecha = new Date();
     var dia = fecha.getDate();
     var mes = fecha.getMonth()+1;
@@ -1961,11 +1962,23 @@ class Salidas {
           url: url_kardex,
           data:{
             csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
-            tipo_dispositivo:tipo_paquete
+            tipo_dispositivo:tipo_paquete,
+            salida:salida_pk,
           },
           success: function (response){
-            if(response['mensaje']=="Usa Triage"){
-              $('#id_cantidad').val("");
+            $('#id_cantidad').val(parseInt(response['mensaje']));
+            $("#label_kardex").css({"visibility":"visible"});
+            $('#existencia_kardex').html("<b>"+response['mensaje']);
+            disponible = parseInt(response['mensaje']);
+            
+            if(disponible <= 0){
+              $('#paquetes_add').css({"visibility":"hidden"});
+            } else {
+              $('#paquetes_add').css({"visibility":"visible"});
+            }
+
+            /*if(response['mensaje']=="Usa Triage"){
+                $('#id_cantidad').val("");
                 dispositivo_triage =1;
                 $("#label_kardex").css({"visibility":"hidden"});
                 $('#existencia_kardex').html(" ");
@@ -1974,9 +1987,11 @@ class Salidas {
               $("#label_kardex").css({"visibility":"visible"});
                $('#existencia_kardex').html("<b>"+response['mensaje']);
                disponible = parseInt(response['mensaje']);
-            }
+            }*/
           },
           error:function(error){
+            var jsonResponse = JSON.parse(error.responseText);
+            bootbox.alert(jsonResponse["mensaje"]);
           },
         });
       });
@@ -1989,7 +2004,7 @@ class Salidas {
          dispositivo_triage=0;
       }else{
         var cantidad  = $('#id_cantidad').val();
-        if(cantidad > disponible){
+        if(cantidad > disponible || disponible <= 0){
           $('#paquetes_add').css({"visibility":"hidden"});
           $('#id_cantidad').val("");
           bootbox.alert("No has dipositivos suficientes para asignar");
@@ -1998,6 +2013,67 @@ class Salidas {
         }
       }
 
+    });
+    /**/
+    /* MOSTRAR PAQUETES VÁLIDOS */
+    $('#id_tipo_paquete').select2("destroy");
+    var data_result = []
+    $.ajax({
+      type: "POST",
+      url: url_paquetes,
+      data:{
+        csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
+        salida:salida_pk,
+      },
+      error:function(error){
+        console.log("Error");
+      },
+      success: function (data){
+        $('#id_tipo_paquete').empty();
+        data_result.push('<optgroup class="def-cursor" label="Tipo" data-cantidad="Existencia">')
+        data_result.push('<option value="" data-cantidad="">-------</option>');
+        for (var i in data){
+          var cantidad = data[i].existencia
+          data_result.push('<option value='+data[i].id + ' data-cantidad="'+cantidad+'">'+data[i].nombre+'</option>');
+        }
+        data_result.push('</optgroup>')
+        $('#id_tipo_paquete').append(data_result);
+      },
+    });
+    $('#id_tipo_paquete').select2({
+      width: '100%',
+      tags: true,
+      createTag: function (params) {
+        return {
+          id: params.term,
+          text: params.term + $('#id_entrada_detalle').data(),
+          newOption: true
+        }
+      },
+      templateResult: function(data) {
+        var cantidad = $(data.element).data('cantidad');
+        var classAttr = $(data.element).attr('class');
+        var hasClass = typeof classAttr != 'undefined';
+        classAttr = hasClass ? ' ' + classAttr : '';
+        var $result = $(
+          '<div class="row">' +
+          '<div class="col-md-7 col-xs-6' + classAttr + '">' + data.text + '</div>' +
+          '<div class="col-md-2 col-xs-6' + classAttr + '">' + cantidad + '</div>' +
+          '</div>');
+        return $result;
+      },
+      templateSelection: function (data) {
+        if(!data.id) { return data.text }
+        var cantidad = $(data.element).data('cantidad');
+        var result = data.text
+        return result
+      }
+    }).on('select2:select', function (e) {
+      if (e.params.data.text != '') {
+        var id = $(this).attr('id');
+        var select2 = $("span[aria-labelledby=select2-" + id + "-container]");
+        select2.removeAttr('style');
+      }
     });
     /**/
     $('#id_tipo_salida').change(function(){

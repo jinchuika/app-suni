@@ -245,7 +245,6 @@ class PaquetesFilter(filters.FilterSet):
         qs = qs.filter(salida=value, tipo_paquete__in=tip_paquete)
         return qs
 
-
 class PaquetesViewSet(viewsets.ModelViewSet):
     """ ViewSet para generar informe de  :class:`Paquete`
     """
@@ -253,7 +252,6 @@ class PaquetesViewSet(viewsets.ModelViewSet):
     serializer_class = inv_s.PaqueteSerializer
     queryset = inv_m.Paquete.objects.all()
     filter_class = PaquetesFilter
-
 
 class DispositivosPaqueteFilter(filters.FilterSet):
     """ Filtros par el ViewSet de Paquete

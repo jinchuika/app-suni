@@ -370,6 +370,11 @@ class AsignacionTecnicoForm(forms.ModelForm):
 class SolicitudMovimientoCreateForm(forms.ModelForm):
     """Formulario para el control de las Solicitud de Movimiento de la empresa.
     """
+    no_salida = forms.ModelChoiceField(
+        queryset=inv_m.SalidaInventario.objects.filter(en_creacion=True, estado__nombre="Pendiente"),
+        widget=forms.Select(attrs={'class': 'form-control select2'})
+    )
+
     class Meta:
         model = inv_m.SolicitudMovimiento
         exclude = [
@@ -392,12 +397,18 @@ class SolicitudMovimientoCreateForm(forms.ModelForm):
             'tipo_dispositivo': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '1'}),
             'cantidad': forms.TextInput({'class': 'form-control', 'tabindex': '2'}),
             'observaciones': forms.Textarea({'class': 'form-control', 'tabindex': '3'}),
+            'no_salida': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '4', 'required': 'true'}),
         }
 
 
 class DevolucionCreateForm(forms.ModelForm):
     """Formulario para el control de las Solicitud de Movimiento de la empresa.
     """
+    no_salida = forms.ModelChoiceField(
+        queryset=inv_m.SalidaInventario.objects.filter(en_creacion=True, estado__nombre="Pendiente"),
+        widget=forms.Select(attrs={'class': 'form-control select2'})
+    )
+
     class Meta:
         model = inv_m.SolicitudMovimiento
         exclude = [
@@ -419,6 +430,7 @@ class DevolucionCreateForm(forms.ModelForm):
             'cantidad': forms.TextInput({'class': 'form-control', 'tabindex': '2'}),
             'desecho': forms.CheckboxInput({'class': 'icheckbox_square-red', 'tabindex': '3'}),
             'observaciones': forms.Textarea({'class': 'form-control', 'tabindex': '4'}),
+            'no_salida': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '5', 'required': 'true'}),
         }
 
 
