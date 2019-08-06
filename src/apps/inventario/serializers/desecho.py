@@ -34,3 +34,18 @@ class DesechoDispositivoSerializer(serializers.ModelSerializer):
     class Meta:
         model = inv_m.DesechoDispositivo
         fields = '__all__'
+
+
+class DesechoSalidaSerializer(serializers.ModelSerializer):
+    """ Serializer para generar informe de la :class:'DesechoSalida'
+    """
+    empresa = serializers.StringRelatedField(source='empresa.nombre')
+    url_detalle = serializers.SerializerMethodField()
+    url_edit = serializers.StringRelatedField(source='get_absolute_url')
+    class Meta:
+        model = inv_m.DesechoSalida
+        fields = ['id','fecha','empresa','en_creacion','url_detalle','url_edit']
+
+    def get_url_detalle(self, obj):
+        return reverse_lazy('desechosalida_detail', kwargs={'pk':obj.id})
+

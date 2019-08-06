@@ -1,7 +1,6 @@
 {% extends "base/base.html" %}
 
-{% load staticfiles %}
-
+{% load staticfiles l10n %}
 {% block content %}
 
 <section class="content">
@@ -37,7 +36,7 @@
 				<div class="col-sm-3 invoice-col">
 					<b>Total</b>
 					<address>
-						Q. {{ entrada.precio_total }}
+						Q. {{ entrada.precio_total|unlocalize }}
 					</address>
 				</div>
 			</div>
@@ -59,8 +58,8 @@
 							<tr>
 								<td>{{ detalle.cantidad }}</td>
 								<td>{{ detalle.equipo }}</td>
-								<td>Q. {{ detalle.precio }}</td>
-								<td>Q. {{ detalle.precio_total }}</td>
+								<td>Q. {{ detalle.precio|unlocalize }}</td>
+								<td>Q. {{ detalle.precio_total|unlocalize }}</td>
 							</tr>
 							{% endfor %}
 						</tbody>

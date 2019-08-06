@@ -281,6 +281,24 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_401_UNAUTHORIZED
             )
 
+    @action(methods=['post'], detail=False)
+    def validar_solicitud_movimientos(self, request, pk=None):
+        tipo_dispositivo = request.data['tipo_dispositivo']
+        etapa_transito = inv_m.DispositivoEtapa.objects.get(id=inv_m.DispositivoEtapa.AB)
+        estado = inv_m.DispositivoEstado.objects.get(id=inv_m.DispositivoEstado.PD)
+        validar_dispositivos = inv_m.DispositivoTipo.objects.get(tipo=tipo_dispositivo)
+        if(validar_dispositivos.kardex):
+            cantidad_kardex = kax_m.Equipo.objects.get(nombre=tipo_dispositivo)
+            numero_dispositivos = cantidad_kardex.existencia
+        else:
+            numero_dispositivos = inv_m.Dispositivo.objects.filter(
+                tipo=validar_dispositivos,
+                etapa=etapa_transito,
+                estado=estado).count()
+        return Response(
+                {'mensaje': numero_dispositivos},
+                status=status.HTTP_200_OK)
+
     @action(methods=['post'], detail=True)
     def validar_kardex(self, request, pk=None):
         tipo_dispositivo = request.data['tipo_dispositivo']
@@ -323,7 +341,8 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
                 'tarima',
                 'puerto',
                 'tipo_mouse',
-                'caja')
+                'caja',
+                'clase')
             return JsonResponse({
                 'data': list(data),
                 'marcas': list(tipos),
@@ -341,7 +360,8 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
                 'serie',
                 'tarima',
                 'puerto',
-                'caja'
+                'caja',
+                'clase'
                 )
             return JsonResponse({
                 'data': list(data),
@@ -361,7 +381,8 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
                 'tarima',
                 'tipo_monitor',
                 'puerto',
-                'pulgadas')
+                'pulgadas',
+                'clase')
             return JsonResponse({
                 'data': list(data),
                 'marcas': list(tipos),
@@ -384,8 +405,9 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
                 'ram',
                 'ram_medida',
                 'servidor',
-                'all_in_one'
-                ).order_by('triage')
+                'all_in_one',
+                'clase'
+                ).order_by('triage')            
             return JsonResponse({
                 'data': list(data),
                 'marcas': list(tipos),
@@ -413,7 +435,8 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
                 'ram',
                 'medida_ram',
                 'almacenamiento_externo',
-                'pulgadas'
+                'pulgadas',
+                'clase'
                 )
             return JsonResponse({
                 'data': list(data),
@@ -439,7 +462,8 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
                 'disco_duro__triage',
                 'ram',
                 'ram_medida',
-                'pulgadas'
+                'pulgadas',
+                'clase'
                 )
             return JsonResponse({
                 'data': list(data),
@@ -461,7 +485,8 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
                 'tarima',
                 'puerto',
                 'capacidad',
-                'medida'
+                'medida',
+                'clase'
                 )
             return JsonResponse({
                 'data': list(data),
@@ -482,7 +507,8 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
                 'puerto',
                 'cantidad_puertos',
                 'velocidad',
-                'velocidad_medida'
+                'velocidad_medida',
+                'clase'
                 )
             return JsonResponse({
                 'data': list(data),
@@ -504,7 +530,8 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
                 'puerto',
                 'cantidad_puertos',
                 'velocidad',
-                'velocidad_medida'
+                'velocidad_medida',
+                'clase'
                 )
             return JsonResponse({
                 'data': list(data),

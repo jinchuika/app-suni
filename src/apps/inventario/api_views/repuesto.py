@@ -42,8 +42,9 @@ class RepuestoInventarioViewSet(viewsets.ModelViewSet):
         try:
             triage = request.data['triage']
             repuesto_id = request.data['repuesto']
+            comentario= request.data['comentario']
             repuesto = inv_m.Repuesto.objects.get(id=repuesto_id)
-            dispositivo = inv_m.Dispositivo.objects.get(triage=triage)
+            dispositivo = inv_m.Dispositivo.objects.get(triage=triage)             
             salida = repuesto.entrada
             precio_dispositivo = conta_m.MovimientoRepuesto.objects.get(repuesto=repuesto_id)
             repuesto_dispositivos = inv_m.DispositivoRepuesto(
@@ -52,9 +53,43 @@ class RepuestoInventarioViewSet(viewsets.ModelViewSet):
                 asignado_por=request.user
             )
             repuesto_estado = inv_m.Repuesto.objects.get(id=repuesto_id)
-            repuesto_estado.estado = inv_m.RepuestoEstado.objects.get(id=2)
+            repuesto_estado.estado = inv_m.RepuestoEstado.objects.get(id=4)
             repuesto_estado.save()
             repuesto_dispositivos.save()
+            comentario_asignacion = inv_m.RepuestoComentario(
+                repuesto=repuesto,
+                dispositivo=dispositivo,
+                comentario=comentario,
+                creado_por=request.user
+            )
+            comentario_asignacion.save() 
+        except ObjectDoesNotExist as e:            
+            return Response(
+            {
+                'mensaje': "El dispositivo no existe ingrese otro",
+                'codigo':1
+            },
+            status=status.HTTP_200_OK)
+
+        return Response(
+            {
+                'mensaje': "Repuesto asignado al dispositivo "
+            },
+            status=status.HTTP_200_OK)
+
+    @action(methods=['post'], detail=False)
+    def terminar_repuesto(self, request, pk=None):
+        """ Metodo para terminar la asignacion de los repuestos
+        """
+        periodo_actual = conta_m.PeriodoFiscal.objects.get(actual=True)
+        try:           
+            repuesto_id = request.data['repuesto']
+            repuesto = inv_m.Repuesto.objects.get(id=repuesto_id)                      
+            salida = repuesto.entrada
+            precio_dispositivo = conta_m.MovimientoRepuesto.objects.get(repuesto=repuesto_id)            
+            repuesto_estado = inv_m.Repuesto.objects.get(id=repuesto_id)
+            repuesto_estado.estado = inv_m.RepuestoEstado.objects.get(id=2)
+            repuesto_estado.save()           
             movimiento = conta_m.MovimientoRepuesto(
                 repuesto=repuesto,
                 periodo_fiscal=periodo_actual,
@@ -68,6 +103,6 @@ class RepuestoInventarioViewSet(viewsets.ModelViewSet):
 
         return Response(
             {
-                'mensaje': "Repuesto asignado al dispositivo "
+                'mensaje': "Repuesto usado  "
             },
             status=status.HTTP_200_OK)

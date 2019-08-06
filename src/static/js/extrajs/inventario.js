@@ -380,7 +380,7 @@ class EntradaUpdate {
               $('.modal').modal('hide');
               var mensaje = JSON.parse(response.responseText)
               bootbox.alert({message: "<h3><i class='fa fa-frown-o' style='font-size: 45px;'></i>&nbsp;&nbsp;&nbsp;HA OCURRIDO UN ERROR!!</h3></br>" + mensaje['mensaje'], className:"modal modal-danger fade"});
-              
+
             }
         });
     }
@@ -686,7 +686,7 @@ class EntradaDetalleDetail {
     var urlRechazarDispositivo = $('#dispositivo-table').data("apirechazar");
     var urlTipoDispositivo = $('#dispositivo-table').data("tipo");
     var urlFinalizar = $('#salida-table').data("finalizar");
-    var urlredireccion = $('#salida-table').data("redireccion");
+    var urlredireccion = $('#salida-table').data("redireccion");   
     $('#id_entrada_detalle').empty();
     var tabla = $('#salida-table').DataTable({
         searching: true,
@@ -802,25 +802,35 @@ class EntradaDetalleDetail {
                     },
                     callback: function (result) {
                         if (result == true) {
-                          $.ajax({
-                            type: "POST",
-                            url: urlRechazar,
-                            dataType: 'json',
-                            data: {
-                              csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
-                              detalle:data_fila.id
-                            },
-                            success: function (response) {
-                              tabla.clear().draw();
-                              tabla.ajax.reload();
-                            },
-                            error: function (response) {
-                              var mensaje = JSON.parse(response.responseText)
-                              bootbox.alert(mensaje['mensaje']);
+                          /**/
+                          bootbox.prompt({
+                            title: "¿Por que rechazo este detalle?",
+                            inputType: 'textarea',
+                            callback: function (result) {
+                                console.log(result);
+                                $.ajax({
+                                  type: "POST",
+                                  url: urlRechazar,
+                                  dataType: 'json',
+                                  data: {
+                                    csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
+                                    detalle:data_fila.id,
+                                    comentario:result
+                                  },
+                                  success: function (response) {
+                                    tabla.clear().draw();
+                                    tabla.ajax.reload();
+                                  },
+                                  error: function (response) {
+                                    var mensaje = JSON.parse(response.responseText)
+                                    bootbox.alert(mensaje['mensaje']);
+                                  }
+                              });
                             }
                         });
-                        }
-
+                          /**/
+                          
+                        }                        
                     }
                 });
 
@@ -867,23 +877,33 @@ class EntradaDetalleDetail {
                               }
                           },
                           callback: function (result) {
-                            $.ajax({
-                              type: "POST",
-                              url: urlRechazarDispositivo,
-                              dataType: 'json',
-                              data: {
-                                csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
-                                detalle:data_fila.id
-                              },
-                              success: function (response) {
-                                tablaDispositivo.clear().draw();
-                                tablaDispositivo.ajax.reload();
-                              },
-                              error: function (response) {
-                                var mensaje = JSON.parse(response.responseText)
-                                bootbox.alert(mensaje['mensaje']);
+                            /**/
+                            bootbox.prompt({
+                              title: "¿Por que rechazo este dipositivo?",
+                              inputType: 'textarea',
+                              callback: function (result) {                                  
+                                  $.ajax({
+                                    type: "POST",
+                                    url: urlRechazarDispositivo,
+                                    dataType: 'json',
+                                    data: {
+                                      csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
+                                      detalle:data_fila.id,
+                                      comentario:result
+                                    },
+                                    success: function (response) {
+                                      tablaDispositivo.clear().draw();
+                                      tablaDispositivo.ajax.reload();
+                                    },
+                                    error: function (response) {
+                                      var mensaje = JSON.parse(response.responseText)
+                                      bootbox.alert(mensaje['mensaje']);
+                                    }
+                                });
                               }
                           });
+                            /**/
+                         
 
 
                           }
@@ -1128,7 +1148,23 @@ class SolicitudMovimiento {
 
                       },
                       success: function (response) {
-                        location.reload();
+                        //
+                        bootbox.confirm({
+                            message: "La Existencia del Dispositivo es de:" + response['existencia'],
+                            buttons: {
+                                confirm: {
+                                    label: 'Entendido',
+                                    className: 'btn-success'
+                                },
+                            },
+                            callback: function (result) {
+                                if (result == true) {
+                                    location.reload();
+                                }
+                            }
+                        });
+                        //
+
                       },
                   });
                 }
@@ -1174,7 +1210,36 @@ class SolicitudMovimiento {
   }
 }
 
+class SolicitudMovimientoValidar {
+  constructor() {
+    var tipo_dispositivo;
+    $('#tipo_dispositivo_movimiento').change( function() {      
+      tipo_dispositivo=$('#tipo_dispositivo_movimiento option:selected').text();
+      $.ajax({
+          type: "POST",
+          async:false,
+          url: $('#solicitud').data('url'),
+          dataType: 'json',
+          data: {
+            csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
+            tipo_dispositivo: tipo_dispositivo,
+          },
+          success: function (response) {
+            var disponibles = response['mensaje'];
+            $("[for='cantidad']").text(disponibles);
+            $("#existencia-head").css({"visibility":"initial"});
+          },
+          error:function(response){
+            var jsonResponse = JSON.parse(response.responseText);
+            bootbox.alert(jsonResponse.mensaje);
+            location.reload();
+          },
+      });
 
+    });
+    $("#existencia-head").css({"visibility":"collapse"});
+  }
+}
 class SolicitudMovimientoUpdate {
     constructor() {
         var sel_dispositivos = $('#id_dispositivos');
@@ -1183,21 +1248,21 @@ class SolicitudMovimientoUpdate {
         let estado_inicial = sel_dispositivos.data('estado-inicial');
         let tipo_dipositivo = sel_dispositivos.data('tipo-dispositivo');
         let slug = sel_dispositivos.data('slug');
-        var cantidad = $("#solicitud-table").data("cantidad");
+        var cantidad = $("#solicitud-table").data("cantidad");        
+        let cantidad_disponible = $("#solicitud-table").data("dispo");
+        let cantidad_asignar = cantidad-cantidad_disponible;        
         $('#id_dispositivos').val("").trigger('change');
         var lista_triage = [];
         sel_dispositivos.select2({
-            maximumSelectionLength : cantidad,
+            maximumSelectionLength : cantidad_asignar,
             placeholder: "Ingrese los triage",
             width : '50%'
         });
         let cantidad_dispositivos = sel_dispositivos;
-        $('form').on('submit', function(e){
-           let restante  = cantidad - cantidad_dispositivos.select2('data').length;
-
-          if(cantidad_dispositivos.select2('data').length < cantidad){
-
-            bootbox.alert("Aun faltan  "+ restante  +" dispositivos por ingresar");
+        $('form').on('submit', function(e){           
+           let restante  = cantidad_dispositivos.select2('data').length - cantidad_asignar;           
+          if(cantidad_dispositivos.select2('data').length > cantidad_asignar){         
+           bootbox.alert("Ya no puede ingresar mas dispositivos , tiene de excendente:"+restante);
             e.preventDefault();
           }
         });
@@ -1336,7 +1401,7 @@ class SolicitudMovimientoUpdate {
                        firstKey = null;
                        lastKey = null;
                        sel_dispositivos.select2({
-                           maximumSelectionLength : cantidad,
+                           maximumSelectionLength : cantidad_asignar,
                            debug: true,
                            placeholder: "Ingrese los triage",
                            data:lista_triage,
@@ -1377,7 +1442,7 @@ class SolicitudMovimientoUpdate {
 
           /**/
           sel_dispositivos.select2({
-              maximumSelectionLength : cantidad,
+              maximumSelectionLength : ccantidad_asignar,
               debug: true,
               placeholder: "Ingrese los triage",
               ajax: {
@@ -1564,26 +1629,35 @@ class SalidasRevisarList {
     /** Uso de tabla **/
     let revision_tabla = $('#salidasrevisar-table');
     let api_url_revision = $('#salidarevisionid').data('url');
+    var validar = $('#revicion_add').data('validar');
+    if(validar == 1){
+      var nueva_url =api_url_revision+"?estado=1";
+    }else{
+      var nueva_url =api_url_revision+"?aprobada=false"
+    }; 
     var tablaRevision = revision_tabla.DataTable({
       processing:true,
       retrieve:true,
-      ajax:{
-        url:api_url_revision +"?estado=1",
+      ajax:{        
+        url:nueva_url,
         dataSrc:'',
         cache:false,
         deferRender:true,
         processing:true,
-        data: function () {
-          return {
-            aprobada:false
-          }
-        }
-
       },
       columns:[
         {data:"salida", render: function( data, type, full, meta){
           return '<a href="'+full.urlSalida+'">'+full.no_salida+'</a>'
         }},
+        {data:"escuela", render: function( data, type, full, meta){          
+        if(full.escuela===undefined){
+          return "";
+        }else{
+          return '<a target=_blank  href="'+full.escuela_url+'">'+full.escuela+'</a>'
+        }
+          
+        }},
+        {data:"beneficiario"},
         {data:"fecha_revision", render: function(data, type, full, meta){
          var newDate = new Date(full.fecha_revision);
          var options = {year: 'numeric', month:'long', day:'numeric', hour:'numeric',minute:'numeric'};
@@ -1598,7 +1672,14 @@ class SalidasRevisarList {
 }
 
 class Salidas {
-  constructor() {
+  constructor() {  
+    /**/
+     var tipo_garantia = $("#salidas-paquete-table").data("garantia");     
+     if(tipo_garantia =="Garantia"){
+      $("[for='id_cooperante']").css({"visibility":"hidden"});      
+      $('#id_cooperante').next(".select2-container").hide(); 
+     };
+     /**/
     let tabla_paquetes = $('#salidas-paquete-table');
     var disponible =0;
     var dispositivo_triage = 0;
@@ -1622,51 +1703,15 @@ class Salidas {
         mes='0'+mes;
     }
     var fecha = year+'-'+mes+'-'+dia;
-    $('#id_fecha').val(fecha);
-    $("[for='id_entrega']").css({"visibility":"hidden"});
+    $('#id_fecha').val(fecha); 
     $("[for='id_garantia']").css({"visibility":"hidden"});
     $("[for='id_beneficiario']").css({"visibility":"hidden"});
     $('#id_garantia').next(".select2-container").hide();
-    $('#id_beneficiario').next(".select2-container").hide();
-
-    $('#id_entrega').click(function () {
-        if ($("#id_entrega").is(':checked')) {
-          $("[for='id_udi']").css({"visibility":"visible"});
-          $("#id_udi").attr('type','visible');
-          $("#id_udi").val(" ");
-          $("#id_beneficiario").css({"visibility":"hidden"});
-          $("[for='id_beneficiario']").css({"visibility":"hidden"});
-          $('#id_beneficiario').next(".select2-container").hide();
-        } else {
-          $("#id_udi").attr('type','hidden');
-          $("[for='id_udi']").css({"visibility":"hidden"});
-          $("[for='id_beneficiario']").css({"visibility":"visible"});
-          $("#id_beneficiario").css({"visibility":"visible"});
-          $("#id_udi").val(0);
-          $('#id_beneficiario').next(".select2-container").show();
-        }
-    });
+    $('#id_beneficiario').next(".select2-container").hide();  
     $('#salidaform').on('submit', function(e){
       var udi = $("#id_udi").val();
-      var beneficiario = $("#id_beneficiario").val();
-      if ($("#id_entrega").is(':checked')) {
-        if(udi.length == 0){
-              bootbox.alert("Necesita Ingresar un UDI");
-              e.preventDefault();
-        }
-      }else{
-        if(tipoSalida == 7 || tipoSalidaText =='Garantia') {
-            $("#id_beneficiario").val(" ");
-        }else{
-          if(beneficiario.length == 0){
-            bootbox.alert("Necesita Ingresar un Beneficiario");
-              e.preventDefault();
-          }
-        }
-      }
-
+      var beneficiario = $("#id_beneficiario").val(); 
     });
-
     $('#salidas-table').DataTable({
       dom: 'Bfrtip',
       buttons: ['excel', 'pdf', 'copy'],
@@ -1701,14 +1746,62 @@ class Salidas {
           if(full.escuela===undefined){
             return " ";
           }else{
-            return full.escuela;
+            return "<a href="+full.escuela_url+">"+full.escuela+"</a>";
           }
 
         }},
         {data:"beneficiario"},
       ]
     });
+    /* */
+    $('#salida-list-form').submit(function (e) {
+          e.preventDefault();
+        $('#salidas-table').DataTable({
+          dom: 'Bfrtip',
+          destroy:true,
+          buttons: ['excel', 'pdf', 'copy'],          
+          ajax:{
+            url:$('#salida-list-form').attr('action'),
+            dataSrc:'',
+            cache:true,
+            data: function (params) {
+              return $('#salida-list-form').serializeObject(true);
+          }
 
+          },
+          columns:[
+            {data: "no_salida", render: function(data, type, full, meta){
+              if(full.estado == 'Entregado'){
+                return "<a target='_blank' rel='noopener noreferrer' href="+full.detail_url+" class='btn btn-success'>"+data+"</a>";
+              }else{
+                return "<a target='_blank' rel='noopener noreferrer' href="+full.url+" class='btn btn-success'>"+data+"</a>";
+              }
+            }},
+            {data:"id"},
+            {data:"tipo_salida"},
+            {data:"fecha"},
+            {data: "estado", render: function(data, type, full, meta){
+              if(full.estado == 'Pendiente'){
+                return "<span class='label label-danger'>En Desarrollo</span>";
+              }else if(full.estado == 'Listo'){
+                return "<span class='label label-primary'>Listo</span>";
+              } else {
+                return "<span class='label label-success'>Entregado</span>";
+              }
+            }},
+            {data:"escuela", render: function(data, type, full, meta){
+              if(full.escuela===undefined){
+                return " ";
+              }else{
+                return "<a href="+full.escuela_url+">"+full.escuela+"</a>";
+              }
+
+            }},
+            {data:"beneficiario"},
+          ]
+        });
+    });
+    /* */
     var nueva_tabla = tabla_paquetes.DataTable({
       dom: 'Bfrtip',
       buttons: ['excel', 'pdf', 'copy'],
@@ -1734,11 +1827,17 @@ class Salidas {
         }},
         {data:"cantidad"},
         {data:"aprobado", render: function(data, type, full, meta){
-          if(full.aprobado == true){
+          if(full.aprobado == true && full.aprobado_kardex==true){
+         
             return "<span class='label label-success'>Revisado</span>"
 
           }else{
-            return "<span class='label label-danger'>No Revisado</span>"
+            if(full.aprobado_kardex==true){
+              return "<span class='label label-warning'>Revisado CC</span>"
+            }else{
+              return "<span class='label label-danger'>No Revisado</span>"
+            }
+            
           }
         }},
         {data:"", render: function(data, type, full, meta){
@@ -1843,7 +1942,7 @@ class Salidas {
        });
       /****/
     });
-//select2
+ //select2
     this.asig_salidas =$('#id_entrada');
     let api_urlentrada=this.asig_salidas.data('api-url');
     let beneficiario = $('#salidas-paquete-table').data("beneficiario");
@@ -2083,14 +2182,17 @@ class Salidas {
         $("[for='id_entrega']").css({"visibility":"visible"});
         $("#id_entrega").css({"visibility":"visible"});
         /**/
-        $("[for='id_udi']").css({"visibility":"visible"});
-        $("#id_udi").attr('type','visible');
-        $("#id_udi").val(" ");
+        $("[for='id_udi']").css({"visibility":"hidden"});
+        $("#id_udi").attr('type','hidden');
+        $("#id_udi").val("");
         $("#id_beneficiario").css({"visibility":"hidden"});
-        $("[for='id_beneficiario']").css({"visibility":"hidden"});
-        $('#id_beneficiario').next(".select2-container").hide();
+        $("[for='id_beneficiario']").css({"visibility":"visible"});
+        $('#id_beneficiario').next(".select2-container").show();
         $("[for='id_garantia']").css({"visibility":"hidden"});
         $('#id_garantia').next(".select2-container").hide();
+        /**/
+        $("[for='id_cooperante']").css({"visibility":"hidden"});      
+        $('#id_cooperante').next(".select2-container").hide(); 
       }else if(tipoSalida == 4 || tipoSalidaText =='A terceros') {
         $("[for='id_entrega']").css({"visibility":"hidden"});
         $("#id_entrega").css({"visibility":"hidden"});
@@ -2104,6 +2206,11 @@ class Salidas {
         $('#id_beneficiario').next(".select2-container").show();
         $("[for='id_garantia']").css({"visibility":"hidden"});
         $('#id_garantia').next(".select2-container").hide();
+        /**/
+        $("[for='id_cooperante']").css({"visibility":"hidden"});      
+        $('#id_cooperante').next(".select2-container").hide(); 
+        /**/
+        $("#id_udi").val("");       
       }else if(tipoSalida == 7 || tipoSalidaText =='Garantia') {
         $("[for='id_entrega']").css({"visibility":"hidden"});
         $("#id_entrega").css({"visibility":"hidden"});
@@ -2117,6 +2224,11 @@ class Salidas {
         $("#id_beneficiario").css({"visibility":"hidden"});
         $("#id_udi").val(" ");
         $('#id_beneficiario').next(".select2-container").hide();
+         /**/
+         $("[for='id_cooperante']").css({"visibility":"hidden"});      
+         $('#id_cooperante').next(".select2-container").hide();
+         /* */
+         $("#id_beneficiario").val(" ");
       } else {
         $("[for='id_entrega']").css({"visibility":"hidden"});
         $("#id_entrega").css({"visibility":"hidden"});
@@ -2132,6 +2244,9 @@ class Salidas {
         /**/
         $("[for='id_garantia']").css({"visibility":"hidden"});
         $('#id_garantia').next(".select2-container").hide();
+        /**/
+        $("[for='id_cooperante']").css({"visibility":"visible"});      
+        $('#id_cooperante').next(".select2-container").show();
       }
     });
     /**Reasignar**/
@@ -2571,7 +2686,7 @@ class PaquetesRevisionList {
     });
     $("#aprobar-btn").click( function(){
       bootbox.confirm({
-       message: "Esta  seguro que desea aprobar esta salida?",
+       message: "¿Esta  seguro que desea aprobar esta revicion de salida?",
        buttons: {
            confirm: {
                label: 'Si',
@@ -2745,7 +2860,7 @@ class PaqueteDetail {
     var urlAprobar = $("#rechazar-dispositivo").data('urlaprobar');
     var urlAprobarControl = $("#rechazar-dispositivo").data('urlaprobar');
     var lista_triage = [];
-    var estado_inicial = $('#id_dispositivos').data('estado-inicial');
+    var estado_inicial = $('#id_dispositivos').data('estado-inicial');    
     tablabodyRechazar.on('click','.btn-rechazar', function () {
       let data_triage = $(this).attr("data-triage");
       let data_paquete=$(this).attr("data-paquete");
@@ -2773,7 +2888,7 @@ class PaqueteDetail {
                },
                success: function (response){
                  var id_comentario = $("#rechazar-dispositivo").data('id');
-                 var url = $("#rechazar-dispositivo").data('urlhistorico');                 
+                 var url = $("#rechazar-dispositivo").data('urlhistorico');
                  bootbox.prompt({
                    title: "Por que rechazo este dispositivo?",
                    inputType: 'textarea',
@@ -2867,6 +2982,7 @@ class PaqueteDetail {
     let cantidad = this.asig_dispositivos.data('cantidad');
     let cantidad_disponible = $('#rechazar-dispositivo').data('dispo');
     let cantidad_asignar = cantidad - cantidad_disponible;
+    
     if(cantidad_asignar == 0){
       var activar = true
     }else{
@@ -2902,10 +3018,10 @@ class PaqueteDetail {
 
     });
     let cantidad_dispositivos = this.asig_dispositivos;
-    $('form').on('submit', function(e){
-      let restante = cantidad_asignar - cantidad_dispositivos.select2('data').length;
-      if(cantidad_dispositivos.select2('data').length < cantidad_asignar){
-        bootbox.alert("Aun faltan  "+ restante  +" dispositivos por ingresar");
+    $('form').on('submit', function(e){     
+      let restante = cantidad_dispositivos.select2('data').length - cantidad_asignar ;
+     if(cantidad_dispositivos.select2('data').length > cantidad_asignar){
+        bootbox.alert("Ya no puede ingresar mas dispositivos , tiene de excendente:"+restante);
         e.preventDefault();
       }
     });
@@ -3045,7 +3161,7 @@ class PaqueteDetail {
                      firstKey = null;
                      lastKey = null;
                      $('#id_dispositivos').select2({
-                         maximumSelectionLength : cantidad,
+                         maximumSelectionLength : cantidad_asignar,
                          debug: true,
                          placeholder: "Ingrese los triage",
                          data:lista_triage,
@@ -3190,7 +3306,6 @@ class PaqueteDetail {
             var triage = $("#area_scanner_aprobar").val();
             var mensaje = JSON.parse(triage);
              /*Api*/
-             console.log(urlAprobar);
              $.ajax({
                type: "POST",
                url: urlAprobarControl,
@@ -3208,8 +3323,25 @@ class PaqueteDetail {
                   location.reload();
                },
                error: function (response){
-                 var jsonResponse = JSON.parse(response.responseText);
-                 bootbox.alert(jsonResponse["mensaje"]);
+                var jsonResponse = JSON.parse(response.responseText);             
+                /**/               
+                    bootbox.confirm({
+                          message:jsonResponse["mensaje"] ,
+                          buttons: {
+                              confirm: {
+                                  label: 'Ok',
+                                  className: 'btn-danger'
+                              }
+                          },
+                          callback: function (result) {
+                            if(result){
+                                location.reload();
+                            }else{
+                                location.reload();
+                            };
+                          }
+                      });
+                /**/
                }
              });
              /**/
@@ -3219,7 +3351,38 @@ class PaqueteDetail {
     $("#area_scanner_aprobar").focus();
 
     //Fin Scanner aprobar dispositivo paquete
-
+    /*Editar Cantidad de Dispositivos */
+    $("#editar_cantidad").click(function (e) {
+      bootbox.prompt("Ingrese la cantidad nueva", function(result){ 
+        var nueva_cantidad = result;
+        console.log(result); 
+        console.log($("#editar_cantidad").data("cantidaurl"));
+        if(result<cantidad){
+          bootbox.alert("Cantidad no disponible tiene que ser mayor a la cantidad del paquete");
+        }else{
+          /* */
+          $.ajax({
+            type: "POST",
+            url: $("#editar_cantidad").data("cantidaurl") ,
+            dataType: 'json',
+            data:{
+              csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),              
+              cantidad:nueva_cantidad,  
+              idpaquete:$("#editar_cantidad").data("nuevoid")
+            },
+            success: function (response){
+              bootbox.alert(response.mensaje);
+               location.reload();
+            },
+            error: function (response){    
+              console.log(response);        
+              //bootbox.alert(response.responseText);
+            }
+          });
+          /* */
+        };
+    });
+  });
 
   }
 }
@@ -3270,8 +3433,16 @@ class RepuestosList {
             if(full.valido == true){
               return ""
             }else{
-              return "<button  id='button-repuesto' class='btn btn-info repuesto-btn'>Asignar</button>"
+              if(full.estado=="Utilizado"){
+                return "";
+              }else{
+                return "<button  id='button-repuesto' class='btn btn-info repuesto-btn'>Asignar</button>";
+              }
+             
             }
+          }},
+          {data:"",className:"nowrap", render:function(data, type, full, meta){
+            return "<button  id='button-finalizar-repuesto' class='btn btn-danger repuesto-terminar-btn'>Terminar</button>";
           }}
         ]
       });
@@ -3281,22 +3452,83 @@ class RepuestosList {
 
       tabla.on('click','.repuesto-btn',function () {
         let repuesto = tabla.row($(this).parents('tr')).data();
-        bootbox.prompt("Ingrese el Triage del Dispositivo", function(result){
-            $.ajax({
-             type: "POST",
-             url:url_repuestos +"asignar_repuesto/",
-             data:{
-               csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
-               repuesto:repuesto.id,
-               triage:result
-             },
-             success:function (response){
-               tabla.ajax.reload();
-             }
-           });
-         });
+        bootbox.prompt({
+          title: "Ingrese el triage del dispositivo", 
+          centerVertical: true,
+          callback: function(result){               
+              if(result==null){
+                bootbox.alert("por favor ingrese un triage valido");
+              }else{                
+               var triage_asignar_repuesto = result;
+                /**/
+                bootbox.prompt({
+                  title: "Comentario para este repuesto",
+                  inputType: 'textarea',
+                  callback: function (result) {
+                    console.log(triage_asignar_repuesto);  
+                    console.log(result);
+                    $.ajax({
+                      type: "POST",
+                      url:url_repuestos +"asignar_repuesto/",
+                      data:{
+                        csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
+                        repuesto:repuesto.id,
+                        triage:triage_asignar_repuesto,
+                        comentario:result
+                      },
+                      success:function (response){
+                        if(response.codigo=1){
+                          bootbox.alert("El dispositivo no existe por favor ingrese otro");
+                        }else{
+                          tabla.ajax.reload();
+                        }
+                        
+                      },
+                      error: function (response) {
+                        var jsonResponse = JSON.parse(response.responseText);
+                         bootbox.alert(jsonResponse["mensaje"]);
+                    }
+                    });                      
+                  }
+                });
+                /**/
+              }
+          }
+        });        
       });
-
+      /* */
+      tabla.on('click','.repuesto-terminar-btn',function () {
+        let repuesto = tabla.row($(this).parents('tr')).data();       
+         bootbox.confirm({
+          message: "¿Desea finalizar  la asignacion de este repuesto?",
+          buttons: {
+              confirm: {
+                  label: 'Si',
+                  className: 'btn-success'
+              },
+              cancel: {
+                  label: 'No',
+                  className: 'btn-danger'
+              }
+          },
+          callback: function (result) {              
+              if(result==true){
+                $.ajax({
+                  type: "POST",
+                  url:url_repuestos +"terminar_repuesto/",
+                  data:{
+                    csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
+                    repuesto:repuesto.id,                    
+                  },
+                  success:function (response){
+                    tabla.ajax.reload();
+                  }
+                });
+              }
+          }
+      });
+      });
+      /* */
     });
   }
 }
@@ -3641,9 +3873,53 @@ class Desecho {
             {data: "entrada"},
             {data: "descripcion"},
             {data: "existencia_desecho"},
+            {data: "fecha_desecho"},
         ]
     });
 
+  }
+}
+
+class DesechoList{
+  constructor(){
+    $('#desecho-list-form').submit(function (e) {
+      e.preventDefault();
+      
+    $('#desecho-list-table').DataTable({
+      dom: 'Bfrtip',
+      destroy:true,
+      buttons: ['excel', 'pdf', 'copy'],          
+      ajax:{
+        url:$('#desecho-list-form').attr('action'),
+        dataSrc:'',
+        cache:true,
+        data: function (params) {
+          return $('#desecho-list-form').serializeObject(true);
+      }
+
+      },
+      columns:[       
+        {data:"id", render: function(data, type, full, meta){
+          if(full.en_creacion==true){            
+            return "<a href="+full.url_edit+">"+full.id+"</a>"; 
+          }else{           
+            return "<a href="+full.url_detalle+">"+full.id+"</a>"; 
+          }
+        }},        
+        {data:"fecha"},
+        {data:"empresa"},
+        {data: "en_creacion", render: function(data, type, full, meta){        
+          if(full.en_creacion==true){
+            return "<span class='label label-danger'>Pendiente</span>";
+            
+          }else{
+            return "<span class='label label-success'>Entregado</span>";
+          }
+          
+        }}, 
+      ]
+    });
+    });
   }
 }
 
@@ -3672,3 +3948,81 @@ class EntradaDetalle_Dispositivo {
     });
   }
 }
+
+
+class MovimientoList{
+  constructor(){
+    $('#movimiento-list-form').submit(function (e){
+      e.preventDefault();
+       /**/
+       var tablaDispositivos = $('#movimiento-list-table').DataTable({
+        dom: 'lfrtipB',
+        destroy:true,
+        buttons: ['excel', 'pdf'],
+        processing: true,
+        deferLoading: [0],
+        ajax: {
+            url: $('#movimiento-list-form').attr('action'),
+            deferRender: true,
+            dataSrc: '',
+            cache: true,
+            data: function (params) {
+                return $('#movimiento-list-form').serializeObject(true);
+            }
+        },
+        columns: [            
+            {data: "id", className: "nowrap", render: function(data, type, full, meta){
+              return "<a href="+full.url+">"+full.id+"</a>";
+            }},
+            {data: "fecha_creacion", className: "nowrap"},
+            {data: "tipo_dispositivo", className: "nowrap"},
+            {data: "cantidad", className: "nowrap"},
+            {data: "creada_por", className: "nowrap"},
+            {data: "autorizada_por", className: "nowrap", render: function(data, type, full, meta){               
+             if(full.autorizada_por==null){
+              return "";
+             }else{
+              return full.autorizada_por;
+             }
+
+           }},
+            {data: "devolucion", className: "nowrap", render: function(data, type, full, meta){
+              if(full.devolucion==true){
+               return "<span class='label label-danger'>Devolucion</span>";
+              }else{
+               return "<span class='label label-primary'>Solicitud</span>";
+              }
+
+            }},
+            {data: "desecho", className: "nowrap", render: function(data, type, full, meta){
+             if(full.desecho===true){
+              return "<input type='checkbox' name='desecho' class='icheckbox_square-red' disabled   checked/>";
+             }else{
+              return "";
+             }
+
+           }},
+            {data: "terminada", className: "nowrap", render: function(data, type, full, meta){
+             if(full.rechazar===true){
+              return " <span class='label label-danger'>RECHAZADA</span>";
+             }else{
+              if(full.terminada==true){
+               return " <span class='label label-danger'>Pendiente</span>";
+              }else{
+                if(full.recibida===true){
+                 return " <span class='label label-success'>Recibido</span>"
+                }else{
+                  return "<span class='label label-warning'>Entregado</span>"
+                }
+              }
+             }
+
+           }}
+        ]
+      });
+     /**/
+     tablaDispositivos.clear().draw();
+    });  
+     
+     }    
+  }

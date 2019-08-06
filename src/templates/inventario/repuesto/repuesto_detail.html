@@ -30,7 +30,7 @@
 					</div>
 					<div class="box-body">
 						<table class="table table-condensed">
-              <tr>
+							<tr>
 								<th>Entrada</th>
 								<td>{{ repuesto.entrada |default_if_none:"" }}</td>
 							</tr>
@@ -45,21 +45,21 @@
 									<br>
 								</td>
 							</tr>
-              <tr>
+							<tr>
 								<th>Descripcion</th>
 								<td>
-                  {{ repuesto.descripcion |default_if_none:"" }}
+									{{ repuesto.descripcion |default_if_none:"" }}
 								</td>
 							</tr>
-              <tr>
+             				 <tr>
 								<th>Disponible</th>
 								<td>
-                  {%if repuesto.disponible == True%}
-                  SI
-                  {%else%}
-                    NO
-                  {%endif%}
-                  <br>
+								{%if repuesto.disponible == True%}
+								SI
+								{%else%}
+									NO
+								{%endif%}
+								<br>
 								</td>
 							</tr>
               <tr>
@@ -77,9 +77,19 @@
 								</td>
 							</tr>
 						</table>
+						<!---->
+				<div class="box box-primary">					
+					<h5><b>Historico</b></h5>
+						{% for comentario in comentarios  %}
+							{{comentario.comentario}} , fecha: {{comentario.fecha_revision}} <br>  
+						{% endfor %}					
+					</div>
+				</div> 
+			<!---->
 					</div>
 				</div>
 			</div>
+			
 			{% if dispositivo %}
 			<div class="col-md-6">
 				<div class="box">
@@ -166,7 +176,9 @@
 				</div>
 			</div>
 			{%endif%}
+			
     </div>
+	
   </div>
 </section>
 {% endblock content %}

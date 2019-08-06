@@ -20,11 +20,34 @@ from django.db.models import Count, Sum
 from decimal import Decimal
 
 
+class SalidaInventarioFilter(filters.FilterSet):
+    """ Filtros para generar informe de  Salida
+    """
+    id = django_filters.NumberFilter(name="id")
+    tipo_salida= django_filters.CharFilter(name='tipo_salida')   
+    estado = django_filters.CharFilter(name='estado')
+    fecha_min = django_filters.DateFilter(name='fecha_min', method='filter_fecha')
+    fecha_max = django_filters.DateFilter(name='fecha_max', method='filter_fecha')
+
+    class Meta:
+        model = inv_m.SalidaInventario
+        fields = ['id', 'tipo_salida', 'estado', 'fecha_min', 'fecha_max']
+    
+    def filter_fecha(self, queryset, name, value):
+        if value and name == 'fecha_min':
+            queryset = queryset.filter(fecha__gte=value)
+        if value and name == 'fecha_max':
+            queryset = queryset.filter(fecha__lte=value)
+        return queryset
+
+
 class SalidaInventarioViewSet(viewsets.ModelViewSet):
     """ ViewSet para generar informe de la :class: `SalidaInventario`.
     """
     serializer_class = inv_s.SalidaInventarioSerializer
     queryset = inv_m.SalidaInventario.objects.all().order_by('fecha')
+    #filter_fields = ('id','tipo_salida','estado')
+    filter_class = SalidaInventarioFilter
 
     @action(methods=['post'], detail=True)
     def stock_kardex(self, request, pk=None):
@@ -407,44 +430,52 @@ class RevisionSalidaViewSet(viewsets.ModelViewSet):
         triage = request.data["triage"]
         paquete = request.data["paquete"]
         id_paquete = request.data["idpaquete"]
-        tipo = request.data["tipo"]        
+        tipo = request.data["tipo"]
         try:
-            asignacion_fecha = inv_m.DispositivoPaquete.objects.get(dispositivo__triage=triage)
-            asignacion_fecha.aprobado = True
-            asignacion_fecha.fecha_aprobacion = datetime.now()
-            asignacion_fecha.save()
-            cantidad_paquetes = inv_m.Paquete.objects.get(id=id_paquete)
-            if tipo == "TECLADO":
-                cambio_estado = inv_m.Teclado.objects.get(triage=triage)
-            elif tipo == "MOUSE":
-                cambio_estado = inv_m.Mouse.objects.get(triage=triage)
-            elif tipo == "HDD":
-                cambio_estado = inv_m.HDD.objects.get(triage=triage)
-            elif tipo == "MONITOR":
-                cambio_estado = inv_m.Monitor.objects.get(triage=triage)
-            elif tipo == "CPU":
-                cambio_estado = inv_m.CPU.objects.get(triage=triage)
-            elif tipo == "TABLET":
-                cambio_estado = inv_m.Tablet.objects.get(triage=triage)
-            elif tipo == "LAPTOP":
-                cambio_estado = inv_m.Laptop.objects.get(triage=triage)
-            elif tipo == "SWITCH":
-                cambio_estado = inv_m.DispositivoRed.objects.get(triage=triage)
-            elif tipo == "ACCESS POINT":
-                cambio_estado = inv_m.AccessPoint.objects.get(triage=triage)
+            asignacion_fecha = inv_m.DispositivoPaquete.objects.get(dispositivo__triage=triage)            
+            if str(id_paquete) == str(asignacion_fecha.paquete.id):
+                asignacion_fecha.aprobado = True
+                asignacion_fecha.fecha_aprobacion = datetime.now()
+                asignacion_fecha.save()
+                cantidad_paquetes = inv_m.Paquete.objects.get(id=id_paquete)
+                if tipo == "TECLADO":
+                    cambio_estado = inv_m.Teclado.objects.get(triage=triage)
+                elif tipo == "MOUSE":
+                    cambio_estado = inv_m.Mouse.objects.get(triage=triage)
+                elif tipo == "HDD":
+                    cambio_estado = inv_m.HDD.objects.get(triage=triage)
+                elif tipo == "MONITOR":
+                    cambio_estado = inv_m.Monitor.objects.get(triage=triage)
+                elif tipo == "CPU":
+                    cambio_estado = inv_m.CPU.objects.get(triage=triage)
+                elif tipo == "TABLET":
+                    cambio_estado = inv_m.Tablet.objects.get(triage=triage)
+                elif tipo == "LAPTOP":
+                    cambio_estado = inv_m.Laptop.objects.get(triage=triage)
+                elif tipo == "SWITCH":
+                    cambio_estado = inv_m.DispositivoRed.objects.get(triage=triage)
+                elif tipo == "ACCESS POINT":
+                    cambio_estado = inv_m.AccessPoint.objects.get(triage=triage)
+                else:
+                    cambio_estado = inv_m.Dispositivo.objects.get(triage=triage)
+                asignaciones_aprobadas = inv_m.DispositivoPaquete.objects.filter(paquete=id_paquete, aprobado=True).count()
+                cambio_estado.estado = inv_m.DispositivoEstado.objects.get(id=inv_m.DispositivoEstado.BN)
+                cambio_estado.save()
+                if asignaciones_aprobadas == cantidad_paquetes.cantidad:
+                    cantidad_paquetes.aprobado = True
+                    cantidad_paquetes.save()
+                return Response({
+                    'mensaje': 'Dispositivo aprobado'
+                },
+                    status=status.HTTP_200_OK
+                )
             else:
-                cambio_estado = inv_m.Dispositivo.objects.get(triage=triage)
-            asignaciones_aprobadas = inv_m.DispositivoPaquete.objects.filter(paquete=id_paquete, aprobado=True).count()
-            cambio_estado.estado = inv_m.DispositivoEstado.objects.get(id=inv_m.DispositivoEstado.BN)
-            cambio_estado.save()
-            if asignaciones_aprobadas == cantidad_paquetes.cantidad:
-                cantidad_paquetes.aprobado = True
-                cantidad_paquetes.save()
-            return Response({
-                'mensaje': 'Dispositivo aprobado'
-            },
-                status=status.HTTP_200_OK
-            )
+                return Response({
+                    'mensaje': 'El dispositivo no pertenece a este paquete'
+                },
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
         except Exception as e:
             return Response({
                 'mensaje': 'Dispositivo no encontrado'
@@ -497,16 +528,16 @@ class RevisionSalidaViewSet(viewsets.ModelViewSet):
             paquete__salida=id_salida,
             dispositivo__etapa=etapa_listo,
             dispositivo__estado=estado_bueno).count()
-        if(dispositivos_aprobados != dispositivos_paquetes):
+        if(paquetes_aprobados < dispositivos_paquetes):
             return Response({
-                'mensaje': 'Faltan Dispositivos por aprobar'
+                'mensaje': 'No se ha podido finalizar la revisión, ya que existen paquetes que aún están pendientes de revisar en Control de Calidad'
             },
                 status=status.HTTP_400_BAD_REQUEST
             )
         else:
-            if(paquetes_aprobados < dispositivos_paquetes):
+            if(dispositivos_aprobados != dispositivos_paquetes):
                 return Response({
-                    'mensaje': 'Faltan Paquetes  por aprobar'
+                    'mensaje': 'No se ha podido finalizar la revisión, ya que existen Dispositivos que aún están pendientes de revisar en Contabilidad'
                 },
                     status=status.HTTP_400_BAD_REQUEST
                 )

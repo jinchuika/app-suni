@@ -1,10 +1,10 @@
 {% extends "base/base.html" %}
-
+{%load widget_tweaks staticfiles %}
 {% block page_title %}
-    <title>Solicitudes de movimiento</title>
+<title>LISTADO SOLICITUD MOVIMIENTO</title>
 {% endblock page_title %}
-
 {% block content %}
+<<<<<<< HEAD
     <section class="content">
         <div class="container-fluid">
             <div class="row">
@@ -70,15 +70,71 @@
                             </table>
                         </div>
                     </div>
+=======
+<section class="content">
+  <div class="container-fluid">
+    <div class="row">    
+      <div class="col-md-3">.
+      <!--Caja-->
+          <div class="box">
+            <!---->           
+            <div>
+            <form action="{% url 'inventario_api:api_solicitudmovimiento-list'%}" id="movimiento-list-form">
+              <div class="box-header">
+                <input type="submit" class="btn btn-primary col-md-12" value="Generar Informe" /><br /><br />
+                <h3 class="box-title">Filtros</h3>
+              </div>
+              <div class="box-body">
+                {% csrf_token %} {% for field in form %}
+                <div class="form-group">
+                  {{field.label_tag}} {{field}}
+>>>>>>> upstream/dev
                 </div>
-            </div>
+                {% endfor %}
+              </div>
+            </form>
+           </div>  
+           
+            <!---->
+          </div> 
+        <!--Fin caja-->  
         </div>
-    </section>
+      <div class="col-md-9">
+        <div class="box">
+          <div class="box-header">
+            <div class="box-title">
+                <h3><b>Listado de Solictudes de Movimiento</b></h3>
+            </div>
+            <div class="box-body">
+              <table  id="movimiento-list-table" class="table" data-url="{%url 'inventario_api:api_solicitudmovimiento-list' %} ">
+                <thead>
+                  <th>No. Desecho </th> 
+                  <th>Fecha</th>                
+                  <th>Dispositivo</th>
+                  <th>Cantidad</th>
+                  <th>Solicitada por</th>
+                  <th>Autorizada por</th>
+                  <th>Tipo</th>
+                  <th>Desecho</th>
+                  <th>Estado</th>
+                </thead>
+                <tbody id="movimiento-list-table-body">
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 {% endblock content %}
 {% block extra_js %}
 {% include "base/dataTables.html" %}
-<script>
+    <script src="{% static "js/extrajs/inventario.js" %}"></script>
+    <script> 
     $(document).ready(function(){
+<<<<<<< HEAD
         var tabla = $('.table').DataTable({
           dom: 'Blfrtip',
           buttons: ['excel', 'pdf', 'copy'],
@@ -87,4 +143,9 @@
         });
     });    
 </script>
+=======
+          let Estados = new MovimientoList();
+      });
+    </script>
+>>>>>>> upstream/dev
 {% endblock extra_js %}

@@ -5,6 +5,7 @@ from django import forms
 from django.utils import timezone
 
 from django.urls import reverse_lazy
+from django.contrib import messages
 from django.shortcuts import reverse
 from django.views.generic import DetailView, UpdateView, CreateView, ListView, FormView
 from django.db.models import Q
@@ -14,6 +15,7 @@ from braces.views import (
 )
 from apps.inventario import models as inv_m
 from apps.inventario import forms as inv_f
+from apps.kardex import models as kax_m
 
 
 #################################################
@@ -89,14 +91,39 @@ class SolicitudMovimientoCreateView(LoginRequiredMixin, CreateView):
     form_class = inv_f.SolicitudMovimientoCreateForm
     group_required = [u"inv_cc", u"inv_admin", u"inv_tecnico", u"inv_bodega"]
 
-    def form_valid(self, form):
-        form.instance.creada_por = self.request.user
-        form.instance.etapa_inicial = inv_m.DispositivoEtapa.objects.get(
-            id=inv_m.DispositivoEtapa.AB
-            )
-        form.instance.etapa_final = inv_m.DispositivoEtapa.objects.get(
-            id=inv_m.DispositivoEtapa.TR
-            )
+    def form_valid(self, form):        
+        cantidad = form.cleaned_data['cantidad']
+        tipo_dispositivo = form.cleaned_data['tipo_dispositivo']
+        etapa_transito = inv_m.DispositivoEtapa.objects.get(id=inv_m.DispositivoEtapa.AB)
+        estado = inv_m.DispositivoEstado.objects.get(id=inv_m.DispositivoEstado.PD)
+        validar_dispositivos = inv_m.DispositivoTipo.objects.get(tipo=tipo_dispositivo)
+        numero_dispositivos = inv_m.Dispositivo.objects.filter(tipo=validar_dispositivos, etapa=etapa_transito, estado=estado).count()
+        if(validar_dispositivos.kardex):
+            cantidad_kardex = kax_m.Equipo.objects.get(nombre=tipo_dispositivo)
+            if(cantidad > cantidad_kardex.existencia):
+                form.add_error('cantidad', 'No  hay suficientes dipositivos para satifacer la solicitud')
+                return self.form_invalid(form)
+            else:
+                form.instance.creada_por = self.request.user
+                form.instance.etapa_inicial = inv_m.DispositivoEtapa.objects.get(
+                    id=inv_m.DispositivoEtapa.AB
+                    )
+                form.instance.etapa_final = inv_m.DispositivoEtapa.objects.get(
+                    id=inv_m.DispositivoEtapa.TR
+                    )
+        else:
+            if(cantidad > numero_dispositivos):
+                form.add_error('cantidad', 'No  hay suficientes dipositivos para satifacer la solicitud')
+                return self.form_invalid(form)
+            else:
+                form.instance.creada_por = self.request.user
+                form.instance.etapa_inicial = inv_m.DispositivoEtapa.objects.get(
+                    id=inv_m.DispositivoEtapa.AB
+                    )
+                form.instance.etapa_final = inv_m.DispositivoEtapa.objects.get(
+                    id=inv_m.DispositivoEtapa.TR
+                    )
+
         return super(SolicitudMovimientoCreateView, self).form_valid(form)
 
     def get_initial(self):
@@ -184,13 +211,18 @@ class SolicitudMovimientoUpdateView(LoginRequiredMixin, UpdateView):
         )
         return form
 
-    def form_valid(self, form):
+    def form_valid(self, form):        
         form.instance.autorizada_por = self.request.user
         form.instance.cambiar_etapa(
             lista_dispositivos=form.cleaned_data['dispositivos'],
             usuario=self.request.user
         )
         return super(SolicitudMovimientoUpdateView, self).form_valid(form)
+
+    def get_context_data(self, *args, **kwargs):
+            context = super(SolicitudMovimientoUpdateView, self).get_context_data(*args, **kwargs)
+            context['dispositivos_no'] = inv_m.CambioEtapa.objects.filter(solicitud=self.object.id).count() 
+            return context
 
 
 class SolicitudMovimientoDetailView(LoginRequiredMixin, DetailView):
@@ -201,20 +233,21 @@ class SolicitudMovimientoDetailView(LoginRequiredMixin, DetailView):
     group_required = [u"inv_cc", u"inv_admin", u"inv_tecnico", u"inv_bodega"]
 
 
-class SolicitudMovimientoListView(LoginRequiredMixin, ListView):
+class SolicitudMovimientoListView(LoginRequiredMixin, FormView):
     """ Vista para ver la lista  de la :class:`SolicitudMovimiento`
     """
     model = inv_m.SolicitudMovimiento
     template_name = 'inventario/dispositivo/solicitudmovimiento_list.html'
+    form_class = inv_f.SolicitudMovimientoInformeForm
     group_required = [u"inv_cc", u"inv_admin", u"inv_tecnico", u"inv_bodega"]
 
-    def get_context_data(self, **kwargs):
+    """def get_context_data(self, **kwargs):
         context = super(SolicitudMovimientoListView, self).get_context_data(**kwargs)
         tipo_dis = self.request.user.tipos_dispositivos.tipos.all()
         solicitudes_list = inv_m.SolicitudMovimiento.objects.filter(tipo_dispositivo__in=tipo_dis)
 
         context['solicitudmovimiento_list'] = solicitudes_list
-        return context
+        return context"""
 
 ##########################
 # FALLAS DE DISPOSITIVOS #
@@ -345,17 +378,30 @@ class CPUptadeView(LoginRequiredMixin, UpdateView):
      mostrando los datos necesarios
     """
     model = inv_m.CPU
-    form_class = inv_f.CPUForm
+    form_class = inv_f.CPUFormUpdate
     slug_field = "triage"
     slug_url_kwarg = "triage"
     query_pk_and_slug = True
     template_name = 'inventario/dispositivo/cpu/cpu_edit.html'
 
+    def get_context_data(self, **kwargs):       
+        context =super(CPUptadeView,self).get_context_data(**kwargs)          
+        try:           
+            context["disco_duro"]=self.object.disco_duro.id
+            disco = inv_m.HDD.objects.get(id=self.object.disco_duro.id)
+            context["triage"]=self.object.disco_duro
+            disco.asignado=True
+            disco.save()         
+        except:          
+            context["disco_duro"]="---------" 
+            context["triage"]="-----------" 
+        return context
+
     def get_success_url(self):
         if self.object.entrada_detalle.id != 1:
             return reverse_lazy('detalles_dispositivos', kwargs={'pk': self.object.entrada, 'detalle': self.object.entrada_detalle.id})
         else:
-            return reverse_lazy('cpu_detail', kwargs={'triage': self.object.triage})
+            return reverse_lazy('cpu_detail', kwargs={'triage': self.object.triage})   
 
 
 class LaptopDetailView(LoginRequiredMixin, DispositivoDetailView):

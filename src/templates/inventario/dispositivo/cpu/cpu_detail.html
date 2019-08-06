@@ -7,7 +7,10 @@
     <div class="col-md-9">
     </div>
     <div class="col-md-3">
+          {% if object.estado.id == 1 or object.estado.id == 2  and object.etapa.id == 1 or object.etapa.id == 2 or object.etapa.id == 3 %}
       <a href="{%url 'cpu_edit' triage=object.triage %}" class="btn btn-block btn-warning">Editar</a>
+      {% endif %}
+
     </div>
   </div>
 </div>
@@ -17,7 +20,13 @@
     </tr>
     <tr>
         <th>Versión de sistema</th>
-        <td>{{ object.version_sistema|default_if_none:"" }}</td>
+        <td>{{ object.version_sistema|default_if_none:"" }} 
+             {% for nombre in object.version_sistema.software.all  %}
+          ,{{nombre}}
+         {% endfor %}  
+        </td>
+        
+     
     </tr>
     <tr>
         <th>Disco duro</th>

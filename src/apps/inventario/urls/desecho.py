@@ -33,6 +33,12 @@ urlpatterns = [
         inventario_v.DesechoSalidaCreateView.as_view(),
         name='desechosalida_add'
     ),
+    # Listado de las salidas de desecho
+    url(
+        r'^desecho/list/$',
+        inventario_v.DesechoSalidaListView.as_view(),
+        name='desechosalida_list'
+    ),
     # Edicion de la salida de desecho
     url(
         r'^desecho/(?P<pk>\d+)/edit/$',

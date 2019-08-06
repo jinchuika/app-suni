@@ -14,7 +14,12 @@
 					<div class="box-header">
 						<div class="row">
 							<div class="col-md-9">
-									<h3 class="box-title">Dispositivos Asignados</h3>
+									<h3 class="box-title">Dispositivos Asignados2</h3>
+							</div>
+							<div class="col-md-3">
+								<a class="btn btn-success" target="_blank" href="{% url 'paquetes_grid' pk=object.id%}">
+								 Editar dispositivo
+							 </a>
 							</div>
 						</div>
 					</div>
@@ -77,4 +82,3 @@ $(document).ready(function (){
 });
 </script>
 {% endblock extra_js %}
-
