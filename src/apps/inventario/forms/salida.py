@@ -19,7 +19,7 @@ class SalidaInventarioForm(forms.ModelForm):
     class Meta:
         model = inv_m.SalidaInventario
         fields = '__all__'
-        exclude = ('creada_por', 'escuela', 'necesita_revision', 'entrada','entrega')
+        exclude = ('creada_por', 'escuela', 'necesita_revision', 'entrada','entrega','url')
         widgets = {
             'en_creacion': forms.HiddenInput(),
             'estado': forms.HiddenInput(),
@@ -48,7 +48,7 @@ class SalidaInventarioUpdateForm(forms.ModelForm):
     """
     class Meta:
         model = inv_m.SalidaInventario
-        fields = ('cooperante', 'fecha', 'en_creacion', 'observaciones')
+        fields = ('cooperante', 'fecha', 'en_creacion', 'observaciones','url')
         labels = {
                 'en_creacion': _('En Desarrollo'),
         }
@@ -57,6 +57,7 @@ class SalidaInventarioUpdateForm(forms.ModelForm):
             'fecha': forms.TextInput({'class': 'form-control datepicker', 'tabindex': '2'}),
             'observaciones': forms.Textarea({'class': 'form-control', 'tabindex': '4'}),
             'en_creacion': forms.CheckboxInput(attrs={'class': 'icheckbox_flat-green', 'tabindex': '3'}),
+            'url': forms.TextInput({'class': 'form-control', 'tabindex': '4'}),
         }
 
 

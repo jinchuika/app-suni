@@ -4,6 +4,7 @@ from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.core.exceptions import ObjectDoesNotExist
+from django.core.mail import send_mail
 from datetime import datetime
 from django.http import JsonResponse
 import time
@@ -12,6 +13,7 @@ from apps.inventario import (
     serializers as inv_s,
     models as inv_m
 )
+from django.contrib.auth.models import User
 from apps.kardex import models as kax_m
 from django.db.models import Count
 import json
@@ -128,15 +130,15 @@ class DispositivoViewSet(viewsets.ModelViewSet):
             data = inv_m.Mouse.objects.filter(
                 triage__in=paquetes
             ).values(
-                'triage',
+                'triage',                
                 'marca',
                 'modelo',
                 'serie',
                 'tarima',
-                'puerto',
+                'puerto',               
                 'tipo_mouse',
                 'caja',
-                'clase')
+                'clase').order_by('triage')
             return JsonResponse({
                 'data': list(data),
                 'tipo': list(tipos_mouse),
@@ -155,7 +157,7 @@ class DispositivoViewSet(viewsets.ModelViewSet):
                 'puerto',
                 'caja',
                 'clase'
-                )
+                ).order_by('triage')
             return JsonResponse({
                 'data': list(data),
                 'marcas': list(tipos),
@@ -176,7 +178,7 @@ class DispositivoViewSet(viewsets.ModelViewSet):
                 'puerto',
                 'pulgadas',
                 'clase'
-                )
+                ).order_by('triage')
             return JsonResponse({
                 'data': list(data),
                 'marcas': list(tipos),
@@ -231,7 +233,7 @@ class DispositivoViewSet(viewsets.ModelViewSet):
                 'almacenamiento_externo',
                 'pulgadas',
                 'clase'
-                )
+                ).order_by('triage')
             return JsonResponse({
                 'data': list(data),
                 'marcas': list(tipos),
@@ -258,7 +260,7 @@ class DispositivoViewSet(viewsets.ModelViewSet):
                 'ram_medida',
                 'pulgadas',
                 'clase'
-                )
+                ).order_by('triage')
             return JsonResponse({
                 'data': list(data),
                 'marcas': list(tipos),
@@ -281,7 +283,7 @@ class DispositivoViewSet(viewsets.ModelViewSet):
                 'capacidad',
                 'medida',
                 'clase'
-                )
+                ).order_by('triage')
             return JsonResponse({
                 'data': list(data),
                 'marcas': list(tipos),
@@ -303,7 +305,7 @@ class DispositivoViewSet(viewsets.ModelViewSet):
                 'velocidad',
                 'velocidad_medida',
                 'clase'
-                )
+                ).order_by('triage')
             return JsonResponse({
                 'data': list(data),
                 'marcas': list(tipos),
@@ -326,7 +328,7 @@ class DispositivoViewSet(viewsets.ModelViewSet):
                 'velocidad',
                 'velocidad_medida',
                 'clase'
-                )
+                ).order_by('triage')
             return JsonResponse({
                 'data': list(data),
                 'marcas': list(tipos),
@@ -355,6 +357,31 @@ class DispositivoViewSet(viewsets.ModelViewSet):
             usuario=self.request.user
         )
         nueva_bitacora.save()
+        usuario = User.objects.get(username=self.request.user)
+        usuario_completo = str(usuario.first_name) +" "+ str(usuario.last_name)
+        print(solicitudes_movimiento.devolucion)
+        if solicitudes_movimiento.devolucion:        
+            mensaje = "Solicitud de movimiento: "+str(id)+ "\nFecha de  movimiento: " + str(datetime.now().date())+"\nTipo de equipo"+str(solicitudes_movimiento.tipo_dispositivo)+"\nDevolucion Recibida"+"\nEste correo solo es de prueba :) :)" 
+            send_mail(
+                'Bitacora',
+                mensaje,
+                'correo backend',
+                ['correo destino'],
+                fail_silently=False
+            )
+        else:
+             mensaje = "Solicitud de movimiento: "+str(id)+ "\nFecha de  movimiento: " + str(datetime.now().date())+"\nTipo de equipo"+str(solicitudes_movimiento.tipo_dispositivo)+"\nSolicitud Recibida"+"\nEste correo solo es de prueba :) :)" 
+             usuarios_bodega = User.objects.filter(groups=21)
+             lista_enviar_correos=[]
+             for lista_correos  in usuarios_bodega:
+                 lista_enviar_correos.append(lista_correos.email) 
+             send_mail(
+                'Bitacora',
+                mensaje,
+                '',
+                [''],
+                fail_silently=False
+            )
         return Response(
             {'mensaje': 'Solicitud Recibida'},
             status=status.HTTP_200_OK
@@ -417,6 +444,20 @@ class DispositivoViewSet(viewsets.ModelViewSet):
                     usuario=self.request.user
                 )
                 nueva_bitacora.save()
+                usuario = User.objects.get(username=self.request.user)
+                usuario_completo = str(usuario.first_name) +" "+ str(usuario.last_name)
+                mensaje = "Solicitud de movimiento: "+str(id)+ "\nFecha de  movimiento: " + str(datetime.now().date())+"\nTipo de equipo"+str(solicitudes_movimiento.tipo_dispositivo)+"\nCantidad"+str(solicitudes_movimiento.cantidad)+"\nSolicitud Aprobada de Kardex"+"\nEste correo solo es de prueba :) :)" 
+                send_mail(
+                    'Bitacora',
+                    mensaje,
+                    '',
+                    [''],
+                    fail_silently=False
+                )
+                return Response(
+                    {'mensaje': "Dispositivos aprobados"},
+                    status=status.HTTP_200_OK
+                )
             else:               
                 tipo_salida = kax_m.TipoSalida.objects.get(tipo="Inventario SUNI")
                 nuevo = kax_m.Salida(
@@ -448,6 +489,16 @@ class DispositivoViewSet(viewsets.ModelViewSet):
                     usuario=self.request.user
                 )
                 nueva_bitacora.save()
+                usuario = User.objects.get(username=self.request.user)
+                usuario_completo = str(usuario.first_name) +" "+ str(usuario.last_name)
+                mensaje = "Solicitud de movimiento: "+str(id)+ "\nFecha de  movimiento: " + str(datetime.now().date())+"\nTipo de equipo"+str(solicitudes_movimiento.tipo_dispositivo)+"Cantidad: "+str(solicitudes_movimiento.cantidad)+"\nDevolucion Recibida"+"\nEste correo solo es de prueba :) :)" 
+                send_mail(
+                    'Bitacora',
+                    mensaje,
+                    '',
+                    [''],
+                    fail_silently=False
+                )
                 return Response(
                     {'mensaje': nuevo_detalle.id, 'existencia': cantidad_kardex.existencia},
                     status=status.HTTP_200_OK
@@ -467,6 +518,16 @@ class DispositivoViewSet(viewsets.ModelViewSet):
                 usuario=self.request.user
             )
             nueva_bitacora.save()
+            usuario = User.objects.get(username=self.request.user)
+            usuario_completo = str(usuario.first_name) +" "+ str(usuario.last_name)
+            mensaje = "Solicitud de movimiento: "+str(id)+ "\nFecha de  movimiento: " + str(datetime.now().date())+"\nTipo de equipo"+str(solicitudes_movimiento.tipo_dispositivo)+"\nCantidad:"+str(solicitudes_movimiento.cantidad)+"\nSolicitud rechazada"+"\nEste correo solo es de prueba :) :)" 
+            send_mail(
+                'Bitacora',
+                mensaje,
+                '',
+                [''],
+                fail_silently=False
+            )
             return Response(
                 {'mensaje': 'Solicitud Rechazada'},
                 status=status.HTTP_200_OK

@@ -122,7 +122,7 @@ WSGI_APPLICATION = 'src.wsgi.application'
 DATABASE_ROUTERS = ['apps.legacy.dbrouters.LegacyRouter', ]
 
 DATABASES = {
-  'default': {
+    'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(BASE_DIR, 'legacy.sqlite3'),
     },
@@ -130,7 +130,6 @@ DATABASES = {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(BASE_DIR, 'legacy.sqlite3'),
     },
-
 }
 
 
@@ -248,3 +247,11 @@ LEGACY_TESTING = False
 
 GOOGLE_ANALYTICS_PROPERTY_ID = ''
 GOOGLE_ANALYTICS_DOMAIN = ''
+# Back End Correos
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_USE_TLS = True
+EMAIL_PORT = 587
+EMAIL_HOST_USER = ''
+EMAIL_HOST_PASSWORD = ''

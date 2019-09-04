@@ -129,12 +129,13 @@
             </div>
           </div>
           <div class="box-body">
-            <table class="table table-condensed">
+            <table class="table table-condensed dataTable">
               <thead>
                 <th>No. Entrada</th>
                 <th>Fecha</th>
                 <th>Proveedor</th>
               </thead>
+              <tbody>
               {%for personas in listado %}
               <tr>
                 <td>
@@ -148,6 +149,12 @@
                 </td>
               </tr>
               {%endfor%}
+              </tbody>
+              <tfoot>
+              <th>No. Entrada</th>
+              <th>Fecha</th>
+              <th>Proveedor</th>
+              </tfoot>              
             </table>
           </div>
         </div>
@@ -230,5 +237,6 @@
 {%endif%}
 <script>
   let pagina = new EntradaCreate();
+  let buscar =  new BuscadorTabla();
 </script>
 {% endblock extra_js %}

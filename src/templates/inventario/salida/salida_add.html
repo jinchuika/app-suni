@@ -78,7 +78,7 @@
                 <h3><b>Listado de Salidas</b></h3>
             </div>
             <div class="box-body">
-              <table  id="salidas-table" class="table" data-url="{%url 'inventario_api:api_inventariosalidas-list' %} ">
+              <table  id="salidas-table" class="table display" data-url="{%url 'inventario_api:api_inventariosalidas-list' %} ">
                 <thead>
                   <th>No. Salida </th>
                   <th>No. Referencia </th>
@@ -90,6 +90,15 @@
                 </thead>
                 <tbody id="salidas-table-body">
                 </tbody>
+                <tfoot>                  
+                      <th>No. Salida </th>
+                      <th>No. Referencia </th>
+                      <th>Tipo</th>
+                      <th>Fecha</th>
+                      <th>Estado</th>
+                      <th>UDI</th>
+                      <th>Beneficiario</th>                  
+                </tfoot>
               </table>
             </div>
           </div>
@@ -103,6 +112,10 @@
 {% include "base/dataTables.html" %}
     <script src="{% static "js/extrajs/inventario.js" %}"></script>
     <script>
+    $(document).ready(function(){
+          let Estados = new Salidas();
+          let Buscador = new BuscadorTabla();
+      });
     $(document).on('focus', '.select2', function (e) {
       if (e.originalEvent) {
           var s2element = $(this).siblings('select');
@@ -113,8 +126,6 @@
          });
       }
     });
-    $(document).ready(function(){
-          let Estados = new Salidas();
-      });
+    
     </script>
 {% endblock extra_js %}
