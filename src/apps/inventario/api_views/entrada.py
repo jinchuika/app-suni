@@ -299,6 +299,29 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
                 {'mensaje': numero_dispositivos},
                 status=status.HTTP_200_OK)
 
+    @action(methods=['post'], detail=False)
+    def validar_devoluciones(self, request, pk=None):
+        tipo_dispositivo = request.data['tipo_dispositivo']
+        no_salida = request.data['no_salida']
+
+        etapa = inv_m.DispositivoEtapa.objects.get(id=inv_m.DispositivoEtapa.TR)
+        estado = inv_m.DispositivoEstado.objects.get(id=inv_m.DispositivoEstado.PD)
+        validar_dispositivos = inv_m.DispositivoTipo.objects.get(tipo=tipo_dispositivo)
+        dispositivos_salida = inv_m.CambioEtapa.objects.none().values('dispositivo')
+
+        if no_salida != "":
+            dispositivos_salida = inv_m.CambioEtapa.objects.filter(solicitud__no_salida=no_salida, etapa_final=etapa).values('dispositivo')
+            
+        numero_dispositivos = inv_m.Dispositivo.objects.filter(
+            id__in=dispositivos_salida,
+            tipo=validar_dispositivos,
+            etapa=etapa,
+            estado=estado).count()
+
+        return Response(
+            {'mensaje': numero_dispositivos},
+            status=status.HTTP_200_OK)
+
     @action(methods=['post'], detail=True)
     def validar_kardex(self, request, pk=None):
         tipo_dispositivo = request.data['tipo_dispositivo']

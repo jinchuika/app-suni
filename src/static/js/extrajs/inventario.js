@@ -789,10 +789,10 @@ class EntradaDetalleDetail {
         tabla.on('click', '.btn-rechazar-desecho', function () {
                 let data_fila = tabla.row($(this).parents('tr')).data();
                 bootbox.confirm({
-                    message: "¿Esta seguro que quiere rechazar este detalle de desecho?",
+                    message: "¿Está seguro que quiere rechazar este detalle de desecho?",
                     buttons: {
                         confirm: {
-                            label: 'Yes',
+                            label: 'Si',
                             className: 'btn-success'
                         },
                         cancel: {
@@ -868,7 +868,7 @@ class EntradaDetalleDetail {
                           message: "¿Esta seguro que quiere rechazar este dispositivo?",
                           buttons: {
                               confirm: {
-                                  label: 'Yes',
+                                  label: 'Si',
                                   className: 'btn-success'
                               },
                               cancel: {
@@ -996,7 +996,7 @@ class EntradaDetalleDetail {
                 message: "¿Esta seguro que quiere terminar la salida de desechos?",
                 buttons: {
                     confirm: {
-                        label: 'Yes',
+                        label: 'Si',
                         className: 'btn-success'
                     },
                     cancel: {
@@ -1088,14 +1088,14 @@ class SolicitudMovimiento {
     $('#btn-recibido').click(function (e) {
        e.preventDefault();
         bootbox.confirm({
-            message: "¿Esta Seguro que quiere recibir esta Solicitud de Movimiento?",
+            message: "¿Está seguro que quiere recibir esta solicitud de movimiento?",
             buttons: {
                 confirm: {
-                    label: 'Yes',
+                    label: '<i class="fa fa-check"></i> Confirmar',
                     className: 'btn-success'
                 },
                 cancel: {
-                    label: 'No',
+                    label: '<i class="fa fa-times"></i> Cancelar',
                     className: 'btn-danger'
                 }
             },
@@ -1124,14 +1124,14 @@ class SolicitudMovimiento {
     $('#aprobar-kardex').click(function (e) {
        e.preventDefault();
         bootbox.confirm({
-            message: "¿Esta Seguro de aprobar esta peticion de dispositivos?",
+            message: "¿Está seguro de aprobar esta petición de dispositivos?",
             buttons: {
                 confirm: {
-                    label: 'Yes',
+                    label: '<i class="fa fa-check"></i> Confirmar',
                     className: 'btn-success'
                 },
                 cancel: {
-                    label: 'No',
+                    label: '<i class="fa fa-times"></i> Denegar',
                     className: 'btn-danger'
                 }
             },
@@ -1150,10 +1150,11 @@ class SolicitudMovimiento {
                       success: function (response) {
                         //
                         bootbox.confirm({
-                            message: "La Existencia del Dispositivo es de:" + response['existencia'],
+                            className:"modal modal-info fade in",
+                            message: "<h3>La Existencia del Dispositivo es de: </h3><h2>" + response['existencia'] + "</h2>",
                             buttons: {
                                 confirm: {
-                                    label: 'Entendido',
+                                    label: '<i class="fa fa-check"></i> Entendido',
                                     className: 'btn-success'
                                 },
                             },
@@ -1175,14 +1176,14 @@ class SolicitudMovimiento {
     $('#recibido-kardex').click(function (e) {
        e.preventDefault();
         bootbox.confirm({
-            message: "¿Esta Seguro que desea rechazar estos dispositivos?",
+            message: "¿Esta seguro que desea rechazar estos dispositivos?",
             buttons: {
                 confirm: {
-                    label: 'Yes',
+                    label: '<i class="fa fa-check"></i> Confirmar',
                     className: 'btn-success'
                 },
                 cancel: {
-                    label: 'No',
+                    label: '<i class="fa fa-times"></i> Cancelar',
                     className: 'btn-danger'
                 }
             },
@@ -1227,7 +1228,7 @@ class SolicitudMovimientoValidar {
           success: function (response) {
             var disponibles = response['mensaje'];
             $("[for='cantidad']").text(disponibles);
-            $("#existencia-head").css({"visibility":"initial"});
+            $("#existencia-head").css({"display":"block"});
           },
           error:function(response){
             var jsonResponse = JSON.parse(response.responseText);
@@ -1237,7 +1238,34 @@ class SolicitudMovimientoValidar {
       });
 
     });
-    $("#existencia-head").css({"visibility":"collapse"});
+
+    $('#id_tipo_dispositivo').change( function() {      
+      tipo_dispositivo=$('#id_tipo_dispositivo option:selected').text();
+      var no_salida=$('#id_no_salida option:selected').val();
+      $.ajax({
+          type: "POST",
+          async:false,
+          url: $('#solicitud').data('devolucion'),
+          dataType: 'json',
+          data: {
+            csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
+            tipo_dispositivo: tipo_dispositivo,
+            no_salida: no_salida,
+          },
+          success: function (response) {
+            var disponibles = response['mensaje'];
+            $("[for='cantidad']").text(disponibles);
+            $("#existencia-head").css({"display":"block"});
+          },
+          error:function(response){
+            var jsonResponse = JSON.parse(response.responseText);
+            bootbox.alert(jsonResponse.mensaje);
+            location.reload();
+          },
+      });
+
+    });
+    $("#existencia-head").css({"display":"none"});
   }
 }
 class SolicitudMovimientoUpdate {
@@ -1261,8 +1289,8 @@ class SolicitudMovimientoUpdate {
         let cantidad_dispositivos = sel_dispositivos;
         $('form').on('submit', function(e){           
            let restante  = cantidad_dispositivos.select2('data').length - cantidad_asignar;           
-          if(cantidad_dispositivos.select2('data').length > cantidad_asignar){         
-           bootbox.alert("Ya no puede ingresar mas dispositivos , tiene de excendente:"+restante);
+          if(cantidad_dispositivos.select2('data').length > cantidad_asignar){
+            bootbox.alert({ message: "<h3>Ya no puede ingresar mas dispositivos , tiene de excendente: "+restante+"!</h3>", className:"modal modal-danger fade in" });
             e.preventDefault();
           }
         });
@@ -1421,9 +1449,8 @@ class SolicitudMovimientoUpdate {
                        /**/
 
                      }else{
-                       bootbox.alert("Este dispositivo no esta disponible");
-                       $("#area_scanner").val("");
-
+                      bootbox.alert({message: "<h3>Este dispositivo no esta disponible</h3>", className:"modal modal-danger fade in"});
+                      $("#area_scanner").val("");
                      }
                    },
                    type: 'GET'
@@ -3949,13 +3976,8 @@ class EntradaDetalle_Dispositivo {
   }
 }
 
-
-class MovimientoList{
-  constructor(){
-    $('#movimiento-list-form').submit(function (e){
-      e.preventDefault();
-       /**/
-       var tablaDispositivos = $('#movimiento-list-table').DataTable({
+(function (MovimientoList, $, undefined) {
+      var tablaDispositivos = $('#movimiento-list-table').DataTable({
         dom: 'lfrtipB',
         destroy:true,
         buttons: ['excel', 'pdf'],
@@ -3973,6 +3995,13 @@ class MovimientoList{
         columns: [            
             {data: "id", className: "nowrap", render: function(data, type, full, meta){
               return "<a href="+full.url+">"+full.id+"</a>";
+            }},
+            {data: "no_salida", className: "nowrap", render: function(data, type, full, meta){
+              if(full.no_salida ==null){
+                return ""
+              } else {
+                return "<a href="+full.url_salida+">"+full.no_salida_str+"</a>";
+              }
             }},
             {data: "fecha_creacion", className: "nowrap"},
             {data: "tipo_dispositivo", className: "nowrap"},
@@ -4006,23 +4035,38 @@ class MovimientoList{
              if(full.rechazar===true){
               return " <span class='label label-danger'>RECHAZADA</span>";
              }else{
-              if(full.terminada==true){
-               return " <span class='label label-danger'>Pendiente</span>";
+              if(full.recibida==true){
+               return " <span class='label label-success'>Recibido</span>";
               }else{
-                if(full.recibida===true){
-                 return " <span class='label label-success'>Recibido</span>"
+                if(full.terminada===true){
+                 return " <span class='label label-warning'>Entregado</span>"
                 }else{
-                  return "<span class='label label-warning'>Entregado</span>"
+                  return "<span class='label label-danger'>Pendiente</span>"
                 }
               }
              }
 
            }}
         ]
-      });
-     /**/
-     tablaDispositivos.clear().draw();
-    });  
-     
-     }    
-  }
+      }).on('xhr.dt', function (e, settings, json, xhr) {
+      /* Ocultar objeto de carga */
+        $('#spinner').hide();
+    });
+
+      /* Inicialización de clase EntradaList*/
+    MovimientoList.init = function () {
+        /* Al cargar la página ocultar spinner*/
+        $('#spinner').hide();
+        $('#movimiento-list-form').submit(function (e) {
+            e.preventDefault();
+            $('#spinner').show();
+            tablaDispositivos.clear().draw();
+            tablaDispositivos.ajax.reload();
+        });
+
+        $('#movimiento-list-table tbody').on('click', 'button', function () {
+            var data = tabla.row($(this).parents('tr')).data();
+        });
+
+    }
+}(window.MovimientoList = window.MovimientoList || {}, jQuery));

@@ -148,15 +148,26 @@ class DevolucionCreateView(LoginRequiredMixin, CreateView):
     template_name = 'inventario/dispositivo/solicitudmovimiento_add.html'
     form_class = inv_f.DevolucionCreateForm
 
-    def form_valid(self, form):
-        form.instance.creada_por = self.request.user
-        form.instance.devolucion = True
-        form.instance.etapa_inicial = inv_m.DispositivoEtapa.objects.get(
-            id=inv_m.DispositivoEtapa.TR
-            )
-        form.instance.etapa_final = inv_m.DispositivoEtapa.objects.get(
-            id=inv_m.DispositivoEtapa.AB
-            )
+    def form_valid(self, form):        
+        cantidad = form.cleaned_data['cantidad']
+        tipo_dispositivo = form.cleaned_data['tipo_dispositivo']
+        no_salida = form.cleaned_data['no_salida']
+
+        etapa = inv_m.DispositivoEtapa.objects.get(id=inv_m.DispositivoEtapa.TR)
+        estado = inv_m.DispositivoEstado.objects.get(id=inv_m.DispositivoEstado.PD)
+        validar_dispositivos = inv_m.DispositivoTipo.objects.get(tipo=tipo_dispositivo)
+        dispositivos_salida = inv_m.CambioEtapa.objects.filter(solicitud__no_salida=no_salida, etapa_final=etapa).values('dispositivo')
+        numero_dispositivos = inv_m.Dispositivo.objects.filter(id__in=dispositivos_salida, tipo=validar_dispositivos, etapa=etapa, estado=estado).count()
+
+        if(cantidad > numero_dispositivos):
+            form.add_error('cantidad', 'No  hay suficientes dipositivos para satifacer la solicitud')
+            return self.form_invalid(form)
+        else:
+            form.instance.creada_por = self.request.user
+            form.instance.devolucion = True
+            form.instance.etapa_inicial = inv_m.DispositivoEtapa.objects.get(id=inv_m.DispositivoEtapa.TR)
+            form.instance.etapa_final = inv_m.DispositivoEtapa.objects.get(id=inv_m.DispositivoEtapa.AB)
+
         return super(DevolucionCreateView, self).form_valid(form)
 
     def get_initial(self):
@@ -204,11 +215,16 @@ class SolicitudMovimientoUpdateView(LoginRequiredMixin, UpdateView):
             'data-slug': self.object.tipo_dispositivo.slug,
         })
 
-        form.fields['dispositivos'].queryset = inv_m.Dispositivo.objects.filter(
-            etapa=self.object.etapa_inicial,
-            tipo=self.object.tipo_dispositivo,
-            id__in=dispositivos_salida
-        )
+        queryset = inv_m.Dispositivo.objects.filter(
+                etapa=self.object.etapa_inicial,
+                tipo=self.object.tipo_dispositivo
+            )
+
+        if self.object.devolucion:
+            form.fields['dispositivos'].queryset = queryset.filter(id__in=dispositivos_salida)
+        else:
+            form.fields['dispositivos'].queryset = queryset
+
         return form
 
     def form_valid(self, form):        
@@ -240,6 +256,11 @@ class SolicitudMovimientoListView(LoginRequiredMixin, FormView):
     template_name = 'inventario/dispositivo/solicitudmovimiento_list.html'
     form_class = inv_f.SolicitudMovimientoInformeForm
     group_required = [u"inv_cc", u"inv_admin", u"inv_tecnico", u"inv_bodega"]
+
+    def get_form(self, form_class=None):
+        form = super(SolicitudMovimientoListView, self).get_form(form_class)
+        form.fields['tipo_dispositivo'].queryset = self.request.user.tipos_dispositivos.tipos.all()
+        return form
 
     """def get_context_data(self, **kwargs):
         context = super(SolicitudMovimientoListView, self).get_context_data(**kwargs)

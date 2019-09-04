@@ -6,6 +6,7 @@ from rest_framework.response import Response
 from django.core.exceptions import ObjectDoesNotExist
 from datetime import datetime
 from django.http import JsonResponse
+from django.utils.datastructures import MultiValueDictKeyError
 import time
 from braces.views import LoginRequiredMixin
 from apps.inventario import (
@@ -537,16 +538,12 @@ class PaquetesViewSet(viewsets.ModelViewSet):
     queryset = inv_m.Paquete.objects.all()
     filter_class = PaquetesFilter
 
-<<<<<<< HEAD
-=======
-
 class DispositivoPaqueteViewset(viewsets.ModelViewSet):
     serializer_class = inv_s.DispositivoPaqueteSerializer
     queryset = inv_m.DispositivoPaquete.objects.all()
     filter_fields = ('paquete',)
 
 
->>>>>>> upstream/dev
 class DispositivosPaqueteFilter(filters.FilterSet):
     """ Filtros par el ViewSet de Paquete
     """
@@ -1056,13 +1053,14 @@ class DispositivosPaquetesViewSet(viewsets.ModelViewSet):
 
 class SolicitudMovimientoFilter(filters.FilterSet):
     """ Filtros para generar informe de  Salida
-    """    
+    """
+    estado = django_filters.NumberFilter(name='estado', method='filter_estado')    
     fecha_min = django_filters.DateFilter(name='fecha_min', method='filter_fecha')
     fecha_max = django_filters.DateFilter(name='fecha_max', method='filter_fecha')
 
     class Meta:
         model = inv_m.SolicitudMovimiento
-        fields = ['id','tipo_dispositivo','devolucion','terminada','fecha_min', 'fecha_max']
+        fields = ['devolucion','estado','tipo_dispositivo','fecha_min', 'fecha_max']
     
     def filter_fecha(self, queryset, name, value):
         if value and name == 'fecha_min':
@@ -1071,9 +1069,98 @@ class SolicitudMovimientoFilter(filters.FilterSet):
             queryset = queryset.filter(fecha_creacion__lte=value)
         return queryset
 
+    def filter_estado(self, queryset, name, value):
+        if value == 0:
+            queryset = queryset.filter(terminada=False, recibida=False, rechazar=False)
+        if value == 1:
+            queryset = queryset.filter(terminada=True, recibida=False, rechazar=False)
+        if value == 2:
+            queryset = queryset.filter(terminada=True, recibida=True, rechazar=False)
+        if value == 3:
+            queryset = queryset.filter(rechazar=True)
+        return queryset
+
 class SolicitudMovimientoViewSet(viewsets.ModelViewSet):
     """ ViewSet para generar los informe de la :class:`SolicitudMovimiento`
     """
     serializer_class = inv_s.SolicitudMovimientoSerializer
-    queryset = inv_m.SolicitudMovimiento.objects.all()
     filter_class = SolicitudMovimientoFilter
+    ordering = ('-id')
+
+    def get_queryset(self):
+        """ Este queryset se encarga de filtar las solicitudes que se van a mostrar en el listado general
+        """
+
+        fecha_min = self.request.query_params.get('fecha_min', None)
+        fecha_max = self.request.query_params.get('fecha_max', None)   
+        filtros = False
+
+        # Obtener valores de lista para tipo
+        try:
+            tipo_solicitud = []
+            tipo_solicitud = self.request.GET.getlist('devolucion[]')
+            if len(tipo_solicitud) == 0:
+                tipo = self.request.GET['devolucion']
+                tipo_solicitud.append(tipo)
+        except MultiValueDictKeyError as e:
+            tipo_solicitud = 0
+
+        # Obtener valores de lista para estado
+        try:
+            estado = []
+            estado = self.request.GET.getlist('estado[]')
+            if len(estado) == 0:
+                tipo = self.request.GET['estado']
+                estado.append(tipo)
+        except MultiValueDictKeyError as e:
+            estado = 0
+
+        # Obtener valores de lista para tipo de dispositivo
+        try:
+            tipo_dispositivo = []
+            tipo_dispositivo = self.request.GET.getlist('tipo_dispositivo[]')
+            if len(tipo_dispositivo) == 0:
+                tipo = self.request.GET['tipo_dispositivo']
+                tipo_dispositivo.append(tipo)
+        except MultiValueDictKeyError as e:
+            tipo_dispositivo = 0
+
+        # Filtrar por tipos de dispositivos seleccionados
+        if tipo_dispositivo == 0 or not tipo_dispositivo:
+            tipo_dis = self.request.user.tipos_dispositivos.tipos.all()
+        else:
+            tipo_dis = tipo_dispositivo
+            filtros = True
+        queryset = inv_m.SolicitudMovimiento.objects.all().filter(tipo_dispositivo__in=tipo_dis)
+
+        # Filtrar por estados seleccionados
+        if estado and estado != 0:
+            filtros = True
+            init_solicitudes = inv_m.SolicitudMovimiento.objects.none()
+            queryset_pendientes = queryset_entregados = queryset_recibidos = queryset_rechazados = init_solicitudes
+            if '0' in estado:
+                queryset_pendientes = queryset.filter(terminada=False, recibida=False, rechazar=False)
+            if '1' in estado:
+                queryset_entregados = queryset.filter(terminada=True, recibida=False, rechazar=False)
+            if '2' in estado:
+                queryset_recibidos = queryset.filter(terminada=True, recibida=True, rechazar=False)
+            if '3' in estado:
+                queryset_rechazados = queryset.filter(rechazar=True)
+
+            queryset = queryset_pendientes | queryset_entregados | queryset_recibidos | queryset_rechazados
+
+        if tipo_solicitud and tipo_solicitud != 0:
+            filtros = True
+
+        # Obtener data en caso no hayan seleccionado filtros
+        if not filtros and fecha_min is None and fecha_max is None:
+            if "inv_bodega" in self.request.user.groups.values_list('name', flat=True):
+                queryset = queryset.filter(recibida=False, rechazar=False)
+            else:
+                queryset = queryset.filter(recibida=False)
+
+        # Obtener data en caso sean técnicos.
+        if "inv_tecnico" in self.request.user.groups.values_list('name', flat=True) or "inv_cc" in self.request.user.groups.values_list('name', flat=True):
+            queryset = queryset.filter(creada_por=self.request.user)
+
+        return queryset

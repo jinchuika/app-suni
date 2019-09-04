@@ -62,6 +62,18 @@ urlpatterns = [
     conta_v.InformeEntradaJson.as_view(),
     name='contabilidad_api_entrada'
     ),
+ # Informe de Dispositivos x Entrada
+ url(
+    r'^precioestandar/informentradadispositivo/$',
+    conta_v.ContabilidadEntradaDispInformeListView.as_view(),
+    name='contabilidad_entrada_dispositivo'
+   ),
+  # Devolver Data de Informe de Dispositivos x Entrada
+ url(
+    r'^precioestandar/informentradadispositivoapi/$',
+    conta_v.InformeEntradaDispositivoJson.as_view(),
+    name='contabilidad_api_entrada_dispositivo'
+    ),
   # Informe de Salidas por Donación
  url(
     r'^precioestandar/informesalidas/$',

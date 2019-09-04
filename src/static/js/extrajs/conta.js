@@ -232,6 +232,59 @@ class EntradaInforme {
   });
   }
 }
+
+class EntradaDispositivoInforme {
+  constructor() {
+  let precioestandar_informe = $("#entradadispositivo-list-form");
+  var urlPrecio= $('#entrada-dispositivo-table').data("api");
+  precioestandar_informe.submit(function (e){
+    e.preventDefault();
+    var tablaPrecio = $('#entrada-dispositivo-table').DataTable({
+    headerCallback:function (thead, data, start, end, display ){
+      for(var i in data){
+        $(thead).find('th').eq(0).html( data[i].tipo_dispositivo );
+        $(thead).find('th').eq(1).html( data[i].rango_fechas);
+        $(thead).find('th').eq(2).html( "EXISTENCIA INICIAL: "+ parseFloat(data[i].total_final).toLocaleString('en') );
+      };
+
+    },
+    footerCallback: function( tfoot, data, start, end, display){
+        for (var i in data){
+          $(tfoot).find('th').eq(0).html( "EXISTENCIA FINAL: "+ parseFloat(data[i].total_despues).toLocaleString('en') );
+        };
+      },
+      dom: 'Bfrtip',
+      buttons: ['excel', 'pdf', 'copy'],
+      searching:true,
+      paging:false,
+      ordering:true,
+      processing:true,
+      destroy:true,
+      ajax:{
+        url:urlPrecio,
+        dataSrc:'',
+        cache:false,
+        processing:true,
+        data: function () {
+          return $('#entradadispositivo-list-form').serializeObject(true);
+        }
+      },
+      columns: [
+        {data: "triage", render: function(data, type, full, meta){
+          return "<a href="+full.url+">"+full.triage+"</a>";
+        }},
+        {data: "entrada", render: function(data, type, full, meta){
+          return "<a href="+full.url_entrada+">"+full.entrada+"</a>";
+        }},
+        {data: "fecha"},
+        {data: "tipo_entrada"},
+      ]
+    });
+    tablaPrecio.clear().draw();
+    //tablaPrecio.ajax.reload();
+  });
+  }
+}
 class SalidaInforme {
   constructor() {
   let precioestandar_informe = $("#precioestandar-list-form");

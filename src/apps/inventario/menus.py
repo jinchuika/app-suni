@@ -181,6 +181,12 @@ admin_children = (
         icon="fa-file-pdf-o",
     ),
     ViewMenuItem(
+        "Dispositivos x Entrada",
+        reverse_lazy('contabilidad_entrada_dispositivo'),
+        weight=12,
+        icon="fa-sign-in",
+    ),
+    ViewMenuItem(
         "Informe de Salidas",
         reverse_lazy('contabilidad_salidas'),
         weight=12,

@@ -4,73 +4,6 @@
 <title>LISTADO SOLICITUD MOVIMIENTO</title>
 {% endblock page_title %}
 {% block content %}
-<<<<<<< HEAD
-    <section class="content">
-        <div class="container-fluid">
-            <div class="row">
-                <div class="col-md-12">
-                    <div class="box box-primary">
-                        <div class="box-header">
-                            <h3 class="box-title">Listado de solicitudes</h3>
-                        </div>
-                        <div class="box-body">
-                            <table class="table table-condensed table-striped">
-                                <thead>
-                                <tr>
-                                    <th>No.</th>
-                                    <th>Fecha</th>
-                                    <th>Salida</th>
-                                    <th>Dispositivo</th>
-                                    <th>Cantidad</th>
-                                    <th>Solicitada por</th>
-                                    <th>Autorizada por</th>
-                                    <th>Tipo</th>
-                                    <th>Desecho</th>
-                                    <th>Estado</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                {% for solicitud in solicitudmovimiento_list %}
-                                    <tr>
-                                        <td><a href="{{ solicitud.get_absolute_url }}">{{ solicitud }}</a></td>
-                                        <td>{{ solicitud.fecha_creacion|date:"Y-m-d" }}</td>
-                                        <td><a href="{{ solicitud.no_salida.get_absolute_url }}" target="_blank">{{ solicitud.no_salida|default_if_none:"" }}</a></td>
-                                        <td>{{ solicitud.tipo_dispositivo }}</td>
-                                        <td>{{ solicitud.cantidad}}</td>
-                                        <td>{{ solicitud.creada_por.get_full_name }}</td>
-                                        <td>{{ solicitud.autorizada_por.get_full_name }}</td>
-                                        <td>
-                                            {% if solicitud.devolucion %}
-                                                <span class="label label-danger">Devolución</span>
-                                            {% else %}
-                                                <span class="label label-primary">Solicitud</span>
-                                            {% endif %}
-                                        </td>
-                                        <td align="center">
-                                            {% if solicitud.desecho %}
-                                                <input type="checkbox" name="desecho" class="icheckbox_square-red" disabled  {% if solicitud.desecho %} checked {% endif %} />
-                                            {% endif %}
-                                        </td>
-                                        <td>
-                                            {% if solicitud.rechazar %}
-                                                <span class="label label-danger">RECHAZADA</span>
-                                            {%elif not solicitud.terminada %}
-                                                <span class="label label-danger">Pendiente</span>
-                                            {% else %}
-                                                {% if solicitud.recibida %}
-                                                    <span class="label label-success">Recibido</span>
-                                                {% else %}
-                                                    <span class="label label-warning">Entregado</span>
-                                                {% endif %}                             
-                                            {% endif %}
-                                        </td>
-                                    </tr>
-                                {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-=======
 <section class="content">
   <div class="container-fluid">
     <div class="row">    
@@ -88,7 +21,6 @@
                 {% csrf_token %} {% for field in form %}
                 <div class="form-group">
                   {{field.label_tag}} {{field}}
->>>>>>> upstream/dev
                 </div>
                 {% endfor %}
               </div>
@@ -103,12 +35,13 @@
         <div class="box">
           <div class="box-header">
             <div class="box-title">
-                <h3><b>Listado de Solictudes de Movimiento</b></h3>
+                <h3><b>Listado de Solicitudes de Movimiento</b></h3>
             </div>
             <div class="box-body">
               <table  id="movimiento-list-table" class="table" data-url="{%url 'inventario_api:api_solicitudmovimiento-list' %} ">
                 <thead>
-                  <th>No. Desecho </th> 
+                  <th>No. Solicitud </th> 
+                  <th>Salida </th> 
                   <th>Fecha</th>                
                   <th>Dispositivo</th>
                   <th>Cantidad</th>
@@ -133,19 +66,6 @@
 {% include "base/dataTables.html" %}
     <script src="{% static "js/extrajs/inventario.js" %}"></script>
     <script> 
-    $(document).ready(function(){
-<<<<<<< HEAD
-        var tabla = $('.table').DataTable({
-          dom: 'Blfrtip',
-          buttons: ['excel', 'pdf', 'copy'],
-          ordering: true,
-          pageLength: 50,
-        });
-    });    
-</script>
-=======
-          let Estados = new MovimientoList();
-      });
+    MovimientoList.init();
     </script>
->>>>>>> upstream/dev
 {% endblock extra_js %}
