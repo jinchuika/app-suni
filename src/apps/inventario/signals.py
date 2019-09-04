@@ -1,7 +1,8 @@
 from django.db import IntegrityError
 from django.db.models.signals import pre_save, post_save
 from datetime import datetime
-
+from django.core.mail import send_mail
+from django.contrib.auth.models import User
 from apps.inventario import models as inventario_m
 
 
@@ -112,6 +113,28 @@ def crear_bitacora(sender, instance, created, **kwargs):
             usuario=instance.creada_por
         )
         nueva_bitacora.save()
+        # enviar correo
+        usuario = User.objects.get(username=instance.creada_por)
+        usuario_completo = str(usuario.first_name) +" "+ str(usuario.last_name)
+        if instance.devolucion:
+            if instance.desecho:
+                 mensaje = "Solicitud de movimiento: "+str(instance.id) +"\nFecha de  movimiento: " + str(datetime.now().date()) +"\nTipo de equipo: "+str(instance.tipo_dispositivo)+"\nCantidad: "+str(instance.cantidad)+"\nObservaciones: "+instance.observaciones+" \nAccion: " + str(inventario_m.AccionBitacora.objects.get(id=1)) + " \nUsuario: " +usuario_completo  + "\nDesecho: Si"+"\nEste correo solo es de prueba :) :)"         
+        else:
+            mensaje = "Solicitud de movimiento: "+str(instance.id) +"\nFecha de  movimiento: " + str(datetime.now().date()) +"\nTipo de equipo: "+str(instance.tipo_dispositivo)+"\nCantidad: "+str(instance.cantidad)+"\nObservaciones: "+instance.observaciones+" \nAccion: " + str(inventario_m.AccionBitacora.objects.get(id=1)) + " \nUsuario: " +usuario_completo  + "\nEste correo solo es de prueba :) :)"         
+        usuarios_bodega = User.objects.filter(groups=21)
+        lista_enviar_correos=[]
+        for lista_correos  in usuarios_bodega:            
+            lista_enviar_correos.append(lista_correos.email) 
+        send_mail(
+            'Bitacora',
+            mensaje,
+            'epatzan@funsepa.org',
+            ['patzan.007@gmail.com'],
+            fail_silently=False
+        )
+
+
+
     else:
         if instance.rechazar is  False:
             if instance.recibida is False:
@@ -122,6 +145,23 @@ def crear_bitacora(sender, instance, created, **kwargs):
                     usuario=instance.creada_por
                 )
                 nueva_bitacora.save()
+                #enviar correo                 
+                usuario = User.objects.get(username=instance.creada_por)
+                usuario_completo = str(usuario.first_name) +" "+ str(usuario.last_name)               
+                dispositivos = inventario_m.CambioEtapa.objects.filter(solicitud=instance.id)
+                lista_dispositivos=[]
+                for nuevo_dipositivo in dispositivos:
+                    lista_dispositivos.append(nuevo_dipositivo.dispositivo.triage)                
+                print(usuario.email)
+                mensaje = "Solicitud de movimiento: "+str(instance.id) +"\nFecha de  movimiento: " + str(datetime.now().date()) +"\nTipo de equipo: "+str(instance.tipo_dispositivo) +"\nDispositivos: "+ str(lista_dispositivos) +"\nEste correo solo es de prueba :) :)"        
+                
+                send_mail(
+                    'Bitacora',
+                    mensaje,
+                    'epatzan@funsepa.org',
+                    ['patzan.007@gmail.com'],
+                    fail_silently=False
+                )
 
 
 

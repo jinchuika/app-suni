@@ -38,7 +38,7 @@
                 <h3><b>Listado de Solictudes de Movimiento</b></h3>
             </div>
             <div class="box-body">
-              <table  id="movimiento-list-table" class="table" data-url="{%url 'inventario_api:api_solicitudmovimiento-list' %} ">
+              <table  id="movimiento-list-table" class="table  display" data-url="{%url 'inventario_api:api_solicitudmovimiento-list' %} ">
                 <thead>
                   <th>No. Desecho </th> 
                   <th>Fecha</th>                
@@ -52,6 +52,17 @@
                 </thead>
                 <tbody id="movimiento-list-table-body">
                 </tbody>
+                <tfoot>
+                  <th>No. Desecho </th> 
+                  <th>Fecha</th>                
+                  <th>Dispositivo</th>
+                  <th>Cantidad</th>
+                  <th>Solicitada por</th>
+                  <th>Autorizada por</th>
+                  <th>Tipo</th>
+                  <th>Desecho</th>
+                  <th>Estado</th>
+                </tfoot>
               </table>
             </div>
           </div>
@@ -67,6 +78,20 @@
     <script> 
     $(document).ready(function(){
           let Estados = new MovimientoList();
+          /**/
+         /*   $('#dispositivo-table-search tfoot th').each( function () {
+      var title = $(this).text();
+      $(this).html( '<input style="width:100%;box-sizing:border-box;" type="text" class="form-control input-sm" placeholder="Search '+title+'" />' );
+  } );
+  $('#dispositivo-table-search').DataTable().columns().every( function (){
+    var that = this;
+    $('input',this.footer()).on('keyup change clear', function(){
+      if(that.search()!==this.value){
+        that.search(this.value).draw();
+      }
+    });
+  });*/
+          /**/
       });
     </script>
 {% endblock extra_js %}
