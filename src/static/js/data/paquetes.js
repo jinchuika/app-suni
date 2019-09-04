@@ -15,17 +15,13 @@ var procesador=[];
 var hdd=[];
 var tipos_monitores =[];
 var os =[];
-var nu="https://suni.funsepa.org/i/salida/2631/paquetesgrid/"
 var urldispositivo = $("#grid_id").data("url");
-console.log($('input[name="csrfmiddlewaretoken"]').val());
 $.ajax({
   type: 'POST',  
-  url: $('#grid_id').data('dispo'),
-  //url:nu,  
+  url: $('#grid_id').data('dispo'), 
   dataType: 'json', 
   data: {
-    paquete:$('#grid_id').data('id'),
-    //paquete:"2852",
+    paquete:$('#grid_id').data('id'),    
     csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val()
    
   },

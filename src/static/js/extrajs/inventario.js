@@ -2915,10 +2915,7 @@ class PaqueteDetail {
     let slug = this.asig_dispositivos.data('slug');
     let cantidad = this.asig_dispositivos.data('cantidad');
     let cantidad_disponible = $('#rechazar-dispositivo').data('dispo');
-    let cantidad_asignar = cantidad - cantidad_disponible;
-    console.log(cantidad_disponible + "disponible");
-    console.log(cantidad_asignar+"asignar");
-    
+    let cantidad_asignar = cantidad - cantidad_disponible;  
     if(cantidad_asignar == 0){
       var activar = true
     }else{

@@ -365,8 +365,8 @@ class DispositivoViewSet(viewsets.ModelViewSet):
             send_mail(
                 'Bitacora',
                 mensaje,
-                'epatzan@funsepa.org',
-                ['patzan.007@gmail.com'],
+                'correo backend',
+                ['correo destino'],
                 fail_silently=False
             )
         else:
@@ -378,8 +378,8 @@ class DispositivoViewSet(viewsets.ModelViewSet):
              send_mail(
                 'Bitacora',
                 mensaje,
-                'epatzan@funsepa.org',
-                ['patzan.007@gmail.com'],
+                '',
+                [''],
                 fail_silently=False
             )
         return Response(
@@ -450,8 +450,8 @@ class DispositivoViewSet(viewsets.ModelViewSet):
                 send_mail(
                     'Bitacora',
                     mensaje,
-                    'epatzan@funsepa.org',
-                    ['patzan.007@gmail.com'],
+                    '',
+                    [''],
                     fail_silently=False
                 )
                 return Response(
@@ -495,8 +495,8 @@ class DispositivoViewSet(viewsets.ModelViewSet):
                 send_mail(
                     'Bitacora',
                     mensaje,
-                    'epatzan@funsepa.org',
-                    ['patzan.007@gmail.com'],
+                    '',
+                    [''],
                     fail_silently=False
                 )
                 return Response(
@@ -524,8 +524,8 @@ class DispositivoViewSet(viewsets.ModelViewSet):
             send_mail(
                 'Bitacora',
                 mensaje,
-                'epatzan@funsepa.org',
-                ['patzan.007@gmail.com'],
+                '',
+                [''],
                 fail_silently=False
             )
             return Response(

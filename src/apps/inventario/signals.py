@@ -128,8 +128,8 @@ def crear_bitacora(sender, instance, created, **kwargs):
         send_mail(
             'Bitacora',
             mensaje,
-            'epatzan@funsepa.org',
-            ['patzan.007@gmail.com'],
+            '',
+            [''],
             fail_silently=False
         )
 
@@ -151,15 +151,15 @@ def crear_bitacora(sender, instance, created, **kwargs):
                 dispositivos = inventario_m.CambioEtapa.objects.filter(solicitud=instance.id)
                 lista_dispositivos=[]
                 for nuevo_dipositivo in dispositivos:
-                    lista_dispositivos.append(nuevo_dipositivo.dispositivo.triage)                
-                print(usuario.email)
+                    lista_dispositivos.append(nuevo_dipositivo.dispositivo.triage)         
+               
                 mensaje = "Solicitud de movimiento: "+str(instance.id) +"\nFecha de  movimiento: " + str(datetime.now().date()) +"\nTipo de equipo: "+str(instance.tipo_dispositivo) +"\nDispositivos: "+ str(lista_dispositivos) +"\nEste correo solo es de prueba :) :)"        
                 
                 send_mail(
                     'Bitacora',
                     mensaje,
-                    'epatzan@funsepa.org',
-                    ['patzan.007@gmail.com'],
+                    '',
+                    [''],
                     fail_silently=False
                 )
 
