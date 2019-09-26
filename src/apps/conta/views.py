@@ -184,6 +184,23 @@ class ContabilidadEntradaInformeListView(LoginRequiredMixin, FormView):
     template_name = 'conta/informe_entrada.html'
     form_class = conta_f.EntradaInformeForm
 
+    def get_form(self, form_class=None):
+        form = super(ContabilidadEntradaInformeListView, self).get_form(form_class)
+        form.fields['tipo_dispositivo'].queryset = self.request.user.tipos_dispositivos.tipos.filter(usa_triage=True)
+        return form
+
+class ContabilidadEntradaDispInformeListView(LoginRequiredMixin, FormView):
+    """Vista   para obtener los datos de Dispositivos x Entrada mediante una :class:`PrecioEstandar`
+    """
+    model = conta_m.PrecioEstandar
+    template_name = 'conta/informe_entrada_dispositivo.html'
+    form_class = conta_f.EntradaDispositivoInformeForm
+
+    def get_form(self, form_class=None):
+        form = super(ContabilidadEntradaDispInformeListView, self).get_form(form_class)
+        form.fields['tipo_dispositivo'].queryset = self.request.user.tipos_dispositivos.tipos.filter(usa_triage=True)
+        return form
+
 class ContabilidadSalidasInformeListView(LoginRequiredMixin, FormView):
     """Vista utilizada para listar las salidas por rango de fechas y tipo de dispositivo.
     """
@@ -204,6 +221,11 @@ class ContabilidadResumenInformeListView(LoginRequiredMixin, FormView):
     model = conta_m.PrecioEstandar
     template_name = 'conta/informe_resumen.html'
     form_class = conta_f.ResumenInformeForm
+
+    def get_form(self, form_class=None):
+        form = super(ContabilidadResumenInformeListView, self).get_form(form_class)
+        form.fields['tipo_dispositivo'].queryset = self.request.user.tipos_dispositivos.tipos.filter(usa_triage=True)
+        return form
 
 class InformeCantidadJson(views.APIView):
     
@@ -431,6 +453,75 @@ class InformeEntradaJson(views.APIView):
         else:
             print("No existe en el periodo fiscal")
 
+class InformeEntradaDispositivoJson(views.APIView):
+    """ Lista los dispositivos ingresados al sistema por rango de fechas
+    """
+    def get(self, request):
+        try:
+            no_entrada = self.request.GET['no_entrada']
+        except MultiValueDictKeyError as e:
+            no_entrada = 0
+
+        tipo_dispositivo = self.request.GET['tipo_dispositivo']
+        fecha_inicio = self.request.GET['fecha_min']
+        fecha_fin = self.request.GET['fecha_max']
+        tipo_dispositivo_nombre = inv_m.DispositivoTipo.objects.get(pk=tipo_dispositivo)
+
+        # Validar que el rango de fechas pertenezcan a un solo período fiscal
+        validar_fecha = conta_m.PeriodoFiscal.objects.filter(fecha_inicio__lte=fecha_inicio, fecha_fin__gte=fecha_fin)
+        print(validar_fecha)
+        if validar_fecha.count() == 1:
+
+            # Obtener datos de Periodo Fiscal
+            periodo = validar_fecha[0]
+            lista_dispositivos = {}
+            lista = []
+
+            # Preparar Filtros de Búsqueda
+            q = []
+            q.append(Q(tipo=tipo_dispositivo))
+
+            if no_entrada and no_entrada != 0:
+                q.append(Q(entrada_detalle__entrada=no_entrada))
+
+            # obtener Listado de Detalles de Entrada Aplicando Filtros
+            entrada_detalle = inv_m.Dispositivo.objects.filter(
+                        Q(entrada_detalle__fecha_dispositivo__gte=fecha_inicio),
+                        Q(entrada_detalle__fecha_dispositivo__lte=fecha_fin),
+                        reduce(AND,q)
+                        ).exclude(entrada_detalle__entrada__tipo__nombre='Especial')
+
+            print(entrada_detalle)
+
+            # Obtener Existencia Inicial y Saldo Inicial
+            fecha_inicial = datetime.strptime(fecha_inicio, '%Y-%m-%d') - timedelta(days=1)
+            totales_anterior = get_existencia(tipo_dispositivo,fecha_inicial,periodo)
+            existencia_anterior = totales_anterior['existencia']
+
+            # Obtener Existencia Final y Saldo Final
+            total_actual = get_existencia(tipo_dispositivo,fecha_fin,periodo)
+            existencia_actual = total_actual['existencia']
+
+            for detalle in entrada_detalle:
+                entrada = inv_m.Entrada.objects.get(pk=detalle.entrada_detalle.entrada.id)
+                dispositivo = {}
+            
+                dispositivo['triage'] = detalle.triage
+                dispositivo['entrada'] = detalle.entrada_detalle.entrada.id
+                dispositivo['fecha'] = detalle.entrada_detalle.fecha_dispositivo
+                dispositivo['tipo_entrada'] = detalle.entrada_detalle.entrada.tipo.nombre
+                dispositivo['url'] = detalle.get_absolute_url()
+                dispositivo['url_entrada'] = detalle.entrada_detalle.entrada.get_absolute_url()
+    
+                dispositivo['total_final'] = existencia_anterior
+                dispositivo['rango_fechas'] = str(fecha_inicio)+"  AL  "+str(fecha_fin)
+                dispositivo['tipo_dispositivo'] = tipo_dispositivo_nombre.tipo
+                dispositivo['total_despues'] = existencia_actual
+                lista.append(dispositivo)
+            return Response(lista)
+        else:
+            print("No existe en el periodo fiscal")
+
 class InformeSalidaJson(views.APIView):
     """ Listar las salidas por el tipo seleccionado, si es compra o no traer o excluir los dispositivos de compra del listado. 
     """
@@ -651,10 +742,23 @@ class InformeResumenJson(views.APIView):
     def get(self, request):
         fecha_inicio = self.request.GET['fecha_min']
         fecha_fin = self.request.GET['fecha_max']
+        try:
+            tipo_dispositivo = []
+            tipo_dispositivo = self.request.GET.getlist('tipo_dispositivo[]')
+            if len(tipo_dispositivo) == 0:
+                tipo = self.request.GET['tipo_dispositivo']
+                tipo_dispositivo.append(tipo)
+        except MultiValueDictKeyError as e:
+            tipo_dispositivo = 0
+
+        # Filtrar por tipos de dispositivos seleccionados
+        if tipo_dispositivo == 0 or not tipo_dispositivo:
+            dispositivos = self.request.user.tipos_dispositivos.tipos.filter(usa_triage=True)
+        else:
+            dispositivos = self.request.user.tipos_dispositivos.tipos.filter(id__in=tipo_dispositivo)
 
         # Validar que el rango de fechas pertenezcan a un solo período fiscal
         validar_fecha = conta_m.PeriodoFiscal.objects.filter(fecha_inicio__lte=fecha_inicio, fecha_fin__gte=fecha_fin)
-        dispositivos = inv_m.DispositivoTipo.objects.all().exclude(conta=False)
         acumulador = 0
         acumulador_anterior = 0
         acumulador_ant_ex = 0

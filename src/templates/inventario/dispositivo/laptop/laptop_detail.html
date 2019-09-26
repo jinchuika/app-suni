@@ -18,7 +18,11 @@
     </tr>
     <tr>
         <th>Versión de sistema</th>
-        <td>{{ object.version_sistema|default_if_none:"" }}</td>
+        <td>{{ object.version_sistema|default_if_none:"" }} 
+             {% for nombre in object.version_sistema.software.all  %}
+          ,{{nombre}}
+         {% endfor %}  
+        </td>
     </tr>
     <tr>
         <th>Disco duro</th>

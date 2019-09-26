@@ -9,23 +9,25 @@
 <section class="content">
 	<div class="container-fluid">
 		<div class="row">
-			<div class="col-md-6">
+			<div class="col-md-5">
 				<div class="box">
 					<div class="box-header">
 						<div class="row">
 							<div class="col-md-7">
 								<h3 class="box-title">Repuesto No. {{ repuesto.id }}</h3>
               </div>
+              {%if repuesto.valido == True%}
               <div class="col-md-5">
 								<div class="row">
 									<div class="col-md-6">
 										<a href="{%url 'repuesto_edit' pk=object.id%}" class="btn btn-block btn-success">Editar</a>
 									</div>
 									<div class="col-md-6">
-											<a href="{%url 'repuesto_edit' pk=object.id%}" class="btn btn-block btn-primary">Imprimir QR</a>
+											<a href="{%url 'repuestoqr_print' pk=object.id%}" class="btn btn-block btn-primary">Imprimir QR</a>
 									</div>
 								</div>
               </div>
+              {%endif%}
 						</div>
 					</div>
 					<div class="box-body">
@@ -39,10 +41,23 @@
 								<td>{{ repuesto.tipo |default_if_none:"" }}</td>
 							</tr>
 							<tr>
+								<th>Marca</th>
+								<td>{{ repuesto.marca |default_if_none:"" }}</td>
+							</tr>
+							<tr>
+								<th>Modelo</th>
+								<td>{{ repuesto.modelo |default_if_none:"" }}</td>
+							</tr>
+							<tr>
 								<th>Estado</th>
 								<td>
-									{{repuesto.estado |default_if_none:""}}
-									<br>
+									{% if repuesto.estado.nombre == "Utilizado" %}
+										<span class='label label-danger'>Utilizado</span>
+									{% elif repuesto.estado.nombre == "Almacenaje" %}
+										<span class='label label-success'>Almacenaje</span>
+									{% else %}
+										<span class='label label-primary'>Desmembrado</span>
+									{%endif%}
 								</td>
 							</tr>
 							<tr>
@@ -54,129 +69,49 @@
              				 <tr>
 								<th>Disponible</th>
 								<td>
-								{%if repuesto.disponible == True%}
-								SI
-								{%else%}
-									NO
-								{%endif%}
-								<br>
+									<input type="checkbox" name="valido" class="icheckbox_square-red" disabled  {% if object.valido %} checked {% endif %} />
 								</td>
 							</tr>
-              <tr>
+							<tr>
 								<th>Tarima</th>
 								<td>
 									{{repuesto.tarima |default_if_none:""}}
-									<br>
-								</td>
-							</tr>
-              <tr>
-								<th>Valido</th>
-								<td>
-									{{repuesto.valido |default_if_none:""}}
-									<br>
 								</td>
 							</tr>
 						</table>
-						<!---->
-				<div class="box box-primary">					
-					<h5><b>Historico</b></h5>
-						{% for comentario in comentarios  %}
-							{{comentario.comentario}} , fecha: {{comentario.fecha_revision}} <br>  
-						{% endfor %}					
-					</div>
 				</div> 
 			<!---->
 					</div>
 				</div>
-			</div>
-			
-			{% if dispositivo %}
-			<div class="col-md-6">
-				<div class="box">
-					<div class="box-header">
-						<div class="row">
-							<div class="col-md-9">
-								<h3 class="box-title">Dispositivo No. {{ dispositivo.triage }}</h3></div>
+				<div class="col-md-7">
+					<div class="box box-primary">
+						<div class="box-body">
+							<table id="dispositivos-table-body" class="table table-condensed table-striped">
+								<thead>
+									<tr>
+										<th>Dispositivo</th>
+										<th>Fecha</th>
+										<th>Usuario</th>
+										<th>Comentario</th>
+									</tr>
+								</thead>
+								<tbody>
+									{% for comentario in comentarios  %}
+									<tr>
+										<td>
+											<a href="{{comentario.dispositivo.get_absolute_url}}">{{ comentario.dispositivo }}</a>
+										</td>
+										<td>{{ comentario.fecha_revision|date:"Y-m-d" }}</td>
+										<td>{{comentario.creado_por.get_full_name |default_if_none:"" }}</td>
+										<td>{{comentario.comentario |default_if_none:"" }}</td>
+									</tr>
+									{% endfor %}
+								</tbody>
+							</table>
 						</div>
 					</div>
-					<div class="box-body">
-						<table class="table table-condensed">
-              <tr>
-								<th>Triage</th>
-								<td>{{ dispositivo.triage |default_if_none:"" }}</td>
-							</tr>
-							<tr>
-								<th>Tipo</th>
-								<td>{{ dispositivo.tipo  |default_if_none:""}}</td>
-							</tr>
-							<tr>
-								<th>Entrada</th>
-								<td>
-									{{dispositivo.entrada |default_if_none:""}}
-									<br>
-								</td>
-							</tr>
-              <tr>
-								<th>Estado</th>
-								<td>
-                  {{dispositivo.estado |default_if_none:""}}
-								</td>
-							</tr>
-              <tr>
-								<th>Etapa</th>
-								<td>
-                  {{dispositivo.estapa |default_if_none:""}}
-                  <br>
-								</td>
-							</tr>
-              <tr>
-								<th>Marca</th>
-								<td>
-									{{dispositivo.marca |default_if_none:""}}
-									<br>
-								</td>
-							</tr>
-              <tr>
-								<th>Modelo</th>
-								<td>
-									{{dispositivo.modelo |default_if_none:""}}
-									<br>
-								</td>
-							</tr>
-              <tr>
-								<th>Serie</th>
-								<td>
-									{{dispositivo.valido |default_if_none:""}}
-									<br>
-								</td>
-							</tr>
-              <tr>
-								<th>Tarima</th>
-								<td>
-									{{dispositivo.tarima |default_if_none:""}}
-									<br>
-								</td>
-							</tr>
-              <tr>
-								<th>Valido</th>
-								<td>
-									{{dispositivo.valido |default_if_none:""}}
-									<br>
-								</td>
-							</tr>
-							<tr>
-								<th>Codigo Qr</th>
-								<td>
-									<img src="{{dispositivo.codigo_qr.url}}" class="img-thumbnail" alt="">
-									<br>
-								</td>
-							</tr>
-						</table>
-					</div>
 				</div>
-			</div>
-			{%endif%}
-			
+			</div>			
     </div>
 	
   </div>

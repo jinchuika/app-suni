@@ -4,7 +4,8 @@ from datetime import datetime
 from django.core.mail import send_mail
 from django.contrib.auth.models import User
 from apps.inventario import models as inventario_m
-
+from django.conf import settings
+from django.template import loader
 
 # Para dispositivos
 
@@ -106,6 +107,7 @@ def crear_bitacora(sender, instance, created, **kwargs):
     """ Se encarga de crear los registros de la :class:`SolicitudBitacora`
     """
     if created:
+        # Agregar a Bitácora nuevo registro
         nueva_bitacora = inventario_m.SolicitudBitacora(
             fecha_movimiento=datetime.now(),
             numero_solicitud=inventario_m.SolicitudMovimiento.objects.get(id=instance.id),
@@ -113,31 +115,53 @@ def crear_bitacora(sender, instance, created, **kwargs):
             usuario=instance.creada_por
         )
         nueva_bitacora.save()
-        # enviar correo
+
+        # Armar mensaje a enviar por correo electrónico
         usuario = User.objects.get(username=instance.creada_por)
         usuario_completo = str(usuario.first_name) +" "+ str(usuario.last_name)
+        devolucion = False
+        desecho = False
+
         if instance.devolucion:
+            devolucion = True
             if instance.desecho:
-                 mensaje = "Solicitud de movimiento: "+str(instance.id) +"\nFecha de  movimiento: " + str(datetime.now().date()) +"\nTipo de equipo: "+str(instance.tipo_dispositivo)+"\nCantidad: "+str(instance.cantidad)+"\nObservaciones: "+instance.observaciones+" \nAccion: " + str(inventario_m.AccionBitacora.objects.get(id=1)) + " \nUsuario: " +usuario_completo  + "\nDesecho: Si"+"\nEste correo solo es de prueba :) :)"         
-        else:
-            mensaje = "Solicitud de movimiento: "+str(instance.id) +"\nFecha de  movimiento: " + str(datetime.now().date()) +"\nTipo de equipo: "+str(instance.tipo_dispositivo)+"\nCantidad: "+str(instance.cantidad)+"\nObservaciones: "+instance.observaciones+" \nAccion: " + str(inventario_m.AccionBitacora.objects.get(id=1)) + " \nUsuario: " +usuario_completo  + "\nEste correo solo es de prueba :) :)"         
+                desecho = True
+
+        html_message = loader.render_to_string(
+            'inventario/email/email_solicitud.html',
+            {
+                'solicitud_id': str(instance.id),
+                'fecha_movimiento': str(datetime.now()),
+                'tipo_equipo': str(instance.tipo_dispositivo),
+                'cantidad': str(instance.cantidad),
+                'observaciones': instance.observaciones,
+                'devolucion': str(devolucion),
+                'desecho': str(desecho),
+                'estado': 'Creada',
+                'usuario': usuario_completo,
+                'url': "https://suni.funsepa.org" + str(instance.get_absolute_url()),
+            })
+
         usuarios_bodega = User.objects.filter(groups=21)
         lista_enviar_correos=[]
         for lista_correos  in usuarios_bodega:            
-            lista_enviar_correos.append(lista_correos.email) 
+            lista_enviar_correos.append(lista_correos.email)
+
+        motivo = "SUNI - Solicitud Creada: "+ str(instance.id)
+        # Enviar Correo
         send_mail(
-            'Bitacora',
-            mensaje,
-            '',
-            [''],
-            fail_silently=False
+            motivo,
+            'mensaje',
+            settings.EMAIL_HOST_USER,
+            lista_enviar_correos,
+            fail_silently=True,
+            html_message = html_message
         )
-
-
 
     else:
         if instance.rechazar is  False:
             if instance.recibida is False:
+                # Agregar a Bitácora el nuevo registro
                 nueva_bitacora = inventario_m.SolicitudBitacora(
                     fecha_movimiento=datetime.now(),
                     numero_solicitud=inventario_m.SolicitudMovimiento.objects.get(id=instance.id),
@@ -145,25 +169,49 @@ def crear_bitacora(sender, instance, created, **kwargs):
                     usuario=instance.creada_por
                 )
                 nueva_bitacora.save()
-                #enviar correo                 
-                usuario = User.objects.get(username=instance.creada_por)
-                usuario_completo = str(usuario.first_name) +" "+ str(usuario.last_name)               
+
+                # Armar información del correo
+
+                # Obtener lista de Destinatarios
+                lista_enviar_correos=[]
+                usuario_completo = ''
+                if instance.devolucion:
+                    usuario = User.objects.get(username=instance.creada_por)
+                    usuario_completo = str(usuario.first_name) +" "+ str(usuario.last_name)
+                    usuarios_bodega = User.objects.filter(groups=21)
+                    for lista_correos  in usuarios_bodega:            
+                        lista_enviar_correos.append(lista_correos.email)
+                else:
+                    usuario = User.objects.get(username=instance.autorizada_por)
+                    usuario_completo = str(usuario.first_name) +" "+ str(usuario.last_name)
+                    lista_enviar_correos.append(instance.creada_por.email)
+              
                 dispositivos = inventario_m.CambioEtapa.objects.filter(solicitud=instance.id)
                 lista_dispositivos=[]
                 for nuevo_dipositivo in dispositivos:
-                    lista_dispositivos.append(nuevo_dipositivo.dispositivo.triage)         
-               
-                mensaje = "Solicitud de movimiento: "+str(instance.id) +"\nFecha de  movimiento: " + str(datetime.now().date()) +"\nTipo de equipo: "+str(instance.tipo_dispositivo) +"\nDispositivos: "+ str(lista_dispositivos) +"\nEste correo solo es de prueba :) :)"        
-                
+                    lista_dispositivos.append(nuevo_dipositivo.dispositivo.triage)
+
+                html_message = loader.render_to_string(
+                    'inventario/email/email_solicitud.html',
+                    {
+                    'solicitud_id': str(instance.id),
+                    'fecha_movimiento': str(datetime.now()),
+                    'tipo_equipo': str(instance.tipo_dispositivo),
+                    'dispositivos': lista_dispositivos,
+                    'estado': 'Entregada',
+                    'usuario': usuario_completo,
+                    'url': "https://suni.funsepa.org" + str(instance.get_absolute_url()),
+                    })
+
+                motivo = "SUNI - Dispositivos Entregados: "+ str(instance.id)
+                # Enviar Correo
                 send_mail(
-                    'Bitacora',
-                    mensaje,
-                    '',
-                    [''],
-                    fail_silently=False
+                    motivo,
+                    'mensaje',
+                    settings.EMAIL_HOST_USER,
+                    lista_enviar_correos,
+                    fail_silently=True,
+                    html_message = html_message
                 )
-
-
-
 
 post_save.connect(crear_bitacora, sender=inventario_m.SolicitudMovimiento)

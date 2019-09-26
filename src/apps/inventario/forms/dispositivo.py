@@ -108,7 +108,7 @@ class LaptopForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(LaptopForm, self).__init__(*args, **kwargs)
-        self.fields['disco_duro'].queryset = inv_m.HDD.objects.filter(valido=True)
+        self.fields['disco_duro'].queryset = inv_m.HDD.objects.filter(valido=True, asignado=False)
 
 
 class MonitorForm(forms.ModelForm):
@@ -337,7 +337,7 @@ class DispositivoInformeForm(forms.Form):
         queryset=inv_m.DispositivoTipo.objects.filter(usa_triage=True),
         label='Tipo',
         required=False,
-        widget=forms.Select(attrs={'class': 'form-control'}))
+        widget=forms.Select(attrs={'class': 'form-control select2'}))
 
     marca = forms.ModelChoiceField(
         queryset=inv_m.DispositivoMarca.objects.all(),
@@ -388,6 +388,13 @@ class AsignacionTecnicoForm(forms.ModelForm):
 class SolicitudMovimientoCreateForm(forms.ModelForm):
     """Formulario para el control de las Solicitud de Movimiento de la empresa.
     """
+    field_order = ['no_salida', 'tipo_dispositivo', 'cantidad', 'observaciones']
+
+    no_salida = forms.ModelChoiceField(
+        queryset=inv_m.SalidaInventario.objects.filter(en_creacion=True, estado__nombre="Pendiente"),
+        widget=forms.Select(attrs={'class': 'form-control select2'})
+    )
+
     class Meta:
         model = inv_m.SolicitudMovimiento
         exclude = [
@@ -407,9 +414,10 @@ class SolicitudMovimientoCreateForm(forms.ModelForm):
 
             ]
         widgets = {
-            'tipo_dispositivo': forms.Select(attrs={'id': 'tipo_dispositivo_movimiento', 'class': 'form-control select2', 'tabindex': '1'}),
-            'cantidad': forms.TextInput({'class': 'form-control', 'tabindex': '2'}),
-            'observaciones': forms.Textarea({'class': 'form-control', 'tabindex': '3'}),
+            'no_salida': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '1', 'required': 'true'}),
+            'tipo_dispositivo': forms.Select(attrs={'id': 'tipo_dispositivo_movimiento', 'class': 'form-control select2', 'tabindex': '2'}),
+            'cantidad': forms.TextInput({'class': 'form-control', 'tabindex': '3'}),
+            'observaciones': forms.Textarea({'class': 'form-control', 'tabindex': '4'}),
         }
 
 
@@ -419,31 +427,33 @@ class SolicitudMovimientoInformeForm(forms.Form):
     ESTADO_CHOICES = (
         (None,"--------"),
         (False,"Solicitud"),
-        (True,"Devolucion"),
+        (True,"Devolución"),
     )
     ETAPA_CHOICES = (
         (None,"--------"),
-        (True,"Pendiente"),
-        (False,"Terminada"),
+        (0,"Pendiente"),
+        (1,"Entregado"),
+        (2,"Recibido"),
+        (3,"Rechazada"),
     )
 
-    devolucion = forms.ChoiceField(
-        label='Estado',
-        required=False,
-        widget=forms.Select(attrs={'class': 'form-control'}),
-        choices=ESTADO_CHOICES)
-
-    terminada = forms.ChoiceField(
-        label='Etapa',
-        required=False,
-        widget=forms.Select(attrs={'class': 'form-control'}),
-        choices=ETAPA_CHOICES)
-
-    tipo_dispositivo = forms.ModelChoiceField(
-        queryset=inv_m.DispositivoTipo.objects.filter(usa_triage=True),
+    devolucion = forms.MultipleChoiceField(
         label='Tipo',
         required=False,
-        widget=forms.Select(attrs={'class': 'form-control'}))
+        widget=forms.SelectMultiple(attrs={'class': 'form-control select2'}),
+        choices=ESTADO_CHOICES)
+
+    estado = forms.MultipleChoiceField(
+        label='Estado',
+        required=False,
+        widget=forms.SelectMultiple(attrs={'class': 'form-control select2'}),
+        choices=ETAPA_CHOICES)
+
+    tipo_dispositivo = forms.ModelMultipleChoiceField(
+        queryset=inv_m.DispositivoTipo.objects.filter(usa_triage=True),
+        label='Dispositivo',
+        required=False,
+        widget=forms.SelectMultiple(attrs={'class': 'form-control select2'}))
 
     fecha_min = forms.CharField(
         label='Fecha (min)',
@@ -452,12 +462,18 @@ class SolicitudMovimientoInformeForm(forms.Form):
     fecha_max = forms.CharField(
         label='Fecha (max)',
         required=False,
-        widget=forms.TextInput(attrs={'class': 'form-control datepicker'}))
-    
+        widget=forms.TextInput(attrs={'class': 'form-control datepicker'}))  
 
 class DevolucionCreateForm(forms.ModelForm):
     """Formulario para el control de las Solicitud de Movimiento de la empresa.
     """
+    field_order = ['no_salida', 'tipo_dispositivo', 'cantidad', 'observaciones']
+    
+    no_salida = forms.ModelChoiceField(
+        queryset=inv_m.SalidaInventario.objects.filter(en_creacion=True, estado__nombre="Pendiente"),
+        widget=forms.Select(attrs={'class': 'form-control select2'})
+    )
+
     class Meta:
         model = inv_m.SolicitudMovimiento
         exclude = [
@@ -475,10 +491,11 @@ class DevolucionCreateForm(forms.ModelForm):
             'entrada_kardex'
             ]
         widgets = {
-            'tipo_dispositivo': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '1'}),
-            'cantidad': forms.TextInput({'class': 'form-control', 'tabindex': '2'}),
-            'desecho': forms.CheckboxInput({'class': 'icheckbox_square-red', 'tabindex': '3'}),
-            'observaciones': forms.Textarea({'class': 'form-control', 'tabindex': '4'}),
+            'no_salida': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '1', 'required': 'true'}),
+            'tipo_dispositivo': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '2'}),
+            'cantidad': forms.TextInput({'class': 'form-control', 'tabindex': '3'}),
+            'desecho': forms.CheckboxInput({'class': 'icheckbox_square-red', 'tabindex': '4'}),
+            'observaciones': forms.Textarea({'class': 'form-control', 'tabindex': '5'}),
         }
 
 
@@ -578,5 +595,4 @@ class CPUFormUpdate(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(CPUFormUpdate, self).__init__(*args, **kwargs)
-        instance = getattr(self, 'instance',None) 
         self.fields['disco_duro'].queryset = inv_m.HDD.objects.filter(valido=True,asignado=False)

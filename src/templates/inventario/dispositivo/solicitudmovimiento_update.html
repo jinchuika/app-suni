@@ -1,5 +1,6 @@
 {% extends "base/base.html" %}
 {% load staticfiles widget_tweaks %}
+{% load inventario_extras %}
 {% block page_title %}
     <title>Solicitud de movimiento</title>
 {% endblock page_title %}
@@ -7,6 +8,8 @@
 {% if not object.terminada or  object.recibida %}
 <section class="content">
     <div class="container-fluid">
+        {% if not object.terminada and not object.tipo_dispositivo.kardex%}
+        {% if request.user|has_group:"inv_bodega" and not object.devolucion or request.user|has_group:"inv_tecnico" and object.devolucion %}
         <div class="row">
             <div class="col-md-6">
                 <div class="box">
@@ -24,6 +27,10 @@
                         <form action="" method="post">
                             {% csrf_token %}
                             <table id="solicitud-table" class="table table-condensed" data-cantidad="{{ form.instance.cantidad }}" data-dispo="{{dispositivos_no}}">
+                                <tr>
+                                    <th>Salida</th>
+                                        <td><a href="{{form.instance.no_salida.get_absolute_url}}" target="_blank">{{form.instance.no_salida |default_if_none:""}}</a></td>
+                                    </tr>
                                 <tr>
                                     <th>Cantidad</th>
                                     <td>{{ form.instance.cantidad }}</td>
@@ -94,6 +101,8 @@
                     </div>
                 </div>
         </div>
+        {% endif %}
+        {% endif %}
     </div>
 </section>
 {% endif %}

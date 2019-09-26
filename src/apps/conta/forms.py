@@ -108,6 +108,29 @@ class EntradaInformeForm(forms.Form):
         required=True,
         widget=forms.TextInput(attrs={'class': 'form-control datepicker'}))
 
+class EntradaDispositivoInformeForm(forms.Form):
+    """Este Formulario se encarga de enviar los filtros para  su respectivo informe de Dispositivos por Entrada
+    """
+    no_entrada = forms.IntegerField(
+        label='No. Entrada',
+        required=False,
+        widget=forms.NumberInput(attrs={'class': 'form-control'}))
+
+    tipo_dispositivo = forms.ModelChoiceField(
+        queryset=inv_m.DispositivoTipo.objects.filter(usa_triage=True),
+        label='Tipo de Dispositivo',
+        required=True,
+        widget=forms.Select(attrs={'class': 'form-control select2'}))
+
+    fecha_min = forms.CharField(
+        label='Fecha (min)',
+        required=True,
+        widget=forms.TextInput(attrs={'class': 'form-control datepicker'}))
+    fecha_max = forms.CharField(
+        label='Fecha (max)',
+        required=True,
+        widget=forms.TextInput(attrs={'class': 'form-control datepicker'}))
+
 class SalidasInformeForm(forms.Form):
     """Este Formulario se encarga de enviar los filtros para  su respectivo informe de Salidas
     """
@@ -183,3 +206,9 @@ class ResumenInformeForm(forms.Form):
         label='Fecha (max)',
         required=True,
         widget=forms.TextInput(attrs={'class': 'form-control datepicker'}))
+
+    tipo_dispositivo = forms.ModelMultipleChoiceField(
+        queryset=inv_m.DispositivoTipo.objects.filter(usa_triage=True),
+        label='Dispositivo',
+        required=False,
+        widget=forms.SelectMultiple(attrs={'class': 'form-control select2'}))

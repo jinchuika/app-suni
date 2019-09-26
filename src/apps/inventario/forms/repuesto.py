@@ -11,7 +11,7 @@ class RepuestoForm(forms.Form):
     id = forms.IntegerField(
         label='No. Repuesto',
         required=False,
-        widget=forms.TextInput(attrs={'class': 'form-control'}))
+        widget=forms.NumberInput(attrs={'class': 'form-control'}))
 
     tipo = forms.ModelChoiceField(
         queryset=inv_m.DispositivoTipo.objects.all(),
@@ -34,6 +34,12 @@ class RepuestoForm(forms.Form):
     tarima = forms.ModelChoiceField(
         queryset=inv_m.Tarima.objects.all(),
         label='Tarima',
+        required=False,
+        widget=forms.Select(attrs={'class': 'form-control select2'}))
+
+    estado = forms.ModelChoiceField(
+        queryset=inv_m.RepuestoEstado.objects.all(),
+        label='Estado',
         required=False,
         widget=forms.Select(attrs={'class': 'form-control select2'}))
 
