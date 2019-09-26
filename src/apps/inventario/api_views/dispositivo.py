@@ -358,8 +358,7 @@ class DispositivoViewSet(viewsets.ModelViewSet):
         )
         nueva_bitacora.save()
         usuario = User.objects.get(username=self.request.user)
-        usuario_completo = str(usuario.first_name) +" "+ str(usuario.last_name)
-        print(solicitudes_movimiento.devolucion)
+        usuario_completo = str(usuario.first_name) +" "+ str(usuario.last_name)        
         if solicitudes_movimiento.devolucion:        
             mensaje = "Solicitud de movimiento: "+str(id)+ "\nFecha de  movimiento: " + str(datetime.now().date())+"\nTipo de equipo"+str(solicitudes_movimiento.tipo_dispositivo)+"\nDevolucion Recibida"+"\nEste correo solo es de prueba :) :)" 
             send_mail(
@@ -550,7 +549,7 @@ class DispositivoViewSet(viewsets.ModelViewSet):
 
     @action(methods=['post'], detail=False)
     def colocar_repuesto_tarima(self, request, pk=None):
-        """ Este se conecta ala app para colocar los repuestos a las tarimas
+        """ Este se conecta a la app para colocar los repuestos a las tarimas
         """
         id = request.data['id']
         tarima = request.data['tarima']

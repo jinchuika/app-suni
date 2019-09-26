@@ -1,5 +1,4 @@
 {% extends "base/base.html" %}
-
 {% load staticfiles widget_tweaks %}
 {% load inventario_extras %}
 {% block page_title %}
@@ -9,7 +8,6 @@
         <title>Entrada</title>
     {% endif %}
 {% endblock page_title %}
-
 {% block content %}
 {% csrf_token %}
 {%if form.instance.en_creacion%}

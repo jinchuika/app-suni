@@ -17,7 +17,7 @@ from decimal import Decimal
 
 
 class RepuestoInventarioViewSet(viewsets.ModelViewSet):
-    """ViewSet para poder asignar repuesto  de la :clas:`Repuesto` y poder asignar los
+    """ViewSet para poder asignar repuesto  de la :class:`Repuesto` y poder asignar los
       periodos fiscales de la :class:`PeriodoFiscal`, asignar los repuestos de la :class:`DispositivoRepuesto`
       llevar los movimientos de repuestos de la :class:`MovimientoRepuesto`
 
