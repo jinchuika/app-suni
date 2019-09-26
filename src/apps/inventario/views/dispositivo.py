@@ -9,7 +9,7 @@ from django.contrib import messages
 from django.shortcuts import reverse
 from django.views.generic import DetailView, UpdateView, CreateView, ListView, FormView
 from django.db.models import Q
-
+from django.db.models import Sum
 from braces.views import (
     LoginRequiredMixin, PermissionRequiredMixin, GroupRequiredMixin
 )
@@ -91,7 +91,7 @@ class SolicitudMovimientoCreateView(LoginRequiredMixin, CreateView):
     form_class = inv_f.SolicitudMovimientoCreateForm
     group_required = [u"inv_cc", u"inv_admin", u"inv_tecnico", u"inv_bodega"]
 
-    def form_valid(self, form):        
+    def form_valid(self, form):
         cantidad = form.cleaned_data['cantidad']
         tipo_dispositivo = form.cleaned_data['tipo_dispositivo']
         etapa_transito = inv_m.DispositivoEtapa.objects.get(id=inv_m.DispositivoEtapa.AB)
@@ -156,8 +156,26 @@ class DevolucionCreateView(LoginRequiredMixin, CreateView):
         etapa = inv_m.DispositivoEtapa.objects.get(id=inv_m.DispositivoEtapa.TR)
         estado = inv_m.DispositivoEstado.objects.get(id=inv_m.DispositivoEstado.PD)
         validar_dispositivos = inv_m.DispositivoTipo.objects.get(tipo=tipo_dispositivo)
-        dispositivos_salida = inv_m.CambioEtapa.objects.filter(solicitud__no_salida=no_salida, etapa_final=etapa).values('dispositivo')
-        numero_dispositivos = inv_m.Dispositivo.objects.filter(id__in=dispositivos_salida, tipo=validar_dispositivos, etapa=etapa, estado=estado).count()
+
+        if(validar_dispositivos.kardex):
+            sum_solicitudes = sum_devoluciones = sum_paquetes = 0
+            solicitudes = inv_m.SolicitudMovimiento.objects.filter(no_salida=no_salida, tipo_dispositivo=validar_dispositivos, terminada=True, recibida=True, devolucion=False).aggregate(Sum('cantidad'))
+            devoluciones = inv_m.SolicitudMovimiento.objects.filter(no_salida=no_salida, tipo_dispositivo=validar_dispositivos, terminada=True, recibida=True, devolucion=True).aggregate(Sum('cantidad'))
+            paquetes = inv_m.Paquete.objects.filter(salida=no_salida, tipo_paquete__tipo_dispositivo=validar_dispositivos).aggregate(Sum('cantidad'))
+
+            if solicitudes['cantidad__sum'] is not None:
+                sum_solicitudes = solicitudes['cantidad__sum']
+
+            if devoluciones['cantidad__sum'] is not None:
+                sum_devoluciones = devoluciones['cantidad__sum']
+
+            if paquetes['cantidad__sum'] is not None:
+                sum_paquetes = paquetes['cantidad__sum']
+        
+            numero_dispositivos = sum_solicitudes - sum_devoluciones - sum_paquetes
+        else:
+            dispositivos_salida = inv_m.CambioEtapa.objects.filter(solicitud__no_salida=no_salida, etapa_final=etapa).values('dispositivo')
+            numero_dispositivos = inv_m.Dispositivo.objects.filter(id__in=dispositivos_salida, tipo=validar_dispositivos, etapa=etapa, estado=estado).count()
 
         if(cantidad > numero_dispositivos):
             form.add_error('cantidad', 'No  hay suficientes dipositivos para satifacer la solicitud')
@@ -405,15 +423,23 @@ class CPUptadeView(LoginRequiredMixin, UpdateView):
     query_pk_and_slug = True
     template_name = 'inventario/dispositivo/cpu/cpu_edit.html'
 
+    def form_valid(self, form):
+        hdd = form.cleaned_data['disco_duro']
+        if hdd:
+            disco = inv_m.HDD.objects.get(triage=hdd)
+            disco.asignado = True
+            disco.save()
+
+        return super(CPUptadeView, self).form_valid(form)
+
+
     def get_context_data(self, **kwargs):       
         context =super(CPUptadeView,self).get_context_data(**kwargs)          
-        try:           
+        try:
             context["disco_duro"]=self.object.disco_duro.id
             disco = inv_m.HDD.objects.get(id=self.object.disco_duro.id)
-            context["triage"]=self.object.disco_duro
-            disco.asignado=True
-            disco.save()         
-        except:          
+            context["triage"]=self.object.disco_duro        
+        except:
             context["disco_duro"]="---------" 
             context["triage"]="-----------" 
         return context
@@ -441,6 +467,26 @@ class LaptopUptadeView(LoginRequiredMixin, UpdateView):
     slug_url_kwarg = "triage"
     query_pk_and_slug = True
     template_name = 'inventario/dispositivo/laptop/laptop_edit.html'
+
+    def form_valid(self, form):
+        hdd = form.cleaned_data['disco_duro']
+        if hdd:
+            disco = inv_m.HDD.objects.get(triage=hdd)
+            disco.asignado = True
+            disco.save()
+
+        return super(LaptopUptadeView, self).form_valid(form)
+
+    def get_context_data(self, **kwargs):       
+        context =super(LaptopUptadeView,self).get_context_data(**kwargs)          
+        try:
+            context["disco_duro"]=self.object.disco_duro.id
+            disco = inv_m.HDD.objects.get(id=self.object.disco_duro.id)
+            context["triage"]=self.object.disco_duro        
+        except:
+            context["disco_duro"]="---------" 
+            context["triage"]="-----------" 
+        return context
 
     def get_success_url(self):
         if self.object.entrada_detalle.id != 1:

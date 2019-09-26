@@ -17,21 +17,21 @@ var tipos_monitores =[];
 var os =[];
 var urldispositivo = $("#grid_id").data("url");
 $.ajax({
-  type: 'POST',
-  url: $('#grid_id').data('dispo'),
-  dataType: 'json',
+  type: 'POST',  
+  url: $('#grid_id').data('dispo'), 
+  dataType: 'json', 
   data: {
-    paquete:$('#grid_id').data('id'),
+    paquete:$('#grid_id').data('id'),    
     csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val()
-
+   
   },
   success: function (response) {
+    
     marcas = response.marcas;
     datos=response.data;
     dispositivo = response.dispositivo
     sistema = response.sistemas
-    nueva_data =JSON.stringify(datos[0]).toString()
-    console.log(nueva_data);
+    nueva_data =JSON.stringify(datos[0]).toString()    
     var separators = [':',',', '\\\{', '\\\}'];
     var tokens = nueva_data.split(new RegExp(separators.join('|'), 'g'));
     for(c=0;c<tokens.length; c++){

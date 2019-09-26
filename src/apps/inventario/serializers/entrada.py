@@ -103,11 +103,11 @@ class EntradaDetalleSerializer(serializers.ModelSerializer):
         return inventario_desecho
     
     def get_fecha_desecho(self, obj):
-        fecha = inv_m.DesechoComentario.objects.filter(entrada_detalle=obj.id).last()
-        if fecha:        
+         fecha = inv_m.DesechoComentario.objects.filter(entrada_detalle=obj.id).last()
+         if fecha is None:
+            return ""
+         else:        
             return fecha.fecha_revision.date()
-        else:
-            return ''
 
 
 

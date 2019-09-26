@@ -9,6 +9,7 @@ from datetime import datetime
 from braces.views import LoginRequiredMixin
 from django.http import JsonResponse, HttpResponse
 from django.db.models import Q
+from django.db.models import Sum
 from apps.inventario import (
     serializers as inv_s,
     models as inv_m
@@ -307,16 +308,32 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
         etapa = inv_m.DispositivoEtapa.objects.get(id=inv_m.DispositivoEtapa.TR)
         estado = inv_m.DispositivoEstado.objects.get(id=inv_m.DispositivoEstado.PD)
         validar_dispositivos = inv_m.DispositivoTipo.objects.get(tipo=tipo_dispositivo)
-        dispositivos_salida = inv_m.CambioEtapa.objects.none().values('dispositivo')
+        numero_dispositivos = 0
 
         if no_salida != "":
-            dispositivos_salida = inv_m.CambioEtapa.objects.filter(solicitud__no_salida=no_salida, etapa_final=etapa).values('dispositivo')
-            
-        numero_dispositivos = inv_m.Dispositivo.objects.filter(
-            id__in=dispositivos_salida,
-            tipo=validar_dispositivos,
-            etapa=etapa,
-            estado=estado).count()
+            if(validar_dispositivos.kardex):
+                sum_solicitudes = sum_devoluciones = sum_paquetes = 0
+                solicitudes = inv_m.SolicitudMovimiento.objects.filter(no_salida=no_salida, tipo_dispositivo=validar_dispositivos, terminada=True, recibida=True, devolucion=False).aggregate(Sum('cantidad'))
+                devoluciones = inv_m.SolicitudMovimiento.objects.filter(no_salida=no_salida, tipo_dispositivo=validar_dispositivos, terminada=True, recibida=True, devolucion=True).aggregate(Sum('cantidad'))
+                paquetes = inv_m.Paquete.objects.filter(salida=no_salida, tipo_paquete__tipo_dispositivo=validar_dispositivos).aggregate(Sum('cantidad'))
+
+                if solicitudes['cantidad__sum'] is not None:
+                    sum_solicitudes = solicitudes['cantidad__sum']
+
+                if devoluciones['cantidad__sum'] is not None:
+                    sum_devoluciones = devoluciones['cantidad__sum']
+
+                if paquetes['cantidad__sum'] is not None:
+                    sum_paquetes = paquetes['cantidad__sum']
+        
+                numero_dispositivos = sum_solicitudes - sum_devoluciones - sum_paquetes
+            else:
+                dispositivos_salida = inv_m.CambioEtapa.objects.filter(solicitud__no_salida=no_salida, etapa_final=etapa).values('dispositivo')
+                numero_dispositivos = inv_m.Dispositivo.objects.filter(
+                    id__in=dispositivos_salida,
+                    tipo=validar_dispositivos,
+                    etapa=etapa,
+                    estado=estado).count()
 
         return Response(
             {'mensaje': numero_dispositivos},

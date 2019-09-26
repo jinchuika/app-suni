@@ -54,7 +54,7 @@ dispositivos_children = (
         icon="fa-gear",
     ),
     ViewMenuItem(
-        "Sistema Operativo",
+        "Paquetes de Software",
         reverse_lazy('versionsistema_list'),
         group="inv_bodega",
         weight=12,
@@ -92,7 +92,7 @@ salidas_children = (
         "Agregar Salida",
         reverse_lazy('salidainventario_add'),
         weight=12,
-        group="inv_cc,inv_bodega",
+        group="inv_cc",
         icon="fa-pencil-square-o",
     ),
     ViewMenuItem(
@@ -127,9 +127,15 @@ desecho_children = (
     ),
     ViewMenuItem(
         "Salidas de Desecho",
+        reverse_lazy('desechosalida_list'),
+        weight=12,
+        icon="fa-trash",
+    ),
+    ViewMenuItem(
+        "Agregar Salida",
         reverse_lazy('desechosalida_add'),
         weight=12,
-        icon="fa-archive",
+        icon="fa-pencil-square-o",
     ),
 
 )

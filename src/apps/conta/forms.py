@@ -206,3 +206,9 @@ class ResumenInformeForm(forms.Form):
         label='Fecha (max)',
         required=True,
         widget=forms.TextInput(attrs={'class': 'form-control datepicker'}))
+
+    tipo_dispositivo = forms.ModelMultipleChoiceField(
+        queryset=inv_m.DispositivoTipo.objects.filter(usa_triage=True),
+        label='Dispositivo',
+        required=False,
+        widget=forms.SelectMultiple(attrs={'class': 'form-control select2'}))

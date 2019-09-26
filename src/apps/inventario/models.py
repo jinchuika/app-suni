@@ -1075,6 +1075,7 @@ class Repuesto(models.Model):
         return 'R-{}'.format(self.id)
 
     def save(self, *args, **kwargs):
+        print('Salvar')
         super(Repuesto, self).save(*args, **kwargs)
         if not self.codigo_qr:
             self.crear_qrcode()
@@ -1181,7 +1182,7 @@ class DesechoSalida(models.Model):
             super(DesechoSalida, self).save(*args, *kwargs)
     
     def crear_qrcode(self):
-        """Genera le código QR para apuntar al url de imagenes de desecho
+        """Genera el código QR para apuntar al url de imagenes de desecho
         """
         qr = qrcode.QRCode(
             version=1,
@@ -1330,6 +1331,7 @@ class SalidaInventario(models.Model):
         mye.Cooperante, on_delete=models.PROTECT,
         related_name='cooperante',
         null=True, blank=True)
+    url = models.TextField(null=True, blank=True)
 
     class Meta:
         verbose_name = "Salida"
@@ -1454,6 +1456,7 @@ class Paquete(models.Model):
 
     def __str__(self):
         return 'P{salida}-{indice}'.format(salida=self.salida, indice=self.indice)
+        #return 'P{salida}'
 
     def aprobar(self, usuario):
         for paquete in self.asignacion.all():

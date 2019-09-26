@@ -222,6 +222,11 @@ class ContabilidadResumenInformeListView(LoginRequiredMixin, FormView):
     template_name = 'conta/informe_resumen.html'
     form_class = conta_f.ResumenInformeForm
 
+    def get_form(self, form_class=None):
+        form = super(ContabilidadResumenInformeListView, self).get_form(form_class)
+        form.fields['tipo_dispositivo'].queryset = self.request.user.tipos_dispositivos.tipos.filter(usa_triage=True)
+        return form
+
 class InformeCantidadJson(views.APIView):
     
     def get(self, request):
@@ -737,10 +742,23 @@ class InformeResumenJson(views.APIView):
     def get(self, request):
         fecha_inicio = self.request.GET['fecha_min']
         fecha_fin = self.request.GET['fecha_max']
+        try:
+            tipo_dispositivo = []
+            tipo_dispositivo = self.request.GET.getlist('tipo_dispositivo[]')
+            if len(tipo_dispositivo) == 0:
+                tipo = self.request.GET['tipo_dispositivo']
+                tipo_dispositivo.append(tipo)
+        except MultiValueDictKeyError as e:
+            tipo_dispositivo = 0
+
+        # Filtrar por tipos de dispositivos seleccionados
+        if tipo_dispositivo == 0 or not tipo_dispositivo:
+            dispositivos = self.request.user.tipos_dispositivos.tipos.filter(usa_triage=True)
+        else:
+            dispositivos = self.request.user.tipos_dispositivos.tipos.filter(id__in=tipo_dispositivo)
 
         # Validar que el rango de fechas pertenezcan a un solo período fiscal
         validar_fecha = conta_m.PeriodoFiscal.objects.filter(fecha_inicio__lte=fecha_inicio, fecha_fin__gte=fecha_fin)
-        dispositivos = inv_m.DispositivoTipo.objects.all().exclude(conta=False)
         acumulador = 0
         acumulador_anterior = 0
         acumulador_ant_ex = 0

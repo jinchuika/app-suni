@@ -4,15 +4,19 @@ from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.core.exceptions import ObjectDoesNotExist
+from django.core.mail import send_mail
 from datetime import datetime
 from django.http import JsonResponse
 from django.utils.datastructures import MultiValueDictKeyError
+from django.conf import settings
+from django.template import loader
 import time
 from braces.views import LoginRequiredMixin
 from apps.inventario import (
     serializers as inv_s,
     models as inv_m
 )
+from django.contrib.auth.models import User
 from apps.kardex import models as kax_m
 from django.db.models import Count
 import json
@@ -51,12 +55,17 @@ class DispositivoViewSet(viewsets.ModelViewSet):
         marca = self.request.query_params.get('marca', None)
         modelo = self.request.query_params.get('modelo', None)
         tarima = self.request.query_params.get('tarima', None)
-        nuevo_tipo = self.request.query_params.get('newtipo', None)
-        if nuevo_tipo is None:
+        etapa = self.request.query_params.get('etapa', None)
+        
+        print(tipo)
+        if tipo is None:
             tipo_dis = self.request.user.tipos_dispositivos.tipos.all()
         else:
-            tipo_dis = inv_m.DispositivoTipo.objects.filter(tipo=nuevo_tipo)
-        if triage or dispositivo:
+            tipo_dis = inv_m.DispositivoTipo.objects.filter(id=tipo)
+
+        if triage or dispositivo or etapa:
+            print('ENTRO')
+            print(tipo_dis)
             return inv_m.Dispositivo.objects.all().filter(tipo__in=tipo_dis)
         elif tipo or marca or modelo or tarima:
             # Se encarga de mostrar mas rapido los dispositivos que se usan con mas frecuencia
@@ -129,15 +138,15 @@ class DispositivoViewSet(viewsets.ModelViewSet):
             data = inv_m.Mouse.objects.filter(
                 triage__in=paquetes
             ).values(
-                'triage',
+                'triage',                
                 'marca',
                 'modelo',
                 'serie',
                 'tarima',
-                'puerto',
+                'puerto',               
                 'tipo_mouse',
                 'caja',
-                'clase')
+                'clase').order_by('triage')
             return JsonResponse({
                 'data': list(data),
                 'tipo': list(tipos_mouse),
@@ -156,7 +165,7 @@ class DispositivoViewSet(viewsets.ModelViewSet):
                 'puerto',
                 'caja',
                 'clase'
-                )
+                ).order_by('triage')
             return JsonResponse({
                 'data': list(data),
                 'marcas': list(tipos),
@@ -177,7 +186,7 @@ class DispositivoViewSet(viewsets.ModelViewSet):
                 'puerto',
                 'pulgadas',
                 'clase'
-                )
+                ).order_by('triage')
             return JsonResponse({
                 'data': list(data),
                 'marcas': list(tipos),
@@ -232,7 +241,7 @@ class DispositivoViewSet(viewsets.ModelViewSet):
                 'almacenamiento_externo',
                 'pulgadas',
                 'clase'
-                )
+                ).order_by('triage')
             return JsonResponse({
                 'data': list(data),
                 'marcas': list(tipos),
@@ -259,7 +268,7 @@ class DispositivoViewSet(viewsets.ModelViewSet):
                 'ram_medida',
                 'pulgadas',
                 'clase'
-                )
+                ).order_by('triage')
             return JsonResponse({
                 'data': list(data),
                 'marcas': list(tipos),
@@ -282,7 +291,7 @@ class DispositivoViewSet(viewsets.ModelViewSet):
                 'capacidad',
                 'medida',
                 'clase'
-                )
+                ).order_by('triage')
             return JsonResponse({
                 'data': list(data),
                 'marcas': list(tipos),
@@ -304,7 +313,7 @@ class DispositivoViewSet(viewsets.ModelViewSet):
                 'velocidad',
                 'velocidad_medida',
                 'clase'
-                )
+                ).order_by('triage')
             return JsonResponse({
                 'data': list(data),
                 'marcas': list(tipos),
@@ -327,7 +336,7 @@ class DispositivoViewSet(viewsets.ModelViewSet):
                 'velocidad',
                 'velocidad_medida',
                 'clase'
-                )
+                ).order_by('triage')
             return JsonResponse({
                 'data': list(data),
                 'marcas': list(tipos),
@@ -349,6 +358,7 @@ class DispositivoViewSet(viewsets.ModelViewSet):
         solicitudes_movimiento.terminada = True
         solicitudes_movimiento.recibida = True
         solicitudes_movimiento.save()
+        # Agregar Registro a Bitácora
         nueva_bitacora = inv_m.SolicitudBitacora(
             fecha_movimiento=datetime.now(),
             numero_solicitud=inv_m.SolicitudMovimiento.objects.get(id=id),
@@ -356,6 +366,44 @@ class DispositivoViewSet(viewsets.ModelViewSet):
             usuario=self.request.user
         )
         nueva_bitacora.save()
+
+        # Enviar correo de notificación
+        motivo = ''
+        lista_enviar_correos = []
+        usuario_completo = ''
+        if solicitudes_movimiento.devolucion:
+            motivo = "SUNI - Devolución Recibida: "+ str(id)
+            usuario_completo = str(self.request.user.first_name) +" "+ str(self.request.user.last_name)
+            lista_enviar_correos.append(solicitudes_movimiento.creada_por.email)
+
+        else:
+            motivo = "SUNI - Solicitud Recibida: "+ str(id)
+            usuario_completo = str(solicitudes_movimiento.creada_por.first_name) +" "+ str(solicitudes_movimiento.creada_por.last_name)
+            usuarios_bodega = User.objects.filter(groups=21)
+            for lista_correos  in usuarios_bodega:
+                lista_enviar_correos.append(lista_correos.email)
+
+        html_message = loader.render_to_string(
+            'inventario/email/email_solicitud.html',
+            {
+                'solicitud_id': str(id),
+                'fecha_movimiento': str(datetime.now()),
+                'tipo_equipo': str(solicitudes_movimiento.tipo_dispositivo),
+                'usuario': usuario_completo,
+                'estado': 'Recibida',
+                'url': "https://suni.funsepa.org" + str(solicitudes_movimiento.get_absolute_url()),
+            })
+
+        # Enviar Correo
+        send_mail(
+            motivo,
+            'mensaje',
+            settings.EMAIL_HOST_USER,
+            lista_enviar_correos,
+            fail_silently=True,
+            html_message = html_message
+        )
+
         return Response(
             {'mensaje': 'Solicitud Recibida'},
             status=status.HTTP_200_OK
@@ -389,6 +437,7 @@ class DispositivoViewSet(viewsets.ModelViewSet):
             usado = kax_m.EstadoEquipo.objects.get(estado='Usado')
             area_tecnica = kax_m.Proveedor.objects.get(nombre="AREA TECNICA")
             devolucion = kax_m.TipoEntrada.objects.get(tipo="Devolucion")
+            motivo = ''
             if solicitudes_movimiento.devolucion is True:               
                 nuevo = kax_m.Entrada(
                     estado=usado,
@@ -398,9 +447,9 @@ class DispositivoViewSet(viewsets.ModelViewSet):
                     observacion=solicitudes_movimiento.observaciones,
                     terminada=True)
                 nuevo.save()
-                salida_creada = kax_m.Entrada.objects.all().last()
+                nuevo_detalle = kax_m.Entrada.objects.all().last()
                 nuevo_detalle_kardez = kax_m.EntradaDetalle(
-                    entrada=salida_creada,
+                    entrada=nuevo_detalle,
                     equipo=kax_m.Equipo.objects.get(nombre=solicitudes_movimiento.tipo_dispositivo),
                     cantidad=solicitudes_movimiento.cantidad,
                     precio=0,
@@ -408,9 +457,10 @@ class DispositivoViewSet(viewsets.ModelViewSet):
                 nuevo_detalle_kardez.save()
                 solicitudes_movimiento.autorizada_por = self.request.user
                 solicitudes_movimiento.terminada = True
-                solicitudes_movimiento.entrada_kardex = salida_creada
+                solicitudes_movimiento.entrada_kardex = nuevo_detalle
                 solicitudes_movimiento.autorizada_por = self.request.user
                 solicitudes_movimiento.save()
+                # Agregar registro a bitácora
                 nueva_bitacora = inv_m.SolicitudBitacora(
                     fecha_movimiento=datetime.now(),
                     numero_solicitud=inv_m.SolicitudMovimiento.objects.get(id=id),
@@ -418,6 +468,7 @@ class DispositivoViewSet(viewsets.ModelViewSet):
                     usuario=self.request.user
                 )
                 nueva_bitacora.save()
+                motivo = "SUNI - Solicitud de Kardex Aprobada: " + str(id)
             else:               
                 tipo_salida = kax_m.TipoSalida.objects.get(tipo="Inventario SUNI")
                 nuevo = kax_m.Salida(
@@ -441,7 +492,8 @@ class DispositivoViewSet(viewsets.ModelViewSet):
                 solicitudes_movimiento.salida_kardex = nuevo_detalle
                 solicitudes_movimiento.autorizada_por = self.request.user
                 solicitudes_movimiento.save()
-                cantidad_kardex = kax_m.Equipo.objects.get(nombre=solicitudes_movimiento.tipo_dispositivo)            
+                
+                # Agregar Registro a bitácora
                 nueva_bitacora = inv_m.SolicitudBitacora(
                     fecha_movimiento=datetime.now(),
                     numero_solicitud=inv_m.SolicitudMovimiento.objects.get(id=id),
@@ -449,10 +501,37 @@ class DispositivoViewSet(viewsets.ModelViewSet):
                     usuario=self.request.user
                 )
                 nueva_bitacora.save()
-                return Response(
-                    {'mensaje': nuevo_detalle.id, 'existencia': cantidad_kardex.existencia},
-                    status=status.HTTP_200_OK
-                )
+                motivo = "SUNI - Devolución de Kardex Aprobada: " + str(id)
+
+            cantidad_kardex = kax_m.Equipo.objects.get(nombre=solicitudes_movimiento.tipo_dispositivo)
+            # Enviar correo de notificación
+            usuario_completo = str(self.request.user.first_name) +" "+ str(self.request.user.last_name)
+
+            html_message = loader.render_to_string(
+                'inventario/email/email_solicitud.html',
+                {
+                    'solicitud_id': str(id),
+                    'fecha_movimiento': str(datetime.now()),
+                    'tipo_equipo': str(solicitudes_movimiento.tipo_dispositivo),
+                    'cantidad': str(solicitudes_movimiento.cantidad),
+                    'estado': 'Aprobada Kardex',
+                    'usuario': usuario_completo,
+                    'url': "https://suni.funsepa.org" + str(solicitudes_movimiento.get_absolute_url()),
+                })
+
+            
+            # Enviar Correo
+            send_mail(
+                motivo,
+                'mensaje',
+                settings.EMAIL_HOST_USER,
+                [solicitudes_movimiento.creada_por.email],
+                fail_silently=True,
+                html_message = html_message
+            )
+            return Response(
+                {'mensaje': nuevo_detalle.id, 'existencia': cantidad_kardex.existencia},
+                status=status.HTTP_200_OK)
         else:
             """ Rechazar dispositivos de kardex
             """
@@ -461,6 +540,8 @@ class DispositivoViewSet(viewsets.ModelViewSet):
             solicitudes_movimiento.terminada = True
             solicitudes_movimiento.rechazar = True
             solicitudes_movimiento.save()
+
+            # Agregar registro a Bitácora
             nueva_bitacora = inv_m.SolicitudBitacora(
                 fecha_movimiento=datetime.now(),
                 numero_solicitud=inv_m.SolicitudMovimiento.objects.get(id=id),
@@ -468,6 +549,33 @@ class DispositivoViewSet(viewsets.ModelViewSet):
                 usuario=self.request.user
             )
             nueva_bitacora.save()
+
+            # Enviar correo de notificación
+            usuario_completo = str(self.request.user.first_name) +" "+ str(self.request.user.last_name)
+
+            html_message = loader.render_to_string(
+                'inventario/email/email_solicitud.html',
+                {
+                    'solicitud_id': str(id),
+                    'fecha_movimiento': str(datetime.now()),
+                    'tipo_equipo': str(solicitudes_movimiento.tipo_dispositivo),
+                    'cantidad': str(solicitudes_movimiento.cantidad),
+                    'estado': 'Rechazada',
+                    'usuario': usuario_completo,
+                    'url': "https://suni.funsepa.org" + str(solicitudes_movimiento.get_absolute_url()),
+                })
+
+            motivo = "SUNI - Solicitud Rechazada: "+ str(id)
+            # Enviar Correo
+            send_mail(
+                motivo,
+                'mensaje',
+                settings.EMAIL_HOST_USER,
+                [solicitudes_movimiento.creada_por.email],
+                fail_silently=True,
+                html_message = html_message
+            )
+            
             return Response(
                 {'mensaje': 'Solicitud Rechazada'},
                 status=status.HTTP_200_OK

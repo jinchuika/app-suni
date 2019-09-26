@@ -108,7 +108,7 @@ class LaptopForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(LaptopForm, self).__init__(*args, **kwargs)
-        self.fields['disco_duro'].queryset = inv_m.HDD.objects.filter(valido=True)
+        self.fields['disco_duro'].queryset = inv_m.HDD.objects.filter(valido=True, asignado=False)
 
 
 class MonitorForm(forms.ModelForm):
@@ -337,7 +337,7 @@ class DispositivoInformeForm(forms.Form):
         queryset=inv_m.DispositivoTipo.objects.filter(usa_triage=True),
         label='Tipo',
         required=False,
-        widget=forms.Select(attrs={'class': 'form-control'}))
+        widget=forms.Select(attrs={'class': 'form-control select2'}))
 
     marca = forms.ModelChoiceField(
         queryset=inv_m.DispositivoMarca.objects.all(),
@@ -595,5 +595,4 @@ class CPUFormUpdate(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(CPUFormUpdate, self).__init__(*args, **kwargs)
-        instance = getattr(self, 'instance',None) 
         self.fields['disco_duro'].queryset = inv_m.HDD.objects.filter(valido=True,asignado=False)

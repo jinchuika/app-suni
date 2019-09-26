@@ -212,10 +212,10 @@ class EntradaUpdate {
                     }
                 },
             ]
-        });
-
+        });        
         let tablabody = $('#entrada-table tbody');
         let tabla_temp = this;
+       
 
         tablabody.on('click', '.btn-editar', function () {
            let data_fila = this.tabla.row($(this).parents('tr')).data();
@@ -620,7 +620,6 @@ class EntradaDetail {
             {data: "id", render: function(data, type, full, meta){
               if(full.en_creacion== "Si"){
                 return "<a href="+full.urlSi+" class='btn btn-block btn-success'>"+data+"</a>";
-
               }else{
                 return "<a href="+full.urlNo+" class='btn btn-block btn-success'>"+data+"</a>";
               }
@@ -651,6 +650,7 @@ class EntradaDetail {
             e.preventDefault();
             $('#spinner').show();
             tabla.clear().draw();
+            new BuscadorTabla();
             tabla.ajax.reload();
         });
 
@@ -1236,7 +1236,6 @@ class SolicitudMovimientoValidar {
             location.reload();
           },
       });
-
     });
 
     $('#id_tipo_dispositivo').change( function() {      
@@ -1779,8 +1778,13 @@ class Salidas {
         }},
         {data:"beneficiario"},
       ]
-    });
+      
+    }
+    
+    );   
+  
     /* */
+    
     $('#salida-list-form').submit(function (e) {
           e.preventDefault();
         $('#salidas-table').DataTable({
@@ -1829,8 +1833,10 @@ class Salidas {
         });
     });
     /* */
+    
     var nueva_tabla = tabla_paquetes.DataTable({
       dom: 'Bfrtip',
+      destroy:true,
       buttons: ['excel', 'pdf', 'copy'],
       ajax:{
         url:url_salida_paquete,
@@ -1909,6 +1915,7 @@ class Salidas {
         }}
       ]
     });
+    
     /**Asignar Dispositivos**/
     nueva_tabla.on('click','.btn-asignar', function () {
       location.reload();
@@ -1948,8 +1955,7 @@ class Salidas {
              }
          },
          callback: function (result) {
-           if(result==true){
-             console.log(urlrechazar);
+           if(result==true){             
              $.ajax({
                type: "POST",
                url: urlrechazar_kardex,
@@ -1968,7 +1974,8 @@ class Salidas {
          }
        });
       /****/
-    });
+    });  
+ 
  //select2
     this.asig_salidas =$('#id_entrada');
     let api_urlentrada=this.asig_salidas.data('api-url');
@@ -3008,8 +3015,7 @@ class PaqueteDetail {
     let slug = this.asig_dispositivos.data('slug');
     let cantidad = this.asig_dispositivos.data('cantidad');
     let cantidad_disponible = $('#rechazar-dispositivo').data('dispo');
-    let cantidad_asignar = cantidad - cantidad_disponible;
-    
+    let cantidad_asignar = cantidad - cantidad_disponible;  
     if(cantidad_asignar == 0){
       var activar = true
     }else{
@@ -3381,37 +3387,44 @@ class PaqueteDetail {
     /*Editar Cantidad de Dispositivos */
     $("#editar_cantidad").click(function (e) {
       bootbox.prompt("Ingrese la cantidad nueva", function(result){ 
-        var nueva_cantidad = result;
-        console.log(result); 
-        console.log($("#editar_cantidad").data("cantidaurl"));
-        if(result<cantidad){
-          bootbox.alert("Cantidad no disponible tiene que ser mayor a la cantidad del paquete");
-        }else{
-          /* */
-          $.ajax({
-            type: "POST",
-            url: $("#editar_cantidad").data("cantidaurl") ,
-            dataType: 'json',
-            data:{
-              csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),              
-              cantidad:nueva_cantidad,  
-              idpaquete:$("#editar_cantidad").data("nuevoid")
-            },
-            success: function (response){
-              bootbox.alert(response.mensaje);
-               location.reload();
-            },
-            error: function (response){    
-              console.log(response);        
-              //bootbox.alert(response.responseText);
-            }
-          });
-          /* */
-        };
+        var nueva_cantidad = result;         
+       if(result > cantidad){        
+         PaqueteDetail.cambiar_cantidad(result); 
+       }else{
+         if(result < cantidad_disponible){          
+           if(cantidad_disponible==0){
+            PaqueteDetail.cambiar_cantidad(result); 
+           }else{
+            bootbox.alert("Cantidad no aceptada, no puede ser menor al numero de dispositivos asignados");
+           } 
+         }else{
+          PaqueteDetail.cambiar_cantidad(result); 
+         }
+       }      
+      
     });
-  });
-
+  }); 
   }
+  static cambiar_cantidad(new_cantidad){
+    $.ajax({
+      type: "POST",
+      url: $("#editar_cantidad").data("cantidaurl") ,
+      dataType: 'json',
+      data:{
+        csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),              
+        cantidad:new_cantidad,  
+        idpaquete:$("#editar_cantidad").data("nuevoid")
+      },
+      success: function (response){
+        bootbox.alert(response.mensaje);
+         location.reload();
+      },
+      error: function (response){    
+        console.log(response);     
+        
+      }
+    });
+   }
 }
 class RepuestosList {
   constructor() {
@@ -3425,12 +3438,7 @@ class RepuestosList {
       var marca = $('#id_marca option:selected').val();
       var modelo = $('#id_modelo').val();
       var tarima = $('#id_tarima option:selected').val();
-
-      if($('#qr-botton').length){
-        let url = $("#qr-botton").data("url")+"?id="+no+"&tarima="+tarima+"&tipo="+tipo+"&marca="+marca+"&modelo="+modelo;
-        document.getElementById("qr-botton").setAttribute("href", url);
-        $('#qr-botton').css({"display":"block"});
-      }
+      var estado = $('#id_estado option:selected').val();
 
       var tabla = repuesto_tabla.DataTable({
         destroy:true,
@@ -3455,21 +3463,30 @@ class RepuestosList {
           {data:"marca"},
           {data:"modelo"},
           {data:"tarima"},
-          {data:"estado"},
+          {data:"estado", className:"nowrap", render:function(data, type, full, meta){
+            if(full.estado == "Utilizado"){
+              return "<span class='label label-danger'>Utilizado</span>";
+            }else{
+              if(full.estado=="Almacenaje"){
+                return "<span class='label label-success'>Almacenaje</span>";
+              }else{
+                return "<span class='label label-primary'>Desmembrado</span>";
+              }
+            }
+          }},
           {data:"", className:"nowrap", render:function(data, type, full, meta){
             if(full.valido == true){
-              return ""
+              return "<button  id='button-repuesto' class='btn btn-info repuesto-btn'>Asignar</button>";
             }else{
-              if(full.estado=="Utilizado"){
-                return "";
-              }else{
-                return "<button  id='button-repuesto' class='btn btn-info repuesto-btn'>Asignar</button>";
-              }
-             
+              return "";
             }
           }},
           {data:"",className:"nowrap", render:function(data, type, full, meta){
-            return "<button  id='button-finalizar-repuesto' class='btn btn-danger repuesto-terminar-btn'>Terminar</button>";
+            if(full.estado=="Desmembrado"){
+              return "<button  id='button-finalizar-repuesto' class='btn btn-danger repuesto-terminar-btn'>Terminar</button>";
+            } else {
+              return ""
+            }
           }}
         ]
       });
@@ -3477,23 +3494,43 @@ class RepuestosList {
       tabla.clear().draw();
       tabla.ajax.reload();
 
-      tabla.on('click','.repuesto-btn',function () {
+      tabla.off('click').on('click','.repuesto-btn',function () {
         let repuesto = tabla.row($(this).parents('tr')).data();
         bootbox.prompt({
-          title: "Ingrese el triage del dispositivo", 
+          title: "Ingrese el triage del dispositivo:",
+          buttons: {
+            confirm: {
+              label: '<i class="fa fa-check"></i> Confirmar',
+              className: 'btn-success'
+            },
+            cancel: {
+              label: '<i class="fa fa-times"></i> Cancelar',
+              className: 'btn-danger'
+            }
+          }, 
           centerVertical: true,
           callback: function(result){               
               if(result==null){
-                bootbox.alert("por favor ingrese un triage valido");
+                return null
+              } else if(result==''){
+                bootbox.alert({message: "<h3><i class='fa fa-frown-o' style='font-size: 45px;'></i>&nbsp;&nbsp;&nbsp;¡INGRESE UN TRIAGE VÁLIDO!</h3></br>", className:"modal modal-danger fade"});
               }else{                
                var triage_asignar_repuesto = result;
                 /**/
                 bootbox.prompt({
-                  title: "Comentario para este repuesto",
+                  title: "Observaciones de asignación:",
                   inputType: 'textarea',
-                  callback: function (result) {
-                    console.log(triage_asignar_repuesto);  
-                    console.log(result);
+                  buttons: {
+                    confirm: {
+                      label: '<i class="fa fa-check"></i> Confirmar',
+                      className: 'btn-success'
+                    },
+                    cancel: {
+                      label: '<i class="fa fa-times"></i> Cancelar',
+                      className: 'btn-danger'
+                    }
+                  }, 
+                  callback: function (result) {                   
                     $.ajax({
                       type: "POST",
                       url:url_repuestos +"asignar_repuesto/",
@@ -3504,16 +3541,13 @@ class RepuestosList {
                         comentario:result
                       },
                       success:function (response){
-                        if(response.codigo=1){
-                          bootbox.alert("El dispositivo no existe por favor ingrese otro");
-                        }else{
+                          bootbox.alert({message: "<h2>¡Dispositivo Asignado!</h2>", className:"modal modal-success fade in"});
                           tabla.ajax.reload();
-                        }
                         
                       },
                       error: function (response) {
                         var jsonResponse = JSON.parse(response.responseText);
-                         bootbox.alert(jsonResponse["mensaje"]);
+                        bootbox.alert({message: "<h3><i class='fa fa-frown-o' style='font-size: 45px;'></i>&nbsp;&nbsp;&nbsp;HA OCURRIDO UN ERROR!!</h3></br>" + jsonResponse["mensaje"], className:"modal modal-danger fade"});
                     }
                     });                      
                   }
@@ -3548,6 +3582,7 @@ class RepuestosList {
                     repuesto:repuesto.id,                    
                   },
                   success:function (response){
+                    bootbox.alert({message: "<h2>Repuesto Utilizado!</h2>", className:"modal modal-success fade in"});
                     tabla.ajax.reload();
                   }
                 });
@@ -3587,13 +3622,17 @@ class DispositivoList {
                  {data: "marca", className: "nowrap"},
                  {data: "modelo", className: "nowrap"},
                  {data: "serie", className: "nowrap"},
+                 {data: "clase", className: "nowrap"},
                  {data: "tarima", className: "nowrap"},
                  {data: "estado", className: "nowrap"},
                  {data: "etapa", className: "nowrap"}
              ]
            });
           /**/
-          tablaDispositivos.clear().draw();
+         tablaDispositivos.clear().draw();
+         /***/
+         new BuscadorTabla();       
+         /* */
       });
   }
 }
@@ -3906,13 +3945,8 @@ class Desecho {
 
   }
 }
-
-class DesechoList{
-  constructor(){
-    $('#desecho-list-form').submit(function (e) {
-      e.preventDefault();
-      
-    $('#desecho-list-table').DataTable({
+(function (DesechoList, $, undefined) {
+  var desecho_table = $('#desecho-list-table').DataTable({
       dom: 'Bfrtip',
       destroy:true,
       buttons: ['excel', 'pdf', 'copy'],          
@@ -3945,10 +3979,27 @@ class DesechoList{
           
         }}, 
       ]
+    }).on('xhr.dt', function (e, settings, json, xhr) {
+      /* Ocultar objeto de carga */
+      $('#spinner').hide();
     });
-    });
-  }
-}
+
+    DesechoList.init = function () {
+        /* Al cargar la página ocultar spinner*/
+        $('#spinner').hide();
+        $('#desecho-list-form').submit(function (e) {
+            e.preventDefault();
+            $('#spinner').show();
+            desecho_table.clear().draw();
+            desecho_table.ajax.reload();
+            new BuscadorTabla();  
+        });
+
+        $('#desecho-list-table').on('click', 'button', function () {
+            var data = tabla.row($(this).parents('tr')).data();
+        });
+    }
+}(window.DesechoList = window.DesechoList || {}, jQuery));
 
 class EntradaDetalle_Dispositivo {
   constructor() {
@@ -3994,7 +4045,7 @@ class EntradaDetalle_Dispositivo {
         },
         columns: [            
             {data: "id", className: "nowrap", render: function(data, type, full, meta){
-              return "<a href="+full.url+">"+full.id+"</a>";
+              return "<a href="+full.url+" class='btn btn-block btn-success' >"+full.id+"</a>";
             }},
             {data: "no_salida", className: "nowrap", render: function(data, type, full, meta){
               if(full.no_salida ==null){
@@ -4070,3 +4121,20 @@ class EntradaDetalle_Dispositivo {
 
     }
 }(window.MovimientoList = window.MovimientoList || {}, jQuery));
+
+class BuscadorTabla{
+  constructor(){
+    $('.dataTable tfoot th').each( function () {
+      var title = $(this).text();
+      $(this).html( '<input style="width:100%;box-sizing:border-box;" type="text" class="form-control input-sm" placeholder="Search '+title+'" />' );
+  } );
+  $('.dataTable').DataTable().columns().every( function (){
+    var that = this;
+    $('input',this.footer()).on('keyup change clear', function(){
+      if(that.search()!==this.value){
+        that.search(this.value).draw();
+      }
+    });
+  });
+  }
+}
