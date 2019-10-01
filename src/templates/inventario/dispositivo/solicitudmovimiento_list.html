@@ -35,12 +35,13 @@
         <div class="box">
           <div class="box-header">
             <div class="box-title">
-                <h3><b>Listado de Solictudes de Movimiento</b></h3>
+                <h3><b>Listado de Solicitudes de Movimiento</b></h3>
             </div>
             <div class="box-body">
               <table  id="movimiento-list-table" class="table  display" data-url="{%url 'inventario_api:api_solicitudmovimiento-list' %} ">
                 <thead>
-                  <th>No. Desecho </th> 
+                  <th>No. Solicitud </th> 
+                  <th>Salida </th> 
                   <th>Fecha</th>                
                   <th>Dispositivo</th>
                   <th>Cantidad</th>
@@ -52,17 +53,6 @@
                 </thead>
                 <tbody id="movimiento-list-table-body">
                 </tbody>
-                <tfoot>
-                  <th>No. Desecho </th> 
-                  <th>Fecha</th>                
-                  <th>Dispositivo</th>
-                  <th>Cantidad</th>
-                  <th>Solicitada por</th>
-                  <th>Autorizada por</th>
-                  <th>Tipo</th>
-                  <th>Desecho</th>
-                  <th>Estado</th>
-                </tfoot>
               </table>
             </div>
           </div>
@@ -76,10 +66,6 @@
 {% include "base/dataTables.html" %}
     <script src="{% static "js/extrajs/inventario.js" %}"></script>
     <script> 
-    $(document).ready(function(){
-          let Estados = new MovimientoList();
-          /**/      
-          /**/
-      });
+    MovimientoList.init();
     </script>
 {% endblock extra_js %}

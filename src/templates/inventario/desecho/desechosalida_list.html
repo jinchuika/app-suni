@@ -67,8 +67,6 @@
 {% include "base/dataTables.html" %}
     <script src="{% static "js/extrajs/inventario.js" %}"></script>
     <script> 
-    $(document).ready(function(){
-          let Estados = new DesechoList();
-      });
+    DesechoList.init();
     </script>
 {% endblock extra_js %}

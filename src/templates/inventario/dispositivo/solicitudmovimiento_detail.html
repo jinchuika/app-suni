@@ -55,6 +55,10 @@
                                 {% csrf_token %}
                                 <table class="table table-condensed">
                                     <tr>
+                                        <th>Salida</th>
+                                        <td><a href="{{object.no_salida.get_absolute_url}}" target="_blank">{{object.no_salida |default_if_none:""}}</a></td>
+                                    </tr>
+                                    <tr>
                                         <th>Cantidad</th>
                                         <td>{{ object.cantidad }}</td>
                                     </tr>

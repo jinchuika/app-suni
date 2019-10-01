@@ -16,4 +16,8 @@
         <th>Puerto</th>
         <td>{{ object.puerto|default_if_none:"" }}</td>
     </tr>
+    <tr>
+        <th>Caja</th>
+        <td>{{ object.caja|default_if_none:"" }}</td>
+    </tr>
 {% endblock info_dispositivo %}

@@ -11,22 +11,28 @@
 		</div>
 	</div>
 	<div class="row invoice-info">
-		<div class="col-sm-4 invoice-col">
+		<div class="col-sm-1 invoice-col">
 			<b>Usuario</b>
 			<address>
 				{{ salida.tecnico.get_full_name }}
 			</address>
 		</div>
-		<div class="col-sm-4 invoice-col">
+		<div class="col-sm-1 invoice-col">
 			<b>Tipo</b>
 			<address>
 				{{ salida.tipo }}
 			</address>
 		</div>
-		<div class="col-sm-4 invoice-col">
+		<div class="col-sm-1 invoice-col">
 			<b>Fecha</b>
 			<address>
 				{{ salida.fecha|date:"Y-m-d" }}
+			</address>
+		</div>
+		<div class="col-sm-1 invoice-col">
+			<b>Movimiento</b>
+			<address>
+				{{ salida.inventario_movimiento| default_if_none:"" }}
 			</address>
 		</div>
 	</div>

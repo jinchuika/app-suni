@@ -620,7 +620,6 @@ class EntradaDetail {
             {data: "id", render: function(data, type, full, meta){
               if(full.en_creacion== "Si"){
                 return "<a href="+full.urlSi+" class='btn btn-block btn-success'>"+data+"</a>";
-
               }else{
                 return "<a href="+full.urlNo+" class='btn btn-block btn-success'>"+data+"</a>";
               }
@@ -790,10 +789,10 @@ class EntradaDetalleDetail {
         tabla.on('click', '.btn-rechazar-desecho', function () {
                 let data_fila = tabla.row($(this).parents('tr')).data();
                 bootbox.confirm({
-                    message: "¿Esta seguro que quiere rechazar este detalle de desecho?",
+                    message: "¿Está seguro que quiere rechazar este detalle de desecho?",
                     buttons: {
                         confirm: {
-                            label: 'Yes',
+                            label: 'Si',
                             className: 'btn-success'
                         },
                         cancel: {
@@ -869,7 +868,7 @@ class EntradaDetalleDetail {
                           message: "¿Esta seguro que quiere rechazar este dispositivo?",
                           buttons: {
                               confirm: {
-                                  label: 'Yes',
+                                  label: 'Si',
                                   className: 'btn-success'
                               },
                               cancel: {
@@ -997,7 +996,7 @@ class EntradaDetalleDetail {
                 message: "¿Esta seguro que quiere terminar la salida de desechos?",
                 buttons: {
                     confirm: {
-                        label: 'Yes',
+                        label: 'Si',
                         className: 'btn-success'
                     },
                     cancel: {
@@ -1089,14 +1088,14 @@ class SolicitudMovimiento {
     $('#btn-recibido').click(function (e) {
        e.preventDefault();
         bootbox.confirm({
-            message: "¿Esta Seguro que quiere recibir esta Solicitud de Movimiento?",
+            message: "¿Está seguro que quiere recibir esta solicitud de movimiento?",
             buttons: {
                 confirm: {
-                    label: 'Yes',
+                    label: '<i class="fa fa-check"></i> Confirmar',
                     className: 'btn-success'
                 },
                 cancel: {
-                    label: 'No',
+                    label: '<i class="fa fa-times"></i> Cancelar',
                     className: 'btn-danger'
                 }
             },
@@ -1125,14 +1124,14 @@ class SolicitudMovimiento {
     $('#aprobar-kardex').click(function (e) {
        e.preventDefault();
         bootbox.confirm({
-            message: "¿Esta Seguro de aprobar esta peticion de dispositivos?",
+            message: "¿Está seguro de aprobar esta petición de dispositivos?",
             buttons: {
                 confirm: {
-                    label: 'Yes',
+                    label: '<i class="fa fa-check"></i> Confirmar',
                     className: 'btn-success'
                 },
                 cancel: {
-                    label: 'No',
+                    label: '<i class="fa fa-times"></i> Denegar',
                     className: 'btn-danger'
                 }
             },
@@ -1151,10 +1150,11 @@ class SolicitudMovimiento {
                       success: function (response) {
                         //
                         bootbox.confirm({
-                            message: "La Existencia del Dispositivo es de:" + response['existencia'],
+                            className:"modal modal-info fade in",
+                            message: "<h3>La Existencia del Dispositivo es de: </h3><h2>" + response['existencia'] + "</h2>",
                             buttons: {
                                 confirm: {
-                                    label: 'Entendido',
+                                    label: '<i class="fa fa-check"></i> Entendido',
                                     className: 'btn-success'
                                 },
                             },
@@ -1176,14 +1176,14 @@ class SolicitudMovimiento {
     $('#recibido-kardex').click(function (e) {
        e.preventDefault();
         bootbox.confirm({
-            message: "¿Esta Seguro que desea rechazar estos dispositivos?",
+            message: "¿Esta seguro que desea rechazar estos dispositivos?",
             buttons: {
                 confirm: {
-                    label: 'Yes',
+                    label: '<i class="fa fa-check"></i> Confirmar',
                     className: 'btn-success'
                 },
                 cancel: {
-                    label: 'No',
+                    label: '<i class="fa fa-times"></i> Cancelar',
                     className: 'btn-danger'
                 }
             },
@@ -1228,7 +1228,33 @@ class SolicitudMovimientoValidar {
           success: function (response) {
             var disponibles = response['mensaje'];
             $("[for='cantidad']").text(disponibles);
-            $("#existencia-head").css({"visibility":"initial"});
+            $("#existencia-head").css({"display":"block"});
+          },
+          error:function(response){
+            var jsonResponse = JSON.parse(response.responseText);
+            bootbox.alert(jsonResponse.mensaje);
+            location.reload();
+          },
+      });
+    });
+
+    $('#id_tipo_dispositivo').change( function() {      
+      tipo_dispositivo=$('#id_tipo_dispositivo option:selected').text();
+      var no_salida=$('#id_no_salida option:selected').val();
+      $.ajax({
+          type: "POST",
+          async:false,
+          url: $('#solicitud').data('devolucion'),
+          dataType: 'json',
+          data: {
+            csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
+            tipo_dispositivo: tipo_dispositivo,
+            no_salida: no_salida,
+          },
+          success: function (response) {
+            var disponibles = response['mensaje'];
+            $("[for='cantidad']").text(disponibles);
+            $("#existencia-head").css({"display":"block"});
           },
           error:function(response){
             var jsonResponse = JSON.parse(response.responseText);
@@ -1237,9 +1263,8 @@ class SolicitudMovimientoValidar {
           },
       });
 
-    });   
-    $("#existencia-head").css({"visibility":"collapse"});
-    
+    });
+    $("#existencia-head").css({"display":"none"});
   }
 }
 class SolicitudMovimientoUpdate {
@@ -1263,8 +1288,8 @@ class SolicitudMovimientoUpdate {
         let cantidad_dispositivos = sel_dispositivos;
         $('form').on('submit', function(e){           
            let restante  = cantidad_dispositivos.select2('data').length - cantidad_asignar;           
-          if(cantidad_dispositivos.select2('data').length > cantidad_asignar){         
-           bootbox.alert("Ya no puede ingresar mas dispositivos , tiene de excendente:"+restante);
+          if(cantidad_dispositivos.select2('data').length > cantidad_asignar){
+            bootbox.alert({ message: "<h3>Ya no puede ingresar mas dispositivos , tiene de excendente: "+restante+"!</h3>", className:"modal modal-danger fade in" });
             e.preventDefault();
           }
         });
@@ -1423,9 +1448,8 @@ class SolicitudMovimientoUpdate {
                        /**/
 
                      }else{
-                       bootbox.alert("Este dispositivo no esta disponible");
-                       $("#area_scanner").val("");
-
+                      bootbox.alert({message: "<h3>Este dispositivo no esta disponible</h3>", className:"modal modal-danger fade in"});
+                      $("#area_scanner").val("");
                      }
                    },
                    type: 'GET'
@@ -1693,6 +1717,7 @@ class Salidas {
     var url_cuadrar = $("#salidas-paquete-table").data("cuadrar");
     var url_finalizar = $("#salidas-paquete-table").data("urlfin");
     var url_detail = $("#salidas-paquete-table").data("urldetail");
+    var url_paquetes = $("#salidas-paquete-table").data("urlpaquetes");
     var fecha = new Date();
     var dia = fecha.getDate();
     var mes = fecha.getMonth()+1;
@@ -2070,11 +2095,23 @@ class Salidas {
           url: url_kardex,
           data:{
             csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
-            tipo_dispositivo:tipo_paquete
+            tipo_dispositivo:tipo_paquete,
+            salida:salida_pk,
           },
           success: function (response){
-            if(response['mensaje']=="Usa Triage"){
-              $('#id_cantidad').val("");
+            $('#id_cantidad').val(parseInt(response['mensaje']));
+            $("#label_kardex").css({"visibility":"visible"});
+            $('#existencia_kardex').html("<b>"+response['mensaje']);
+            disponible = parseInt(response['mensaje']);
+            
+            if(disponible <= 0){
+              $('#paquetes_add').css({"visibility":"hidden"});
+            } else {
+              $('#paquetes_add').css({"visibility":"visible"});
+            }
+
+            /*if(response['mensaje']=="Usa Triage"){
+                $('#id_cantidad').val("");
                 dispositivo_triage =1;
                 $("#label_kardex").css({"visibility":"hidden"});
                 $('#existencia_kardex').html(" ");
@@ -2083,9 +2120,11 @@ class Salidas {
               $("#label_kardex").css({"visibility":"visible"});
                $('#existencia_kardex').html("<b>"+response['mensaje']);
                disponible = parseInt(response['mensaje']);
-            }
+            }*/
           },
           error:function(error){
+            var jsonResponse = JSON.parse(error.responseText);
+            bootbox.alert(jsonResponse["mensaje"]);
           },
         });
       });
@@ -2098,7 +2137,7 @@ class Salidas {
          dispositivo_triage=0;
       }else{
         var cantidad  = $('#id_cantidad').val();
-        if(cantidad > disponible){
+        if(cantidad > disponible || disponible <= 0){
           $('#paquetes_add').css({"visibility":"hidden"});
           $('#id_cantidad').val("");
           bootbox.alert("No has dipositivos suficientes para asignar");
@@ -2107,6 +2146,67 @@ class Salidas {
         }
       }
 
+    });
+    /**/
+    /* MOSTRAR PAQUETES VÁLIDOS */
+    $('#id_tipo_paquete').select2("destroy");
+    var data_result = []
+    $.ajax({
+      type: "POST",
+      url: url_paquetes,
+      data:{
+        csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
+        salida:salida_pk,
+      },
+      error:function(error){
+        console.log("Error");
+      },
+      success: function (data){
+        $('#id_tipo_paquete').empty();
+        data_result.push('<optgroup class="def-cursor" label="Tipo" data-cantidad="Existencia">')
+        data_result.push('<option value="" data-cantidad="">-------</option>');
+        for (var i in data){
+          var cantidad = data[i].existencia
+          data_result.push('<option value='+data[i].id + ' data-cantidad="'+cantidad+'">'+data[i].nombre+'</option>');
+        }
+        data_result.push('</optgroup>')
+        $('#id_tipo_paquete').append(data_result);
+      },
+    });
+    $('#id_tipo_paquete').select2({
+      width: '100%',
+      tags: true,
+      createTag: function (params) {
+        return {
+          id: params.term,
+          text: params.term + $('#id_entrada_detalle').data(),
+          newOption: true
+        }
+      },
+      templateResult: function(data) {
+        var cantidad = $(data.element).data('cantidad');
+        var classAttr = $(data.element).attr('class');
+        var hasClass = typeof classAttr != 'undefined';
+        classAttr = hasClass ? ' ' + classAttr : '';
+        var $result = $(
+          '<div class="row">' +
+          '<div class="col-md-7 col-xs-6' + classAttr + '">' + data.text + '</div>' +
+          '<div class="col-md-2 col-xs-6' + classAttr + '">' + cantidad + '</div>' +
+          '</div>');
+        return $result;
+      },
+      templateSelection: function (data) {
+        if(!data.id) { return data.text }
+        var cantidad = $(data.element).data('cantidad');
+        var result = data.text
+        return result
+      }
+    }).on('select2:select', function (e) {
+      if (e.params.data.text != '') {
+        var id = $(this).attr('id');
+        var select2 = $("span[aria-labelledby=select2-" + id + "-container]");
+        select2.removeAttr('style');
+      }
     });
     /**/
     $('#id_tipo_salida').change(function(){
@@ -3338,12 +3438,7 @@ class RepuestosList {
       var marca = $('#id_marca option:selected').val();
       var modelo = $('#id_modelo').val();
       var tarima = $('#id_tarima option:selected').val();
-
-      if($('#qr-botton').length){
-        let url = $("#qr-botton").data("url")+"?id="+no+"&tarima="+tarima+"&tipo="+tipo+"&marca="+marca+"&modelo="+modelo;
-        document.getElementById("qr-botton").setAttribute("href", url);
-        $('#qr-botton').css({"display":"block"});
-      }
+      var estado = $('#id_estado option:selected').val();
 
       var tabla = repuesto_tabla.DataTable({
         destroy:true,
@@ -3368,21 +3463,30 @@ class RepuestosList {
           {data:"marca"},
           {data:"modelo"},
           {data:"tarima"},
-          {data:"estado"},
+          {data:"estado", className:"nowrap", render:function(data, type, full, meta){
+            if(full.estado == "Utilizado"){
+              return "<span class='label label-danger'>Utilizado</span>";
+            }else{
+              if(full.estado=="Almacenaje"){
+                return "<span class='label label-success'>Almacenaje</span>";
+              }else{
+                return "<span class='label label-primary'>Desmembrado</span>";
+              }
+            }
+          }},
           {data:"", className:"nowrap", render:function(data, type, full, meta){
             if(full.valido == true){
-              return ""
+              return "<button  id='button-repuesto' class='btn btn-info repuesto-btn'>Asignar</button>";
             }else{
-              if(full.estado=="Utilizado"){
-                return "";
-              }else{
-                return "<button  id='button-repuesto' class='btn btn-info repuesto-btn'>Asignar</button>";
-              }
-             
+              return "";
             }
           }},
           {data:"",className:"nowrap", render:function(data, type, full, meta){
-            return "<button  id='button-finalizar-repuesto' class='btn btn-danger repuesto-terminar-btn'>Terminar</button>";
+            if(full.estado=="Desmembrado"){
+              return "<button  id='button-finalizar-repuesto' class='btn btn-danger repuesto-terminar-btn'>Terminar</button>";
+            } else {
+              return ""
+            }
           }}
         ]
       });
@@ -3390,20 +3494,42 @@ class RepuestosList {
       tabla.clear().draw();
       tabla.ajax.reload();
 
-      tabla.on('click','.repuesto-btn',function () {
+      tabla.off('click').on('click','.repuesto-btn',function () {
         let repuesto = tabla.row($(this).parents('tr')).data();
         bootbox.prompt({
-          title: "Ingrese el triage del dispositivo", 
+          title: "Ingrese el triage del dispositivo:",
+          buttons: {
+            confirm: {
+              label: '<i class="fa fa-check"></i> Confirmar',
+              className: 'btn-success'
+            },
+            cancel: {
+              label: '<i class="fa fa-times"></i> Cancelar',
+              className: 'btn-danger'
+            }
+          }, 
           centerVertical: true,
           callback: function(result){               
               if(result==null){
-                bootbox.alert("por favor ingrese un triage valido");
+                return null
+              } else if(result==''){
+                bootbox.alert({message: "<h3><i class='fa fa-frown-o' style='font-size: 45px;'></i>&nbsp;&nbsp;&nbsp;¡INGRESE UN TRIAGE VÁLIDO!</h3></br>", className:"modal modal-danger fade"});
               }else{                
                var triage_asignar_repuesto = result;
                 /**/
                 bootbox.prompt({
-                  title: "Comentario para este repuesto",
+                  title: "Observaciones de asignación:",
                   inputType: 'textarea',
+                  buttons: {
+                    confirm: {
+                      label: '<i class="fa fa-check"></i> Confirmar',
+                      className: 'btn-success'
+                    },
+                    cancel: {
+                      label: '<i class="fa fa-times"></i> Cancelar',
+                      className: 'btn-danger'
+                    }
+                  }, 
                   callback: function (result) {                   
                     $.ajax({
                       type: "POST",
@@ -3415,16 +3541,13 @@ class RepuestosList {
                         comentario:result
                       },
                       success:function (response){
-                        if(response.codigo=1){
-                          bootbox.alert("El dispositivo no existe por favor ingrese otro");
-                        }else{
+                          bootbox.alert({message: "<h2>¡Dispositivo Asignado!</h2>", className:"modal modal-success fade in"});
                           tabla.ajax.reload();
-                        }
                         
                       },
                       error: function (response) {
                         var jsonResponse = JSON.parse(response.responseText);
-                         bootbox.alert(jsonResponse["mensaje"]);
+                        bootbox.alert({message: "<h3><i class='fa fa-frown-o' style='font-size: 45px;'></i>&nbsp;&nbsp;&nbsp;HA OCURRIDO UN ERROR!!</h3></br>" + jsonResponse["mensaje"], className:"modal modal-danger fade"});
                     }
                     });                      
                   }
@@ -3459,6 +3582,7 @@ class RepuestosList {
                     repuesto:repuesto.id,                    
                   },
                   success:function (response){
+                    bootbox.alert({message: "<h2>Repuesto Utilizado!</h2>", className:"modal modal-success fade in"});
                     tabla.ajax.reload();
                   }
                 });
@@ -3498,6 +3622,7 @@ class DispositivoList {
                  {data: "marca", className: "nowrap"},
                  {data: "modelo", className: "nowrap"},
                  {data: "serie", className: "nowrap"},
+                 {data: "clase", className: "nowrap"},
                  {data: "tarima", className: "nowrap"},
                  {data: "estado", className: "nowrap"},
                  {data: "etapa", className: "nowrap"}
@@ -3820,13 +3945,8 @@ class Desecho {
 
   }
 }
-
-class DesechoList{
-  constructor(){
-    $('#desecho-list-form').submit(function (e) {
-      e.preventDefault();
-      
-    $('#desecho-list-table').DataTable({
+(function (DesechoList, $, undefined) {
+  var desecho_table = $('#desecho-list-table').DataTable({
       dom: 'Bfrtip',
       destroy:true,
       buttons: ['excel', 'pdf', 'copy'],          
@@ -3859,11 +3979,27 @@ class DesechoList{
           
         }}, 
       ]
+    }).on('xhr.dt', function (e, settings, json, xhr) {
+      /* Ocultar objeto de carga */
+      $('#spinner').hide();
     });
-    new BuscadorTabla();  
-    });
-  }
-}
+
+    DesechoList.init = function () {
+        /* Al cargar la página ocultar spinner*/
+        $('#spinner').hide();
+        $('#desecho-list-form').submit(function (e) {
+            e.preventDefault();
+            $('#spinner').show();
+            desecho_table.clear().draw();
+            desecho_table.ajax.reload();
+            new BuscadorTabla();  
+        });
+
+        $('#desecho-list-table').on('click', 'button', function () {
+            var data = tabla.row($(this).parents('tr')).data();
+        });
+    }
+}(window.DesechoList = window.DesechoList || {}, jQuery));
 
 class EntradaDetalle_Dispositivo {
   constructor() {
@@ -3891,13 +4027,8 @@ class EntradaDetalle_Dispositivo {
   }
 }
 
-
-class MovimientoList{
-  constructor(){
-    $('#movimiento-list-form').submit(function (e){
-      e.preventDefault();
-       /**/
-       var tablaDispositivos = $('#movimiento-list-table').DataTable({
+(function (MovimientoList, $, undefined) {
+      var tablaDispositivos = $('#movimiento-list-table').DataTable({
         dom: 'lfrtipB',
         destroy:true,
         buttons: ['excel', 'pdf'],
@@ -3914,7 +4045,14 @@ class MovimientoList{
         },
         columns: [            
             {data: "id", className: "nowrap", render: function(data, type, full, meta){
-              return "<a href="+full.url+">"+full.id+"</a>";
+              return "<a href="+full.url+" class='btn btn-block btn-success' >"+full.id+"</a>";
+            }},
+            {data: "no_salida", className: "nowrap", render: function(data, type, full, meta){
+              if(full.no_salida ==null){
+                return ""
+              } else {
+                return "<a href="+full.url_salida+">"+full.no_salida_str+"</a>";
+              }
             }},
             {data: "fecha_creacion", className: "nowrap"},
             {data: "tipo_dispositivo", className: "nowrap"},
@@ -3948,27 +4086,42 @@ class MovimientoList{
              if(full.rechazar===true){
               return " <span class='label label-danger'>RECHAZADA</span>";
              }else{
-              if(full.terminada==true){
-               return " <span class='label label-danger'>Pendiente</span>";
+              if(full.recibida==true){
+               return " <span class='label label-success'>Recibido</span>";
               }else{
-                if(full.recibida===true){
-                 return " <span class='label label-success'>Recibido</span>"
+                if(full.terminada===true){
+                 return " <span class='label label-warning'>Entregado</span>"
                 }else{
-                  return "<span class='label label-warning'>Entregado</span>"
+                  return "<span class='label label-danger'>Pendiente</span>"
                 }
               }
              }
 
            }}
         ]
-      });
-     /**/
-     tablaDispositivos.clear().draw();
-     new BuscadorTabla();
-    });  
-     
-     }    
-  }
+      }).on('xhr.dt', function (e, settings, json, xhr) {
+      /* Ocultar objeto de carga */
+        $('#spinner').hide();
+    });
+
+      /* Inicialización de clase EntradaList*/
+    MovimientoList.init = function () {
+        /* Al cargar la página ocultar spinner*/
+        $('#spinner').hide();
+        $('#movimiento-list-form').submit(function (e) {
+            e.preventDefault();
+            $('#spinner').show();
+            tablaDispositivos.clear().draw();
+            tablaDispositivos.ajax.reload();
+        });
+
+        $('#movimiento-list-table tbody').on('click', 'button', function () {
+            var data = tabla.row($(this).parents('tr')).data();
+        });
+
+    }
+}(window.MovimientoList = window.MovimientoList || {}, jQuery));
+
 class BuscadorTabla{
   constructor(){
     $('.dataTable tfoot th').each( function () {

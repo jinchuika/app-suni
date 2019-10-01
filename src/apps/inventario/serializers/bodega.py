@@ -13,6 +13,7 @@ class DispositivoSerializer(serializers.ModelSerializer):
     marca = serializers.StringRelatedField()
     modelo = serializers.StringRelatedField()
     serie = serializers.StringRelatedField()
+    clase = serializers.StringRelatedField()
     url = serializers.StringRelatedField(source='get_absolute_url')
 
     class Meta:
@@ -27,6 +28,7 @@ class DispositivoSerializer(serializers.ModelSerializer):
             'marca',
             'modelo',
             'serie',
+            'clase',
             'tarima',
             'url']
 

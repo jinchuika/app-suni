@@ -15,4 +15,4 @@ class RepuestoInventarioSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = inv_m.Repuesto
-        fields = ['id', 'No', 'tipo', 'marca', 'modelo', 'descripcion', 'tarima', 'url', 'estado']
+        fields = ['id', 'No', 'tipo', 'marca', 'modelo', 'descripcion', 'tarima', 'url', 'estado', 'valido']

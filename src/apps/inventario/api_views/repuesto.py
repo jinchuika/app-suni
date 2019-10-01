@@ -23,13 +23,14 @@ class RepuestoInventarioViewSet(viewsets.ModelViewSet):
 
     """
     serializer_class = inv_s.RepuestoInventarioSerializer
-    filter_fields = ('id', 'tipo', 'estado', 'tarima', 'marca', 'modelo')
+    filter_fields = ('id', 'tipo', 'estado', 'tarima', 'marca', 'modelo', 'estado')
 
     def get_queryset(self):
         triage = self.request.query_params.get('id', None)
+        estado = self.request.query_params.get('estado', None)
         tipo_dis = self.request.user.tipos_dispositivos.tipos.all()
 
-        if triage:
+        if triage or estado:
             return inv_m.Repuesto.objects.all().filter(tipo__in=tipo_dis)
 
         return inv_m.Repuesto.objects.all().filter(tipo__in=tipo_dis, valido=True)
@@ -38,24 +39,32 @@ class RepuestoInventarioViewSet(viewsets.ModelViewSet):
     def asignar_repuesto(self, request, pk=None):
         """ Metodo para asignar repuestos
         """
-        periodo_actual = conta_m.PeriodoFiscal.objects.get(actual=True)
         try:
             triage = request.data['triage']
             repuesto_id = request.data['repuesto']
             comentario= request.data['comentario']
+
             repuesto = inv_m.Repuesto.objects.get(id=repuesto_id)
-            dispositivo = inv_m.Dispositivo.objects.get(triage=triage)             
+            dispositivo = inv_m.Dispositivo.objects.get(triage=triage)
             salida = repuesto.entrada
-            precio_dispositivo = conta_m.MovimientoRepuesto.objects.get(repuesto=repuesto_id)
+
+            if dispositivo.etapa.id != inv_m.DispositivoEtapa.AB and dispositivo.etapa.id != inv_m.DispositivoEtapa.TR:
+                return Response({'mensaje': "El dispositivo ingresado no es válido.",'codigo':2 }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+            if dispositivo.tipo != repuesto.tipo:
+                return Response({'mensaje': "El dispositivo y el repuesto deben ser del mismo tipo.",'codigo':3 }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            
+            # Agregar Asignación Repuesto - Dispositivo
             repuesto_dispositivos = inv_m.DispositivoRepuesto(
                 dispositivo=dispositivo,
                 repuesto=repuesto,
                 asignado_por=request.user
             )
-            repuesto_estado = inv_m.Repuesto.objects.get(id=repuesto_id)
-            repuesto_estado.estado = inv_m.RepuestoEstado.objects.get(id=4)
-            repuesto_estado.save()
             repuesto_dispositivos.save()
+            repuesto.estado = inv_m.RepuestoEstado.objects.get(id=3)
+            repuesto.save()
+            
+            # Agregar Comentario de Asignación
             comentario_asignacion = inv_m.RepuestoComentario(
                 repuesto=repuesto,
                 dispositivo=dispositivo,
@@ -66,14 +75,14 @@ class RepuestoInventarioViewSet(viewsets.ModelViewSet):
         except ObjectDoesNotExist as e:            
             return Response(
             {
-                'mensaje': "El dispositivo no existe ingrese otro",
+                'mensaje': "El dispositivo no existe.",
                 'codigo':1
             },
-            status=status.HTTP_200_OK)
+            status=status.HTTP_404_NOT_FOUND)
 
         return Response(
             {
-                'mensaje': "Repuesto asignado al dispositivo "
+                'mensaje': "Repuesto asignado al dispositivo."
             },
             status=status.HTTP_200_OK)
 
@@ -84,18 +93,20 @@ class RepuestoInventarioViewSet(viewsets.ModelViewSet):
         periodo_actual = conta_m.PeriodoFiscal.objects.get(actual=True)
         try:           
             repuesto_id = request.data['repuesto']
-            repuesto = inv_m.Repuesto.objects.get(id=repuesto_id)                      
+            repuesto = inv_m.Repuesto.objects.get(id=repuesto_id)
+            precio_repuesto = conta_m.PrecioRepuesto.objects.get(repuesto=repuesto_id, activo=True)                      
             salida = repuesto.entrada
-            precio_dispositivo = conta_m.MovimientoRepuesto.objects.get(repuesto=repuesto_id)            
-            repuesto_estado = inv_m.Repuesto.objects.get(id=repuesto_id)
-            repuesto_estado.estado = inv_m.RepuestoEstado.objects.get(id=2)
-            repuesto_estado.save()           
+
+            repuesto.estado = inv_m.RepuestoEstado.objects.get(id=2)
+            repuesto.valido = False
+            repuesto.disponible = False
+            repuesto.save()           
             movimiento = conta_m.MovimientoRepuesto(
                 repuesto=repuesto,
                 periodo_fiscal=periodo_actual,
                 tipo_movimiento=conta_m.MovimientoRepuesto.BAJA,
                 referencia='Salida {}'.format(salida),
-                precio=precio_dispositivo.precio)
+                precio=precio_repuesto.precio)
             movimiento.save()
 
         except ObjectDoesNotExist as e:

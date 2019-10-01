@@ -7,6 +7,9 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.core.mail import send_mail
 from datetime import datetime
 from django.http import JsonResponse
+from django.utils.datastructures import MultiValueDictKeyError
+from django.conf import settings
+from django.template import loader
 import time
 from braces.views import LoginRequiredMixin
 from apps.inventario import (
@@ -52,12 +55,17 @@ class DispositivoViewSet(viewsets.ModelViewSet):
         marca = self.request.query_params.get('marca', None)
         modelo = self.request.query_params.get('modelo', None)
         tarima = self.request.query_params.get('tarima', None)
-        nuevo_tipo = self.request.query_params.get('newtipo', None)
-        if nuevo_tipo is None:
+        etapa = self.request.query_params.get('etapa', None)
+        
+        print(tipo)
+        if tipo is None:
             tipo_dis = self.request.user.tipos_dispositivos.tipos.all()
         else:
-            tipo_dis = inv_m.DispositivoTipo.objects.filter(tipo=nuevo_tipo)
-        if triage or dispositivo:
+            tipo_dis = inv_m.DispositivoTipo.objects.filter(id=tipo)
+
+        if triage or dispositivo or etapa:
+            print('ENTRO')
+            print(tipo_dis)
             return inv_m.Dispositivo.objects.all().filter(tipo__in=tipo_dis)
         elif tipo or marca or modelo or tarima:
             # Se encarga de mostrar mas rapido los dispositivos que se usan con mas frecuencia
@@ -350,6 +358,7 @@ class DispositivoViewSet(viewsets.ModelViewSet):
         solicitudes_movimiento.terminada = True
         solicitudes_movimiento.recibida = True
         solicitudes_movimiento.save()
+        # Agregar Registro a Bitácora
         nueva_bitacora = inv_m.SolicitudBitacora(
             fecha_movimiento=datetime.now(),
             numero_solicitud=inv_m.SolicitudMovimiento.objects.get(id=id),
@@ -357,30 +366,44 @@ class DispositivoViewSet(viewsets.ModelViewSet):
             usuario=self.request.user
         )
         nueva_bitacora.save()
-        usuario = User.objects.get(username=self.request.user)
-        usuario_completo = str(usuario.first_name) +" "+ str(usuario.last_name)        
-        if solicitudes_movimiento.devolucion:        
-            mensaje = "Solicitud de movimiento: "+str(id)+ "\nFecha de  movimiento: " + str(datetime.now().date())+"\nTipo de equipo"+str(solicitudes_movimiento.tipo_dispositivo)+"\nDevolucion Recibida"+"\nEste correo solo es de prueba :) :)" 
-            send_mail(
-                'Bitacora',
-                mensaje,
-                'correo backend',
-                ['correo destino'],
-                fail_silently=False
-            )
+        
+        # Enviar correo de notificación
+        motivo = ''
+        lista_enviar_correos = []
+        usuario_completo = ''
+        if solicitudes_movimiento.devolucion:
+            motivo = "SUNI - Devolución Recibida: "+ str(id)
+            usuario_completo = str(self.request.user.first_name) +" "+ str(self.request.user.last_name)
+            lista_enviar_correos.append(solicitudes_movimiento.creada_por.email)
+
         else:
-             mensaje = "Solicitud de movimiento: "+str(id)+ "\nFecha de  movimiento: " + str(datetime.now().date())+"\nTipo de equipo"+str(solicitudes_movimiento.tipo_dispositivo)+"\nSolicitud Recibida"+"\nEste correo solo es de prueba :) :)" 
-             usuarios_bodega = User.objects.filter(groups=21)
-             lista_enviar_correos=[]
-             for lista_correos  in usuarios_bodega:
-                 lista_enviar_correos.append(lista_correos.email) 
-             send_mail(
-                'Bitacora',
-                mensaje,
-                '',
-                [''],
-                fail_silently=False
-            )
+            motivo = "SUNI - Solicitud Recibida: "+ str(id)
+            usuario_completo = str(solicitudes_movimiento.creada_por.first_name) +" "+ str(solicitudes_movimiento.creada_por.last_name)
+            usuarios_bodega = User.objects.filter(groups=21)
+            for lista_correos  in usuarios_bodega:
+                lista_enviar_correos.append(lista_correos.email)
+
+        html_message = loader.render_to_string(
+            'inventario/email/email_solicitud.html',
+            {
+                'solicitud_id': str(id),
+                'fecha_movimiento': str(datetime.now()),
+                'tipo_equipo': str(solicitudes_movimiento.tipo_dispositivo),
+                'usuario': usuario_completo,
+                'estado': 'Recibida',
+                'url': "https://suni.funsepa.org" + str(solicitudes_movimiento.get_absolute_url()),
+            })
+
+        # Enviar Correo
+        send_mail(
+            motivo,
+            'mensaje',
+            settings.EMAIL_HOST_USER,
+            lista_enviar_correos,
+            fail_silently=True,
+            html_message = html_message
+        )
+
         return Response(
             {'mensaje': 'Solicitud Recibida'},
             status=status.HTTP_200_OK
@@ -414,6 +437,7 @@ class DispositivoViewSet(viewsets.ModelViewSet):
             usado = kax_m.EstadoEquipo.objects.get(estado='Usado')
             area_tecnica = kax_m.Proveedor.objects.get(nombre="AREA TECNICA")
             devolucion = kax_m.TipoEntrada.objects.get(tipo="Devolucion")
+            motivo = ''
             if solicitudes_movimiento.devolucion is True:               
                 nuevo = kax_m.Entrada(
                     estado=usado,
@@ -423,9 +447,9 @@ class DispositivoViewSet(viewsets.ModelViewSet):
                     observacion=solicitudes_movimiento.observaciones,
                     terminada=True)
                 nuevo.save()
-                salida_creada = kax_m.Entrada.objects.all().last()
+                nuevo_detalle = kax_m.Entrada.objects.all().last()
                 nuevo_detalle_kardez = kax_m.EntradaDetalle(
-                    entrada=salida_creada,
+                    entrada=nuevo_detalle,
                     equipo=kax_m.Equipo.objects.get(nombre=solicitudes_movimiento.tipo_dispositivo),
                     cantidad=solicitudes_movimiento.cantidad,
                     precio=0,
@@ -433,9 +457,10 @@ class DispositivoViewSet(viewsets.ModelViewSet):
                 nuevo_detalle_kardez.save()
                 solicitudes_movimiento.autorizada_por = self.request.user
                 solicitudes_movimiento.terminada = True
-                solicitudes_movimiento.entrada_kardex = salida_creada
+                solicitudes_movimiento.entrada_kardex = nuevo_detalle
                 solicitudes_movimiento.autorizada_por = self.request.user
                 solicitudes_movimiento.save()
+                # Agregar registro a bitácora
                 nueva_bitacora = inv_m.SolicitudBitacora(
                     fecha_movimiento=datetime.now(),
                     numero_solicitud=inv_m.SolicitudMovimiento.objects.get(id=id),
@@ -443,20 +468,7 @@ class DispositivoViewSet(viewsets.ModelViewSet):
                     usuario=self.request.user
                 )
                 nueva_bitacora.save()
-                usuario = User.objects.get(username=self.request.user)
-                usuario_completo = str(usuario.first_name) +" "+ str(usuario.last_name)
-                mensaje = "Solicitud de movimiento: "+str(id)+ "\nFecha de  movimiento: " + str(datetime.now().date())+"\nTipo de equipo"+str(solicitudes_movimiento.tipo_dispositivo)+"\nCantidad"+str(solicitudes_movimiento.cantidad)+"\nSolicitud Aprobada de Kardex"+"\nEste correo solo es de prueba :) :)" 
-                send_mail(
-                    'Bitacora',
-                    mensaje,
-                    '',
-                    [''],
-                    fail_silently=False
-                )
-                return Response(
-                    {'mensaje': "Dispositivos aprobados"},
-                    status=status.HTTP_200_OK
-                )
+                motivo = "SUNI - Solicitud de Kardex Aprobada: " + str(id)
             else:               
                 tipo_salida = kax_m.TipoSalida.objects.get(tipo="Inventario SUNI")
                 nuevo = kax_m.Salida(
@@ -480,7 +492,8 @@ class DispositivoViewSet(viewsets.ModelViewSet):
                 solicitudes_movimiento.salida_kardex = nuevo_detalle
                 solicitudes_movimiento.autorizada_por = self.request.user
                 solicitudes_movimiento.save()
-                cantidad_kardex = kax_m.Equipo.objects.get(nombre=solicitudes_movimiento.tipo_dispositivo)            
+                
+                # Agregar Registro a bitácora
                 nueva_bitacora = inv_m.SolicitudBitacora(
                     fecha_movimiento=datetime.now(),
                     numero_solicitud=inv_m.SolicitudMovimiento.objects.get(id=id),
@@ -488,20 +501,37 @@ class DispositivoViewSet(viewsets.ModelViewSet):
                     usuario=self.request.user
                 )
                 nueva_bitacora.save()
-                usuario = User.objects.get(username=self.request.user)
-                usuario_completo = str(usuario.first_name) +" "+ str(usuario.last_name)
-                mensaje = "Solicitud de movimiento: "+str(id)+ "\nFecha de  movimiento: " + str(datetime.now().date())+"\nTipo de equipo"+str(solicitudes_movimiento.tipo_dispositivo)+"Cantidad: "+str(solicitudes_movimiento.cantidad)+"\nDevolucion Recibida"+"\nEste correo solo es de prueba :) :)" 
-                send_mail(
-                    'Bitacora',
-                    mensaje,
-                    '',
-                    [''],
-                    fail_silently=False
-                )
-                return Response(
-                    {'mensaje': nuevo_detalle.id, 'existencia': cantidad_kardex.existencia},
-                    status=status.HTTP_200_OK
-                )
+                motivo = "SUNI - Devolución de Kardex Aprobada: " + str(id)
+
+            cantidad_kardex = kax_m.Equipo.objects.get(nombre=solicitudes_movimiento.tipo_dispositivo)
+            # Enviar correo de notificación
+            usuario_completo = str(self.request.user.first_name) +" "+ str(self.request.user.last_name)
+
+            html_message = loader.render_to_string(
+                'inventario/email/email_solicitud.html',
+                {
+                    'solicitud_id': str(id),
+                    'fecha_movimiento': str(datetime.now()),
+                    'tipo_equipo': str(solicitudes_movimiento.tipo_dispositivo),
+                    'cantidad': str(solicitudes_movimiento.cantidad),
+                    'estado': 'Aprobada Kardex',
+                    'usuario': usuario_completo,
+                    'url': "https://suni.funsepa.org" + str(solicitudes_movimiento.get_absolute_url()),
+                })
+
+            
+            # Enviar Correo
+            send_mail(
+                motivo,
+                'mensaje',
+                settings.EMAIL_HOST_USER,
+                [solicitudes_movimiento.creada_por.email],
+                fail_silently=True,
+                html_message = html_message
+            )
+            return Response(
+                {'mensaje': nuevo_detalle.id, 'existencia': cantidad_kardex.existencia},
+                status=status.HTTP_200_OK)
         else:
             """ Rechazar dispositivos de kardex
             """
@@ -510,6 +540,8 @@ class DispositivoViewSet(viewsets.ModelViewSet):
             solicitudes_movimiento.terminada = True
             solicitudes_movimiento.rechazar = True
             solicitudes_movimiento.save()
+
+            # Agregar registro a Bitácora
             nueva_bitacora = inv_m.SolicitudBitacora(
                 fecha_movimiento=datetime.now(),
                 numero_solicitud=inv_m.SolicitudMovimiento.objects.get(id=id),
@@ -517,16 +549,33 @@ class DispositivoViewSet(viewsets.ModelViewSet):
                 usuario=self.request.user
             )
             nueva_bitacora.save()
-            usuario = User.objects.get(username=self.request.user)
-            usuario_completo = str(usuario.first_name) +" "+ str(usuario.last_name)
-            mensaje = "Solicitud de movimiento: "+str(id)+ "\nFecha de  movimiento: " + str(datetime.now().date())+"\nTipo de equipo"+str(solicitudes_movimiento.tipo_dispositivo)+"\nCantidad:"+str(solicitudes_movimiento.cantidad)+"\nSolicitud rechazada"+"\nEste correo solo es de prueba :) :)" 
+
+            # Enviar correo de notificación
+            usuario_completo = str(self.request.user.first_name) +" "+ str(self.request.user.last_name)
+
+            html_message = loader.render_to_string(
+                'inventario/email/email_solicitud.html',
+                {
+                    'solicitud_id': str(id),
+                    'fecha_movimiento': str(datetime.now()),
+                    'tipo_equipo': str(solicitudes_movimiento.tipo_dispositivo),
+                    'cantidad': str(solicitudes_movimiento.cantidad),
+                    'estado': 'Rechazada',
+                    'usuario': usuario_completo,
+                    'url': "https://suni.funsepa.org" + str(solicitudes_movimiento.get_absolute_url()),
+                })
+
+            motivo = "SUNI - Solicitud Rechazada: "+ str(id)
+            # Enviar Correo
             send_mail(
-                'Bitacora',
-                mensaje,
-                '',
-                [''],
-                fail_silently=False
+                motivo,
+                'mensaje',
+                settings.EMAIL_HOST_USER,
+                [solicitudes_movimiento.creada_por.email],
+                fail_silently=True,
+                html_message = html_message
             )
+            
             return Response(
                 {'mensaje': 'Solicitud Rechazada'},
                 status=status.HTTP_200_OK
@@ -589,7 +638,6 @@ class PaquetesFilter(filters.FilterSet):
         qs = qs.filter(salida=value, tipo_paquete__in=tip_paquete)
         return qs
 
-
 class PaquetesViewSet(viewsets.ModelViewSet):
     """ ViewSet para generar informe de  :class:`Paquete`
     """
@@ -597,7 +645,6 @@ class PaquetesViewSet(viewsets.ModelViewSet):
     serializer_class = inv_s.PaqueteSerializer
     queryset = inv_m.Paquete.objects.all()
     filter_class = PaquetesFilter
-
 
 class DispositivoPaqueteViewset(viewsets.ModelViewSet):
     serializer_class = inv_s.DispositivoPaqueteSerializer
@@ -1114,13 +1161,14 @@ class DispositivosPaquetesViewSet(viewsets.ModelViewSet):
 
 class SolicitudMovimientoFilter(filters.FilterSet):
     """ Filtros para generar informe de  Salida
-    """    
+    """
+    estado = django_filters.NumberFilter(name='estado', method='filter_estado')    
     fecha_min = django_filters.DateFilter(name='fecha_min', method='filter_fecha')
     fecha_max = django_filters.DateFilter(name='fecha_max', method='filter_fecha')
 
     class Meta:
         model = inv_m.SolicitudMovimiento
-        fields = ['id','tipo_dispositivo','devolucion','terminada','fecha_min', 'fecha_max']
+        fields = ['devolucion','estado','tipo_dispositivo','fecha_min', 'fecha_max']
     
     def filter_fecha(self, queryset, name, value):
         if value and name == 'fecha_min':
@@ -1129,9 +1177,98 @@ class SolicitudMovimientoFilter(filters.FilterSet):
             queryset = queryset.filter(fecha_creacion__lte=value)
         return queryset
 
+    def filter_estado(self, queryset, name, value):
+        if value == 0:
+            queryset = queryset.filter(terminada=False, recibida=False, rechazar=False)
+        if value == 1:
+            queryset = queryset.filter(terminada=True, recibida=False, rechazar=False)
+        if value == 2:
+            queryset = queryset.filter(terminada=True, recibida=True, rechazar=False)
+        if value == 3:
+            queryset = queryset.filter(rechazar=True)
+        return queryset
+
 class SolicitudMovimientoViewSet(viewsets.ModelViewSet):
     """ ViewSet para generar los informe de la :class:`SolicitudMovimiento`
     """
     serializer_class = inv_s.SolicitudMovimientoSerializer
-    queryset = inv_m.SolicitudMovimiento.objects.all()
     filter_class = SolicitudMovimientoFilter
+    ordering = ('-id')
+
+    def get_queryset(self):
+        """ Este queryset se encarga de filtar las solicitudes que se van a mostrar en el listado general
+        """
+
+        fecha_min = self.request.query_params.get('fecha_min', None)
+        fecha_max = self.request.query_params.get('fecha_max', None)   
+        filtros = False
+
+        # Obtener valores de lista para tipo
+        try:
+            tipo_solicitud = []
+            tipo_solicitud = self.request.GET.getlist('devolucion[]')
+            if len(tipo_solicitud) == 0:
+                tipo = self.request.GET['devolucion']
+                tipo_solicitud.append(tipo)
+        except MultiValueDictKeyError as e:
+            tipo_solicitud = 0
+
+        # Obtener valores de lista para estado
+        try:
+            estado = []
+            estado = self.request.GET.getlist('estado[]')
+            if len(estado) == 0:
+                tipo = self.request.GET['estado']
+                estado.append(tipo)
+        except MultiValueDictKeyError as e:
+            estado = 0
+
+        # Obtener valores de lista para tipo de dispositivo
+        try:
+            tipo_dispositivo = []
+            tipo_dispositivo = self.request.GET.getlist('tipo_dispositivo[]')
+            if len(tipo_dispositivo) == 0:
+                tipo = self.request.GET['tipo_dispositivo']
+                tipo_dispositivo.append(tipo)
+        except MultiValueDictKeyError as e:
+            tipo_dispositivo = 0
+
+        # Filtrar por tipos de dispositivos seleccionados
+        if tipo_dispositivo == 0 or not tipo_dispositivo:
+            tipo_dis = self.request.user.tipos_dispositivos.tipos.all()
+        else:
+            tipo_dis = tipo_dispositivo
+            filtros = True
+        queryset = inv_m.SolicitudMovimiento.objects.all().filter(tipo_dispositivo__in=tipo_dis)
+
+        # Filtrar por estados seleccionados
+        if estado and estado != 0:
+            filtros = True
+            init_solicitudes = inv_m.SolicitudMovimiento.objects.none()
+            queryset_pendientes = queryset_entregados = queryset_recibidos = queryset_rechazados = init_solicitudes
+            if '0' in estado:
+                queryset_pendientes = queryset.filter(terminada=False, recibida=False, rechazar=False)
+            if '1' in estado:
+                queryset_entregados = queryset.filter(terminada=True, recibida=False, rechazar=False)
+            if '2' in estado:
+                queryset_recibidos = queryset.filter(terminada=True, recibida=True, rechazar=False)
+            if '3' in estado:
+                queryset_rechazados = queryset.filter(rechazar=True)
+
+            queryset = queryset_pendientes | queryset_entregados | queryset_recibidos | queryset_rechazados
+
+        if tipo_solicitud and tipo_solicitud != 0:
+            filtros = True
+
+        # Obtener data en caso no hayan seleccionado filtros
+        if not filtros and fecha_min is None and fecha_max is None:
+            if "inv_bodega" in self.request.user.groups.values_list('name', flat=True):
+                queryset = queryset.filter(recibida=False, rechazar=False)
+            else:
+                queryset = queryset.filter(recibida=False)
+
+        # Obtener data en caso sean técnicos.
+        if "inv_tecnico" in self.request.user.groups.values_list('name', flat=True) or "inv_cc" in self.request.user.groups.values_list('name', flat=True):
+            queryset = queryset.filter(creada_por=self.request.user)
+
+        return queryset

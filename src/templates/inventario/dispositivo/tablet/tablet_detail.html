@@ -13,6 +13,14 @@
   </div>
 </div>
     <tr>
+        <th>Versión de sistema</th>
+        <td>{{ object.version_sistema|default_if_none:"" }} 
+             {% for nombre in object.version_sistema.software.all  %}
+          ,{{nombre}}
+         {% endfor %}  
+        </td>
+    </tr>
+    <tr>
         <th>Sistema operativo</th>
         <td>{{ object.so_id|default_if_none:"" }}</td>
     </tr>
@@ -31,5 +39,9 @@
     <tr>
         <th>RAM</th>
         <td>{{ object.ram|default_if_none:"" }} {{ object.ram_medida|default_if_none:"" }}</td>
+    </tr>
+    <tr>
+        <th>Almacenamiento Externo</th>
+        <td><input type="checkbox" name="almacenamiento_externo" class="icheckbox_square-red" disabled  {% if object.almacenamiento_externo %} checked {% endif %} /></td>
     </tr>
 {% endblock info_dispositivo %}

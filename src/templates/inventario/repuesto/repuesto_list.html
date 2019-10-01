@@ -37,14 +37,6 @@
                   <div class="col-md-9">
                     <h3 class="box-title">Listado de Repuestos</h3>
                   </div>
-                  <div class="col-md-3">
-                    {% csrf_token %}
-                    {%for permiso in user.groups.all  %}
-                      {% if permiso.name == "inv_bodega" or permiso.name == 'inv_admin' %}
-                        <a id="qr-botton" target='_blank' rel='noopener noreferrer'  data-url = "{%url 'repuestoqr_list' pk=1%}" class="btn btn-block btn-success" style="display:none" >Imprimir QR </a>
-                      {%endif%}
-                    {% endfor %} 
-                  </div>
                 </div>
               </div>
               <div  class="box-body table-responsive">
