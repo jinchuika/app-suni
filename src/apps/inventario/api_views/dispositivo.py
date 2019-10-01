@@ -366,7 +366,7 @@ class DispositivoViewSet(viewsets.ModelViewSet):
             usuario=self.request.user
         )
         nueva_bitacora.save()
-
+        
         # Enviar correo de notificación
         motivo = ''
         lista_enviar_correos = []
@@ -598,7 +598,7 @@ class DispositivoViewSet(viewsets.ModelViewSet):
 
     @action(methods=['post'], detail=False)
     def colocar_repuesto_tarima(self, request, pk=None):
-        """ Este se conecta ala app para colocar los repuestos a las tarimas
+        """ Este se conecta a la app para colocar los repuestos a las tarimas
         """
         id = request.data['id']
         tarima = request.data['tarima']

@@ -90,13 +90,13 @@ class EntradaDetalleForm(forms.ModelForm):
             'fecha_dispositivo',
             'fecha_repuesto',
             'enviar_kardex',
-            'ingresado_kardex'
+            'ingresado_kardex',            
             ]
         widgets = {
             'entrada': forms.HiddenInput(),
             'tipo_dispositivo': forms.Select(attrs={'class': 'form-control select2'}),
             'total': forms.TextInput({'class': 'form-control', 'min': 1, 'type': 'number'}),
-            'precio_subtotal': forms.NumberInput({'class': 'form-control'}),
+            'precio_subtotal': forms.NumberInput(attrs={'class': 'form-control'}),
             'descripcion': forms.TextInput({'class': 'form-control'}),
             'proveedor_kardex': forms.Select(attrs={'class': 'form-control select2'}),
             'estado_kardex': forms.Select(attrs={'class': 'form-control select2'}),
@@ -112,15 +112,15 @@ class EntradaDetalleForm(forms.ModelForm):
             self.fields['total'].widget = forms.NumberInput(
                 attrs={'class': 'form-control', 'min': "0"})
 
-        if not entrada.tipo.contable:
+        if not entrada.tipo.contable:            
             self.fields['precio_subtotal'].empty_label = None
             self.fields['precio_subtotal'].label = ''
             self.fields['precio_subtotal'].widget = forms.NumberInput(
                 attrs={'class': 'form-control', 'style': "visibility:hidden"})
             self.fields['precio_subtotal'].initial = ""
-        else:
+        else:            
             self.fields['precio_subtotal'].widget = forms.NumberInput(
-                attrs={'class': 'form-control', 'min': "1"})
+                attrs={'class': 'form-control','step':".01"})
 
 class EntradaDetalleUpdateForm(forms.ModelForm):
     """ Formulario para la :`class`:`EntradaDetalleView` que es la encargada de actualizar  los datos

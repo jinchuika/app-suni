@@ -17,6 +17,7 @@ from apps.inventario import (
 from apps.kardex import models as kax_m
 import json
 from django.forms.models import model_to_dict
+from django.utils.datastructures import MultiValueDictKeyError
 
 
 class DetalleInformeFilter(filters.FilterSet):

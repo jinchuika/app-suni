@@ -203,8 +203,8 @@ class DispositivoRedForm(forms.ModelForm):
 
 
 class DispositivoAccessPointForm(forms.ModelForm):
-    """Formulario para la creación de :class:`DispositivoRed`.
-    Se utiliza desde la vistas de DispositivoRed."""
+    """Formulario para la creación de :class:`AccessPoint`.
+    Se utiliza desde la vistas de AccessPoint."""
     class Meta:
         model = inv_m.AccessPoint
         fields = '__all__'
