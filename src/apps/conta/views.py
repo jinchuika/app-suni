@@ -537,6 +537,11 @@ class InformeSalidaJson(views.APIView):
             beneficiado = 0
 
         try:
+            donaciones = self.request.GET.get('donaciones','') == 'on'
+        except MultiValueDictKeyError as e:
+            donaciones = False
+
+        try:
             compra = self.request.GET.get('compras','') == 'on'
         except MultiValueDictKeyError as e:
             compra = False
@@ -596,9 +601,9 @@ class InformeSalidaJson(views.APIView):
             if tipo_salida and tipo_salida != 0:
                 sql_where += " AND isi.tipo_salida_id in (" + ','.join(tipo_salida) + ")"
 
-            if compra:
+            if compra and not donaciones:
                 sql_where += " AND ie.tipo_id = " + str(tipo_compra.id)
-            else:
+            elif not compra and donaciones:
                 sql_where += " AND ie.tipo_id <> " + str(tipo_compra.id)
 
             sql_query = sql_select + sql_where + sql_group
