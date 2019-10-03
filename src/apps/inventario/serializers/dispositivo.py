@@ -80,6 +80,8 @@ class SolicitudMovimientoSerializer(serializers.ModelSerializer):
     autorizada_por = serializers.StringRelatedField(source='autorizada_por.get_full_name')
     tipo_dispositivo = serializers.StringRelatedField()
     url = serializers.StringRelatedField(source='get_absolute_url')
+    url_salida = serializers.StringRelatedField(source='no_salida.get_absolute_url')
+    no_salida_str = serializers.StringRelatedField(source='no_salida')
     class Meta:
         model = inv_m.SolicitudMovimiento
         fields = '__all__'

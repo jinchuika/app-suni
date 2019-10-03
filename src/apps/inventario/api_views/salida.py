@@ -54,41 +54,87 @@ class SalidaInventarioViewSet(viewsets.ModelViewSet):
         """Metodo para obtener la existencia que hay de insumons en kardex
         """
         tipo_dispositivo = request.data['tipo_dispositivo']
+        salida = request.data['salida']
         validar_dispositivo = inv_m.PaqueteTipo.objects.get(id=tipo_dispositivo)
-        if validar_dispositivo.tipo_dispositivo.usa_triage is False:
+
+        if validar_dispositivo.tipo_dispositivo:
                 altas = inv_m.SolicitudMovimiento.objects.filter(
                     recibida=True,
                     devolucion=False,
+                    no_salida=salida,
                     tipo_dispositivo__tipo=validar_dispositivo).aggregate(altas_cantidad=Sum('cantidad'))
                 if altas['altas_cantidad'] is None:
                     altas['altas_cantidad'] = 0
+                
                 bajas = inv_m.SolicitudMovimiento.objects.filter(
                     recibida=True,
                     devolucion=True,
+                    no_salida=salida,
                     tipo_dispositivo__tipo=validar_dispositivo).aggregate(bajas_cantidad=Sum('cantidad'))
                 if bajas['bajas_cantidad'] is None:
                     bajas['bajas_cantidad'] = 0
+                
                 salidas = inv_m.Paquete.objects.filter(
                     tipo_paquete=validar_dispositivo,
-                    desactivado=False
+                    desactivado=False,
+                    salida=salida
                 ).aggregate(salidas_cantidad=Sum('cantidad'))
                 if salidas['salidas_cantidad'] is None:
                     salidas['salidas_cantidad'] = 0
+                
                 total = altas['altas_cantidad'] - (bajas['bajas_cantidad'] + salidas['salidas_cantidad'])
+                
                 return Response(
                     {'mensaje': total},
                     status=status.HTTP_200_OK
                 )
         else:
             return Response(
-                {'mensaje': 'Usa Triage'},
-                status=status.HTTP_200_OK
+                {'mensaje': 'Dispositivo no Existe'},
+                status=status.HTTP_400_BAD_REQUEST
             )
 
-        return Response(
-            {'mensaje': 'Exitoso'},
-            status=status.HTTP_200_OK
-        )
+    @action(methods=['post'], detail=True)
+    def stock_paquete(self, request, pk=None):
+        salida = request.data['salida']
+        tipo_paquete = inv_m.PaqueteTipo.objects.all()
+        lista = []
+
+        for tipo in tipo_paquete:
+            paquete_salida = {}
+
+            altas = inv_m.SolicitudMovimiento.objects.filter(
+                recibida=True,
+                devolucion=False,
+                no_salida=salida,
+                tipo_dispositivo__tipo=tipo).aggregate(altas_cantidad=Sum('cantidad'))
+            if altas['altas_cantidad'] is None:
+                altas['altas_cantidad'] = 0
+            
+            bajas = inv_m.SolicitudMovimiento.objects.filter(
+                recibida=True,
+                devolucion=True,
+                no_salida=salida,
+                tipo_dispositivo__tipo=tipo).aggregate(bajas_cantidad=Sum('cantidad'))
+            if bajas['bajas_cantidad'] is None:
+                bajas['bajas_cantidad'] = 0
+            
+            salidas = inv_m.Paquete.objects.filter(
+                tipo_paquete=tipo,
+                desactivado=False,
+                salida=salida
+                ).aggregate(salidas_cantidad=Sum('cantidad'))
+            if salidas['salidas_cantidad'] is None:
+                salidas['salidas_cantidad'] = 0
+            
+            total = altas['altas_cantidad'] - (bajas['bajas_cantidad'] + salidas['salidas_cantidad'])
+
+            paquete_salida['id'] = tipo.id
+            paquete_salida['nombre'] = tipo.nombre
+            paquete_salida['existencia'] = total
+            lista.append(paquete_salida)
+
+        return Response(lista)
 
     @action(methods=['post'], detail=True)
     def asignar_paquetes(self, request, pk=None):

@@ -53,6 +53,7 @@ class SalidaInventarioUpdateForm(forms.ModelForm):
                 'en_creacion': _('En Desarrollo'),
         }
         widgets = {
+            'id': forms.HiddenInput(),
             'cooperante': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '1'}),
             'fecha': forms.TextInput({'class': 'form-control datepicker', 'tabindex': '2'}),
             'observaciones': forms.Textarea({'class': 'form-control', 'tabindex': '4'}),
@@ -66,7 +67,7 @@ class PaqueteCantidadForm(forms.ModelForm):
         """
     tipo_paquete = forms.ModelChoiceField(
         queryset=inv_m.PaqueteTipo.objects.all(),
-        widget=forms.Select(attrs={'class': 'form-control'})
+        widget=forms.Select(attrs={'class': 'form-control select2'})
     )
     cantidad = forms.IntegerField(
         widget=forms.TextInput(attrs={'class': 'form-control'}))
