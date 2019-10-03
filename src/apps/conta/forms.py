@@ -146,9 +146,14 @@ class SalidasInformeForm(forms.Form):
         required=False)
     tipo_salida = forms.ModelMultipleChoiceField(
         queryset=inv_m.SalidaTipo.objects.all().exclude(especial=True),
-        label='Tipo de Entrada',
+        label='Tipo de Salida',
         required=False,
         widget=forms.SelectMultiple(attrs={'class': 'select2', 'multiple': 'multiple'}))
+
+    donaciones = forms.BooleanField(
+        label="Donaciones",
+        required=False,
+        widget=forms.CheckboxInput({'class': 'flat-red'}))
 
     compras = forms.BooleanField(
         label="Compras",
