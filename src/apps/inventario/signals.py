@@ -118,7 +118,9 @@ def crear_bitacora(sender, instance, created, **kwargs):
         usuario_completo = str(usuario.first_name) +" "+ str(usuario.last_name)
         if instance.devolucion:
             if instance.desecho:
-                 mensaje = "Solicitud de movimiento: "+str(instance.id) +"\nFecha de  movimiento: " + str(datetime.now().date()) +"\nTipo de equipo: "+str(instance.tipo_dispositivo)+"\nCantidad: "+str(instance.cantidad)+"\nObservaciones: "+instance.observaciones+" \nAccion: " + str(inventario_m.AccionBitacora.objects.get(id=1)) + " \nUsuario: " +usuario_completo  + "\nDesecho: Si"+"\nEste correo solo es de prueba :) :)"         
+                 mensaje = "Solicitud de movimiento: "+str(instance.id) +"\nFecha de  movimiento: " + str(datetime.now().date()) +"\nTipo de equipo: "+str(instance.tipo_dispositivo)+"\nCantidad: "+str(instance.cantidad)+"\nObservaciones: "+instance.observaciones+" \nAccion: " + str(inventario_m.AccionBitacora.objects.get(id=1)) + " \nUsuario: " +usuario_completo  + "\nDesecho: Si"+"\nEste correo solo es de prueba :) :)"     
+            else:
+                 mensaje = "Solicitud de movimiento: "+str(instance.id) +"\nFecha de  movimiento: " + str(datetime.now().date()) +"\nTipo de equipo: "+str(instance.tipo_dispositivo)+"\nCantidad: "+str(instance.cantidad)+"\nObservaciones: "+instance.observaciones+" \nAccion: " + str(inventario_m.AccionBitacora.objects.get(id=1)) + " \nUsuario: " +usuario_completo  + "\nDesecho: Si"+"\nEste correo solo es de prueba :) :)"            
         else:
             mensaje = "Solicitud de movimiento: "+str(instance.id) +"\nFecha de  movimiento: " + str(datetime.now().date()) +"\nTipo de equipo: "+str(instance.tipo_dispositivo)+"\nCantidad: "+str(instance.cantidad)+"\nObservaciones: "+instance.observaciones+" \nAccion: " + str(inventario_m.AccionBitacora.objects.get(id=1)) + " \nUsuario: " +usuario_completo  + "\nEste correo solo es de prueba :) :)"         
         usuarios_bodega = User.objects.filter(groups=21)

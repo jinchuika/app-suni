@@ -147,6 +147,7 @@ class DevolucionCreateView(LoginRequiredMixin, CreateView):
     model = inv_m.SolicitudMovimiento
     template_name = 'inventario/dispositivo/solicitudmovimiento_add.html'
     form_class = inv_f.DevolucionCreateForm
+    group_required = [u"inv_admin", u"inv_tecnico"]
 
     def form_valid(self, form):
         form.instance.creada_por = self.request.user
@@ -232,15 +233,7 @@ class SolicitudMovimientoListView(LoginRequiredMixin, FormView):
     model = inv_m.SolicitudMovimiento
     template_name = 'inventario/dispositivo/solicitudmovimiento_list.html'
     form_class = inv_f.SolicitudMovimientoInformeForm
-    group_required = [u"inv_cc", u"inv_admin", u"inv_tecnico", u"inv_bodega"]
-
-    """def get_context_data(self, **kwargs):
-        context = super(SolicitudMovimientoListView, self).get_context_data(**kwargs)
-        tipo_dis = self.request.user.tipos_dispositivos.tipos.all()
-        solicitudes_list = inv_m.SolicitudMovimiento.objects.filter(tipo_dispositivo__in=tipo_dis).order_by('terminada','recibida','-fecha_creacion')
-
-        context['solicitudmovimiento_list'] = solicitudes_list
-        return context"""
+    group_required = [u"inv_cc", u"inv_admin", u"inv_tecnico", u"inv_bodega"]  
 
 ##########################
 # FALLAS DE DISPOSITIVOS #
