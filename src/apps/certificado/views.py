@@ -48,15 +48,18 @@ class ListadoMaestroView(TemplateView):
                 print("en espera") 
         else:
              print("el dpi esta vacio")
-        data= resp.json()             
-        if len(data) is 0:
-           context['validacion'] = 0
-        else:           
-           context['nombre'] = str(data[0]['nombre'])+" "+str(data[0]['apellido'])    
-           context['escuela'] =data[0]['escuela']
-           context['asignacion'] = data[0]['numero_asignacion'] 
-           context['dpi']=self.request.GET['dpi']
-           context['maestros'] = resp.json()             
+        try:           
+           data= resp.json()
+           if len(data) is 0:
+               context['validacion'] = 0
+           else:           
+               context['nombre'] = str(data[0]['nombre'])+" "+str(data[0]['apellido'])    
+               context['escuela'] =data[0]['escuela']
+               context['asignacion'] = data[0]['numero_asignacion'] 
+               context['dpi']=self.request.GET['dpi']
+               context['maestros'] = resp.json()  
+        except:           
+           context['validacion'] = 0                   
         return context
 
 class DiplomaPdfView(View):
