@@ -1,5 +1,4 @@
 {% extends "inventario/dispositivo/base_detail.html" %}
-
 {% block info_dispositivo %}
 <div >
   <div class="row">
@@ -18,7 +17,11 @@
     </tr>
     <tr>
         <th>Versión de sistema</th>
-        <td>{{ object.version_sistema|default_if_none:"" }}</td>
+        <td>{{ object.version_sistema|default_if_none:"" }} 
+             {% for nombre in object.version_sistema.software.all  %}
+          ,{{nombre}}
+         {% endfor %}  
+        </td>
     </tr>
     <tr>
         <th>Disco duro</th>
@@ -32,5 +35,4 @@
         <th>Pulgadas</th>
         <td>{{ object.pulgadas }}</td>
     </tr>
-
 {% endblock info_dispositivo %}

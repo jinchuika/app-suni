@@ -19,7 +19,7 @@ class SalidaInventarioForm(forms.ModelForm):
     class Meta:
         model = inv_m.SalidaInventario
         fields = '__all__'
-        exclude = ('creada_por', 'escuela', 'necesita_revision', 'entrada')
+        exclude = ('creada_por', 'escuela', 'necesita_revision', 'entrada','entrega','url')
         widgets = {
             'en_creacion': forms.HiddenInput(),
             'estado': forms.HiddenInput(),
@@ -28,13 +28,13 @@ class SalidaInventarioForm(forms.ModelForm):
             'escuela': forms.TextInput({'class': 'form-control', 'tabindex': '7'}),
             'observaciones': forms.Textarea({'class': 'form-control', 'tabindex': '5'}),
             'reasignado_por': forms.HiddenInput(),
-            'garantia': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '4'}),
-            'entrega': forms.CheckboxInput(attrs={'style': "visibility:hidden", 'class': 'icheckbox_flat-green', 'tabindex': '3'}),
+            'garantia': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '4'}),            
             'cooperante': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '8'}),
         }
 
     def __init__(self, *args, **kwargs):
         super(SalidaInventarioForm, self).__init__(*args, **kwargs)
+        self.fields['garantia'].label="Ticket"
         if self.instance.en_creacion:
             self.fields['beneficiario'].widget = forms.Select(
                 attrs={'style': "visibility:hidden", 'class': 'form-control select2', 'tabindex': '6'})
@@ -48,15 +48,17 @@ class SalidaInventarioUpdateForm(forms.ModelForm):
     """
     class Meta:
         model = inv_m.SalidaInventario
-        fields = ('cooperante', 'fecha', 'en_creacion', 'observaciones')
+        fields = ('cooperante', 'fecha', 'en_creacion', 'observaciones','url')
         labels = {
                 'en_creacion': _('En Desarrollo'),
         }
         widgets = {
+            'id': forms.HiddenInput(),
             'cooperante': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '1'}),
             'fecha': forms.TextInput({'class': 'form-control datepicker', 'tabindex': '2'}),
             'observaciones': forms.Textarea({'class': 'form-control', 'tabindex': '4'}),
             'en_creacion': forms.CheckboxInput(attrs={'class': 'icheckbox_flat-green', 'tabindex': '3'}),
+            'url': forms.TextInput({'class': 'form-control', 'tabindex': '4'}),
         }
 
 
@@ -65,13 +67,13 @@ class PaqueteCantidadForm(forms.ModelForm):
         """
     tipo_paquete = forms.ModelChoiceField(
         queryset=inv_m.PaqueteTipo.objects.all(),
-        widget=forms.Select(attrs={'class': 'form-control'})
+        widget=forms.Select(attrs={'class': 'form-control select2'})
     )
     cantidad = forms.IntegerField(
         widget=forms.TextInput(attrs={'class': 'form-control'}))
     entrada = forms.ModelMultipleChoiceField(
         required=False,
-        queryset=inv_m.Entrada.objects.none(),
+        queryset=inv_m.Entrada.objects.filter(tipo=3),
         widget=forms.SelectMultiple(attrs={
             'data-api-url': reverse_lazy('inventario_api:api_entrada-list')
         })
@@ -112,7 +114,7 @@ class RevisionSalidaUpdateForm(forms.ModelForm):
         model = inv_m.RevisionSalida
         fields = ('anotaciones', )
         widgets = {
-            'anotaciones': forms.TextInput(attrs={'class': 'form-control'})
+            'anotaciones': forms.Textarea(attrs={'class': 'form-control'})
         }
 
 
@@ -161,3 +163,34 @@ class PaqueteUpdateForm(forms.ModelForm):
     class Meta:
         model = inv_m.Paquete
         fields = ('dispositivos', )
+
+
+class SalidaInventarioListForm(forms.Form):
+    """Este Formulario se encarga de enviar los filtros para  su respectivo informe de Entradas
+    """
+
+    id = forms.IntegerField(
+        label='No. Salida',
+        required=False,
+        widget=forms.NumberInput(attrs={'class': 'form-control'}))
+   
+    tipo_salida = forms.ModelChoiceField(
+        queryset=inv_m.SalidaTipo.objects.all(),
+        label='Tipo',
+        required=False,
+        widget=forms.Select(attrs={'class': 'form-control select2'}))
+
+    estado = forms.ModelChoiceField(
+        queryset=inv_m.SalidaEstado.objects.all(),
+        label='Estado',
+        required=False,
+        widget=forms.Select(attrs={'class': 'form-control select2'}))
+
+    fecha_min = forms.CharField(
+        label='Fecha (min)',
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-control datepicker'}))
+    fecha_max = forms.CharField(
+        label='Fecha (max)',
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-control datepicker'}))

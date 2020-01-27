@@ -1,5 +1,4 @@
 {% extends "base/base.html" %}
-
 {% load staticfiles widget_tweaks %}
 {% load inventario_extras %}
 {% block page_title %}
@@ -9,7 +8,6 @@
         <title>Entrada</title>
     {% endif %}
 {% endblock page_title %}
-
 {% block content %}
 {% csrf_token %}
 {%if form.instance.en_creacion%}
@@ -178,7 +176,7 @@
                                 <th></th>
                                 <th></th>
                             </tr>
-                            </thead>
+                            </thead>                           
                         </table>
                     </div>
                 </div>
@@ -195,7 +193,7 @@
 <script>
     AlertaEnCreacion.init();
     $(document).ready(function(){
-        let pagina = new EntradaUpdate();
+        let pagina = new EntradaUpdate();        
     });    
 </script>
 {% endblock extra_js %}

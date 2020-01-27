@@ -190,9 +190,12 @@ class EntradaInforme {
 
     },
     footerCallback: function( tfoot, data, start, end, display){
+        var api = this.api();
         for (var i in data){
           $(tfoot).find('th').eq(0).html( "EXISTENCIA FINAL: "+ parseFloat(data[i].total_despues).toLocaleString('en') );
-          $(tfoot).find('th').eq(1).html( "SALDO FINAL: "+ parseFloat(data[i].total_costo_despues).toLocaleString('en') );
+          $(tfoot).find('th').eq(1).html( "CANTIDAD TOTAL: "+ parseFloat(api.column(2, {page: 'current'}).data().sum() ).toLocaleString('en'));
+          $(tfoot).find('th').eq(2).html( "TOTAL: "+ parseFloat(api.column(4, {page: 'current'}).data().sum() ).toLocaleString('en'));
+          $(tfoot).find('th').eq(3).html( "SALDO FINAL: "+ parseFloat(data[i].total_costo_despues).toLocaleString('en') );
         };
       },
       dom: 'Bfrtip',
@@ -232,6 +235,59 @@ class EntradaInforme {
   });
   }
 }
+
+class EntradaDispositivoInforme {
+  constructor() {
+  let precioestandar_informe = $("#entradadispositivo-list-form");
+  var urlPrecio= $('#entrada-dispositivo-table').data("api");
+  precioestandar_informe.submit(function (e){
+    e.preventDefault();
+    var tablaPrecio = $('#entrada-dispositivo-table').DataTable({
+    headerCallback:function (thead, data, start, end, display ){
+      for(var i in data){
+        $(thead).find('th').eq(0).html( data[i].tipo_dispositivo );
+        $(thead).find('th').eq(1).html( data[i].rango_fechas);
+        $(thead).find('th').eq(2).html( "EXISTENCIA INICIAL: "+ parseFloat(data[i].total_final).toLocaleString('en') );
+      };
+
+    },
+    footerCallback: function( tfoot, data, start, end, display){
+        for (var i in data){
+          $(tfoot).find('th').eq(0).html( "EXISTENCIA FINAL: "+ parseFloat(data[i].total_despues).toLocaleString('en') );
+        };
+      },
+      dom: 'Bfrtip',
+      buttons: ['excel', 'pdf', 'copy'],
+      searching:true,
+      paging:false,
+      ordering:true,
+      processing:true,
+      destroy:true,
+      ajax:{
+        url:urlPrecio,
+        dataSrc:'',
+        cache:false,
+        processing:true,
+        data: function () {
+          return $('#entradadispositivo-list-form').serializeObject(true);
+        }
+      },
+      columns: [
+        {data: "triage", render: function(data, type, full, meta){
+          return "<a href="+full.url+">"+full.triage+"</a>";
+        }},
+        {data: "entrada", render: function(data, type, full, meta){
+          return "<a href="+full.url_entrada+">"+full.entrada+"</a>";
+        }},
+        {data: "fecha"},
+        {data: "tipo_entrada"},
+      ]
+    });
+    tablaPrecio.clear().draw();
+    //tablaPrecio.ajax.reload();
+  });
+  }
+}
 class SalidaInforme {
   constructor() {
   let precioestandar_informe = $("#precioestandar-list-form");
@@ -249,9 +305,12 @@ class SalidaInforme {
 
     },
     footerCallback: function( tfoot, data, start, end, display){
+        var api = this.api();
         for (var i in data){
           $(tfoot).find('th').eq(0).html( "EXISTENCIA FINAL: "+ parseFloat(data[i].total_despues).toLocaleString('en') );
-          $(tfoot).find('th').eq(1).html( "SALDO FINAL: "+ parseFloat(data[i].total_costo_despues).toLocaleString('en') );
+          $(tfoot).find('th').eq(1).html( "CANTIDAD TOTAL: "+ parseFloat(api.column(2, {page: 'current'}).data().sum() ).toLocaleString('en'));
+          $(tfoot).find('th').eq(2).html( "TOTAL: "+ parseFloat(api.column(4, {page: 'current'}).data().sum() ).toLocaleString('en'));
+          $(tfoot).find('th').eq(3).html( "SALDO FINAL: "+ parseFloat(data[i].total_costo_despues).toLocaleString('en') );
         };
       },
       dom: 'Bfrtip',
@@ -310,9 +369,12 @@ class DesechoInforme {
 
     },
     footerCallback: function( tfoot, data, start, end, display){
+      var api = this.api();
         for (var i in data){
           $(tfoot).find('th').eq(0).html( "EXISTENCIA FINAL: "+ parseFloat(data[i].total_despues).toLocaleString('en') );
-          $(tfoot).find('th').eq(1).html( "SALDO FINAL: "+ parseFloat(data[i].total_costo_despues).toLocaleString('en') );
+          $(tfoot).find('th').eq(1).html( "CANTIDAD TOTAL: "+ parseFloat(api.column(2, {page: 'current'}).data().sum() ).toLocaleString('en'));
+          $(tfoot).find('th').eq(2).html( "TOTAL: "+ parseFloat(api.column(4, {page: 'current'}).data().sum() ).toLocaleString('en'));
+          $(tfoot).find('th').eq(3).html( "SALDO FINAL: "+ parseFloat(data[i].total_costo_despues).toLocaleString('en') );
         };
       },
       dom: 'Bfrtip',
@@ -368,9 +430,12 @@ class ResumenInforme {
 
     },
     footerCallback: function( tfoot, data, start, end, display){
+      var api = this.api();
         for (var i in data){
           $(tfoot).find('th').eq(0).html( "EXISTENCIA FINAL: "+ parseFloat(data[i].total_final).toLocaleString('en') );
-          $(tfoot).find('th').eq(1).html( "SALDO FINAL: "+ parseFloat(data[i].costo_final).toLocaleString('en') );
+          $(tfoot).find('th').eq(1).html( "ENTRADAS: "+ parseFloat(api.column(3, {page: 'current'}).data().sum() ).toLocaleString('en'));
+          $(tfoot).find('th').eq(2).html( "SALIDAS: "+ parseFloat(api.column(4, {page: 'current'}).data().sum() ).toLocaleString('en'));
+          $(tfoot).find('th').eq(3).html( "SALDO FINAL: "+ parseFloat(data[i].costo_final).toLocaleString('en') );
         };
       },
       dom: 'Bfrtip',

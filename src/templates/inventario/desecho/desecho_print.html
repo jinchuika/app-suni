@@ -15,6 +15,9 @@ Constancia Desecho
 <div class="fecha">
   <td>
   Guatemala, {{desechosalida.fecha}}
+  </br>
+  </br>  
+  <img src="{{object.codigo_qr.url}}" class="img-thumbnail" alt="{{object.codigo_qr}}" width="60">
   </td>
 </div>
 <!--Saludo y presentacion-->
@@ -111,10 +114,26 @@ Por este medio se hace constar que se esta entregando a la empresa {{desechosali
           </td>
           <td></td>
         </tr>
+        <tr>
+          <td>
+            <b>Observaciones:</b>
+          </td>
+        </tr>
       </tfoot>
     </table>
   </tfoot>
 </table>
+<div class="container">
+  <div class="row">
+    <div class="col">
+    </div>
+    <div class="col">
+      {{desechosalida.observaciones|linebreaks}}
+    </div>
+    <div class="col">
+    </div>
+  </div>
+</div>
 </center>
 <br />
 <br />

@@ -1,5 +1,5 @@
 from django.shortcuts import reverse
-from django.views.generic import CreateView, DetailView, ListView, UpdateView
+from django.views.generic import CreateView, DetailView, ListView, UpdateView, FormView
 from braces.views import (
     LoginRequiredMixin, GroupRequiredMixin
 )
@@ -118,3 +118,11 @@ class DesechoSalidaPrintView(LoginRequiredMixin, DetailView, GroupRequiredMixin)
         cantidad_total = total_dispositivo + total_detalles['total_util']
         context['cantidad_total'] = cantidad_total
         return context
+
+class DesechoSalidaListView(LoginRequiredMixin,  FormView, GroupRequiredMixin):
+    """Vista encargada de mostrar los listados de la :class:`DesechoSalida`
+    """
+    model = inv_m.DesechoSalida
+    template_name = 'inventario/desecho/desechosalida_list.html'
+    form_class = inv_f.DesechoInventarioListForm
+    group_required = [u"inv_bodega", u"inv_admin", u"inv_monitoreo"]

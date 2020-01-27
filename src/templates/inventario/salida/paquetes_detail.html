@@ -61,8 +61,12 @@
 								<th>Cantidad</th>
 								<td>
 									{{paquete.cantidad}}
-									<br>
+																		
 								</td>
+								{% if  paquete.salida.tipo_salida.id == 2%}								
+								<td><a  id="editar_cantidad"class="btn btn-block btn-warning" data-cantidaUrl="{%url 'inventario_api:api_dispositivo-cambiar-cantidad' %} " data-nuevoid={{paquete.id}}>Editar cantidad</a></td>
+								{% endif %}
+								
 							</tr>
 							<form action="" method="post">
 									{% csrf_token %}
@@ -136,7 +140,7 @@
 							</td>
 							<td>
 									{{dispositivo.asignado_por.get_full_name}}
-							</td>
+							</td>							
 						</tr>
 						{%endfor%}
 					</tbody>
@@ -194,7 +198,7 @@
 								{% if  dispositivo.dispositivo.estado.id == 2 %}
 
 								{% else %}
-									<button  id="id-aprobar" class="btn btn-primary btn-aprobar" data-triage="{{dispositivo.dispositivo.triage}}" data-paquete={{paquete.salida}} data-idpaquete={{paquete.id}} data-tipo={{dispositivo.dispositivo.tipo}}>Aprobar</button>
+									<button  id="id-aprobar" class="btn btn-primary btn-aprobar" data-triage="{{dispositivo.dispositivo.triage}}" data-paquete={{paquete.salida}} data-idpaquete={{paquete.id}} data-tipo={{dispositivo.dispositivo.tipo}} disabled>Aprobar</button>
 
 								{% endif %}
 
@@ -243,7 +247,7 @@
 <script src="{% static "js/extrajs/inventario.js" %}"></script>
 <script src="{% static "js/i18n/es.js" %}"></script>
 <script>
-	$(document).ready(function (){
+	$(document).ready(function (){		
 		let Rechazado = new PaqueteDetail();
 	});
 </script>

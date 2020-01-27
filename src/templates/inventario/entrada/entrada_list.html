@@ -53,6 +53,15 @@
 							</thead>
 							<tbody id="entrada2-table-body">
 							</tbody>
+							<tfoot>
+							<th>No.</th>								
+							<th>Tipo</th>
+							<th>Fecha</th>
+							<th>Estado</th>
+							<th>Responsable</th>
+							<th>Recibida por</th>
+							<th>Proveedor</th>
+							</tfoot>
 						</table>
 						<!--	</div> -->
 					</div>
@@ -67,5 +76,6 @@
 <script src="{% static "js/extrajs/inventario.js" %}"></script>
 <script>
 EntradaList.init();
+let buscar = new BuscadorTabla(); 
 </script>
 {% endblock extra_js %}
