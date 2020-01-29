@@ -1,12 +1,13 @@
 {% extends "inventario/dispositivo/base_detail.html" %}
-
 {% block info_dispositivo %}
 <div >
   <div class="row">
     <div class="col-md-9">
     </div>
     <div class="col-md-3">
+      {% if object.estado.id == 1 or object.estado.id == 2  and object.etapa.id == 1 or object.etapa.id == 2 or object.etapa.id == 3 %}
       <a href="{%url 'mouse_edit' triage=object.triage %}" class="btn btn-block btn-warning">Editar</a>
+      {%endif%}
     </div>
   </div>
 </div>
@@ -17,5 +18,9 @@
     <tr>
         <th>Tipo</th>
         <td>{{ object.tipo_mouse|default_if_none:"" }}</td>
+    </tr>
+    <tr>
+        <th>Caja</th>
+        <td>{{ object.caja|default_if_none:"" }}</td>
     </tr>
 {% endblock info_dispositivo %}

@@ -20,6 +20,12 @@ urlpatterns = [
         inv_v.SalidaInventarioDetailView.as_view(),
         name='salidainventario_detail'
     ),
+     # Listado de la Salida
+    url(
+        r'^salida/list/$',
+        inv_v.SalidaInventarioListView.as_view(),
+        name='salidainventario_list'
+    ),
     # Creacion de Paquetes
     url(
         r'^salida/(?P<pk>\d+)/crear_paquetes/$',
@@ -116,6 +122,12 @@ urlpatterns = [
         r'^salida/(?P<pk>\d+)/prestamo/$',
         inv_v.PrestamoCartaPrintView.as_view(),
         name='prestamo_carta_print'
+    ),
+    # Grid de dispsotivos en paquetes
+    url(
+        r'^salida/(?P<pk>\d+)/paquetesgrid/$',
+        inv_v.PaquetesDetalleGrid.as_view(),
+        name='paquetes_grid'
     ),
 
 

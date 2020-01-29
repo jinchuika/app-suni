@@ -53,6 +53,14 @@
                                     <th>Serie</th>
                                     <td>{{ object.serie|default_if_none:"" }}</td>
                                 </tr>
+                                <tr>
+                                    <th>Clase</th>
+                                    <td>{{ object.clase|default_if_none:"" }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Tarima</th>
+                                    <td>{{ object.tarima|default_if_none:"" }}</td>
+                                </tr>
                                 {% block info_dispositivo %}
 
                                 {% endblock %}
@@ -76,7 +84,7 @@
                                 </tr>
                                 <tr>
                                     <th>Válido</th>
-                                    <td><input type="checkbox" name="valido" disabled  {% if object.valido %} checked {% endif %} /></td>
+                                    <td><input type="checkbox" class="icheckbox_square-red" name="valido" disabled  {% if object.valido %} checked {% endif %} /></td>
                                 </tr>
                             </table>
                         </div>
@@ -97,6 +105,7 @@
     </section>
 {% endblock content %}
 {% block extra_js %}
+{% include "base/dataTables.html" %}
 <script src="{% static "js/extrajs/inventario.js" %}"></script>
 <script>
  let Revicion = new DispositivosQR();

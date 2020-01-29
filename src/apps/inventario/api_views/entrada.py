@@ -9,6 +9,7 @@ from datetime import datetime
 from braces.views import LoginRequiredMixin
 from django.http import JsonResponse, HttpResponse
 from django.db.models import Q
+from django.db.models import Sum
 from apps.inventario import (
     serializers as inv_s,
     models as inv_m
@@ -16,6 +17,7 @@ from apps.inventario import (
 from apps.kardex import models as kax_m
 import json
 from django.forms.models import model_to_dict
+from django.utils.datastructures import MultiValueDictKeyError
 
 
 class DetalleInformeFilter(filters.FilterSet):
@@ -281,6 +283,63 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_401_UNAUTHORIZED
             )
 
+    @action(methods=['post'], detail=False)
+    def validar_solicitud_movimientos(self, request, pk=None):
+        tipo_dispositivo = request.data['tipo_dispositivo']
+        etapa_transito = inv_m.DispositivoEtapa.objects.get(id=inv_m.DispositivoEtapa.AB)
+        estado = inv_m.DispositivoEstado.objects.get(id=inv_m.DispositivoEstado.PD)
+        validar_dispositivos = inv_m.DispositivoTipo.objects.get(tipo=tipo_dispositivo)
+        if(validar_dispositivos.kardex):
+            cantidad_kardex = kax_m.Equipo.objects.get(nombre=tipo_dispositivo)
+            numero_dispositivos = cantidad_kardex.existencia
+        else:
+            numero_dispositivos = inv_m.Dispositivo.objects.filter(
+                tipo=validar_dispositivos,
+                etapa=etapa_transito,
+                estado=estado).count()
+        return Response(
+                {'mensaje': numero_dispositivos},
+                status=status.HTTP_200_OK)
+
+    @action(methods=['post'], detail=False)
+    def validar_devoluciones(self, request, pk=None):
+        tipo_dispositivo = request.data['tipo_dispositivo']
+        no_salida = request.data['no_salida']
+
+        etapa = inv_m.DispositivoEtapa.objects.get(id=inv_m.DispositivoEtapa.TR)
+        estado = inv_m.DispositivoEstado.objects.get(id=inv_m.DispositivoEstado.PD)
+        validar_dispositivos = inv_m.DispositivoTipo.objects.get(tipo=tipo_dispositivo)
+        numero_dispositivos = 0
+
+        if no_salida != "":
+            if(validar_dispositivos.kardex):
+                sum_solicitudes = sum_devoluciones = sum_paquetes = 0
+                solicitudes = inv_m.SolicitudMovimiento.objects.filter(no_salida=no_salida, tipo_dispositivo=validar_dispositivos, terminada=True, recibida=True, devolucion=False).aggregate(Sum('cantidad'))
+                devoluciones = inv_m.SolicitudMovimiento.objects.filter(no_salida=no_salida, tipo_dispositivo=validar_dispositivos, terminada=True, recibida=True, devolucion=True).aggregate(Sum('cantidad'))
+                paquetes = inv_m.Paquete.objects.filter(salida=no_salida, tipo_paquete__tipo_dispositivo=validar_dispositivos).aggregate(Sum('cantidad'))
+
+                if solicitudes['cantidad__sum'] is not None:
+                    sum_solicitudes = solicitudes['cantidad__sum']
+
+                if devoluciones['cantidad__sum'] is not None:
+                    sum_devoluciones = devoluciones['cantidad__sum']
+
+                if paquetes['cantidad__sum'] is not None:
+                    sum_paquetes = paquetes['cantidad__sum']
+        
+                numero_dispositivos = sum_solicitudes - sum_devoluciones - sum_paquetes
+            else:
+                dispositivos_salida = inv_m.CambioEtapa.objects.filter(solicitud__no_salida=no_salida, etapa_final=etapa).values('dispositivo')
+                numero_dispositivos = inv_m.Dispositivo.objects.filter(
+                    id__in=dispositivos_salida,
+                    tipo=validar_dispositivos,
+                    etapa=etapa,
+                    estado=estado).count()
+
+        return Response(
+            {'mensaje': numero_dispositivos},
+            status=status.HTTP_200_OK)
+
     @action(methods=['post'], detail=True)
     def validar_kardex(self, request, pk=None):
         tipo_dispositivo = request.data['tipo_dispositivo']
@@ -323,7 +382,8 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
                 'tarima',
                 'puerto',
                 'tipo_mouse',
-                'caja')
+                'caja',
+                'clase')
             return JsonResponse({
                 'data': list(data),
                 'marcas': list(tipos),
@@ -341,7 +401,8 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
                 'serie',
                 'tarima',
                 'puerto',
-                'caja'
+                'caja',
+                'clase'
                 )
             return JsonResponse({
                 'data': list(data),
@@ -361,7 +422,8 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
                 'tarima',
                 'tipo_monitor',
                 'puerto',
-                'pulgadas')
+                'pulgadas',
+                'clase')
             return JsonResponse({
                 'data': list(data),
                 'marcas': list(tipos),
@@ -384,8 +446,9 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
                 'ram',
                 'ram_medida',
                 'servidor',
-                'all_in_one'
-                ).order_by('triage')
+                'all_in_one',
+                'clase'
+                ).order_by('triage')            
             return JsonResponse({
                 'data': list(data),
                 'marcas': list(tipos),
@@ -413,7 +476,8 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
                 'ram',
                 'medida_ram',
                 'almacenamiento_externo',
-                'pulgadas'
+                'pulgadas',
+                'clase'
                 )
             return JsonResponse({
                 'data': list(data),
@@ -439,7 +503,8 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
                 'disco_duro__triage',
                 'ram',
                 'ram_medida',
-                'pulgadas'
+                'pulgadas',
+                'clase'
                 )
             return JsonResponse({
                 'data': list(data),
@@ -461,7 +526,8 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
                 'tarima',
                 'puerto',
                 'capacidad',
-                'medida'
+                'medida',
+                'clase'
                 )
             return JsonResponse({
                 'data': list(data),
@@ -482,7 +548,8 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
                 'puerto',
                 'cantidad_puertos',
                 'velocidad',
-                'velocidad_medida'
+                'velocidad_medida',
+                'clase'
                 )
             return JsonResponse({
                 'data': list(data),
@@ -504,7 +571,8 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
                 'puerto',
                 'cantidad_puertos',
                 'velocidad',
-                'velocidad_medida'
+                'velocidad_medida',
+                'clase'
                 )
             return JsonResponse({
                 'data': list(data),

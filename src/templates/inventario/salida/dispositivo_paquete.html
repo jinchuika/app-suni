@@ -3,7 +3,6 @@
 {% block page_title %}
     <title>Asignación de dispositivos</title>
 {% endblock %}
-
 {% block content %}
     <section class="content">
         <div id="asignarDispositivo"class="row" data-url="{% url 'inventario_api:api_dispositivo-list' %}" data-pk="{{paquete_id}}" data-urlpaquete="{%url 'inventario_api:api_paquete-list'%}" data-urlMovimiento="{%url 'inventario_api:api_inventariosalidas-cambios-etapa'  pk=paquete_id%}">
@@ -60,7 +59,5 @@
     $(document).ready(function () {
       let Estados = new SolicitudEstadoTipo();
     })
-
     </script>
-
 {% endblock extra_js %}

@@ -32,11 +32,8 @@ class RepuestosDetailView(LoginRequiredMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super(RepuestosDetailView, self).get_context_data(**kwargs)
-        try:
-            buscar = inv_m.DispositivoRepuesto.objects.get(repuesto=self.object)
-            context['dispositivo'] = inv_m.Dispositivo.objects.get(triage=buscar.dispositivo)
-        except ObjectDoesNotExist as e:
-            print("No tiene Dispositivo asignado")
+        comentarios=inv_m.RepuestoComentario.objects.filter(repuesto=self.object.id)   
+        context['comentarios'] = comentarios
         return context
 
 

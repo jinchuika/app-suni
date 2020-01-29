@@ -4,6 +4,7 @@
 <title>Mouse</title>
 {% endblock page_title %}
 {% block content %}
+{% if object.estado.id == 1 or object.estado.id == 2  and object.etapa.id == 1 or object.etapa.id == 2 or object.etapa.id == 3 %}
 <section class="content">
   <div class="container-fluid">
     <div class="row">
@@ -38,4 +39,5 @@
     </div>
   </div>
 </section>
+{%endif%}
 {% endblock content %}

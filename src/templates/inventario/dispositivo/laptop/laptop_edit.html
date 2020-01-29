@@ -4,6 +4,7 @@
 <title>Laptop</title>
 {% endblock page_title %}
 {% block content %}
+{% if object.estado.id == 1 or object.estado.id == 2  and object.etapa.id == 1 or object.etapa.id == 2 or object.etapa.id == 3 %}
 <section class="content">
   <div class="container-fluid">
     <div class="row">
@@ -18,7 +19,7 @@
               </div>
             </div>
           </div>
-          <div class="box-body">
+          <div id="disco" class="box-body" data-id={{disco_duro}} data-triage={{triage}}>
             <table class="table table-condensed">
               <form action="{% url 'laptop_edit' triage=form.instance.triage%}" method="post">
                 {%csrf_token%}
@@ -38,4 +39,16 @@
     </div>
   </div>
 </section>
+{%endif%}
 {% endblock content %}
+{% block extra_js %}
+<script>
+  var disco = $("#disco").data("id");  
+  var triage = $("#disco").data("triage");
+  var newOption = new Option(triage,disco,false,false);
+  $("#id_disco_duro").append(newOption).trigger("change");
+  $("#id_disco_duro").select2();
+  $("#id_disco_duro").val(disco).trigger("change");
+</script>
+
+{% endblock extra_js %}

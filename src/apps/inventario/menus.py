@@ -54,7 +54,7 @@ dispositivos_children = (
         icon="fa-gear",
     ),
     ViewMenuItem(
-        "Sistema Operativo",
+        "Paquetes de Software",
         reverse_lazy('versionsistema_list'),
         group="inv_bodega",
         weight=12,
@@ -72,20 +72,13 @@ dispositivos_children = (
         reverse_lazy('dispositivo_list'),
         weight=12,
         icon=" fa-mobile-phone",
-    ),
-    ViewMenuItem(
-        "Dispositivos por tarima  ",
-        reverse_lazy('dispositivo_tarima'),
-        group="inv_bodega",
-        weight=12,
-        icon="fa-desktop",
-    ),
+    ),    
     ViewMenuItem(
         "Asignacion Repuestos",
         reverse_lazy('repuesto_list'),
         weight=12,
         icon="fa-archive",
-    ),
+    ),   
 )
 # Salidas
 salidas_children = (
@@ -99,7 +92,7 @@ salidas_children = (
         "Agregar Salida",
         reverse_lazy('salidainventario_add'),
         weight=12,
-        group="inv_cc,inv_bodega",
+        group="inv_cc",
         icon="fa-pencil-square-o",
     ),
     ViewMenuItem(
@@ -134,9 +127,15 @@ desecho_children = (
     ),
     ViewMenuItem(
         "Salidas de Desecho",
+        reverse_lazy('desechosalida_list'),
+        weight=12,
+        icon="fa-trash",
+    ),
+    ViewMenuItem(
+        "Agregar Salida",
         reverse_lazy('desechosalida_add'),
         weight=12,
-        icon="fa-archive",
+        icon="fa-pencil-square-o",
     ),
 
 )
@@ -186,6 +185,12 @@ admin_children = (
         reverse_lazy('contabilidad_entrada'),
         weight=12,
         icon="fa-file-pdf-o",
+    ),
+    ViewMenuItem(
+        "Dispositivos x Entrada",
+        reverse_lazy('contabilidad_entrada_dispositivo'),
+        weight=12,
+        icon="fa-sign-in",
     ),
     ViewMenuItem(
         "Informe de Salidas",

@@ -43,10 +43,13 @@ var urldispositivo = $("#grid_id").data("url");
                var tokens = nueva_data.split(new RegExp(separators.join('|'), 'g'));
                for(c=0; c<tokens.length;c++){
                  if(c % 2){
+                   /*Aca es para obtener los encabezados que vamos a mostrar en el grid separando
+                   "tipo":"TECLADO" y solo obteniendo "tipo" y lo guardamos en una lista
+                  */
                    var token_sin = tokens[c].replace(/['"]+/g,'');
                    var name = token_sin.charAt(0).toUpperCase() + token_sin.slice(1);
                    //Cambio de nombre para mostrar en  los encabezados
-                    if (name =="Marca__marca"){                      
+                    if (name =="Marca__marca"){
                       name ="Marca";
                     }
                     if (name =="Puerto__nombre"){
@@ -275,7 +278,7 @@ var urldispositivo = $("#grid_id").data("url");
                                                useViewMode: false
                                              }});
                                        }else{
-                                         if(name!=""){
+                                         if(name=="Clase"){
                                            encabezado.push({title:name,name:token_sin,
                                                   onBeforeChange: function(ev){
                                                        console.log('Before change:' + ev);
@@ -284,10 +287,25 @@ var urldispositivo = $("#grid_id").data("url");
                                                      console.log('After change:' + ev);
                                                      linea.push(ev.rowKey);
                                                    }, editOptions: {
-                                                 type: 'text',
-                                                 maxLength: 50,
-                                                 useViewMode: false
+                                                 type: 'select',
+                                                 listItems:[{text:"A",value:1},{text:"B",value:2},{text:"C",value:3}],
+                                                 useViewMode: true
                                                }});
+                                         }else{
+                                           if(name!=""){
+                                             encabezado.push({title:name,name:token_sin,
+                                                    onBeforeChange: function(ev){
+                                                         console.log('Before change:' + ev);
+                                                     },
+                                                     onAfterChange: function(ev){
+                                                       console.log('After change:' + ev);
+                                                       linea.push(ev.rowKey);
+                                                     }, editOptions: {
+                                                   type: 'text',
+                                                   maxLength: 50,
+                                                   useViewMode: false
+                                                 }});
+                                                  }
                                                 }
                                              }
                                          }
@@ -315,7 +333,7 @@ var urldispositivo = $("#grid_id").data("url");
                            }
                          }
                        }
-                     }
+                     }//fin del for
                      //majeno de errores al momento que no vengan campos de los dispositivos
                      try {
                        for( k=0; k< response.marcas.length;k++){
@@ -412,7 +430,7 @@ var urldispositivo = $("#grid_id").data("url");
                    scrollY: false,
                    columns: encabezado
                });
-               //Envio de toda la data que apararecera en el grid
+               //Envio de toda la data que apararecera en el grid               
                grid.setData(datos);
                /***/
 
