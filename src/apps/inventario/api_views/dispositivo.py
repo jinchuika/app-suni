@@ -395,14 +395,14 @@ class DispositivoViewSet(viewsets.ModelViewSet):
             })
 
         # Enviar Correo
-        send_mail(
+        """send_mail(
             motivo,
             'mensaje',
             settings.EMAIL_HOST_USER,
             lista_enviar_correos,
             fail_silently=True,
             html_message = html_message
-        )
+        )"""
 
         return Response(
             {'mensaje': 'Solicitud Recibida'},
@@ -521,14 +521,14 @@ class DispositivoViewSet(viewsets.ModelViewSet):
 
             
             # Enviar Correo
-            send_mail(
+            """send_mail(
                 motivo,
                 'mensaje',
                 settings.EMAIL_HOST_USER,
                 [solicitudes_movimiento.creada_por.email],
                 fail_silently=True,
                 html_message = html_message
-            )
+            )"""
             return Response(
                 {'mensaje': nuevo_detalle.id, 'existencia': cantidad_kardex.existencia},
                 status=status.HTTP_200_OK)
@@ -567,14 +567,14 @@ class DispositivoViewSet(viewsets.ModelViewSet):
 
             motivo = "SUNI - Solicitud Rechazada: "+ str(id)
             # Enviar Correo
-            send_mail(
+            """send_mail(
                 motivo,
                 'mensaje',
                 settings.EMAIL_HOST_USER,
                 [solicitudes_movimiento.creada_por.email],
                 fail_silently=True,
                 html_message = html_message
-            )
+            )"""
             
             return Response(
                 {'mensaje': 'Solicitud Rechazada'},

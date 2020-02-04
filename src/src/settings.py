@@ -132,6 +132,8 @@ DATABASES = {
         'NAME': os.path.join(BASE_DIR, 'legacy.sqlite3'),
     },
 
+    
+
 }
 
 

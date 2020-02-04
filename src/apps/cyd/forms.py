@@ -11,6 +11,7 @@ from apps.cyd.models import (
 class CursoForm(forms.ModelForm):
     class Meta:
         model = Curso
+        exclude = ('activo',)
         fields = '__all__'
 
 
@@ -18,13 +19,13 @@ CrHitoFormSet = inlineformset_factory(
     Curso,
     CrHito,
     fields='__all__',
-    extra=10,
+    extra=5,
     can_delete=True)
 CrAsistenciaFormSet = inlineformset_factory(
     Curso,
     CrAsistencia,
     fields='__all__',
-    extra=10,
+    extra=6,
     can_delete=True)
 
 
@@ -38,7 +39,7 @@ class SedeForm(forms.ModelForm):
     class Meta:
         model = Sede
         fields = '__all__'
-        exclude = ('mapa',)
+        exclude = ('mapa','activa')
         widgets = {
             'municipio': forms.Select(attrs={'class': 'select2'})
         }
@@ -55,6 +56,7 @@ class GrupoForm(forms.ModelForm):
     class Meta:
         model = Grupo
         fields = '__all__'
+        exclude = ('activo',)
         widgets = {
             'sede': forms.Select(attrs={'class': 'select2'})
         }
@@ -66,10 +68,30 @@ class SedeFilterForm(forms.Form):
         widget=forms.Select(attrs={'class': 'form-control', 'data-url': reverse_lazy('sede_api_list')}))
     sede = forms.ModelChoiceField(
         queryset=Sede.objects.all(),
-        widget=forms.Select(attrs={'class': 'form-control'}))
-
+        widget=forms.Select(attrs={'class': 'form-control'})) 
     def __init__(self, *args, **kwargs):
         super(SedeFilterForm, self).__init__(*args, **kwargs)
+        self.fields['capacitador'].label_from_instance = lambda obj: "%s" % obj.get_full_name()
+
+class SedeFilterFormInforme(forms.Form):
+    capacitador = forms.ModelChoiceField(
+        queryset=User.objects.filter(groups__name='cyd_capacitador'),
+        required=False,
+        widget=forms.Select(attrs={'class': 'form-control', 'data-url': reverse_lazy('sede_api_list')}))
+    id = forms.ModelChoiceField(
+        label='Sede',
+        queryset=Sede.objects.all(),
+        required=False,
+        widget=forms.Select(attrs={'class': 'form-control'}))
+    activa = forms.BooleanField(
+        initial=True,
+        required=False,
+        widget=forms.HiddenInput(),
+        label=''
+        )
+
+    def __init__(self, *args, **kwargs):
+        super(SedeFilterFormInforme, self).__init__(*args, **kwargs)
         self.fields['capacitador'].label_from_instance = lambda obj: "%s" % obj.get_full_name()
 
 
@@ -93,7 +115,7 @@ class ParticipanteBaseForm(forms.ModelForm):
         fields = [
             'udi', 'nombre', 'apellido', 'dpi', 'genero', 'rol',
             'mail', 'tel_movil']
-        exclude = ('slug',)
+        exclude = ('slug','activo',)
         widgets = {
             'nombre': forms.TextInput(attrs={'class': 'form-reset'}),
             'apellido': forms.TextInput(attrs={'class': 'form-reset'}),
@@ -109,22 +131,41 @@ class ParticipanteForm(ParticipanteBaseForm):
     Los campos tienen URL para que se consulte al API desde el template
     """
     sede = forms.ModelChoiceField(
-        queryset=Sede.objects.none(),
+        queryset=Sede.objects.all(),
         widget=forms.Select(attrs={'class': 'select2', 'data-url': reverse_lazy('grupo_api_list')}))
     grupo = forms.ModelChoiceField(
-        queryset=Grupo.objects.none(),
-        widget=forms.Select(attrs={'data-url': reverse_lazy('participante_api_list')}))
+        queryset=Grupo.objects.all(),
+        widget=forms.Select(attrs={'class': 'select2', 'data-url': reverse_lazy('participante_api_list')}))
 
     class Meta:
         model = Participante
         fields = [
             'sede', 'grupo', 'udi', 'nombre', 'apellido', 'dpi', 'genero', 'rol',
             'mail', 'tel_movil']
-        exclude = ('slug',)
+        exclude = ('slug','activo')
+
+class ParticipanteFormList(ParticipanteBaseForm):
+    """
+    Este formulario se usa para crear participantes por listado
+    Los campos tienen URL para que se consulte al API desde el template
+    """
+    sede = forms.ModelChoiceField(
+        queryset=Sede.objects.all(),
+        widget=forms.Select(attrs={'class': 'select2', 'data-url': reverse_lazy('grupo_api_list')}))
+    grupo = forms.ModelChoiceField(
+        queryset=Grupo.objects.all(),
+        widget=forms.Select(attrs={'class': 'select2', 'data-url': reverse_lazy('participante_api_list')}))
+
+    class Meta:
+        model = Participante
+        fields = [
+            'sede', 'grupo', 'udi']
+        exclude = ('slug','activo','nombre', 'apellido', 'dpi', 'genero', 'rol',
+            'mail', 'tel_movil')
 
 
 class ParticipanteBuscarForm(ParticipanteForm, GeoForm, forms.ModelForm):
-    nombre = forms.CharField(required=False)
+    nombre = forms.CharField(required=False)    
     capacitador = forms.ModelChoiceField(
         queryset=User.objects.filter(groups__name='cyd_capacitador'))
 
@@ -135,10 +176,11 @@ class ParticipanteBuscarForm(ParticipanteForm, GeoForm, forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(ParticipanteBuscarForm, self).__init__(*args, **kwargs)
         self.fields['capacitador'].label_from_instance = lambda obj: "%s" % obj.get_full_name()
-        self.fields.pop('grupo')
+        #self.fields.pop('grupo')
 
 
-class ParticipanteAsignarForm(ParticipanteBaseForm):
+class ParticipanteAsignarForm(ParticipanteFormList):
+    # class ParticipanteAsignarForm(ParticipanteBaseForm):
     def __init__(self, *args, **kwargs):
         super(ParticipanteAsignarForm, self).__init__(*args, **kwargs)
         self.fields.pop('udi')
@@ -163,4 +205,27 @@ class GrupoListForm(forms.Form):
     """Formulario para listar :model:`cyd.Grupo` en una :model:`cyd.Sede`.
     Se usa para copiar los participantes de un grupo a otros.
     """
-    grupo = forms.ModelChoiceField(Grupo)
+    grupo = forms.ModelChoiceField(Grupo.objects.all())
+
+class GrupoFilterFormInforme(forms.Form):
+    curso = forms.ModelChoiceField(
+        queryset=Curso.objects.all(),
+        required=False,
+        widget=forms.Select(attrs={'class': 'form-control', 'data-url': reverse_lazy('sede_api_list')}))
+    sede = forms.ModelChoiceField(
+        label='Sede',
+        queryset=Sede.objects.all(),
+        required=False,
+        widget=forms.Select(attrs={'class': 'form-control'}))
+    numero = forms.IntegerField(
+        label='No. Grupo',
+        required=False,
+        widget=forms.NumberInput(attrs={'class': 'form-control'}))
+    activo = forms.BooleanField(
+        initial=True,
+        required=False,
+        widget=forms.HiddenInput(),
+        label=''
+        )
+    
+    
