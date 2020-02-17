@@ -15,6 +15,7 @@ class DispositivoSerializer(serializers.ModelSerializer):
     serie = serializers.StringRelatedField()
     clase = serializers.StringRelatedField()
     url = serializers.StringRelatedField(source='get_absolute_url')
+    fecha_desecho = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = inv_m.Dispositivo
@@ -30,7 +31,15 @@ class DispositivoSerializer(serializers.ModelSerializer):
             'serie',
             'clase',
             'tarima',
-            'url']
+            'url',
+            'fecha_desecho']
+
+    def get_fecha_desecho(self, obj):
+         fecha = inv_m.DesechoComentario.objects.filter(dispositivo=obj.id).last()        
+         if fecha is None:
+            return ""
+         else:        
+            return fecha.fecha_revision.date()
 
 
 class TarimaSerializer(serializers.ModelSerializer):
