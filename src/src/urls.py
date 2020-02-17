@@ -109,15 +109,19 @@ urlpatterns = [
         r'^',
         include('apps.main.api_urls')),
 
-    # Contine las direcciones de aceso al main
+    # Contiene las direcciones de aceso al main
     url(
         r'^$',
         include('apps.main.urls')),
 
-    # Contine las direcciones de aceso al main
+    # Contiene las direcciones de aceso al main
     url(
         r'^conta/',
         include('apps.conta.urls')),
+    # Contiene las direcciones de certificado
+    url(
+        r'^certificado/',
+        include('apps.certificado.urls')),
 ]
 
 if settings.DEBUG and settings.DEBUG_TOOLBAR:

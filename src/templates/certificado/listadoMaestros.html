@@ -1,0 +1,76 @@
+{% extends "base/base.html" %}
+{% load staticfiles %} {% block page_title %}
+<title>Certificado de  cursos </title>
+{% endblock page_title %}
+{% block content %}
+<section class="content">
+	<div class="container-fluid">
+    <div class="box">
+        <div class="box-header">
+            <div class="box-title">
+            {% if validacion == 0 %}
+            <h3>
+                    DPI NO EXISTE
+                   
+                </h3>
+            
+            {% else %}
+            <h3>
+                    Cursos disponibles <br>
+                    <br>
+                    {{nombre}} <br>
+                    {{escuela}}<br>
+                </h3>
+            {% endif %}
+                
+            </div>
+        </div>
+        <div class="box-body">
+        {% if validacion != 0 %}        
+         <table class="table table-striped table-condensed">
+                    <thead>
+                        <tr>
+                            <th>No.</th>
+                            <th>Asignacion</th>
+                            <th>Curso</th>
+                            <th>Nota</th>
+                            <th>Resultado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for participante in maestros %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td>{{participante.numero_asignacion}}</td>
+                            <td>{{ participante.curso }}</td>
+                            <td>{{ participante.nota }}</td>
+                            <td>{{ participante.resultado }}</td>
+                            <td>
+                            {% if participante.resultado == 'Aprobado' %}
+                             {% if participante.curso == "NAAT"%}
+                             <a class="btn btn-success"  href="{% url 'diplomapdf'%}?dpi={{dpi}}&asignacion={{asignacion}}&curso=2">
+								 Imprimir
+							 </a> 
+                             {% else %}
+                             <a class="btn btn-success"  href="{% url 'diplomapdf'%}?dpi={{dpi}}&asignacion={{asignacion}}&curso=1">
+								 Imprimir
+							 </a> 
+                             {% endif %}
+                                               
+                            {% endif %}    
+                            </td>                        
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>	
+        
+        {% endif %}
+                
+        </div>
+    </div>	
+          
+
+                
+	</div>
+</section>
+{% endblock content %} 

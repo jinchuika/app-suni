@@ -63,6 +63,8 @@ function listar_municipio_departamento(departamento_selector, municipio_selector
     /*
     Al cambiar el departamento, genera el listado de municipios
     */
+   
+   
     $(municipio_selector).html('');
     $.get($(departamento_selector).data('url'),
     {

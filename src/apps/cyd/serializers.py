@@ -29,13 +29,19 @@ class GrupoSerializer(serializers.ModelSerializer):
     sede = serializers.StringRelatedField()
     curso = serializers.StringRelatedField()
     asistencias = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
-
+    capacitador = serializers.StringRelatedField(source="sede.capacitador.get_full_name")
+    urlgrupo = serializers.StringRelatedField(source ="get_absolute_url") 
     class Meta:
         model = Grupo
-        fields = ('id', 'sede', 'numero', 'curso', 'asistencias', 'comentario')
+        fields = ('id', 'sede', 'numero', 'curso', 'asistencias', 'comentario','capacitador','urlgrupo')
 
 
 class SedeSerializer(serializers.ModelSerializer):
+    municipio= serializers.StringRelatedField(source='municipio.nombre')
+    departamento = serializers.StringRelatedField(source='municipio.departamento')
+    capacitador = serializers.StringRelatedField(source='capacitador.get_full_name')
+    grupos = serializers.StringRelatedField(source='grupos.count')
+    urlsede=serializers.StringRelatedField(source='get_absolute_url')
     class Meta:
         model = Sede
         fields = '__all__'
@@ -142,6 +148,9 @@ class AsignacionSerializer(DynamicFieldsModelSerializer, serializers.ModelSerial
     """Serializer de uso general para :model:`cyd.Asignacion`."""
     notas_asistencias = NotaAsistenciaSerializer(many=True, read_only=True)
     notas_hitos = NotaHitoSerializer(many=True, read_only=True)
+    class Meta:
+        model = Asignacion
+        fields = '__all__'
 
 
 class ParRolSerializer(serializers.ModelSerializer):
