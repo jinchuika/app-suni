@@ -640,6 +640,10 @@ class TpePrintView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
             print(e)
             context['Jornada'] = "No tiene Jornada"
             context['Encargado'] = "No Tiene Encargado"
+        except IndexError as e:
+            print(e)
+            context['Jornada'] = "No tiene Jornada"
+            context['Encargado'] = "No Tiene Encargado"
         context['CPUs'] = nuevos_cpus
         context['Monitores'] = nuevos_monitores
         context['Teclados'] = nuevos_teclados
