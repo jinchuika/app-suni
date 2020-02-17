@@ -18,6 +18,7 @@ class Curso(models.Model):
     nombre = models.CharField(max_length=75)
     nota_aprobacion = models.IntegerField()
     porcentaje = models.IntegerField(null=True, blank=True)
+    activo = models.BooleanField(default=True, blank=True, verbose_name='Activo')
 
     def __str__(self):
         return self.nombre
@@ -70,6 +71,7 @@ class Sede(models.Model):
     direccion = models.CharField(max_length=150, verbose_name='Dirección')
     observacion = models.TextField(null=True, blank=True, verbose_name='Observaciones')
     mapa = models.ForeignKey(Coordenada, null=True, blank=True, on_delete=models.CASCADE)
+    activa = models.BooleanField(default=True, blank=True, verbose_name='Activa')
 
     class Meta:
         verbose_name = "Sede"
@@ -140,6 +142,7 @@ class Grupo(models.Model):
     numero = models.IntegerField(verbose_name='Número')
     curso = models.ForeignKey(Curso, on_delete=models.CASCADE)
     comentario = models.TextField(null=True, blank=True)
+    activo = models.BooleanField(default=True, blank=True, verbose_name='Activo')
 
     class Meta:
         verbose_name = "Grupo de capacitación"
@@ -170,8 +173,12 @@ class Grupo(models.Model):
         """Cuenta la cantidad de de asistencias que ya se han impartido para este grupo.
         Indica también qué porcentaje del total representan,
         """
-        asistencias_pasadas = self.asistencias.filter(fecha__lt=datetime.now()).count()
-        porcentaje_actual = asistencias_pasadas / self.asistencias.all().count() * 100
+        asistencias_pasadas = self.asistencias.filter(fecha__lt=datetime.now()).count()        
+        try:
+              porcentaje_actual = asistencias_pasadas / self.asistencias.all().count() * 100
+        except ZeroDivisionError:
+            porcentaje_actual=0            
+      
         return {'cantidad': asistencias_pasadas, 'porcentaje': porcentaje_actual}
 
 
@@ -254,7 +261,7 @@ class ParGenero(models.Model):
 
 class Participante(models.Model):
     """Participante de la capacitación por Funsepa."""
-    dpi = models.CharField(max_length=21, unique=True, null=True, blank=True, db_index=True)
+    dpi = models.CharField(max_length=21, unique=True, null=True, blank=True, db_index=True, error_messages={'Unico':"El dpi ya existe"})
     nombre = models.CharField(max_length=100)
     apellido = models.CharField(max_length=100)
     genero = models.ForeignKey(ParGenero, null=True, on_delete=models.CASCADE)
@@ -274,6 +281,8 @@ class Participante(models.Model):
     escolaridad = models.ForeignKey(ParEscolaridad, null=True, blank=True, on_delete=models.CASCADE)
 
     slug = models.SlugField(max_length=20, null=True, blank=True)
+    activo = models.BooleanField(default=True, blank=True, verbose_name='Activo')
+
 
     class Meta:
         verbose_name = "Participante"

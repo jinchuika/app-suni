@@ -8,6 +8,26 @@
 					<h3 class="box-title">{{desechoempresa.nombre}}</h3>
 				</div>
 				<div class="box-body">
+					<!---->
+					<table class="table table-condensed">
+					 <tr>
+						<th>Nombre</th>
+						<td>{{ desechoempresa.nombre|default_if_none:"" }}</td>
+					</tr>
+					<tr>
+						<th>Encargado</th>
+						<td>{{ desechoempresa.encargado|default_if_none:"" }}</td>
+					</tr>
+					<tr>
+						<th>Numero Telefonico</th>
+						<td>{{ desechoempresa.telefono|default_if_none:"" }}</td>
+					</tr>
+					<tr>
+						<th>DPI</th>
+						<td>{{ desechoempresa.dpi|default_if_none:"" }}</td>
+					</tr>
+					</table>					
+					<!---->
 				</div>
 			</div>
 		</div>
