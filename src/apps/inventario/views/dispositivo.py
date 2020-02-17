@@ -147,6 +147,7 @@ class DevolucionCreateView(LoginRequiredMixin, CreateView):
     model = inv_m.SolicitudMovimiento
     template_name = 'inventario/dispositivo/solicitudmovimiento_add.html'
     form_class = inv_f.DevolucionCreateForm
+    group_required = [u"inv_admin", u"inv_tecnico"]
 
     def form_valid(self, form):        
         cantidad = form.cleaned_data['cantidad']

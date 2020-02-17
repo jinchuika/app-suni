@@ -8,6 +8,12 @@ class DesechoEmpresaForm(forms.ModelForm):
     class Meta:
         model = inv_m.DesechoEmpresa
         fields = '__all__'
+        widgets = {
+            'nombre': forms.TextInput({'class': 'form-control'}),
+            'encargado':forms.TextInput({'class': 'form-control'}),
+            'telefono': forms.TextInput({'class': 'form-control'}),
+            'dpi':forms.TextInput({'class': 'form-control'}),
+        }
 
 
 class DesechoSalidaForm(forms.ModelForm):

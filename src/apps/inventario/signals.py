@@ -149,14 +149,14 @@ def crear_bitacora(sender, instance, created, **kwargs):
 
         motivo = "SUNI - Solicitud Creada: "+ str(instance.id)
         # Enviar Correo
-        send_mail(
+        """send_mail(
             motivo,
             'mensaje',
             settings.EMAIL_HOST_USER,
             lista_enviar_correos,
             fail_silently=True,
             html_message = html_message
-        )
+        )"""
 
     else:
         if instance.rechazar is  False:
@@ -205,13 +205,13 @@ def crear_bitacora(sender, instance, created, **kwargs):
 
                 motivo = "SUNI - Dispositivos Entregados: "+ str(instance.id)
                 # Enviar Correo
-                send_mail(
+                """send_mail(
                     motivo,
                     'mensaje',
                     settings.EMAIL_HOST_USER,
                     lista_enviar_correos,
                     fail_silently=True,
                     html_message = html_message
-                )
+                )"""
 
 post_save.connect(crear_bitacora, sender=inventario_m.SolicitudMovimiento)
