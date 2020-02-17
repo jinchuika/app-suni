@@ -56,9 +56,14 @@ class DesechoDetalleForm(forms.ModelForm):
         widgets = {
                 'desecho': forms.HiddenInput(),
                 'tipo_dispositivo': forms.Select(attrs={'class': 'form-control select2'}),
-                'entrada_detalle': forms.Select(attrs={'class': 'form-control select2'}),
-                'cantidad': forms.TextInput({'class': 'form-control'}),
+                'entrada_detalle': forms.Select(attrs={'class': 'form-control select2', 'required': 'true'}),
+                'cantidad': forms.NumberInput({'class': 'form-control', 'required': 'true', 'min': 1}),
                 }
+
+    def __init__(self, *args, **kwargs):
+        super(DesechoDetalleForm, self).__init__(*args, **kwargs)
+        self.fields['cantidad'].widget = forms.NumberInput(
+                attrs={'class': 'form-control', 'min': "1"})
 
 class DesechoDispositivoForm(forms.ModelForm):
     """Formulario para ingresar dispositivos a desechar"""

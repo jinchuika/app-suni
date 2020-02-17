@@ -57,15 +57,12 @@ class DispositivoViewSet(viewsets.ModelViewSet):
         tarima = self.request.query_params.get('tarima', None)
         etapa = self.request.query_params.get('etapa', None)
         
-        print(tipo)
         if tipo is None:
             tipo_dis = self.request.user.tipos_dispositivos.tipos.all()
         else:
             tipo_dis = inv_m.DispositivoTipo.objects.filter(id=tipo)
 
         if triage or dispositivo or etapa:
-            print('ENTRO')
-            print(tipo_dis)
             return inv_m.Dispositivo.objects.all().filter(tipo__in=tipo_dis)
         elif tipo or marca or modelo or tarima:
             # Se encarga de mostrar mas rapido los dispositivos que se usan con mas frecuencia
@@ -114,6 +111,18 @@ class DispositivoViewSet(viewsets.ModelViewSet):
 
         )
         serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
+    @action(methods=['get'], detail=False)
+    def desecho(self, request, pk=None):
+        """Encargada de filtrar los dispositivos pendientes de sacar mediante desecho"""
+        queryset = inv_m.Dispositivo.objects.filter(
+            estado=inv_m.DispositivoEstado.DS,
+            etapa=inv_m.DispositivoEtapa.AB
+
+        )
+        serializer = self.get_serializer(queryset, many=True)
+        print(serializer.data)
         return Response(serializer.data)
 
     @action(methods=['post'], detail=False)
@@ -1267,8 +1276,10 @@ class SolicitudMovimientoViewSet(viewsets.ModelViewSet):
             else:
                 queryset = queryset.filter(recibida=False)
 
+
+
         # Obtener data en caso sean técnicos.
-        if "inv_tecnico" in self.request.user.groups.values_list('name', flat=True) or "inv_cc" in self.request.user.groups.values_list('name', flat=True):
-            queryset = queryset.filter(creada_por=self.request.user)
+        # if "inv_tecnico" in self.request.user.groups.values_list('name', flat=True) or "inv_cc" in self.request.user.groups.values_list('name', flat=True):
+        #    queryset = queryset.filter(creada_por=self.request.user)
 
         return queryset
