@@ -68,7 +68,8 @@ LOCAL_APPS = (
     'apps.crm',
     'apps.inventario',
     'apps.conta',
-    'apps.legacy'
+    'apps.legacy',
+    'apps.certificado'
 )
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -122,17 +123,17 @@ WSGI_APPLICATION = 'src.wsgi.application'
 DATABASE_ROUTERS = ['apps.legacy.dbrouters.LegacyRouter', ]
 
 DATABASES = {
- 'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'suni',
-        'USER': 'root',
-        'PASSWORD': '123456',
-        'HOST': 'localhost',
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     },
  'legacy': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(BASE_DIR, 'legacy.sqlite3'),
     },
+
+    
+
 }
 
 
@@ -243,7 +244,8 @@ CRONJOBS = [
 
 # Para conectar a SUNI1
 LEGACY_URL = {
-    'cyd_informe': 'http://funsepa.net/suni/app/src/libs/informe_ca_escuela.php'
+    'cyd_informe': 'http://funsepa.net/suni/app/src/libs/informe_ca_escuela.php',
+    'certificado':'http://funsepa.net/suni/app/cap/par/certificado_cursos.php',
 }
 LEGACY_CONNECTION = True
 LEGACY_TESTING = False
