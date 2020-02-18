@@ -131,7 +131,7 @@ class DesechoDispositivoViewSet(viewsets.ModelViewSet):
         """
         if "inv_bodega" in self.request.user.groups.values_list('name', flat=True):
             return Response(
-                {'mensaje': 'No Tienes la Autorizacion para esta accion'},
+                {'mensaje': 'No Tienes la Autorizacion para esta acción'},
                 status=status.HTTP_401_UNAUTHORIZED
             )
         else:
@@ -171,12 +171,12 @@ class DesechoDispositivoViewSet(viewsets.ModelViewSet):
                         )
                 else:
                     return Response(
-                        {'mensaje': 'Faltan Dispositivos por aprobar'},
+                        {'mensaje': 'Faltan dispositivos por aprobar'},
                         status=status.HTTP_400_BAD_REQUEST
                     )
             else:
                 return Response(
-                    {'mensaje': 'Faltan Detalles de Desechos por aprobar'},
+                    {'mensaje': 'Faltan detalles de desecho por aprobar'},
                     status=status.HTTP_400_BAD_REQUEST
                 )
 
