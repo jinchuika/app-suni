@@ -69,7 +69,7 @@ class DiplomaPdfView(View):
    def get( self, request, *args, **kwargs):          
       curso_asignado = 0
       curso_aprobado = 0
-      url_perfil = str("https://suni.funsepa.org/")+ str(reverse_lazy('listado')) + str("?")+str(self.request.GET['dpi'])
+      url_perfil = str("https://suni.funsepa.org/")+ str(reverse_lazy('listado')) + str("?dpi=")+str(self.request.GET['dpi'])
       url = settings.LEGACY_URL['certificado']
       tipo_curso = self.request.GET['curso'] 
       curso_naat = 0 
@@ -81,7 +81,7 @@ class DiplomaPdfView(View):
              except:                
                 print("en espera") 
       else:
-             print("el depi esta vacio")
+             print("el dpi esta vacio")
       data= resp.json()      
       if len(data) is 0:         
          return HttpResponse("El dpi ingresado no es valido")
@@ -104,13 +104,11 @@ class DiplomaPdfView(View):
                      box_size=6,
                      border=1,
                   )
-                  data_qr = {
-                  'url': url_perfil,               
-                  }
-                  qr.add_data(json.dumps(data_qr, ensure_ascii=False))
+                  #qr.add_data(json.dumps(data_qr, ensure_ascii=False))
+                  qr.add_data(url_perfil)
                   qr.make(fit=True)
                   filename = 'perfil-{}.png'.format(self.request.GET['dpi'])               
-                  ruta_origin = str(os.getcwd()) +str("/")+ str(filename)
+                  ruta_origin = str(os.getcwd()) +str("/")+ str(filename)                  
                   ruta_qr = str(settings.MEDIA_ROOT) + str("qr_perfil/")+str(filename)
                   #mover codigo QR a la carpeta correspondiente
                   if not (os.path.isfile(ruta_qr)):
