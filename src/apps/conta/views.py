@@ -758,7 +758,7 @@ class InformeResumenJson(views.APIView):
 
         # Filtrar por tipos de dispositivos seleccionados
         if tipo_dispositivo == 0 or not tipo_dispositivo:
-            dispositivos = self.request.user.tipos_dispositivos.tipos.filter(usa_triage=True)
+            dispositivos = self.request.user.tipos_dispositivos.tipos.filter(conta=True)
         else:
             dispositivos = self.request.user.tipos_dispositivos.tipos.filter(id__in=tipo_dispositivo)
 
