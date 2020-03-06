@@ -243,7 +243,7 @@ class DiplomaPdfView(View):
                 c.drawCentredString(x+w*0.0,y+h*0.5, str(data[0]['nombre'])+" "+str(data[0]['apellido']))
                 c.setFont("Times-Bold",15,leading=None)
                 c.drawCentredString(x+w*0.0,60+h*0.5, "Guatemala, " + datetime.datetime.now().strftime("%d de %B del %Y"))
-              c.setTitle(f'Diploma Funsepa ')
+              c.setTitle('Diploma Funsepa')
               c.showPage()     
               c.save()
               pdf = buffer.getvalue()
