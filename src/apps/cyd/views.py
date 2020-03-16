@@ -5,6 +5,8 @@ from django.http import HttpResponseRedirect
 from django.views.generic import DetailView, ListView, View, TemplateView
 from django.views.generic.edit import CreateView, UpdateView, FormView
 from django.urls import reverse
+from rest_framework import views,status
+from rest_framework.response import Response
 
 from braces.views import LoginRequiredMixin, GroupRequiredMixin, JsonRequestResponseMixin
 
@@ -374,7 +376,97 @@ class CursoUpdateView(LoginRequiredMixin, UpdateView):
     template_name = 'cyd/curso_edit.html'
     form_class = cyd_f.CursoForm
 
-     
+
+class CotrolAcademicoGruposFormView(LoginRequiredMixin, FormView):    
+    template_name = 'cyd/control_academico_grupo.html'
+    form_class = cyd_f.ControlAcademicoGrupoForm
+
+class InformeControlAcademicoGrupos(views.APIView):     
+    def post(self, request):
+        datos = cyd_m.Grupo.objects.filter(id=self.request.POST['grupo'])
+        contador =0        
+        listado_participantes =[]
+        listado_asistencia = []          
+        for  data in datos:            
+            asignaciones = cyd_m.Asignacion.objects.filter(grupo=data.id)
+            for asignacion in asignaciones:
+                contador=contador+1                
+                nota_asistencia = cyd_m.NotaAsistencia.objects.filter(asignacion=asignacion)
+                nota_trabajos  =  cyd_m.NotaHito.objects.filter(asignacion=asignacion)                  
+                control_academico ={}                 
+                control_academico['numero'] = contador
+                control_academico['asignacion'] = asignacion.id
+                control_academico['dpi'] = asignacion.participante.dpi   
+                control_academico['genero'] = asignacion.participante.genero.genero 
+                control_academico['curso'] = asignacion.grupo.curso.nombre 
+                control_academico['grupo'] = asignacion.grupo.id
+                control_academico['udi'] = asignacion.participante.escuela.codigo                               
+                control_academico['nombre'] = asignacion.participante.nombre 
+                control_academico['apellido'] = asignacion.participante.apellido 
+                control_academico['asistencia']= list(nota_asistencia.values('nota')) 
+                control_academico['trabajos'] = list(nota_trabajos.values('cr_hito__nombre','nota'))               
+                listado_participantes.append(control_academico)                                    
+        return Response(listado_participantes
+                
+            )
+
+class InformeAsistencia(views.APIView):     
+    def post(self, request):
+        listado_asistencia = []
+        contador = 0
+        contador_asistencia = 0
+        total_asistencia = 0
+        contador_inasistencia = 0         
+        listado_datos=[]
+        sede = cyd_m.Sede.objects.filter(id=self.request.POST['sede'])
+        curso = cyd_m.Curso.objects.filter(id=self.request.POST['curso'])
+        grupos = cyd_m.Grupo.objects.filter(sede=sede, curso=curso)
+        asistencia = cyd_m.CrAsistencia.objects.filter(curso=curso)        
+        for grupo in grupos:      
+            #print(grupo)
+            listado_grupos ={}                 
+            listado_grupos['grupo'] = grupo.sede.nombre
+            participantes = cyd_m.Asignacion.objects.filter(grupo=grupo)
+            for participante in participantes:
+                notas = cyd_m.NotaAsistencia.objects.filter(asignacion=participante)
+            for x in range(1, notas.count()+1):               
+                data = cyd_m.NotaAsistencia.objects.filter(gr_calendario__cr_asistencia__modulo_num=x, asignacion__grupo=grupo, nota__gte=1)
+                data2 = cyd_m.NotaAsistencia.objects.filter(gr_calendario__cr_asistencia__modulo_num=x, asignacion__grupo=grupo, nota=0)
+                fecha =  cyd_m.Calendario.objects.filter(cr_asistencia__modulo_num=x,grupo=grupo)
+                fecha_mostrar = fecha.values('fecha','hora_inicio','hora_fin')
+                #print(fecha.values('fecha'))
+                #print("Asistencia" + str(x)+":"+str(data.count()))
+                #print("Inasistencia" + str(x)+":"+str(data2.count()))
+                #print(fecha_mostrar[0]['fecha'])
+                #print(fecha_mostrar[0]['hora_inicio'])
+                #print(fecha_mostrar[0]['hora_fin'])
+                #a = data.values_list('gr_calendario__hora_inicio',flat=True).distinct() 
+                #print(a) 
+                #print(str(grupo)+": "+str("modulo:")+str(x)+"  Asistencia "+str(data.count())+"  Inacistencia "+ str(data2.count())) 
+                #print(data)
+                listado_grupos['asistencia'+str(x)] = data.count()
+                listado_grupos['inacistencia'+str(x)]= data2.count()
+                listado_grupos['fecha_asistencia'+str(x)]= fecha_mostrar[0]['fecha']
+                listado_grupos['hora_inicio_asistencia'+str(x)]=fecha_mostrar[0]['hora_inicio']
+                listado_grupos['hora_fin_asistencia'+str(x)]=fecha_mostrar[0]['hora_fin']
+            listado_grupos['cantidad_asistencia']=notas.count()
+            listado_datos.append(listado_grupos)
+        return Response(
+                listado_datos,
+            status=status.HTTP_200_OK
+            )
+
+class ControlAcademicoInformeListView(LoginRequiredMixin, FormView):    
+    template_name = 'cyd/ControlAcademicoInforme.html'
+    form_class = cyd_f.ControlAcademicoGrupoForm
+
+class AsistenciaInformeListView(LoginRequiredMixin, FormView):    
+    template_name = 'cyd/AsistenciaInforme.html'
+    form_class = cyd_f.InformeAsistenciaForm
+
+class FinalizacionProcesoInformeListView(LoginRequiredMixin, FormView):   
+    template_name = 'cyd/FinalizacionProyectoInforme'
+    form_class = cyd_f.ControlAcademicoGrupoForm
 
     
 

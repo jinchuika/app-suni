@@ -5,6 +5,7 @@ from rest_framework.filters import SearchFilter
 from django_filters import rest_framework as filters
 from rest_framework.decorators import action
 from rest_framework.response import Response
+import json
 
 from apps.main.mixins import APIFilterMixin
 from apps.cyd.serializers import (
@@ -87,6 +88,43 @@ class SedeViewSet(CsrfExemptMixin, viewsets.ModelViewSet):
             {'mensaje': 'Cambio Aceptado'},
             status=status.HTTP_200_OK
         )
+
+    @action(methods=['post'], detail=False)
+    def actualizar_control_academico(self,request, pk=None):
+        """ Metodo  que cambia la disponibilidad del participante
+        """
+        contado = 0
+        dato =  json.loads(request.data['datos'])
+        for numero in dato:            
+            asignacion = Asignacion.objects.get(id=numero['Asignacion'])
+            notas_hitos = NotaHito.objects.filter(asignacion=asignacion)
+            notas_asistencia = NotaAsistencia.objects.filter(asignacion=asignacion) 
+            for hitos in notas_hitos:               
+                if(int(numero[hitos.cr_hito.nombre]) > hitos.cr_hito.punteo_max):
+                    return Response(
+                            {'mensaje': 'La nota del'+ str(hitos.cr_hito.nombre)+"No es permitda"},
+                            status=status.HTTP_406_NOT_ACCEPTABLE
+                             )
+                else:
+                    hitos.nota=numero[hitos.cr_hito.nombre]               
+                    hitos.save()            
+            for notas in notas_asistencia:
+                contado = contado +1 
+                if(int(numero[str("Asistencia "+str(contado))]) > notas.gr_calendario.cr_asistencia.punteo_max ):
+                    return Response(
+                            {'mensaje': 'La nota de la '+ str("Asistencia "+str(contado))+"No es permitda"},
+                            status=status.HTTP_406_NOT_ACCEPTABLE
+                             )
+                else:
+                    notas.nota = numero[str("Asistencia "+str(contado))]
+                    notas.save()                            
+                    if(contado==notas_asistencia.count()):
+                        contado=0 
+        return Response(
+            {'mensaje': 'Cambio Aceptado'},
+            status=status.HTTP_200_OK
+        )
+
 
 
 class SedeViewSetInforme(CsrfExemptMixin, viewsets.ModelViewSet):

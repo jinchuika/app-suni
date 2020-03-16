@@ -103,8 +103,7 @@ class DiplomaPdfView(View):
                      error_correction=qrcode.constants.ERROR_CORRECT_L,
                      box_size=6,
                      border=1,
-                  )
-                  #qr.add_data(json.dumps(data_qr, ensure_ascii=False))
+                  )                 
                   qr.add_data(url_perfil)
                   qr.make(fit=True)
                   filename = 'perfil-{}.png'.format(self.request.GET['dpi'])               
