@@ -8,6 +8,7 @@
 
 {% block content %}
 <section class="content">
+ <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 	<div class="container-fluid">
 		<div class="row">
 			<div class="col-md-3">
@@ -31,7 +32,7 @@
 							</tr>
 							<tr>
 								<th>Observaciones</th> 
-								<td>{{ sede.obervacion }}</td>
+								<td>{{ sede.observacion }}</td>
 							</tr>
 							<tr>
 								<th>Coordenadas</th> 
@@ -77,7 +78,10 @@
 									<a href="#asesorias" data-toggle="tab"><i class="fa fa-question-circle-o" aria-hidden="true"></i> Asesorías</a>
 								</li>
 								<li>
-									<a href="#escuelas" data-toggle="tab"><i class="fa fa-user" aria-hidden="true"></i> Escuelas</a>
+									<a href="#escuelas" data-toggle="tab"><i class="fa fa-user" aria-hidden="true"></i> Escuelas</a>									
+								</li>
+								<li>
+									<a href="#contactos" data-toggle="tab"><i class="fa fa-phone" aria-hidden="true"></i> Contactos</a>
 								</li>
 							</ul>
 							<div class="tab-content">
@@ -182,7 +186,7 @@
 												<th></th>
 											</tr>
 										</thead>
-										<tbody id="asesoria-tabla-body">
+										<tbody id="asesoria-tabla-body">											
 											{% for asesoria in sede.asesorias.all|dictsort:"fecha" %}
 												<tr id="asesoria-{{ asesoria.id }}">
 													<td>
@@ -254,12 +258,28 @@
 											</tr>
 											{% endfor %}
 										</tbody>
-									</table>
+									</table>									
+								</div>	
+								<!-- -->
+									<div class="tab-pane no-padding" id="contactos">
+									<table class="table">
+										<thead>
+											<tr>												
+											</tr>
+										</thead>
+										<tbody>											
+										</tbody>
+									</table>									
 								</div>
-							</div>
+								<!-- -->							
+							</div>						
 						</div>
+						aca
+						<!--<div id="timeline" style="height: 180px;"></div> -->
 					</div>
+					
 				</div>
+				
 			</div>
 		</div>
 	</div>
@@ -276,4 +296,27 @@
 <script>
 	SedeDetail.init();
 </script>
+ <script type="text/javascript">
+      google.charts.load('current', {'packages':['timeline']});
+      google.charts.setOnLoadCallback(drawChart);
+      function drawChart() {
+        var container = document.getElementById('timeline');
+        var chart = new google.visualization.Timeline(container);
+        var dataTable = new google.visualization.DataTable();
+
+        dataTable.addColumn({ type: 'string', id: 'President' });
+		dataTable.addColumn({ type: 'string', id: 'Name' });
+        dataTable.addColumn({ type: 'date', id: 'Start' });
+        dataTable.addColumn({ type: 'date', id: 'End' });
+        dataTable.addRows([
+          [ '1','Washington', new Date(1789, 3, 30), new Date(1797, 2, 4) ],
+          [ '2','Adams',      new Date(1797, 2, 4),  new Date(1801, 2, 4) ],
+          [ '3','Jefferson',  new Date(1801, 2, 4),  new Date(1809, 2, 4) ]]);
+		  var options = {
+			  timeline:{ showRowLabels: false}
+		  };
+
+        chart.draw(dataTable,options);
+      }
+    </script>
 {% endblock extra_js %}

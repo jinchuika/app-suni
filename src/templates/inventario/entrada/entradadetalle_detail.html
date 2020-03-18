@@ -3,7 +3,6 @@
 <title>Detalles de Entrada </title>
 {% endblock page_title %}
 {% block content %}
-
 {% if form.errors %}
     <div class="alert alert-error">
       <h4>Advertencia!</h4>
@@ -27,10 +26,10 @@
 			<div class="col-md-6">
 				<div class="box">
 					<div class="box-header">
-            <div class="box-title">
-              <h3>Datos actuales</h3>
-            </div>
-          </div>
+            			<div class="box-title">
+              				<h3>Datos actuales</h3>
+            			</div>
+          			</div>
 					<div class="box-body">
 
 					<table class="table table-condensed">
@@ -105,12 +104,8 @@
 	</div>
 </section>
 {% endblock content %} {% block extra_js %}
-
 <script src="{% static "js/extrajs/inventario.js" %}"></script>
-
 <script>
-
     let pagina = new EntradaDetalleDetail();
 </script>
-
 {% endblock extra_js %}

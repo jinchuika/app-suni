@@ -1,5 +1,6 @@
 import django_filters
 from django_filters import rest_framework as filter
+from django_filters import rest_framework as filters
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -58,7 +59,15 @@ class DesechoDispositivoViewSet(viewsets.ModelViewSet):
             )
         else:
             id_detalle = request.data["detalle"]
-            detalle = inv_m.DesechoDetalle.objects.get(id=id_detalle)
+            comentario = request.data["comentario"]
+            detalle = inv_m.DesechoDetalle.objects.get(id=id_detalle)            
+            comentario_rechazar_detalle=inv_m.DesechoComentario(
+                desecho= detalle.desecho,
+                comentario = comentario,
+                creado_por= self.request.user,
+                entrada_detalle= detalle.entrada_detalle
+            ) 
+            comentario_rechazar_detalle.save()
             detalle.delete()
             return Response(
                     {
@@ -99,7 +108,15 @@ class DesechoDispositivoViewSet(viewsets.ModelViewSet):
             )
         else:
             id_detalle = request.data["detalle"]
+            comentario = request.data["comentario"]
             detalle = inv_m.DesechoDispositivo.objects.get(id=id_detalle)
+            comentario_rechazar_detalle=inv_m.DesechoComentario(
+                desecho= detalle.desecho,
+                comentario = comentario,
+                creado_por= self.request.user,
+                dispositivo= detalle.dispositivo
+            ) 
+            comentario_rechazar_detalle.save()
             detalle.delete()
             return Response(
                     {
@@ -162,3 +179,29 @@ class DesechoDispositivoViewSet(viewsets.ModelViewSet):
                     {'mensaje': 'Faltan Detalles de Desechos por aprobar'},
                     status=status.HTTP_400_BAD_REQUEST
                 )
+
+class DesechoSalidaFilter(filters.FilterSet):
+    """ Filtros para generar informe de  Salida
+    """
+    id = django_filters.NumberFilter(name="id")    
+    en_creacion = django_filters.CharFilter(name='en_creacion')
+    fecha_min = django_filters.DateFilter(name='fecha_min', method='filter_fecha')
+    fecha_max = django_filters.DateFilter(name='fecha_max', method='filter_fecha')
+
+    class Meta:
+        model = inv_m.DesechoSalida
+        fields = ['id', 'en_creacion', 'fecha_min', 'fecha_max']
+    
+    def filter_fecha(self, queryset, name, value):
+        if value and name == 'fecha_min':
+            queryset = queryset.filter(fecha__gte=value)
+        if value and name == 'fecha_max':
+            queryset = queryset.filter(fecha__lte=value)
+        return queryset
+
+class DesechoSalidaViewSet(viewsets.ModelViewSet):
+    """ ViewSet para generar los listado de la :class:`DesechoSalida`
+    """
+    serializer_class = inv_s.DesechoSalidaSerializer
+    queryset = inv_m.DesechoSalida.objects.all()
+    filter_class = DesechoSalidaFilter

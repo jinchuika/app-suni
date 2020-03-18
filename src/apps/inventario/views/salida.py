@@ -37,20 +37,25 @@ class SalidaInventarioCreateView(LoginRequiredMixin, GroupRequiredMixin, CreateV
 
     def form_valid(self, form):
         form.instance.creada_por = self.request.user
-        form.instance.estado = inv_m.SalidaEstado.objects.get(id=1)
-        if form.instance.entrega:
-            try:
-                form.instance.escuela = escuela_m.Escuela.objects.get(codigo=form.cleaned_data['udi'])
-            except ObjectDoesNotExist:
-                form.add_error('udi', 'El UDI no es válido o no existe.')
-                return self.form_invalid(form)
-        else:
+        form.instance.estado = inv_m.SalidaEstado.objects.get(id=1)        
+        su_udi = form.cleaned_data['udi']              
+        if form.instance.entrega:            
+            if su_udi == "":
+                form.instance.udi = None
+            else:
+                try:
+                    form.instance.escuela = escuela_m.Escuela.objects.get(codigo=form.cleaned_data['udi'])
+                except ObjectDoesNotExist:
+                    form.add_error('udi', 'El UDI no es válido o no existe.')
+                    return self.form_invalid(form)
+
+        else: 
             form.instance.escuela = None
-            if form.instance.garantia is not None:
+            if form.instance.garantia is not None:                
                 escuela = tpe_m.TicketSoporte.objects.get(id=str(form.instance.garantia))
                 nueva_escuela = escuela.garantia.equipamiento.escuela.codigo
                 form.instance.escuela = escuela_m.Escuela.objects.get(codigo=nueva_escuela)
-            else:
+            else:                
                 form.instance.escuela = None
         return super(SalidaInventarioCreateView, self).form_valid(form)
 
@@ -81,9 +86,13 @@ class SalidaInventarioUpdateView(LoginRequiredMixin, GroupRequiredMixin, UpdateV
             paquete__salida__id=self.object.id,
             paquete__tipo_paquete=cpu,
             )
+        comentarios_cc= inv_m.SalidaComentario.objects.filter(salida=self.object.id)        
+        comentarios_conta=inv_m.RevisionComentario.objects.filter(revision__salida=self.object.id)       
         context['CPU'] = total_cpu.count()
         context['Laptops'] = Total_Laptop.count()
         context['Tablets'] = Total_Tablet.count()
+        context['comentario_cc'] = comentarios_cc
+        context['comentario_conta'] = comentarios_conta
         return context
 
 
@@ -92,7 +101,7 @@ class SalidaInventarioDetailView(LoginRequiredMixin, GroupRequiredMixin, DetailV
     """
     model = inv_m.SalidaInventario
     template_name = 'inventario/salida/salida_detail.html'
-    group_required = [u"inv_cc", u"inv_admin", u"inv_tecnico"]
+    group_required = [u"inv_cc", u"inv_admin", u"inv_tecnico", u"inv_bodega", u"inv_conta"]
 
     def get_context_data(self, *args, **kwargs):
         context = super(SalidaInventarioDetailView, self).get_context_data(*args, **kwargs)
@@ -112,6 +121,20 @@ class SalidaInventarioDetailView(LoginRequiredMixin, GroupRequiredMixin, DetailV
             paquete__tipo_paquete=Laptop)
         context['Laptops'] = Total_Laptop.count()
         context['Tablets'] = Total_Tablet.count()
+        return context
+
+class SalidaInventarioListView(LoginRequiredMixin,  FormView):
+    """ Vista creada para obtener el listado de las :class:`SalidaInventario`
+    Funciona para recibir los datos de un 'SalidaInventarioListForm' mediante el metodo POST.
+    y nos muestra el rempalte de la vista mediante le metodo get
+    """
+    model = inv_m.SalidaInventario
+    form_class = inv_f.SalidaInventarioListForm
+    template_name = 'inventario/salida/salida_add.html'
+    
+    def get_context_data(self, **kwargs):
+        context = super(SalidaInventarioListView, self).get_context_data(**kwargs)        
+        context['lista'] = 1 
         return context
 
 
@@ -178,7 +201,7 @@ class SalidaPaqueteDetailView(LoginRequiredMixin, GroupRequiredMixin, UpdateView
     model = inv_m.Paquete
     template_name = 'inventario/salida/paquetes_detail.html'
     form_class = inv_f.PaqueteUpdateForm
-    group_required = [u"inv_tecnico", u"inv_cc", u"inv_admin"]
+    group_required = [u"inv_tecnico", u"inv_cc", u"inv_admin", u"inv_bodega"]
 
     def get_form(self, form_class=None):
         form = super(SalidaPaqueteDetailView, self).get_form(form_class)
@@ -246,6 +269,12 @@ class RevisionSalidaUpdateView(LoginRequiredMixin, GroupRequiredMixin, UpdateVie
     form_class = inv_f.RevisionSalidaUpdateForm
     template_name = 'inventario/salida/revisionsalida_update.html'
     group_required = [u"inv_conta", u"inv_admin"]
+
+    def get_context_data(self, *args, **kwargs):
+        context = super(RevisionSalidaUpdateView, self).get_context_data(*args, **kwargs)       
+        comentarios_cc= inv_m.SalidaComentario.objects.filter(salida=self.object.salida.id)      
+        context['comentario_cc'] = comentarios_cc
+        return context
 
 
 class SalidaPaqueteView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
@@ -353,7 +382,7 @@ class DispositivoAsignados(LoginRequiredMixin, GroupRequiredMixin, DetailView):
     """
     model = inv_m.Paquete
     template_name = 'inventario/salida/dispositivos_salida.html'
-    group_required = [u"inv_tecnico", u"inv_admin", u"inv_cc"]
+    group_required = [u"inv_tecnico", u"inv_admin", u"inv_cc", u"inv_bodega"]
 
     def get_context_data(self, **kwargs):
         context = super(DispositivoAsignados, self).get_context_data(**kwargs)
@@ -406,7 +435,7 @@ class GarantiaPrintView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
         else:
             context['cpu'] = 0
         Fecha = inv_m.SalidaInventario.objects.get(id=self.object.id)
-        context['fin_garantia'] = Fecha.fecha + relativedelta(months=6)
+        context['fin_garantia'] = Fecha.fecha + relativedelta(months=12)
         context['dispositivo_total'] = Total_Entregado
         context['cpu_servidor'] = cpu_servidor
         return context
@@ -710,13 +739,13 @@ class PrestamoCartaPrintView(LoginRequiredMixin, GroupRequiredMixin, DetailView)
             Total_Laptop['total_laptop'] = 0
         if Total_Tablet['total_tablet'] is None:
             Total_Tablet['total_tablet'] = 0
-        Total_Entregado = (Total_Cpu['total_cpu']+Total_Laptop['total_laptop']+Total_Tablet['total_tablet']) - cpu_servidor
+        Total_Entregado = (Total_Cpu['total_cpu'] + Total_Laptop['total_laptop'] + Total_Tablet['total_tablet']) - cpu_servidor
         if Total_Tablet['total_tablet'] > 1:
             context['cpu'] = 1
         else:
             context['cpu'] = 0
         context['cpu_servidor'] = cpu_servidor
-        context['dispositivo_total'] = Total_Entregado
+        context['dispositivo_total'] = Total_Entregado + cpu_servidor 
         escuela = inv_m.SalidaInventario.objects.get(id=self.object.id)
         try:
             encargado = escuela_m.EscContacto.objects.get(escuela=escuela.escuela, rol=5)
@@ -727,3 +756,11 @@ class PrestamoCartaPrintView(LoginRequiredMixin, GroupRequiredMixin, DetailView)
             context['Jornada'] = "No tiene Jornada"
             context['Encargado'] = "No Tiene Encargado"
         return context
+
+
+class PaquetesDetalleGrid(LoginRequiredMixin, GroupRequiredMixin, DetailView):
+    """ Muestra los QR por Detalle de Entrada Creados
+    """
+    model = inv_m.DispositivoPaquete
+    template_name = 'inventario/salida/dispositivos_grid_paquetes.html'
+    group_required = [u"inv_bodega", u"inv_tecnico", u"inv_admin"]

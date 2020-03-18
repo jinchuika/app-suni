@@ -20,13 +20,13 @@
 						{{ form.as_table }}
 						<tr>
 							<td colspan="2" align="center">
-								<input type="submit" value="Crear" class="btn btn-primary">
+								<input id="guardar_curso" type="submit" value="Crear" class="btn btn-primary">
 							</td>
 						</tr>
 					</table>
 				</div>
 				<div class="col-md-4">
-					<table class="table table-striped box box-primary">
+					<table id="asistencia_table" class="table table-striped box box-primary">
 						<thead>
 							<tr>
 								<th align="center" colspan="2" class="lead">Asistencias</th>
@@ -36,13 +36,14 @@
 								<th>Punteo</th>
 							</tr>
 						</thead>
-						<tbody id="asistencia_table">
+						<tbody >
 							{% for form_asistencia in asistencia_formset.forms %}
 							<tr id="{{form_asistencia.prefix}}-row" class="form-container-asistencia">
 								{{form_asistencia.non_field_errors}}
 								<td>
 									{{form_asistencia.id}}
 									{{form_asistencia.modulo_num}}
+									 {{forloop.counter}}
 								</td>
 								<td>
 									{{form_asistencia.punteo_max.errors}}
@@ -53,6 +54,11 @@
 								</td>
 							</tr>
 							{% endfor %}
+							<tr>
+							<td colspan="2" align="center">
+								<input id="mostrar_campo" type="button" value="Agregar campo" class="btn btn-primary">
+							</td>
+						</tr>
 						</tbody>
 						{{ asistencia_formset.management_form }}
 					</table>
@@ -80,16 +86,35 @@
 								</td>
 							</tr>
 							{% endfor %}
+							<tr>
+							<td colspan="2" align="center">
+								<input id="mostrar_campo_hito" type="button" value="Agregar campo" class="btn btn-primary">
+							</td>
+						</tr>
 						</tbody>
 						{{ hito_formset.management_form }}
 					</table>
 				</div>
 			</form>
+			<div>
+				<table style="width:75%;margin-left: auto;">
+					<tr>
+						<th>Nombre del curso: <h5 id="nombre_curso"></h5> </th>
+						<th colspan="1">Nota de la asistencia: <h5 id="nota_curso"></h5></th>
+						<th colspan="1">Tareas y Proyectos: <h5 id="tareas_curso"></h5></th>
+						<th colspan="1">Total:<h5 id="total_curso"></h5></th>
+					</tr>			
+					</table>			
+			</div>
 		</div>
 	</div>
 </section>
 {% endblock content %}
 
 {% block extra_js %}
+<script src="{% static 'js/extrajs/cyd.js' %}"></script>
 <script src="{% static "js/jquery.formset.js" %}"></script>
+<script>
+let agregar = new AgregarCurso(); 
+</script>
 {% endblock extra_js %}

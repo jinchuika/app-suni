@@ -22,14 +22,16 @@
 <table class="encabezado3" style="text-align:center">
 	<b>
 	<td width="15%" style="border:none">Fecha de entrega</td>
-	<td style="border:solid; border-width: 1px" >{{salidainventario.fecha}}</td>
+	<td style="border:solid; border-width: 1px" width="15%" >{{salidainventario.fecha}}</td>
+	<td width="10%" style="border:none">Cooperante:</td>
+  <td width="15%" style="border:solid; border-width: 1px">{{salidainventario.cooperante}}</td>
 	<td  width="10%"></td>
 	<td style="font-size: 20px; border:none">Jornada</td>
 	<td style="border:solid; border-width: 1px; " width="150" height="25">{{Jornada}}</td>
 	<td  width="25"></td>
 	<td width="12%" style="border:none">Código UDI</td>
 	<td width:"15%" style="border:solid; border-width: 1px" width="0">{{salidainventario.escuela.codigo}}</td>
-	<td width="40"></td>
+	<td width="30"></td>
 	<td width="10%" style="border:none">No. Entrega:</td>
 	<td width="10%" style="border:solid; border-width: 1px" width="50">{{salidainventario}}</td>
 </table>
@@ -64,7 +66,7 @@
 <hr style="border-color:black;" size:"9px">
 <br/>
 <table class="info2" >
-	
+
 </table>
 
 <!--FIN DE TABLA DE DATOS-->
@@ -112,14 +114,14 @@
 				<tbody>
 					{% for cpu in CPUs  %}
 						<tr>
-						<td style="border:solid; border-width: 1px;border-color:gray" height="36">{{cpu}}</td>
-						<td style="border:solid; border-width: 1px;border-color:gray" >{{cpu.marca}}</td>
-						<td style="border:solid; border-width: 1px;border-color:gray" >{{cpu.modelo}}</td>
-						<td style="border:solid; border-width: 1px;border-color:gray" >{{cpu.disco_duro}}</td>
-						<td style="border:solid; border-width: 1px;border-color:gray" >{{cpu.disco_duro.capacidad}} {{cpu.disco_duro.medida}}</td>
-						<td style="border:solid; border-width: 1px;border-color:gray" >{{cpu.procesador}}</td>
-						<td style="border:solid; border-width: 1px;border-color:gray" >{{cpu.ram}} {{cpu.ram_medida}}</td>
-						<td style="border:solid; border-width: 1px;border-color:gray" >{{cpu.version_sistema}}</td>
+						<td style="border:solid; border-width: 1px;border-color:gray" height="36">{{cpu | default_if_none:"Generico"}}</td>
+						<td style="border:solid; border-width: 1px;border-color:gray" >{{cpu.marca | default_if_none:"Generico"}}</td>
+						<td style="border:solid; border-width: 1px;border-color:gray" >{{cpu.modelo | default_if_none:"Generico"}}</td>
+						<td style="border:solid; border-width: 1px;border-color:gray" >{{cpu.disco_duro | default_if_none:"Generico"}}</td>
+						<td style="border:solid; border-width: 1px;border-color:gray" >{{cpu.disco_duro.capacidad | default_if_none:"Generico"}} {{cpu.disco_duro.medida | default_if_none:"" }}</td>																						
+						<td style="border:solid; border-width: 1px;border-color:gray" >{{cpu.procesador | default_if_none:"Generico"}}</td>
+						<td style="border:solid; border-width: 1px;border-color:gray" >{{cpu.ram| default_if_none:"Generico"}} {{cpu.ram_medida | default_if_none:""}}</td>
+						<td style="border:solid; border-width: 1px;border-color:gray" >{{cpu.version_sistema | default_if_none:"Generico"}}</td>
 						<td  width="25	"></td>
 						</tr>
 						{% endfor %}
@@ -141,11 +143,11 @@
 					<center>
 						{% for monitor in Monitores  %}
 							<tr>
-		<td style="border:solid; border-width: 1px;border-color:gray" height="36">{{monitor}}</td>
-		<td style="border:solid; border-width: 1px;border-color:gray" >{{monitor.tipo}}</td>
-		<td style="border:solid; border-width: 1px;border-color:gray" >{{monitor.marca}}</td>
-		<td style="border:solid; border-width: 1px;border-color:gray" >{{monitor.modelo}}</td>
-		<td style="border:solid; border-width: 1px;border-color:gray" >{{monitor.pulgadas}}</td>
+		<td style="border:solid; border-width: 1px;border-color:gray" height="36">{{monitor | default_if_none:"Generico"}}</td>
+		<td style="border:solid; border-width: 1px;border-color:gray" >{{monitor.tipo | default_if_none:"Generico"}}</td>
+		<td style="border:solid; border-width: 1px;border-color:gray" >{{monitor.marca | default_if_none:"Generico"}}</td>
+		<td style="border:solid; border-width: 1px;border-color:gray" >{{monitor.modelo | default_if_none:"Generico"}}</td>
+		<td style="border:solid; border-width: 1px;border-color:gray" >{{monitor.pulgadas | default_if_none:"Generico"}}</td>
 		<td  width="25	"></td>
 	</tr>
 	{% endfor %}
@@ -166,9 +168,9 @@
 			<tbody>
 				{% for teclado  in Teclados  %}
 				<tr>
-					<td style="border:solid; border-width: 1px;border-color:gray"  height="36">{{teclado}}</td>
-					<td style="border:solid; border-width: 1px;border-color:gray" >{{teclado.marca}}</td>
-					<td style="border:solid; border-width: 1px;border-color:gray" >{{teclado.modelo}}</td>
+					<td style="border:solid; border-width: 1px;border-color:gray"  height="36">{{teclado | default_if_none:"Generico"}}</td>
+					<td style="border:solid; border-width: 1px;border-color:gray" >{{teclado.marca | default_if_none:"Generico"}}</td>
+					<td style="border:solid; border-width: 1px;border-color:gray" >{{teclado.modelo | default_if_none:"Generico"}}</td>
 				</tr>
 {% endfor %}
 			</tbody>
@@ -186,9 +188,9 @@
 		<tbody>
 			{% for mouse in Mouses  %}
 			<tr>
-				<td style="border:solid; border-width: 1px;border-color:gray" height="36">{{mouse}}</td>
-				<td style="border:solid; border-width: 1px;border-color:gray">{{mouse.marca}}</td>
-				<td style="border:solid; border-width: 1px;border-color:gray">{{mouse.modelo}}</td>
+				<td style="border:solid; border-width: 1px;border-color:gray" height="36">{{mouse | default_if_none:"Generico"}}</td>
+				<td style="border:solid; border-width: 1px;border-color:gray">{{mouse.marca | default_if_none:"Generico"}}</td>
+				<td style="border:solid; border-width: 1px;border-color:gray">{{mouse.modelo | default_if_none:"Generico"}}</td>
 			</tr>
 
 {% endfor %}

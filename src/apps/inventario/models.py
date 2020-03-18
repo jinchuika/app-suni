@@ -99,7 +99,6 @@ class Entrada(models.Model):
             return reverse_lazy('entrada_detail', kwargs={'pk': self.id})
 
     def save(self, *args, **kwargs):
-        print(self.en_creacion)
         super(Entrada, self).save(*args, **kwargs)
 
 
@@ -212,7 +211,6 @@ class EntradaDetalle(models.Model):
     @property
     def existencia_desecho(self):
         return self.desecho - self.inventario_desecho()
-            
 
     def save(self, *args, **kwargs):
         """Se debe validar que el detalle de una entrada que involucre precio, por ejemplo, una compra,
@@ -482,6 +480,22 @@ class Tarima(models.Model):
         self.codigo_qr.save(filename, filebuffer)
 
 
+class DispositivoClase(models.Model):
+    """ Genera el tipo de clase de una :class`Dispositivo`
+    """
+    A = 1
+    B = 2
+    C = 3
+    clase = models.CharField(max_length=20)
+
+    class Meta:
+        verbose_name = "Clase de dispositivo"
+        verbose_name_plural = "Clases de dispositivo"
+
+    def __str__(self):
+        return self.clase
+
+
 class Dispositivo(models.Model):
 
     """Cualquier elemento almacenado en la base de datos de inventario que puede ser entregado a una escuela.
@@ -498,6 +512,7 @@ class Dispositivo(models.Model):
         null=True,
         related_name='detalle_dispositivos')
     impreso = models.BooleanField(default=False, blank=True, verbose_name='Impreso')
+    clase = models.ForeignKey(DispositivoClase, on_delete=models.CASCADE, null=True, related_name='clase_dispositivos')
     estado = models.ForeignKey(
         DispositivoEstado,
         on_delete=models.CASCADE,
@@ -799,6 +814,7 @@ class HDD(Dispositivo):
         blank=True)
     capacidad = models.PositiveIntegerField(null=True, blank=True)
     medida = models.ForeignKey(DispositivoMedida, null=True, blank=True)
+    asignado = models.BooleanField(default=False, blank=True)
 
     class Meta:
         verbose_name = "HDD"
@@ -1059,6 +1075,7 @@ class Repuesto(models.Model):
         return 'R-{}'.format(self.id)
 
     def save(self, *args, **kwargs):
+        print('Salvar')
         super(Repuesto, self).save(*args, **kwargs)
         if not self.codigo_qr:
             self.crear_qrcode()
@@ -1078,7 +1095,7 @@ class Repuesto(models.Model):
         )
         data_qr = {
             'id': str(self.id),
-            'tipo': str(self.tipo)
+            'tipo': str(self.tipo),
         }
         qr.add_data(json.dumps(data_qr, ensure_ascii=False))
         qr.make(fit=True)
@@ -1091,14 +1108,29 @@ class Repuesto(models.Model):
 
 
 class DispositivoRepuesto(models.Model):
-    dispositivo = models.ForeignKey(Dispositivo, on_delete=models.CASCADE)
-    repuesto = models.ForeignKey(Repuesto, on_delete=models.CASCADE)
+    dispositivo = models.ForeignKey(Dispositivo, on_delete=models.CASCADE)    
+    repuesto = models.ForeignKey(Repuesto, on_delete=models.CASCADE)   
     fecha_asignacion = models.DateTimeField(default=timezone.now)
     asignado_por = models.ForeignKey(User, on_delete=models.PROTECT)
 
     class Meta:
         verbose_name = "Repuesto de dispositivo"
         verbose_name_plural = "Repuestos de dispositivo"
+
+    def __str__(self):
+        return '{} -> {}'.format(self.repuesto, self.dispositivo)
+
+
+class RepuestoComentario(models.Model):
+    repuesto = models.ForeignKey(Repuesto, on_delete=models.CASCADE, related_name='comentarios_repuesto')
+    dispositivo = models.ForeignKey(Dispositivo, on_delete=models.CASCADE, related_name='comentarios_repuesto_dispositivo')
+    comentario = models.TextField()
+    fecha_revision = models.DateTimeField(default=timezone.now)
+    creado_por = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    class Meta:
+        verbose_name = 'Comentario de repuesto'
+        verbose_name_plural = 'Comentarios de repuestos'
 
     def __str__(self):
         return '{} -> {}'.format(self.repuesto, self.dispositivo)
@@ -1124,11 +1156,13 @@ class DesechoEmpresa(models.Model):
 class DesechoSalida(models.Model):
     fecha = models.DateField(default=timezone.now)
     empresa = models.ForeignKey(DesechoEmpresa, on_delete=models.PROTECT, related_name='salidas')
-    precio_total = models.DecimalField(max_digits=12, decimal_places=2, default=0.0)
+    precio_total = models.DecimalField(max_digits=12, decimal_places=2, default=0.0)   
     peso = models.DecimalField(max_digits=12, decimal_places=2, verbose_name='Peso (libras)', default=0.0)
+    comprobante = models.PositiveIntegerField(default=0)
     creado_por = models.ForeignKey(User, on_delete=models.PROTECT)
     observaciones = models.TextField(null=True, blank=True)
     en_creacion = models.BooleanField(default=True, blank=True, verbose_name='En creación')
+    codigo_qr = et_fields.ThumbnailerImageField(upload_to='qr_desecho', blank=True, null=True)
     url = models.TextField(null=True, blank=True)
 
     class Meta:
@@ -1140,6 +1174,34 @@ class DesechoSalida(models.Model):
 
     def get_absolute_url(self):
         return reverse_lazy('desechosalida_update', kwargs={'pk': self.id})
+    
+    def save(self, *args, **kwargs):
+        super(DesechoSalida, self).save(*args, **kwargs)
+        if not self.codigo_qr:
+            self.crear_qrcode()
+            super(DesechoSalida, self).save(*args, *kwargs)
+    
+    def crear_qrcode(self):
+        """Genera el código QR para apuntar al url de imagenes de desecho
+        """
+        qr = qrcode.QRCode(
+            version=1,
+            error_correction=qrcode.constants.ERROR_CORRECT_L,
+            box_size=6,
+            border=1,
+        )
+        data_qr = {
+            'tipo': 'desecho',
+            'url': 'url'
+        }
+        qr.add_data(json.dumps(data_qr, ensure_ascii=False))
+        qr.make(fit=True)
+        img = qr.make_image()
+        buffer = BytesIO()
+        img.save(buffer)
+        filename = 'Desecho-{}.png'.format(self.id)
+        filebuffer = InMemoryUploadedFile(buffer, None, filename, 'image/png', buffer.getbuffer().nbytes, None)
+        self.codigo_qr.save(filename, filebuffer)
 
 
 class DesechoDetalle(models.Model):
@@ -1178,6 +1240,32 @@ class DesechoDispositivo(models.Model):
             desecho=self.desecho,
             dispositivo=self.dispositivo)
 
+
+class DesechoComentario(models.Model):
+    desecho = models.ForeignKey(DesechoSalida, on_delete=models.CASCADE, related_name='comentarios_desecho')
+    comentario = models.TextField()
+    fecha_revision = models.DateTimeField(default=timezone.now)
+    creado_por = models.ForeignKey(User, on_delete=models.CASCADE)
+    entrada_detalle = models.ForeignKey(
+        EntradaDetalle,
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name="detalle_entrada_rechazar")
+    dispositivo = models.ForeignKey(
+        Dispositivo,
+        on_delete=models.CASCADE,
+        related_name='desecho_rechazado',
+        null=True,
+        blank=True
+        )
+
+    class Meta:
+        verbose_name = 'Comentario de rechazo de desecho'
+        verbose_name_plural = 'Comentarios de rechazo de desecho'
+
+    def __str__(self):
+        return 'Desecho:{desecho}-Comentario:{comentario}'.format(desecho=self.desecho, comentario=self.comentario[0:10])
 
 class SalidaTipo(models.Model):
     nombre = models.CharField(max_length=30)
@@ -1238,8 +1326,12 @@ class SalidaInventario(models.Model):
         blank=True)
     estado = models.ForeignKey(SalidaEstado, on_delete=models.PROTECT, related_name='estados',  null=True, blank=True)
     reasignado_por = models.ForeignKey(User, on_delete=models.PROTECT, related_name='reasignar', null=True, blank=True)
-    no_salida= models.CharField(max_length=10 , blank=True, editable=False, db_index=True)
-    cooperante = models.ForeignKey(mye.Cooperante, on_delete=models.PROTECT, related_name='cooperante', null=True, blank=True)
+    no_salida = models.CharField(max_length=10, blank=True, editable=False, db_index=True)
+    cooperante = models.ForeignKey(
+        mye.Cooperante, on_delete=models.PROTECT,
+        related_name='cooperante',
+        null=True, blank=True)
+    url = models.TextField(null=True, blank=True)
 
     class Meta:
         verbose_name = "Salida"
@@ -1314,8 +1406,8 @@ class SalidaComentario(models.Model):
     creado_por = models.ForeignKey(User, on_delete=models.CASCADE)
 
     class Meta:
-        verbose_name = 'Comentario de revisión de salida'
-        verbose_name_plural = 'Comentarios de revisión de salida'
+        verbose_name = 'Comentario de revisión de salida control de calidad'
+        verbose_name_plural = 'Comentarios de revisión de salida control de calidad'
 
     def __str__(self):
         return '{}'.format(self.comentario[15:])
@@ -1352,7 +1444,7 @@ class Paquete(models.Model):
         related_name='paquetes',
         null=True,
         blank=True)
-    aprobado = models.BooleanField(default=False, blank=True)
+    aprobado = models.BooleanField(default=False, blank=True) 
     aprobado_kardex = models.BooleanField(default=False, blank=True)
     desactivado = models.BooleanField(default=False, blank=True)
     entrada = models.ManyToManyField(Entrada, related_name='tipo_entrada', blank=True, null=True)
@@ -1364,6 +1456,7 @@ class Paquete(models.Model):
 
     def __str__(self):
         return 'P{salida}-{indice}'.format(salida=self.salida, indice=self.indice)
+        #return 'P{salida}'
 
     def aprobar(self, usuario):
         for paquete in self.asignacion.all():
@@ -1431,8 +1524,8 @@ class RevisionSalida(models.Model):
         )
 
     class Meta:
-        verbose_name = 'Revisión de salida'
-        verbose_name_plural = 'Revisiones de salida'
+        verbose_name = 'Revisión de salida en contabilidad'
+        verbose_name_plural = 'Revisiones de salida en contabilidad'
 
     def __str__(self):
         return str(self.salida)
@@ -1489,6 +1582,7 @@ class SolicitudMovimiento(models.Model):
         null=True,
         related_name='entrada_kardex')
     observaciones = models.TextField(null=True, blank=True)
+    no_salida = models.ForeignKey(SalidaInventario, on_delete=models.PROTECT, related_name='salida_inventario', null=True)
 
     class Meta:
         verbose_name = 'Solicitud de movimiento'
@@ -1517,8 +1611,14 @@ class SolicitudMovimiento(models.Model):
                         creado_por=usuario
                     )
                     cambio.save()
-            self.terminada = True
-            self.save()
+            validar = CambioEtapa.objects.filter(solicitud=self.id).count()
+            if(validar == self.cantidad):
+                print("Ya es la cantidad final")
+                self.terminada = True
+            else:
+                print("Aun faltan dispositivos")
+                
+                # self.save()
         else:
             raise OperationalError('La solicitud ya fue terminada')
 
@@ -1632,3 +1732,51 @@ class Prestamo(models.Model):
 
     def __str__(self):
         return '{} - {}'.format(self.fecha_inicio, self.id)
+
+class AccionBitacora(models.Model):
+    """Estado de un :class:`Dispositivo`. Indica que el dispositivo puede estar en cualquiera de los siguientes estados:
+    - Solicitud Creada
+    - Dispositivos Entregados
+    - Dispositivos Recibidos
+    - Solicitud Aprobada Kardex
+    - Solicitud Rechazada Kardex
+    """
+    SC = 1
+    DE = 2
+    DR = 3
+    SAK = 4
+    SRK = 5
+    estado = models.CharField(max_length=100)
+
+    class Meta:
+        verbose_name = "Regristro Bitacora"
+        verbose_name_plural = "Registros de Bitacora"
+
+    def __str__(self):
+        return self.estado
+
+class SolicitudBitacora(models.Model):
+    fecha_movimiento = models.DateTimeField(default=timezone.now)
+    numero_solicitud = models.ForeignKey(
+        SolicitudMovimiento,
+        null=True,
+        blank=True,
+        on_delete=models.PROTECT,
+        related_name='solicitud_movimiento')
+    enviado = models.BooleanField(default=False, blank=True)
+    accion = models.ForeignKey(
+        AccionBitacora,
+        null=True,
+        blank=True,
+        on_delete=models.PROTECT,
+        related_name='bitacora_accion'
+    )
+    usuario = models.ForeignKey(User, on_delete=models.CASCADE, related_name='bitacora_usuario')
+
+
+    class Meta:
+        verbose_name = 'Bitacora'
+        verbose_name_plural = 'Bitacoras'
+
+    def __str__(self):
+        return '{} - {} - {}'.format(self.accion,self.fecha_movimiento.date(),self.usuario)

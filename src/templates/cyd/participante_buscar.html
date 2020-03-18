@@ -64,9 +64,10 @@
 									{% if request.user|has_group:"cyd_capacitador" %}
 									<th></th>
 									{% endif %}
+									<th></th>
 								</tr>
 							</thead>
-							<tbody id="resultado-tbody"></tbody>
+							<tbody id="resultado-tbody" data-url="{%url 'participante_desactivar'%}"></tbody>
 						</table>
 					</div>
 				</div>

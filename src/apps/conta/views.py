@@ -184,6 +184,23 @@ class ContabilidadEntradaInformeListView(LoginRequiredMixin, FormView):
     template_name = 'conta/informe_entrada.html'
     form_class = conta_f.EntradaInformeForm
 
+    def get_form(self, form_class=None):
+        form = super(ContabilidadEntradaInformeListView, self).get_form(form_class)
+        form.fields['tipo_dispositivo'].queryset = self.request.user.tipos_dispositivos.tipos.filter(usa_triage=True)
+        return form
+
+class ContabilidadEntradaDispInformeListView(LoginRequiredMixin, FormView):
+    """Vista   para obtener los datos de Dispositivos x Entrada mediante una :class:`PrecioEstandar`
+    """
+    model = conta_m.PrecioEstandar
+    template_name = 'conta/informe_entrada_dispositivo.html'
+    form_class = conta_f.EntradaDispositivoInformeForm
+
+    def get_form(self, form_class=None):
+        form = super(ContabilidadEntradaDispInformeListView, self).get_form(form_class)
+        form.fields['tipo_dispositivo'].queryset = self.request.user.tipos_dispositivos.tipos.filter(usa_triage=True)
+        return form
+
 class ContabilidadSalidasInformeListView(LoginRequiredMixin, FormView):
     """Vista utilizada para listar las salidas por rango de fechas y tipo de dispositivo.
     """
@@ -204,6 +221,11 @@ class ContabilidadResumenInformeListView(LoginRequiredMixin, FormView):
     model = conta_m.PrecioEstandar
     template_name = 'conta/informe_resumen.html'
     form_class = conta_f.ResumenInformeForm
+
+    def get_form(self, form_class=None):
+        form = super(ContabilidadResumenInformeListView, self).get_form(form_class)
+        form.fields['tipo_dispositivo'].queryset = self.request.user.tipos_dispositivos.tipos.filter(usa_triage=True)
+        return form
 
 class InformeCantidadJson(views.APIView):
     
@@ -355,7 +377,6 @@ class InformeEntradaJson(views.APIView):
             tipo_entrada = 0
         tipo_dispositivo = self.request.GET['tipo_dispositivo']
         fecha_inicio = self.request.GET['fecha_min']
-        fecha_inicio = datetime.strptime(fecha_inicio, '%Y-%m-%d') - timedelta(days=1)
         fecha_fin = self.request.GET['fecha_max']
         tipo_dispositivo_nombre = inv_m.DispositivoTipo.objects.get(pk=tipo_dispositivo)
 
@@ -387,7 +408,8 @@ class InformeEntradaJson(views.APIView):
 
 
             # Obtener Existencia Inicial y Saldo Inicial
-            totales_anterior = get_existencia(tipo_dispositivo,fecha_inicio,periodo)
+            fecha_inicial = datetime.strptime(fecha_inicio, '%Y-%m-%d') - timedelta(days=1)
+            totales_anterior = get_existencia(tipo_dispositivo,fecha_inicial,periodo)
             precio_anterior = totales_anterior['precio_estandar']
             precio_total_anterior = totales_anterior['saldo_total']
             existencia_anterior = totales_anterior['existencia']
@@ -422,9 +444,78 @@ class InformeEntradaJson(views.APIView):
                 dispositivo['total'] = cantidad * precio
                 dispositivo['total_costo'] = precio_total_anterior
                 dispositivo['total_final'] = existencia_anterior
-                dispositivo['rango_fechas'] = str(fecha_inicio.date())+"  AL  "+str(fecha_fin)
+                dispositivo['rango_fechas'] = str(fecha_inicio)+"  AL  "+str(fecha_fin)
                 dispositivo['tipo_dispositivo'] = tipo_dispositivo_nombre.tipo
                 dispositivo['total_costo_despues'] = precio_total
+                dispositivo['total_despues'] = existencia_actual
+                lista.append(dispositivo)
+            return Response(lista)
+        else:
+            print("No existe en el periodo fiscal")
+
+class InformeEntradaDispositivoJson(views.APIView):
+    """ Lista los dispositivos ingresados al sistema por rango de fechas
+    """
+    def get(self, request):
+        try:
+            no_entrada = self.request.GET['no_entrada']
+        except MultiValueDictKeyError as e:
+            no_entrada = 0
+
+        tipo_dispositivo = self.request.GET['tipo_dispositivo']
+        fecha_inicio = self.request.GET['fecha_min']
+        fecha_fin = self.request.GET['fecha_max']
+        tipo_dispositivo_nombre = inv_m.DispositivoTipo.objects.get(pk=tipo_dispositivo)
+
+        # Validar que el rango de fechas pertenezcan a un solo período fiscal
+        validar_fecha = conta_m.PeriodoFiscal.objects.filter(fecha_inicio__lte=fecha_inicio, fecha_fin__gte=fecha_fin)
+        print(validar_fecha)
+        if validar_fecha.count() == 1:
+
+            # Obtener datos de Periodo Fiscal
+            periodo = validar_fecha[0]
+            lista_dispositivos = {}
+            lista = []
+
+            # Preparar Filtros de Búsqueda
+            q = []
+            q.append(Q(tipo=tipo_dispositivo))
+
+            if no_entrada and no_entrada != 0:
+                q.append(Q(entrada_detalle__entrada=no_entrada))
+
+            # obtener Listado de Detalles de Entrada Aplicando Filtros
+            entrada_detalle = inv_m.Dispositivo.objects.filter(
+                        Q(entrada_detalle__fecha_dispositivo__gte=fecha_inicio),
+                        Q(entrada_detalle__fecha_dispositivo__lte=fecha_fin),
+                        reduce(AND,q)
+                        ).exclude(entrada_detalle__entrada__tipo__nombre='Especial')
+
+            print(entrada_detalle)
+
+            # Obtener Existencia Inicial y Saldo Inicial
+            fecha_inicial = datetime.strptime(fecha_inicio, '%Y-%m-%d') - timedelta(days=1)
+            totales_anterior = get_existencia(tipo_dispositivo,fecha_inicial,periodo)
+            existencia_anterior = totales_anterior['existencia']
+
+            # Obtener Existencia Final y Saldo Final
+            total_actual = get_existencia(tipo_dispositivo,fecha_fin,periodo)
+            existencia_actual = total_actual['existencia']
+
+            for detalle in entrada_detalle:
+                entrada = inv_m.Entrada.objects.get(pk=detalle.entrada_detalle.entrada.id)
+                dispositivo = {}
+            
+                dispositivo['triage'] = detalle.triage
+                dispositivo['entrada'] = detalle.entrada_detalle.entrada.id
+                dispositivo['fecha'] = detalle.entrada_detalle.fecha_dispositivo
+                dispositivo['tipo_entrada'] = detalle.entrada_detalle.entrada.tipo.nombre
+                dispositivo['url'] = detalle.get_absolute_url()
+                dispositivo['url_entrada'] = detalle.entrada_detalle.entrada.get_absolute_url()
+    
+                dispositivo['total_final'] = existencia_anterior
+                dispositivo['rango_fechas'] = str(fecha_inicio)+"  AL  "+str(fecha_fin)
+                dispositivo['tipo_dispositivo'] = tipo_dispositivo_nombre.tipo
                 dispositivo['total_despues'] = existencia_actual
                 lista.append(dispositivo)
             return Response(lista)
@@ -446,6 +537,11 @@ class InformeSalidaJson(views.APIView):
             beneficiado = 0
 
         try:
+            donaciones = self.request.GET.get('donaciones','') == 'on'
+        except MultiValueDictKeyError as e:
+            donaciones = False
+
+        try:
             compra = self.request.GET.get('compras','') == 'on'
         except MultiValueDictKeyError as e:
             compra = False
@@ -461,7 +557,6 @@ class InformeSalidaJson(views.APIView):
 
         tipo_dispositivo = self.request.GET['tipo_dispositivo']
         fecha_inicio = self.request.GET['fecha_min']
-        fecha_inicio = datetime.strptime(fecha_inicio, '%Y-%m-%d') - timedelta(days=1)
         fecha_fin = self.request.GET['fecha_max']
         tipo_dispositivo_nombre = inv_m.DispositivoTipo.objects.get(pk=tipo_dispositivo)
 
@@ -506,9 +601,9 @@ class InformeSalidaJson(views.APIView):
             if tipo_salida and tipo_salida != 0:
                 sql_where += " AND isi.tipo_salida_id in (" + ','.join(tipo_salida) + ")"
 
-            if compra:
+            if compra and not donaciones:
                 sql_where += " AND ie.tipo_id = " + str(tipo_compra.id)
-            else:
+            elif not compra and donaciones:
                 sql_where += " AND ie.tipo_id <> " + str(tipo_compra.id)
 
             sql_query = sql_select + sql_where + sql_group
@@ -518,7 +613,8 @@ class InformeSalidaJson(views.APIView):
                 result =cursor.fetchall()
 
             # Obtener Existencia Inicial y Saldo Inicial
-            totales_anterior = get_existencia(tipo_dispositivo,fecha_inicio,periodo)
+            fecha_inicial = datetime.strptime(fecha_inicio, '%Y-%m-%d') - timedelta(days=1)
+            totales_anterior = get_existencia(tipo_dispositivo,fecha_inicial,periodo)
             precio_anterior = totales_anterior['precio_estandar']
             precio_total_anterior = totales_anterior['saldo_total']
             existencia_anterior = totales_anterior['existencia']
@@ -553,7 +649,7 @@ class InformeSalidaJson(views.APIView):
                 dispositivo['total'] = total
                 dispositivo['total_costo'] = precio_total_anterior
                 dispositivo['total_final'] = existencia_anterior
-                dispositivo['rango_fechas'] = str(fecha_inicio.date())+"  AL  "+str(fecha_fin)
+                dispositivo['rango_fechas'] = str(fecha_inicio)+"  AL  "+str(fecha_fin)
                 dispositivo['tipo_dispositivo'] = tipo_dispositivo_nombre.tipo
                 dispositivo['total_costo_despues'] = precio_total
                 dispositivo['total_despues'] = existencia_actual
@@ -574,7 +670,6 @@ class InformeDesechoJson(views.APIView):
 
         tipo_dispositivo = self.request.GET['tipo_dispositivo']
         fecha_inicio = self.request.GET['fecha_min']
-        fecha_inicio = datetime.strptime(fecha_inicio, '%Y-%m-%d') - timedelta(days=1)
         fecha_fin = self.request.GET['fecha_max']
         tipo_dispositivo_nombre = inv_m.DispositivoTipo.objects.get(pk=tipo_dispositivo)
 
@@ -604,7 +699,8 @@ class InformeDesechoJson(views.APIView):
                         ).annotate(Count('dispositivo'))
 
             # Obtener Existencia Inicial y Saldo Inicial
-            totales_anterior = get_existencia(tipo_dispositivo,fecha_inicio,periodo)
+            fecha_inicial = datetime.strptime(fecha_inicio, '%Y-%m-%d') - timedelta(days=1)
+            totales_anterior = get_existencia(tipo_dispositivo,fecha_inicial,periodo)
             precio_anterior = totales_anterior['precio_estandar']
             precio_total_anterior = totales_anterior['saldo_total']
             existencia_anterior = totales_anterior['existencia']
@@ -635,7 +731,7 @@ class InformeDesechoJson(views.APIView):
                 dispositivo['total'] = cantidad * precio
                 dispositivo['total_costo'] = precio_total_anterior
                 dispositivo['total_final'] = existencia_anterior
-                dispositivo['rango_fechas'] = str(fecha_inicio.date())+"  AL  "+str(fecha_fin)
+                dispositivo['rango_fechas'] = str(fecha_inicio)+"  AL  "+str(fecha_fin)
                 dispositivo['tipo_dispositivo'] = tipo_dispositivo_nombre.tipo
                 dispositivo['total_costo_despues'] = precio_total
                 dispositivo['total_despues'] = existencia_actual
@@ -650,12 +746,24 @@ class InformeResumenJson(views.APIView):
     """
     def get(self, request):
         fecha_inicio = self.request.GET['fecha_min']
-        fecha_inicio = datetime.strptime(fecha_inicio, '%Y-%m-%d') - timedelta(days=1)
         fecha_fin = self.request.GET['fecha_max']
+        try:
+            tipo_dispositivo = []
+            tipo_dispositivo = self.request.GET.getlist('tipo_dispositivo[]')
+            if len(tipo_dispositivo) == 0:
+                tipo = self.request.GET['tipo_dispositivo']
+                tipo_dispositivo.append(tipo)
+        except MultiValueDictKeyError as e:
+            tipo_dispositivo = 0
+
+        # Filtrar por tipos de dispositivos seleccionados
+        if tipo_dispositivo == 0 or not tipo_dispositivo:
+            dispositivos = self.request.user.tipos_dispositivos.tipos.filter(usa_triage=True)
+        else:
+            dispositivos = self.request.user.tipos_dispositivos.tipos.filter(id__in=tipo_dispositivo)
 
         # Validar que el rango de fechas pertenezcan a un solo período fiscal
         validar_fecha = conta_m.PeriodoFiscal.objects.filter(fecha_inicio__lte=fecha_inicio, fecha_fin__gte=fecha_fin)
-        dispositivos = inv_m.DispositivoTipo.objects.all().exclude(conta=False)
         acumulador = 0
         acumulador_anterior = 0
         acumulador_ant_ex = 0
@@ -669,7 +777,8 @@ class InformeResumenJson(views.APIView):
             for tipo in dispositivos:
                 dispositivo = {}
                 # Obtener Saldo Anterior
-                totales_anterior = get_existencia(tipo,fecha_inicio,periodo)
+                fecha_inicial = datetime.strptime(fecha_inicio, '%Y-%m-%d') - timedelta(days=1)
+                totales_anterior = get_existencia(tipo,fecha_inicial,periodo)
                 precio_total_anterior = totales_anterior['saldo_total']
                 existencia_anterior = totales_anterior['existencia']
                 acumulador_anterior += precio_total_anterior
@@ -720,7 +829,7 @@ class InformeResumenJson(views.APIView):
                 dispositivo['saldo_actual'] = precio_total
                 dispositivo['costo_inicial'] = acumulador_anterior
                 dispositivo['total_inicial'] = acumulador_ant_ex
-                dispositivo['rango_fechas'] = str(fecha_inicio.date())+"  AL  "+str(fecha_fin)
+                dispositivo['rango_fechas'] = str(fecha_inicio)+"  AL  "+str(fecha_fin)
                 dispositivo['costo_final'] = acumulador
                 dispositivo['total_final'] = acumulador_act_ex
                 lista.append(dispositivo)

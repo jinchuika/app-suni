@@ -1,5 +1,5 @@
 {% extends "base/base.html" %}
-{%load widget_tweaks %}
+{%load widget_tweaks static %}
 {% block page_title %}
 <title>Control de Calidad</title>
 {% endblock page_title %}
@@ -14,7 +14,7 @@
                 <h3><b>Salidas pendientes</b></h3>
             </div>
             <div class="box-body">
-              <table class="table table-condensed">
+              <table class="table table-condensed dataTable">
                 <thead>
                   <th>ID </th>
                   <th>Tipo</th>
@@ -35,6 +35,11 @@
                     </tr>
                   {%endfor%}
                 </tbody>
+                <tfoot>
+                  <th>ID </th>
+                  <th>Tipo</th>
+                  <th>Fecha</th>
+                </tfoot>
               </table>
             </div>
           </div>
@@ -44,3 +49,11 @@
   </div>
 </section>
 {% endblock content %}
+{% block extra_js %}
+{% include "base/dataTables.html" %}
+<script src="{% static "js/extrajs/inventario.js" %}"></script>
+<script>
+let buscar = new BuscadorTabla(); 
+</script>
+{% endblock extra_js %}
+

@@ -1,0 +1,95 @@
+{% extends "base/base.html" %}
+
+{% load staticfiles %}
+{% load widget_tweaks %}
+{% block page_title %}
+<title>Nuevo curso</title>
+{% endblock page_title %}
+
+{% block content %}
+<section class="content-header">
+	<h1>Nuevo curso</h1>
+</section>
+<section class="content">
+	<div class="container-fluid">
+		<div class="row-fluid">
+			<form action="{{action}}" method="post">
+				<div class="col-md-4">
+					<table class="table table-striped box box-primary">
+						{% csrf_token %}
+						{{ form.as_table }}
+						<tr>
+							<td colspan="2" align="center">
+								<input id="guardar_curso" type="submit" value="Crear" class="btn btn-primary">
+							</td>
+						</tr>
+					</table>
+				</div>
+				<div class="col-md-4">
+					<table id="asistencia_table" class="table table-striped box box-primary">
+						<thead>
+							<tr>
+								<th align="center" colspan="2" class="lead">Asistencias</th>
+							</tr>
+							<tr>
+								<th>Número</th>
+								<th>Punteo</th>
+							</tr>
+						</thead>
+						<tbody >
+							{% for form_asistencia in curso.asistencias.all%}
+							<tr id="{{form_asistencia.prefix}}-row" class="form-container-asistencia">
+								{{form_asistencia.non_field_errors}}
+								<td>																	
+									 {{forloop.counter}}
+								</td>
+								<td>									
+                                    {{form_asistencia.punteo_max}} 
+								</td>
+							</tr>
+							{% endfor %}
+							<tr>
+							
+						</tr>
+						</tbody>
+						{{ asistencia_formset.management_form }}
+					</table>
+				</div>
+				<div class="col-md-4">
+					<table class="table table-striped box box-primary">
+						<tr>
+							<th align="center" colspan="2" class="lead">Ejercicios</th>
+						</tr>
+						<tr>
+							<th>Descripción</th>
+							<th>Punteo máximo</th>
+						</tr>
+						<tbody id="hito_table">
+						{% for mas in curso.hitos.all  %}
+							<tr id="{{mas.prefix}}-row" class="form-container-hito">
+								<td>									
+									{{ mas.nombre }}
+								</td>
+								<td>
+									{{mas.punteo_max}}
+									{% if mas.instance.pk %}{{ mas.DELETE }}{% endif %}
+								</td>
+							</tr>
+						{% endfor %}
+						</tbody>
+						{{ hito_formset.management_form }}
+					</table>
+				</div>
+			</form>		
+		</div>
+	</div>
+</section>
+{% endblock content %}
+
+{% block extra_js %}
+<script src="{% static 'js/extrajs/cyd.js' %}"></script>
+<script src="{% static "js/jquery.formset.js" %}"></script>
+<script>
+let agregar = new AgregarCurso(); 
+</script>
+{% endblock extra_js %}
