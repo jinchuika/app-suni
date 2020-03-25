@@ -103,6 +103,34 @@ class EscuelaDetail(LoginRequiredMixin, DetailView):
                 context['equipamiento_form'] = EquipamientoForm(instance=equipamiento)
                 context['equipamiento_id'] = self.kwargs['id_equipamiento']
 
+        # Obtener gráficas de KA Lite
+        kalite_list = []
+        evaluacion_list = []
+        values = {}
+        num_visitas = {}
+        evaluacion_color = {}
+        for visita in self.object.visitas_kalite.all():
+            for evaluacion in visita.evaluaciones.all():
+                if evaluacion.rubrica.nombre not in evaluacion_list:
+                    evaluacion_list.append(evaluacion.rubrica.nombre)
+                    values[evaluacion.rubrica.nombre] = 0
+                    num_visitas[evaluacion.rubrica.nombre] = 1
+                else:
+                    num_visitas[evaluacion.rubrica.nombre] += 1
+
+                evaluacion_color[evaluacion.rubrica.nombre] = evaluacion.rubrica.color
+                values[evaluacion.rubrica.nombre] = int(values[evaluacion.rubrica.nombre]) + evaluacion.promedio
+
+        for evaluacion_nombre in evaluacion_list:
+            promedio = values[evaluacion_nombre] / num_visitas[evaluacion_nombre]
+            color = evaluacion_color[evaluacion_nombre]
+            value = {"nombre": evaluacion_nombre, "promedio": promedio, "color": color}
+            kalite_list.append(dict(value))
+
+        context['grafica_kalite'] = kalite_list
+
+        print(kalite_list)
+
         return context
 
 

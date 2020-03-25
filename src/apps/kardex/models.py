@@ -133,7 +133,7 @@ class Entrada(models.Model):
     proveedor = models.ForeignKey(Proveedor, on_delete=models.PROTECT, related_name='entradas')
     tipo = models.ForeignKey(TipoEntrada, on_delete=models.PROTECT)
     fecha = models.DateField()
-    factura = models.IntegerField(null=True, blank=True)
+    factura = models.BigIntegerField(null=True, blank=True)
     observacion = models.TextField(null=True, blank=True, verbose_name='Observaciones')
     terminada = models.BooleanField(blank=True, default=False)
     inventario_entrada = models.ForeignKey(

@@ -31,6 +31,25 @@
                 </div>
             </div>
         {% endfor %}
+        {% for grafica in grafica_kalite %}
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box box-solid collapsed-box">
+                    <div class="box-header bg-{{ grafica.color }}">
+                        <h2 class="box-title">{{ grafica.nombre }}</h2>
+                        <div class="box-tools pull-right">
+                            <button type="button" class="btn btn-box-tool" data-widget="collapse" style="color:white !important;" aria-expanded="false">
+                                <i class="fa fa-plus"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="box-body with-border">
+                        <input type="text" value="{{ grafica.promedio }}" class="dial" data-max="100" data-width="180" data-fgColor="{{ grafica.color }}" readonly>
+                    </div>
+                 </div> 
+            </div> 
+        </div>
+        {% endfor %}
     </div>
     <div class="col-md-8">
         <div class="box-group" id="accordion">
