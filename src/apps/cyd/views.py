@@ -475,16 +475,7 @@ class InformeFinal(views.APIView):
         total_mujeres=cyd_m.Asignacion.objects.filter(grupo__sede=sede,participante__genero__id=2).count()
         maestros_aprobados= grupos.first().count_aprobados()
         maestros_reprobados= total_maestros - grupos.first().count_aprobados()
-        maestros_desertores=cyd_m.Asignacion.objects.filter(grupo__sede=sede,abandono=True).count()
-        """print(sede.nombre)
-        print(curso.nombre)
-        print(total_maestros)
-        print(total_hombre)
-        print(total_mujeres)
-        print(grupos.first().sede.capacitador.get_full_name())
-        print(grupos.first().count_aprobados())
-        print(maestros_reprobados)
-        print(maestros_desertores)"""
+        maestros_desertores=cyd_m.Asignacion.objects.filter(grupo__sede=sede,abandono=True).count()    
         listado_datos2['capacitador']= grupos.first().sede.capacitador.get_full_name()
         listado_datos2['sede']= sede.nombre
         listado_datos2['curso']= curso.nombre
@@ -506,18 +497,34 @@ class InformeCapacitadoresListView(LoginRequiredMixin, FormView):
 
 class InformeCapacitadores(views.APIView):
     def post(self, request):
+        listado_sede=[]
+        listado_curso=[]
+        contador_sede=0
         capacitador = User.objects.get(id=self.request.POST['capacitador'])
         sedes = cyd_m.Sede.objects.filter(capacitador=capacitador)
         asignacion_capacitador= cyd_m.Asignacion.objects.filter(grupo__sede__capacitador=capacitador)
-        print(asignacion_capacitador.count())
         for sede in sedes:
-            print(sede)
+            listado_datos={}
+            contador_sede = contador_sede +1
+            listado_datos['numero']=contador_sede
+            listado_datos['sede']=sede.nombre
+            contado_participantes=0
+            contador_curso=0
             grupos=cyd_m.Grupo.objects.filter(sede=sede)
-            print(grupos.count())
+            listado_datos['grupos']=grupos.count()
             for asignacion in grupos:
-                print(cyd_m.Asignacion.objects.filter(grupo=asignacion).distinct().count())
-
+                listado_curso.append(asignacion.curso)
+                contado_participantes = contado_participantes + cyd_m.Asignacion.objects.filter(grupo=asignacion).distinct().count()
+                contado_asignacion = contado_participantes + cyd_m.Asignacion.objects.filter(grupo=asignacion).count()
+            listado_curso=list(dict.fromkeys(listado_curso))
+            for cantida in listado_curso:
+                contador_curso=contador_curso+1
+            listado_curso=[]
+            listado_datos['participantes']=contado_participantes
+            listado_datos['asignaciones']=contado_asignacion
+            listado_datos['curso']=contador_curso
+            listado_sede.append(listado_datos)
         return Response(
-                "listo",
+                listado_sede,
             status=status.HTTP_200_OK
             )

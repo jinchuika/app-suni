@@ -24,7 +24,7 @@ from django.core.files.uploadedfile import InMemoryUploadedFile
 from io import BytesIO
 
 class CertificadoMaestroView(FormView):
-    """ Vista  encargada de obtener el dpi del participante por medio un  formulario y  muesta el listado de los 
+    """ Vista  encargada de obtener el dpi del participante por medio un  formulario y  muesta el listado de los
     cursos que se tienen asignados
     """
     template_name = 'certificado/certificado.html'
@@ -36,22 +36,22 @@ class ListadoMaestroView(TemplateView):
      y cuales estan reprobados para asi poder imprimir los que  esta aprobados.
      tambien se conecta al suni de capacitacion para obtener todo esta informacion por medio de un metodo get y asi mostarar
      los datos del participante.
-    """    
+    """
      template_name = 'certificado/listadoMaestros.html'
      def get_context_data(self, **kwargs):
         context = super(ListadoMaestroView, self).get_context_data(**kwargs)
 
-        # Consumir Servicio PHP para obtener datos de suni capacitación por DPI       
-        url = settings.LEGACY_URL['certificado']            
-        if url is not '':             
+        # Consumir Servicio PHP para obtener datos de suni capacitación por DPI
+        url = settings.LEGACY_URL['certificado']
+        if url is not '':
              params = {'dpi': self.request.GET['dpi']}
              try:
                 resp = requests.get(url=url, params= params)
-             except:                
-                print("en espera") 
+             except:
+                print("en espera")
         else:
              print("el dpi esta vacio")
-        try:           
+        try:
            data= resp.json()
            if len(data) is 0:
                context['validacion'] = 0
@@ -62,7 +62,7 @@ class ListadoMaestroView(TemplateView):
                # Obtener Información General del Maestro
                context['nombre'] = str(data[0]['nombre'])+" "+str(data[0]['apellido'])
                context['dpi']=self.request.GET['dpi']
-               context['rol'] = data[0]['rol']    
+               context['rol'] = data[0]['rol']
                context['escuela'] =data[0]['escuela']
                context['email'] =data[0]['email']
                data = resp.json()
@@ -83,7 +83,7 @@ class ListadoMaestroView(TemplateView):
                 year = 0
                 id_sede = 0
 
-                # Obtener Promedio de Cursos por Sede 
+                # Obtener Promedio de Cursos por Sede
                 for valor_data in data:
                   if sede == valor_data['sede']:
                     id_sede = int(valor_data['id_sede'])
@@ -117,40 +117,40 @@ class ListadoMaestroView(TemplateView):
                context['validacion'] = 1
 
         except:
-          print("error")           
-          context['validacion'] = 0                   
+          print("error")
+          context['validacion'] = 0
         return context
 
 class DiplomaPdfView(View):
    """ Vista  encargada de generar los diplomas que se entregaran a los participantes de los cursos, obteniendo el dpi
     para mostrar el resultado de que diploma se va a imprimir se puede  descargar el pdf del archivo tambien
-   """  
+   """
    def get( self, request, *args, **kwargs):
       # Obtener Parametros
       tipo_curso = self.request.GET['curso']
       id_sede = self.request.GET['sede']
 
-      # Inicializar Variables          
+      # Inicializar Variables
       curso_asignado = 0
       curso_aprobado = 0
       curso_naat = 0
       url_perfil = str("https://suni.funsepa.org/")+ str(reverse_lazy('listado')) + str("?dpi=")+str(self.request.GET['dpi'])
       url = settings.LEGACY_URL['certificado']
       locale.setlocale(locale.LC_ALL, 'es_GT.utf8')
-    
-      # Se hace la peticion al servidor de suni-capacitacion para mostrar los datos      
-      if url is not '':             
+
+      # Se hace la peticion al servidor de suni-capacitacion para mostrar los datos
+      if url is not '':
              params = {'dpi': self.request.GET['dpi']}
              try:
                 resp = requests.get(url=url, params= params)
-             except:                
-                print("en espera") 
+             except:
+                print("en espera")
       else:
              print("el dpi esta vacio")
       data= resp.json()
 
-      # Se valida si se obtuvo información      
-      if len(data) is 0:         
+      # Se valida si se obtuvo información
+      if len(data) is 0:
          return HttpResponse("El dpi ingresado no es valido")
       else:
          suma_curso = 0
@@ -189,8 +189,8 @@ class DiplomaPdfView(View):
 
               qr.add_data(url_perfil)
               qr.make(fit=True)
-              filename = 'perfil-{}.png'.format(self.request.GET['dpi'])               
-              ruta_origin = str(os.getcwd()) +str("/")+ str(filename)                  
+              filename = 'perfil-{}.png'.format(self.request.GET['dpi'])
+              ruta_origin = str(os.getcwd()) +str("/")+ str(filename)
               ruta_qr = str(settings.MEDIA_ROOT) + str("qr_perfil/")+str(filename)
 
               #mover codigo QR a la carpeta correspondiente
@@ -199,30 +199,30 @@ class DiplomaPdfView(View):
                 img.save(filename)
                 shutil.move(ruta_origin,ruta_qr)
 
-              #creacion de tipo de hoja y asignar imagen para colocar de fondo                                
+              #creacion de tipo de hoja y asignar imagen para colocar de fondo
               h=letter
-              if int(tipo_curso) == 2 and grupo_naat == 2:                     
+              if int(tipo_curso) == 2 and grupo_naat == 2:
                 ruta_diploma = str(settings.STATICFILES_DIRS[0] ) + str("/css/diploma/certificadoNaat22.jpg")
               elif int(tipo_curso) == 3 and grupo_naat == 3:
-                ruta_diploma = str(settings.STATICFILES_DIRS[0] ) + str("/css/diploma/certificadoNaat18.jpg")              
-              else:                     
+                ruta_diploma = str(settings.STATICFILES_DIRS[0] ) + str("/css/diploma/certificadoNaat18.jpg")
+              else:
                 ruta_diploma = str(settings.STATICFILES_DIRS[0] ) + str("/css/diploma/CertificadoTB.jpg")
 
               #obtener tipo de fuente que se le aplicara al nombre del diploma
-              ruta_ttf = str(settings.STATICFILES_DIRS[0] ) + str("/css/diploma/EdwardianScriptITC.ttf")     
-              registerFont(TTFont('Edwardian',ruta_ttf))          
+              ruta_ttf = str(settings.STATICFILES_DIRS[0] ) + str("/css/diploma/EdwardianScriptITC.ttf")
+              registerFont(TTFont('Edwardian',ruta_ttf))
               response = HttpResponse(content_type='application/pdf')
-              if int(tipo_curso) == 2 and grupo_naat == 2:    
+              if int(tipo_curso) == 2 and grupo_naat == 2:
                 response['Content-Disposition'] = 'filename="DiplomaFunsepaNaat22-{}.pdf"'.format(str(self.request.GET['dpi']))
               elif int(tipo_curso) == 3 and grupo_naat == 3:
-                response['Content-Disposition'] = 'filename="DiplomaFunsepaNaat18-{}.pdf"'.format(str(self.request.GET['dpi'])) 
+                response['Content-Disposition'] = 'filename="DiplomaFunsepaNaat18-{}.pdf"'.format(str(self.request.GET['dpi']))
               else:
                 response['Content-Disposition'] = 'filename="DiplomaFunsepaTB-{}.pdf"'.format(str(self.request.GET['dpi']))
 
-              #Creacion de canvas con el programa reportlab para colocar todos los elementos del diploma                     
+              #Creacion de canvas con el programa reportlab para colocar todos los elementos del diploma
               buffer = BytesIO()
               c = canvas.Canvas(buffer, pagesize=(landscape(letter)))
-              x = 400               
+              x = 400
               if int(tipo_curso) == 2 and grupo_naat == 2 or int(tipo_curso) == 3 and grupo_naat == 3:
                 y = 275
               else:
@@ -244,7 +244,7 @@ class DiplomaPdfView(View):
                 c.setFont("Times-Bold",15,leading=None)
                 c.drawCentredString(x+w*0.0,60+h*0.5, "Guatemala, " + datetime.datetime.now().strftime("%d de %B del %Y"))
               c.setTitle('Diploma Funsepa')
-              c.showPage()     
+              c.showPage()
               c.save()
               pdf = buffer.getvalue()
               buffer.close()
@@ -254,20 +254,12 @@ class DiplomaPdfView(View):
               return HttpResponse("Tienes nota de reprobado")
          else:
             return HttpResponse("No tiene asignado este curso")
-            
-
-         
 
 
 
-               
-                      
+
+
+
+
+
              
-                
-      
-
-      
-
-
-    
-     

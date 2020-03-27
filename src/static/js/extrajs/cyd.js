@@ -1889,6 +1889,10 @@ class informeFinal{
 
 class informeCapacitadores{
   constructor(){
+    var total_grupos=0;
+    var total_cursos=0;
+    var total_asignaciones=0;
+    var total_participantes=0;
     $('#informecapacitadores-list-form').submit(function (e) {
         e.preventDefault();
          tablaDispositivos = $('#informecapacitadores-table-search').DataTable({
@@ -1909,14 +1913,27 @@ class informeCapacitadores{
 
             },
             columns:[
-                {data: "capacitador"},
+                {data: "numero"},
                 {data: "sede"},
+                {data: "grupos"},
                 {data: "curso"},
-                {data: "total_maestro"},
-                {data: "total_hombre"},
-                {data: "total_mujeres"},
-                {data: "maestros_aprobados"},                
+                {data: "asignaciones"},
+                {data: "participantes"},
             ],
+            footerCallback: function( tfoot, data, start, end, display){
+                for (var i in data){                  
+                  total_grupos=total_grupos+data[i].grupos
+                  total_cursos=total_cursos+data[i].curso
+                  total_asignaciones=total_asignaciones+data[i].asignaciones
+                  total_participantes=total_participantes+data[i].participantes
+                  $(tfoot).find('th').eq(0).html( "TOTAL ");
+                  $(tfoot).find('th').eq(1).html( "---");
+                  $(tfoot).find('th').eq(2).html(total_grupos);
+                  $(tfoot).find('th').eq(3).html(total_cursos);
+                  $(tfoot).find('th').eq(4).html(total_asignaciones);
+                  $(tfoot).find('th').eq(5).html(total_participantes);
+                };
+              }
           });
 
           });
