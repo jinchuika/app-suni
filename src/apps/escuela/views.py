@@ -129,8 +129,6 @@ class EscuelaDetail(LoginRequiredMixin, DetailView):
 
         context['grafica_kalite'] = kalite_list
 
-        print(kalite_list)
-
         return context
 
 
