@@ -173,12 +173,12 @@ class Grupo(models.Model):
         """Cuenta la cantidad de de asistencias que ya se han impartido para este grupo.
         Indica también qué porcentaje del total representan,
         """
-        asistencias_pasadas = self.asistencias.filter(fecha__lt=datetime.now()).count()        
+        asistencias_pasadas = self.asistencias.filter(fecha__lt=datetime.now()).count()
         try:
               porcentaje_actual = asistencias_pasadas / self.asistencias.all().count() * 100
         except ZeroDivisionError:
-            porcentaje_actual=0            
-      
+            porcentaje_actual=0
+
         return {'cantidad': asistencias_pasadas, 'porcentaje': porcentaje_actual}
 
 
@@ -321,6 +321,7 @@ class Asignacion(models.Model):
     """Asignación de un :class:`Participante` a un :class:`Grupo`."""
     participante = models.ForeignKey(Participante, related_name='asignaciones', on_delete=models.CASCADE)
     grupo = models.ForeignKey(Grupo, related_name='asignados', on_delete=models.CASCADE)
+    abandono=models.BooleanField(default=False, blank=True, verbose_name='Abandono')
 
     class Meta:
         verbose_name = "Asignación"
@@ -345,6 +346,7 @@ class Asignacion(models.Model):
         super(Asignacion, self).validate_unique(*args, **kwargs)
         qs = Asignacion.objects.filter(grupo__sede=self.grupo.sede, grupo__curso=self.grupo.curso)
         if qs.filter(participante=self.participante).exists():
+            self.abandono=True
             raise ValidationError({
                 'grupo': ['No se puede asignar dos veces el mismo curso en la misma sede']})
 

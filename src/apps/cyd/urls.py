@@ -32,10 +32,13 @@ urlpatterns = [
     url(r'^controlacademico/grupo/$', CotrolAcademicoGruposFormView.as_view(), name='control_academico_grupo'),
     url(r'^controlacademico/api/grupo/$', InformeControlAcademicoGrupos.as_view(), name='control_academico_grupo_informe'),
     url(r'^controlacademico/api/asistencia/$', InformeAsistencia.as_view(), name='control_academico_asistencia_informe'),
+    url(r'^controlacademico/api/finalizacionproyecto/$', InformeFinal.as_view(), name='informe_final'),
+    url(r'^controlacademico/api/capacitadores/$', InformeCapacitadores.as_view(), name='informe_api_capacitador'),
 
     url(r'^informe/controlacademico/$', ControlAcademicoInformeListView.as_view() , name='informe_control_academico'),
     url(r'^informe/asistencia/$', AsistenciaInformeListView.as_view(), name='informe_asistencia'),
-    url(r'^informe/finalizacionproyecto/$',FinalizacionProcesoInformeListView.as_view(), name='informe_finalizacion_proyecto')
-    
-    
+    url(r'^informe/finalizacionproyecto/$',FinalizacionProcesoInformeListView.as_view(), name='informe_finalizacion_proyecto'),
+    url(r'^informe/capacitador/$',InformeCapacitadoresListView.as_view(), name='informe_capacitador')
+
+
 ]
