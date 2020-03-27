@@ -286,3 +286,6 @@ class InformeAsistenciaFinalForm(forms.Form):
 class InformeCapacitadorForm(forms.Form):
     capacitador = forms.ModelChoiceField(
         queryset=User.objects.filter(groups__name='cyd_capacitador'))
+    def __init__(self, *args, **kwargs):
+        super(InformeCapacitadorForm ,self).__init__(*args, **kwargs)
+        self.fields['capacitador'].label_from_instance = lambda obj: "%s" % (obj.get_full_name())
