@@ -32,7 +32,7 @@
 							</tr>
 							<tr>
 								<th>Observaciones</th> 
-								<td>{{ sede.obervacion }}</td>
+								<td>{{ sede.observacion }}</td>
 							</tr>
 							<tr>
 								<th>Coordenadas</th> 
@@ -186,7 +186,7 @@
 												<th></th>
 											</tr>
 										</thead>
-										<tbody id="asesoria-tabla-body">
+										<tbody id="asesoria-tabla-body">											
 											{% for asesoria in sede.asesorias.all|dictsort:"fecha" %}
 												<tr id="asesoria-{{ asesoria.id }}">
 													<td>
@@ -275,7 +275,7 @@
 							</div>						
 						</div>
 						aca
-						<div id="timeline" style="height: 180px;"></div>
+						<!--<div id="timeline" style="height: 180px;"></div> -->
 					</div>
 					
 				</div>

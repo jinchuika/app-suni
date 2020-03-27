@@ -39,7 +39,7 @@ function validar_udi_api(params) {
             valueNames: [ 'sede', 'capacitador']
         };
         var userList = new List('buscador', options);
-        
+
         $('#id_capacitador').change(function () {
             var tr = $('.tr-sede');
             if ($(this).val() == '') {
@@ -55,10 +55,10 @@ function validar_udi_api(params) {
                 }
             }
         })
-      
-        
- 
-      
+
+
+
+
 
     }
 }( window.BuscadorSede = window.BuscadorSede || {}, jQuery ));
@@ -97,7 +97,7 @@ function validar_udi_api(params) {
             }
         });
     }
-    
+
     SedeDetail.init = function () {
         activar_edicion();
         $('#asesoria-form').hide();
@@ -260,7 +260,7 @@ function validar_udi_api(params) {
     var crear_cyd_calendario = function () {
         $('#cyd-calendario').fullCalendar({
             displayEventEnd: true,
-            droppable: true, 
+            droppable: true,
             drop: function (date, jsEvent, ui, resourceId) {
                 update_event({
                     url: $(this).data('url'),
@@ -328,6 +328,7 @@ function validar_udi_api(params) {
                 });
             },
             eventSources: [
+
             {
                 url: $('#cyd-calendario').data('url-cyd'),
                 type: 'GET',
@@ -361,7 +362,197 @@ function validar_udi_api(params) {
             navLinks: false,
         });
 }
+/** */
+var crear_cyd_calendario_asesorias = function () {
+    $('#cyd-calendario').fullCalendar({
+        displayEventEnd: true,
+        droppable: true,
+        drop: function (date, jsEvent, ui, resourceId) {
+            update_event({
+                url: $(this).data('url'),
+                id: $(this).data('id'),
+                fecha: date.year()+'-'+(date.month()+1)+'-'+date.date(),
+                hora_inicio: date.hour()+':'+date.minute(),
+                hora_fin: ''
+            });
+        },
+        editable: true,
+        eventClick: function (calEvent, jsEvent, view) {
+            if (calEvent.tipo == 'c') {
+                var form = $('<form></form>');
+                form.append('<div class="form-group"><label for="hora_inicio_m">Hora de inicio</label><input type="text" class="form-control" id="hora_inicio_m" value="'+calEvent.start.hour()+':'+calEvent.start.minute()+'"></div>');
+                form.append('<div class="form-group"><label for="hora_fin_m">Hora de fin</label><input type="text" class="form-control" id="hora_fin_m" value="'+calEvent.end.hour()+':'+calEvent.end.minute()+'"></div>');
+                bootbox.dialog({
+                    message: form,
+                    buttons: [
+                    {
+                        label: 'Cancelar',
+                        className: 'btn-danger'
+                    },
+                    {
+                        label: 'Guardar',
+                        className: 'btn-success',
+                        callback: function () {
+                            update_event({
+                                url: calEvent._url,
+                                id: calEvent._id,
+                                fecha: calEvent.start.year()+'-'+(calEvent.start.month()+1)+'-'+calEvent.start.date(),
+                                hora_inicio: $('#hora_inicio_m').val(),
+                                hora_fin: $('#hora_fin_m').val(),
+                            });
+                        }
+                    }
+                    ],
+                });
+            }
+        },
+        eventDrop: function(event, delta, revertFunc, jsEvent, ui, view) {
+            update_event({
+                url: event._url,
+                id: event._id,
+                fecha: event.start.year()+'-'+(event.start.month()+1)+'-'+event.start.date(),
+                hora_inicio: event.start.hour()+':'+event.start.minute(),
+                hora_fin: event.end.hour()+':'+event.end.minute(),
+            });
+        },
+        eventDurationEditable: true,
+        eventRender: function (event, element) {
+            element.qtip({
+                content: {
+                    title: event.tip_title,
+                    text: event.tip_text
+                },
+            });
+        },
+        eventResize: function(event, delta, revertFunc, jsEvent, ui, view) {
+            update_event({
+                url: event._url,
+                id: event._id,
+                fecha: event.start.year()+'-'+(event.start.month()+1)+'-'+event.start.date(),
+                hora_inicio: event.start.hour()+':'+event.start.minute(),
+                hora_fin: event.end.hour()+':'+event.end.minute(),
+            });
+        },
+        eventSources: [
+        {
+            url: $('#cyd-calendario').data('url-asesoria'),
+            type: 'GET',
+            cache: true,
+            data: function () {
+                var params = {};
+                params['sede__capacitador'] = $('#id_capacitador').val();
+                params['sede'] = $('#sede_form #id_sede').val();
+                return params;
+            },
+            editable: false
+        }
+        ],
+        firstDay: 0,
+        header: {
+            left: 'prev,next today,month,agendaDay',
+            center: '',
+            right: 'title'
+        },
+        navLinks: false,
+    });
+}
+/** */
 
+
+/** */
+var crear_cyd_calendario_asistencia = function () {
+    $('#cyd-calendario').fullCalendar({
+        displayEventEnd: true,
+        droppable: true,
+        drop: function (date, jsEvent, ui, resourceId) {
+            update_event({
+                url: $(this).data('url'),
+                id: $(this).data('id'),
+                fecha: date.year()+'-'+(date.month()+1)+'-'+date.date(),
+                hora_inicio: date.hour()+':'+date.minute(),
+                hora_fin: ''
+            });
+        },
+        editable: true,
+        eventClick: function (calEvent, jsEvent, view) {
+            if (calEvent.tipo == 'c') {
+                var form = $('<form></form>');
+                form.append('<div class="form-group"><label for="hora_inicio_m">Hora de inicio</label><input type="text" class="form-control" id="hora_inicio_m" value="'+calEvent.start.hour()+':'+calEvent.start.minute()+'"></div>');
+                form.append('<div class="form-group"><label for="hora_fin_m">Hora de fin</label><input type="text" class="form-control" id="hora_fin_m" value="'+calEvent.end.hour()+':'+calEvent.end.minute()+'"></div>');
+                bootbox.dialog({
+                    message: form,
+                    buttons: [
+                    {
+                        label: 'Cancelar',
+                        className: 'btn-danger'
+                    },
+                    {
+                        label: 'Guardar',
+                        className: 'btn-success',
+                        callback: function () {
+                            update_event({
+                                url: calEvent._url,
+                                id: calEvent._id,
+                                fecha: calEvent.start.year()+'-'+(calEvent.start.month()+1)+'-'+calEvent.start.date(),
+                                hora_inicio: $('#hora_inicio_m').val(),
+                                hora_fin: $('#hora_fin_m').val(),
+                            });
+                        }
+                    }
+                    ],
+                });
+            }
+        },
+        eventDrop: function(event, delta, revertFunc, jsEvent, ui, view) {
+            update_event({
+                url: event._url,
+                id: event._id,
+                fecha: event.start.year()+'-'+(event.start.month()+1)+'-'+event.start.date(),
+                hora_inicio: event.start.hour()+':'+event.start.minute(),
+                hora_fin: event.end.hour()+':'+event.end.minute(),
+            });
+        },
+        eventDurationEditable: true,
+        eventRender: function (event, element) {
+            element.qtip({
+                content: {
+                    title: event.tip_title,
+                    text: event.tip_text
+                },
+            });
+        },
+        eventResize: function(event, delta, revertFunc, jsEvent, ui, view) {
+            update_event({
+                url: event._url,
+                id: event._id,
+                fecha: event.start.year()+'-'+(event.start.month()+1)+'-'+event.start.date(),
+                hora_inicio: event.start.hour()+':'+event.start.minute(),
+                hora_fin: event.end.hour()+':'+event.end.minute(),
+            });
+        },
+        eventSources: [
+            {
+                url: $('#cyd-calendario').data('url-cyd'),
+                type: 'GET',
+                cache: true,
+                data: function () {
+                    var params = {};
+                    params['capacitador'] = $('#id_capacitador').val();
+                    params['sede'] = $('#sede_form #id_sede').val();
+                    return params;
+                }
+            }
+        ],
+        firstDay: 0,
+        header: {
+            left: 'prev,next today,month,agendaDay',
+            center: '',
+            right: 'title'
+        },
+        navLinks: false,
+    });
+}
+/** */
 function update_event(params) {
     $.ajax({
         beforeSend: function(xhr, settings) {
@@ -399,14 +590,14 @@ function ini_events(ele) {
 
         $(this).draggable({
             zIndex: 1070,
-            revert: true, 
-            revertDuration: 0  
+            revert: true,
+            revertDuration: 0
         });
     });
 }
 
 CalendarioCyD.init = function () {
-    ini_events($('#asistencia_list div.external-event'));
+   ini_events($('#asistencia_list div.external-event'));
 
     $('#sede_form #id_capacitador').on('change', function () {
         $.get($(this).data('url'), {capacitador: $(this).val()},
@@ -457,7 +648,25 @@ CalendarioCyD.init = function () {
     });
     if ($('#cyd-calendario').length) {
         crear_cyd_calendario();
-    }    
+       $('#id_tipo').change(function(){
+       $('#cyd-calendario').fullCalendar('destroy');
+         switch ($(this).val()) {
+             case '0':
+                crear_cyd_calendario();
+                break;
+             case '1':
+                crear_cyd_calendario_asistencia();
+                break;
+             case '2':
+                crear_cyd_calendario_asesorias();
+                break;
+             default:
+                 console.log("No hay mas opciones");
+
+         }
+    });
+
+    }
 }
 }( window.CalendarioCyD = window.CalendarioCyD || {}, jQuery ));
 
@@ -466,7 +675,7 @@ CalendarioCyD.init = function () {
         /*
         Al cambiar la sede, genera el listado de grupos
         */
-        $('#form_participante #id_sede').on('change', function () {            
+        $('#form_participante #id_sede').on('change', function () {
             listar_grupos_sede('#form_participante #id_sede', '#form_participante #id_grupo');
         });
 
@@ -569,7 +778,7 @@ CalendarioCyD.init = function () {
 
     var guardar_tabla = function () {
         var udi = $('#id_udi').val();
-        var grupo = $('#id_grupo').val();        
+        var grupo = $('#id_grupo').val();
         var progress = 0;
         if (udi && grupo) {
             $.each(tabla_importar.getData(), function (index, fila) {
@@ -646,7 +855,7 @@ CalendarioCyD.init = function () {
     }
 
     ParticipanteImportar.init = function () {
-        
+
 
         $('#form_participante #id_sede').on('change', function () {
             listar_grupos_sede('#form_participante #id_sede', '#form_participante #id_grupo');
@@ -654,7 +863,7 @@ CalendarioCyD.init = function () {
 
         var container = document.getElementById('tabla_importar');
 
-        tabla_importar = new Handsontable(container, {            
+        tabla_importar = new Handsontable(container, {
             colWidths: 178,
             colHeaders: ["DPI", "Nombre", "Apellido", "Género", "Rol", "Correo electrónico", "Teléfono"],
             columns: [
@@ -781,7 +990,7 @@ CalendarioCyD.init = function () {
     function buscar_info(){
         $.getJSON(
             $('#participante-buscar-form').prop('action'),
-            {                    
+            {
                 fields: 'id,nombre,apellido,escuela,url,asignaciones',
                 asignaciones__grupo__sede__capacitador: $('#participante-buscar-form #id_capacitador').val(),
                 asignaciones__grupo__sede: $('#participante-buscar-form #id_sede').val(),
@@ -792,7 +1001,7 @@ CalendarioCyD.init = function () {
                 activo:2
             },
             function(data){
-                
+
                  $.each(data, function(i, item){
                     var td_participante = '';
                     td_participante += '<td><a href="'+item.url+'" class="btn btn-block">'+item.nombre+' '+item.apellido+'</a></td>';
@@ -800,7 +1009,7 @@ CalendarioCyD.init = function () {
                         return '<small class="badge bg-aqua">'+asignacion.grupo+'</small>';
                     }).join('<br />')+ '</td>';
                     td_participante += '<td><a href="'+item.escuela.url+'">'+item.escuela.nombre+'<br>'+item.escuela.codigo+'</a></td>';
-                   
+
                     if (permite_asignar) {
                         td_participante += '<td><button class="btn-asignar" data-pk="'+item.id+'">Asignar</button></td>';
                     }
@@ -854,7 +1063,7 @@ CalendarioCyD.init = function () {
             search: function (event, ui) {
                 $('#resultado-tbody').html('');
             },
-            source: function (term, callback) {                
+            source: function (term, callback) {
                 $.getJSON(
                     $('#participante-buscar-form').prop('action'),
                     {
@@ -873,14 +1082,14 @@ CalendarioCyD.init = function () {
         }).data('ui-autocomplete')._renderItem = function (ul, item) {
             return $('<tr >')
             .data('item.autocomplete', item)
-            .append(function () {                
+            .append(function () {
                 var td_participante = '';
                 td_participante += '<td><a href="'+item.url+'" class="btn btn-block">'+item.nombre+' '+item.apellido+'</a></td>';
                 td_participante += '<td>'+item.asignaciones.map(function (asignacion) {
                     return '<small class="badge bg-aqua">'+asignacion.grupo+'</small>';
                 }).join('<br />')+ '</td>';
                 td_participante += '<td><a href="'+item.escuela.url+'">'+item.escuela.nombre+'<br>'+item.escuela.codigo+'</a></td>';
-               
+
                 if (permite_asignar) {
                     td_participante += '<td><button class=" btn  btn-asignar btn-info" data-pk="'+item.id+'">Asignar</button></td>';
                 }
@@ -890,37 +1099,37 @@ CalendarioCyD.init = function () {
             .appendTo($('#resultado-tbody'));
         };
 
-        $('#participante-buscar-form #id_sede').on('change', function () {           
+        $('#participante-buscar-form #id_sede').on('change', function () {
             listar_grupos_sede('#participante-buscar-form #id_sede', '#participante-buscar-form #id_grupo', true);
             buscar_info();
         });
-        $('#participante-buscar-form #id_grupo').on('change', function () {            
-            $('#id_nombre').autocomplete();  
-            buscar_info();          
+        $('#participante-buscar-form #id_grupo').on('change', function () {
+            $('#id_nombre').autocomplete();
+            buscar_info();
         });
-        $('#participante-buscar-form #id_departamento').on('change', function () {            
+        $('#participante-buscar-form #id_departamento').on('change', function () {
             listar_municipio_departamento('#participante-buscar-form #id_departamento', '#participante-buscar-form #id_municipio', true);
           buscar_info();
         });
-        $('#participante-buscar-form #id_municipio').on('change', function () {            
+        $('#participante-buscar-form #id_municipio').on('change', function () {
             $('#id_nombre').autocomplete('search');
-            buscar_info();          
+            buscar_info();
         });
-        $('#participante-buscar-form #id_udi').on('change', function () {                        
-            buscar_info();          
+        $('#participante-buscar-form #id_udi').on('change', function () {
+            buscar_info();
         });
-        $('#participante-buscar-form #id_capacitador').on('change', function () {                        
-            buscar_info();          
+        $('#participante-buscar-form #id_capacitador').on('change', function () {
+            buscar_info();
         });
-        $('#participante-asignar-form #id_sede').on('change', function () {            
-            listar_grupos_sede('#participante-asignar-form #id_sede', '#participante-asignar-form #id_grupo', true);            
+        $('#participante-asignar-form #id_sede').on('change', function () {
+            listar_grupos_sede('#participante-asignar-form #id_sede', '#participante-asignar-form #id_grupo', true);
         });
         $(document).on("click", ".btn-asignar", function () {
             asignar_participante($(this).data('pk'));
         });
-        $(document).on("click", "#participante_id", function () {           
+        $(document).on("click", "#participante_id", function () {
             var url_desactivar_persona = $("#resultado-tbody").data("url");
-            var id_persona = $(this).data('id');                
+            var id_persona = $(this).data('id');
             bootbox.confirm({
                 message: "¿Desea eliminar a este participante?",
                 buttons: {
@@ -934,8 +1143,8 @@ CalendarioCyD.init = function () {
                   }
                 },
                 callback: function (result) {
-                  if(result == true){                     
-                   
+                  if(result == true){
+
                     $.ajax({
                       type: 'POST',
                       url: url_desactivar_persona,
@@ -948,18 +1157,18 @@ CalendarioCyD.init = function () {
                         bootbox.alert({message: "<h2>Participante borrado exitosamente</h2>", className:"modal modal-success fade in"});
                       },
                       error: function (response) {
-                                      
+
                         var jsonResponse = JSON.parse(response.responseText);
                         bootbox.alert({message: "<h3><i class='fa fa-frown-o' style='font-size: 45px;'></i>&nbsp;&nbsp;&nbsp;HA OCURRIDO UN ERROR!!</h3></br>" + jsonResponse["mensaje"], className:"modal modal-danger fade"});
                       }
-                    }); 
-                   
+                    });
+
                   }else{
                       console.log("Fin del api");
-                  } 
+                  }
                 }
               });
-            
+
         });
     }
 }( window.ParticipanteBuscar = window.ParticipanteBuscar || {}, jQuery ));
@@ -968,11 +1177,11 @@ class GrupoList {
     constructor(){
         var url_informe_grupo = $("#grupo-list").data("url");
         var grupo_informe = $("#grupo-list-form");
-         /*Creacion de reportes por filtro */    
-    
+         /*Creacion de reportes por filtro */
+
     grupo_informe.submit(function (e){
-        e.preventDefault(); 
-       var tablaGrupo = $('#grupo-list').DataTable({        
+        e.preventDefault();
+       var tablaGrupo = $('#grupo-list').DataTable({
           dom: 'Bfrtip',
           buttons: ['excel', 'pdf', 'copy'],
           searching:true,
@@ -989,20 +1198,20 @@ class GrupoList {
               return $('#grupo-list-form').serializeObject(true);
             }
           },
-          columns: [            
+          columns: [
             {data: "sede", render: function(data, type,full, meta){
                 return '<a target=_blank href="'+full.urlgrupo+'">'+data+'</a>'
             }},
             {data: "numero"},
-            {data: "curso"},            
+            {data: "curso"},
             {data: "particiapantes", render: function(data, type, full, meta){
-                
+
                 return full.asistencias.length;
 
             }},
             {data: "capacitador"},
             {data:"", render: function(data, type, full, meta){
-                
+
                 return "<a id='borrar_sede' data-sede='"+ full.id+"'class='btn btn-success btn-borrar'>Borrar Sede</a>";
             }}
           ]
@@ -1016,9 +1225,9 @@ class GrupoList {
      let tablabodygrupo =  $('#grupo-list tbody');
      tablabodygrupo.on('click', '.btn-borrar', function(){
        /*Borrar Sede */
-    
-           var id_grupo_desactivar = $('#borrar_sede').data("sede"); 
-           var url_grupo_desactivar = $("#grupo-list").data("urldesactivar");           
+
+           var id_grupo_desactivar = $('#borrar_sede').data("sede");
+           var url_grupo_desactivar = $("#grupo-list").data("urldesactivar");
             bootbox.confirm({
               message: "¿Desea dar por terminado el grupo?",
               buttons: {
@@ -1032,7 +1241,7 @@ class GrupoList {
                 }
               },
               callback: function (result) {
-                if(result == true){                      
+                if(result == true){
                   /*CONSUMIR API*/
                   $.ajax({
                     type: 'POST',
@@ -1045,19 +1254,19 @@ class GrupoList {
                     success: function (response) {
                       bootbox.alert({message: "<h2>Sede borrada correctamente</h2>", className:"modal modal-success fade in"});
                     },
-                    error: function (response) { 
+                    error: function (response) {
                       var jsonResponse = JSON.parse(response.responseText);
                       bootbox.alert({message: "<h3><i class='fa fa-frown-o' style='font-size: 45px;'></i>&nbsp;&nbsp;&nbsp;HA OCURRIDO UN ERROR!!</h3></br>" + jsonResponse["mensaje"], className:"modal modal-danger fade"});
                     }
-                  }); 
+                  });
                   /*FIN DE CONSUMO*/
                 }else{
                     console.log("Fin del api");
-                } 
+                }
               }
             });
-          
-       
+
+
       /* */
      });
     }
@@ -1068,11 +1277,11 @@ class SedeList {
         /*Creacion de reportes por filtro */
     var sede_informe = $("#sede-list-form");
     var url_informe_sede = $("#sede-list").data("url");
-    
-    
+
+
     sede_informe.submit(function (e){
-        e.preventDefault(); 
-       var tablaSede = $('#sede-list').DataTable({        
+        e.preventDefault();
+       var tablaSede = $('#sede-list').DataTable({
           dom: 'Bfrtip',
           buttons: ['excel', 'pdf', 'copy'],
           searching:true,
@@ -1089,16 +1298,16 @@ class SedeList {
               return $('#sede-list-form').serializeObject(true);
             }
           },
-          columns: [            
-            {data: "nombre", render: function(data, type , full, meta){                
+          columns: [
+            {data: "nombre", render: function(data, type , full, meta){
                 return '<a target=_blank href="'+full.urlsede+'">'+data+'</a>'
             }},
             {data: "departamento"},
-            {data: "municipio"},            
+            {data: "municipio"},
             {data: "grupos"},
             {data: "capacitador"},
             {data:"", render: function(data, type, full, meta){
-                
+
                 return "<a id='borrar_sede' data-sede='"+ full.id+"' class='btn btn-success btn-borrar'>Borrar Sede</a>";
             }}
           ]
@@ -1111,9 +1320,9 @@ class SedeList {
     let tablabodysede =  $('#sede-list tbody');
     tablabodysede.on('click', '.btn-borrar', function(){
       /*Borrar Sede */
-   
-          var id_sede_desactivar = $('#borrar_sede').data("sede"); 
-          var url_sede_desactivar = $("#sede-list").data("urldesactivar");           
+
+          var id_sede_desactivar = $('#borrar_sede').data("sede");
+          var url_sede_desactivar = $("#sede-list").data("urldesactivar");
            bootbox.confirm({
              message: "¿Desea dar por terminada la sede?",
              buttons: {
@@ -1127,7 +1336,7 @@ class SedeList {
                }
              },
              callback: function (result) {
-               if(result == true){                      
+               if(result == true){
                  /*CONSUMIR API*/
                  $.ajax({
                    type: 'POST',
@@ -1144,15 +1353,15 @@ class SedeList {
                      var jsonResponse = JSON.parse(response.responseText);
                      bootbox.alert({message: "<h3><i class='fa fa-frown-o' style='font-size: 45px;'></i>&nbsp;&nbsp;&nbsp;HA OCURRIDO UN ERROR!!</h3></br>" + jsonResponse["mensaje"], className:"modal modal-danger fade"});
                    }
-                 }); 
+                 });
                  /*FIN DE CONSUMO*/
                }else{
                    console.log(url_sede_desactivar);
-               } 
+               }
              }
            });
-         
-      
+
+
      /* */
     });
 
@@ -1162,42 +1371,42 @@ class AgregarCurso{
     constructor(){
         var contador_asistencia =4;
         var contador_hitos = 4;
-        var cantidad = $('#id_asistencias-TOTAL_FORMS').val();  
+        var cantidad = $('#id_asistencias-TOTAL_FORMS').val();
        for(var b=0;b<5;b++){
             $("#id_asistencias-"+b+"-modulo_num").val(b+1);
             $("#id_asistencias-"+b+"-modulo_num").hide();
         };
-        for(var a=5;a<cantidad;a++){            
+        for(var a=5;a<cantidad;a++){
             $("#asistencias-"+a+"-row").css("display","none");
-            $("#hitos-"+a+"-row").css("display","none"); 
+            $("#hitos-"+a+"-row").css("display","none");
             $("#id_asistencias-"+a+"-modulo_num").val(a+1);
             $("#id_asistencias-"+a+"-modulo_num").hide();
         }
-        $("#mostrar_campo").click(function(){            
-            contador_asistencia++;            
+        $("#mostrar_campo").click(function(){
+            contador_asistencia++;
             if(contador_asistencia > (cantidad-1)){
                 bootbox.alert("Ya no puede ingresar más asistencias");
                 $("#mostrar_campo" ).prop( "disabled", true );
             }else{
-                $("#asistencias-"+contador_asistencia+"-row").removeAttr("style");; 
+                $("#asistencias-"+contador_asistencia+"-row").removeAttr("style");;
             }
-        }); 
+        });
         $("#mostrar_campo_hito").click(function(){
-            contador_hitos++;            
+            contador_hitos++;
             if(contador_hitos > (cantidad-1)){
                 bootbox.alert("Ya no puede ingresar más asistencias");
                 $("#mostrar_campo_hito" ).prop( "disabled", true );
             }else{
-                $("#hitos-"+contador_hitos+"-row").removeAttr("style");; 
+                $("#hitos-"+contador_hitos+"-row").removeAttr("style");;
             }
-        }); 
+        });
 
         $("input").focusout(function(){
             AgregarCurso.suma_asistencia();
             AgregarCurso.suma_proyectos_ejercicios();
             var total_asistencia = $('#nota_curso').text();
             var total_proyectos = $('#tareas_curso').text();
-            $("#total_curso").text((Number(total_asistencia) + Number(total_proyectos))/2);    
+            $("#total_curso").text((Number(total_asistencia) + Number(total_proyectos))/2);
             if(total_asistencia>100){
                 bootbox.alert("La nota total no puede ser mayor a 100 pts, revise las notas");
                 $("#guardar_curso").prop( "disabled", true );
@@ -1213,21 +1422,21 @@ class AgregarCurso{
         });
     }
     static suma_asistencia(){
-        var cantidad_asistencia = $('#id_asistencias-TOTAL_FORMS').val(); 
+        var cantidad_asistencia = $('#id_asistencias-TOTAL_FORMS').val();
         var acumulador_asistencia =0;
-        for(var a=0;a<cantidad_asistencia;a++){            
-            acumulador_asistencia= acumulador_asistencia + Number($("#id_asistencias-"+a+"-punteo_max").val());            
-        };        
+        for(var a=0;a<cantidad_asistencia;a++){
+            acumulador_asistencia= acumulador_asistencia + Number($("#id_asistencias-"+a+"-punteo_max").val());
+        };
             $("#nota_curso").text(acumulador_asistencia);
         return acumulador_asistencia;
-        
-        
-            
+
+
+
     };
     static suma_proyectos_ejercicios(){
-        var cantidad_proyectos = $('#id_hitos-TOTAL_FORMS').val(); 
+        var cantidad_proyectos = $('#id_hitos-TOTAL_FORMS').val();
         var acumulador_proyectos =0;
-        for(var a=0;a<cantidad_proyectos;a++){            
+        for(var a=0;a<cantidad_proyectos;a++){
             acumulador_proyectos= acumulador_proyectos + Number($("#id_hitos-"+a+"-punteo_max").val());
         }
         $("#tareas_curso").text(acumulador_proyectos);
@@ -1237,13 +1446,13 @@ class AgregarCurso{
 
 class CursoList{
     constructor(){
-        $("#id_borrar_curso").click(function(){            
-           /** */  
-         
-          var id_curso_desactivar = $('#id_borrar_curso').data("id"); 
-          var url_curso_desactivar = $("#id_borrar_curso").data("url");  
-          var nombre = $("#id_borrar_curso").data("nombre");  
-                
+        $("#id_borrar_curso").click(function(){
+           /** */
+
+          var id_curso_desactivar = $('#id_borrar_curso').data("id");
+          var url_curso_desactivar = $("#id_borrar_curso").data("url");
+          var nombre = $("#id_borrar_curso").data("nombre");
+
            bootbox.confirm({
              message: "¿Desea dar por terminado el curso "+nombre+"?",
              buttons: {
@@ -1257,7 +1466,7 @@ class CursoList{
                }
              },
              callback: function (result) {
-               if(result == true){                      
+               if(result == true){
                  /*CONSUMIR API*/
                  $.ajax({
                    type: 'POST',
@@ -1271,19 +1480,446 @@ class CursoList{
                      bootbox.alert({message: "<h2>Curso borrado correctamente</h2>", className:"modal modal-success fade in"});
                      location.reload();
                    },
-                   error: function (response) { 
+                   error: function (response) {
                      var jsonResponse = JSON.parse(response.responseText);
                      bootbox.alert({message: "<h3><i class='fa fa-frown-o' style='font-size: 45px;'></i>&nbsp;&nbsp;&nbsp;HA OCURRIDO UN ERROR!!</h3></br>" + jsonResponse["mensaje"], className:"modal modal-danger fade"});
                    }
-                 }); 
+                 });
                  /*FIN DE CONSUMO*/
                }else{
                    console.log(url_curso_desactivar);
-               } 
+               }
              }
-           });   
-           /***/       
-        }); 
-         
+           });
+           /***/
+        });
+
     }
+}
+class ControlAcademicoGrupos{
+    constructor(){
+        var encabezado =['Asignacion','Nombre','Apellido'];
+        var hot;
+        $('#control-academico-list-form').on('submit', function (e) {
+            e.preventDefault();
+            $("#guardar_tabla").show();
+            $.ajax({
+                type: 'POST',
+                url: $(this).attr('action'),
+                dataType: 'json',
+                beforeSend: function(xhr, settings) {
+                    xhr.setRequestHeader("X-CSRFToken", $('input[name="csrfmiddlewaretoken"]').val());
+                },
+                data:$(this).serialize(),
+                success: function (response) {
+                  $('#guardar_tabla').show();
+                  bootbox.alert({message: "<h2>"+"Exito"+"</h2>", className:"modal modal-success fade in"});
+                  for(var k=0;k<=response[0].asistencia.length-1;k++){
+                      encabezado.push("Asistencia "+Number(k+1));
+                  };
+                  for(var j=0;j<=response[0].trabajos.length-1;j++){
+                      encabezado.push(response[0].trabajos[j].cr_hito__nombre);
+                };
+                encabezado.push("Final");
+                var matris = [];
+                var matris2 =[];
+                var nota_asitencia =0;
+                var nota_trabajos =0;
+                var resultado_final=0;
+                for (var l=0; l<=response.length-1;l++){
+                     matris.push(response[l].asignacion)
+                     matris.push(response[l].nombre);
+                     matris.push(response[l].apellido);
+                     for(var asi = 0; asi<=response[l].asistencia.length-1;asi++){
+                        matris.push(response[l].asistencia[asi].nota);
+                        nota_asitencia=nota_asitencia + response[l].asistencia[asi].nota;
+                     }
+                     for (var work = 0; work<response[l].trabajos.length;work++){
+                        matris.push(response[l].trabajos[work].nota);
+                        nota_trabajos=nota_trabajos + response[l].trabajos[work].nota;
+                     }
+
+                     resultado_final = (nota_asitencia + nota_trabajos)/(Number(response[l].asistencia.length + response[l].trabajos.length));
+                     matris.push(resultado_final);
+                     matris2.push(matris);
+                     matris=[]
+                     nota_asitencia=0;
+                     nota_trabajos=0;
+
+                }
+                   /** */
+          var container = document.getElementById('datosCurso');
+            hot = new Handsontable(container, {
+            data: matris2,
+            columnSorting: true,
+            rowHeaders: true,
+            colHeaders: encabezado,
+            filters: true,
+            dropdownMenu: true,
+            startCols: encabezado.length,
+            removeRowPlugin: true,
+            persistentState: true,
+            afterSelection: afterSelection,
+            cells: function (row, col, prop) {
+                var cellProperties = {};
+                if (col < 3) {
+                    cellProperties.readOnly = true;
+                }
+                if(col == encabezado.length-1){
+                    cellProperties.readOnly = true;
+                }
+                return cellProperties;
+            }
+          });
+          hot.getPlugin('columnSorting').sort({column:0, sortOrder:'asc'});
+          function afterSelection(rowId,colId, rowEndId, colEndId){
+             var nuevaNota=0;
+            var actualizarNotas= hot.getSourceDataAtRow(rowId);
+            for(var k =3; k<=actualizarNotas.length-2;k++ ){
+                nuevaNota = nuevaNota + Number(actualizarNotas[k])
+            };
+            hot.setDataAtCell(rowId,actualizarNotas.length-1,nuevaNota);
+          };
+
+        /** */
+                },
+                error: function (response) {
+                  var jsonResponse = JSON.parse(response.responseText);
+                  bootbox.alert({message: "<h3><i class='fa fa-frown-o' style='font-size: 45px;'></i>&nbsp;&nbsp;&nbsp;HA OCURRIDO UN ERROR!!</h3></br>" + jsonResponse["mensaje"], className:"modal modal-danger fade"});
+                }
+              });
+              encabezado =['Asignacion','Nombre','Apellido'];
+              hot.destroy();
+        });
+
+
+        /** */
+        $("#guardar_tabla").click(function() {
+            var  jsonObj = [];
+            for(var k=0; k<=hot.getData.length-1;k++){
+                var  prueba = {};
+                for(var l=0;l<=hot.getData()[k].length-1;l++){
+                    prueba[encabezado[l]] = hot.getData()[k][l];
+                }
+                jsonObj.push(prueba);
+            };
+            var data_send=JSON.stringify(jsonObj);
+            $.ajax({
+                type: 'POST',
+                url: $('#datosCurso').data('url'),
+                dataType: 'json',
+                beforeSend: function(xhr, settings) {
+                    xhr.setRequestHeader("X-CSRFToken", $('input[name="csrfmiddlewaretoken"]').val());
+                },
+                data:{datos:data_send},
+                success: function (response) {
+
+                  bootbox.alert({message: "<h2>"+"Exito"+"</h2>", className:"modal modal-success fade in"});
+                },
+                error: function (response) {
+                  var jsonResponse = JSON.parse(response.responseText);
+                  bootbox.alert({message: "<h3><i class='fa fa-frown-o' style='font-size: 45px;'></i>&nbsp;&nbsp;&nbsp;HA OCURRIDO UN ERROR!!</h3></br>" + jsonResponse["mensaje"], className:"modal modal-danger fade"});
+                }
+              });
+
+
+         });
+        /** */
+
+
+    };
+
+
+
+
+}
+
+class informeControlAcademico{
+    constructor(){
+        var tablaDispositivos;
+        var contador =0;
+        var asistencia = {};
+        var tareas={};
+
+        $('#controlacademico-list-form').submit(function (e) {
+            e.preventDefault();
+            var columnas = [
+                {data: "numero",},
+                {data: "nombre", className: "nowrap"},
+                {data: "apellido", className: "nowrap"},
+                {data: "dpi", className: "nowrap"},
+                {data: "genero", className: "nowrap"},
+                {data: "udi", className: "nowrap"},
+                {data: "curso", className: "nowrap"},
+                {data: "grupo", className: "nowrap", },
+
+                ];
+            //tablaDispositivos.destroy();
+            //$("#controlacademico-table-search>thead>tr").remove();
+            $.ajax({
+                type: 'POST',
+                url: $('#controlacademico-list-form').attr('action'),
+                beforeSend: function(xhr, settings) {
+                    xhr.setRequestHeader("X-CSRFToken", $('input[name="csrfmiddlewaretoken"]').val());
+                },
+                data:$('#controlacademico-list-form').serializeObject(true)
+                ,
+                success: function (response) {
+
+
+                    //$("#controlacademico-table-search>thead>tr").append("<th>Asistencia" +1+"</th>");
+                  for (var a = 1; a<=response[0].asistencia.length;a++){
+                      $("#controlacademico-table-search>thead>tr").append("<th>Asistencia" +a+"</th>");
+                      asistencia ={data:"asistencia."+String(a-1)+".nota"};
+                      columnas.push(asistencia);
+                  }
+                  for (var b = 0; b<=response[0].trabajos.length-1;b++){
+                    $("#controlacademico-table-search>thead>tr").append("<th>"+response[0].trabajos[b].cr_hito__nombre+"</th>");
+                    tareas ={data:"trabajos."+b+".nota"};
+                    columnas.push(tareas);
+                }
+                 /**/
+             tablaDispositivos = $('#controlacademico-table-search').DataTable({
+                dom: 'lfrtipB',
+                destroy:true,
+                buttons: ['excel', 'pdf'],
+                processing: true,
+                deferLoading: [0],
+                ajax: {
+                    type: 'POST',
+                    url: $('#controlacademico-list-form').attr('action'),
+                    deferRender: true,
+                    dataSrc: '',
+                    cache: true,
+                    data: function (data,params) {
+                        return $('#controlacademico-list-form').serializeObject(true);
+                    }
+
+                },
+                columns: columnas
+              });
+             /**/
+
+                },
+                error: function (response) {
+                  var jsonResponse = JSON.parse(response.responseText);
+                  bootbox.alert({message: "<h3><i class='fa fa-frown-o' style='font-size: 45px;'></i>&nbsp;&nbsp;&nbsp;HA OCURRIDO UN ERROR!!</h3></br>" + jsonResponse["mensaje"], className:"modal modal-danger fade"});
+                }
+              });
+
+
+
+        });
+
+        $('#id_curso').on('change', function () {
+            contador = contador +1;
+         if (contador>1){
+           $("#controlacademico-table-search  thead th:eq(08)").remove();
+           $("#controlacademico-table-search  thead th:eq(09)").remove();
+            $("#controlacademico-table-search  thead th:eq(10)").remove();
+            $("#controlacademico-table-search  thead th:eq(11)").remove();
+            $("#controlacademico-table-search  thead th:eq(12)").remove();
+            $("#controlacademico-table-search  thead th:eq(08)").remove();
+            $("#controlacademico-table-search  thead th:eq(09)").remove();
+            $("#controlacademico-table-search  thead th:eq(10)").remove();
+            $("#controlacademico-table-search  thead th:eq(11)").remove();
+            $("#controlacademico-table-search  thead th:eq(12)").remove();
+            $("#controlacademico-table-search  thead th:eq(08)").remove();
+            $("#controlacademico-table-search  thead th:eq(09)").remove();
+            $("#controlacademico-table-search  thead th:eq(08)").remove();
+            tablaDispositivos.clear().draw();
+         };
+
+        });
+
+
+    }
+
+}
+
+class informeAsistencia{
+    constructor(){
+        var tablaDispositivos;
+        var asistencia = {};
+        var hora_inicio ={};
+        var hora_fin ={}
+        var fecha ={}
+        var inasistencia={}
+        var columnas = [
+            {data: "grupo",},
+            ];
+        var label_grafica=[];
+        var data_grafica=[];
+        var data_inside_grafica=[];
+        var datos=[]
+
+        $('#informeasistencia-list-form').submit(function (e) {
+            e.preventDefault();
+            $.ajax({
+                type: 'POST',
+                url: $('#informeasistencia-list-form').attr('action'),
+                beforeSend: function(xhr, settings) {
+                    xhr.setRequestHeader("X-CSRFToken", $('input[name="csrfmiddlewaretoken"]').val());
+                },
+                data:$('#informeasistencia-list-form').serializeObject(true)
+                ,
+                success: function (response) {
+                      for (var a = 1; a<= response[0].cantidad_asistencia;a++){
+                      $("#asistencia-table-search>thead>tr").append("<th>Asistencia " +a+"</th>");
+                      $("#asistencia-table-search>tfoot>tr").append("<th>Total:</th>");
+                      asistencia ={data:"asistencia"+a,render: function(data, type, full, meta,row){
+                          var nuevo = "full.fecha_asistencia"+meta.col;
+                        return "<span class='label label-info'>Asistencia  </span>"+ data +"<br> <span class='label label-primary'>Fecha</span> "+eval("full.fecha_asistencia"+meta.col)+" "+"<br> <span class='label label-success'>Hora de inicio</span> "+eval("full.hora_inicio_asistencia"+meta.col)+" "+"<br> <span class='label label-warning'>Hora de Finalizacion</span> "+eval("full.hora_fin_asistencia"+meta.col);
+                    }  };
+                      columnas.push(asistencia);
+                  };
+                 /**/
+             tablaDispositivos = $('#asistencia-table-search').DataTable({
+                dom: 'lfrtipB',
+                destroy:true,
+                buttons: ['excel', 'pdf'],
+                processing: true,
+                deferLoading: [0],
+                ajax: {
+                    type: 'POST',
+                    url: $('#informeasistencia-list-form').attr('action'),
+                    deferRender: true,
+                    dataSrc: '',
+                    cache: true,
+                    data: function (data,params) {
+                        return $('#informeasistencia-list-form').serializeObject(true);
+                    }
+
+                },
+                columns: columnas,
+                "footerCallback": function(tfoot, data, start, end, display){
+
+
+                    //print(numero);
+                }
+              });
+             /**/
+             /** Grafica*/
+
+            for(var c=0;c<=response.length -1;c++){
+                for(var k=1;k<=response[0].cantidad_asistencia;k++){
+                    datos.push(eval("response[c].asistencia"+k));
+                }
+                data_grafica={
+                    data:datos,
+                    label:"Grupo"+(c+1),
+                    borderColor:'#'+(Math.random()*0xFFFFFF<<0).toString(16),
+                    fill:false,
+                }
+                data_inside_grafica.push(data_grafica);
+                datos=[];
+            };
+            for(var b = 1;b<= response[0].cantidad_asistencia;b++){
+                label_grafica.push("Asistencia"+b);
+            };
+
+            new Chart(document.getElementById("datosNuevos"), {
+                type: 'line',
+                data: {
+                  labels:  label_grafica,
+                  datasets:data_inside_grafica
+                },
+                options: {
+                  title: {
+                    display: true,
+                    text: 'Tendencias de asistencias'
+                  }
+                }
+              });
+
+
+
+            /**grafica */
+
+                },
+                error: function (response) {
+                  var jsonResponse = JSON.parse(response.responseText);
+                  bootbox.alert({message: "<h3><i class='fa fa-frown-o' style='font-size: 45px;'></i>&nbsp;&nbsp;&nbsp;HA OCURRIDO UN ERROR!!</h3></br>" + jsonResponse["mensaje"], className:"modal modal-danger fade"});
+                }
+              });
+        });
+
+
+    }
+
+}
+class informeFinal{
+  constructor(){
+    $('#informefinal-list-form').submit(function (e) {
+        e.preventDefault();
+         tablaDispositivos = $('#informefinal-table-search').DataTable({
+            dom: 'lfrtipB',
+            destroy:true,
+            buttons: ['excel', 'pdf'],
+            processing: true,
+            deferLoading: [0],
+            ajax: {
+                type: 'POST',
+                url: $('#informefinal-list-form').attr('action'),
+                deferRender: true,
+                dataSrc: '',
+                cache: true,
+                data: function (data,params) {
+                    return $('#informefinal-list-form').serializeObject(true);
+                }
+
+            },
+            columns:[
+                {data: "capacitador"},
+                {data: "sede"},
+                {data: "curso"},
+                {data: "total_maestro"},
+                {data: "total_hombre"},
+                {data: "total_mujeres"},
+                {data: "maestros_aprobados"},
+                {data: "maestros_reprobados"},
+                {data: "maestros_desertores"},
+            ],
+          });
+
+          });
+
+  }
+}
+
+class informeCapacitadores{
+  constructor(){
+    $('#informecapacitadores-list-form').submit(function (e) {
+        e.preventDefault();
+         tablaDispositivos = $('#informecapacitadores-table-search').DataTable({
+            dom: 'lfrtipB',
+            destroy:true,
+            buttons: ['excel', 'pdf'],
+            processing: true,
+            deferLoading: [0],
+            ajax: {
+                type: 'POST',
+                url: $('#informecapacitadores-list-form').attr('action'),
+                deferRender: true,
+                dataSrc: '',
+                cache: true,
+                data: function (data,params) {
+                    return $('#informecapacitadores-list-form').serializeObject(true);
+                }
+
+            },
+            columns:[
+                {data: "capacitador"},
+                {data: "sede"},
+                {data: "curso"},
+                {data: "total_maestro"},
+                {data: "total_hombre"},
+                {data: "total_mujeres"},
+                {data: "maestros_aprobados"},                
+            ],
+          });
+
+          });
+
+  }
 }
