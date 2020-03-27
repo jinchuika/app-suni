@@ -792,11 +792,11 @@ class EntradaDetalleDetail {
                     message: "¿Está seguro que quiere rechazar este detalle de desecho?",
                     buttons: {
                         confirm: {
-                            label: 'Si',
+                            label: '<i class="fa fa-check"></i> Confirmar',
                             className: 'btn-success'
                         },
                         cancel: {
-                            label: 'No',
+                            label: '<i class="fa fa-times"></i> Cancelar',
                             className: 'btn-danger'
                         }
                     },
@@ -804,7 +804,7 @@ class EntradaDetalleDetail {
                         if (result == true) {
                           /**/
                           bootbox.prompt({
-                            title: "¿Por que rechazo este detalle?",
+                            title: "Ingrese el motivo de rechazo:",
                             inputType: 'textarea',
                             callback: function (result) {
                                 console.log(result);
@@ -823,7 +823,7 @@ class EntradaDetalleDetail {
                                   },
                                   error: function (response) {
                                     var mensaje = JSON.parse(response.responseText)
-                                    bootbox.alert(mensaje['mensaje']);
+                                    bootbox.alert({message: "<h3><i class='fa fa-frown-o' style='font-size: 45px;'></i>&nbsp;&nbsp;&nbsp;HA OCURRIDO UN ERROR!!</h3></br>" + mensaje['mensaje'], className:"modal modal-danger fade"});
                                   }
                               });
                             }
@@ -854,7 +854,7 @@ class EntradaDetalleDetail {
                     },
                     error: function (response) {
                       var mensaje = JSON.parse(response.responseText)
-                      bootbox.alert(mensaje['mensaje']);
+                      bootbox.alert({message: "<h3><i class='fa fa-frown-o' style='font-size: 45px;'></i>&nbsp;&nbsp;&nbsp;HA OCURRIDO UN ERROR!!</h3></br>" + mensaje['mensaje'], className:"modal modal-danger fade"});
                     }
                 });
 
@@ -868,18 +868,18 @@ class EntradaDetalleDetail {
                           message: "¿Esta seguro que quiere rechazar este dispositivo?",
                           buttons: {
                               confirm: {
-                                  label: 'Si',
+                                  label: '<i class="fa fa-check"></i> Confirmar',
                                   className: 'btn-success'
                               },
                               cancel: {
-                                  label: 'No',
+                                  label: '<i class="fa fa-times"></i> Cancelar',
                                   className: 'btn-danger'
                               }
                           },
                           callback: function (result) {
                             /**/
                             bootbox.prompt({
-                              title: "¿Por que rechazo este dipositivo?",
+                              title: "Ingrese el motivo de rechazo:",
                               inputType: 'textarea',
                               callback: function (result) {                                  
                                   $.ajax({
@@ -897,7 +897,7 @@ class EntradaDetalleDetail {
                                     },
                                     error: function (response) {
                                       var mensaje = JSON.parse(response.responseText)
-                                      bootbox.alert(mensaje['mensaje']);
+                                      bootbox.alert({message: "<h3><i class='fa fa-frown-o' style='font-size: 45px;'></i>&nbsp;&nbsp;&nbsp;HA OCURRIDO UN ERROR!!</h3></br>" + mensaje['mensaje'], className:"modal modal-danger fade"});
                                     }
                                 });
                               }
@@ -993,14 +993,14 @@ class EntradaDetalleDetail {
     SalidaDetalleList.init = function () {
         $('#btn-terminar').click(function () {
             bootbox.confirm({
-                message: "¿Esta seguro que quiere terminar la salida de desechos?",
+                message: "¿Está seguro que quiere dar por finalizada la edición de la salida?",
                 buttons: {
                     confirm: {
-                        label: 'Si',
+                        label: '<i class="fa fa-check"></i> Confirmar',
                         className: 'btn-success'
                     },
                     cancel: {
-                        label: 'No',
+                        label: '<i class="fa fa-times"></i> Cancelar',
                         className: 'btn-danger'
                     }
                 },
@@ -1015,12 +1015,12 @@ class EntradaDetalleDetail {
                           id:pk
                         },
                         success: function (response) {
-                             bootbox.alert(response.mensaje);
+                             bootbox.alert({message: "<h2>"+response.mensaje+"</h2>", className:"modal modal-success fade in"});
                              window.location= urlredireccion;
                         },
                         error: function (response) {
                           var mensaje = JSON.parse(response.responseText)
-                          bootbox.alert(mensaje['mensaje']);
+                          bootbox.alert({message: "<h3><i class='fa fa-frown-o' style='font-size: 45px;'></i>&nbsp;&nbsp;&nbsp;HA OCURRIDO UN ERROR!!</h3></br>" + mensaje['mensaje'], className:"modal modal-danger fade"});
                         }
                     });
 
@@ -1045,7 +1045,7 @@ class EntradaDetalleDetail {
                 },
                 error: function (response) {
                   var mensaje = JSON.parse(response.responseText)
-                  bootbox.alert(mensaje.error[0]);
+                  bootbox.alert({message: "<h3><i class='fa fa-frown-o' style='font-size: 45px;'></i>&nbsp;&nbsp;&nbsp;HA OCURRIDO UN ERROR!!</h3></br>" + mensaje.error[0], className:"modal modal-danger fade"});
                 }
             });
             $("#id_tipo_dispositivo").select2("destroy").select2();
@@ -1070,6 +1070,8 @@ class EntradaDetalleDetail {
                   console.log("datos ingresados correctamente");
               },
           });
+         $('#id_dispositivo option:selected').remove();
+
           tablaDispositivo.clear().draw();
           tablaDispositivo.ajax.reload();
           document.getElementById("dispositivoForm").reset();
@@ -3912,6 +3914,7 @@ $("#devolver").click( function(){
 class Desecho {
   constructor() {
     var urlDispositivo = $('#desecho-pendiente-table').data("tipo");
+    var urlDesecho = $('#desecho-dispositivos-table').data("url");
     var fecha = new Date();
     var dia = fecha.getDate();
     var mes = fecha.getMonth()+1;
@@ -3925,7 +3928,7 @@ class Desecho {
     var fecha = year+'-'+mes+'-'+dia;
     $('#id_fecha').val(fecha);
 
-    var tablaDispositivo = $('#desecho-pendiente-table').DataTable({
+    var tablaDesecho = $('#desecho-pendiente-table').DataTable({
         ajax: {
             url: urlDispositivo,
             dataType: 'json',
@@ -3939,6 +3942,20 @@ class Desecho {
             {data: "entrada"},
             {data: "descripcion"},
             {data: "existencia_desecho"},
+            {data: "fecha_desecho"},
+        ]
+    });
+
+    var tablaDispositivo = $('#desecho-dispositivos-table').DataTable({
+        ajax: {
+            url: urlDesecho,
+            dataType: 'json',
+            dataSrc: '',
+            cache: true,
+        },
+        columns: [
+            {data: "triage"},
+            {data: "tipo"},
             {data: "fecha_desecho"},
         ]
     });
@@ -3962,9 +3979,9 @@ class Desecho {
       columns:[       
         {data:"id", render: function(data, type, full, meta){
           if(full.en_creacion==true){            
-            return "<a href="+full.url_edit+">"+full.id+"</a>"; 
+            return "<a href="+full.url_edit+" class='btn btn-block btn-success' >Desecho No. "+full.id+"</a>"; 
           }else{           
-            return "<a href="+full.url_detalle+">"+full.id+"</a>"; 
+            return "<a href="+full.url_detalle+" class='btn btn-block btn-success'>Desecho No. "+full.id+"</a>"; 
           }
         }},        
         {data:"fecha"},
@@ -3987,6 +4004,7 @@ class Desecho {
     DesechoList.init = function () {
         /* Al cargar la página ocultar spinner*/
         $('#spinner').hide();
+        new BuscadorTabla();
         $('#desecho-list-form').submit(function (e) {
             e.preventDefault();
             $('#spinner').show();
