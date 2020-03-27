@@ -2,7 +2,7 @@
 {%load widget_tweaks static %}
 {%load inventario_extras %}
 {% block page_title %}
-<title>Desechos</title>
+<title>Agregar Salida</title>
 {% endblock page_title %}
 {% block content %}
 <section class="content">
@@ -13,7 +13,7 @@
         <div class="box">
           <div class="box-header">
             <div class="box-title">
-              <h3><b>Desechos</b></h3>
+              <h3><b>Nueva Salida de Desecho</b></h3>
             </div>
             <div class="box-body">
               <table class="table table-condensed">
@@ -35,14 +35,13 @@
         <div class="box">
           <div class="box-header">
             <div class="box-title">
-                <h3><b>Desecho Pendiente</b></h3>
+                <h3><b>Desecho de Dispositivos Pendiente</b></h3>
             </div>
             <div class="box-body">
-              <table id="desecho-pendiente-table" class="table table-condensed" data-tipo="{% url 'inventario_api:api_detalles-list' %}">
+              <table id="desecho-dispositivos-table" class="table table-condensed" data-url="{% url 'inventario_api:api_dispositivo-desecho' %}">
                 <thead>
-                  <th>Entrada </th>
-                  <th>Dispositivo</th>
-                  <th>Cantidad</th>
+                  <th>Dispositivo </th>
+                  <th>Tipo</th>
                   <th>Fecha de Rechazo</th>
                 </thead>
                 <tbody>
@@ -57,58 +56,21 @@
         <div class="box">
           <div class="box-header">
             <div class="box-title">
-                <h3><b>Salidas</b></h3>
+                <h3><b>Desecho de Entradas Pendiente</b></h3>
             </div>
             <div class="box-body">
-              <table class="table table-condensed dataTable">
+              <table id="desecho-pendiente-table" class="table table-condensed" data-tipo="{% url 'inventario_api:api_detalles-list' %}">
                 <thead>
-                  <th>ID </th>
-                  <th>Fecha</th>
-                  <th>Recicladora</th>
-                  <th>Estado </th>
-                  <th>Accion </th>
+                  <th>Entrada </th>
+                  <th>Dispositivo</th>
+                  <th>Cantidad</th>
+                  <th>Fecha de Rechazo</th>
                 </thead>
                 <tbody>
-                  {%for desecho in desechosalida %}
-                    <tr>
-                      <td>
-                        {{desecho}}
-                      </td>
-                      <td>
-                        {{desecho.fecha}}
-                      </td>
-                      <td>
-                          {{desecho.empresa}}
-                      </td>
-                      <td>
-                        {%if desecho.en_creacion == True%}
-                        <span class='label label-danger'>Pendiende</span>
-                        {%else%}
-                        <span class='label label-success'>Entregado</span>
-                        {%endif%}
-                      </td>
-                      <td>
-                        {%if desecho.en_creacion == True%}
-                          <a target='_blank' rel='noopener noreferrer' href="{% url 'desechosalida_update' pk=desecho%}" class='btn btn-success'>Abrir</a>
-                        {%else%}
-                        <a target='_blank' rel='noopener noreferrer' href="{% url 'desechosalida_detail' pk=desecho%}" class='btn btn-success'> Abrir</a>
-                        {%endif%}
-
-                      </td>
-                    </tr>
-                  {%endfor%}
                 </tbody>
-                <tfoot>
-                <th>ID </th>
-                  <th>Fecha</th>
-                  <th>Recicladora</th>
-                  <th>Estado </th>
-                  <th>Accion </th>
-                </tfoot>
               </table>
             </div>
           </div>
-        </div>
       </div>
     </div>
   </div>
@@ -118,6 +80,5 @@
 <script src="{% static "js/extrajs/inventario.js" %}"></script>
 <script>
 	let ListadoPrestamos = new Desecho();
-  let buscar = new BuscadorTabla();
 </script>
 {% endblock extra_js %}

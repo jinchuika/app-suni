@@ -136,7 +136,7 @@
 									</div>
 								</div>
 								<div class="tab-pane" id="capacitacion">
-                                    {% include "escuela/detail_capacitacion.html" with escuela=escuela %}
+                                    {% include "escuela/detail_capacitacion.html" with escuela=escuela grafica_kalite=grafica_kalite %}
 								</div>
 
 								<div class="tab-pane" id="evaluacion">
@@ -268,6 +268,7 @@
 
 	{% block extra_js %}
 	<script src="{% static "js/extrajs/escuela.js" %}"></script>
+	<script src="{% static "js/jquery.knob.min.js" %}"></script>
 	<script>
 	$(document).ready(function () {
 		{% if solicitud_form or validacion_form or validacion_detail %}
@@ -276,6 +277,7 @@
 		{% if equipamiento_form or equipamiento_detail %}
 		activar_tab('equipamiento');
 		{% endif %}
+		$(".dial").knob() 
 	});
 	PerfilEscuela.init();
 	</script>
