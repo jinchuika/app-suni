@@ -289,3 +289,10 @@ class InformeCapacitadorForm(forms.Form):
     def __init__(self, *args, **kwargs):
         super(InformeCapacitadorForm ,self).__init__(*args, **kwargs)
         self.fields['capacitador'].label_from_instance = lambda obj: "%s" % (obj.get_full_name())
+
+
+class InformeEscuelaForm(forms.Form):
+    escuela__codigo = forms.CharField(
+        label='Ingrese el UDI',
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-control'}))

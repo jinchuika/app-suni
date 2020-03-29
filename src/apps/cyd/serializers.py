@@ -30,7 +30,7 @@ class GrupoSerializer(serializers.ModelSerializer):
     curso = serializers.StringRelatedField()
     asistencias = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
     capacitador = serializers.StringRelatedField(source="sede.capacitador.get_full_name")
-    urlgrupo = serializers.StringRelatedField(source ="get_absolute_url") 
+    urlgrupo = serializers.StringRelatedField(source ="get_absolute_url")
     class Meta:
         model = Grupo
         fields = ('id', 'sede', 'numero', 'curso', 'asistencias', 'comentario','capacitador','urlgrupo')

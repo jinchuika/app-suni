@@ -1921,7 +1921,7 @@ class informeCapacitadores{
                 {data: "participantes"},
             ],
             footerCallback: function( tfoot, data, start, end, display){
-                for (var i in data){                  
+                for (var i in data){
                   total_grupos=total_grupos+data[i].grupos
                   total_cursos=total_cursos+data[i].curso
                   total_asignaciones=total_asignaciones+data[i].asignaciones
@@ -1934,6 +1934,70 @@ class informeCapacitadores{
                   $(tfoot).find('th').eq(5).html(total_participantes);
                 };
               }
+          });
+
+          });
+
+  }
+}
+class informeEscuela{
+  constructor(){
+    var contador =0;
+    var cantidad_hombres=0;
+    var cantidad_mujeres=0;
+    $('#informescuela-list-form').submit(function (e) {
+        e.preventDefault();
+         var tablaDispositivos = $('#informescuela-table-search').DataTable({
+            dom: 'lfrtipB',
+            destroy:true,
+            buttons: ['excel', 'pdf'],
+            processing: true,
+            deferLoading: [0],
+            ajax: {
+                type: 'GET',
+                url: $('#informescuela-list-form').attr('action'),
+                deferRender: true,
+                dataSrc: '',
+                cache: true,
+                data: function (data,params) {
+                          return $('#informescuela-list-form').serializeObject(true);
+                }
+
+            },
+            columns:[
+                {data: "id",render: function(data, type , full, meta){
+                    contador = contador +1;
+                    return "<a href="+full.url+">"+contador+"</a>";
+                }},
+                {data: "nombre"},
+                {data: "apellido"},
+                {data: "genero",render: function(data, type , full, meta){
+                    if(full.genero==1){
+
+                      return "Masculino";
+                    }else{
+
+                      return "Femenino";
+                    }
+                }},
+            ],
+            headerCallback:function (thead, data, start, end, display ){
+              for(var i in data){
+                console.log(data[i].escuela.nombre);
+                $("#titulo_escuela").html(data[i].escuela.nombre);
+                if(data[i].genero==1){
+                    cantidad_hombres=cantidad_hombres+1;
+                }else{
+                  cantidad_mujeres=cantidad_mujeres+1;
+                }
+                $(thead).find('th').eq(0).html("CANTIDAD TOTAL :"+ (cantidad_hombres+cantidad_mujeres));
+                $(thead).find('th').eq(1).html("HOMBRES :" + cantidad_hombres);
+                $(thead).find('th').eq(2).html("MUJERES : " +cantidad_mujeres);
+
+              };
+
+            },
+
           });
 
           });

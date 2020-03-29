@@ -38,7 +38,8 @@ urlpatterns = [
     url(r'^informe/controlacademico/$', ControlAcademicoInformeListView.as_view() , name='informe_control_academico'),
     url(r'^informe/asistencia/$', AsistenciaInformeListView.as_view(), name='informe_asistencia'),
     url(r'^informe/finalizacionproyecto/$',FinalizacionProcesoInformeListView.as_view(), name='informe_finalizacion_proyecto'),
-    url(r'^informe/capacitador/$',InformeCapacitadoresListView.as_view(), name='informe_capacitador')
+    url(r'^informe/capacitador/$',InformeCapacitadoresListView.as_view(), name='informe_capacitador'),
+    url(r'^informe/escuela/$',InformeEscuelaListView.as_view(), name='informe_escuela')
 
 
 ]

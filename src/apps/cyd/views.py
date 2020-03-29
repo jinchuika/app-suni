@@ -475,7 +475,7 @@ class InformeFinal(views.APIView):
         total_mujeres=cyd_m.Asignacion.objects.filter(grupo__sede=sede,participante__genero__id=2).count()
         maestros_aprobados= grupos.first().count_aprobados()
         maestros_reprobados= total_maestros - grupos.first().count_aprobados()
-        maestros_desertores=cyd_m.Asignacion.objects.filter(grupo__sede=sede,abandono=True).count()    
+        maestros_desertores=cyd_m.Asignacion.objects.filter(grupo__sede=sede,abandono=True).count()
         listado_datos2['capacitador']= grupos.first().sede.capacitador.get_full_name()
         listado_datos2['sede']= sede.nombre
         listado_datos2['curso']= curso.nombre
@@ -528,3 +528,7 @@ class InformeCapacitadores(views.APIView):
                 listado_sede,
             status=status.HTTP_200_OK
             )
+
+class InformeEscuelaListView(LoginRequiredMixin, FormView):
+    template_name = 'cyd/InformeEscuela.html'
+    form_class = cyd_f.InformeEscuelaForm
