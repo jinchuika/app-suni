@@ -532,3 +532,118 @@ class InformeCapacitadores(views.APIView):
 class InformeEscuelaListView(LoginRequiredMixin, FormView):
     template_name = 'cyd/InformeEscuela.html'
     form_class = cyd_f.InformeEscuelaForm
+
+class InformeGrupoListView(LoginRequiredMixin, FormView):
+    template_name = 'cyd/InformeGrupo.html'
+    form_class = cyd_f.InformeAsistenciaForm
+
+
+class InformeGrupo(views.APIView):
+    def post(self, request):
+        listado_grupo=[]
+        correlativo=0
+        sede = cyd_m.Sede.objects.get(id=self.request.POST['sede'])
+        curso = cyd_m.Curso.objects.get(id=self.request.POST['curso'])
+        grupos = cyd_m.Grupo.objects.get(id=self.request.POST['grupo'])
+        asignaciones=cyd_m.Asignacion.objects.filter(grupo=grupos, grupo__sede=sede, grupo__curso=curso)
+        for asignacion in asignaciones:
+            datos_grupo={}
+            correlativo = correlativo +1
+            datos_grupo['Numero']=correlativo
+            datos_grupo['Nombre']=asignacion.participante.nombre
+            datos_grupo['Apellido']=asignacion.participante.apellido
+            datos_grupo['Id']=asignacion.participante.dpi
+            datos_grupo['Genero']=asignacion.participante.genero.genero
+            datos_grupo['Correo']=asignacion.participante.mail
+            datos_grupo['Escuela']=asignacion.participante.escuela.nombre
+            datos_grupo['Udi']=asignacion.participante.escuela.codigo
+            datos_grupo['Etnia']=asignacion.participante.etnia.nombre
+            datos_grupo['Curso']=asignacion.grupo.curso.nombre
+            datos_grupo['Grupo']=asignacion.grupo.numero
+            datos_grupo['Telefono']=asignacion.participante.tel_movil
+            datos_grupo['Escolaridad']=asignacion.participante.escolaridad.nombre
+            datos_grupo['url']=asignacion.participante.get_absolute_url()
+            listado_grupo.append(datos_grupo)
+        return Response(
+                listado_grupo,
+            status=status.HTTP_200_OK
+            )
+
+class InformeAsistenciaPeriodosListView(LoginRequiredMixin, FormView):
+    template_name = 'cyd/InformeAsistenciaPeriodos.html'
+    form_class = cyd_f.InformeAsistenciaPeriodoForm
+
+class InformeAsistenciaPeriodo(views.APIView):
+    def post(self, request):
+
+        listado_grupo=[]
+        correlativo=0
+        sede = cyd_m.Sede.objects.get(id=self.request.POST['sede'])
+        grupos = cyd_m.Grupo.objects.get(id=self.request.POST['grupo'])
+        try:
+            calendario=cyd_m.Calendario.objects.get(id=self.request.POST['asistencia'],grupo=grupos,grupo__sede=sede)
+            print(calendario)
+        except Exception:
+            print("No existen la consulta revise los parametros de busqueda")
+
+        asignaciones=cyd_m.Asignacion.objects.filter(grupo=calendario.grupo)
+        for asignacion in asignaciones:
+            validacion_asistencia = cyd_m.NotaAsistencia.objects.filter(asignacion=asignacion,gr_calendario=calendario)
+            for validar in validacion_asistencia:
+                if validar.nota !=0:
+                    datos_grupo={}
+                    correlativo = correlativo +1
+                    datos_grupo['Numero']=correlativo
+                    datos_grupo['Nombre']=asignacion.participante.nombre
+                    datos_grupo['Apellido']=asignacion.participante.apellido
+                    datos_grupo['Escuela']=asignacion.participante.escuela.nombre
+                    datos_grupo['url']=asignacion.participante.get_absolute_url()
+                    listado_grupo.append(datos_grupo)
+        return Response(
+                listado_grupo,
+            status=status.HTTP_200_OK
+            )
+
+class InformeListadoEscuelasListView(LoginRequiredMixin, FormView):
+    template_name = 'cyd/InformeListadoEscuelas.html'
+    form_class = cyd_f.InformeAsistenciaPeriodoForm
+
+class InformeEscuelaSedeView(LoginRequiredMixin, FormView):
+    template_name = 'cyd/InformeEscuelaSede.html'
+    form_class = cyd_f.InformeSedeForm
+
+
+
+class InformeEscuelaSede(views.APIView):
+    def post(self, request):
+        listado_grupo=[]
+        correlativo=0
+        numero_hombres=0
+        numero_mujeres=0
+        sede = cyd_m.Sede.objects.get(id=self.request.POST['sede'])
+        grupo= cyd_m.Grupo.objects.filter(sede=sede)
+        asignaciones=cyd_m.Asignacion.objects.filter(grupo__sede=sede)
+        escuelas=cyd_m.Asignacion.objects.filter(grupo__sede=sede).values('participante__escuela__nombre','participante__escuela__codigo').distinct()
+        for escuela in escuelas:
+            datos_grupo={}
+            correlativo = correlativo +1
+            datos_grupo['Numero']=correlativo
+            datos_grupo['Escuela']=escuela['participante__escuela__nombre']
+            datos_grupo['Udi']=escuela['participante__escuela__codigo']
+            datos_grupo['Url']=Escuela.objects.get(codigo=escuela['participante__escuela__codigo']).get_absolute_url()
+            datos=cyd_m.Asignacion.objects.filter(grupo__sede=sede,participante__escuela__nombre=escuela['participante__escuela__nombre'])
+            for dato in datos:
+                if dato.participante.genero.genero=="Hombre":
+                    numero_hombres=numero_hombres+1
+                else:
+                    numero_mujeres=numero_mujeres+1
+            datos_grupo['Hombres']=numero_hombres
+            datos_grupo['Mujeres']=numero_mujeres
+            datos_grupo['Total']=numero_mujeres+numero_hombres
+            numero_hombres=0
+            numero_mujeres=0
+            listado_grupo.append(datos_grupo)
+        return Response(
+                listado_grupo,
+            status=status.HTTP_200_OK
+            )
