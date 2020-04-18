@@ -2122,7 +2122,61 @@ class informeEscuelaSede{
                 {data: "Total"},
 
             ],
-            footerCallback: function( tfoot, data, start, end, display){            
+            footerCallback: function( tfoot, data, start, end, display){
+                for (var i in data){
+                  total_hombres=total_hombres+data[i].Hombres;
+                  total_mujeres=total_mujeres+data[i].Mujeres;
+                  total_participantes=total_participantes+data[i].Total;
+                  $(tfoot).find('th').eq(0).html( "TOTAL ");
+                  $(tfoot).find('th').eq(1).html(data.length);
+                  $(tfoot).find('th').eq(2).html( "---");
+                  $(tfoot).find('th').eq(3).html(total_hombres);
+                  $(tfoot).find('th').eq(4).html(total_mujeres);
+                  $(tfoot).find('th').eq(5).html(total_participantes);
+                };
+              }
+          });
+
+          });
+
+  }
+}
+class informeListadoEscuela{
+  constructor(){
+    var total_hombres=0;
+    var total_mujeres=0;
+    var total_participantes=0;
+    $('#informescuelalistado-list-form').submit(function (e) {
+        e.preventDefault();
+         var tablaDispositivos = $('#informescuelalistado-table-search').DataTable({
+            dom: 'lfrtipB',
+            destroy:true,
+            buttons: ['excel', 'pdf'],
+            processing: true,
+            deferLoading: [0],
+            ajax: {
+                type: 'POST',
+                url: $('#informescuelalistado-list-form').attr('action'),
+                deferRender: true,
+                dataSrc: '',
+                cache: true,
+                data: function (data,params) {
+                    return $('#informescuelalistado-list-form').serializeObject(true);
+                }
+
+            },
+            columns:[
+                {data: "Numero",render: function(data, type , full, meta){
+                    return "<a target='_blank' href="+full.Url+">"+data+"</a>";
+                }},
+                {data: "Escuela"},
+                {data: "Udi"},
+                {data: "Hombres"},
+                {data: "Mujeres"},
+                {data: "Total"},
+
+            ],
+            footerCallback: function( tfoot, data, start, end, display){
                 for (var i in data){
                   total_hombres=total_hombres+data[i].Hombres;
                   total_mujeres=total_mujeres+data[i].Mujeres;

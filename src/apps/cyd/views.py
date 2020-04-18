@@ -8,6 +8,7 @@ from django.views.generic.edit import CreateView, UpdateView, FormView
 from django.urls import reverse
 from rest_framework import views,status
 from rest_framework.response import Response
+from django.utils.datastructures import MultiValueDictKeyError
 
 from braces.views import LoginRequiredMixin, GroupRequiredMixin, JsonRequestResponseMixin
 
@@ -608,6 +609,10 @@ class InformeListadoEscuelasListView(LoginRequiredMixin, FormView):
     template_name = 'cyd/InformeListadoEscuelas.html'
     form_class = cyd_f.InformeAsistenciaPeriodoForm
 
+class InformeEscuelasListadoListView(LoginRequiredMixin, FormView):
+    template_name = 'cyd/InformeEscuelaListado.html'
+    form_class = cyd_f.InformeEscuelalistadoForm
+
 class InformeEscuelaSedeView(LoginRequiredMixin, FormView):
     template_name = 'cyd/InformeEscuelaSede.html'
     form_class = cyd_f.InformeSedeForm
@@ -645,5 +650,80 @@ class InformeEscuelaSede(views.APIView):
             listado_grupo.append(datos_grupo)
         return Response(
                 listado_grupo,
+            status=status.HTTP_200_OK
+            )
+
+class InformeListadoEscuela(views.APIView):
+    def post(self, request):
+        acumulador_aprobados=0
+        listado_escuelas=[]
+        contador_fecha=0
+        try:
+            departamento=self.request.POST['departamento']
+        except MultiValueDictKeyError:
+            departamento=0
+        try:
+            municipio=self.request.POST['municipio']
+        except MultiValueDictKeyError:
+            municipio=0
+        try:
+            capacitador=self.request.POST['capacitador']
+        except MultiValueDictKeyError:
+            capacitador=0
+        try:
+            fecha_min=self.request.POST['fecha_min']
+        except MultiValueDictKeyError:
+            fecha_min=0
+        try:
+            fecha_max=self.request.POST['fecha_max']
+        except MultiValueDictKeyError:
+            fecha_max=0
+        #print(Escuela.objects.filter(municipio__departamento=departamento))
+        if departamento!=0:
+            if departamento !=0 and municipio!=0:
+                if departamento !=0 and municipio !=0 and capacitador !=0:
+                    if departamento !=0 and municipio !=0 and capacitador !=0 and fecha_max!=0 and fecha_min!=0:
+                        print("Trae departamento, municipio, capacitador y fechas")
+                    else:
+                        print("Trae departamento  , municipio y capacitador")
+                else:
+                    print("Trae departamento y municipio")
+            else:
+                print("Solo trae departamento")
+                escuelas=cyd_m.Participante.objects.filter(escuela__municipio__departamento=departamento).values('escuela__nombre').distinct()
+                capacitados=cyd_m.Participante.objects.filter(escuela__municipio__departamento=departamento)
+                asignacion=cyd_m.Asignacion.objects.filter(grupo__sede__municipio__departamento=departamento)
+                grupos=cyd_m.Grupo.objects.filter(sede__municipio__departamento=departamento)
+                #print(escuelas)
+                for asignados in capacitados:
+                    nuevos=cyd_m.Asignacion.objects.filter(participante=asignados, grupo__sede__municipio__departamento=departamento)
+                    for grupos in nuevos:
+                        datos_escuela={}
+                        datos_escuela[str(grupos.participante.escuela.nombre)]=str(grupos.grupo.count_aprobados())
+                        listado_escuelas.append(datos_escuela)
+                for data in listado_escuelas:
+                    for nueva_escuela in escuelas:
+                        if nueva_escuela['escuela__nombre'] in data:
+                            #print(list(data.values())[0])
+                            #print(list(data.values()))
+                            print(nueva_escuela['escuela__nombre'])
+                            acumulador_aprobados=acumulador_aprobados + int(list(data.values())[0])
+                #print(acumulador_aprobados)
+        else:
+            if municipio !=0:
+                print("Solo trae municipio")
+            if capacitador !=0:
+                print("Solo trae capacitador")
+            #Rango de fechas
+            if fecha_min !=0:
+                print("Solo trae fecha de inicio")
+                contador_fecha=contador_fecha+1
+            if fecha_max !=0:
+                contador_fecha=contador_fecha+1
+                print("Solo trae fecha de final")
+            if(contador_fecha==2):
+                print("Si trae el rango de fechas")
+        return Response(
+                "Listo",
             status=status.HTTP_200_OK
             )
