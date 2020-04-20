@@ -38,6 +38,7 @@ urlpatterns = [
     url(r'^controlacademico/api/asistencia/periodo/$', InformeAsistenciaPeriodo.as_view(), name='informe_api_asistencia_periodo'),
     url(r'^controlacademico/api/escuela/sede/$',InformeEscuelaSede.as_view(), name='informe_api_escuela_sede'),
     url(r'^controlacademico/api/escuela/lista/$',InformeListadoEscuela.as_view(), name='informe_api_escuela_lista'),
+    url(r'^controlacademico/api/asistencia/agregar/$',InformeListadoEscuela.as_view(), name='asistencia_api_agregar'),
 
     url(r'^informe/controlacademico/$', ControlAcademicoInformeListView.as_view() , name='informe_control_academico'),
     url(r'^informe/asistencia/$', AsistenciaInformeListView.as_view(), name='informe_asistencia'),
@@ -48,7 +49,10 @@ urlpatterns = [
     url(r'^informe/grupo/$',InformeGrupoListView.as_view(), name='informe_grupo'),
     url(r'^informe/asistencia/periodos/$',InformeAsistenciaPeriodosListView.as_view(), name='informe_asistencia_periodos'),
     url(r'^informe/escuela/sede/$',InformeEscuelaSedeView.as_view(), name='informe_escuela_sede'),
-    url(r'^informe/escuela/capacitadas/$',InformeListadoEscuelasListView.as_view(), name='informe_escuela_capacitadas')
+    url(r'^informe/escuela/capacitadas/$',InformeListadoEscuelasListView.as_view(), name='informe_escuela_capacitadas'),
+    url(r'^asistencia/$',InformeAsistenciaWebView.as_view(), name='asistencia_web'),
+    url(r'^asistencia/asignar/$',AsignarAsistencia.as_view(), name='asistencia_web_asignar')
+
 
 
 ]

@@ -727,3 +727,58 @@ class InformeListadoEscuela(views.APIView):
                 "Listo",
             status=status.HTTP_200_OK
             )
+class InformeAsistenciaWebView(LoginRequiredMixin, FormView):
+    template_name = 'cyd/Asistencia.html'
+    form_class = cyd_f.InformeAsistenciaWebForm
+
+class InformeListadoEscuela(views.APIView):
+    def post(self, request):
+        listado_grupo=[]
+        correlativo=0
+        try:
+            sede = cyd_m.Sede.objects.filter(id=self.request.POST['sede'])
+            curso = cyd_m.Curso.objects.filter(id=self.request.POST['curso'])
+            grupos = cyd_m.Grupo.objects.filter(id=self.request.POST['grupo'])
+            asistencia = cyd_m.Calendario.objects.get(id=self.request.POST['asistencia'],grupo=grupos,grupo__sede=sede,grupo__curso=curso)
+        except Exception:
+            print("No existen la consulta revise los parametros de busqueda")
+        asignaciones=cyd_m.Asignacion.objects.filter(grupo=asistencia.grupo)
+        for asignacion in asignaciones:
+            validacion_asistencia = cyd_m.NotaAsistencia.objects.filter(asignacion=asignacion,gr_calendario=asistencia)
+            for validar in validacion_asistencia:
+                datos_grupo={}
+                correlativo = correlativo +1
+                datos_grupo['Numero']=correlativo
+                datos_grupo['Maestro']= str(asignacion.participante.nombre)+str(" ") + str(asignacion.participante.apellido)
+                datos_grupo['Asistencia']= validar.nota
+                datos_grupo['Id_Asistencia']=validar.id
+                datos_grupo['Id_Maestro']=asignacion.participante.id
+                if validar.nota !=0:
+                    datos_grupo['check']=1
+                else:
+                    datos_grupo['check']=2
+                listado_grupo.append(datos_grupo)
+        #print(sede)
+        #print(curso)
+        #print(grupos)S
+        print(asistencia.grupo)
+        return Response(
+                listado_grupo,
+            status=status.HTTP_200_OK
+            )
+
+class AsignarAsistencia(views.APIView):
+    def post(self, request):
+        print(self.request.POST['datos[Id_Asistencia]'])
+        if self.request.POST['datos[check]'] == str(1):
+            asistencia = cyd_m.NotaAsistencia.objects.get(id=self.request.POST['datos[Id_Asistencia]'])
+            asistencia.nota=0
+            asistencia.save()
+        else:
+            asistencia = cyd_m.NotaAsistencia.objects.get(id=self.request.POST['datos[Id_Asistencia]'])
+            asistencia.nota=asistencia.gr_calendario.cr_asistencia.punteo_max
+            asistencia.save()
+        return Response(
+                "ingreso",
+            status=status.HTTP_200_OK
+            )

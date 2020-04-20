@@ -2195,3 +2195,70 @@ class informeListadoEscuela{
 
   }
 }
+class asistenciaWeb{
+  constructor(){
+    var urlAsignarAsignacion=$('#asistencia-web-table-search').data("urlasignar");
+    $('#asistencia-web-list-form').submit(function (e) {
+        e.preventDefault();
+
+        var tablaDispositivos = $('#asistencia-web-table-search').DataTable({
+            dom: 'lfrtipB',
+            destroy:true,
+            buttons: ['excel', 'pdf'],
+            processing: true,
+            deferLoading: [0],
+            ajax: {
+                type: 'POST',
+                url: $('#asistencia-web-list-form').attr('action'),
+                deferRender: true,
+                dataSrc: '',
+                cache: true,
+                data: function (data,params) {
+                    return $('#asistencia-web-list-form').serializeObject(true);
+                }
+
+            },
+            columns:[
+                {data: "Numero"},
+                {data: "Maestro"},
+                {data: "Asistencia",render: function(data, type , full, meta){
+                    if(full.Asistencia !=0){
+                      return "<input checked type="+" checkbox" +" id="+" asistencia" +" name="+" vehicle"+full.Numero+">";
+                    }else{
+                      return "<input type="+" checkbox" +" id="+" asistencia" +" name="+" vehicle"+full.Numero+">";
+                    }
+
+                }},
+            ],
+            footerCallback: function( tfoot, data, start, end, display){
+              }
+          });
+          /*Aprobar Dispositivo de desecho*/
+          tablaDispositivos.on('click', '#asistencia', function () {
+                  let data_fila = tablaDispositivos.row($(this).parents('tr')).data();
+                  $.ajax({
+                    type: "POST",
+                    url: urlAsignarAsignacion,
+                    dataType: 'json',
+                    data: {
+                      csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
+                      datos:data_fila
+                    },
+                    success: function (response) {
+                      bootbox.alert({message: "<h3><i class='fa fa-frown-o' style='font-size: 45px;'></i>&nbsp;&nbsp;&nbsp;COMPLETO</h3></br>", className:"modal modal-success fade"});
+                      tablaDispositivos.ajax.reload();
+
+                    },
+                    error: function (response) {
+                      var mensaje = JSON.parse(response.responseText)
+                      bootbox.alert({message: "<h3><i class='fa fa-frown-o' style='font-size: 45px;'></i>&nbsp;&nbsp;&nbsp;HA OCURRIDO UN ERROR!!</h3></br>" + mensaje['mensaje'], className:"modal modal-danger fade"});
+                    }
+                });
+
+                // tablaDispositivos.ajax.reload();
+              });
+              /**/
+          });
+
+  }
+}

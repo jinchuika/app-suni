@@ -6,11 +6,11 @@ sede_api_list = api_views.SedeViewSet.as_view({
     'get': 'list'})
 sede_api_list_informe = api_views.SedeViewSetInforme.as_view({
     'get': 'list'})
-sede_desactivar = api_views.SedeViewSet.as_view({    
+sede_desactivar = api_views.SedeViewSet.as_view({
     'post':'desactivar_sede'})
-participante_desactivar = api_views.SedeViewSet.as_view({    
+participante_desactivar = api_views.SedeViewSet.as_view({
     'post':'desactivar_participante'})
-actualizar_control_academico = api_views.SedeViewSet.as_view({    
+actualizar_control_academico = api_views.SedeViewSet.as_view({
     'post':'actualizar_control_academico'})
 sede_api_detail = api_views.SedeViewSet.as_view({
     'get': 'retrieve',
@@ -28,9 +28,9 @@ asesoria_api_calendario = api_views.AsesoriaCalendarViewSet.as_view({
 
 grupo_api_list = api_views.GrupoViewSet.as_view({
     'get': 'list'})
-grupo_desactivar = api_views.GrupoViewSet.as_view({    
+grupo_desactivar = api_views.GrupoViewSet.as_view({
     'post':'desactivar_grupo'})
-curso_desactivar = api_views.GrupoViewSet.as_view({    
+curso_desactivar = api_views.GrupoViewSet.as_view({
     'post':'desactivar_curso'})
 grupo_api_detail = api_views.GrupoViewSet.as_view({
     'get': 'retrieve',
@@ -43,6 +43,9 @@ calendario_api_detail = api_views.CalendarioViewSet.as_view({
     'get': 'retrieve',
     'put': 'update',
     'patch': 'partial_update'})
+
+calendario_escuela_api_list = api_views.EscuelaCalendarioViewSet.as_view({
+    'get': 'list'})
 
 asignacion_api_list = api_views.AsignacionViewSet.as_view({
     'get': 'list'})
@@ -76,10 +79,11 @@ urlpatterns = [
     url(r'^api/grupo/list/$', grupo_api_list, name='grupo_api_list'),
     url(r'^api/grupo/desactivar_grupo/$', grupo_desactivar, name='grupo_desactivar'),
     url(r'^api/controlacademico/grupo/actualizar/$', actualizar_control_academico, name='actualizar_control_academico'),
-    
+
     url(r'^api/grupo/(?P<pk>\d+)/$', grupo_api_detail, name='grupo_api_detail'),
 
     url(r'^api/calendario/list/$', calendario_api_list, name='calendario_api_list'),
+    url(r'^api/calendario/escuela/list/$', calendario_escuela_api_list, name='calendario_esucela_api_list'),
     url(r'^api/calendario/(?P<pk>\d+)/$', calendario_api_detail, name='calendario_api_detail'),
 
     url(r'^api/asignacion/$', asignacion_api_list, name='asignacion_api_list'),

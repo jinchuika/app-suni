@@ -25,6 +25,36 @@ class CalendarioSerializer(DynamicFieldsModelSerializer, serializers.ModelSerial
         return calendario.count_asistentes()
 
 
+class EscuelaCalendarioSerializer(DynamicFieldsModelSerializer, serializers.ModelSerializer):
+    cr_asistencia = serializers.SlugRelatedField(read_only=True, slug_field='modulo_num')
+    asistentes = serializers.SerializerMethodField()
+    url = serializers.SerializerMethodField('get_api_url')
+    participantes=serializers.SerializerMethodField()
+    escuela=serializers.SerializerMethodField()
+
+    class Meta:
+        model = Calendario
+        fields = '__all__'
+
+    def get_api_url(self, calendario):
+        return calendario.get_api_url()
+
+    def get_asistentes(self, calendario):
+        return calendario.count_asistentes()
+
+    def get_participantes(self, obj, pk=None):
+        print(obj.grupo)
+        asignacion= Asignacion.objects.filter(grupo=obj.grupo)
+        print(asignacion)
+        return asignacion.values('participante').count()
+
+    def get_escuela(self, obj, pk=None):
+        print(obj.grupo)
+        asignacion= Asignacion.objects.filter(grupo=obj.grupo)
+        print(asignacion)
+        return asignacion.values('participante','participante__genero__id','participante__escuela__nombre','grupo__sede__capacitador')
+
+
 class GrupoSerializer(serializers.ModelSerializer):
     sede = serializers.StringRelatedField()
     curso = serializers.StringRelatedField()
