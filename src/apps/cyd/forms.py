@@ -7,6 +7,7 @@ from apps.main.forms import GeoForm
 from apps.main.models import Departamento, Municipio
 from apps.cyd.models import (
     Curso, CrAsistencia, CrHito, Sede, Grupo, Participante, Asesoria, NotaAsistencia,Calendario)
+from apps.escuela.models import Escuela
 
 
 class CursoForm(forms.ModelForm):
@@ -59,8 +60,13 @@ class GrupoForm(forms.ModelForm):
         fields = '__all__'
         exclude = ('activo',)
         widgets = {
-            'sede': forms.Select(attrs={'class': 'select2'})
+            'sede': forms.Select(attrs={'class': 'select2'}),
+            'numero': forms.TextInput(attrs={'class': 'form-reset','size':'5'}),
         }
+    def __init__(self, *args, **kwargs):
+        super(GrupoForm, self).__init__(*args, **kwargs)
+        self.fields['numero'].label = "Cantidad"
+
 
 
 class SedeFilterForm(forms.Form):
@@ -253,8 +259,12 @@ class ControlAcademicoGrupoForm(forms.Form):
         widget=forms.Select(attrs={'class': 'select2 form-control'}))
     grupo = forms.ModelChoiceField(
         queryset=Grupo.objects.all(),
+        required=False,
         widget=forms.Select(attrs={'class': 'select2', 'data-url': reverse_lazy('participante_api_list')}))
-
+    escuela = forms.ModelChoiceField(
+         queryset=Escuela.objects.all(),
+         required=False,
+         widget=forms.Select(attrs={'class': 'select2', 'data-url': reverse_lazy('participante_api_list')}))
 class InformeAsistenciaForm(forms.Form):
     sede = forms.ModelChoiceField(
         label='Sede',

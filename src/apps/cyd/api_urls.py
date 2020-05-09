@@ -32,6 +32,8 @@ grupo_desactivar = api_views.GrupoViewSet.as_view({
     'post':'desactivar_grupo'})
 curso_desactivar = api_views.GrupoViewSet.as_view({
     'post':'desactivar_curso'})
+grupo_crear = api_views.GrupoViewSet.as_view({
+    'post':'crear_grupos'})
 grupo_api_detail = api_views.GrupoViewSet.as_view({
     'get': 'retrieve',
     'put': 'update',
@@ -66,7 +68,12 @@ nota_asistencia_api_update = api_views.NotaAsistenciaViewSet.as_view({
     'patch': 'partial_update'})
 nota_hito_api_update = api_views.NotaHitoViewSet.as_view({
     'patch': 'partial_update'})
-
+recordatorio_api_detail = api_views.RecordatorioViewSet.as_view({
+'get': 'list',
+'post': 'create',
+'patch': 'partial_update',
+'delete': 'destroy'
+})
 urlpatterns = [
     url(r'^api/sede/list/$', sede_api_list, name='sede_api_list'),
     url(r'^api/sede/listinforme/$', sede_api_list_informe, name='sede_api_list_informe'),
@@ -78,6 +85,7 @@ urlpatterns = [
     url(r'^api/asesoria/(?P<pk>\d+)/$', asesoria_api, name='asesoria_api_detail'),
     url(r'^api/grupo/list/$', grupo_api_list, name='grupo_api_list'),
     url(r'^api/grupo/desactivar_grupo/$', grupo_desactivar, name='grupo_desactivar'),
+    url(r'^api/grupo/crear/$', grupo_crear, name='grupo_crear'),
     url(r'^api/controlacademico/grupo/actualizar/$', actualizar_control_academico, name='actualizar_control_academico'),
 
     url(r'^api/grupo/(?P<pk>\d+)/$', grupo_api_detail, name='grupo_api_detail'),
@@ -98,4 +106,5 @@ urlpatterns = [
     url(r'^api/nota_asistencia/(?P<pk>\d+)/update/$', nota_asistencia_api_update, name='nota_asistencia_api_update'),
     url(r'^api/nota_hito/(?P<pk>\d+)/update/$', nota_hito_api_update, name='nota_hito_api_update'),
     url(r'^api/curso/desactivar_curso/$', curso_desactivar, name='curso_desactivar'),
+    url(r'^api/recordatorios/$',recordatorio_api_detail, name='recordatorio_api_detail')
 ]

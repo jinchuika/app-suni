@@ -99,6 +99,7 @@ function validar_udi_api(params) {
     }
 
     SedeDetail.init = function () {
+
         activar_edicion();
         $('#asesoria-form').hide();
         $('#btn-asesoria').on('click', function () {
@@ -131,6 +132,31 @@ function validar_udi_api(params) {
                 }
             });
         });
+
+        /**/
+        $('.eliminar-grupo').on('click', function () {
+          var botonEliminar= $(this);
+          bootbox.confirm('¿Desea eliminar el período de asesoría?', function (result) {
+              if(result){
+                  $.ajax({
+                      beforeSend: function(xhr, settings) {
+                          xhr.setRequestHeader("X-CSRFToken", $("[name=csrfmiddlewaretoken]").val());
+                      },
+                      success: function (respuesta) {
+                      },
+                      dataType: 'json',
+                      type: "POST",
+                      url: botonEliminar.data('ulr'),
+                      data: {
+                          primary_key:botonEliminar.data('grupo') ,
+                          eliminar:1,
+
+                      },
+                  });
+              }
+          });
+        });
+        /**/
     }
 }( window.SedeDetail = window.SedeDetail || {}, jQuery ));
 
@@ -270,6 +296,40 @@ function validar_udi_api(params) {
                     hora_fin: ''
                 });
             },
+            dayClick: function (date,calEvent, jsEvent, view){
+              /*******Aca controla el dia *********/
+              /**/
+              bootbox.prompt({
+                title: "Ingrese el recordatorio:",
+                inputType: 'textarea',
+                callback: function (result) {
+                    console.log(result);
+                    console.log( $('#cyd-calendario').data('url-recordatorio'))
+                    if(result !=null){
+                      $.ajax({
+                        type: "POST",
+                        url: $('#cyd-calendario').data('url-recordatorio'),
+                        dataType: 'json',
+                        data: {
+                          csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
+                          fecha:date.year()+'-'+(date.month()+1)+'-'+date.date(),
+                          observacion :result,
+                          capacitador:$('#cyd-calendario').data('codigo')
+                        },
+                        success: function (response) {
+                          bootbox.alert({message: "<h2>Recordatorio creado correctarmente </h2>", className:"modal modal-success fade in"});
+                        },
+                        error: function (response) {
+                          var mensaje = JSON.parse(response.responseText)
+                          bootbox.alert({message: "<h3><i class='fa fa-frown-o' style='font-size: 45px;'></i>&nbsp;&nbsp;&nbsp;HA OCURRIDO UN ERROR!!</h3></br>" + mensaje['mensaje'], className:"modal modal-danger fade"});
+                        }
+                    });
+                    }
+
+                }
+            });
+              /**/
+            },
             editable: true,
             eventClick: function (calEvent, jsEvent, view) {
                 if (calEvent.tipo == 'c') {
@@ -298,6 +358,8 @@ function validar_udi_api(params) {
                         }
                         ],
                     });
+                }else{
+                  console.log("otro codigo");
                 }
             },
             eventDrop: function(event, delta, revertFunc, jsEvent, ui, view) {
@@ -351,6 +413,16 @@ function validar_udi_api(params) {
                     return params;
                 },
                 editable: false
+            },
+            {
+                url:  $('#cyd-calendario').data('url-listarecordatorio'),
+                type: 'GET',
+                cache: true,
+                data: function () {
+                    var params = {};
+                    params['capacitador'] = $('#cyd-calendario').data('codigo');
+                    return params;
+                }
             }
             ],
             firstDay: 0,
@@ -462,6 +534,7 @@ var crear_cyd_calendario_asesorias = function () {
 /** */
 var crear_cyd_calendario_asistencia = function () {
     $('#cyd-calendario').fullCalendar({
+
         displayEventEnd: true,
         droppable: true,
         drop: function (date, jsEvent, ui, resourceId) {
@@ -475,6 +548,7 @@ var crear_cyd_calendario_asistencia = function () {
         },
         editable: true,
         eventClick: function (calEvent, jsEvent, view) {
+
             if (calEvent.tipo == 'c') {
                 var form = $('<form></form>');
                 form.append('<div class="form-group"><label for="hora_inicio_m">Hora de inicio</label><input type="text" class="form-control" id="hora_inicio_m" value="'+calEvent.start.hour()+':'+calEvent.start.minute()+'"></div>');
@@ -501,6 +575,8 @@ var crear_cyd_calendario_asistencia = function () {
                     }
                     ],
                 });
+            }else{
+              console.log("dio click");
             }
         },
         eventDrop: function(event, delta, revertFunc, jsEvent, ui, view) {
@@ -656,7 +732,6 @@ CalendarioCyD.init = function () {
                 break;
              case '1':
                 crear_cyd_calendario_asistencia();
-                break;
              case '2':
                 crear_cyd_calendario_asesorias();
                 break;
@@ -1498,7 +1573,7 @@ class CursoList{
 }
 class ControlAcademicoGrupos{
     constructor(){
-        var encabezado =['Asignacion','Nombre','Apellido'];
+        var encabezado =['Asignacion','Curso','Grupo','Sede','Nombre','Apellido','Genero'];
         var hot;
         $('#control-academico-list-form').on('submit', function (e) {
             e.preventDefault();
@@ -1527,9 +1602,14 @@ class ControlAcademicoGrupos{
                 var nota_trabajos =0;
                 var resultado_final=0;
                 for (var l=0; l<=response.length-1;l++){
-                     matris.push(response[l].asignacion)
+                    console.log(response[l].genero);
+                     matris.push(response[l].asignacion);
+                     matris.push(response[l].curso);
+                     matris.push(response[l].grupo);
+                     matris.push(response[l].sede);
                      matris.push(response[l].nombre);
                      matris.push(response[l].apellido);
+                     matris.push(response[l].genero);
                      for(var asi = 0; asi<=response[l].asistencia.length-1;asi++){
                         matris.push(response[l].asistencia[asi].nota);
                         nota_asitencia=nota_asitencia + response[l].asistencia[asi].nota;
@@ -1562,7 +1642,7 @@ class ControlAcademicoGrupos{
             afterSelection: afterSelection,
             cells: function (row, col, prop) {
                 var cellProperties = {};
-                if (col < 3) {
+                if (col < 6) {
                     cellProperties.readOnly = true;
                 }
                 if(col == encabezado.length-1){
@@ -1588,7 +1668,7 @@ class ControlAcademicoGrupos{
                   bootbox.alert({message: "<h3><i class='fa fa-frown-o' style='font-size: 45px;'></i>&nbsp;&nbsp;&nbsp;HA OCURRIDO UN ERROR!!</h3></br>" + jsonResponse["mensaje"], className:"modal modal-danger fade"});
                 }
               });
-              encabezado =['Asignacion','Nombre','Apellido'];
+              encabezado =['Asignacion','Curso','Grupo','Sede','Nombre','Apellido','Genero'];
               hot.destroy();
         });
 
@@ -2259,6 +2339,29 @@ class asistenciaWeb{
               });
               /**/
           });
+
+  }
+}
+class crearGrupos{
+  constructor(){
+    $('#grupo-add-form').submit(function (e) {
+        e.preventDefault();
+        $.ajax({
+          type: "POST",
+          url:$('#grupo-add-form').attr('action'),
+          dataType: 'json',
+          data:$('#grupo-add-form').serializeObject(true),
+          success: function (response) {
+            bootbox.alert({message: "<h3><i class='fa fa-frown-o' style='font-size: 45px;'></i>&nbsp;&nbsp;&nbsp;COMPLETO</h3></br>", className:"modal modal-success fade"});
+
+          },
+          error: function (response) {
+            var mensaje = JSON.parse(response.responseText)
+            bootbox.alert({message: "<h3><i class='fa fa-frown-o' style='font-size: 45px;'></i>&nbsp;&nbsp;&nbsp;HA OCURRIDO UN ERROR!!</h3></br>" + mensaje['mensaje'], className:"modal modal-danger fade"});
+          }
+      });
+
+    });
 
   }
 }

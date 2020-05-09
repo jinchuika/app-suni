@@ -5,7 +5,7 @@ from apps.main.serializers import DynamicFieldsModelSerializer
 from apps.cyd.models import (
     Sede, Grupo, Calendario, Participante,
     NotaAsistencia, NotaHito, Asignacion,
-    ParRol, Asesoria)
+    ParRol, Asesoria, RecordatorioCalendario )
 from apps.escuela.serializers import EscuelaSerializer
 
 
@@ -186,4 +186,9 @@ class AsignacionSerializer(DynamicFieldsModelSerializer, serializers.ModelSerial
 class ParRolSerializer(serializers.ModelSerializer):
     class Meta:
         model = ParRol
+        fields = '__all__'
+
+class RecordatorioSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RecordatorioCalendario
         fields = '__all__'

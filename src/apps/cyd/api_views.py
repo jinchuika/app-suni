@@ -12,10 +12,10 @@ from apps.cyd.serializers import (
     SedeSerializer, GrupoSerializer, CalendarioSerializer,
     AsignacionSerializer, ParticipanteSerializer,
     NotaAsistenciaSerializer, NotaHitoSerializer, AsesoriaSerializer,
-    AsesoriaCalendarSerializer, EscuelaCalendarioSerializer)
+    AsesoriaCalendarSerializer, EscuelaCalendarioSerializer, RecordatorioSerializer)
 from apps.cyd.models import (
     Sede, Grupo, Calendario, Asignacion, Participante,
-    NotaAsistencia, NotaHito, Asesoria,Curso)
+    NotaAsistencia, NotaHito, Asesoria,Curso, RecordatorioCalendario, ParGenero)
 
 
 class GrupoViewSet(CsrfExemptMixin, viewsets.ModelViewSet):
@@ -28,9 +28,17 @@ class GrupoViewSet(CsrfExemptMixin, viewsets.ModelViewSet):
         """ Metodo  que cambia la disponibilidad del grupo
         """
         id_grupo= request.data['primary_key']
-        grupo = Grupo.objects.get(id=id_grupo)
-        grupo.activo = False
-        grupo.save()
+        try:
+            eliminar_grupo= request.data['eliminar']
+        except Exception:
+            eliminar_grupo=0
+        if eliminar_grupo==0:
+            grupo = Grupo.objects.get(id=id_grupo)
+            grupo.activo = False
+            grupo.save()
+        else:
+            grupo = Grupo.objects.get(id=id_grupo)
+            grupo.delete()
         return Response(
             {'mensaje': 'Cambio Aceptado'},
             status=status.HTTP_200_OK
@@ -46,6 +54,29 @@ class GrupoViewSet(CsrfExemptMixin, viewsets.ModelViewSet):
         curso.save()
         return Response(
             {'mensaje': 'Cambio Aceptado'},
+            status=status.HTTP_200_OK
+        )
+
+    @action(methods=['post'], detail=False)
+    def crear_grupos(self,request, pk=None):
+        """ Metodo  que crea mas grupos
+        """
+        sede=Sede.objects.get(id=request.data['sede'])
+        curso=Curso.objects.get(id=request.data['curso'])
+        cantidad= request.data['numero']
+        comentario=request.data['comentario']
+        ultimo_grupo=Grupo.objects.filter(sede=sede,curso=curso).last()
+        for x in range(ultimo_grupo.numero+1, (ultimo_grupo.numero + int(cantidad))+1):
+            nuevo_grupo= Grupo(
+            sede=sede,
+            numero=x,
+            curso=curso,
+            comentario=comentario,
+            activo=True,
+            )
+            nuevo_grupo.save()
+        return Response(
+            {'mensaje': 'Grupos creados correctamente'},
             status=status.HTTP_200_OK
         )
 
@@ -92,11 +123,15 @@ class SedeViewSet(CsrfExemptMixin, viewsets.ModelViewSet):
     @action(methods=['post'], detail=False)
     def actualizar_control_academico(self,request, pk=None):
         """ Metodo  que cambia la disponibilidad del participante
-        """
+        """    
         contado = 0
         dato =  json.loads(request.data['datos'])
         for numero in dato:
             asignacion = Asignacion.objects.get(id=numero['Asignacion'])
+            if asignacion.participante.genero.genero != numero['Genero']:
+                if ParGenero.objects.filter(genero=numero['Genero']):
+                    asignacion.participante.genero.genero=genero=numero['Genero']
+                    asignacion.participante.genero.save()
             notas_hitos = NotaHito.objects.filter(asignacion=asignacion)
             notas_asistencia = NotaAsistencia.objects.filter(asignacion=asignacion)
             for hitos in notas_hitos:
@@ -232,3 +267,8 @@ class EscuelaCalendarioViewSet(CsrfExemptMixin, viewsets.ModelViewSet):
     queryset = Calendario.objects.all()
     filter_fields = ('grupo',)
     filter_class=CalendarioFilter2
+
+class RecordatorioViewSet(viewsets.ModelViewSet):
+    serializer_class=RecordatorioSerializer
+    queryset = RecordatorioCalendario.objects.all()
+    filter_fields=('capacitador',)
