@@ -99,6 +99,7 @@ function validar_udi_api(params) {
     }
 
     SedeDetail.init = function () {
+
         activar_edicion();
         $('#asesoria-form').hide();
         $('#btn-asesoria').on('click', function () {
@@ -131,6 +132,31 @@ function validar_udi_api(params) {
                 }
             });
         });
+
+        /**/
+        $('.eliminar-grupo').on('click', function () {
+          var botonEliminar= $(this);
+          bootbox.confirm('¿Desea eliminar el período de asesoría?', function (result) {
+              if(result){
+                  $.ajax({
+                      beforeSend: function(xhr, settings) {
+                          xhr.setRequestHeader("X-CSRFToken", $("[name=csrfmiddlewaretoken]").val());
+                      },
+                      success: function (respuesta) {
+                      },
+                      dataType: 'json',
+                      type: "POST",
+                      url: botonEliminar.data('ulr'),
+                      data: {
+                          primary_key:botonEliminar.data('grupo') ,
+                          eliminar:1,
+
+                      },
+                  });
+              }
+          });
+        });
+        /**/
     }
 }( window.SedeDetail = window.SedeDetail || {}, jQuery ));
 
@@ -270,6 +296,40 @@ function validar_udi_api(params) {
                     hora_fin: ''
                 });
             },
+            dayClick: function (date,calEvent, jsEvent, view){
+              /*******Aca controla el dia *********/
+              /**/
+              bootbox.prompt({
+                title: "Ingrese el recordatorio:",
+                inputType: 'textarea',
+                callback: function (result) {
+                    console.log(result);
+                    console.log( $('#cyd-calendario').data('url-recordatorio'))
+                    if(result !=null){
+                      $.ajax({
+                        type: "POST",
+                        url: $('#cyd-calendario').data('url-recordatorio'),
+                        dataType: 'json',
+                        data: {
+                          csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
+                          fecha:date.year()+'-'+(date.month()+1)+'-'+date.date(),
+                          observacion :result,
+                          capacitador:$('#cyd-calendario').data('codigo')
+                        },
+                        success: function (response) {
+                          bootbox.alert({message: "<h2>Recordatorio creado correctarmente </h2>", className:"modal modal-success fade in"});
+                        },
+                        error: function (response) {
+                          var mensaje = JSON.parse(response.responseText)
+                          bootbox.alert({message: "<h3><i class='fa fa-frown-o' style='font-size: 45px;'></i>&nbsp;&nbsp;&nbsp;HA OCURRIDO UN ERROR!!</h3></br>" + mensaje['mensaje'], className:"modal modal-danger fade"});
+                        }
+                    });
+                    }
+
+                }
+            });
+              /**/
+            },
             editable: true,
             eventClick: function (calEvent, jsEvent, view) {
                 if (calEvent.tipo == 'c') {
@@ -298,6 +358,8 @@ function validar_udi_api(params) {
                         }
                         ],
                     });
+                }else{
+                  console.log("otro codigo");
                 }
             },
             eventDrop: function(event, delta, revertFunc, jsEvent, ui, view) {
@@ -351,6 +413,16 @@ function validar_udi_api(params) {
                     return params;
                 },
                 editable: false
+            },
+            {
+                url:  $('#cyd-calendario').data('url-listarecordatorio'),
+                type: 'GET',
+                cache: true,
+                data: function () {
+                    var params = {};
+                    params['capacitador'] = $('#cyd-calendario').data('codigo');
+                    return params;
+                }
             }
             ],
             firstDay: 0,
@@ -462,6 +534,7 @@ var crear_cyd_calendario_asesorias = function () {
 /** */
 var crear_cyd_calendario_asistencia = function () {
     $('#cyd-calendario').fullCalendar({
+
         displayEventEnd: true,
         droppable: true,
         drop: function (date, jsEvent, ui, resourceId) {
@@ -475,6 +548,7 @@ var crear_cyd_calendario_asistencia = function () {
         },
         editable: true,
         eventClick: function (calEvent, jsEvent, view) {
+
             if (calEvent.tipo == 'c') {
                 var form = $('<form></form>');
                 form.append('<div class="form-group"><label for="hora_inicio_m">Hora de inicio</label><input type="text" class="form-control" id="hora_inicio_m" value="'+calEvent.start.hour()+':'+calEvent.start.minute()+'"></div>');
@@ -501,6 +575,8 @@ var crear_cyd_calendario_asistencia = function () {
                     }
                     ],
                 });
+            }else{
+              console.log("dio click");
             }
         },
         eventDrop: function(event, delta, revertFunc, jsEvent, ui, view) {
@@ -656,7 +732,6 @@ CalendarioCyD.init = function () {
                 break;
              case '1':
                 crear_cyd_calendario_asistencia();
-                break;
              case '2':
                 crear_cyd_calendario_asesorias();
                 break;
@@ -1498,7 +1573,7 @@ class CursoList{
 }
 class ControlAcademicoGrupos{
     constructor(){
-        var encabezado =['Asignacion','Nombre','Apellido'];
+        var encabezado =['Asignacion','Curso','Grupo','Sede','Nombre','Apellido','Genero'];
         var hot;
         $('#control-academico-list-form').on('submit', function (e) {
             e.preventDefault();
@@ -1527,9 +1602,14 @@ class ControlAcademicoGrupos{
                 var nota_trabajos =0;
                 var resultado_final=0;
                 for (var l=0; l<=response.length-1;l++){
-                     matris.push(response[l].asignacion)
+                    console.log(response[l].genero);
+                     matris.push(response[l].asignacion);
+                     matris.push(response[l].curso);
+                     matris.push(response[l].grupo);
+                     matris.push(response[l].sede);
                      matris.push(response[l].nombre);
                      matris.push(response[l].apellido);
+                     matris.push(response[l].genero);
                      for(var asi = 0; asi<=response[l].asistencia.length-1;asi++){
                         matris.push(response[l].asistencia[asi].nota);
                         nota_asitencia=nota_asitencia + response[l].asistencia[asi].nota;
@@ -1562,7 +1642,7 @@ class ControlAcademicoGrupos{
             afterSelection: afterSelection,
             cells: function (row, col, prop) {
                 var cellProperties = {};
-                if (col < 3) {
+                if (col < 6) {
                     cellProperties.readOnly = true;
                 }
                 if(col == encabezado.length-1){
@@ -1588,7 +1668,7 @@ class ControlAcademicoGrupos{
                   bootbox.alert({message: "<h3><i class='fa fa-frown-o' style='font-size: 45px;'></i>&nbsp;&nbsp;&nbsp;HA OCURRIDO UN ERROR!!</h3></br>" + jsonResponse["mensaje"], className:"modal modal-danger fade"});
                 }
               });
-              encabezado =['Asignacion','Nombre','Apellido'];
+              encabezado =['Asignacion','Curso','Grupo','Sede','Nombre','Apellido','Genero'];
               hot.destroy();
         });
 
@@ -1921,7 +2001,7 @@ class informeCapacitadores{
                 {data: "participantes"},
             ],
             footerCallback: function( tfoot, data, start, end, display){
-                for (var i in data){                  
+                for (var i in data){
                   total_grupos=total_grupos+data[i].grupos
                   total_cursos=total_cursos+data[i].curso
                   total_asignaciones=total_asignaciones+data[i].asignaciones
@@ -1937,6 +2017,351 @@ class informeCapacitadores{
           });
 
           });
+
+  }
+}
+class informeEscuela{
+  constructor(){
+    var contador =0;
+    var cantidad_hombres=0;
+    var cantidad_mujeres=0;
+    $('#informescuela-list-form').submit(function (e) {
+        e.preventDefault();
+         var tablaDispositivos = $('#informescuela-table-search').DataTable({
+            dom: 'lfrtipB',
+            destroy:true,
+            buttons: ['excel', 'pdf'],
+            processing: true,
+            deferLoading: [0],
+            ajax: {
+                type: 'GET',
+                url: $('#informescuela-list-form').attr('action'),
+                deferRender: true,
+                dataSrc: '',
+                cache: true,
+                data: function (data,params) {
+                          return $('#informescuela-list-form').serializeObject(true);
+                }
+
+            },
+            columns:[
+                {data: "id",render: function(data, type , full, meta){
+                    contador = contador +1;
+                    return "<a href="+full.url+">"+contador+"</a>";
+                }},
+                {data: "nombre"},
+                {data: "apellido"},
+                {data: "genero",render: function(data, type , full, meta){
+                    if(full.genero==1){
+
+                      return "Masculino";
+                    }else{
+
+                      return "Femenino";
+                    }
+                }},
+            ],
+            headerCallback:function (thead, data, start, end, display ){
+              for(var i in data){
+                console.log(data[i].escuela.nombre);
+                $("#titulo_escuela").html(data[i].escuela.nombre);
+                if(data[i].genero==1){
+                    cantidad_hombres=cantidad_hombres+1;
+                }else{
+                  cantidad_mujeres=cantidad_mujeres+1;
+                }
+                $(thead).find('th').eq(0).html("CANTIDAD TOTAL :"+ (cantidad_hombres+cantidad_mujeres));
+                $(thead).find('th').eq(1).html("HOMBRES :" + cantidad_hombres);
+                $(thead).find('th').eq(2).html("MUJERES : " +cantidad_mujeres);
+
+              };
+
+            },
+
+          });
+
+          });
+
+  }
+}
+
+class informeGrupo{
+  constructor(){
+    $('#informegrupos-list-form').submit(function (e) {
+        e.preventDefault();
+         var tablaDispositivos = $('#informegrupo-table-search').DataTable({
+            dom: 'lfrtipB',
+            destroy:true,
+            buttons: ['excel', 'pdf'],
+            processing: true,
+            deferLoading: [0],
+            ajax: {
+                type: 'POST',
+                url: $('#informegrupos-list-form').attr('action'),
+                deferRender: true,
+                dataSrc: '',
+                cache: true,
+                data: function (data,params) {
+                    return $('#informegrupos-list-form').serializeObject(true);
+                }
+
+            },
+            columns:[
+                {data: "Numero",render: function(data, type , full, meta){
+                    return "<a target='_blank' href="+full.url+">"+data+"</a>";
+                }},
+                {data: "Nombre"},
+                {data: "Apellido"},
+                {data: "Id"},
+                {data: "Genero"},
+                {data: "Correo"},
+                {data: "Escuela"},
+                {data: "Udi"},
+                {data: "Etnia"},
+                {data: "Curso"},
+                {data: "Grupo"},
+                {data: "Telefono"},
+                {data: "Escolaridad"},
+            ],
+          });
+
+          });
+
+  }
+}
+
+class informeAsistenciaPeriodos{
+  constructor(){
+    $('#informeasistenciaperiodo-list-form').submit(function (e) {
+        e.preventDefault();
+         var tablaDispositivos = $('#informeasistenciaperiodo-table-search').DataTable({
+            dom: 'lfrtipB',
+            destroy:true,
+            buttons: ['excel', 'pdf'],
+            processing: true,
+            deferLoading: [0],
+            ajax: {
+                type: 'POST',
+                url: $('#informeasistenciaperiodo-list-form').attr('action'),
+                deferRender: true,
+                dataSrc: '',
+                cache: true,
+                data: function (data,params) {
+                    return $('#informeasistenciaperiodo-list-form').serializeObject(true);
+                }
+
+            },
+            columns:[
+                {data: "Numero",render: function(data, type , full, meta){
+                    return "<a target='_blank' href="+full.url+">"+data+"</a>";
+                }},
+                {data: "Nombre"},
+                {data: "Apellido"},
+                {data: "Escuela"},
+
+            ],
+          });
+
+          });
+
+  }
+}
+
+class informeEscuelaSede{
+  constructor(){
+    var total_hombres=0;
+    var total_mujeres=0;
+    var total_participantes=0;
+    $('#informescuelasede-list-form').submit(function (e) {
+        e.preventDefault();
+         var tablaDispositivos = $('#informescuelasede-table-search').DataTable({
+            dom: 'lfrtipB',
+            destroy:true,
+            buttons: ['excel', 'pdf'],
+            processing: true,
+            deferLoading: [0],
+            ajax: {
+                type: 'POST',
+                url: $('#informescuelasede-list-form').attr('action'),
+                deferRender: true,
+                dataSrc: '',
+                cache: true,
+                data: function (data,params) {
+                    return $('#informescuelasede-list-form').serializeObject(true);
+                }
+
+            },
+            columns:[
+                {data: "Numero",render: function(data, type , full, meta){
+                    return "<a target='_blank' href="+full.Url+">"+data+"</a>";
+                }},
+                {data: "Escuela"},
+                {data: "Udi"},
+                {data: "Hombres"},
+                {data: "Mujeres"},
+                {data: "Total"},
+
+            ],
+            footerCallback: function( tfoot, data, start, end, display){
+                for (var i in data){
+                  total_hombres=total_hombres+data[i].Hombres;
+                  total_mujeres=total_mujeres+data[i].Mujeres;
+                  total_participantes=total_participantes+data[i].Total;
+                  $(tfoot).find('th').eq(0).html( "TOTAL ");
+                  $(tfoot).find('th').eq(1).html(data.length);
+                  $(tfoot).find('th').eq(2).html( "---");
+                  $(tfoot).find('th').eq(3).html(total_hombres);
+                  $(tfoot).find('th').eq(4).html(total_mujeres);
+                  $(tfoot).find('th').eq(5).html(total_participantes);
+                };
+              }
+          });
+
+          });
+
+  }
+}
+class informeListadoEscuela{
+  constructor(){
+    var total_hombres=0;
+    var total_mujeres=0;
+    var total_participantes=0;
+    $('#informescuelalistado-list-form').submit(function (e) {
+        e.preventDefault();
+         var tablaDispositivos = $('#informescuelalistado-table-search').DataTable({
+            dom: 'lfrtipB',
+            destroy:true,
+            buttons: ['excel', 'pdf'],
+            processing: true,
+            deferLoading: [0],
+            ajax: {
+                type: 'POST',
+                url: $('#informescuelalistado-list-form').attr('action'),
+                deferRender: true,
+                dataSrc: '',
+                cache: true,
+                data: function (data,params) {
+                    return $('#informescuelalistado-list-form').serializeObject(true);
+                }
+
+            },
+            columns:[
+                {data: "Numero",render: function(data, type , full, meta){
+                    return "<a target='_blank' href="+full.Url+">"+data+"</a>";
+                }},
+                {data: "Escuela"},
+                {data: "Udi"},
+                {data: "Hombres"},
+                {data: "Mujeres"},
+                {data: "Total"},
+
+            ],
+            footerCallback: function( tfoot, data, start, end, display){
+                for (var i in data){
+                  total_hombres=total_hombres+data[i].Hombres;
+                  total_mujeres=total_mujeres+data[i].Mujeres;
+                  total_participantes=total_participantes+data[i].Total;
+                  $(tfoot).find('th').eq(0).html( "TOTAL ");
+                  $(tfoot).find('th').eq(1).html(data.length);
+                  $(tfoot).find('th').eq(2).html( "---");
+                  $(tfoot).find('th').eq(3).html(total_hombres);
+                  $(tfoot).find('th').eq(4).html(total_mujeres);
+                  $(tfoot).find('th').eq(5).html(total_participantes);
+                };
+              }
+          });
+
+          });
+
+  }
+}
+class asistenciaWeb{
+  constructor(){
+    var urlAsignarAsignacion=$('#asistencia-web-table-search').data("urlasignar");
+    $('#asistencia-web-list-form').submit(function (e) {
+        e.preventDefault();
+
+        var tablaDispositivos = $('#asistencia-web-table-search').DataTable({
+            dom: 'lfrtipB',
+            destroy:true,
+            buttons: ['excel', 'pdf'],
+            processing: true,
+            deferLoading: [0],
+            ajax: {
+                type: 'POST',
+                url: $('#asistencia-web-list-form').attr('action'),
+                deferRender: true,
+                dataSrc: '',
+                cache: true,
+                data: function (data,params) {
+                    return $('#asistencia-web-list-form').serializeObject(true);
+                }
+
+            },
+            columns:[
+                {data: "Numero"},
+                {data: "Maestro"},
+                {data: "Asistencia",render: function(data, type , full, meta){
+                    if(full.Asistencia !=0){
+                      return "<input checked type="+" checkbox" +" id="+" asistencia" +" name="+" vehicle"+full.Numero+">";
+                    }else{
+                      return "<input type="+" checkbox" +" id="+" asistencia" +" name="+" vehicle"+full.Numero+">";
+                    }
+
+                }},
+            ],
+            footerCallback: function( tfoot, data, start, end, display){
+              }
+          });
+          /*Aprobar Dispositivo de desecho*/
+          tablaDispositivos.on('click', '#asistencia', function () {
+                  let data_fila = tablaDispositivos.row($(this).parents('tr')).data();
+                  $.ajax({
+                    type: "POST",
+                    url: urlAsignarAsignacion,
+                    dataType: 'json',
+                    data: {
+                      csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
+                      datos:data_fila
+                    },
+                    success: function (response) {
+                      bootbox.alert({message: "<h3><i class='fa fa-frown-o' style='font-size: 45px;'></i>&nbsp;&nbsp;&nbsp;COMPLETO</h3></br>", className:"modal modal-success fade"});
+                      tablaDispositivos.ajax.reload();
+
+                    },
+                    error: function (response) {
+                      var mensaje = JSON.parse(response.responseText)
+                      bootbox.alert({message: "<h3><i class='fa fa-frown-o' style='font-size: 45px;'></i>&nbsp;&nbsp;&nbsp;HA OCURRIDO UN ERROR!!</h3></br>" + mensaje['mensaje'], className:"modal modal-danger fade"});
+                    }
+                });
+
+                // tablaDispositivos.ajax.reload();
+              });
+              /**/
+          });
+
+  }
+}
+class crearGrupos{
+  constructor(){
+    $('#grupo-add-form').submit(function (e) {
+        e.preventDefault();
+        $.ajax({
+          type: "POST",
+          url:$('#grupo-add-form').attr('action'),
+          dataType: 'json',
+          data:$('#grupo-add-form').serializeObject(true),
+          success: function (response) {
+            bootbox.alert({message: "<h3><i class='fa fa-frown-o' style='font-size: 45px;'></i>&nbsp;&nbsp;&nbsp;COMPLETO</h3></br>", className:"modal modal-success fade"});
+
+          },
+          error: function (response) {
+            var mensaje = JSON.parse(response.responseText)
+            bootbox.alert({message: "<h3><i class='fa fa-frown-o' style='font-size: 45px;'></i>&nbsp;&nbsp;&nbsp;HA OCURRIDO UN ERROR!!</h3></br>" + mensaje['mensaje'], className:"modal modal-danger fade"});
+          }
+      });
+
+    });
 
   }
 }

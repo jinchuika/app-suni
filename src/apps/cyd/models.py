@@ -72,6 +72,7 @@ class Sede(models.Model):
     observacion = models.TextField(null=True, blank=True, verbose_name='Observaciones')
     mapa = models.ForeignKey(Coordenada, null=True, blank=True, on_delete=models.CASCADE)
     activa = models.BooleanField(default=True, blank=True, verbose_name='Activa')
+    url = models.TextField(null=True, blank=True,verbose_name='Carpeta Fotos')
 
     class Meta:
         verbose_name = "Sede"
@@ -436,3 +437,17 @@ class NotaHito(models.Model):
         """
         if self.nota > self.cr_hito.punteo_max:
             raise ValidationError({'nota': 'La nota no puede exceder el punteo máximo.'})
+
+class RecordatorioCalendario(models.Model):
+    """ Recordatorios del calendario
+    """
+    capacitador = models.ForeignKey(User, related_name='recordatorios', on_delete=models.CASCADE)
+    fecha = models.DateField(null=True, blank=True)
+    observacion = models.TextField(null=True, blank=True, verbose_name='Observaciones')
+
+    class Meta:
+        verbose_name = "Recordatorio"
+        verbose_name_plural = "Recordatorios"
+
+    def __str__(self):
+        return '{} - {}'.format(self.capacitador, self.fecha)
