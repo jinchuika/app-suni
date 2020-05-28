@@ -1,0 +1,37 @@
+<div class="box box-primary">
+	<div class="box-header">
+		<h3 class="box-title">
+			Sedes de Capacitación 
+		</h3>
+		<div class="box-tools pull-right">
+            <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+            </button>
+        </div>
+	</div>
+	<div class="box-body table-responsive">
+		<table class="table table-condensed datatable-simple">
+			<thead>
+				<tr>
+					<th>Escuela</th>
+					<th>Fecha vencimiento</th>
+					<th>Último contacto</th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for garantia in queryset %}
+					<tr>
+						<td>
+							<a href="{{ garantia.equipamiento.get_absolute_url }}">
+								{{ garantia.equipamiento.escuela }}
+							</a>
+						</td>
+						<td>
+							{{ garantia.fecha_vencimiento|date:"Y-m-d" }}
+						</td>
+						<td>{{ garantia.get_ultimo_monitoreo.fecha|date:"Y-m-d"|default_if_none:"" }}</td>
+					</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+	</div>
+</div>
