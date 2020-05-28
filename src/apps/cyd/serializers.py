@@ -5,7 +5,7 @@ from apps.main.serializers import DynamicFieldsModelSerializer
 from apps.cyd.models import (
     Sede, Grupo, Calendario, Participante,
     NotaAsistencia, NotaHito, Asignacion,
-    ParRol, Asesoria)
+    ParRol, Asesoria, RecordatorioCalendario )
 from apps.escuela.serializers import EscuelaSerializer
 
 
@@ -25,12 +25,42 @@ class CalendarioSerializer(DynamicFieldsModelSerializer, serializers.ModelSerial
         return calendario.count_asistentes()
 
 
+class EscuelaCalendarioSerializer(DynamicFieldsModelSerializer, serializers.ModelSerializer):
+    cr_asistencia = serializers.SlugRelatedField(read_only=True, slug_field='modulo_num')
+    asistentes = serializers.SerializerMethodField()
+    url = serializers.SerializerMethodField('get_api_url')
+    participantes=serializers.SerializerMethodField()
+    escuela=serializers.SerializerMethodField()
+
+    class Meta:
+        model = Calendario
+        fields = '__all__'
+
+    def get_api_url(self, calendario):
+        return calendario.get_api_url()
+
+    def get_asistentes(self, calendario):
+        return calendario.count_asistentes()
+
+    def get_participantes(self, obj, pk=None):
+        print(obj.grupo)
+        asignacion= Asignacion.objects.filter(grupo=obj.grupo)
+        print(asignacion)
+        return asignacion.values('participante').count()
+
+    def get_escuela(self, obj, pk=None):
+        print(obj.grupo)
+        asignacion= Asignacion.objects.filter(grupo=obj.grupo)
+        print(asignacion)
+        return asignacion.values('participante','participante__genero__id','participante__escuela__nombre','grupo__sede__capacitador')
+
+
 class GrupoSerializer(serializers.ModelSerializer):
     sede = serializers.StringRelatedField()
     curso = serializers.StringRelatedField()
     asistencias = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
     capacitador = serializers.StringRelatedField(source="sede.capacitador.get_full_name")
-    urlgrupo = serializers.StringRelatedField(source ="get_absolute_url") 
+    urlgrupo = serializers.StringRelatedField(source ="get_absolute_url")
     class Meta:
         model = Grupo
         fields = ('id', 'sede', 'numero', 'curso', 'asistencias', 'comentario','capacitador','urlgrupo')
@@ -156,4 +186,9 @@ class AsignacionSerializer(DynamicFieldsModelSerializer, serializers.ModelSerial
 class ParRolSerializer(serializers.ModelSerializer):
     class Meta:
         model = ParRol
+        fields = '__all__'
+
+class RecordatorioSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RecordatorioCalendario
         fields = '__all__'
