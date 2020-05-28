@@ -19,9 +19,14 @@ urlpatterns = [
         r'^diplomapdf/$',
         certificado_views.DiplomaPdfView.as_view(),
         name="diplomapdf"
+        ),
+    # constancia pdf
+    url(
+        r'^constanciapdf/$',
+        certificado_views.ConstanciaPdfView.as_view(),
+        name="constanciapdf"
         )
    
-
 ]
 
 
