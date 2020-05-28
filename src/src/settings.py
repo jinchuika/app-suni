@@ -122,6 +122,7 @@ WSGI_APPLICATION = 'src.wsgi.application'
 
 DATABASE_ROUTERS = ['apps.legacy.dbrouters.LegacyRouter', ]
 
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
