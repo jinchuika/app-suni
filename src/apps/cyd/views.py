@@ -1,4 +1,3 @@
-
 from datetime import datetime
 from django.db import IntegrityError
 from django.db.models import Q
@@ -9,14 +8,15 @@ from django.urls import reverse
 from rest_framework import views,status
 from rest_framework.response import Response
 from django.utils.datastructures import MultiValueDictKeyError
-
+from django.shortcuts import render
 from braces.views import LoginRequiredMixin, GroupRequiredMixin, JsonRequestResponseMixin
-
 from apps.cyd import forms as cyd_f
 from apps.cyd import models as cyd_m
 from apps.escuela.models import Escuela
 from apps.main.models import Coordenada
 from django.contrib.auth.models import User
+from django.core.files.storage import FileSystemStorage
+from django.conf import settings
 
 
 class CursoCreateView(LoginRequiredMixin, GroupRequiredMixin, CreateView):
@@ -340,8 +340,15 @@ class ParticipanteJsonCreateView(LoginRequiredMixin, JsonRequestResponseMixin, C
                 slug=self.request_json['dpi'])
             participante.asignar(grupo)
         except IntegrityError:
-            error_dict = {u"message": u"El dpi ya existe "}
-            return self.render_bad_request_response(error_dict)
+
+            asignar_grupo =  cyd_m.Asignacion(
+                participante=cyd_m.Participante.objects.get(slug=self.request_json['dpi']),
+                grupo=grupo
+            )
+            asignar_grupo.save()
+            error_dict = {u"message": u"Asignado correctamente"}
+            #return self.render_bad_request_response(error_dict)
+            return self.render_json_response(error_dict)
         return self.render_json_response({'status': 'ok'})
 
 
@@ -553,29 +560,67 @@ class InformeCapacitadores(views.APIView):
         listado_curso=[]
         contador_sede=0
         capacitador = User.objects.get(id=self.request.POST['capacitador'])
-        sedes = cyd_m.Sede.objects.filter(capacitador=capacitador)
-        asignacion_capacitador= cyd_m.Asignacion.objects.filter(grupo__sede__capacitador=capacitador)
-        for sede in sedes:
-            listado_datos={}
-            contador_sede = contador_sede +1
-            listado_datos['numero']=contador_sede
-            listado_datos['sede']=sede.nombre
-            contado_participantes=0
-            contador_curso=0
-            grupos=cyd_m.Grupo.objects.filter(sede=sede)
-            listado_datos['grupos']=grupos.count()
-            for asignacion in grupos:
-                listado_curso.append(asignacion.curso)
-                contado_participantes = contado_participantes + cyd_m.Asignacion.objects.filter(grupo=asignacion).distinct().count()
-                contado_asignacion = contado_participantes + cyd_m.Asignacion.objects.filter(grupo=asignacion).count()
-            listado_curso=list(dict.fromkeys(listado_curso))
-            for cantida in listado_curso:
-                contador_curso=contador_curso+1
-            listado_curso=[]
-            listado_datos['participantes']=contado_participantes
-            listado_datos['asignaciones']=contado_asignacion
-            listado_datos['curso']=contador_curso
-            listado_sede.append(listado_datos)
+        try:
+            sedes = cyd_m.Sede.objects.filter(capacitador=capacitador,fecha_creacion__date__gte=self.request.POST['fecha_min'],fecha_creacion__date__lte=self.request.POST['fecha_max'])
+            asignacion_capacitador= cyd_m.Asignacion.objects.filter(grupo__sede__capacitador=capacitador)
+            for sede in sedes:
+                listado_datos={}
+                contador_sede = contador_sede +1
+                listado_datos['numero']=contador_sede
+                listado_datos['sede']=sede.nombre
+                contado_participantes=0
+                contador_curso=0
+                grupos=cyd_m.Grupo.objects.filter(sede=sede)
+                listado_datos['grupos']=grupos.count()
+                for asignacion in grupos:
+                    listado_curso.append(asignacion.curso)
+                    contado_participantes = contado_participantes + cyd_m.Asignacion.objects.filter(grupo=asignacion).distinct().count()
+                    contado_asignacion = contado_participantes + cyd_m.Asignacion.objects.filter(grupo=asignacion).count()
+                listado_curso=list(dict.fromkeys(listado_curso))
+                for cantida in listado_curso:
+                    contador_curso=contador_curso+1
+                listado_curso=[]
+                listado_datos['participantes']=contado_participantes
+                listado_datos['asignaciones']=contado_asignacion
+                listado_datos['curso']=contador_curso
+                listado_sede.append(listado_datos)
+        except MultiValueDictKeyError as e:
+            sedes = cyd_m.Sede.objects.filter(capacitador=capacitador)
+            asignacion_capacitador= cyd_m.Asignacion.objects.filter(grupo__sede__capacitador=capacitador)
+            #print(asignacion_capacitador.values("participante__escuela").distinct())
+            for sede in sedes:
+                listado_datos={}
+                escuela_invitada=cyd_m.Asignacion.objects.filter(grupo__sede=sede)
+                escuela_invitada.values("participante__escuela").distinct()
+                numero_escuelas_invitadas=escuela_invitada.values("participante__escuela").distinct().count()
+                if numero_escuelas_invitadas == 0:
+                    print("No hay escuelas asignadas")
+                    listado_datos['invitada']=0
+                elif numero_escuelas_invitadas ==1:
+                    print("Solo hay una escuela asignada")
+                    listado_datos['invitada']=1
+                else:
+                    print("Hay un monton de escuelas asignadas")
+                    listado_datos['invitada']=numero_escuelas_invitadas -1
+                contador_sede = contador_sede +1
+                listado_datos['numero']=contador_sede
+                listado_datos['sede']=sede.nombre
+                contado_participantes=0
+                contador_curso=0
+                grupos=cyd_m.Grupo.objects.filter(sede=sede)
+                listado_datos['grupos']=grupos.count()
+                for asignacion in grupos:
+                    listado_curso.append(asignacion.curso)
+                    contado_participantes = contado_participantes + cyd_m.Asignacion.objects.filter(grupo=asignacion).distinct().count()
+                    contado_asignacion = contado_participantes + cyd_m.Asignacion.objects.filter(grupo=asignacion).count()
+                listado_curso=list(dict.fromkeys(listado_curso))
+                for cantida in listado_curso:
+                    contador_curso=contador_curso+1
+                listado_curso=[]
+                listado_datos['participantes']=contado_participantes
+                listado_datos['asignaciones']=contado_asignacion
+                listado_datos['curso']=contador_curso
+                listado_sede.append(listado_datos)
         return Response(
                 listado_sede,
             status=status.HTTP_200_OK
@@ -729,7 +774,6 @@ class InformeListadoEscuela(views.APIView):
             fecha_max=self.request.POST['fecha_max']
         except MultiValueDictKeyError:
             fecha_max=0
-        #print(Escuela.objects.filter(municipio__departamento=departamento))
         if departamento!=0:
             if departamento !=0 and municipio!=0:
                 if departamento !=0 and municipio !=0 and capacitador !=0:
@@ -745,7 +789,6 @@ class InformeListadoEscuela(views.APIView):
                 capacitados=cyd_m.Participante.objects.filter(escuela__municipio__departamento=departamento)
                 asignacion=cyd_m.Asignacion.objects.filter(grupo__sede__municipio__departamento=departamento)
                 grupos=cyd_m.Grupo.objects.filter(sede__municipio__departamento=departamento)
-                #print(escuelas)
                 for asignados in capacitados:
                     nuevos=cyd_m.Asignacion.objects.filter(participante=asignados, grupo__sede__municipio__departamento=departamento)
                     for grupos in nuevos:
@@ -755,11 +798,8 @@ class InformeListadoEscuela(views.APIView):
                 for data in listado_escuelas:
                     for nueva_escuela in escuelas:
                         if nueva_escuela['escuela__nombre'] in data:
-                            #print(list(data.values())[0])
-                            #print(list(data.values()))
-                            print(nueva_escuela['escuela__nombre'])
                             acumulador_aprobados=acumulador_aprobados + int(list(data.values())[0])
-                #print(acumulador_aprobados)
+
         else:
             if municipio !=0:
                 print("Solo trae municipio")
@@ -809,9 +849,6 @@ class InformeListadoEscuela(views.APIView):
                 else:
                     datos_grupo['check']=2
                 listado_grupo.append(datos_grupo)
-        #print(sede)
-        #print(curso)
-        #print(grupos)S
         print(asistencia.grupo)
         return Response(
                 listado_grupo,
@@ -820,7 +857,6 @@ class InformeListadoEscuela(views.APIView):
 
 class AsignarAsistencia(views.APIView):
     def post(self, request):
-        print(self.request.POST['datos[Id_Asistencia]'])
         if self.request.POST['datos[check]'] == str(1):
             asistencia = cyd_m.NotaAsistencia.objects.get(id=self.request.POST['datos[Id_Asistencia]'])
             asistencia.nota=0
@@ -833,3 +869,20 @@ class AsignarAsistencia(views.APIView):
                 "ingreso",
             status=status.HTTP_200_OK
             )
+
+class AsignacionWebView(LoginRequiredMixin, FormView):
+    template_name = 'cyd/asignacion_web.html'
+    form_class = cyd_f.AsignacionWebForm
+
+class ChamiloAddView(LoginRequiredMixin, TemplateView):
+    template_name = 'cyd/cargar_chamilo.html'
+    def post(self,request):
+        if request.method == 'POST' and request.FILES['myfile']:            
+            myfile=request.FILES['myfile']
+            fs=FileSystemStorage(location=settings.MEDIA_ROOT_EXCEL)
+            filename=fs.save(myfile.name, myfile)
+            uploaded_file_url=fs.url(filename)
+            return render(request, 'cyd/cargar_chamilo.html',{
+                'uploaded_file_url':uploaded_file_url
+        })
+        return render(request,'cyd/cargar_chamilo.html')

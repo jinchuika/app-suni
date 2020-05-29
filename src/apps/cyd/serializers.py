@@ -11,8 +11,10 @@ from apps.escuela.serializers import EscuelaSerializer
 
 class CalendarioSerializer(DynamicFieldsModelSerializer, serializers.ModelSerializer):
     cr_asistencia = serializers.SlugRelatedField(read_only=True, slug_field='modulo_num')
+    curso = serializers.StringRelatedField(source="__str__")
     asistentes = serializers.SerializerMethodField()
     url = serializers.SerializerMethodField('get_api_url')
+    fecha_fin=serializers.SerializerMethodField()
 
     class Meta:
         model = Calendario
@@ -23,6 +25,10 @@ class CalendarioSerializer(DynamicFieldsModelSerializer, serializers.ModelSerial
 
     def get_asistentes(self, calendario):
         return calendario.count_asistentes()
+
+    def get_fecha_fin(self,calendario):
+        fecha_nueva=Calendario.objects.filter(grupo=calendario.grupo).values('fecha').last() 
+        return fecha_nueva
 
 
 class EscuelaCalendarioSerializer(DynamicFieldsModelSerializer, serializers.ModelSerializer):

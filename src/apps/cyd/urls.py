@@ -17,6 +17,7 @@ urlpatterns = [
     url(r'^grupo/add/$', GrupoCreateView.as_view(), name='grupo_add'),
     url(r'^grupo/list/$', GrupoListView.as_view(), name='grupo_list'),
     url(r'^grupo/(?P<pk>\d+)/$', GrupoDetailView.as_view(), name='grupo_detail'),
+    url(r'^grupo/asignacion/$', AsignacionWebView.as_view(), name='asignacion_web'),
 
     url(r'^calendario/$', CalendarioView.as_view(), name='cyd_calendario'),
     url(r'^calendario/list/$', CalendarioListView.as_view(), name='cyd_calendario_list'),
@@ -52,7 +53,8 @@ urlpatterns = [
     url(r'^informe/escuela/sede/$',InformeEscuelaSedeView.as_view(), name='informe_escuela_sede'),
     url(r'^informe/escuela/capacitadas/$',InformeListadoEscuelasListView.as_view(), name='informe_escuela_capacitadas'),
     url(r'^asistencia/$',InformeAsistenciaWebView.as_view(), name='asistencia_web'),
-    url(r'^asistencia/asignar/$',AsignarAsistencia.as_view(), name='asistencia_web_asignar')
+    url(r'^asistencia/asignar/$',AsignarAsistencia.as_view(), name='asistencia_web_asignar'),
+    url(r'^chamilo/$', ChamiloAddView.as_view(), name='chamilo_add')
 
 
 

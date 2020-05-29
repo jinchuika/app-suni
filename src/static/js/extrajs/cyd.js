@@ -157,6 +157,58 @@ function validar_udi_api(params) {
           });
         });
         /**/
+
+
+/*ajax*/
+$.ajax({
+  url:$('#linea').data("url"),
+  dataType:'json',
+  data:{
+    'grupo__sede':$('#linea').data("sede"),
+  },
+  error:function(){
+    console.log("Error");
+  },
+  success:function(data){
+    console.log(data);
+  
+    for(k=0;k<data.length;k++){
+      console.log(new Date(data[k].fecha));
+    }
+    var nuevo=[
+      [ '1','Washington', new Date(1789, 3, 30), new Date(1797, 2, 4) ],
+      [ '2','Adams',      new Date(1797, 2, 4),  new Date(1801, 2, 4) ],
+      [ '3','Jeffersonmmmm',  new Date(1801, 2, 4),  new Date(1809, 2, 4) ]];
+      //var nuevo2=[ '5','Jeffersonmmmm2',  1810-03-04,  1812-03-04]
+    //nuevo.push(nuevo2);
+    /*Grafica*/
+    google.charts.load('current', {'packages':['timeline']});
+    google.charts.setOnLoadCallback(drawChart);
+    function drawChart() {
+      var container = document.getElementById('timeline');
+      var chart = new google.visualization.Timeline(container);
+      var dataTable = new google.visualization.DataTable();
+
+      dataTable.addColumn({ type: 'string', id: 'President' });
+      dataTable.addColumn({ type: 'string', id: 'Name' });
+      dataTable.addColumn({ type: 'date', id: 'Start' });
+      dataTable.addColumn({ type: 'date', id: 'End' });
+      dataTable.addRows(nuevo);
+    var options = {
+      timeline:{ showRowLabels: false},
+      width:850
+
+    };
+
+      chart.draw(dataTable,options);
+    }
+    /*Fin grafica*/
+  },
+  type: 'GET'
+}
+);
+/*fin ajax*/
+
     }
 }( window.SedeDetail = window.SedeDetail || {}, jQuery ));
 
@@ -1001,7 +1053,7 @@ CalendarioCyD.init = function () {
         */
         $('#form_participante #id_udi').on('input', function () {
             $('#escuela_label').html('Escuela no encontrada');
-            $('#btn-crear').prop('disabled', true);
+            //$('#btn-crear').prop('disabled', true);
             validar_udi_api({
                 url: $(this).data('url'),
                 udi: $(this).val(),
@@ -1602,7 +1654,6 @@ class ControlAcademicoGrupos{
                 var nota_trabajos =0;
                 var resultado_final=0;
                 for (var l=0; l<=response.length-1;l++){
-                    console.log(response[l].genero);
                      matris.push(response[l].asignacion);
                      matris.push(response[l].curso);
                      matris.push(response[l].grupo);
@@ -1999,6 +2050,7 @@ class informeCapacitadores{
                 {data: "curso"},
                 {data: "asignaciones"},
                 {data: "participantes"},
+                {data: "invitada"},
             ],
             footerCallback: function( tfoot, data, start, end, display){
                 for (var i in data){
@@ -2363,5 +2415,59 @@ class crearGrupos{
 
     });
 
+  }
+}
+
+class AsignacionGruposWeb{
+  constructor(){
+      var encabezado =['Nombre','Apellido','Genero','DPI','Rol','Mail','Telefono','Udi'];
+      var hot;
+ $('#control-academico-list-form').on('submit', function (e) {
+   e.preventDefault();
+
+    var container = document.getElementById('datosCurso');
+      hot = new Handsontable(container, {
+      data: [{
+    Nombre: 1,
+    Apellido: 'EUR',
+    Genero: 'EUR',
+    DPI: 'Euro',
+    Rol: 0.9033,
+    Mail: 'EUR / USD',
+    Telefono: '08/19/2019',
+    Udi: 0.0026
+  },],
+      columnSorting: true,
+      rowHeaders: true,
+      colHeaders: encabezado,
+      filters: true,
+      dropdownMenu: true,
+      startCols: encabezado.length,
+      removeRowPlugin: true,
+      persistentState: true,
+      afterSelection: afterSelection,
+      cells: function (row, col, prop) {
+          var cellProperties = {};
+          if (col < 6) {
+              cellProperties.readOnly = true;
+          }
+          if(col == encabezado.length-1){
+              cellProperties.readOnly = true;
+          }
+          return cellProperties;
+      }
+    });
+    hot.getPlugin('columnSorting').sort({column:0, sortOrder:'asc'});
+    function afterSelection(rowId,colId, rowEndId, colEndId){
+       var nuevaNota=0;
+      var actualizarNotas= hot.getSourceDataAtRow(rowId);
+      for(var k =3; k<=actualizarNotas.length-2;k++ ){
+          nuevaNota = nuevaNota + Number(actualizarNotas[k])
+      };
+      hot.setDataAtCell(rowId,actualizarNotas.length-1,nuevaNota);
+    };
+$('#guardar_tabla').show();
+  /** */
+});
   }
 }

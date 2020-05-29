@@ -41,7 +41,7 @@ class SedeForm(forms.ModelForm):
     class Meta:
         model = Sede
         fields = '__all__'
-        exclude = ('mapa','activa')
+        exclude = ('mapa','activa','fecha_creacion')
         widgets = {
             'municipio': forms.Select(attrs={'class': 'select2'})
         }
@@ -297,6 +297,15 @@ class InformeAsistenciaFinalForm(forms.Form):
 class InformeCapacitadorForm(forms.Form):
     capacitador = forms.ModelChoiceField(
         queryset=User.objects.filter(groups__name='cyd_capacitador'))
+    fecha_min = forms.CharField(
+        label='Fecha mínima',
+        widget=forms.TextInput(attrs={'class': 'form-control datepicker'}),
+        required=False)
+    fecha_max = forms.CharField(
+        label='Fecha máxima',
+        widget=forms.TextInput(attrs={'class': 'form-control datepicker'}),
+        required=False)
+        
     def __init__(self, *args, **kwargs):
         super(InformeCapacitadorForm ,self).__init__(*args, **kwargs)
         self.fields['capacitador'].label_from_instance = lambda obj: "%s" % (obj.get_full_name())
@@ -332,6 +341,7 @@ class InformeSedeForm(forms.Form):
         queryset=Sede.objects.all(),
         required=False,
         widget=forms.Select(attrs={'class': 'select2 form-control'}))
+
 
 class InformeEscuelalistadoForm(forms.Form):
     departamento = forms.ModelChoiceField(
@@ -378,3 +388,14 @@ class InformeAsistenciaWebForm(forms.Form):
     def __init__(self, *args, **kwargs):
         super(InformeAsistenciaWebForm,self).__init__(*args, **kwargs)
         self.fields['asistencia'].label_from_instance = lambda obj: "%s" % ("A"+str(obj.cr_asistencia.modulo_num) +"-"+str(obj.fecha) )
+
+
+class AsignacionWebForm(forms.Form):
+    sede = forms.ModelChoiceField(
+        label='Sede',
+        queryset=Sede.objects.all(),
+        required=False,
+        widget=forms.Select(attrs={'class': 'select2 form-control'}))
+    grupo = forms.ModelChoiceField(
+        queryset=Grupo.objects.all(),
+        widget=forms.Select(attrs={'class': 'select2', 'data-url': reverse_lazy('participante_api_list')}))

@@ -66,15 +66,27 @@ class GrupoViewSet(CsrfExemptMixin, viewsets.ModelViewSet):
         cantidad= request.data['numero']
         comentario=request.data['comentario']
         ultimo_grupo=Grupo.objects.filter(sede=sede,curso=curso).last()
-        for x in range(ultimo_grupo.numero+1, (ultimo_grupo.numero + int(cantidad))+1):
-            nuevo_grupo= Grupo(
-            sede=sede,
-            numero=x,
-            curso=curso,
-            comentario=comentario,
-            activo=True,
-            )
-            nuevo_grupo.save()
+        if ultimo_grupo:
+            for x in range(ultimo_grupo.numero+1, (ultimo_grupo.numero + int(cantidad))+1):
+                nuevo_grupo= Grupo(
+                sede=sede,
+                numero=x,
+                curso=curso,
+                comentario=comentario,
+                activo=True,
+                )
+                nuevo_grupo.save()
+        else:
+            for x in range(int(cantidad)):
+                print(str(x+1)+": No hay cursos creados en esta sede")
+                nuevo_grupo= Grupo(
+                sede=sede,
+                numero=str(x+1),
+                curso=curso,
+                comentario=comentario,
+                activo=True,
+                )
+                nuevo_grupo.save()
         return Response(
             {'mensaje': 'Grupos creados correctamente'},
             status=status.HTTP_200_OK
@@ -85,7 +97,7 @@ class GrupoViewSet(CsrfExemptMixin, viewsets.ModelViewSet):
 class CalendarioViewSet(CsrfExemptMixin, viewsets.ModelViewSet):
     serializer_class = CalendarioSerializer
     queryset = Calendario.objects.all()
-    filter_fields = ('grupo',)
+    filter_fields = ('grupo','grupo__sede')
 
 
 
@@ -123,7 +135,7 @@ class SedeViewSet(CsrfExemptMixin, viewsets.ModelViewSet):
     @action(methods=['post'], detail=False)
     def actualizar_control_academico(self,request, pk=None):
         """ Metodo  que cambia la disponibilidad del participante
-        """    
+        """
         contado = 0
         dato =  json.loads(request.data['datos'])
         for numero in dato:

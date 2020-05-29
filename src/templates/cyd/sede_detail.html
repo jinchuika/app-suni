@@ -86,6 +86,12 @@
                 <li>
                   <a href="#fotos" data-toggle="tab"><i class="fa fa-picture-o" aria-hidden="true"></i> Fotos</a>
                 </li>
+                <li>
+                  <a href="#archivos" data-toggle="tab"><i class="fa fa-file-archive-o" aria-hidden="true"></i>Archivos</a>
+                </li>
+                <li>
+                  <a href="#linea" data-toggle="tab"><i class="fa fa-file-archive-o" aria-hidden="true"></i>Linea de Tiempo</a>
+                </li>
 							</ul>
 							<div class="tab-content">
 								<div class="tab-pane active" id="participantes">
@@ -292,9 +298,24 @@
 
                 </div>
                 <!-- -->
+                <!-- -->
+                  <div class="tab-pane no-padding" id="archivos">
+                    <div class="">
+
+                        <iframe src="{{ sede.url_archivos }}" style="width:100%; height:600px; border:0;"></iframe>
+                    </div>
+
+
+                </div>
+                <!-- -->
+                <!-- -->
+                  <div class="tab-pane no-padding" id="linea"  data-url="{% url 'calendario_api_list' %}" data-sede="{{sede.id}}">
+                    <div id="timeline" style="height:600px; width:100%"></div>
+                </div>
+                <!-- -->
 							</div>
 						</div>
-						<!--<div id="timeline" style="height: 180px;"></div> -->
+
 					</div>
 
 				</div>
@@ -316,26 +337,6 @@
 	SedeDetail.init();
 </script>
  <script type="text/javascript">
-      google.charts.load('current', {'packages':['timeline']});
-      google.charts.setOnLoadCallback(drawChart);
-      function drawChart() {
-        var container = document.getElementById('timeline');
-        var chart = new google.visualization.Timeline(container);
-        var dataTable = new google.visualization.DataTable();
 
-        dataTable.addColumn({ type: 'string', id: 'President' });
-		dataTable.addColumn({ type: 'string', id: 'Name' });
-        dataTable.addColumn({ type: 'date', id: 'Start' });
-        dataTable.addColumn({ type: 'date', id: 'End' });
-        dataTable.addRows([
-          [ '1','Washington', new Date(1789, 3, 30), new Date(1797, 2, 4) ],
-          [ '2','Adams',      new Date(1797, 2, 4),  new Date(1801, 2, 4) ],
-          [ '3','Jefferson',  new Date(1801, 2, 4),  new Date(1809, 2, 4) ]]);
-		  var options = {
-			  timeline:{ showRowLabels: false}
-		  };
-
-        chart.draw(dataTable,options);
-      }
     </script>
 {% endblock extra_js %}
