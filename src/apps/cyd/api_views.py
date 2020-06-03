@@ -91,7 +91,7 @@ class CalendarioViewSet(CsrfExemptMixin, viewsets.ModelViewSet):
 
 class SedeViewSet(CsrfExemptMixin, viewsets.ModelViewSet):
     serializer_class = SedeSerializer
-    queryset = Sede.objects.all()
+    queryset = Sede.objects.filter(activa=True)
     filter_fields = ('capacitador',)
 
     @action(methods=['post'], detail=False)
@@ -164,11 +164,16 @@ class SedeViewSet(CsrfExemptMixin, viewsets.ModelViewSet):
 
 class SedeViewSetInforme(CsrfExemptMixin, viewsets.ModelViewSet):
     serializer_class = SedeSerializer
-    queryset = Sede.objects.all()
+    queryset = Sede.objects.filter(activa=True)
     filter_fields = ('capacitador','id','activa')
+    ordering = ('-id')
 
+    def get_queryset(self):
+        queryset = Sede.objects.filter(activa=True)
+        if "cyd_capacitador" in self.request.user.groups.values_list('name', flat=True):
+            queryset = self.request.user.sedes.filter(activa=True)
 
-
+        return queryset
 class AsignacionViewSet(CsrfExemptMixin, viewsets.ModelViewSet):
     serializer_class = AsignacionSerializer
     queryset = Asignacion.objects.all()

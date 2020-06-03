@@ -170,6 +170,12 @@
                     return data ? 'Sí' : 'No';
                 }
             },
+            {
+                data: "capacitacion",
+                render: function (data) {
+                    return data.capacitada ? 'Sí' : 'No';
+                }
+            },
             ]
         }).on('xhr.dt', function (e, settings, json, xhr) {
             $('#spinner').hide();
