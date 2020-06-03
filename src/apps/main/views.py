@@ -8,6 +8,7 @@ from django.views.generic import TemplateView
 from apps.tpe.models import (
     Equipamiento, Garantia, TicketReparacion,
     TicketSoporte, TicketReparacionRepuesto)
+from apps.cyd.models import (Sede, Participante)
 from apps.tpe.forms import TicketReparacionRepuestoAuthForm
 
 
@@ -16,6 +17,51 @@ class IndexView(LoginRequiredMixin, TemplateView):
 
     def get_widgets(self):
         widgets = []
+
+        if self.request.user.groups.filter(Q(name='cyd')).exists():
+            today = datetime.now()
+            departamentos = []
+            if self.request.user.groups.filter(Q(name='cyd_capacitador')).exists():
+                sedes_list = self.request.user.sedes.filter(grupos__asistencias__fecha__year=today.year)
+            else:
+                sedes_list = Sede.objects.filter(grupos__asistencias__fecha__year=today.year)
+
+            (departamentos.append(e.municipio.departamento.nombre) for e in sedes_list)
+
+            widgets.append({
+                'queryset': '',
+                'template_name': 'widgets/cyd_capacitacion_chart.html',
+                'media_js': {
+                    'js/distributed/Chart.min.js'
+                },
+                'extra': {
+                    'url': reverse_lazy('capacitacion_list_home'),
+                    'capacitacion_total': sum(e.get_escuelas().count() for e in sedes_list),
+                    'departamentos_total': len(list(set(departamentos))),
+                    'maestros_total': sum(len(e.get_participantes()['listado']) for e in sedes_list),
+                    'aprobados_total': sum(int(e.get_participantes()['resumen']['estado']['aprobado']['cantidad']) for e in sedes_list),
+                    'reprobados_total': sum(int(e.get_participantes()['resumen']['estado']['reprobado']['cantidad']) for e in sedes_list),
+                    'nivelar_total': sum(int(e.get_participantes()['resumen']['estado']['nivelar']['cantidad']) for e in sedes_list),
+                }
+            })
+
+            widgets.append({
+                'queryset': '',
+                'template_name': 'widgets/cyd_capacitacion_calendario.html',
+                'media_css': [
+                    'css/fullcalendar.min.css',
+                    'css/jquery.qtip.min.css'
+                ],
+                'media_js': [
+                    'js/distributed/moment.min.js',
+                    'js/distributed/fullcalendar.min.js',
+                    'js/distributed/fullcalendar.es.js',
+                    'js/distributed/jquery.qtip.min.js'
+                ],
+                'extra': {
+                    'url_capacitacion': reverse_lazy('tpe_api:equipamiento-calendar-list'),
+                }
+            })
 
         if self.request.user.groups.filter(Q(name='tpe') | Q(name='consulta')).exists():
             today = datetime.now()

@@ -15,8 +15,7 @@
 			<div class="box">
 					<form action="" id="grupo-list-form">
 						<div class="box-header">
-							<input type="submit" class="btn btn-primary col-md-12" value="GENERAR INFORME" /><br />
-							<br /><h3 class="box-title">Filtros</h3>
+							<br /><h1 class="box-title">Filtros</h1>
 						</div>
 						<div class="box-body">
 							{% csrf_token %} {% for field in form %}
@@ -34,19 +33,20 @@
 						<h3 class="box-title">Listado de grupos</h3>
 						{% if request.user|has_group:"cyd_capacitador" %}
 							<span class="pull-right">
-								<a href="{% url 'grupo_add' %}" class="btn btn-success">Nuevo grupo</a>
+								<a href="{% url 'grupo_add' %}" class="btn btn-success"><i class="fa fa-plus"></i>  Nuevo grupo</a>
 							</span>
 						{% endif %}
 					</div>
 					<div class="box-body table-responsive">
-						<table class="table table-datatables" id="grupo-list" data-url="{% url 'grupo_api_list'%}" data-urldesactivar="{% url 'grupo_desactivar'%}">
+						<table class="table table-striped table-condensed table-hover table-bordered" id="grupo-list" data-url="{% url 'grupo_api_list'%}" data-urldesactivar="{% url 'grupo_desactivar'%}">
 							<thead>
 								<tr>
 									<th>Sede</th>
-									<th>Número</th>
 									<th>Curso</th>
+									<th>Grupo No.</th>
 									<th>Participantes</th>
 									<th>Capacitador</th>
+									<th>Año</th>
 									<th></th>
 								</tr>
 							</thead>
@@ -64,6 +64,6 @@
 {% include "base/dataTables.html" %}
 <script src="{% static "js/extrajs/cyd.js" %}"></script>
 <script>
-let buscar = new GrupoList(); 
+GrupoList.init(); 
 </script>
 {% endblock extra_js %}

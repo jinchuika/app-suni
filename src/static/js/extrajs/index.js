@@ -1,4 +1,45 @@
 (function( HomePage, $, undefined ) {
+	var crear_capacitacion_chart = function () {
+		var ctx = document.getElementById("capacitacion_chart");
+		$.post($(ctx).data('url'), function (data) {
+			var capacitacion_chart = new Chart(ctx, {
+				type: 'bar',
+				data: {
+					labels: ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"],
+					datasets: [{
+						label: 'Escuelas',
+						data: data.escuelas,
+						backgroundColor: 'rgba(0, 166, 90, 0.8)',
+						borderWidth: 1
+					},
+					{
+						label: 'Sedes',
+						data: data.sedes,
+						backgroundColor: 'rgba(0, 31, 63, 0.8)',
+						borderWidth: 1
+					}]
+				},
+				options: {
+					hoverMode: 'index',
+					scales: {
+						xAxes: [{
+                            stacked: true,
+                        }],
+						yAxes: [{
+							stacked: true,
+							ticks: {
+								beginAtZero:true
+							}
+						}]
+					},
+					tooltips: {
+						mode: 'label'
+					},
+				}
+			});	
+		});
+	}
+
 	var crear_equipamiento_chart = function () {
 		var ctx = document.getElementById("equipamiento_chart");
 		$.post($(ctx).data('url'), function (data) {
@@ -94,6 +135,9 @@
 	}
 
 	HomePage.init = function () {
+		if ($('#capacitacion_chart').length) {
+			crear_capacitacion_chart();
+		}
 		if ($('#equipamiento_chart').length) {
 			crear_equipamiento_chart();
 		}
