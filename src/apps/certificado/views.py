@@ -48,7 +48,6 @@ class ListadoMaestroView(TemplateView):
              params = {'dpi': self.request.GET['dpi']}
              try:
                 resp = requests.get(url=url, params= params)
-                print(resp)
              except:
                 print("en espera")
         else:
@@ -67,7 +66,6 @@ class ListadoMaestroView(TemplateView):
                context['rol'] = data[0]['rol']
                context['escuela'] =data[0]['escuela']
                context['email'] =data[0]['email']
-               data = resp.json()
 
                # Obtener Listado de Sedes
                for valor in data:
@@ -82,8 +80,9 @@ class ListadoMaestroView(TemplateView):
                 suma_curso = 0
                 naat = False
                 grupo_naat = 1
-                year_actual = False
-                year = 0
+                year_cert = False
+                year_const = False
+                fecha_final = 0
                 id_sede = 0
 
                 # Obtener Promedio de Cursos por Sede
@@ -91,7 +90,8 @@ class ListadoMaestroView(TemplateView):
                   if sede == valor_data['sede']:
                     id_sede = int(valor_data['id_sede'])
                     suma_curso += int(valor_data['nota'])
-                    year = datetime.datetime.strptime(valor_data['fecha_final'], '%Y-%m-%d').date().year
+                    fecha_final = datetime.datetime.strptime(valor_data['fecha_final'], '%Y-%m-%d').date()
+                    fecha_valida_const = fecha_final + datetime.timedelta(days=30)
 
                     # Validar si recibió NAAT en la sede (18 o 22 semanas)
                     if grupo_naat == 1 or grupo_naat == 2 and naat == False:
@@ -102,18 +102,30 @@ class ListadoMaestroView(TemplateView):
                         grupo_naat = 3
                         naat = True
 
+                    # Validar si la capacitación fué durante el año actual y si no ha expirado el periodo de tiempo
+                    if fecha_final.year == datetime.date.today().year:
+                      if datetime.date.today() <= fecha_valida_const:
+                        # Validación por año de pandemia
+                        if fecha_final.year == 2020 and fecha_final.month >= 4:
+                          year_const = True
+                    valor_data['year_const'] = year_const
+
                     # Agregar asignación a la sede predeterminada
                     asignaciones.append(valor_data)
 
                 # Cálculo de Promedio
                 promedio = suma_curso / len(asignaciones)
 
-                # Validar si la capacitación fué durante el año actual
-                if year == datetime.date.today().year:
-                  year_actual = True
+                # Validar si la capacitación fué durante el año actual y si no ha expirado el periodo de tiempo
+                fecha_valida_cert = fecha_final + datetime.timedelta(days=120)
+                if fecha_final.year == datetime.date.today().year:
+                  if datetime.date.today() <= fecha_valida_cert:
+                    # Validación por año de pandemia
+                    if fecha_final.year == 2020 and fecha_final.month <= 4:
+                      year_cert = True
 
                 # Crear Objeto Asignacion por sede
-                values = {"id": id_sede,"sede": sede, "asignaciones": asignaciones, "promedio": promedio, "grupo":grupo_naat, "year":year_actual }
+                values = {"id": id_sede,"sede": sede, "asignaciones": asignaciones, "promedio": promedio, "grupo":grupo_naat, "year_cert":year_cert}
                 sede_asignacion.append(dict(values))
 
                context['sedes'] = sede_asignacion
@@ -137,6 +149,7 @@ class DiplomaPdfView(View):
       curso_asignado = 0
       curso_aprobado = 0
       curso_naat = 0
+      year_cert = False
       url_perfil = str("https://suni.funsepa.org/")+ str(reverse_lazy('listado')) + str("?dpi=")+str(self.request.GET['dpi'])
       url = settings.LEGACY_URL['certificado']
       locale.setlocale(locale.LC_ALL, 'es_GT.utf8')
@@ -157,14 +170,14 @@ class DiplomaPdfView(View):
          return HttpResponse("El dpi ingresado no es valido")
       else:
          suma_curso = 0
-         year = 0
+         fecha_final = 0
          naat = False
          grupo_naat = 1
          asignaciones = []
          for  nuevo in data:
             if int(nuevo['id_sede']) == int(id_sede):
               suma_curso += int(nuevo['nota'])
-              year = datetime.datetime.strptime(nuevo['fecha_final'], '%Y-%m-%d').date().year
+              fecha_final = datetime.datetime.strptime(nuevo['fecha_final'], '%Y-%m-%d').date()
 
               # Validar si recibió NAAT en la sede
               if grupo_naat == 1 or grupo_naat == 2 and naat == False:
@@ -177,7 +190,14 @@ class DiplomaPdfView(View):
 
               asignaciones.append(nuevo)
 
-         if year != datetime.date.today().year:
+         # Validar si la capacitación fué durante el año actual y si no ha expirado el periodo de tiempo}
+         fecha_valida_cert = fecha_final + datetime.timedelta(days=120)
+         if fecha_final.year == datetime.date.today().year:
+            if datetime.date.today() <= fecha_valida_cert:
+              if fecha_final.year == 2020 and fecha_final.month <= 4:
+                year_cert = True
+
+         if year_cert == False:
             return HttpResponse("Curso No Válido")
 
          if len(asignaciones) > 0:
@@ -291,19 +311,28 @@ class ConstanciaPdfView(View):
       else:
          nota_curso = 0
          nota_minima = 0
-         year = 0
+         fecha_final = 0
          url_constancia = ''
+         year_const = False
          asignaciones = []
 
          for  registro in data:
             if int(registro['numero_asignacion']) == int(id_asignacion):
               nota_curso = int(registro['nota'])
               nota_minima = int(registro['nota_minima'])
-              year = datetime.datetime.strptime(registro['fecha_final'], '%Y-%m-%d').date().year
+              fecha_final = datetime.datetime.strptime(registro['fecha_final'], '%Y-%m-%d').date()
               url_constancia = str(registro['constancia'])
               asignaciones.append(registro)
 
-         if year != datetime.date.today().year:
+         fecha_valida_const = fecha_final + datetime.timedelta(days=30)
+         # Validar si la capacitación fué durante el año actual y si no ha expirado el periodo de tiempo
+         if fecha_final.year == datetime.date.today().year:
+            if datetime.date.today() <= fecha_valida_const:
+              # Validación por año de pandemia
+              if fecha_final.year == 2020 and fecha_final.month >= 4:
+                year_const = True
+
+         if year_const == False:
             return HttpResponse("Curso No Válido")
 
          if len(asignaciones) > 0:

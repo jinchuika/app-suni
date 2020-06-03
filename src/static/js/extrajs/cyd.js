@@ -1173,123 +1173,119 @@ CalendarioCyD.init = function () {
     }
 }( window.ParticipanteBuscar = window.ParticipanteBuscar || {}, jQuery ));
 
-class GrupoList {
-    constructor(){
-        var url_informe_grupo = $("#grupo-list").data("url");
-        var grupo_informe = $("#grupo-list-form");
-         /*Creacion de reportes por filtro */
-
-    grupo_informe.submit(function (e){
-        e.preventDefault();
-       var tablaGrupo = $('#grupo-list').DataTable({
-          dom: 'Bfrtip',
-          buttons: ['excel', 'pdf', 'copy'],
-          searching:true,
-          paging:false,
-          ordering:true,
+(function(GrupoList, $, undefined){
+    var grupo_informe = $("#grupo-list-form");
+    var url_informe_grupo = $("#grupo-list").data("url");
+    
+    var tablaGrupo = $('#grupo-list').DataTable({
+        buttons: ['excel', 'pdf', 'copy'],
+        searching:true,
+        paging:false,
+        ordering:true,
+        processing:true,
+        destroy:true,
+        ajax:{
+          url:url_informe_grupo,
+          dataSrc:'',
+          cache:false,
           processing:true,
-          destroy:true,
-          ajax:{
-            url:url_informe_grupo,
-            dataSrc:'',
-            cache:false,
-            processing:true,
-            data: function () {
-              return $('#grupo-list-form').serializeObject(true);
-            }
-          },
-          columns: [
-            {data: "sede", render: function(data, type,full, meta){
-                return '<a target=_blank href="'+full.urlgrupo+'">'+data+'</a>'
-            }},
-            {data: "numero"},
-            {data: "curso"},
-            {data: "particiapantes", render: function(data, type, full, meta){
+          data: function () {
+            return $('#grupo-list-form').serializeObject(true);
+          }
+        },
+        columns: [
+          {data: "sede", render: function(data, type,full, meta){
+              return '<a target=_blank href="'+full.urlgrupo+'">'+data+'</a>'
+          }},
+          {data: "numero"},
+          {data: "curso"},
+          {data: "particiapantes", render: function(data, type, full, meta){
+              return full.asistencias.length;
+          }},
+          {data: "capacitador"},
+          {data:"", render: function(data, type, full, meta){
+              return "<a id='borrar_sede' data-sede='"+ full.id+"'class='btn btn-success btn-borrar'>Borrar Sede</a>";
+          }}
+        ]
+    }).on('xhr.dt', function(e, settings, json, xhr) {
+        $('#spinner').hide();
+    });
 
-                return full.asistencias.length;
-
-            }},
-            {data: "capacitador"},
-            {data:"", render: function(data, type, full, meta){
-
-                return "<a id='borrar_sede' data-sede='"+ full.id+"'class='btn btn-success btn-borrar'>Borrar Sede</a>";
-            }}
-          ]
+    GrupoList.init = function () {
+        $('#spinner').hide();
+        grupo_informe.submit(function (e){
+            e.preventDeault();
+            $("spinner").show();
+            tablaGrupo.clear().draw();
+            tablaGrupo.ajax.reload();
         });
-        tablaGrupo.clear().draw();
-        tablaGrupo.ajax.reload();
-      });
 
-    /** */
-     /** */
-     let tablabodygrupo =  $('#grupo-list tbody');
-     tablabodygrupo.on('click', '.btn-borrar', function(){
-       /*Borrar Sede */
+        $('#grupo-list-form #id_capacitador').on('change', function () {
+            listar_sede_capacitador('#grupo-list-form #id_capacitador', '#grupo-list-form #id_sede', true);
+        });
 
-           var id_grupo_desactivar = $('#borrar_sede').data("sede");
-           var url_grupo_desactivar = $("#grupo-list").data("urldesactivar");
-            bootbox.confirm({
-              message: "¿Desea dar por terminado el grupo?",
-              buttons: {
-                confirm: {
-                  label: '<i class="fa fa-check"></i> Confirmar',
-                  className: 'btn-success'
-                },
-                cancel: {
-                  label: '<i class="fa fa-times"></i> Cancelar',
-                  className: 'btn-danger'
-                }
-              },
-              callback: function (result) {
-                if(result == true){
-                  /*CONSUMIR API*/
-                  $.ajax({
-                    type: 'POST',
-                    url: url_grupo_desactivar,
-                    dataType: 'json',
-                    data: {
-                      csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
-                      primary_key :id_grupo_desactivar
-                    },
-                    success: function (response) {
-                      bootbox.alert({message: "<h2>Sede borrada correctamente</h2>", className:"modal modal-success fade in"});
-                    },
-                    error: function (response) {
-                      var jsonResponse = JSON.parse(response.responseText);
-                      bootbox.alert({message: "<h3><i class='fa fa-frown-o' style='font-size: 45px;'></i>&nbsp;&nbsp;&nbsp;HA OCURRIDO UN ERROR!!</h3></br>" + jsonResponse["mensaje"], className:"modal modal-danger fade"});
-                    }
-                  });
-                  /*FIN DE CONSUMO*/
-                }else{
-                    console.log("Fin del api");
-                }
-              }
-            });
-
-
-      /* */
+        let tablabodygrupo =  $('#grupo-list tbody');
+        tablabodygrupo.on('click', '.btn-borrar', function(){
+       /*Borrar Grupo */
+        var id_grupo_desactivar = $('#borrar_sede').data("sede");
+        var url_grupo_desactivar = $("#grupo-list").data("urldesactivar");
+         bootbox.confirm({
+           message: "¿Desea dar por terminado el grupo?",
+           buttons: {
+             confirm: {
+               label: '<i class="fa fa-check"></i> Confirmar',
+               className: 'btn-success'
+             },
+             cancel: {
+               label: '<i class="fa fa-times"></i> Cancelar',
+               className: 'btn-danger'
+             }
+           },
+           callback: function (result) {
+             if(result == true){
+               /*CONSUMIR API*/
+               $.ajax({
+                 type: 'POST',
+                 url: url_grupo_desactivar,
+                 dataType: 'json',
+                 data: {
+                   csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
+                   primary_key :id_grupo_desactivar
+                 },
+                 success: function (response) {
+                   bootbox.alert({message: "<h2>Sede borrada correctamente</h2>", className:"modal modal-success fade in"});
+                 },
+                 error: function (response) {
+                   var jsonResponse = JSON.parse(response.responseText);
+                   bootbox.alert({message: "<h3><i class='fa fa-frown-o' style='font-size: 45px;'></i>&nbsp;&nbsp;&nbsp;HA OCURRIDO UN ERROR!!</h3></br>" + jsonResponse["mensaje"], className:"modal modal-danger fade"});
+                 }
+               });
+               /*FIN DE CONSUMO*/
+             }else{
+                 console.log("Fin del api");
+             }
+           }
+         });
+     /* */
      });
     }
-}
+}(window.GrupoList = window.GrupoList || {}, jQuery));
 
-class SedeList {
-    constructor(){
-        /*Creacion de reportes por filtro */
+(function(SedeList, $, undefined){
+    /*Creacion de reportes por filtro */
     var sede_informe = $("#sede-list-form");
     var url_informe_sede = $("#sede-list").data("url");
 
-
-    sede_informe.submit(function (e){
-        e.preventDefault();
-       var tablaSede = $('#sede-list').DataTable({
-          dom: 'Bfrtip',
-          buttons: ['excel', 'pdf', 'copy'],
-          searching:true,
-          paging:false,
-          ordering:true,
-          processing:true,
-          destroy:true,
-          ajax:{
+    var tablaSede = $('#sede-list').DataTable({
+        dom: 'Bfrtip',
+        destroy:true,
+        buttons: ['excel', 'pdf', 'copy'],
+        processing:true,
+        searching:true,
+        paging:false,
+        ordering:true,
+        deferLoading: [0],
+        ajax:{
             url:url_informe_sede,
             dataSrc:'',
             cache:false,
@@ -1297,76 +1293,105 @@ class SedeList {
             data: function () {
               return $('#sede-list-form').serializeObject(true);
             }
-          },
-          columns: [
-            {data: "nombre", render: function(data, type , full, meta){
-                return '<a target=_blank href="'+full.urlsede+'">'+data+'</a>'
+        },
+        columns: [
+            {data: "escuela", render: function(data, type , full, meta){
+                return "<a target=_blank href="+full.urlsede+" class='btn btn-block btn-success'><i class='fa fa-eye'></i> Detalle</a>"
+            }},
+            {data: "escuela", render: function(data, type , full, meta){
+                return "<a target=_blank href="+full.urlescuela+">"+full.escuela+'</a>'
             }},
             {data: "departamento"},
             {data: "municipio"},
-            {data: "grupos"},
+            {data: "tipo_sede", render: function(data, type , full, meta){
+                if(full.tipo_sede =="B"){
+                    return "<span class='label label-primary'>Beneficiada</span>";
+                } else {
+                    return "<span class='label label-danger'>No Beneficiada</span>";
+                }
+            }},
+            {data: "grupos", render: function(data, type , full, meta){
+                if(full.grupos ==0){
+                    return "<span class='label label-danger' style='font-size: 12px;'>"+full.grupos+"</span>";
+                } else {
+                    return "<span class='label label-success' style='font-size: 12px;'>"+full.grupos+"</span>";
+                }
+            }},
             {data: "capacitador"},
+            {data: "fecha_creacion"},
             {data:"", render: function(data, type, full, meta){
-
-                return "<a id='borrar_sede' data-sede='"+ full.id+"' class='btn btn-success btn-borrar'>Borrar Sede</a>";
+                return "<a id='borrar_sede' data-sede='"+ full.id+"' class='btn btn-danger btn-block btn-borrar'><i class='fa fa-trash'></i> Eliminar</a>";
             }}
-          ]
-        });
-        tablaSede.clear().draw();
-        tablaSede.ajax.reload();
-      });
-
-    /** */
-    let tablabodysede =  $('#sede-list tbody');
-    tablabodysede.on('click', '.btn-borrar', function(){
-      /*Borrar Sede */
-
-          var id_sede_desactivar = $('#borrar_sede').data("sede");
-          var url_sede_desactivar = $("#sede-list").data("urldesactivar");
-           bootbox.confirm({
-             message: "¿Desea dar por terminada la sede?",
-             buttons: {
-               confirm: {
-                 label: '<i class="fa fa-check"></i> Confirmar',
-                 className: 'btn-success'
-               },
-               cancel: {
-                 label: '<i class="fa fa-times"></i> Cancelar',
-                 className: 'btn-danger'
-               }
-             },
-             callback: function (result) {
-               if(result == true){
-                 /*CONSUMIR API*/
-                 $.ajax({
-                   type: 'POST',
-                   url: url_sede_desactivar,
-                   dataType: 'json',
-                   data: {
-                     csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
-                     primary_key :id_sede_desactivar
-                   },
-                   success: function (response) {
-                     bootbox.alert({message: "<h2>Sede borrada correctamente</h2>", className:"modal modal-success fade in"});
-                   },
-                   error: function (response) {
-                     var jsonResponse = JSON.parse(response.responseText);
-                     bootbox.alert({message: "<h3><i class='fa fa-frown-o' style='font-size: 45px;'></i>&nbsp;&nbsp;&nbsp;HA OCURRIDO UN ERROR!!</h3></br>" + jsonResponse["mensaje"], className:"modal modal-danger fade"});
-                   }
-                 });
-                 /*FIN DE CONSUMO*/
-               }else{
-                   console.log(url_sede_desactivar);
-               }
-             }
-           });
-
-
-     /* */
+        ]
+    }).on('xhr.dt', function(e, settings, json, xhr) {
+        $('#spinner').hide();
     });
+    
+    SedeList.init = function () {
+        $('#spinner').hide();
+        sede_informe.submit(function (e) {
+            e.preventDefault();
+            $("spinner").show();
+            tablaSede.clear().draw();
+            tablaSede.ajax.reload();
+        });
 
-    }
-}
+        $('#sede-list-form #id_capacitador').on('change', function (e) {
+            e.preventDefault();
+            $("spinner").show();
+            tablaSede.clear().draw();
+            tablaSede.ajax.reload();
+        });
+
+        /** */
+        let tablabodysede =  $('#sede-list tbody');
+        tablabodysede.on('click', '.btn-borrar', function(){
+          /*Borrar Sede */
+            var id_sede_desactivar = $('#borrar_sede').data("sede");
+            var url_sede_desactivar = $("#sede-list").data("urldesactivar");
+            bootbox.confirm({
+                message: "¿Desea dar por terminada la sede?",
+                buttons: {
+                    confirm: {
+                        label: '<i class="fa fa-check"></i> Confirmar',
+                        className: 'btn-success'
+                    },
+                    cancel: {
+                        label: '<i class="fa fa-times"></i> Cancelar',
+                        className: 'btn-danger'
+                    }
+                },
+                callback: function (result) {
+                    if(result == true){
+                    /*CONSUMIR API*/
+                        $.ajax({
+                            type: 'POST',
+                            url: url_sede_desactivar,
+                            dataType: 'json',
+                            data: {
+                                csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
+                                primary_key :id_sede_desactivar
+                            },
+                            success: function (response) {
+                                bootbox.alert({message: "<h2>Sede borrada correctamente</h2>", className:"modal modal-success fade in"});
+                                tablaSede.clear().draw();
+                                tablaSede.ajax.reload();
+                            },
+                            error: function (response) {
+                                var jsonResponse = JSON.parse(response.responseText);
+                                bootbox.alert({message: "<h3><i class='fa fa-frown-o' style='font-size: 45px;'></i>&nbsp;&nbsp;&nbsp;HA OCURRIDO UN ERROR!!</h3></br>" + jsonResponse["mensaje"], className:"modal modal-danger fade"});
+                            }
+                        });
+                    /*FIN DE CONSUMO*/
+                    }else{
+                        console.log(url_sede_desactivar);
+                    }
+                }
+            });
+        });
+    }    
+}(window.SedeList = window.SedeList || {}, jQuery));
+
 class AgregarCurso{
     constructor(){
         var contador_asistencia =4;

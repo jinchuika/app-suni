@@ -87,7 +87,7 @@
                                                             </td>
                                                             <td>
                                                                 {% if asignacion.nota|to_number >=  asignacion.nota_minima|to_number %}
-                                                                    {% if asignacion.constancia %}
+                                                                    {% if asignacion.constancia and asignacion.year_const is True %}
                                                                         <a class="btn btn-warning"  href="{% url 'constanciapdf'%}?dpi={{dpi}}&asignacion={{asignacion.numero_asignacion}}" target="_blank"><i class="fa fa-print"></i> Constancia</a>
                                                                      {% endif %}
                                                                 {% endif %}
@@ -103,9 +103,18 @@
                                                             <td></td>
                                                             <td>
                                                                 {% if sede.promedio|to_number >=  71 %}
-                                                                    <span class='label label-primary' style="font-size: 95% !important">{{sede.promedio}}</span>
+                                                                    <span class='label label-primary' style="font-size: 95% !important">{{ sede.promedio|floatformat:2 }}</span>
                                                                 {% else %}
-                                                                    <span class='label label-danger' style="font-size: 95% !important">{{sede.promedio}}</span>
+                                                                    <span class='label label-danger' style="font-size: 95% !important">{{ sede.promedio|floatformat:2 }}</span>
+                                                                {% endif %}
+                                                            </td>v
+                                                            <td colspan="2">
+                                                                {% if sede.year_cert is True %}
+                                                                    {% if sede.promedio|to_number >=  71 %}
+                                                                        <a class="btn btn-warning"  href="{% url 'diplomapdf'%}?dpi={{dpi}}&sede={{sede.id}}&curso={{sede.grupo}}"><i class="fa fa-print"></i> Certificado</a> 
+                                                                    {% else %}
+                                                                        <span class='label label-danger' style="font-size: 90% !important">Reprobado</span>
+                                                                    {% endif %}
                                                                 {% endif %}
                                                             </td>
                                                         </tr>

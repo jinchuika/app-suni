@@ -30,27 +30,22 @@ CrAsistenciaFormSet = inlineformset_factory(
 
 
 class SedeForm(forms.ModelForm):
-    capacitador = forms.ModelChoiceField(
-        queryset=User.objects.filter(groups__name='cyd_capacitador'),
-        empty_label=None)
-    lat = forms.CharField(max_length=25, required=False)
-    lng = forms.CharField(max_length=25, required=False)
+
+    udi = forms.CharField(
+        label='Escuela Beneficiada',
+        required=True,
+        widget=forms.TextInput(attrs={'class': 'form-control', 'maxlength': '13', 'required': 'true', 'placeholder': '00-00-0000-00', 'tabindex': '4'}))
 
     class Meta:
         model = Sede
         fields = '__all__'
-        exclude = ('mapa','activa')
+        exclude = ('nombre', 'capacitador', 'escuela_beneficiada', 'mapa', 'activa', 'fecha_creacion')
         widgets = {
-            'municipio': forms.Select(attrs={'class': 'select2'})
+            'municipio': forms.Select(attrs={'class': 'select2', 'required': 'true', 'tabindex': '1'}),
+            'direccion': forms.TextInput({'class': 'form-control', 'placeholder': 'Avenida, Calle, Zona','onkeyup': 'this.value = this.value.toUpperCase();' ,'tabindex': '2'}),
+            'observacion': forms.Textarea({'class': 'form-control', 'tabindex': '3'}),
+            'tipo_sede': forms.Select(attrs={'class': 'select2', 'required': 'true', 'tabindex': '5'}),
         }
-
-    def __init__(self, *args, **kwargs):
-        capacitador = kwargs.pop('capacitador', None)
-        super(SedeForm, self).__init__(*args, **kwargs)
-        if capacitador:
-            self.fields['capacitador'].queryset = self.fields['capacitador'].queryset.filter(id=capacitador.id)
-        self.fields['capacitador'].label_from_instance = lambda obj: '{}'.format(obj.get_full_name())
-
 
 class GrupoForm(forms.ModelForm):
     class Meta:
@@ -88,12 +83,7 @@ class SedeFilterFormInforme(forms.Form):
     capacitador = forms.ModelChoiceField(
         queryset=User.objects.filter(groups__name='cyd_capacitador'),
         required=False,
-        widget=forms.Select(attrs={'class': 'form-control', 'data-url': reverse_lazy('sede_api_list')}))
-    id = forms.ModelChoiceField(
-        label='Sede',
-        queryset=Sede.objects.all(),
-        required=False,
-        widget=forms.Select(attrs={'class': 'form-control'}))
+        widget=forms.Select(attrs={'class': 'form-control select2'}))
     activa = forms.BooleanField(
         initial=True,
         required=False,
@@ -220,25 +210,29 @@ class GrupoListForm(forms.Form):
     grupo = forms.ModelChoiceField(Grupo.objects.all())
 
 class GrupoFilterFormInforme(forms.Form):
-    curso = forms.ModelChoiceField(
-        queryset=Curso.objects.all(),
+    capacitador = forms.ModelChoiceField(
+        queryset=User.objects.filter(groups__name='cyd_capacitador'),
         required=False,
-        widget=forms.Select(attrs={'class': 'form-control', 'data-url': reverse_lazy('sede_api_list')}))
+        widget=forms.Select(attrs={'class': 'form-control select2', 'data-url': reverse_lazy('sede_api_list')}))
     sede = forms.ModelChoiceField(
         label='Sede',
-        queryset=Sede.objects.all(),
+        queryset=Sede.objects.filter(activa=True),
         required=False,
-        widget=forms.Select(attrs={'class': 'form-control'}))
-    numero = forms.IntegerField(
-        label='No. Grupo',
+        widget=forms.Select(attrs={'class': 'form-control select2', 'data-url': reverse_lazy('sede_api_list')}))
+    curso = forms.ModelChoiceField(
+        queryset=Curso.objects.filter(activo=True),
         required=False,
-        widget=forms.NumberInput(attrs={'class': 'form-control'}))
+        widget=forms.Select(attrs={'class': 'form-control select2', 'data-url': reverse_lazy('sede_api_list')}))
     activo = forms.BooleanField(
         initial=True,
         required=False,
         widget=forms.HiddenInput(),
         label=''
         )
+
+    def __init__(self, *args, **kwargs):
+        super(GrupoFilterFormInforme, self).__init__(*args, **kwargs)
+        self.fields['capacitador'].label_from_instance = lambda obj: "%s" % obj.get_full_name()
 
 class ControlAcademicoGrupoForm(forms.Form):
     curso = forms.ModelChoiceField(

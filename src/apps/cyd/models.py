@@ -15,10 +15,18 @@ from apps.escuela.models import Escuela
 
 class Curso(models.Model):
     """Curso para impartir en la  capacitación."""
+
+    GRUPO_CERTIFICADO = (
+        (1, "Tecnología Básica Nivel Intermedio"),
+        (2, "NAAT 22 Semanas"),
+        (3, "NAAT 18 Semanas")
+    )
+
     nombre = models.CharField(max_length=75)
     nota_aprobacion = models.IntegerField()
     porcentaje = models.IntegerField(null=True, blank=True)
     activo = models.BooleanField(default=True, blank=True, verbose_name='Activo')
+    grupo_certificado = models.IntegerField(choices=GRUPO_CERTIFICADO, default=1)
 
     def __str__(self):
         return self.nombre
@@ -65,6 +73,11 @@ class CrHito(models.Model):
 
 
 class Sede(models.Model):
+    TIPO_SEDE = (
+        ("B", "ESCUELA BENEFICIADA"),
+        ("NB", "ESCUELA NO BENEFICIADA")
+    )
+
     nombre = models.CharField(max_length=150)
     capacitador = models.ForeignKey(User, related_name='sedes', on_delete=models.CASCADE)
     municipio = models.ForeignKey(Municipio, on_delete=models.CASCADE)
@@ -72,7 +85,10 @@ class Sede(models.Model):
     observacion = models.TextField(null=True, blank=True, verbose_name='Observaciones')
     mapa = models.ForeignKey(Coordenada, null=True, blank=True, on_delete=models.CASCADE)
     activa = models.BooleanField(default=True, blank=True, verbose_name='Activa')
-
+    escuela_beneficiada = models.ForeignKey(Escuela, on_delete=models.PROTECT, related_name='escuela_beneficiada', blank=True, null=True)
+    tipo_sede = models.CharField(max_length=2, verbose_name='Tipo de Sede' , choices=TIPO_SEDE, default='B')
+    fecha_creacion = models.DateField(null=True, blank=True)
+    
     class Meta:
         verbose_name = "Sede"
         verbose_name_plural = "Sedes"
