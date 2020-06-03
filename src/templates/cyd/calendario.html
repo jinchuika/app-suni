@@ -7,7 +7,7 @@
 {% endblock page_title %}
 
 {% block content %}
-<section class="content">	
+<section class="content">
 	<div class="row">
 		<div class="col-md-3">
 			<div class="box box-primary">
@@ -52,12 +52,12 @@
 				<div class="box-header">
 					<h3 class="box-title">Calendario capacitación</h3>
 					<div class="box-tools pull-right">
-						
+
 					</div>
 				</div>
 				<div class="box-body no-padding">
 					<!-- THE CALENDAR -->
-					<div id="cyd-calendario" data-url-cyd="{% url 'cyd_calendario_list' %}" data-url-asesoria="{% url 'asesoria_api_calendario' %}"></div>
+					<div id="cyd-calendario" data-url-cyd="{% url 'cyd_calendario_list' %}" data-url-asesoria="{% url 'asesoria_api_calendario' %}" data-url-recordatorio="{%url 'recordatorio_api_detail'%}" data-codigo={{user.id}} data-url-listarecordatorio="{% url 'cyd_recordatorio_list'%}"></div>
 				</div>
 				<!-- /.box-body -->
 			</div>

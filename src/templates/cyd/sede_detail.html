@@ -31,24 +31,16 @@
 								<td>{{ sede.municipio.nombre }}</td>
 							</tr>
 							<tr>
-								<th><i class="fa fa-map-marker"></i> Departamento</th> 
+								<th>Departamento</th>
 								<td>{{ sede.municipio.departamento }}</td>
 							</tr>
 							<tr>
-								<th><i class="fa fa-tag"></i> Tipo</th>
-								{% if sede.tipo_sede == "B" %}
-									<td><span class='label label-primary'>Beneficiada</span></td>
-								{% else %}
-									<td><span class='label label-danger'>No Beneficiada</span></td>
-								{% endif %} 
-							</tr>
-							<tr>
-								<th><i class="fa fa-calendar"></i> Año</th> 
-								<td><p class="text-muted">{{ sede.fecha_creacion|date:"Y" }}</p></td>
-							</tr>
-							<tr>
-								<th><i class="fa fa-edit"></i> Observaciones</th> 
+								<th>Observaciones</th>
 								<td>{{ sede.observacion }}</td>
+							</tr>
+							<tr>
+								<th>Coordenadas</th>
+								<td>{{ sede.mapa.lat|default_if_none:"" }}, {{ sede.mapa.lng|default_if_none:"" }}</td>
 							</tr>
 							{% if perms.sede.change_sede %}
 							<tr>
@@ -90,11 +82,14 @@
 									<a href="#asesorias" data-toggle="tab"><i class="fa fa-question-circle-o" aria-hidden="true"></i> Asesorías</a>
 								</li>
 								<li>
-									<a href="#escuelas" data-toggle="tab"><i class="fa fa-user" aria-hidden="true"></i> Escuelas</a>									
+									<a href="#escuelas" data-toggle="tab"><i class="fa fa-user" aria-hidden="true"></i> Escuelas</a>
 								</li>
 								<li>
 									<a href="#contactos" data-toggle="tab"><i class="fa fa-phone" aria-hidden="true"></i> Contactos</a>
 								</li>
+                <li>
+                  <a href="#fotos" data-toggle="tab"><i class="fa fa-picture-o" aria-hidden="true"></i> Fotos</a>
+                </li>
 							</ul>
 							<div class="tab-content">
 								<div class="tab-pane active" id="participantes">
@@ -102,17 +97,17 @@
 									<ul class="list-unstyled">
 										<li>
 										{% for rol in participantes.resumen.roles %}
-										<b>{{ rol.nombre_rol }}</b>: {{rol.cantidad }}, 
+										<b>{{ rol.nombre_rol }}</b>: {{rol.cantidad }},
 										{% endfor %}
 										</li>
 										<li>
 										{% for genero in participantes.resumen.genero %}
-										<b>{{ genero.nombre_genero }}</b>: {{genero.cantidad }}, 
+										<b>{{ genero.nombre_genero }}</b>: {{genero.cantidad }},
 										{% endfor %}
 									</ul>
 									<p>
-										<b>Aprobado</b>: {{ participantes.resumen.estado.aprobado.cantidad }}, 
-										<b>Nivelar</b>: {{ participantes.resumen.estado.nivelar.cantidad }}, 
+										<b>Aprobado</b>: {{ participantes.resumen.estado.aprobado.cantidad }},
+										<b>Nivelar</b>: {{ participantes.resumen.estado.nivelar.cantidad }},
 										<b>Reprobado</b>: {{ participantes.resumen.estado.reprobado.cantidad }}
 									</p>
 									<div class="progress progress-xs">
@@ -161,6 +156,7 @@
 											<tr>
 												<th>Grupo</th>
 												<th>Observaciones</th>
+                        <th></th>
 											</tr>
 										</thead>
 										<tbody>
@@ -172,6 +168,12 @@
 												<td>
 													{% url 'grupo_api_detail' pk=grupo.id as grupo_editable_url %}
 													{% editable_field value=grupo.comentario name="comentario" pk=grupo.id url=grupo_editable_url %}
+												</td>
+                        <td>
+                          {% if not grupo.asignados.count %}
+                          <button class="eliminar-grupo btn btn-danger"  data-asignacion="{{grupo.asignados.count}}" data-grupo="{{grupo.id}}" data-ulr="{%url 'grupo_desactivar'%}">Eliminar</button>
+                          {% endif %}
+
 												</td>
 											</tr>
 										{% endfor %}
@@ -198,7 +200,7 @@
 												<th></th>
 											</tr>
 										</thead>
-										<tbody id="asesoria-tabla-body">											
+										<tbody id="asesoria-tabla-body">
 											{% for asesoria in sede.asesorias.all|dictsort:"fecha" %}
 												<tr id="asesoria-{{ asesoria.id }}">
 													<td>
@@ -239,7 +241,7 @@
 													</td>
 													<td>
 														{% if sede.capacitador == request.user %}
-														<button class="eliminar-asesoria" data-pk="{{ asesoria.id }}" data-url="{% url 'asesoria_api_detail' pk=asesoria.id %}">Eliminar</button>
+														<button class="eliminar-asesoria btn btn-danger" data-pk="{{ asesoria.id }}" data-url="{% url 'asesoria_api_detail' pk=asesoria.id %}">Eliminar</button>
 														{% endif %}
 													</td>
 												</tr>
@@ -270,27 +272,37 @@
 											</tr>
 											{% endfor %}
 										</tbody>
-									</table>									
-								</div>	
+									</table>
+								</div>
 								<!-- -->
 									<div class="tab-pane no-padding" id="contactos">
 									<table class="table">
 										<thead>
-											<tr>												
+											<tr>
 											</tr>
 										</thead>
-										<tbody>											
+										<tbody>
 										</tbody>
-									</table>									
+									</table>
 								</div>
-								<!-- -->							
-							</div>						
+								<!-- -->
+                <!-- -->
+                  <div class="tab-pane no-padding" id="fotos">
+                    <div class="">
+
+                        <iframe src="{{ sede.url }}" style="width:100%; height:600px; border:0;"></iframe>
+                    </div>
+
+
+                </div>
+                <!-- -->
+							</div>
 						</div>
 						<!--<div id="timeline" style="height: 180px;"></div> -->
 					</div>
-					
+
 				</div>
-				
+
 			</div>
 		</div>
 	</div>

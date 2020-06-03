@@ -88,6 +88,7 @@ class Sede(models.Model):
     escuela_beneficiada = models.ForeignKey(Escuela, on_delete=models.PROTECT, related_name='escuela_beneficiada', blank=True, null=True)
     tipo_sede = models.CharField(max_length=2, verbose_name='Tipo de Sede' , choices=TIPO_SEDE, default='B')
     fecha_creacion = models.DateField(null=True, blank=True)
+    url = models.TextField(null=True, blank=True,verbose_name='Carpeta Fotos')
     
     class Meta:
         verbose_name = "Sede"
@@ -452,3 +453,17 @@ class NotaHito(models.Model):
         """
         if self.nota > self.cr_hito.punteo_max:
             raise ValidationError({'nota': 'La nota no puede exceder el punteo máximo.'})
+
+class RecordatorioCalendario(models.Model):
+    """ Recordatorios del calendario
+    """
+    capacitador = models.ForeignKey(User, related_name='recordatorios', on_delete=models.CASCADE)
+    fecha = models.DateField(null=True, blank=True)
+    observacion = models.TextField(null=True, blank=True, verbose_name='Observaciones')
+
+    class Meta:
+        verbose_name = "Recordatorio"
+        verbose_name_plural = "Recordatorios"
+
+    def __str__(self):
+        return '{} - {}'.format(self.capacitador, self.fecha)
