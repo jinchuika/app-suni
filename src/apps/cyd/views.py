@@ -271,7 +271,7 @@ class RecordatorioCalendarioListView(JsonRequestResponseMixin, View):
                 'end': '{}'.format(calendario.fecha),
                 'color': '#ff0000',
                 'tipo': 'c',
-                'tip_title': '{}'.format(calendario),
+                'tip_title': '{}-{}'.format(calendario.capacitador.get_full_name(),calendario.fecha),
                 'tip_text': calendario.observacion,
                 })
         return self.render_json_response(response)
@@ -572,6 +572,17 @@ class InformeCapacitadores(views.APIView):
                 contador_curso=0
                 grupos=cyd_m.Grupo.objects.filter(sede=sede)
                 listado_datos['grupos']=grupos.count()
+                ##
+                escuela_invitada=cyd_m.Asignacion.objects.filter(grupo__sede=sede)
+                escuela_invitada.values("participante__escuela").distinct()
+                numero_escuelas_invitadas=escuela_invitada.values("participante__escuela").distinct().count()
+                if numero_escuelas_invitadas == 0:
+                    listado_datos['invitada']=0
+                elif numero_escuelas_invitadas ==1:
+                    listado_datos['invitada']=1
+                else:
+                    listado_datos['invitada']=numero_escuelas_invitadas -1
+                ##
                 for asignacion in grupos:
                     listado_curso.append(asignacion.curso)
                     contado_participantes = contado_participantes + cyd_m.Asignacion.objects.filter(grupo=asignacion).distinct().count()
@@ -594,13 +605,10 @@ class InformeCapacitadores(views.APIView):
                 escuela_invitada.values("participante__escuela").distinct()
                 numero_escuelas_invitadas=escuela_invitada.values("participante__escuela").distinct().count()
                 if numero_escuelas_invitadas == 0:
-                    print("No hay escuelas asignadas")
                     listado_datos['invitada']=0
                 elif numero_escuelas_invitadas ==1:
-                    print("Solo hay una escuela asignada")
                     listado_datos['invitada']=1
-                else:
-                    print("Hay un monton de escuelas asignadas")
+                else:                    
                     listado_datos['invitada']=numero_escuelas_invitadas -1
                 contador_sede = contador_sede +1
                 listado_datos['numero']=contador_sede
@@ -877,7 +885,7 @@ class AsignacionWebView(LoginRequiredMixin, FormView):
 class ChamiloAddView(LoginRequiredMixin, TemplateView):
     template_name = 'cyd/cargar_chamilo.html'
     def post(self,request):
-        if request.method == 'POST' and request.FILES['myfile']:            
+        if request.method == 'POST' and request.FILES['myfile']:
             myfile=request.FILES['myfile']
             fs=FileSystemStorage(location=settings.MEDIA_ROOT_EXCEL)
             filename=fs.save(myfile.name, myfile)

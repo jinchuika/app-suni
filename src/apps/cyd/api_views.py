@@ -68,6 +68,7 @@ class GrupoViewSet(CsrfExemptMixin, viewsets.ModelViewSet):
         ultimo_grupo=Grupo.objects.filter(sede=sede,curso=curso).last()
         if ultimo_grupo:
             for x in range(ultimo_grupo.numero+1, (ultimo_grupo.numero + int(cantidad))+1):
+                print(x)
                 nuevo_grupo= Grupo(
                 sede=sede,
                 numero=x,

@@ -160,6 +160,10 @@ function validar_udi_api(params) {
 
 
 /*ajax*/
+/*Obtener los datos para que se muestre en las lineas de tiempo*/
+var cursos=[];
+var mostrar_curso=[];
+var contador_curso=0;
 $.ajax({
   url:$('#linea').data("url"),
   dataType:'json',
@@ -170,17 +174,25 @@ $.ajax({
     console.log("Error");
   },
   success:function(data){
-    console.log(data);
-  
+
     for(k=0;k<data.length;k++){
-      console.log(new Date(data[k].fecha));
+      contador_curso++;
+      try {
+        if(data[k].grupo != data[k+1].grupo){
+          /*Formato establecido para las lineas de tiempo*/
+          /*[Id,Nombre,fecha_inicio,fecha_final]*/
+          cursos=[data[(k+1)-(contador_curso)].grupo.toString(),data[(k+1)-(contador_curso)].curso,new Date(data[(k+1)-(contador_curso)].fecha),new Date(data[(k+1)-(contador_curso)].fecha_fin['fecha'])]
+          mostrar_curso.push(cursos);
+          contador_curso=0;
+        }
+
+      } catch (e) {
+          cursos=[data[(k+1)-(contador_curso)].grupo.toString(),data[(k+1)-(contador_curso)].curso,new Date(data[(k+1)-(contador_curso)].fecha),new Date(data[(k+1)-(contador_curso)].fecha_fin['fecha'])]
+          mostrar_curso.push(cursos);
+          contador_curso=0;
+      }
+
     }
-    var nuevo=[
-      [ '1','Washington', new Date(1789, 3, 30), new Date(1797, 2, 4) ],
-      [ '2','Adams',      new Date(1797, 2, 4),  new Date(1801, 2, 4) ],
-      [ '3','Jeffersonmmmm',  new Date(1801, 2, 4),  new Date(1809, 2, 4) ]];
-      //var nuevo2=[ '5','Jeffersonmmmm2',  1810-03-04,  1812-03-04]
-    //nuevo.push(nuevo2);
     /*Grafica*/
     google.charts.load('current', {'packages':['timeline']});
     google.charts.setOnLoadCallback(drawChart);
@@ -193,7 +205,7 @@ $.ajax({
       dataTable.addColumn({ type: 'string', id: 'Name' });
       dataTable.addColumn({ type: 'date', id: 'Start' });
       dataTable.addColumn({ type: 'date', id: 'End' });
-      dataTable.addRows(nuevo);
+      dataTable.addRows(mostrar_curso);
     var options = {
       timeline:{ showRowLabels: false},
       width:850

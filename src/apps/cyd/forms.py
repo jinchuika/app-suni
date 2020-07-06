@@ -296,7 +296,9 @@ class InformeAsistenciaFinalForm(forms.Form):
 
 class InformeCapacitadorForm(forms.Form):
     capacitador = forms.ModelChoiceField(
-        queryset=User.objects.filter(groups__name='cyd_capacitador'))
+        queryset=User.objects.filter(groups__name='cyd_capacitador'),
+        widget=forms.Select(attrs={'class': 'select2 form-control'}
+        ))
     fecha_min = forms.CharField(
         label='Fecha mínima',
         widget=forms.TextInput(attrs={'class': 'form-control datepicker'}),
@@ -305,7 +307,7 @@ class InformeCapacitadorForm(forms.Form):
         label='Fecha máxima',
         widget=forms.TextInput(attrs={'class': 'form-control datepicker'}),
         required=False)
-        
+
     def __init__(self, *args, **kwargs):
         super(InformeCapacitadorForm ,self).__init__(*args, **kwargs)
         self.fields['capacitador'].label_from_instance = lambda obj: "%s" % (obj.get_full_name())
