@@ -27,7 +27,7 @@ CrAsistenciaFormSet = inlineformset_factory(
     Curso,
     CrAsistencia,
     fields='__all__',
-    extra=6,
+    extra=10,
     can_delete=True)
 
 
@@ -61,7 +61,7 @@ class GrupoForm(forms.ModelForm):
         exclude = ('activo',)
         widgets = {
             'sede': forms.Select(attrs={'class': 'select2'}),
-            'numero': forms.TextInput(attrs={'class': 'form-reset','size':'5'}),
+            'numero': forms.NumberInput(attrs={'class': 'form-reset','size':'5'}),
         }
     def __init__(self, *args, **kwargs):
         super(GrupoForm, self).__init__(*args, **kwargs)
@@ -230,7 +230,8 @@ class GrupoFilterFormInforme(forms.Form):
     curso = forms.ModelChoiceField(
         queryset=Curso.objects.all(),
         required=False,
-        widget=forms.Select(attrs={'class': 'form-control', 'data-url': reverse_lazy('sede_api_list')}))
+        widget=forms.Select(attrs={'class': 'form-control', 'data-url': reverse_lazy('asignacion_api_list')}))
+        #widget=forms.Select(attrs={'class': 'form-control', 'data-url': reverse_lazy('sede_api_list')}))
     sede = forms.ModelChoiceField(
         label='Sede',
         queryset=Sede.objects.all(),
@@ -251,12 +252,12 @@ class ControlAcademicoGrupoForm(forms.Form):
     curso = forms.ModelChoiceField(
         queryset=Curso.objects.all(),
         required=False,
-        widget=forms.Select(attrs={'class': 'select2 form-control', 'data-url': reverse_lazy('sede_api_list')}))
+        widget=forms.Select(attrs={'class': 'select2 form-control', 'data-url': reverse_lazy('asignacion_api_list')}))
     sede = forms.ModelChoiceField(
         label='Sede',
         queryset=Sede.objects.all(),
         required=False,
-        widget=forms.Select(attrs={'class': 'select2 form-control'}))
+        widget=forms.Select(attrs={'class': 'select2 form-control', 'data-url': reverse_lazy('grupo_api_list')}))
     grupo = forms.ModelChoiceField(
         queryset=Grupo.objects.all(),
         required=False,
@@ -266,15 +267,16 @@ class ControlAcademicoGrupoForm(forms.Form):
          required=False,
          widget=forms.Select(attrs={'class': 'select2', 'data-url': reverse_lazy('participante_api_list')}))
 class InformeAsistenciaForm(forms.Form):
+    #aca toca ahorita la base
     sede = forms.ModelChoiceField(
         label='Sede',
         queryset=Sede.objects.all(),
         required=False,
-        widget=forms.Select(attrs={'class': 'select2 form-control'}))
+        widget=forms.Select(attrs={'class': 'select2 form-control','data-url': reverse_lazy('grupo_api_list')}))
     curso = forms.ModelChoiceField(
         required=False,
         queryset=Curso.objects.all(),
-        widget=forms.Select(attrs={'class': 'select2', 'data-url': reverse_lazy('participante_api_list')}))
+        widget=forms.Select(attrs={'class': 'select2', 'data-url': reverse_lazy('asignacion_api_list')}))
     grupo = forms.ModelChoiceField(
         queryset=Grupo.objects.all(),
         widget=forms.Select(attrs={'class': 'select2', 'data-url': reverse_lazy('participante_api_list')}))
@@ -284,7 +286,7 @@ class InformeAsistenciaFinalForm(forms.Form):
         label='Sede',
         queryset=Sede.objects.all(),
         required=False,
-        widget=forms.Select(attrs={'class': 'select2 form-control'}))
+        widget=forms.Select(attrs={'class': 'select2 form-control','data-url': reverse_lazy('grupo_api_list')}))
     curso = forms.ModelChoiceField(
         required=False,
         queryset=Curso.objects.all(),
@@ -320,14 +322,15 @@ class InformeEscuelaForm(forms.Form):
         widget=forms.TextInput(attrs={'class': 'form-control'}))
 
 class InformeAsistenciaPeriodoForm(forms.Form):
+
     sede = forms.ModelChoiceField(
         label='Sede',
         queryset=Sede.objects.all(),
         required=False,
-        widget=forms.Select(attrs={'class': 'select2 form-control'}))
+        widget=forms.Select(attrs={'class': 'select2', 'data-url': reverse_lazy('grupo_api_list')}))
     grupo = forms.ModelChoiceField(
         queryset=Grupo.objects.all(),
-        widget=forms.Select(attrs={'class': 'select2', 'data-url': reverse_lazy('participante_api_list')}))
+        widget=forms.Select(attrs={'class': 'select2', 'data-url': reverse_lazy('calendario_api_list')}))
     asistencia = forms.ModelChoiceField(
         required=False,
         queryset=Calendario.objects.all().distinct(),
@@ -371,18 +374,19 @@ class InformeEscuelalistadoForm(forms.Form):
         self.fields['capacitador'].label_from_instance = lambda obj: "%s" % (obj.get_full_name())
 
 class InformeAsistenciaWebForm(forms.Form):
+    #aca toca modificar
     sede = forms.ModelChoiceField(
         label='Sede',
         queryset=Sede.objects.all(),
         required=False,
-        widget=forms.Select(attrs={'class': 'select2 form-control'}))
+        widget=forms.Select(attrs={'class': 'select2 form-control','data-url': reverse_lazy('grupo_api_list')}))
     curso = forms.ModelChoiceField(
         required=False,
         queryset=Curso.objects.all(),
-        widget=forms.Select(attrs={'class': 'select2', 'data-url': reverse_lazy('participante_api_list')}))
+        widget=forms.Select(attrs={'class': 'select2', 'data-url': reverse_lazy('asignacion_api_list')}))
     grupo = forms.ModelChoiceField(
         queryset=Grupo.objects.all(),
-        widget=forms.Select(attrs={'class': 'select2', 'data-url': reverse_lazy('participante_api_list')}))
+        widget=forms.Select(attrs={'class': 'select2', 'data-url': reverse_lazy('calendario_api_list')}))
     asistencia = forms.ModelChoiceField(
         required=False,
         queryset=Calendario.objects.all().distinct(),
@@ -397,7 +401,7 @@ class AsignacionWebForm(forms.Form):
         label='Sede',
         queryset=Sede.objects.all(),
         required=False,
-        widget=forms.Select(attrs={'class': 'select2 form-control'}))
+        widget=forms.Select(attrs={'class': 'select2 form-control', 'data-url': reverse_lazy('grupo_api_list')}))
     grupo = forms.ModelChoiceField(
         queryset=Grupo.objects.all(),
         widget=forms.Select(attrs={'class': 'select2', 'data-url': reverse_lazy('participante_api_list')}))

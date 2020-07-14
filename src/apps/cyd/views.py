@@ -228,6 +228,7 @@ class CalendarioView(LoginRequiredMixin, GroupRequiredMixin, TemplateView):
 
 class CalendarioListView(JsonRequestResponseMixin, View):
     def get(self, request, *args, **kwargs):
+        print(self.request.GET.get)
         response = []
         calendario_list = cyd_m.Calendario.objects.filter(
             fecha__gte=datetime.strptime(self.request.GET.get('start'), '%Y-%m-%d'),
@@ -608,7 +609,7 @@ class InformeCapacitadores(views.APIView):
                     listado_datos['invitada']=0
                 elif numero_escuelas_invitadas ==1:
                     listado_datos['invitada']=1
-                else:                    
+                else:
                     listado_datos['invitada']=numero_escuelas_invitadas -1
                 contador_sede = contador_sede +1
                 listado_datos['numero']=contador_sede
@@ -680,7 +681,7 @@ class InformeAsistenciaPeriodosListView(LoginRequiredMixin, FormView):
 
 class InformeAsistenciaPeriodo(views.APIView):
     def post(self, request):
-
+        print("Ingreso aca");
         listado_grupo=[]
         correlativo=0
         sede = cyd_m.Sede.objects.get(id=self.request.POST['sede'])
@@ -757,7 +758,7 @@ class InformeEscuelaSede(views.APIView):
             status=status.HTTP_200_OK
             )
 
-class InformeListadoEscuela(views.APIView):
+class InformeListadoEscuela2(views.APIView):
     def post(self, request):
         acumulador_aprobados=0
         listado_escuelas=[]
@@ -823,7 +824,7 @@ class InformeListadoEscuela(views.APIView):
             if(contador_fecha==2):
                 print("Si trae el rango de fechas")
         return Response(
-                "Listo",
+                listado_escuelas,
             status=status.HTTP_200_OK
             )
 class InformeAsistenciaWebView(LoginRequiredMixin, FormView):

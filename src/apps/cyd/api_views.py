@@ -185,6 +185,7 @@ class SedeViewSetInforme(CsrfExemptMixin, viewsets.ModelViewSet):
 class AsignacionViewSet(CsrfExemptMixin, viewsets.ModelViewSet):
     serializer_class = AsignacionSerializer
     queryset = Asignacion.objects.all()
+    filter_fields = ('grupo__curso',)
 
 
 class ParticipanteViewSet(CsrfExemptMixin, viewsets.ModelViewSet):

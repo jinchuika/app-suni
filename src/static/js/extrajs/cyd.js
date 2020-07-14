@@ -20,7 +20,138 @@ function listar_grupos_sede(sede_selector, grupo_selector, null_option) {
         });
     }
 }
+//funcion listar sedes mediante cursos
+function listar_sede_cursos(sede_selector, grupo_selector, null_option) {
+    /*
+    Al cambiar la sede, genera el listado de grupos
+    */
+  $(grupo_selector).html('');
+    if ($(sede_selector).val()) {
+        $.get($(sede_selector).data('url'),
+        {
+            grupo__curso: $(sede_selector).val()
+        },
+        function (respuesta) {
+            var options = '';
+            if (null_option) {
+                options += '<option value="">------</option>';
+            }
+            //console.log(respuesta);
+            var  nueva_sede=[];
+            var  datos_sede=[];
+            //console.log(unique);
+            $.each(respuesta, function (index, grupo) {
+              nueva_sede.push(grupo.sede_id);
+              datos_sede.push(grupo.sede);
 
+                //options += '<option value="'+grupo.sede_id+'">'+grupo.sede+'</option>';
+            });
+             var nuevas_sedes =Array.from(new Set(nueva_sede));
+             var nuevos_datos_sedes = Array.from(new Set(datos_sede));
+             for(var k=0;k<nuevas_sedes.length;k++){
+                  console.log(nuevas_sedes[k] +" " + nuevos_datos_sedes[k]);
+                    options += '<option value="'+nuevas_sedes[k]+'">'+nuevos_datos_sedes[k]+'</option>';
+             }
+            $(grupo_selector).html(options).trigger('change');
+        });
+    }
+}
+//fin funcion listar sede mediante cursos
+function listar_curso_sede(sede_selector, grupo_selector, null_option) {
+    /*
+    Al cambiar la sede, genera el listado de grupos
+    */
+    $(grupo_selector).html('');
+    if ($(sede_selector).val()) {
+        $.get($(sede_selector).data('url'),
+        {
+            sede: $(sede_selector).val()
+        },
+        function (respuesta) {
+            var options = '';
+            if (null_option) {
+                options += '<option value="">------</option>';
+            }
+            var  nuevo_curso=[];
+            var  datos_curso=[];
+            $.each(respuesta, function (index, grupo) {
+              nuevo_curso.push(grupo.curso_id);
+              datos_curso.push(grupo.curso);
+
+            });
+            var nuevos_cursos =Array.from(new Set(nuevo_curso));
+            var nuevos_datos_cursos = Array.from(new Set(datos_curso));
+            for(var k=0;k<nuevos_cursos.length;k++){
+                  options += '<option value="'+nuevos_cursos[k]+'">'+nuevos_datos_cursos[k]+'</option>';
+            }
+            $(grupo_selector).html(options).trigger('change');
+        });
+    }
+}
+//fin fucion retornar curso mediante sedes
+//funcion listar grupo` mediante cursos
+function listar_grupo_cursos(sede_selector, grupo_selector, null_option) {
+    /*
+    Al cambiar la sede, genera el listado de grupos
+    */
+  $(grupo_selector).html('');
+    if ($(sede_selector).val()) {
+        $.get($(sede_selector).data('url'),
+        {
+            grupo__curso: $(sede_selector).val()
+        },
+        function (respuesta) {
+            var options = '';
+            if (null_option) {
+                options += '<option value="">------</option>';
+            }
+            //console.log(respuesta);
+            var  nuevo_grupo=[];
+            var  datos_grupo=[];
+            //console.log(unique);
+            $.each(respuesta, function (index, grupo) {
+              nuevo_grupo.push(grupo.grupo);
+              datos_grupo.push(grupo.grupo_nombre);
+
+                //options += '<option value="'+grupo.sede_id+'">'+grupo.sede+'</option>';
+            });
+             var nuevos_grupos =Array.from(new Set(nuevo_grupo));
+             var nuevos_datos_grupos = Array.from(new Set(datos_grupo));
+             console.log(nuevos_grupos);
+             console.log(nuevos_datos_grupos);
+             for(var k=0;k<nuevos_grupos.length;k++){
+                  //console.log(nuevas_sedes[k] +" " + nuevos_datos_sedes[k]);
+                    options += '<option value="'+nuevos_grupos[k]+'">'+nuevos_datos_grupos[k]+'</option>';
+             }
+            $(grupo_selector).html(options).trigger('change');
+        });
+    }
+}
+//listar asistencias
+function listar_asistencias(sede_selector, grupo_selector,asistencia_selector ,null_option) {
+    /*
+    Al cambiar la sede, genera el listado de grupos
+    */
+    $(asistencia_selector).html('');
+    if ($(sede_selector).val()) {
+        $.get($(grupo_selector).data('url'),
+        {
+            grupo__sede: $(sede_selector).val(),
+            grupo:$(grupo_selector).val()
+        },
+        function (respuesta) {
+            var options = '';
+            if (null_option) {
+                options += '<option value="">------</option>';
+            }
+            $.each(respuesta, function (index, grupo) {
+                options += '<option value="'+grupo.id+'">'+"A"+grupo.cr_asistencia+' - '+grupo.fecha+'</option>';
+            });
+            $(asistencia_selector).html(options).trigger('change');
+        });
+    }
+}
+//fin listar asistencias
 function validar_udi_api(params) {
     if(validar_udi(params.udi)){
         $.get(params.url,
@@ -1408,6 +1539,10 @@ class GrupoList {
 
       /* */
      });
+     //efecto casaca de grupos
+     $('#grupo-list-form #id_curso').on('change', function () {
+         listar_sede_cursos('#grupo-list-form #id_curso', '#grupo-list-form #id_sede');
+     });
     }
 }
 
@@ -1508,6 +1643,7 @@ class SedeList {
 }
 class AgregarCurso{
     constructor(){
+      var bandera_contador=0;
         var contador_asistencia =4;
         var contador_hitos = 4;
         var cantidad = $('#id_asistencias-TOTAL_FORMS').val();
@@ -1521,15 +1657,7 @@ class AgregarCurso{
             $("#id_asistencias-"+a+"-modulo_num").val(a+1);
             $("#id_asistencias-"+a+"-modulo_num").hide();
         }
-        $("#mostrar_campo").click(function(){
-            contador_asistencia++;
-            if(contador_asistencia > (cantidad-1)){
-                bootbox.alert("Ya no puede ingresar más asistencias");
-                $("#mostrar_campo" ).prop( "disabled", true );
-            }else{
-                $("#asistencias-"+contador_asistencia+"-row").removeAttr("style");;
-            }
-        });
+
         $("#mostrar_campo_hito").click(function(){
             contador_hitos++;
             if(contador_hitos > (cantidad-1)){
@@ -1541,24 +1669,67 @@ class AgregarCurso{
         });
 
         $("input").focusout(function(){
-            AgregarCurso.suma_asistencia();
-            AgregarCurso.suma_proyectos_ejercicios();
+          var nuevo1=AgregarCurso.suma_asistencia();
+
+          var nuevo2=AgregarCurso.suma_proyectos_ejercicios();
+        //  console.log(nuevo1);
+          //console.log(nuevo2);
+          if(nuevo1>100){
+            bandera_contador=1;
+          }
+
             var total_asistencia = $('#nota_curso').text();
             var total_proyectos = $('#tareas_curso').text();
-            $("#total_curso").text((Number(total_asistencia) + Number(total_proyectos))/2);
-            if(total_asistencia>100){
+            var tota_punteo= (Number(total_asistencia) + Number(total_proyectos));
+            $("#total_curso").text((Number(total_asistencia) + Number(total_proyectos)));
+            if(tota_punteo>100){
+              bootbox.alert("La nota total no puede ser mayor a 100 pts, revise las notas");
+              $("#guardar_curso").prop( "disabled", true );
+              $("#mostrar_campo" ).prop( "disabled", true );
+              $("#mostrar_campo_hito" ).prop( "disabled", true );
+            }else{
+              $("#mostrar_campo" ).prop( "disabled", false );
+              $("#mostrar_campo_hito" ).prop( "disabled", false );
+              $("#guardar_curso").prop( "disabled", false );
+            }
+            /*if(total_asistencia>100){
                 bootbox.alert("La nota total no puede ser mayor a 100 pts, revise las notas");
                 $("#guardar_curso").prop( "disabled", true );
+                $("#mostrar_campo" ).prop( "disabled", true );
+                $("#mostrar_campo_hito" ).prop( "disabled", true );
+            }else{
+                $("#mostrar_campo" ).prop( "disabled", false );
+                $("#mostrar_campo_hito" ).prop( "disabled", false );
+                $("#guardar_curso").prop( "disabled", false );
             };
             if(total_proyectos>100){
                 bootbox.alert("La nota total no puede ser mayor a 100 pts, revise las notas");
                 $("#guardar_curso").prop( "disabled", true );
-            };
+                $("#mostrar_campo_hito" ).prop( "disabled", true );
+                  $("#guardar_curso").prop( "disabled", true );
+            }else{
+              $("#mostrar_campo" ).prop( "disabled", false );
+              $("#mostrar_campo_hito" ).prop( "disabled", false );
+              $("#guardar_curso").prop( "disabled", false );
+            };*/
         });
 
         $("#id_nombre").keyup(function(){
                 $("#nombre_curso").text($(this).val());
         });
+          $("#mostrar_campo").click(function(){
+
+              contador_asistencia++;
+
+              if(contador_asistencia > (cantidad-1)){
+                  bootbox.alert("Ya no puede ingresar más asistencias");
+                  $("#mostrar_campo" ).prop( "disabled", true );
+              }else{
+                  $("#asistencias-"+contador_asistencia+"-row").removeAttr("style");
+              }
+          });
+
+
     }
     static suma_asistencia(){
         var cantidad_asistencia = $('#id_asistencias-TOTAL_FORMS').val();
@@ -1874,7 +2045,13 @@ class informeControlAcademico{
          };
 
         });
-
+        //efecto casaca de grupos
+        $('#controlacademico-list-form #id_curso').on('change', function () {
+            listar_sede_cursos('#controlacademico-list-form #id_curso', '#controlacademico-list-form #id_sede');
+        });
+        $('#controlacademico-list-form #id_sede').on('change', function () {
+            listar_grupos_sede('#controlacademico-list-form #id_sede', '#controlacademico-list-form #id_grupo');
+        });
 
     }
 
@@ -1895,6 +2072,14 @@ class informeAsistencia{
         var data_grafica=[];
         var data_inside_grafica=[];
         var datos=[]
+        //iniciar efecto casacada
+        $('#informeasistencia-list-form #id_sede').on('change', function () {
+            listar_curso_sede('#informeasistencia-list-form #id_sede', '#informeasistencia-list-form #id_curso');
+        });
+        $('#informeasistencia-list-form #id_curso').on('change', function () {
+            listar_grupo_cursos('#informeasistencia-list-form #id_curso', '#informeasistencia-list-form #id_grupo');
+        });
+        //fin inicio cascada
 
         $('#informeasistencia-list-form').submit(function (e) {
             e.preventDefault();
@@ -1993,6 +2178,10 @@ class informeAsistencia{
 }
 class informeFinal{
   constructor(){
+    $('#informefinal-list-form #id_sede').on('change', function () {
+        listar_curso_sede('#informefinal-list-form #id_sede', '#informefinal-list-form #id_curso');
+    });
+
     $('#informefinal-list-form').submit(function (e) {
         e.preventDefault();
          tablaDispositivos = $('#informefinal-table-search').DataTable({
@@ -2151,6 +2340,12 @@ class informeEscuela{
 
 class informeGrupo{
   constructor(){
+    $('#informegrupos-list-form #id_sede').on('change', function () {
+        listar_curso_sede('#informegrupos-list-form #id_sede', '#informegrupos-list-form #id_curso');
+    });
+    $('#informegrupos-list-form #id_curso').on('change', function () {
+        listar_grupo_cursos('#informegrupos-list-form #id_curso', '#informegrupos-list-form #id_grupo');
+    });
     $('#informegrupos-list-form').submit(function (e) {
         e.preventDefault();
          var tablaDispositivos = $('#informegrupo-table-search').DataTable({
@@ -2196,6 +2391,16 @@ class informeGrupo{
 
 class informeAsistenciaPeriodos{
   constructor(){
+    //efecto cascada
+   $('#informeasistenciaperiodo-list-form #id_sede').on('change', function () {
+        listar_grupos_sede('#informeasistenciaperiodo-list-form #id_sede', '#informeasistenciaperiodo-list-form #id_grupo');
+
+    });
+    $('#informeasistenciaperiodo-list-form #id_grupo').on('change', function () {
+         listar_asistencias('#informeasistenciaperiodo-list-form #id_sede','#informeasistenciaperiodo-list-form #id_grupo', '#informeasistenciaperiodo-list-form #id_asistencia');
+
+     });
+    //fin cascad`
     $('#informeasistenciaperiodo-list-form').submit(function (e) {
         e.preventDefault();
          var tablaDispositivos = $('#informeasistenciaperiodo-table-search').DataTable({
@@ -2290,9 +2495,52 @@ class informeListadoEscuela{
     var total_hombres=0;
     var total_mujeres=0;
     var total_participantes=0;
-    $('#informescuelalistado-list-form').submit(function (e) {
-        e.preventDefault();
-         var tablaDispositivos = $('#informescuelalistado-table-search').DataTable({
+    $('#informelistadoescuela-list-form #id_sede').on('change', function () {
+         listar_grupos_sede('#informelistadoescuela-list-form #id_sede', '#informelistadoescuela-list-form #id_grupo');
+         //console.log("ingreso");
+     });
+     $('#informelistadoescuela-list-form #id_grupo').on('change', function () {
+          listar_asistencias('#informelistadoescuela-list-form #id_sede','#informelistadoescuela-list-form #id_grupo', '#informelistadoescuela-list-form #id_asistencia');
+
+      });
+      $('#informelistadoescuela-list-form').submit(function (e) {
+              e.preventDefault();
+           var tablaDispositivos = $('#informealistadoescuela-table-search').DataTable({
+                dom: 'lfrtipB',
+                destroy:true,
+                buttons: ['excel', 'pdf'],
+                processing: true,
+                deferLoading: [0],
+                ajax: {
+                    type: 'POST',
+                    url: $('#informelistadoescuela-list-form').attr('action'),
+                    deferRender: true,
+                    dataSrc: '',
+                    cache: true,
+                    data: function () {
+                        return $('#informelistadoescuela-list-form').serializeObject();
+                    }
+
+                },
+                columns:[
+                    {data: "Numero",render: function(data, type , full, meta){
+                        return "<a target='_blank' href="+full.Url+">"+data+"</a>";
+                    }},
+                    {data: "Escuela"},
+                    {data: "Nombre"},
+                    {data: "Apellido"},
+
+                ]
+
+              });
+
+            });
+      //  $('#informescuelalistado-list-form').submit(function (e) {
+  /*  $('#informelistadoescuela-list-form').submit(function (e) {
+          e.preventDefault();
+          console.log( $('#informelistadoescuela-list-form').attr('action'));
+          console.log( $('#informelistadoescuela-list-form').serializeObject());
+       var tablaDispositivos = $('#informealistadoescuela-table-search').DataTable({
             dom: 'lfrtipB',
             destroy:true,
             buttons: ['excel', 'pdf'],
@@ -2300,17 +2548,18 @@ class informeListadoEscuela{
             deferLoading: [0],
             ajax: {
                 type: 'POST',
-                url: $('#informescuelalistado-list-form').attr('action'),
+                url: $('#informelistadoescuela-list-form').attr('action'),
                 deferRender: true,
                 dataSrc: '',
                 cache: true,
-                data: function (data,params) {
-                    return $('#informescuelalistado-list-form').serializeObject(true);
+                data: function () {
+                    return $('#informelistadoescuela-list-form').serializeObject();
                 }
 
             },
             columns:[
                 {data: "Numero",render: function(data, type , full, meta){
+                  console.log(data);
                     return "<a target='_blank' href="+full.Url+">"+data+"</a>";
                 }},
                 {data: "Escuela"},
@@ -2335,13 +2584,25 @@ class informeListadoEscuela{
               }
           });
 
-          });
+        });*/
 
   }
 }
 class asistenciaWeb{
   constructor(){
     var urlAsignarAsignacion=$('#asistencia-web-table-search').data("urlasignar");
+    //iniciar efecto casacada
+    $('#asistencia-web-list-form #id_sede').on('change', function () {
+        listar_curso_sede('#asistencia-web-list-form #id_sede', '#asistencia-web-list-form #id_curso');
+    });
+    $('#asistencia-web-list-form #id_curso').on('change', function () {
+        listar_grupo_cursos('#asistencia-web-list-form #id_curso', '#asistencia-web-list-form #id_grupo');
+    });
+    $('#asistencia-web-list-form #id_grupo').on('change', function () {
+         listar_asistencias('#asistencia-web-list-form #id_sede','#asistencia-web-list-form #id_grupo', '#asistencia-web-list-form  #id_asistencia');
+
+     });
+    //fin inicio cascada
     $('#asistencia-web-list-form').submit(function (e) {
         e.preventDefault();
 
@@ -2434,6 +2695,12 @@ class AsignacionGruposWeb{
   constructor(){
       var encabezado =['Nombre','Apellido','Genero','DPI','Rol','Mail','Telefono','Udi'];
       var hot;
+      //efecto cascada
+     $('#control-academico-list-form #id_sede').on('change', function () {
+          listar_grupos_sede('#control-academico-list-form #id_sede', '#control-academico-list-form #id_grupo');
+
+      });
+      //fin cascad`
  $('#control-academico-list-form').on('submit', function (e) {
    e.preventDefault();
 

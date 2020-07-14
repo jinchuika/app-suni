@@ -39,7 +39,7 @@ urlpatterns = [
     url(r'^controlacademico/api/grupos/$', InformeGrupo.as_view(), name='informe_api_grupos'),
     url(r'^controlacademico/api/asistencia/periodo/$', InformeAsistenciaPeriodo.as_view(), name='informe_api_asistencia_periodo'),
     url(r'^controlacademico/api/escuela/sede/$',InformeEscuelaSede.as_view(), name='informe_api_escuela_sede'),
-    url(r'^controlacademico/api/escuela/lista/$',InformeListadoEscuela.as_view(), name='informe_api_escuela_lista'),
+    url(r'^controlacademico/api/escuela/lista/$',InformeListadoEscuela2.as_view(), name='informe_api_escuela_lista'),
     url(r'^controlacademico/api/asistencia/agregar/$',InformeListadoEscuela.as_view(), name='asistencia_api_agregar'),
 
     url(r'^informe/controlacademico/$', ControlAcademicoInformeListView.as_view() , name='informe_control_academico'),
