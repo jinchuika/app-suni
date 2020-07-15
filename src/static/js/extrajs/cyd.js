@@ -1653,6 +1653,7 @@ class AgregarCurso{
         };
         for(var a=5;a<cantidad;a++){
             $("#asistencias-"+a+"-row").css("display","none");
+            $("#asistencias-"+a+"-row").prop("required",true);
             $("#hitos-"+a+"-row").css("display","none");
             $("#id_asistencias-"+a+"-modulo_num").val(a+1);
             $("#id_asistencias-"+a+"-modulo_num").hide();
@@ -2650,7 +2651,7 @@ class asistenciaWeb{
                       datos:data_fila
                     },
                     success: function (response) {
-                      bootbox.alert({message: "<h3><i class='fa fa-frown-o' style='font-size: 45px;'></i>&nbsp;&nbsp;&nbsp;COMPLETO</h3></br>", className:"modal modal-success fade"});
+                      bootbox.alert({message: "<h3><i class='fa fa-smile-o' style='font-size: 45px;'></i>&nbsp;&nbsp;&nbsp;COMPLETO</h3></br>", className:"modal modal-success fade"});
                       tablaDispositivos.ajax.reload();
 
                     },
@@ -2677,8 +2678,8 @@ class crearGrupos{
           dataType: 'json',
           data:$('#grupo-add-form').serializeObject(true),
           success: function (response) {
-            bootbox.alert({message: "<h3><i class='fa fa-frown-o' style='font-size: 45px;'></i>&nbsp;&nbsp;&nbsp;COMPLETO</h3></br>", className:"modal modal-success fade"});
-
+            bootbox.alert({message: "<h3><i class='fa fa-smile-o' style='font-size: 45px;'></i>&nbsp;&nbsp;&nbsp;COMPLETO</h3></br>", className:"modal modal-success fade"});
+            location.href = '/cyd/grupo/list/';
           },
           error: function (response) {
             var mensaje = JSON.parse(response.responseText)

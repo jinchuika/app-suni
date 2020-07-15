@@ -21,13 +21,13 @@ CrHitoFormSet = inlineformset_factory(
     Curso,
     CrHito,
     fields='__all__',
-    extra=5,
+    extra=5,    
     can_delete=True)
 CrAsistenciaFormSet = inlineformset_factory(
     Curso,
     CrAsistencia,
     fields='__all__',
-    extra=10,
+    extra=7,
     can_delete=True)
 
 
