@@ -20,6 +20,8 @@ from django.conf import settings
 
 
 class CursoCreateView(LoginRequiredMixin, GroupRequiredMixin, CreateView):
+    """ Creacion de cursos desde una vista
+    """
     group_required = [u"cyd_admin", ]
     redirect_unauthenticated_users = True
     raise_exception = True
@@ -65,16 +67,20 @@ class CursoCreateView(LoginRequiredMixin, GroupRequiredMixin, CreateView):
                 asistencia_formset=kwargs['formset_list'][1]))
 
 class CursoDetailView(LoginRequiredMixin, DetailView):
+    """ Detalles de un Curso
+    """
     model = cyd_m.Curso
     template_name = 'cyd/curso_detail.html'
 
 
 class CursoListView(LoginRequiredMixin, ListView):
+    """Listado de cursos"""
     model = cyd_m.Curso
     template_name = 'cyd/curso_list.html'
 
 
 class SedeCreateView(LoginRequiredMixin, GroupRequiredMixin, CreateView):
+    """ Creacion de sedes desde una vista"""
     group_required = [u"cyd_admin", u"cyd", u"cyd_capacitador", ]
     redirect_unauthenticated_users = True
     raise_exception = True
@@ -101,6 +107,7 @@ class SedeCreateView(LoginRequiredMixin, GroupRequiredMixin, CreateView):
 
 
 class SedeDetailView(LoginRequiredMixin, DetailView):
+    """Detalles de una sede en especifico"""
     model = cyd_m.Sede
     template_name = 'cyd/sede_detail.html'
 
@@ -111,6 +118,7 @@ class SedeDetailView(LoginRequiredMixin, DetailView):
 
 
 class SedeUpdateView(LoginRequiredMixin, UpdateView):
+    """Actualizacion de Una sede en especifico"""
     model = cyd_m.Sede
     template_name = 'cyd/sede_add.html'
     form_class = cyd_f.SedeForm
@@ -144,6 +152,7 @@ class SedeUpdateView(LoginRequiredMixin, UpdateView):
 
 
 class SedeListView(LoginRequiredMixin, FormView):
+    """Muestra el listado de sedes que se han creado"""
     model = cyd_m.Sede
     template_name = 'cyd/sede_list.html'
     form_class = cyd_f.SedeFilterFormInforme
@@ -156,6 +165,7 @@ class SedeListView(LoginRequiredMixin, FormView):
 
 
 class GrupoCreateView(LoginRequiredMixin, GroupRequiredMixin, CreateView):
+    """Creacion de grupos desde una vista"""
     group_required = [u"cyd", u"cyd_capacitador", u"cyd_admin", ]
     redirect_unauthenticated_users = True
     raise_exception = True
@@ -177,6 +187,7 @@ class GrupoCreateView(LoginRequiredMixin, GroupRequiredMixin, CreateView):
 
 
 class GrupoDetailView(LoginRequiredMixin, DetailView):
+    """Detalles de un grupo en especifico"""
     model = cyd_m.Grupo
     template_name = 'cyd/grupo_detail.html'
 
@@ -193,6 +204,7 @@ class GrupoDetailView(LoginRequiredMixin, DetailView):
 
 
 class GrupoListView(LoginRequiredMixin, GroupRequiredMixin, FormView):
+    """Listado de grupos que existen"""
     group_required = [u"cyd", u"cyd_capacitador", u"cyd_admin", ]
     redirect_unauthenticated_users = True
     raise_exception = True
@@ -209,6 +221,7 @@ class GrupoListView(LoginRequiredMixin, GroupRequiredMixin, FormView):
 
 
 class CalendarioView(LoginRequiredMixin, GroupRequiredMixin, TemplateView):
+    """Calendario donde se muestaran los recordatorios y asesorias"""
     group_required = [u"cyd", u"cyd_capacitador", u"cyd_admin", ]
     redirect_unauthenticated_users = True
     raise_exception = True
@@ -227,6 +240,7 @@ class CalendarioView(LoginRequiredMixin, GroupRequiredMixin, TemplateView):
 
 
 class CalendarioListView(JsonRequestResponseMixin, View):
+    """Punto de acceso que regresa un Json para el calendario"""
     def get(self, request, *args, **kwargs):
         print(self.request.GET.get)
         response = []
@@ -895,3 +909,42 @@ class ChamiloAddView(LoginRequiredMixin, TemplateView):
                 'uploaded_file_url':uploaded_file_url
         })
         return render(request,'cyd/cargar_chamilo.html')
+
+class CreacionCursosApi(views.APIView):
+    """Apir para la creacion de cursos"""
+    def post(self, request):
+        nuevo_curso=cyd_m.Curso(
+        nombre=self.request.POST["datos[nombre]"],
+        nota_aprobacion=self.request.POST["datos[nota_aprobacion]"],
+        porcentaje=self.request.POST["datos[porcentaje]"]
+        )
+        nuevo_curso.save()
+        print(cyd_m.Curso.objects.last())
+        try:
+            for x in range(int(self.request.POST["cantidad_asistencia"])):
+                nueva_asistencia=cyd_m.CrAsistencia(
+                    curso=cyd_m.Curso.objects.last(),
+                    modulo_num=str(x+1),
+                    punteo_max=self.request.POST["datos[asistencias-"+str(x)+"-punteo_max]"]
+                )
+                nueva_asistencia.save()
+                print("modulo:"+str(x+1)+" punteo:"+self.request.POST["datos[asistencias-"+str(x)+"-punteo_max]"])
+        except:
+            print("Solo llego 1")
+        try:
+            for x in range(int(self.request.POST["cantidad_hitos"])):
+                nuevo_hito=cyd_m.CrHito(
+                    curso=cyd_m.Curso.objects.last(),
+                    nombre=self.request.POST["datos[hitos-"+str(x)+"-nombre]"],
+                    punteo_max=self.request.POST["datos[hitos-"+str(x)+"-punteo_max]"]
+                )
+                nuevo_hito.save()
+                print("Nombre:"+self.request.POST["datos[hitos-"+str(x)+"-nombre]"]+" punteo:"+self.request.POST["datos[hitos-"+str(x)+"-punteo_max]"])
+        except:
+            print("solo lleva 1 tarea")
+
+
+        return Response(
+                "Curso creado exitosamente",
+            status=status.HTTP_200_OK
+            )

@@ -8,6 +8,7 @@ urlpatterns = [
     url(r'^curso/list/$', CursoListView.as_view(), name='curso_list'),
     url(r'^curso/(?P<pk>\d+)/$', CursoDetailView.as_view(), name='curso_detail'),
     url(r'^curso/(?P<pk>\d+)/edit/$', CursoUpdateView.as_view(), name='curso_edit'),
+    url(r'^curso/api/add/$', CreacionCursosApi.as_view(), name='curso_api_add'),
 
     url(r'^sede/add/$', SedeCreateView.as_view(), name='sede_add'),
     url(r'^sede/list/$', SedeListView.as_view(), name='sede_list'),

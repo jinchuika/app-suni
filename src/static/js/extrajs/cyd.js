@@ -1644,8 +1644,10 @@ class SedeList {
 class AgregarCurso{
     constructor(){
       var bandera_contador=0;
-        var contador_asistencia =4;
+        var  contador_asistencia =4;
         var contador_hitos = 4;
+        var nuevo2=0;
+        var nuevo1=0;
         var cantidad = $('#id_asistencias-TOTAL_FORMS').val();
        for(var b=0;b<5;b++){
             $("#id_asistencias-"+b+"-modulo_num").val(b+1);
@@ -1661,23 +1663,22 @@ class AgregarCurso{
 
         $("#mostrar_campo_hito").click(function(){
             contador_hitos++;
-            if(contador_hitos > (cantidad-1)){
+            $('#id_hitos-TOTAL_FORMS').val(contador_hitos);
+             $("#hito_table").append("<tr><td><input type='text' id=id_hitos-"+contador_hitos+"-nombre name=hitos-"+contador_hitos+"-nombre /></td><td><input type='number' id=id_hitos-"+contador_hitos+"-punteo_max name=hitos-"+contador_hitos+"-punteo_max /></td></tr>");
+            /*if(contador_hitos > (cantidad-1)){
                 bootbox.alert("Ya no puede ingresar más asistencias");
                 $("#mostrar_campo_hito" ).prop( "disabled", true );
             }else{
                 $("#hitos-"+contador_hitos+"-row").removeAttr("style");;
-            }
+            }*/
         });
 
         $("input").focusout(function(){
-          var nuevo1=AgregarCurso.suma_asistencia();
-
-          var nuevo2=AgregarCurso.suma_proyectos_ejercicios();
+        AgregarCurso.suma_asistencia();
+        AgregarCurso.suma_proyectos_ejercicios();
         //  console.log(nuevo1);
           //console.log(nuevo2);
-          if(nuevo1>100){
-            bandera_contador=1;
-          }
+
 
             var total_asistencia = $('#nota_curso').text();
             var total_proyectos = $('#tareas_curso').text();
@@ -1720,20 +1721,88 @@ class AgregarCurso{
         });
           $("#mostrar_campo").click(function(){
 
-              contador_asistencia++;
+            nuevo1=AgregarCurso.suma_asistencia();
+            contador_asistencia++;
+            $('#id_asistencias-TOTAL_FORMS').val(contador_asistencia);
+             $("#asistencia_table").append("<tr><td>"+Number(contador_asistencia+1)+"</td><td><input type='number' id=id_asistencias-"+contador_asistencia+"-punteo_max name=asistencias-"+contador_asistencia+"-punteo_max /></td></tr>");
+             //nuevo1 = nuevo1 + Number($("#id_asistencias-"+Number(contador_asistencia-1)+"-punteo_max").val());
+             if(contador_asistencia>5){
+               nuevo2= nuevo2+Number($("#id_asistencias-"+Number(contador_asistencia-1)+"-punteo_max").val());
+               if(Number(nuevo2+nuevo1) > 100){
+                   bootbox.alert("Ya no puede ingresar más asistencias que la nota ha superado los 100pts");
+                   $("#mostrar_campo" ).prop( "disabled", true );
+               }else{
+                   $("#asistencias-"+contador_asistencia+"-row").removeAttr("style");
+               }
+             }else{
+              nuevo2= nuevo2+Number($("#id_asistencias-"+Number(contador_asistencia)+"-punteo_max").val());
+             }
+            $("#nota_curso").text(Number(nuevo2+nuevo1));
+            //console.log($("#id_asistencias-"+Number(contador_asistencia-1)+"-punteo_max").val());
+            /*  contador_asistencia++;
 
               if(contador_asistencia > (cantidad-1)){
                   bootbox.alert("Ya no puede ingresar más asistencias");
                   $("#mostrar_campo" ).prop( "disabled", true );
               }else{
                   $("#asistencias-"+contador_asistencia+"-row").removeAttr("style");
-              }
+              }*/
+
+
+
+
           });
+          $("#guardar_curso").click(function(e){
+              e.preventDefault();
+              //alert("Esto es un contador"+contador_asistencia);
+                //$("#tabla-curso").append("<tr hidden><td>cantidad</td><td><input type='number' id='cantidad_adicional' /></td></tr>");
+                //$("#cantidad_adicional").val(contador_asistencia);
+               //console.log($('#formulario-prueba').serializeObject(true));
+                 var total_punteovalidar= Number($("#total_curso").text());
+                 if($("#total_curso").text()==""){
+                   bootbox.alert({message: "<h2>Ingrese el nombre del curso</h2>", className:"modal modal-warning fade in"});
+                 }else  if($("#id_nota_aprobacion").val()==0){
+                   bootbox.alert({message: "<h2>Ingrese la nota de aprobacion</h2>", className:"modal modal-warning fade in"});
+                 }else  if($("#id_porcentaje").val()==0){
+                   bootbox.alert({message: "<h2>Ingrese el porcentaje del curso</h2>", className:"modal modal-warning fade in"});
+                 }else  if(total_punteovalidar==0){
+                    bootbox.alert({message: "<h2>Ingrese una asistencias o una tarea</h2>", className:"modal modal-success fade in"});
+
+                 }else{
+                   /*CONSUMIR API*/
+                   $.ajax({
+                     beforeSend: function(xhr, settings) {
+                         xhr.setRequestHeader("X-CSRFToken", $('input[name="csrfmiddlewaretoken"]').val());
+                     },
+                     type: 'POST',
+                     url:   $("#guardar_curso").data("url"),
+                     dataType: 'json',
+                     data:{
+                       datos:$('#formulario-prueba').serializeObject(true),
+                       cantidad_asistencia:contador_asistencia+1,
+                       cantidad_hitos:contador_hitos+1
+                     } ,
+                     success: function (response) {
+                       bootbox.alert({message: "<h2>Curso creado exitosamente</h2>", className:"modal modal-success fade in"});
+                       location.href = '/cyd/curso/list/';
+                     },
+                     error: function (response) {
+                       var jsonResponse = JSON.parse(response.responseText);
+                       bootbox.alert({message: "<h3><i class='fa fa-frown-o' style='font-size: 45px;'></i>&nbsp;&nbsp;&nbsp;Error al crear el curso!!</h3></br>" + jsonResponse["mensaje"], className:"modal modal-danger fade"});
+                     }
+                   });
+                   /*FIN DE CONSUMO*/
+                 }
+
+          });
+
 
 
     }
     static suma_asistencia(){
+
         var cantidad_asistencia = $('#id_asistencias-TOTAL_FORMS').val();
+      //  var cantidad_asistencia = contador_asistencia;
         var acumulador_asistencia =0;
         for(var a=0;a<cantidad_asistencia;a++){
             acumulador_asistencia= acumulador_asistencia + Number($("#id_asistencias-"+a+"-punteo_max").val());
