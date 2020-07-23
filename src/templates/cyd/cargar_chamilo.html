@@ -1,0 +1,15 @@
+{% extends "base/base.html" %}
+
+{% load staticfiles %}
+{% block content %}
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <input type="file" name="myfile">
+    <button type="submit">Cargar</button>
+  </form>
+  {% if uploaded_file_url %}
+    <p>Archivo cargado!</p>
+  {% endif %}
+
+  <p><a href="{% url 'chamilo_add' %}">Inicio</a></p>
+{% endblock %}

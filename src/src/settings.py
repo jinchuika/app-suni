@@ -6,8 +6,6 @@ import os
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.10/howto/deployment/checklist/
 
@@ -39,13 +37,11 @@ THIRD_PARTY_APPS = (
     'easy_thumbnails',
     'dynamic_preferences',
     'dynamic_preferences.users.apps.UserPreferencesConfig',
-
     'widget_tweaks',
     'menu',
     'mixer',
     'dbbackup',
     'django_crontab',
-
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
@@ -69,10 +65,11 @@ LOCAL_APPS = (
     'apps.inventario',
     'apps.conta',
     'apps.legacy',
-    'apps.certificado'
+    'apps.certificado',
+    'apps.coursera'
 )
-
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
+
 
 SITE_ID = 1
 
@@ -88,7 +85,6 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'src.urls'
-
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -125,12 +121,8 @@ DATABASE_ROUTERS = ['apps.legacy.dbrouters.LegacyRouter', ]
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'suni',
-        'USER': 'suni',
-        'PASSWORD': 'SuN1.Funsep@2019!',
-        'HOST': 'localhost',
-        'PORT': '3306',
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     },
     'legacy': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -181,6 +173,7 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "static"),
 ]
 MEDIA_ROOT = 'etc/media/'
+MEDIA_ROOT_EXCEL = 'etc/media/excel/'
 MEDIA_URL = '/media/'
 ADMIN_MEDIA_PREFIX = '/static/'
 

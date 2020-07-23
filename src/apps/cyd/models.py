@@ -1,5 +1,6 @@
 from random import randint
 from datetime import datetime, timedelta
+from django.utils import timezone
 from django.db import models
 from django.db.models import Count, F
 from django.utils.text import slugify
@@ -89,7 +90,9 @@ class Sede(models.Model):
     tipo_sede = models.CharField(max_length=2, verbose_name='Tipo de Sede' , choices=TIPO_SEDE, default='B')
     fecha_creacion = models.DateField(null=True, blank=True)
     url = models.TextField(null=True, blank=True,verbose_name='Carpeta Fotos')
-    
+    url_archivos = models.TextField(null=True, blank=True,verbose_name='Carpeta Archivos')
+    fecha_creacion = models.DateTimeField(default=timezone.now)
+
     class Meta:
         verbose_name = "Sede"
         verbose_name_plural = "Sedes"
@@ -104,6 +107,21 @@ class Sede(models.Model):
         participantes = Participante.objects.filter(asignaciones__grupo__sede__id=self.id)
         return Escuela.objects.filter(
             participantes__in=participantes).annotate(cantidad_participantes=Count('participantes')).distinct()
+
+    def save(self, *args, **kwargs):
+        if self.url_archivos:
+            string_url = str(self.url_archivos)
+            validar_url= string_url.split('#grid')
+            if not '' in validar_url:
+                nueva_url=string_url.split('id=')
+                self.url_archivos='https://drive.google.com/embeddedfolderview?id='+nueva_url[1]+'#grid'
+        if self.url:
+            string_url = str(self.url)
+            validar_url= string_url.split('#grid')
+            if not '' in validar_url:
+                nueva_url=string_url.split('id=')
+                self.url='https://drive.google.com/embeddedfolderview?id='+nueva_url[1]+'#grid'
+        super(Sede, self).save(*args, **kwargs)
 
     def get_participantes(self):
         resultado = {'listado': [], 'resumen': {'roles': {}, 'genero': {}, 'estado': {}}}

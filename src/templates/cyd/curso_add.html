@@ -13,14 +13,14 @@
 <section class="content">
 	<div class="container-fluid">
 		<div class="row-fluid">
-			<form action="{{action}}" method="post">
+			<form action="{{action}}" method="post" id="formulario-prueba">
 				<div class="col-md-4">
-					<table class="table table-striped box box-primary">
+					<table class="table table-striped box box-primary" id="tabla-curso">
 						{% csrf_token %}
 						{{ form.as_table }}
 						<tr>
 							<td colspan="2" align="center">
-								<input id="guardar_curso" type="submit" value="Crear" class="btn btn-primary">
+								<input id="guardar_curso" type="submit" value="Crear" class="btn btn-primary" data-url={%url 'curso_api_add'%}>
 							</td>
 						</tr>
 					</table>
@@ -54,17 +54,21 @@
 								</td>
 							</tr>
 							{% endfor %}
-							<tr>
-							<td colspan="2" align="center">
-								<input id="mostrar_campo" type="button" value="Agregar campo" class="btn btn-primary">
-							</td>
-						</tr>
+
 						</tbody>
+						<tr>
+						<td colspan="2" align="center">
+							<input id="mostrar_campo" type="button" value="Agregar campo" class="btn btn-primary">
+						</td>
+					</tr>
+						<tfoot>
+
+						</tfoot>
 						{{ asistencia_formset.management_form }}
 					</table>
 				</div>
 				<div class="col-md-4">
-					<table class="table table-striped box box-primary">
+					<table id="hitos_table" class="table table-striped box box-primary">
 						<tr>
 							<th align="center" colspan="2" class="lead">Ejercicios</th>
 						</tr>
@@ -86,12 +90,13 @@
 								</td>
 							</tr>
 							{% endfor %}
-							<tr>
-							<td colspan="2" align="center">
-								<input id="mostrar_campo_hito" type="button" value="Agregar campo" class="btn btn-primary">
-							</td>
-						</tr>
+
 						</tbody>
+						<tr>
+						<td colspan="2" align="center">
+							<input id="mostrar_campo_hito" type="button" value="Agregar campo" class="btn btn-primary">
+						</td>
+					</tr>
 						{{ hito_formset.management_form }}
 					</table>
 				</div>
@@ -103,8 +108,8 @@
 						<th colspan="1">Nota de la asistencia: <h5 id="nota_curso"></h5></th>
 						<th colspan="1">Tareas y Proyectos: <h5 id="tareas_curso"></h5></th>
 						<th colspan="1">Total:<h5 id="total_curso"></h5></th>
-					</tr>			
-					</table>			
+					</tr>
+					</table>
 			</div>
 		</div>
 	</div>
@@ -115,6 +120,6 @@
 <script src="{% static 'js/extrajs/cyd.js' %}"></script>
 <script src="{% static "js/jquery.formset.js" %}"></script>
 <script>
-let agregar = new AgregarCurso(); 
+let agregar = new AgregarCurso();
 </script>
 {% endblock extra_js %}

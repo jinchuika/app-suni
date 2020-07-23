@@ -11,8 +11,10 @@ from apps.escuela.serializers import EscuelaSerializer
 
 class CalendarioSerializer(DynamicFieldsModelSerializer, serializers.ModelSerializer):
     cr_asistencia = serializers.SlugRelatedField(read_only=True, slug_field='modulo_num')
+    curso = serializers.StringRelatedField(source="__str__")
     asistentes = serializers.SerializerMethodField()
     url = serializers.SerializerMethodField('get_api_url')
+    fecha_fin=serializers.SerializerMethodField()
 
     class Meta:
         model = Calendario
@@ -23,6 +25,10 @@ class CalendarioSerializer(DynamicFieldsModelSerializer, serializers.ModelSerial
 
     def get_asistentes(self, calendario):
         return calendario.count_asistentes()
+
+    def get_fecha_fin(self,calendario):
+        fecha_nueva=Calendario.objects.filter(grupo=calendario.grupo).values('fecha').last()
+        return fecha_nueva
 
 
 class EscuelaCalendarioSerializer(DynamicFieldsModelSerializer, serializers.ModelSerializer):
@@ -58,12 +64,13 @@ class EscuelaCalendarioSerializer(DynamicFieldsModelSerializer, serializers.Mode
 class GrupoSerializer(serializers.ModelSerializer):
     sede = serializers.StringRelatedField()
     curso = serializers.StringRelatedField()
+    curso_id = serializers.StringRelatedField(source="curso.id")
     asistencias = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
     capacitador = serializers.StringRelatedField(source="sede.capacitador.get_full_name")
     urlgrupo = serializers.StringRelatedField(source ="get_absolute_url")
     class Meta:
         model = Grupo
-        fields = ('id', 'sede', 'numero', 'curso', 'asistencias', 'comentario','capacitador','urlgrupo')
+        fields = ('id', 'sede', 'numero', 'curso','curso_id' ,'asistencias', 'comentario','capacitador','urlgrupo')
 
 
 class SedeSerializer(serializers.ModelSerializer):
@@ -182,6 +189,10 @@ class AsignacionSerializer(DynamicFieldsModelSerializer, serializers.ModelSerial
     """Serializer de uso general para :model:`cyd.Asignacion`."""
     notas_asistencias = NotaAsistenciaSerializer(many=True, read_only=True)
     notas_hitos = NotaHitoSerializer(many=True, read_only=True)
+    curso=serializers.StringRelatedField(source='grupo.curso')
+    sede=serializers.StringRelatedField(source='grupo.sede')
+    sede_id=serializers.StringRelatedField(source='grupo.sede.id')
+    grupo_nombre=serializers.StringRelatedField(source='grupo')
     class Meta:
         model = Asignacion
         fields = '__all__'
