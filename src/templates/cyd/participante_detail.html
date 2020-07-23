@@ -3,7 +3,7 @@
 {% load staticfiles %}
 
 {% block page_title %}
-<title>{{ participante.nombre }} {{ participante.apellido }}</title>
+<title>Detalle: {{ participante.nombre }} {{ participante.apellido }}</title>
 {% endblock page_title %}
 
 {% block content %}
@@ -11,7 +11,7 @@
 	<h1>
 		<a href="#" class="editable" data-name="nombre" data-type="text" data-pk="{{ participante.id }}" data-url="{% url 'participante_api_update' pk=participante.id %}">
 			{{ participante.nombre }}
-		</a> 
+		</a>
 		<a href="#" class="editable" data-name="apellido" data-type="text" data-pk="{{ participante.id }}" data-url="{% url 'participante_api_update' pk=participante.id %}">
 			{{ participante.apellido }}
 		</a>

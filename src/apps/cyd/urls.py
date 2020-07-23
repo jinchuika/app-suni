@@ -8,6 +8,7 @@ urlpatterns = [
     url(r'^curso/list/$', CursoListView.as_view(), name='curso_list'),
     url(r'^curso/(?P<pk>\d+)/$', CursoDetailView.as_view(), name='curso_detail'),
     url(r'^curso/(?P<pk>\d+)/edit/$', CursoUpdateView.as_view(), name='curso_edit'),
+    url(r'^curso/api/add/$', CreacionCursosApi.as_view(), name='curso_api_add'),
 
     url(r'^sede/add/$', SedeCreateView.as_view(), name='sede_add'),
     url(r'^sede/list/$', SedeListView.as_view(), name='sede_list'),
@@ -17,6 +18,7 @@ urlpatterns = [
     url(r'^grupo/add/$', GrupoCreateView.as_view(), name='grupo_add'),
     url(r'^grupo/list/$', GrupoListView.as_view(), name='grupo_list'),
     url(r'^grupo/(?P<pk>\d+)/$', GrupoDetailView.as_view(), name='grupo_detail'),
+    url(r'^grupo/asignacion/$', AsignacionWebView.as_view(), name='asignacion_web'),
 
     url(r'^calendario/$', CalendarioView.as_view(), name='cyd_calendario'),
     url(r'^calendario/list/$', CalendarioListView.as_view(), name='cyd_calendario_list'),
@@ -38,7 +40,7 @@ urlpatterns = [
     url(r'^controlacademico/api/grupos/$', InformeGrupo.as_view(), name='informe_api_grupos'),
     url(r'^controlacademico/api/asistencia/periodo/$', InformeAsistenciaPeriodo.as_view(), name='informe_api_asistencia_periodo'),
     url(r'^controlacademico/api/escuela/sede/$',InformeEscuelaSede.as_view(), name='informe_api_escuela_sede'),
-    url(r'^controlacademico/api/escuela/lista/$',InformeListadoEscuela.as_view(), name='informe_api_escuela_lista'),
+    url(r'^controlacademico/api/escuela/lista/$',InformeListadoEscuela2.as_view(), name='informe_api_escuela_lista'),
     url(r'^controlacademico/api/asistencia/agregar/$',InformeListadoEscuela.as_view(), name='asistencia_api_agregar'),
 
     url(r'^informe/controlacademico/$', ControlAcademicoInformeListView.as_view() , name='informe_control_academico'),
@@ -53,5 +55,6 @@ urlpatterns = [
     url(r'^informe/escuela/capacitadas/$',InformeListadoEscuelasListView.as_view(), name='informe_escuela_capacitadas'),
     url(r'^asistencia/$',InformeAsistenciaWebView.as_view(), name='asistencia_web'),
     url(r'^asistencia/asignar/$',AsignarAsistencia.as_view(), name='asistencia_web_asignar'),
+    url(r'^chamilo/$', ChamiloAddView.as_view(), name='chamilo_add')
     url(r'^capacitacion/list/home/$', cache_page(5)(CapacitacionListHomeView.as_view()), name='capacitacion_list_home')
 ]
