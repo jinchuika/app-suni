@@ -1,0 +1,13 @@
+{% load staticfiles %}
+
+{% block extra_css %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/fullcalendar.print.min.css' %}" media="print">
+{% endblock extra_css %}
+
+<div class="box box-success">
+	<div class="box-body no-padding">
+		<!-- THE CALENDAR -->
+		<div id="capacitacion-calendario" data-url-capacitacion="{{ extra.url_capacitacion }}"></div>
+	</div>
+	<!-- /.box-body -->
+</div>

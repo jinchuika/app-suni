@@ -1,3 +1,5 @@
+
+from django import forms
 from datetime import datetime
 from django.db import IntegrityError
 from django.db.models import Q
@@ -5,11 +7,14 @@ from django.http import HttpResponseRedirect
 from django.views.generic import DetailView, ListView, View, TemplateView
 from django.views.generic.edit import CreateView, UpdateView, FormView
 from django.urls import reverse
+from django.contrib import messages
+from django.core.exceptions import ObjectDoesNotExist
+from django.contrib.messages.views import SuccessMessageMixin
 from rest_framework import views,status
 from rest_framework.response import Response
 from django.utils.datastructures import MultiValueDictKeyError
 from django.shortcuts import render
-from braces.views import LoginRequiredMixin, GroupRequiredMixin, JsonRequestResponseMixin
+from braces.views import (LoginRequiredMixin, GroupRequiredMixin, JsonRequestResponseMixin, CsrfExemptMixin)
 from apps.cyd import forms as cyd_f
 from apps.cyd import models as cyd_m
 from apps.escuela.models import Escuela
@@ -80,31 +85,30 @@ class CursoListView(LoginRequiredMixin, ListView):
 
 
 class SedeCreateView(LoginRequiredMixin, GroupRequiredMixin, CreateView):
-    """ Creacion de sedes desde una vista"""
     group_required = [u"cyd_admin", u"cyd", u"cyd_capacitador", ]
     redirect_unauthenticated_users = True
     raise_exception = True
-
     model = cyd_m.Sede
     form_class = cyd_f.SedeForm
     template_name = 'cyd/sede_add.html'
 
-    def get_form(self, form_class=None):
-        form = super(SedeCreateView, self).get_form(form_class)
-        if self.request.user.groups.filter(name="cyd_capacitador").exists():
-            form.fields['capacitador'].queryset = form.fields['capacitador'].queryset.filter(id=self.request.user.id)
-        return form
-
     def form_valid(self, form):
-        coordenada = Coordenada(
-            lat=form.cleaned_data['lat'],
-            lng=form.cleaned_data['lng'],
-            descripcion='De la sede ' + form.instance.nombre)
-        coordenada.save()
-        form.instance.mapa = coordenada
-        form.instance.mapa.save()
-        return super(SedeCreateView, self).form_valid(form)
+        form.instance.capacitador = self.request.user 
+        form.instance.fecha_creacion = datetime.now()
 
+        municipio = form.instance.municipio
+        udi = form.cleaned_data['udi']
+        if udi != "":
+            try:
+                escuela = Escuela.objects.get(codigo=udi)
+                form.instance.nombre = str(municipio.departamento.nombre) + str(", ") + str(municipio.nombre) + str("("+ udi +")") + str("("+ str(form.instance.tipo_sede) + ")")
+                form.instance.escuela_beneficiada = escuela
+                form.instance.mapa = escuela.mapa
+            except ObjectDoesNotExist:
+                form.add_error('udi', 'El UDI no es válido o no existe.')
+                return self.form_invalid(form)
+
+        return super(SedeCreateView, self).form_valid(form)
 
 class SedeDetailView(LoginRequiredMixin, DetailView):
     """Detalles de una sede en especifico"""
@@ -148,7 +152,7 @@ class SedeUpdateView(LoginRequiredMixin, UpdateView):
             self.object.mapa.lat = form.cleaned_data['lat']
             self.object.mapa.lng = form.cleaned_data['lng']
             self.object.mapa.save()
-        return super(SedeUpdateView, self).form_valid(form)
+        return super(SedeUpdateView, self).form_valid(form) 
 
 
 class SedeListView(LoginRequiredMixin, FormView):
@@ -156,6 +160,13 @@ class SedeListView(LoginRequiredMixin, FormView):
     model = cyd_m.Sede
     template_name = 'cyd/sede_list.html'
     form_class = cyd_f.SedeFilterFormInforme
+    group_required = [u"cyd_capacitador", u"cyd_admin"]
+
+    def get_form(self, form_class=None):
+        form = super(SedeListView, self).get_form(form_class)
+        if self.request.user.groups.filter(name="cyd_capacitador").exists():
+            form.fields['capacitador'].widget = forms.HiddenInput()
+        return form
 
     def get_queryset(self):
         if self.request.user.groups.filter(name="cyd_capacitador").exists():
@@ -212,6 +223,14 @@ class GrupoListView(LoginRequiredMixin, GroupRequiredMixin, FormView):
     template_name = 'cyd/grupo_list.html'
     ordering = ['-sede', '-id']
     form_class = cyd_f.GrupoFilterFormInforme
+
+    def get_form(self, form_class=None):
+        form = super(GrupoListView, self).get_form(form_class)
+        if self.request.user.groups.filter(name="cyd_capacitador").exists():
+            form.fields['capacitador'].widget = forms.HiddenInput()
+            form.fields['capacitador'].label = ''
+            form.fields['sede'].queryset = self.request.user.sedes.filter(activa=True)
+        return form
 
     def get_queryset(self):
         queryset = super(GrupoListView, self).get_queryset()
@@ -648,6 +667,25 @@ class InformeCapacitadores(views.APIView):
                 listado_sede,
             status=status.HTTP_200_OK
             )
+
+class CapacitacionListHomeView(CsrfExemptMixin, JsonRequestResponseMixin, View):
+    def post(self, request, *args, **kwargs):
+        today = datetime.now()
+        capacitacion_list = {'escuelas': [], 'sedes': []}
+        for i in range(1, 13):
+            if self.request.user.groups.filter(name="cyd_capacitador").exists():
+                sedes_list = self.request.user.sedes.filter(
+                    grupos__asistencias__fecha__year=today.year,
+                    grupos__asistencias__fecha__month=i)
+            else:
+                sedes_list = cyd_m.Sede.objects.filter(
+                    grupos__asistencias__fecha__year=today.year,
+                    grupos__asistencias__fecha__month=i)
+
+            capacitacion_list['sedes'].append(sedes_list.count())
+            capacitacion_list['escuelas'].append(sum(e.get_escuelas().count() for e in sedes_list))
+
+        return self.render_json_response(capacitacion_list)
 
 class InformeEscuelaListView(LoginRequiredMixin, FormView):
     template_name = 'cyd/InformeEscuela.html'

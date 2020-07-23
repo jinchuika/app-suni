@@ -1,6 +1,6 @@
 from django.conf.urls import url, include
 from apps.cyd.views import *
-
+from django.views.decorators.cache import cache_page
 
 urlpatterns = [
     url(r'^', include('apps.cyd.api_urls')),
@@ -56,7 +56,5 @@ urlpatterns = [
     url(r'^asistencia/$',InformeAsistenciaWebView.as_view(), name='asistencia_web'),
     url(r'^asistencia/asignar/$',AsignarAsistencia.as_view(), name='asistencia_web_asignar'),
     url(r'^chamilo/$', ChamiloAddView.as_view(), name='chamilo_add')
-
-
-
+    url(r'^capacitacion/list/home/$', cache_page(5)(CapacitacionListHomeView.as_view()), name='capacitacion_list_home')
 ]

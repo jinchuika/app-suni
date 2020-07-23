@@ -122,6 +122,10 @@ urlpatterns = [
     url(
         r'^certificado/',
         include('apps.certificado.urls')),
+    # Contiene las direcciones de coursera
+    url(
+        r'^coursera/',
+        include('apps.coursera.urls')),
 ]
 
 if settings.DEBUG and settings.DEBUG_TOOLBAR:

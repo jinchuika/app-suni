@@ -65,7 +65,8 @@ LOCAL_APPS = (
     'apps.inventario',
     'apps.conta',
     'apps.legacy',
-    'apps.certificado'
+    'apps.certificado',
+    'apps.coursera'
 )
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 
@@ -128,7 +129,6 @@ DATABASES = {
         'NAME': os.path.join(BASE_DIR, 'legacy.sqlite3'),
     },
 }
-
 # Password validation
 # https://docs.djangoproject.com/en/1.10/ref/settings/#auth-password-validators
 

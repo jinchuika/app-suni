@@ -313,7 +313,8 @@ class EscuelaBuscar(InformeMixin):
                 'sector': str(escuela.sector),
                 'nivel': str(escuela.nivel),
                 'poblacion': escuela.poblacion,
-                'equipada': escuela.equipada
+                'equipada': escuela.equipada,
+                'capacitacion': escuela.capacitacion
             } for escuela in queryset
         ]
 
