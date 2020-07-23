@@ -1,0 +1,121 @@
+{% extends "base/base.html" %}
+
+{% load staticfiles %}
+
+{% block content %}
+<section class="content">
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-md-4">
+				<div class="row">
+					<div class="col-md-12 col-sm-12">
+						<div class="box box-success box-solid">
+							<div class="box-header with-border">
+								<h3 class="box-title">Aliados Coursera</h3>
+								<div class="box-tools pull-right">
+									<button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Ocultar">
+										<i class="fa fa-minus"></i>
+									</button>
+								</div>
+							</div>
+							<div class="box-body table-responsive">
+								<table class="table">
+									<div id="bar-chart"></div>
+								</table>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="col-md-8">
+				<div class="row">
+					<div class="col-md-4 col-sm-6 col-xs-12">
+						<div class="info-box">
+							<span class="info-box-icon bg-green"><i class="fa fa-envelope"></i></span>
+							<div class="info-box-content">
+								<span class="info-box-text">Invitaciones <br>enviadas</span>
+								<span class="info-box-number" id="invitaciones_totales"></span>
+							</div>
+						</div>
+					</div>
+					<div class="col-md-4 col-sm-6 col-xs-12">
+						<div class="info-box">
+							<span class="info-box-icon bg-navy"><i class="fa fa-users"></i></span>
+							<div class="info-box-content">
+								<span class="info-box-text">Miembros <br>registrados</span>
+								<span class="info-box-number" id="miembros_totales"></span>
+							</div>
+						</div>
+					</div>
+					<div class="col-md-4 col-sm-6 col-xs-12">
+						<div class="info-box">
+							<span class="info-box-icon bg-navy"><i class="fa fa-line-chart"></i></span>
+							<div class="info-box-content">
+								<span class="info-box-text">% <br>alcanzado</span>
+								<span class="info-box-number" id="porcentaje_total"></span>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-md-12 col-sm-12">
+						<div class="box box-info box-solid">
+							<div class="box-header with-border">
+								<h3 class="box-title"><label id="lbl_title" class="control-label"></label></h3>
+								<div class="box-tools pull-right">
+									<button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Ocultar">
+										<i class="fa fa-minus"></i>
+									</button>
+								</div>
+							</div>
+							<div class="box-body table-responsive">
+								<table class="table">
+									<div id="line-chart"></div>
+								</table>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-md-12 col-sm-12">
+						<div class="box box-danger box-solid">
+							<div class="box-header with-border">
+								<h3 class="box-title">Histórico</h3>
+								<div class="box-tools pull-right">
+									<button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Ocultar">
+										<i class="fa fa-minus"></i>
+									</button>
+								</div>
+							</div>
+							<div class="box-body table-responsive">
+								<table id="coursera-table" class="table table-striped table-condensed table-hover table-bordered">
+									<thead>
+										<tr>
+											<th>ID</th>
+											<th>Aliado</th>
+											<th>Fecha</th>
+											<th>Invitaciones</th>
+											<th>Miembros</th>
+											<th>%</th>
+										</tr>
+									</thead>
+									<tbody id="tbody-coursera">
+									</tbody>
+								</table>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+{% endblock content %}
+
+{% block extra_js %}
+{% include "base/d3_dashboard.html" %}
+<script src="{% static "js/extrajs/coursera.js" %}"></script>
+<script>
+CourseraDashboard.init();
+</script>
+{% endblock extra_js %}

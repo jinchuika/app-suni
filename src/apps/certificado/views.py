@@ -91,7 +91,7 @@ class ListadoMaestroView(TemplateView):
                     id_sede = int(valor_data['id_sede'])
                     suma_curso += int(valor_data['nota'])
                     fecha_final = datetime.datetime.strptime(valor_data['fecha_final'], '%Y-%m-%d').date()
-                    fecha_valida_const = fecha_final + datetime.timedelta(days=30)
+                    fecha_valida_const = fecha_final + datetime.timedelta(days=40)
 
                     # Validar si recibió NAAT en la sede (18 o 22 semanas)
                     if grupo_naat == 1 or grupo_naat == 2 and naat == False:
@@ -324,7 +324,7 @@ class ConstanciaPdfView(View):
               url_constancia = str(registro['constancia'])
               asignaciones.append(registro)
 
-         fecha_valida_const = fecha_final + datetime.timedelta(days=30)
+         fecha_valida_const = fecha_final + datetime.timedelta(days=40)
          # Validar si la capacitación fué durante el año actual y si no ha expirado el periodo de tiempo
          if fecha_final.year == datetime.date.today().year:
             if datetime.date.today() <= fecha_valida_const:

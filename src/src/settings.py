@@ -69,7 +69,8 @@ LOCAL_APPS = (
     'apps.inventario',
     'apps.conta',
     'apps.legacy',
-    'apps.certificado'
+    'apps.certificado',
+    'apps.coursera'
 )
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
