@@ -126,6 +126,10 @@ urlpatterns = [
     url(
         r'^coursera/',
         include('apps.coursera.urls')),
+   # Contiene las direcciones de Bienestar
+   url(
+       r'^bienestar/',
+       include('apps.Bienestar.urls')),
 ]
 
 if settings.DEBUG and settings.DEBUG_TOOLBAR:
