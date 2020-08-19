@@ -91,7 +91,7 @@ class ListadoMaestroView(TemplateView):
                     id_sede = int(valor_data['id_sede'])
                     suma_curso += int(valor_data['nota'])
                     fecha_final = datetime.datetime.strptime(valor_data['fecha_final'], '%Y-%m-%d').date()
-                    fecha_valida_const = fecha_final + datetime.timedelta(days=40)
+                    fecha_valida_const = fecha_final + datetime.timedelta(days=90)
 
                     # Validar si recibió NAAT en la sede (18 o 22 semanas)
                     if grupo_naat == 1 or grupo_naat == 2 and naat == False:
@@ -117,7 +117,7 @@ class ListadoMaestroView(TemplateView):
                 promedio = suma_curso / len(asignaciones)
 
                 # Validar si la capacitación fué durante el año actual y si no ha expirado el periodo de tiempo
-                fecha_valida_cert = fecha_final + datetime.timedelta(days=120)
+                fecha_valida_cert = fecha_final + datetime.timedelta(days=290)
                 if fecha_final.year == datetime.date.today().year:
                   if datetime.date.today() <= fecha_valida_cert:
                     # Validación por año de pandemia
@@ -191,7 +191,7 @@ class DiplomaPdfView(View):
               asignaciones.append(nuevo)
 
          # Validar si la capacitación fué durante el año actual y si no ha expirado el periodo de tiempo}
-         fecha_valida_cert = fecha_final + datetime.timedelta(days=120)
+         fecha_valida_cert = fecha_final + datetime.timedelta(days=290)
          if fecha_final.year == datetime.date.today().year:
             if datetime.date.today() <= fecha_valida_cert:
               if fecha_final.year == 2020 and fecha_final.month <= 4:
@@ -324,7 +324,7 @@ class ConstanciaPdfView(View):
               url_constancia = str(registro['constancia'])
               asignaciones.append(registro)
 
-         fecha_valida_const = fecha_final + datetime.timedelta(days=40)
+         fecha_valida_const = fecha_final + datetime.timedelta(days=90)
          # Validar si la capacitación fué durante el año actual y si no ha expirado el periodo de tiempo
          if fecha_final.year == datetime.date.today().year:
             if datetime.date.today() <= fecha_valida_const:
@@ -377,7 +377,7 @@ class ConstanciaPdfView(View):
               #creacion  de la imagen que se colocora de fondo
               c.drawImage(ruta_diploma, 0,0,width=792,height=612,anchor='sw',anchorAtXY=True,showBoundary=False)
               c.drawImage(ruta_qr,35,45,width=50,height=50,anchor='sw',anchorAtXY=True,showBoundary=False)
-              c.setFont("Edwardian",50,leading=None)
+              c.setFont("Edwardian",40,leading=None)
               c.setFillColor((0,0,0))
               c.drawCentredString(x+w*0.0,y+h*0.5, str(data[0]['nombre'])+" "+str(data[0]['apellido']))
               c.setFont("Times-Bold",15,leading=None)

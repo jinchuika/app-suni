@@ -175,7 +175,7 @@ STATICFILES_DIRS = [
 ]
 MEDIA_ROOT = 'etc/media/'
 MEDIA_ROOT_EXCEL = 'etc/media/excel/'
-MEDIA_ROOT_EXCEL_BIENESTAR = 'etc/media/Bienestar/excel/'
+MEDIA_ROOT_EXCEL_BIENESTAR = 'etc/media/bienestar/excel/'
 MEDIA_URL = '/media/'
 ADMIN_MEDIA_PREFIX = '/static/'
 
