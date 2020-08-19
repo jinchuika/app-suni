@@ -149,6 +149,7 @@ class BienestarInforme {
          ordering:true,
          processing:true,
          destroy:true,
+         autoWidth:false,
          ajax:{
            type: 'POST',
            url:bienestar_form.attr('action'),
@@ -159,6 +160,9 @@ class BienestarInforme {
              return bienestar_form.serialize(true);
            }
          },
+         columnDefs: [
+           { width: 200, targets: 0 }
+         ],
          columns: [
            {data: "fecha"},
            {data: "correo"},
