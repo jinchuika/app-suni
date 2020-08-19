@@ -1,10 +1,64 @@
 class BienestarInforme {
   constructor() {
+    /**/
+    let bienestar_form = $('#bienestar-list-form');
+    var tablaPrecio = $('#bienestar-table-search').DataTable({
+      searching:true,
+      paging:true,
+      ordering:true,
+      processing:true,
+      destroy:true,
+      ajax:{
+        type: 'GET',
+        url: $('#bienestar-table-search').data("todo"),
+        dataSrc:'',
+        cache:false,
+        processing:true,
+        data:function (params)
+        {
+           return {
+             inicio: 1,
+             csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val()
+           };
+         }
+        },
+      columns: [
+        {data: "fecha"},
+        {data: "correo"},
+        {data: "nombre"},
+        {data: "edad"},
+        {data: "dpi"},
+        {data: "pregunta1"},
+        {data: "pregunta2"},
+        {data: "pregunta3"},
+        {data: "pregunta4"},
+        {data: "pregunta5"},
+        {data: "pregunta6"},
+        {data: "pregunta7"},
+        {data: "pregunta8"},
+        {data: "pregunta9"},
+        {data: "pregunta10"},
+        {data: "pregunta11"},
+        {data: "pregunta12"},
+        {data: "pregunta13"},
+        {data: "pregunta14"},
+        {data: "pregunta15"},
+        {data: "pregunta16"},
+        {data: "pregunta17"}
+      ],
+    });
+
+
+
+ /**/
+
 
       var ctx17 = document.getElementById('grafico-linea-tiempo-todos').getContext('2d');
       var ctx18 = document.getElementById('grafico-linea-tiempo-individual').getContext('2d');
 
-    let bienestar_form = $('#bienestar-list-form');
+
+
+
     bienestar_form.submit(function (e){
       e.preventDefault();
       console.log(bienestar_form.attr('action'));

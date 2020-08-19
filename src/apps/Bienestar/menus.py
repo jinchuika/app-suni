@@ -9,7 +9,7 @@ bienestar_children = (
         reverse_lazy("bienestar_informe"),
         weight=12,
         icon="fa fa-area-chart"
-    )
+    ),
 )
 Menu.add_item(
     "user",
