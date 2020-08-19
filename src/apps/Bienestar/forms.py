@@ -13,7 +13,7 @@ class BienestarInformeForm(forms.Form):
         queryset=Colaborador.objects.values_list('usuario',flat=True).distinct(),
         label='Colaborador',
         widget=forms.Select(attrs={'class': 'form-control select2'}),
-        required=False)
+        )
 
     fecha_min = forms.CharField(
         label='Fecha (min)',

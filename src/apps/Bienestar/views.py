@@ -27,13 +27,9 @@ class BienestarExcelAddView(LoginRequiredMixin, TemplateView):
         if request.method == 'POST' and request.FILES['myfile']:
             file_list =os.listdir(settings.MEDIA_ROOT_EXCEL_BIENESTAR)
             number_file=len(file_list)
-            print(number_file)
-            #if number_file==0:
-            #    number_file=1
             myfile=request.FILES['myfile']
             new_name=str('Bienestar') + str(number_file) +str(".")+str(myfile.name.split(".")[-1])
             fs=FileSystemStorage(location=settings.MEDIA_ROOT_EXCEL_BIENESTAR)
-            #filename=fs.save(myfile.name, myfile)
             filename=fs.save(new_name, myfile)
             uploaded_file_url=fs.url(filename)
             return render(request, 'bienestar/cargar_excel.html',{
@@ -41,7 +37,7 @@ class BienestarExcelAddView(LoginRequiredMixin, TemplateView):
         })
         return render(request,'bienestar/cargar_excel.html')
 
-class CuestionarioView(CreateView):
+class CuestionarioView(LoginRequiredMixin, CreateView):
     """ Vista  encargada de obtener el dpi del participante por medio un  formulario y  muesta el listado de los
     cursos que se tienen asignados
     """
@@ -60,14 +56,12 @@ class BienestarListView(LoginRequiredMixin, FormView):
     template_name = 'bienestar/bienestar_informe.html'
     form_class = bienestar_f.BienestarInformeForm
 
-class ResultadoBienestarJson(views.APIView):
+class ResultadoBienestarJson(LoginRequiredMixin, views.APIView):
         """ Importar registros de excel con DjangoRestFramework para Bienestar
         """
         def get(self, request):
             file_list =os.listdir(settings.MEDIA_ROOT_EXCEL_BIENESTAR)
             number_file=len(file_list)
-            print(file_list[number_file-1])
-            #name_file =str("Bienestar")+str(number_file)+str(".")+str("xlsx")
             name_file =file_list[number_file-1]
             ruta = str(settings.MEDIA_ROOT_EXCEL_BIENESTAR)+str(name_file)
             listado_datos=[]
@@ -131,7 +125,7 @@ class ResultadoBienestarJson(views.APIView):
                 "Datos ingresados Correctamente",
                 status=status.HTTP_200_OK
             )
-class InformeBienestarJson(views.APIView):
+class InformeBienestarJson(LoginRequiredMixin, views.APIView):
         """ Regreso los datos obtenidos del modelo de `Bienestar` para generar el informe
         """
         def post(self, request):
@@ -144,9 +138,7 @@ class InformeBienestarJson(views.APIView):
             datos_colaborador=Colaborador.objects.filter(email=correo.email, fecha__gte=fecha_min,fecha__lte=fecha_max).first()
             datos_buscar_colaborador=Colaborador.objects.filter(email=correo.email, fecha__gte=fecha_min,fecha__lte=fecha_max)
             respuesta_si=Colaborador.objects.filter(email=correo.email, fecha__gte=fecha_min,fecha__lte=fecha_max,pregunta4='Sí').count()
-            respuesta_no=Colaborador.objects.filter(email=correo.email, fecha__gte=fecha_min,fecha__lte=fecha_max,pregunta4='No').count()
-            #print(Colaborador.objects.filter(email=correo.email, fecha__gte=fecha_min,fecha__lte=fecha_max,pregunta4='Sí'))
-            #print(Colaborador.objects.filter(email=correo.email, fecha__gte=fecha_min,fecha__lte=fecha_max,pregunta4='No'))
+            respuesta_no=Colaborador.objects.filter(email=correo.email, fecha__gte=fecha_min,fecha__lte=fecha_max,pregunta4='No').count()            
             datos_nuevos['nombre']=datos_colaborador.usuario
             datos_nuevos['dpi']=int(float(datos_colaborador.dpi))
             datos_nuevos['edad']=datos_colaborador.edad
@@ -217,7 +209,7 @@ class InformeBienestarJson(views.APIView):
                 status=status.HTTP_200_OK
             )
 
-class GraficasBienestarJson(views.APIView):
+class GraficasBienestarJson(LoginRequiredMixin, views.APIView):
         """ Regreso los datos obtenidos del modelo de `Bienestar` para generar el informe
         """
         def get(self, request):
@@ -410,7 +402,7 @@ class GraficasBienestarJson(views.APIView):
                 datos_enviar,
                 status=status.HTTP_200_OK
               )
-class InformeLineaTiempoTodosBienestarJson(views.APIView):
+class InformeLineaTiempoTodosBienestarJson(LoginRequiredMixin, views.APIView):
         """ Regreso los datos obtenidos del modelo de `Bienestar` para generar el informe
         """
         def get(self, request):
@@ -437,7 +429,7 @@ class InformeLineaTiempoTodosBienestarJson(views.APIView):
             datos_enviar_json,
                 status=status.HTTP_200_OK
             )
-class InformeBienestarPieJson(views.APIView):
+class InformeBienestarPieJson(LoginRequiredMixin, views.APIView):
         """ Regreso los datos obtenidos del modelo de `Bienestar` para generar el informe
         """
 
@@ -593,5 +585,40 @@ class InformeBienestarPieJson(views.APIView):
                     informe=miFuncion(datos)
             return Response(
             informe,
+                status=status.HTTP_200_OK
+            )
+class InformeBienestarTodosJson(LoginRequiredMixin, views.APIView):
+        """ Regreso los datos obtenidos del modelo de `Bienestar` para generar el informe
+        """
+        def get(self, request):
+            datos_buscar_colaborador =Colaborador.objects.all()
+            datos_enviar_json=[]
+            for datos_enviar in datos_buscar_colaborador:
+                datos_corregidos={}
+                datos_corregidos['fecha']=datos_enviar.fecha.date()
+                datos_corregidos['nombre']=datos_enviar.usuario
+                datos_corregidos['dpi']=datos_enviar.dpi
+                datos_corregidos['edad']=datos_enviar.edad
+                datos_corregidos['correo']=datos_enviar.email
+                datos_corregidos['pregunta1']=datos_enviar.pregunta1
+                datos_corregidos['pregunta2']=datos_enviar.pregunta2
+                datos_corregidos['pregunta3']=datos_enviar.pregunta3
+                datos_corregidos['pregunta4']=datos_enviar.pregunta4
+                datos_corregidos['pregunta5']=datos_enviar.pregunta5
+                datos_corregidos['pregunta6']=datos_enviar.pregunta6
+                datos_corregidos['pregunta7']=datos_enviar.pregunta7
+                datos_corregidos['pregunta8']=datos_enviar.pregunta8
+                datos_corregidos['pregunta9']=datos_enviar.pregunta9
+                datos_corregidos['pregunta10']=datos_enviar.pregunta10
+                datos_corregidos['pregunta11']=datos_enviar.pregunta11
+                datos_corregidos['pregunta12']=datos_enviar.pregunta12
+                datos_corregidos['pregunta13']=datos_enviar.pregunta13
+                datos_corregidos['pregunta14']=datos_enviar.pregunta14
+                datos_corregidos['pregunta15']=datos_enviar.pregunta15
+                datos_corregidos['pregunta16']=datos_enviar.pregunta16
+                datos_corregidos['pregunta17']=datos_enviar.pregunta17
+                datos_enviar_json.append(datos_corregidos)
+            return Response(
+                datos_enviar_json,
                 status=status.HTTP_200_OK
             )

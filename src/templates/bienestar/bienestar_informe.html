@@ -6,26 +6,10 @@
 <section class="content-header">
 	<h1>Informe de bienestar</h1>
 </section>
-<div class="box-group" id="accordion">
-		<div class="panel box box-info">
-				<div class="box-header with-border">
-						<h4 class="box-title">
-								<a data-toggle="collapse" data-parent="#accordion" href="#sedes_list"
-									 aria-expanded="false" class="collapsed">
-										Historico
-								</a>
-						</h4>
-				</div>
-				<div id="sedes_list" class="panel-collapse collapse" aria-expanded="false" style="height: 0px;">
-						<div class="box-body">
-								<div class="row">
-										<div class="col-md-12 table-responsive">
-												<!--Comienza  el grid de historico-->
-												<section class="content">
-		<div class="container-fluid">
-			<div class="row">
-				<!-- Comienza el formulario -->
-				<div class="col-md-3 col-sm-3">
+<div class="row">
+	 <div class="col-sm-3">
+		 <!-- Comienza el formulario -->
+				<div class="">
 					<div class="box">
 						<form action="{% url 'bienestar_informe_api'%}" id="bienestar-list-form">
 							<div class="box-header">
@@ -43,20 +27,38 @@
 					</div>
 				</div>
 				<!--Aca termina el formulario-->
-				<div class="col-md-9 col-sm-9">
+	</div>
+ <div class="col-sm-9">
+	 <div class="box-group" id="accordion">
+		<div class="panel box box-info">
+				<div class="box-header with-border">
+						<h4 class="box-title">
+								<a data-toggle="collapse" data-parent="#accordion" href="#colaboradores_list"
+									 aria-expanded="false" class="collapsed">
+										Historico
+								</a>
+						</h4>
+				</div>
+				<div id="colaboradores_list" class="panel-collapse collapse" aria-expanded="false" style="height: 0px;">
+						<div class="box-body">
+								<div class="row">
+										<div class="col-md-12 table-responsive">
+												<!--Comienza  el grid de historico-->
+												<section class="content">
+		<div class="container-fluid">
 					<div class="box box-primary">
 						<div class="box-header">
 							<div class="row">
 								<div class="col-md-9">
-										<h3 class="box-title">Listado por Grupo</h3>
+										<h3 class="box-title">Colaboradores </h3>
 								</div>
 							</div>
 						</div>
 						<div class="box-body  table-responsive">
 							<!--	<div class="col-md-12 table-responsive"> -->
-							<table id="bienestar-table-search" class="table table-striped table-hover table-bordered table-condensed" data-url="{% url 'api_informe_individual_pie' %}">
+							<table id="bienestar-table-search" class="table table-striped table-hover table-bordered table-condensed" data-url="{% url 'api_informe_individual_pie' %}" data-todo="{% url 'api_informe_todos' %}">
 								<thead>
-	                <tr>
+	                                    <tr>
 										<th>Fecha</th>
 												<th>Correo Electronico</th>
 												<th>Nombre</th>
@@ -79,7 +81,7 @@
 												<th>¿Tienes familiares o personas que vivan contigo en una casa que tenga labores de alta exposición de contacto? (repartidores de alimentos, medicina, o recepcionista?</th>
 												<th>¿Estás laborando actualmente en las instalaciones de la fundación?</th>
 												<th>¿Qué medidas de seguridad se están tomando dentro de las instalaciones de la fundación?</th>
-	                </tr>
+	                                     </tr>
 								</thead>
 								<tbody id="bienestar-table-search-body">
 								</tbody>
@@ -87,8 +89,6 @@
 							<!--	</div> -->
 						</div>
 					</div>
-				</div>
-			</div>
 		</div>
 	</section>
 												<!--Fin del grid de historico-->
@@ -100,13 +100,13 @@
 		<div class="panel box box-danger">
 				<div class="box-header with-border">
 						<h4 class="box-title">
-								<a data-toggle="collapse" data-parent="#accordion" href="#participantes_list"
+								<a data-toggle="collapse" data-parent="#accordion" href="#graficas_list"
 									 aria-expanded="false" class="collapsed">
 										Graficas
 								</a>
 						</h4>
 				</div>
-				<div id="participantes_list" class="panel-collapse collapse" aria-expanded="false" style="height: 0px;">
+				<div id="graficas_list" class="panel-collapse collapse" aria-expanded="false" style="height: 0px;" >
 						<div class="box-body">
 							<!--Empieza las graficas-->
 							<!--<div class="">
@@ -140,13 +140,13 @@
 		<div class="panel box box-success">
 				<div class="box-header with-border">
 						<h4 class="box-title">
-								<a data-toggle="collapse" data-parent="#accordion" href="#kalite_visitas" class="collapsed"
+								<a data-toggle="collapse" data-parent="#accordion" href="#linea_tiempo" class="collapsed"
 									 aria-expanded="false">
 										Linea de tiempo
 								</a>
 						</h4>
 				</div>
-				<div id="kalite_visitas" class="panel-collapse collapse" aria-expanded="false" style="height: 0px;">
+				<div id="linea_tiempo" class="panel-collapse collapse" aria-expanded="false" style="height: 0px;">
 						<div class="box-body">
 									<canvas id="grafico-linea-tiempo-todos" data-url="{% url 'linea_tiempo_informe_api' %}" style="display: block; width: 254px; height: 127px;" width="254" height="127" class="chartjs-render-monitor"></canvas>
 									<canvas id="grafico-linea-tiempo-individual" data-url="{% url 'linea_tiempo_informe_api' %}" style="display: block; width: 254px; height: 127px;" width="254" height="127" class="chartjs-render-monitor"></canvas>
@@ -155,6 +155,8 @@
 						</div>
 				</div>
 		</div>
+
+	</div>
 </div>
 
 {% endblock content %}

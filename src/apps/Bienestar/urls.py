@@ -42,6 +42,11 @@ urlpatterns = [
         r'^bienestarinformepieapi/$',
         bienestar_views.InformeBienestarPieJson.as_view(),
         name="api_informe_individual_pie"
+        ),
+    url(
+        r'^bienestarinformetodosapi/$',
+        bienestar_views.InformeBienestarTodosJson.as_view(),
+        name="api_informe_todos"
         )
      # Api
      #url(r'^api/', include(('apps.Bienestar.api_urls', 'bienestar'), namespace='bienestar_api'))
