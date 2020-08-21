@@ -66,7 +66,8 @@ LOCAL_APPS = (
     'apps.conta',
     'apps.legacy',
     'apps.certificado',
-    'apps.coursera'
+    'apps.coursera',
+    'apps.Bienestar'
 )
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 
@@ -120,15 +121,15 @@ DATABASE_ROUTERS = ['apps.legacy.dbrouters.LegacyRouter', ]
 
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    },
-    'legacy': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'legacy.sqlite3'),
-    },
-}
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': 'suni3',
+            'USER': 'root',
+            'PASSWORD': '',
+            'HOST': 'localhost',
+            'PORT': '3306',
+        }
+    }
 # Password validation
 # https://docs.djangoproject.com/en/1.10/ref/settings/#auth-password-validators
 
@@ -174,6 +175,7 @@ STATICFILES_DIRS = [
 ]
 MEDIA_ROOT = 'etc/media/'
 MEDIA_ROOT_EXCEL = 'etc/media/excel/'
+MEDIA_ROOT_EXCEL_BIENESTAR = 'etc/media/bienestar/excel/'
 MEDIA_URL = '/media/'
 ADMIN_MEDIA_PREFIX = '/static/'
 
