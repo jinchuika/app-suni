@@ -3,11 +3,14 @@ class BienestarInforme {
     /**/
     let bienestar_form = $('#bienestar-list-form');
     var tablaPrecio = $('#bienestar-table-search').DataTable({
+      dom: 'Bfrtip',
+      buttons: ['excel', 'pdf', 'copy'],
       searching:true,
       paging:true,
       ordering:true,
       processing:true,
       destroy:true,
+      autoWidth:false,
       ajax:{
         type: 'GET',
         url: $('#bienestar-table-search').data("todo"),
@@ -46,7 +49,12 @@ class BienestarInforme {
         {data: "pregunta16"},
         {data: "pregunta17"}
       ],
+      columnDefs: [
+        { "width": "150px", "targets":0 }
+      ]
     });
+
+    tablaPrecio.columns.adjust().draw();
 
 
 
