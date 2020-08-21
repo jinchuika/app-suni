@@ -57,7 +57,6 @@ class BienestarInforme {
     tablaPrecio.columns.adjust().draw();
 
 
-
  /**/
 
 
