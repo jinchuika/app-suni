@@ -1,0 +1,32 @@
+{% extends "base/base.html" %}
+
+{% load staticfiles %}
+{% block content %}
+
+
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+  <div class="form-group">
+    <label for="exampleFormControlFile1">Seleccione el archivo a cargar</label>
+    <input type="file" class="form-control-file" name="myfile">
+     <button class="btn btn-primary" type="submit">Cargar archivo xlsx</button>
+
+  </div>
+</form>
+
+
+  {% if uploaded_file_url %}
+    <p>Archivo cargado!</p>
+       <button id="generar-graficas" class="btn btn-success" type="submit" data-url="{%url 'coursera_json_informe'%}">Generar Reportes</button>
+    {% endif %}
+
+  <p><a href="{% url 'bienestar_excel_add' %}">Inicio</a></p>
+{% endblock %}
+{% block extra_js %}
+<script src="{% static "js/extrajs/coursera.js" %}"></script>
+<script>
+		 /**/
+		 var  nuevo = new CourseraGenerarInforme();
+		 /**/
+</script>
+{% endblock extra_js %}
