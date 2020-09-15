@@ -65,12 +65,15 @@ class GrupoSerializer(serializers.ModelSerializer):
     sede = serializers.StringRelatedField()
     curso = serializers.StringRelatedField()
     curso_id = serializers.StringRelatedField(source="curso.id")
-    asistencias = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
+    asistencias = serializers.IntegerField(source="asignados.count", read_only=True)
     capacitador = serializers.StringRelatedField(source="sede.capacitador.get_full_name")
     urlgrupo = serializers.StringRelatedField(source ="get_absolute_url")
+    urlsede = serializers.StringRelatedField(source ="sede.get_absolute_url")
+    fecha_creacion = serializers.DateTimeField(source= "sede.fecha_creacion", format='%Y')
+
     class Meta:
         model = Grupo
-        fields = ('id', 'sede', 'numero', 'curso','curso_id' ,'asistencias', 'comentario','capacitador','urlgrupo')
+        fields = ('id', 'sede', 'numero', 'curso','curso_id' ,'asistencias', 'comentario','capacitador','urlgrupo', 'urlsede', 'fecha_creacion')
 
 
 class SedeSerializer(serializers.ModelSerializer):
@@ -81,7 +84,7 @@ class SedeSerializer(serializers.ModelSerializer):
     capacitador = serializers.StringRelatedField(source='capacitador.get_full_name')
     grupos = serializers.StringRelatedField(source='grupos.count')
     urlsede=serializers.StringRelatedField(source='get_absolute_url')
-    fecha_creacion = serializers.DateField(format='%Y')
+    fecha_creacion = serializers.DateTimeField(format='%Y')
 
     class Meta:
         model = Sede

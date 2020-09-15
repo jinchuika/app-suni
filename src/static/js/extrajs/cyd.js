@@ -1,3 +1,26 @@
+function listar_sede_capacitador(capacitador_selector, sede_selector, null_option) {
+    /*
+    Al cambiar el capacitador, genera el listado de sedes
+    */
+    $(sede_selector).html('');
+    if ($(capacitador_selector).val()) {
+        $.get($(capacitador_selector).data('url'),
+        {
+            capacitador: $(capacitador_selector).val()
+        },
+        function (respuesta) {
+            var options = '';
+            if (null_option) {
+                options += '<option value="">------</option>';
+            }
+            $.each(respuesta, function (index, sede) {
+                options += '<option value="'+sede.id+'">'+sede.nombre+'</option>';
+            });
+            $(sede_selector).html(options).trigger('change');
+        });
+    }
+}
+//funcion listar grupos mediante sedes
 function listar_grupos_sede(sede_selector, grupo_selector, null_option) {
     /*
     Al cambiar la sede, genera el listado de grupos
@@ -267,25 +290,44 @@ function validar_udi_api(params) {
         /**/
         $('.eliminar-grupo').on('click', function () {
           var botonEliminar= $(this);
-          bootbox.confirm('¿Desea eliminar el período de asesoría?', function (result) {
-              if(result){
-                  $.ajax({
-                      beforeSend: function(xhr, settings) {
-                          xhr.setRequestHeader("X-CSRFToken", $("[name=csrfmiddlewaretoken]").val());
-                      },
-                      success: function (respuesta) {
-                      },
-                      dataType: 'json',
-                      type: "POST",
-                      url: botonEliminar.data('ulr'),
-                      data: {
-                          primary_key:botonEliminar.data('grupo') ,
-                          eliminar:1,
-
-                      },
-                  });
-              }
-          });
+          bootbox.confirm({
+            message: "{Deseas eliminar este grupo?",
+            buttons: {
+                confirm: {
+                    label: '<i class="fa fa-check"></i> Confirmar',
+                    className: 'btn-success'
+                },
+                cancel: {
+                    label: '<i class="fa fa-times"></i> Cancelar',
+                    className: 'btn-danger'
+                }
+            },
+            callback: function(result) {
+                if(result == true){
+                    /*CONSUMIR API*/
+                    $.ajax({
+                        beforeSend: function(xhr, settings) {
+                            xhr.setRequestHeader("X-CSRFToken", $("[name=csrfmiddlewaretoken]").val());
+                        },
+                        success: function (respuesta) {
+                            bootbox.alert({message: "<h2>Grupo borrado correctamente</h2>", className:"modal modal-success fade in"});
+                            location.reload();
+                        },
+                        error: function (response) {
+                            var jsonResponse = JSON.parse(response.responseText);
+                            bootbox.alert({message: "<h3><i class='fa fa-frown-o' style='font-size: 45px;'></i>&nbsp;&nbsp;&nbsp;HA OCURRIDO UN ERROR!!</h3></br>" + jsonResponse["mensaje"], className:"modal modal-danger fade"});
+                        },
+                        dataType: 'json',
+                        type: "POST",
+                        url: botonEliminar.data('ulr'),
+                        data: {
+                            primary_key:botonEliminar.data('grupo') ,
+                            eliminar:1,
+                        },
+                    });
+                }
+            }
+          })
         });
         /**/
 
@@ -1443,6 +1485,70 @@ CalendarioCyD.init = function () {
     }
 }( window.ParticipanteBuscar = window.ParticipanteBuscar || {}, jQuery ));
 
+(function(GrupoAdd, $, undefined){
+    var url_grupos = $("#grupo-list2").data("url");
+
+    GrupoAdd.init = function () {
+        $('#spinner').hide();
+        $('#grupo-add-form').submit(function (e) {
+            e.preventDefault();
+            $.ajax({
+                type: "POST",
+                url:$('#grupo-add-form').attr('action'),
+                dataType: 'json',
+                data:$('#grupo-add-form').serializeObject(true),
+                success: function (response) {
+                    bootbox.alert({message: "<h3><i class='fa fa-smile-o' style='font-size: 45px;'></i>&nbsp;&nbsp;&nbsp;COMPLETO</h3></br>", className:"modal modal-success fade"});
+                    location.href = '/cyd/grupo/list/';
+                },
+                error: function (response) {
+                    var mensaje = JSON.parse(response.responseText)
+                    bootbox.alert({message: "<h3><i class='fa fa-frown-o' style='font-size: 45px;'></i>&nbsp;&nbsp;&nbsp;HA OCURRIDO UN ERROR!!</h3></br>" + mensaje['mensaje'], className:"modal modal-danger fade"});
+                }
+            });
+        });
+
+        $('#grupo-add-form #id_sede').on('change', function (e) {
+            e.preventDefault();
+            $("spinner").show();
+            var tablaGrupo = $('#grupo-list2').DataTable({
+                searching:true,
+                paging:false,
+                ordering:true,
+                processing:true,
+                destroy:true,
+                ajax:{
+                    url:url_grupos,
+                    dataSrc:'',
+                    cache:false,
+                    processing:true,
+                    data: function () {
+                        var params = {};
+                        params['sede'] = $('#id_sede').val();
+                        return params;
+                    }
+                },
+                columns: [
+                {data: "sede", render: function(data, type , full, meta){
+                    return "<a target=_blank href="+full.urlgrupo+" class='btn btn-block btn-success'>"+full.numero+" - "+ full.curso+"</a>"
+                }},
+                {data: "particiapantes", render: function(data, type, full, meta){
+                    if(full.asistencias ==0){
+                        return "<span class='label label-danger' style='font-size: 12px;'>"+full.asistencias+"</span>";
+                    } else {
+                        return "<span class='label label-info' style='font-size: 12px;'>"+full.asistencias+"</span>";
+                    }
+                }},
+                {data: "capacitador"},
+                {data: "fecha_creacion"},
+                ]
+            }).on('xhr.dt', function(e, settings, json, xhr) {
+                $('#spinner').hide();
+            });
+        });
+    }
+}(window.GrupoAdd = window.GrupoAdd || {}, jQuery));
+
 (function(GrupoList, $, undefined){
     var grupo_informe = $("#grupo-list-form");
     var url_informe_grupo = $("#grupo-list").data("url");
@@ -1460,21 +1566,37 @@ CalendarioCyD.init = function () {
           cache:false,
           processing:true,
           data: function () {
-            return $('#grupo-list-form').serializeObject(true);
+            var params = {};
+            params['sede__capacitador'] = $('#id_capacitador').val();
+            params['sede'] = $('#id_sede').val();
+            params['curso'] = $('#id_curso').val();
+            return params;
           }
         },
         columns: [
+          {data: "sede", render: function(data, type , full, meta){
+                return "<a target=_blank href="+full.urlgrupo+" class='btn btn-block btn-success'><i class='fa fa-eye'></i> Detalle</a>"
+            }},
           {data: "sede", render: function(data, type,full, meta){
-              return '<a target=_blank href="'+full.urlgrupo+'">'+data+'</a>'
+              return '<a target=_blank href="'+full.urlsede+'">'+data+'</a>'
           }},
           {data: "numero"},
           {data: "curso"},
           {data: "particiapantes", render: function(data, type, full, meta){
-              return full.asistencias.length;
+            if(full.asistencias ==0){
+                return "<span class='label label-danger' style='font-size: 12px;'>"+full.asistencias+"</span>";
+            } else {
+                return "<span class='label label-info' style='font-size: 12px;'>"+full.asistencias+"</span>";
+            }
           }},
           {data: "capacitador"},
+          {data: "fecha_creacion"},
           {data:"", render: function(data, type, full, meta){
-              return "<a id='borrar_sede' data-sede='"+ full.id+"'class='btn btn-success btn-borrar'>Borrar Sede</a>";
+            if(full.asistencias ==0){
+                return "<a id='borrar_grupo' data-grupo='"+ full.id+"'class='btn btn-danger btn-block btn-borrar'><i class='fa fa-trash'></i> Eliminar</a>";
+            } else {
+                return ""
+            }
           }}
         ]
     }).on('xhr.dt', function(e, settings, json, xhr) {
@@ -1490,14 +1612,32 @@ CalendarioCyD.init = function () {
             tablaGrupo.ajax.reload();
         });
 
-        $('#grupo-list-form #id_capacitador').on('change', function () {
+        $('#grupo-list-form #id_capacitador').on('change', function (e) {
+            e.preventDefault();
+            $("spinner").show();
+            tablaGrupo.clear().draw();
+            tablaGrupo.ajax.reload();
             listar_sede_capacitador('#grupo-list-form #id_capacitador', '#grupo-list-form #id_sede', true);
+        });
+
+        $('#grupo-list-form #id_sede').on('change', function (e) {
+            e.preventDefault();
+            $("spinner").show();
+            tablaGrupo.clear().draw();
+            tablaGrupo.ajax.reload();
+        });
+
+        $('#grupo-list-form #id_curso').on('change', function (e) {
+            e.preventDefault();
+            $("spinner").show();
+            tablaGrupo.clear().draw();
+            tablaGrupo.ajax.reload();
         });
 
         let tablabodygrupo =  $('#grupo-list tbody');
         tablabodygrupo.on('click', '.btn-borrar', function(){
        /*Borrar Grupo */
-        var id_grupo_desactivar = $('#borrar_sede').data("sede");
+        var id_grupo_desactivar = $(this).data("grupo");
         var url_grupo_desactivar = $("#grupo-list").data("urldesactivar");
          bootbox.confirm({
            message: "¿Desea dar por terminado el grupo?",
@@ -1520,10 +1660,13 @@ CalendarioCyD.init = function () {
                  dataType: 'json',
                  data: {
                    csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
-                   primary_key :id_grupo_desactivar
+                   primary_key :id_grupo_desactivar,
+                   eliminar:1,
                  },
                  success: function (response) {
-                   bootbox.alert({message: "<h2>Sede borrada correctamente</h2>", className:"modal modal-success fade in"});
+                   bootbox.alert({message: "<h2>Grupo borrado correctamente</h2>", className:"modal modal-success fade in"});
+                   tablaGrupo.clear().draw();
+                   tablaGrupo.ajax.reload();
                  },
                  error: function (response) {
                    var jsonResponse = JSON.parse(response.responseText);
@@ -1537,10 +1680,6 @@ CalendarioCyD.init = function () {
            }
          });
      /* */
-     });
-     //efecto casaca de grupos
-     $('#grupo-list-form #id_curso').on('change', function () {
-         listar_sede_cursos('#grupo-list-form #id_curso', '#grupo-list-form #id_sede');
      });
     }
 }(window.GrupoList = window.GrupoList || {}, jQuery));
@@ -1619,9 +1758,9 @@ CalendarioCyD.init = function () {
 
         /** */
         let tablabodysede =  $('#sede-list tbody');
-        tablabodysede.on('click', '.btn-borrar', function(){
+        tablabodysede.on('click', '.btn-borrar', function(e){
           /*Borrar Sede */
-            var id_sede_desactivar = $('#borrar_sede').data("sede");
+            var id_sede_desactivar = $(this).data("sede");
             var url_sede_desactivar = $("#sede-list").data("urldesactivar");
             bootbox.confirm({
                 message: "¿Desea dar por terminada la sede?",
@@ -1772,10 +1911,6 @@ class AgregarCurso{
               }else{
                   $("#asistencias-"+contador_asistencia+"-row").removeAttr("style");
               }*/
-
-
-
-
           });
           $("#guardar_curso").click(function(e){
               e.preventDefault();
@@ -1818,11 +1953,7 @@ class AgregarCurso{
                    });
                    /*FIN DE CONSUMO*/
                  }
-
           });
-
-
-
     }
     static suma_asistencia(){
 
@@ -1835,8 +1966,6 @@ class AgregarCurso{
             $("#nota_curso").text(acumulador_asistencia);
         return acumulador_asistencia;
 
-
-
     };
     static suma_proyectos_ejercicios(){
         var cantidad_proyectos = $('#id_hitos-TOTAL_FORMS').val();
@@ -1846,7 +1975,6 @@ class AgregarCurso{
         }
         $("#tareas_curso").text(acumulador_proyectos);
     };
-
 }
 
 class CursoList{
@@ -2780,9 +2908,7 @@ class crearGrupos{
             bootbox.alert({message: "<h3><i class='fa fa-frown-o' style='font-size: 45px;'></i>&nbsp;&nbsp;&nbsp;HA OCURRIDO UN ERROR!!</h3></br>" + mensaje['mensaje'], className:"modal modal-danger fade"});
           }
       });
-
     });
-
   }
 }
 

@@ -114,19 +114,21 @@ class Sede(models.Model):
             validar_url= string_url.split('#grid')
             if not '' in validar_url:
                 nueva_url=string_url.split('id=')
-                self.url_archivos='https://drive.google.com/embeddedfolderview?id='+nueva_url[1]+'#grid'
+                #self.url_archivos='https://drive.google.com/embeddedfolderview?id='+nueva_url[1]+'#grid'
+                self.url_archivos=string_url
         if self.url:
             string_url = str(self.url)
             validar_url= string_url.split('#grid')
             if not '' in validar_url:
                 nueva_url=string_url.split('id=')
-                self.url='https://drive.google.com/embeddedfolderview?id='+nueva_url[1]+'#grid'
+                #self.url='https://drive.google.com/embeddedfolderview?id='+nueva_url[1]+'#grid'
+                self.url = string_url
         super(Sede, self).save(*args, **kwargs)
 
     def get_participantes(self):
         resultado = {'listado': [], 'resumen': {'roles': {}, 'genero': {}, 'estado': {}}}
         participantes = Participante.objects.filter(
-            asignaciones__grupo__sede__id=self.id).annotate(
+            asignaciones__grupo__sede__id=self.id, activo=True).annotate(
             cursos_sede=Count('asignaciones'))
         for participante in participantes:
             asignaciones = participante.asignaciones.filter(grupo__sede=self)

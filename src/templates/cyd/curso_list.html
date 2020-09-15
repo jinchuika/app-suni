@@ -24,9 +24,11 @@
 							<td>
 								<a href="{{curso.get_absolute_url}}">{{curso}}</a>
 							</td>
+							{% if perms.cyd.delete_curso %}
 							<td>
 								<a id="id_borrar_curso" data-nombre="{{curso}}" data-url="{%url 'curso_desactivar'%}"  data-id ={{curso.id}} class="btn btn-danger">Eliminar</a>
 							</td>
+							{% endif %}
 						</tr>						
 						{% endif %}												
 					{% endfor %}

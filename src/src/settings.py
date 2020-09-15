@@ -123,9 +123,9 @@ DATABASE_ROUTERS = ['apps.legacy.dbrouters.LegacyRouter', ]
 DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.mysql',
-            'NAME': 'suni3',
-            'USER': 'root',
-            'PASSWORD': '',
+            'NAME': 'suni',
+            'USER': 'suni',
+            'PASSWORD': 'SuN1.Funsep@2019!',
             'HOST': 'localhost',
             'PORT': '3306',
         }

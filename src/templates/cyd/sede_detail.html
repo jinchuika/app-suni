@@ -1,5 +1,6 @@
 {% extends "base/base.html" %}
-
+{% load embed_gdrive_folder %}
+{% load telefonica %}
 {% load staticfiles editable_field %}
 
 {% block page_title %}
@@ -38,11 +39,7 @@
 								<th>Observaciones</th>
 								<td>{{ sede.observacion }}</td>
 							</tr>
-							<tr>
-								<th>Coordenadas</th>
-								<td>{{ sede.mapa.lat|default_if_none:"" }}, {{ sede.mapa.lng|default_if_none:"" }}</td>
-							</tr>
-							{% if perms.sede.change_sede %}
+							{% if perms.cyd.change_sede %}
 							<tr>
 								<td colspan="2">
 									<a href="{% url 'sede_update' pk=sede.id %}" class="btn btn-primary btn-block">
@@ -99,6 +96,13 @@
 							</ul>
 							<div class="tab-content">
 								<div class="tab-pane active" id="participantes">
+									<div class="box-tools pull-right">
+										{% if perms.cyd.add_participante %}
+										<a href="{% url 'participante_importar' %}" class="btn btn-success">
+											<i class="fa fa-plus"></i> Agregar Participantes
+										</a>
+										{% endif %}
+									</div>
 								{% with sede.get_participantes as participantes %}
 									<ul class="list-unstyled">
 										<li>
@@ -130,7 +134,7 @@
 												<th>No.</th>
 												<th>Nombre</th>
 												<th>Apellido</th>
-												<th>Grupo</th>
+												<th>No. Grupo</th>
 												<th>Nota</th>
 												<th>Cursos</th>
 												<th>Rol</th>
@@ -157,27 +161,41 @@
 								</div>
 
 								<div class="tab-pane no-padding" id="grupos">
+									<div class="box-tools pull-right">
+										{% if perms.cyd.add_grupo %}
+										<a href="{% url 'grupo_add' %}" class="btn btn-success">
+											<i class="fa fa-plus"></i> Agregar Grupos
+										</a>
+										{% endif %}
+									</div>
+									<br/><br/>
 									<table class="table table-striped">
 										<thead>
 											<tr>
 												<th>Grupo</th>
 												<th>Observaciones</th>
-                        <th></th>
+												<th>Participantes</th>
+												<th></th>
 											</tr>
 										</thead>
 										<tbody>
 										{% for grupo in sede.grupos.all|dictsortreversed:"id" %}
 											<tr>
 												<td>
-													<a href="{{ grupo.get_absolute_url }}">{{ grupo }}</a>
+													<a href="{{ grupo.get_absolute_url }}" target="_blank" class="btn btn-block btn-success">{{ grupo }}</a>
 												</td>
 												<td>
 													{% url 'grupo_api_detail' pk=grupo.id as grupo_editable_url %}
 													{% editable_field value=grupo.comentario name="comentario" pk=grupo.id url=grupo_editable_url %}
 												</td>
-                        <td>
+												{% if grupo.asignados.count > 0 %}
+													<td><span class='label label-info' style='font-size: 12px;'>{{ grupo.asignados.count }}</span></td>
+												{% else %}
+													<td><span class='label label-danger' style='font-size: 12px;'>{{ grupo.asignados.count }}</span></td>
+												{% endif %}
+												<td>
                           {% if not grupo.asignados.count %}
-                          <button class="eliminar-grupo btn btn-danger"  data-asignacion="{{grupo.asignados.count}}" data-grupo="{{grupo.id}}" data-ulr="{%url 'grupo_desactivar'%}">Eliminar</button>
+                          <button class="eliminar-grupo btn btn-danger"  data-asignacion="{{grupo.asignados.count}}" data-grupo="{{grupo.id}}" data-ulr="{%url 'grupo_desactivar'%}"><i class='fa fa-trash'></i> Eliminar</button>
                           {% endif %}
 
 												</td>
@@ -282,6 +300,147 @@
 								</div>
 								<!-- -->
 									<div class="tab-pane no-padding" id="contactos">
+										<div class="row">
+											<div class="col-md-12">
+												<div class="box box-success">
+													<div class="box-header with-border">
+														<h3 class="box-title"><i class="fa fa-user" aria-hidden="true"></i> Contactos Sede</h3>
+														<div class="box-tools pull-right">
+															<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+														</div>
+													</div>
+													<div class="box-body no-padding">
+														<div class="container-fluid">
+															<div class="row">
+																<div class="col-md-12">
+																	<div class="box box-success box-solid collapsed-box">
+																		<div class="box-header with-border">
+																			<h3 class="box-title">{{ sede.escuela_beneficiada.nombre }}</h3>
+																		</div>
+																	</div>
+																	<div class="box-body table-responsive">
+																		<table class="table table-striped table-hover">
+																			<thead>
+																				<tr>
+																					<th>Nombre</th>
+																					<th>Rol</th>
+																					<th>Teléfono</th>
+																					<th>Correo</th>
+																				</tr>
+																			</thead>
+																			<tbody>
+																				{% for contacto in sede.escuela_beneficiada.contacto.all %}
+																				<tr>
+																					<td>{{ contacto }}</td>
+																					<td>{{ contacto.rol }}</td>
+																					<td>
+																						{% for telefono in contacto.telefono.all %}
+																						<a href="tel:{{telefono}}">
+																							<span class="badge bg-{{telefono.empresa|telefonica}}">{{ telefono }}</span>
+																						</a>
+																						<br />
+																						{% endfor %}
+																					</td>
+																					<td>
+																						{% for mail in contacto.mail.all %}
+																						<a href="mailto:{{mail}}">
+																							{{ mail }}
+																						</a>
+																						<br />
+																						{% endfor %}
+																					</td>
+																					<td>
+																						{% if perms.escuela.add_esccontacto %}
+																						<a href="{% url 'escuela_contacto_edit' id_escuela=contacto.escuela.id pk=contacto.id%}" class="badge">
+																							<i class="fa fa-pencil"></i>
+																						</a>
+																						{% endif %}
+																					</td>
+																				</tr>
+																				{% endfor %}
+																			</tbody>
+																		</table>
+																	</div>
+																</div>
+															</div>
+														</div>
+													</div>
+												</div>
+											</div>
+										</div>
+										<div class="row">
+											<div class="col-md-12">
+												<div class="box box-info">
+													<div class="box-header with-border">
+														<h3 class="box-title"><i class="fa fa-user" aria-hidden="true"></i> Contactos Escuelas Invitadas</h3>
+														<div class="box-tools pull-right">
+															<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+														</div>
+													</div>
+													<div class="box-body no-padding">
+														<div class="container-fluid">
+															{% for escuela in sede.get_escuelas.all %}
+															<div class="row">
+																<div class="col-md-12">
+																	<div class="box box-info box-solid collapsed-box">
+																		<div class="box-header with-border">
+																			<h3 class="box-title">{{ escuela.nombre }}</h3>
+																			<div class="box-tools pull-right">
+																				<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i></button>
+																			</div>
+																		</div>
+																	</div>
+																	<div class="box-body table-responsive">
+																		<table class="table table-striped table-hover">
+																			<thead>
+																				<tr>
+																					<th>Nombre</th>
+																					<th>Rol</th>
+																					<th>Teléfono</th>
+																					<th>Correo</th>
+																				</tr>
+																			</thead>
+																			<tbody>
+																				{% for contacto in escuela.contacto.all %}
+																				<tr>
+																					<td>{{ contacto }}</td>
+																					<td>{{ contacto.rol }}</td>
+																					<td>
+																						{% for telefono in contacto.telefono.all %}
+																						<a href="tel:{{telefono}}">
+																							<span class="badge bg-{{telefono.empresa|telefonica}}">{{ telefono }}</span>
+																						</a>
+																						<br />
+																						{% endfor %}
+																					</td>
+																					<td>
+																						{% for mail in contacto.mail.all %}
+																						<a href="mailto:{{mail}}">
+																							{{ mail }}
+																						</a>
+																						<br />
+																						{% endfor %}
+																					</td>
+																					<td>
+																						{% if perms.escuela.add_esccontacto %}
+																						<a href="{% url 'escuela_contacto_edit' id_escuela=contacto.escuela.id pk=contacto.id%}" class="badge">
+																							<i class="fa fa-pencil"></i>
+																						</a>
+																						{% endif %}
+																					</td>
+																				</tr>
+																				{% endfor %}
+																			</tbody>
+																		</table>
+																	</div>
+																</div>
+															</div>
+															{% endfor %}
+														</div>
+													</div>
+												</div>
+											</div>
+										</div>
 									<table class="table">
 										<thead>
 											<tr>
@@ -295,8 +454,10 @@
                 <!-- -->
                   <div class="tab-pane no-padding" id="fotos">
                     <div class="">
-
-                        <iframe src="{{ sede.url }}" style="width:100%; height:600px; border:0;"></iframe>
+                    	{% if sede.url %}
+	                    	<br>
+	                    	{{ sede.url|embed_gdrive_folder|safe }}
+                    	{% endif %}
                     </div>
 
 
@@ -305,18 +466,17 @@
                 <!-- -->
                   <div class="tab-pane no-padding" id="archivos">
                     <div class="">
-
-                        <iframe src="{{ sede.url_archivos }}" style="width:100%; height:600px; border:0;"></iframe>
+                    	{% if sede.url_archivos %}
+	                    	<br>
+	                    	{{ sede.url_archivos|embed_gdrive_folder|safe }}
+                    	{% endif %}
                     </div>
 
 
                 </div>
-                <!-- -->
-                <!-- -->
                   <div class="tab-pane no-padding" id="linea"  data-url="{% url 'calendario_api_list' %}" data-sede="{{sede.id}}">
                     <div id="timeline" style="height:600px; width:100%"></div>
                 </div>
-                <!-- -->
 							</div>
 						</div>
 
