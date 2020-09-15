@@ -9,7 +9,7 @@ urlpatterns = [
     url(r'^curso/(?P<pk>\d+)/$', CursoDetailView.as_view(), name='curso_detail'),
     url(r'^curso/(?P<pk>\d+)/edit/$', CursoUpdateView.as_view(), name='curso_edit'),
     url(r'^curso/api/add/$', CreacionCursosApi.as_view(), name='curso_api_add'),
-
+    
     url(r'^sede/add/$', SedeCreateView.as_view(), name='sede_add'),
     url(r'^sede/list/$', SedeListView.as_view(), name='sede_list'),
     url(r'^sede/(?P<pk>\d+)/$', SedeDetailView.as_view(), name='sede_detail'),
@@ -55,6 +55,6 @@ urlpatterns = [
     url(r'^informe/escuela/capacitadas/$',InformeListadoEscuelasListView.as_view(), name='informe_escuela_capacitadas'),
     url(r'^asistencia/$',InformeAsistenciaWebView.as_view(), name='asistencia_web'),
     url(r'^asistencia/asignar/$',AsignarAsistencia.as_view(), name='asistencia_web_asignar'),
-    url(r'^chamilo/$', ChamiloAddView.as_view(), name='chamilo_add')
+    url(r'^chamilo/$', ChamiloAddView.as_view(), name='chamilo_add'),
     url(r'^capacitacion/list/home/$', cache_page(5)(CapacitacionListHomeView.as_view()), name='capacitacion_list_home')
 ]
