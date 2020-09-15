@@ -141,7 +141,7 @@ class InformeBienestarJson(LoginRequiredMixin, views.APIView):
             respuesta_si=Colaborador.objects.filter(email=correo.email, fecha__gte=fecha_min,fecha__lte=fecha_max,pregunta4='Sí').count()
             respuesta_no=Colaborador.objects.filter(email=correo.email, fecha__gte=fecha_min,fecha__lte=fecha_max,pregunta4='No').count()            
             datos_nuevos['nombre']=datos_colaborador.usuario
-            datos_nuevos['dpi']=int(float(datos_colaborador.dpi))
+            datos_nuevos['dpi']=int(float(datos_colaborador.dpi)) if datos_colaborador.dpi else ""
             datos_nuevos['edad']=datos_colaborador.edad
             for datos_enviar in datos_buscar_colaborador:
                 datos_corregidos={}

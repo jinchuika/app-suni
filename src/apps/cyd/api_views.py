@@ -21,13 +21,20 @@ from apps.cyd.models import (
 class GrupoViewSet(CsrfExemptMixin, viewsets.ModelViewSet):
     serializer_class = GrupoSerializer
     queryset = Grupo.objects.all()
-    filter_fields = ('sede', 'curso', 'activo','numero')
+    filter_fields = ('sede', 'curso', 'activo','numero', 'sede__capacitador',)
+
+    def get_queryset(self):
+        queryset = Grupo.objects.all()
+        if "cyd_capacitador" in self.request.user.groups.values_list('name', flat=True):
+            queryset = Grupo.objects.filter(sede__in=self.request.user.sedes.filter(activa=True))
+        return queryset
 
     @action(methods=['post'], detail=False)
     def desactivar_grupo(self,request, pk=None):
         """ Metodo  que cambia la disponibilidad del grupo
         """
         id_grupo= request.data['primary_key']
+        print(id_grupo)
         try:
             eliminar_grupo= request.data['eliminar']
         except Exception:
@@ -64,7 +71,7 @@ class GrupoViewSet(CsrfExemptMixin, viewsets.ModelViewSet):
         sede=Sede.objects.get(id=request.data['sede'])
         curso=Curso.objects.get(id=request.data['curso'])
         cantidad= request.data['numero']
-        comentario=request.data['comentario']
+        comentario=request.data['comentario'] if ('comentario' in request.data) else ''
         ultimo_grupo=Grupo.objects.filter(sede=sede,curso=curso).last()
         if ultimo_grupo:
             for x in range(ultimo_grupo.numero+1, (ultimo_grupo.numero + int(cantidad))+1):
@@ -113,12 +120,18 @@ class SedeViewSet(CsrfExemptMixin, viewsets.ModelViewSet):
         """
         id_sede= request.data['primary_key']
         sede = Sede.objects.get(id=id_sede)
-        sede.activa = False
-        sede.save()
-        return Response(
-            {'mensaje': 'Cambio Aceptado'},
-            status=status.HTTP_200_OK
-        )
+        if len(sede.grupos.filter(activo=True)) > 0:
+            return Response(
+                {'mensaje': 'La sede contiene grupos activos'},
+                status=status.HTTP_406_NOT_ACCEPTABLE
+            )
+        else:
+            sede.activa = False
+            sede.save()
+            return Response(
+                {'mensaje': 'Cambio Aceptado'},
+                status=status.HTTP_200_OK
+            )
 
     @action(methods=['post'], detail=False)
     def desactivar_participante(self,request, pk=None):

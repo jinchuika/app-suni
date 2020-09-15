@@ -60,9 +60,7 @@ class GrupoForm(forms.ModelForm):
         }
     def __init__(self, *args, **kwargs):
         super(GrupoForm, self).__init__(*args, **kwargs)
-        self.fields['numero'].label = "Cantidad"
-
-
+        self.fields['numero'].label = "Cantidad de grupos a crear"
 
 class SedeFilterForm(forms.Form):
     ESTADO_CHOICES = (
@@ -230,12 +228,6 @@ class GrupoFilterFormInforme(forms.Form):
         queryset=Curso.objects.filter(activo=True),
         required=False,
         widget=forms.Select(attrs={'class': 'form-control select2', 'data-url': reverse_lazy('sede_api_list')}))
-    activo = forms.BooleanField(
-        initial=True,
-        required=False,
-        widget=forms.HiddenInput(),
-        label=''
-        )
 
     def __init__(self, *args, **kwargs):
         super(GrupoFilterFormInforme, self).__init__(*args, **kwargs)

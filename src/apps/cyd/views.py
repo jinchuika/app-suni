@@ -103,7 +103,6 @@ class SedeCreateView(LoginRequiredMixin, GroupRequiredMixin, CreateView):
                 escuela = Escuela.objects.get(codigo=udi)
                 form.instance.nombre = str(municipio.departamento.nombre) + str(", ") + str(municipio.nombre) + str("("+ udi +")") + str("("+ str(form.instance.tipo_sede) + ")")
                 form.instance.escuela_beneficiada = escuela
-                form.instance.mapa = escuela.mapa
             except ObjectDoesNotExist:
                 form.add_error('udi', 'El UDI no es válido o no existe.')
                 return self.form_invalid(form)
@@ -129,29 +128,27 @@ class SedeUpdateView(LoginRequiredMixin, UpdateView):
 
     def get_form(self, form_class=None):
         form = super(SedeUpdateView, self).get_form(form_class)
-        if self.request.user.groups.filter(name="cyd_capacitador").exists():
-            form.fields['capacitador'].queryset = form.fields['capacitador'].queryset.filter(id=self.request.user.id)
+        form.fields['udi'].initial = self.object.escuela_beneficiada.codigo
+        # if self.request.user.groups.filter(name="cyd_capacitador").exists():
+            # form.fields['capacitador'].queryset = form.fields['capacitador'].queryset.filter(id=self.request.user.id)
         return form
 
     def get_initial(self):
         initial = super(SedeUpdateView, self).get_initial()
-        initial['lat'] = self.object.mapa.lat
-        initial['lng'] = self.object.mapa.lng
         return initial
 
     def form_valid(self, form):
-        respuesta = form.save(commit=False)
-        if self.object.mapa is None:
-            coordenada = Coordenada(
-                lat=form.cleaned_data['lat'],
-                lng=form.cleaned_data['lng'],
-                descripcion='De la sede ' + respuesta.nombre)
-            coordenada.save()
-            self.object.mapa = coordenada
-        else:
-            self.object.mapa.lat = form.cleaned_data['lat']
-            self.object.mapa.lng = form.cleaned_data['lng']
-            self.object.mapa.save()
+        municipio = form.instance.municipio
+        udi = form.cleaned_data['udi']
+        if udi != "":
+            try:
+                escuela = Escuela.objects.get(codigo=udi)
+                form.instance.nombre = str(municipio.departamento.nombre) + str(", ") + str(municipio.nombre) + str("("+ udi +")") + str("("+ str(form.instance.tipo_sede) + ")")
+                form.instance.escuela_beneficiada = escuela
+            except ObjectDoesNotExist:
+                form.add_error('udi', 'El UDI no es válido o no existe.')
+                return self.form_invalid(form)
+                
         return super(SedeUpdateView, self).form_valid(form) 
 
 
@@ -203,9 +200,7 @@ class GrupoDetailView(LoginRequiredMixin, DetailView):
     template_name = 'cyd/grupo_detail.html'
 
     def get_context_data(self, **kwargs):
-        print("detalle de grupo")
         ultimo_grupo= cyd_m.Grupo.objects.filter(sede=self.object.sede,curso=self.object.curso).last()
-        print(ultimo_grupo.numero)
         context = super(GrupoDetailView, self).get_context_data(**kwargs)
         context['genero_list'] = cyd_m.ParGenero.objects.all()
         context['grupo_list_form'] = cyd_f.GrupoListForm()

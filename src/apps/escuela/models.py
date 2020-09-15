@@ -144,10 +144,21 @@ class Escuela(models.Model):
     equipada = property(es_equipada)
 
     def get_sedes(self):
-        from apps.cyd.models import Sede
+        from apps.cyd.models import Sede, Asignacion
+        resultado = {'listado':[]}
         sedes = []
-        (sedes.append(e.asignaciones.grupo.sede) for e in self.participantes.all())
-        return Sede.objects.filter(id__in=sedes).distinct()
+        for e in self.participantes.all():
+            asignaciones = Asignacion.objects.filter(participante=e, participante__escuela=self)
+            for asignacion in asignaciones:
+                if asignacion.grupo.sede not in sedes:
+                    sedes.append(asignacion.grupo.sede)
+        for e in Sede.objects.filter(escuela_beneficiada=self.id):
+            if e not in sedes:
+                sedes.append(e)
+        for sede in sedes:
+            resultado['listado'].append({'sede': sede})
+
+        return resultado
 
     def get_ficha_escolar(self):
         return 'https://public.tableau.com/views/1-FichaEscolarDatosGenerales/DatosGenerales?CODUDI={}'.format(
@@ -191,10 +202,10 @@ class Escuela(models.Model):
 
     @property
     def capacitacion(self):
-        data = self.get_capacitacion()
-        respuesta = {'capacitada': True if len(self.participantes.all()) > 0 else False}
+        respuesta = {'capacitada': True if len(self.participantes.all()) > 0 else False, 'participantes':[]}
         if respuesta['capacitada'] is True:
-            respuesta['participantes'] = self.participantes
+            personas = []
+            respuesta['participantes'].append({'listado': self.participantes.all()})
         return respuesta
 
     @property
