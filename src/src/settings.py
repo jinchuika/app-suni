@@ -122,13 +122,13 @@ DATABASE_ROUTERS = ['apps.legacy.dbrouters.LegacyRouter', ]
 
 DATABASES = {
         'default': {
-            'ENGINE': 'django.db.backends.mysql',
-            'NAME': 'suni',
-            'USER': 'suni',
-            'PASSWORD': 'SuN1.Funsep@2019!',
-            'HOST': 'localhost',
-            'PORT': '3306',
-        }
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+    },
+    'legacy': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'legacy.sqlite3'),
+    },
     }
 # Password validation
 # https://docs.djangoproject.com/en/1.10/ref/settings/#auth-password-validators
@@ -176,6 +176,7 @@ STATICFILES_DIRS = [
 MEDIA_ROOT = 'etc/media/'
 MEDIA_ROOT_EXCEL = 'etc/media/excel/'
 MEDIA_ROOT_EXCEL_BIENESTAR = 'etc/media/bienestar/excel/'
+MEDIA_ROOT_EXCEL_COURSERA = 'etc/media/coursera/excel/'
 MEDIA_URL = '/media/'
 ADMIN_MEDIA_PREFIX = '/static/'
 
