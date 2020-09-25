@@ -1,0 +1,178 @@
+{% extends "base/base.html" %}
+
+{% load widget_tweaks %}
+{% load staticfiles %}
+
+{% block page_title %}
+<title>Informe Monitoreo</title>
+{% endblock page_title %}
+
+{% block content %}
+<section class="content-header">
+	<h1>Informe Monitoreo</h1>
+</section>
+
+<section class="content">
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-md-3">
+				<form action="{%url 'consulta_escuela'%}" method="get" id="informe-list-form">
+					<div class="box">
+						<div class="box-footer">
+							<input type="submit" class="btn btn-primary" value="Buscar">
+							<i id="spinner" class="fa fa-spinner fa-spin fa-fw"></i>
+							<div class="collapse" id="filtros-collapse">
+								<h6>Filtros activos</h6>
+								<small><ul id="lista-filtros"></ul></small>
+							</div>
+						</div>
+					</div>
+					<div class="box box-default collapsed-box">
+						<div class="box-header with-border">
+							<h5 class="box-title">Escuela</h5>
+							<div class="box-tools pull-right">
+								<button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i></button>
+							</div>
+						</div>
+						<div class="box-body">
+							<div class="form-group">
+								{{ form.codigo.label_tag }}
+								{{ form.codigo|add_class:"form-control"}}
+							</div>
+							<div class="form-group">
+								{{ form.nombre.label_tag }}
+								{{ form.nombre|add_class:"form-control"}}
+							</div>
+							<div class="form-group">
+								{{ form.departamento.label_tag }}
+								{{ form.departamento|add_class:"form-control"}}
+							</div>
+							<div class="form-group">
+								{{ form.municipio.label_tag }}
+								{{ form.municipio|add_class:"form-control"}}
+							</div>
+							<div class="form-group">
+								{{ form.direccion.label_tag }}
+								{{ form.direccion|add_class:"form-control"}}
+							</div>
+							<div class="form-group">
+								{{ form.nivel.label_tag }}
+								{{ form.nivel|add_class:"form-control"}}
+							</div>
+							<div class="form-group">
+								{{ form.sector.label_tag }}
+								{{ form.sector|add_class:"form-control"}}
+							</div>
+							<div class="form-group">
+								{{ form.poblacion_min.label_tag }}
+								{{ form.poblacion_min|add_class:"form-control"}}
+							</div>
+							<div class="form-group">
+								{{ form.poblacion_max.label_tag }}
+								{{ form.poblacion_max|add_class:"form-control"}}
+							</div>
+						</div>
+					</div>
+					<div class="box box-default collapsed-box">
+						<div class="box-header with-border">
+							<h5 class="box-title">Equipamiento</h5>
+							<div class="box-tools pull-right">
+								<button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i></button>
+							</div>
+						</div>
+						<div class="box-body">
+							<div class="form-group">
+								{{ form.cooperante_tpe.label_tag }}
+								{{ form.cooperante_tpe|add_class:"form-control"}}
+							</div>
+							<div class="form-group">
+								{{ form.proyecto_tpe.label_tag }}
+								{{ form.proyecto_tpe|add_class:"form-control"}}
+							</div>
+							<div class="form-group">
+								{{ form.fecha_min.label_tag }}
+								{{ form.fecha_min|add_class:"form-control"}}
+							</div>
+							<div class="form-group">
+								{{ form.fecha_max.label_tag }}
+								{{ form.fecha_max|add_class:"form-control"}}
+							</div>
+							<div class="form-group">
+								{{ form.equipada.label_tag }}
+								{{ form.equipada}}
+							</div>
+						</div>
+					</div>
+					<div class="box box-default collapsed-box">
+						<div class="box-header with-border">
+							<h5 class="box-title">Capacitación</h5>
+							<div class="box-tools pull-right">
+								<button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i></button>
+							</div>
+						</div>
+						<div class="box-body">
+							<div class="form-group">
+								{{ form.capacitador.label_tag }}
+								{{ form.capacitador|add_class:"form-control"}}
+							</div>
+							<div class="form-group">
+								{{ form.fecha_min_capacitacion.label_tag }}
+								{{ form.fecha_min_capacitacion|add_class:"form-control"}}
+							</div>
+							<div class="form-group">
+								{{ form.fecha_max_capacitacion.label_tag }}
+								{{ form.fecha_max_capacitacion|add_class:"form-control"}}
+							</div>
+							<div class="form-group">
+								{{ form.capacitada.label_tag }}
+								{{ form.capacitada}}
+							</div>
+						</div>
+					</div>
+
+					{% csrf_token %}
+				</form>
+			</div>
+			<div class="col-md-9">
+				<div class="table-responsive box">
+					<table id="informe-table" class="table table-striped table-condensed table-hover table-bordered">
+						<thead>
+							<tr>
+								<th>UDI</th>
+								<th>Nombre</th>
+								<th>Dirección</th>
+								<th>Departamento</th>
+								<th>Municipio</th>
+								<th>Niños Beneficiados</th>
+								<th>Docentes</th>
+								<th>Equipada</th>
+								<th>Fecha Equipamiento</th>
+								<th>No. Equipamiento</th>
+								<th>Proyecto</th>
+								<th>Donante</th>
+								<th>Equipo Entregado</th>
+								<th>Capacitada</th>
+								<th>Fecha Capacitacion</th>
+								<th>Capacitador</th>
+								<th>Maestros Capacitados</th>
+								<th>Promovidos</th>
+								<th>No Promovidos</th>
+								<th>Inconclusos</th>
+							</tr>
+						</thead>
+						<tbody id="tbody-informe">
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+{% endblock content %}
+{% block extra_js %}
+{% include "base/dataTables.html" %}
+<script src="{% static "js/extrajs/informe.js" %}"></script>
+<script>
+	var  nuevo = new Informe();
+</script>
+{% endblock extra_js %}
