@@ -29,6 +29,7 @@ class BienestarExcelAddView(LoginRequiredMixin, TemplateView):
             number_file=len(file_list)
             myfile=request.FILES['myfile']
             new_name=str('Bienestar') + str(number_file) +str(".")+str(myfile.name.split(".")[-1])
+            print(new_name)
             fs=FileSystemStorage(location=settings.MEDIA_ROOT_EXCEL_BIENESTAR)
             filename=fs.save(new_name, myfile)
             uploaded_file_url=fs.url(filename)

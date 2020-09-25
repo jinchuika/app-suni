@@ -3,11 +3,14 @@ class BienestarInforme {
     /**/
     let bienestar_form = $('#bienestar-list-form');
     var tablaPrecio = $('#bienestar-table-search').DataTable({
+      dom: 'Bfrtip',
+      buttons: ['excel', 'pdf', 'copy'],
       searching:true,
       paging:true,
       ordering:true,
       processing:true,
       destroy:true,
+      autoWidth:false,
       ajax:{
         type: 'GET',
         url: $('#bienestar-table-search').data("todo"),
@@ -46,8 +49,12 @@ class BienestarInforme {
         {data: "pregunta16"},
         {data: "pregunta17"}
       ],
+      columnDefs: [
+        { "width": "150px", "targets":0 }
+      ]
     });
 
+    tablaPrecio.columns.adjust().draw();
 
 
  /**/
@@ -149,6 +156,7 @@ class BienestarInforme {
          ordering:true,
          processing:true,
          destroy:true,
+         autoWidth:false,
          ajax:{
            type: 'POST',
            url:bienestar_form.attr('action'),
@@ -159,6 +167,9 @@ class BienestarInforme {
              return bienestar_form.serialize(true);
            }
          },
+         columnDefs: [
+           { width: 200, targets: 0 }
+         ],
          columns: [
            {data: "fecha"},
            {data: "correo"},
