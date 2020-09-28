@@ -181,6 +181,9 @@ class GrupoCreateView(LoginRequiredMixin, GroupRequiredMixin, CreateView):
     template_name = 'cyd/grupo_add.html'
     form_class = cyd_f.GrupoForm
 
+    def get_success_url(self):
+        return reverse('grupo_detail', kwargs={'pk': self.object.id})
+
     def get_form(self, form_class=None):
         form = super(GrupoCreateView, self).get_form(form_class)
         if self.request.user.groups.filter(name="cyd_capacitador").exists():
@@ -333,6 +336,7 @@ class ParticipanteCreateListView(LoginRequiredMixin, GroupRequiredMixin, FormVie
     def get_context_data(self, **kwargs):
         context = super(ParticipanteCreateListView, self).get_context_data(**kwargs)
         context['rol_list'] = cyd_m.ParRol.objects.all()
+        context['genero_list'] = cyd_m.ParGenero.objects.all()
         return context
 
     def get_form(self, form_class=None):
@@ -349,33 +353,56 @@ class ParticipanteJsonCreateView(LoginRequiredMixin, JsonRequestResponseMixin, C
 
     def post(self, request, *args, **kwargs):
         try:
-            if self.request_json['genero'] == 'M':
-                id_genero = 1
+            if self.request_json['genero'].isdigit():
+                genero = cyd_m.ParGenero.objects.get(id=self.request_json['genero'])
             else:
-                id_genero = 2
+                genero = cyd_m.ParGenero.objects.get(genero=self.request_json['genero'])
+
+            if self.request_json['rol'].isdigit():
+                rol = cyd_m.ParRol.objects.get(id=self.request_json['rol'])
+            else:
+                rol = cyd_m.ParRol.objects.get(nombre=self.request_json['rol'])
+
             escuela = Escuela.objects.get(codigo=self.request_json['udi'])
             grupo = cyd_m.Grupo.objects.get(id=self.request_json['grupo'])
-            rol = cyd_m.ParRol.objects.get(id=self.request_json['rol'])
-            genero = cyd_m.ParGenero.objects.get(id=id_genero)
+            etnia = cyd_m.ParEtnia.objects.get(id=self.request_json['etnia'] if 'etnia' in self.request_json else 1)
+            escolaridad = cyd_m.ParEscolaridad.objects.get(id=self.request_json['escolaridad'] if 'escolaridad' in self.request_json else 1)
+
             participante = cyd_m.Participante.objects.create(
                 dpi=self.request_json['dpi'],
                 nombre=self.request_json['nombre'],
                 apellido=self.request_json['apellido'],
                 genero=genero,
                 rol=rol,
-                mail=self.request_json['mail'],
-                tel_movil=self.request_json['tel_movil'],
+                mail=self.request_json['mail'] if 'mail' in self.request_json else "",
+                tel_movil=self.request_json['tel_movil'] if 'tel_movil' in self.request_json else "",
                 escuela=escuela,
-                slug=self.request_json['dpi'])
+                slug=self.request_json['dpi'],
+                activo=True,
+                etnia=etnia,
+                escolaridad=escolaridad)
             participante.asignar(grupo)
         except IntegrityError:
+            participante = cyd_m.Participante.objects.get(slug=self.request_json['dpi'])
 
-            asignar_grupo =  cyd_m.Asignacion(
-                participante=cyd_m.Participante.objects.get(slug=self.request_json['dpi']),
-                grupo=grupo
-            )
-            asignar_grupo.save()
-            error_dict = {u"message": u"Asignado correctamente"}
+            participante.nombre = self.request_json['nombre']
+            participante.apellido = self.request_json['apellido']
+            participante.genero = genero
+            participante.rol = rol
+            participante.mail = self.request_json['mail'] if 'mail' in self.request_json else ""
+            participante.tel_movil = self.request_json['tel_movil'] if 'tel_movil' in self.request_json else ""
+            participante.escuela = escuela
+            participante.save()
+
+            asignacion_existe = cyd_m.Asignacion.objects.filter(participante=participante, grupo=grupo)
+            if len(asignacion_existe) == 0:
+                asignar_grupo =  cyd_m.Asignacion(
+                    participante=participante,
+                    grupo=grupo
+                )
+                asignar_grupo.save()
+
+            error_dict = {u"message": u"Asignado correctamente", u"status": u"ok"}
             #return self.render_bad_request_response(error_dict)
             return self.render_json_response(error_dict)
         return self.render_json_response({'status': 'ok'})
@@ -417,7 +444,10 @@ class ParticipanteBuscarView(LoginRequiredMixin, JsonRequestResponseMixin, FormV
 
     def get_form(self, form_class=None):
         form = super(ParticipanteBuscarView, self).get_form(form_class)
-        form.fields['sede'].queryset = cyd_m.Sede.objects.all()
+        if self.request.user.groups.filter(name="cyd_capacitador").exists():
+            form.fields['sede'].queryset = self.request.user.sedes.all()
+        else:
+            form.fields['sede'].queryset = cyd_m.Sede.objects.filter(activa=True)
         return form
 
     def get_context_data(self, **kwargs):
@@ -425,8 +455,7 @@ class ParticipanteBuscarView(LoginRequiredMixin, JsonRequestResponseMixin, FormV
         context['asignar_form'] = cyd_f.ParticipanteAsignarForm()
 
         if self.request.user.groups.filter(name="cyd_capacitador").exists():
-            #context['asignar_form'].fields['sede'].queryset = self.request.user.sedes.all()
-            context['asignar_form'].fields['sede'].queryset = cyd_m.Sede.objects.all()
+            context['asignar_form'].fields['sede'].queryset = self.request.user.sedes.all()
         return context
 
 class ParticipanteUpdateView(LoginRequiredMixin, UpdateView):

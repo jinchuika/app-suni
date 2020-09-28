@@ -143,6 +143,8 @@ class ParticipanteSerializer(DynamicFieldsModelSerializer, serializers.ModelSeri
     url = serializers.URLField(source='get_absolute_url')
     escuela = EscuelaSerializer(read_only=True, fields='codigo,nombre,url')
     asignaciones = AsignacionResumenSerializer(read_only=True, many=True)
+    genero_nombre =serializers.StringRelatedField(source='genero.genero')
+    rol_nombre = serializers.StringRelatedField(source='rol.nombre')
 
     class Meta:
         model = Participante

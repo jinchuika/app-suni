@@ -29,6 +29,10 @@ function validar_udi(codigo) {
     return /^\d{2}-\d{2}-\d{4}-\d{2}$/.test(codigo);
 }
 
+function validar_dpi(codigo) {
+    return /^\d{13}$/.test(codigo);
+}
+
 function activar_datatable(tabla) {
     $(tabla).DataTable({
         "iDisplayLength": 50,

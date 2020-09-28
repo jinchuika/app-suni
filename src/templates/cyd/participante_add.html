@@ -20,7 +20,7 @@
 						<div class="form-group">
 							{{ field.label_tag }}
 							{{ field|add_class:"form-control" }}
-							<span class="help-block" id="{{ field.help_text }}"></span>
+							<span class="help-block label label-success" id="{{ field.help_text }}"></span>
 						</div>
 						{% endfor %}
 					</div>
@@ -54,6 +54,65 @@
 {% endblock content %}
 {% block extra_js %}
 <script src="{% static "js/extrajs/cyd.js" %}"></script>
+<script>
+	(function($, undefined) {
+    "use strict";
+    // When ready.
+    $(function() {
+        var $form = $( "form" );
+        var $input = $form.find( "#id_udi" );
+        $input.on( "keyup", function( event ) {
+            // When user select text in the document, also abort.
+            var selection = window.getSelection().toString();
+            if ( selection !== '' ) {
+                return;
+            }
+            // When the arrow keys are pressed, abort.
+            if ( $.inArray( event.keyCode, [38,40,37,39] ) !== -1 ) {
+                return;
+            }
+            var $this = $(this);
+            var input = $this.val();
+            var input = input.replace(/[\D\s\._\-]+/g, "");
+            var split = 4;
+            var chunk = [];
+
+                for (var i = 0, len = input.length; i < len; i += split) {
+                    split = ( i >= 4 && i <= 8 ) ? 4 : 2;
+                    chunk.push( input.substr( i, split ) );
+                }
+
+                $this.val(function() {
+                    return chunk.join("-").toUpperCase();
+                });
+        
+        } );     
+    });
+})(jQuery);
+
+  $(document).on('focus', '.select2', function (e) {
+    if (e.originalEvent) {
+        var s2element = $(this).siblings('select');
+        s2element.select2('open');
+        // Set focus back to select2 element on closing.
+        s2element.on('select2:closing', function (e) {
+            s2element.select2('focus');
+       });
+    }
+});
+
+ $(document).ready(function() {
+  $("#id_dpi").inputFilter(function(value) {
+    return /^\d*$/.test(value);    // Allow digits only, using a RegExp
+  });
+
+  $("#id_tel_movil").inputFilter(function(value) {
+    return /^\d*$/.test(value);    // Allow digits only, using a RegExp
+  });
+  
+});
+
+</script>
 <script>
 	ParticipanteCrear.init();
 </script>
