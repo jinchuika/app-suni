@@ -67,7 +67,8 @@ LOCAL_APPS = (
     'apps.legacy',
     'apps.certificado',
     'apps.coursera',
-    'apps.Bienestar'
+    'apps.Bienestar',
+    'apps.informe'
 )
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 
@@ -119,9 +120,8 @@ WSGI_APPLICATION = 'src.wsgi.application'
 
 DATABASE_ROUTERS = ['apps.legacy.dbrouters.LegacyRouter', ]
 
-
 DATABASES = {
-        'default': {
+    'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     },
@@ -129,7 +129,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(BASE_DIR, 'legacy.sqlite3'),
     },
-    }
+}
 # Password validation
 # https://docs.djangoproject.com/en/1.10/ref/settings/#auth-password-validators
 

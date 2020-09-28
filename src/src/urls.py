@@ -130,6 +130,10 @@ urlpatterns = [
    url(
        r'^bienestar/',
        include('apps.Bienestar.urls')),
+   # Contiene las direcciones de informe
+   url(
+       r'^informe/',
+       include('apps.informe.urls')),
 ]
 
 if settings.DEBUG and settings.DEBUG_TOOLBAR:
