@@ -3,9 +3,13 @@ from braces.views import CsrfExemptMixin
 from rest_framework import generics, viewsets, status
 from rest_framework.filters import SearchFilter
 from django_filters import rest_framework as filters
+from rest_framework.filters import OrderingFilter
+from django_filters.rest_framework import DjangoFilterBackend, FilterSet
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from datetime import datetime, timedelta
 import json
+import datetime as dt
 
 from apps.main.mixins import APIFilterMixin
 from apps.cyd.serializers import (
@@ -17,6 +21,18 @@ from apps.cyd.models import (
     Sede, Grupo, Calendario, Asignacion, Participante,
     NotaAsistencia, NotaHito, Asesoria,Curso, RecordatorioCalendario, ParGenero)
 
+
+def crear_calendario(grupo):
+    for asistencia in grupo.curso.asistencias.all():
+        nueva_asistencia = Calendario(
+            cr_asistencia=asistencia,
+            grupo=grupo,
+            fecha=datetime.now(),
+            hora_inicio=dt.time(0,0,0),
+            hora_fin=dt.time(0,0,0),
+            observacion='',
+        )
+        nueva_asistencia.save()
 
 class GrupoViewSet(CsrfExemptMixin, viewsets.ModelViewSet):
     serializer_class = GrupoSerializer
@@ -75,7 +91,6 @@ class GrupoViewSet(CsrfExemptMixin, viewsets.ModelViewSet):
         ultimo_grupo=Grupo.objects.filter(sede=sede,curso=curso).last()
         if ultimo_grupo:
             for x in range(ultimo_grupo.numero+1, (ultimo_grupo.numero + int(cantidad))+1):
-                print(x)
                 nuevo_grupo= Grupo(
                 sede=sede,
                 numero=x,
@@ -84,9 +99,9 @@ class GrupoViewSet(CsrfExemptMixin, viewsets.ModelViewSet):
                 activo=True,
                 )
                 nuevo_grupo.save()
+                crear_calendario(nuevo_grupo)
         else:
             for x in range(int(cantidad)):
-                print(str(x+1)+": No hay cursos creados en esta sede")
                 nuevo_grupo= Grupo(
                 sede=sede,
                 numero=str(x+1),
@@ -95,12 +110,11 @@ class GrupoViewSet(CsrfExemptMixin, viewsets.ModelViewSet):
                 activo=True,
                 )
                 nuevo_grupo.save()
+                crear_calendario(nuevo_grupo)
         return Response(
             {'mensaje': 'Grupos creados correctamente'},
             status=status.HTTP_200_OK
         )
-
-
 
 class CalendarioViewSet(CsrfExemptMixin, viewsets.ModelViewSet):
     serializer_class = CalendarioSerializer
@@ -205,6 +219,17 @@ class AsignacionViewSet(CsrfExemptMixin, viewsets.ModelViewSet):
     queryset = Asignacion.objects.all()
     filter_fields = ('grupo__curso',)
 
+    @action(methods=['post'], detail=False)
+    def desactivar_asignacion(self, request, pk=None):
+        """ Método que elimina una asignación
+        """
+        id_asignacion = request.data['primary_key']
+        asignacion = Asignacion.objects.get(id=id_asignacion)
+        asignacion.delete()
+        return Response(
+            {'mensaje': 'Cambio Aceptado'},
+            status=status.HTTP_200_OK
+        )
 
 class ParticipanteViewSet(CsrfExemptMixin, viewsets.ModelViewSet):
     """Consulta de participantes usando el DPI como primary key.
@@ -217,7 +242,7 @@ class ParticipanteViewSet(CsrfExemptMixin, viewsets.ModelViewSet):
         class Meta:
             model = Participante
             fields = [
-                'escuela', 'asignaciones__grupo', 'asignaciones__grupo__sede',
+                'dpi', 'escuela', 'asignaciones__grupo', 'asignaciones__grupo__sede',
                 'asignaciones__grupo__sede__capacitador', 'escuela__codigo',
                 'escuela__municipio', 'escuela__municipio__departamento','activo']
     serializer_class = ParticipanteSerializer
@@ -235,7 +260,7 @@ class ParticipanteAPIViewSet(CsrfExemptMixin, viewsets.ModelViewSet):
     serializer_class = ParticipanteSerializer
     queryset = Participante.objects.all()
     filter_fields = ('escuela', 'asignaciones__grupo', 'dpi','activo')
-    filter_backends = (filters.DjangoFilterBackend, filters.OrderingFilter)
+    filter_backends = (filters.DjangoFilterBackend, OrderingFilter)
     search_fields = ('nombre')
 
 

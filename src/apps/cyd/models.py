@@ -130,6 +130,7 @@ class Sede(models.Model):
         participantes = Participante.objects.filter(
             asignaciones__grupo__sede__id=self.id, activo=True).annotate(
             cursos_sede=Count('asignaciones'))
+        print(participantes)
         for participante in participantes:
             asignaciones = participante.asignaciones.filter(grupo__sede=self)
             resultado['listado'].append({
@@ -298,7 +299,7 @@ class ParGenero(models.Model):
 
 class Participante(models.Model):
     """Participante de la capacitación por Funsepa."""
-    dpi = models.CharField(max_length=21, unique=True, null=True, blank=True, db_index=True, error_messages={'Unico':"El dpi ya existe"})
+    dpi = models.CharField(max_length=13, unique=True, null=True, blank=True, db_index=True, error_messages={'Unico':"El dpi ya existe"})
     nombre = models.CharField(max_length=100)
     apellido = models.CharField(max_length=100)
     genero = models.ForeignKey(ParGenero, null=True, on_delete=models.CASCADE)
@@ -306,8 +307,8 @@ class Participante(models.Model):
     escuela = models.ForeignKey(Escuela, on_delete=models.PROTECT, related_name='participantes')
     direccion = models.TextField(null=True, blank=True, verbose_name='Dirección')
     mail = models.EmailField(null=True, blank=True)
-    tel_casa = models.CharField(max_length=11, null=True, blank=True, verbose_name='Teléfono de casa')
-    tel_movil = models.CharField(max_length=11, null=True, blank=True, verbose_name='Teléfono móvil')
+    tel_casa = models.CharField(max_length=8, null=True, blank=True, verbose_name='Teléfono de casa')
+    tel_movil = models.CharField(max_length=8, null=True, blank=True, verbose_name='Teléfono móvil')
     fecha_nac = models.DateField(null=True, blank=True, verbose_name='Fecha de nacimiento')
     avatar = ThumbnailerImageField(
         upload_to="avatar_participante",
