@@ -14,5 +14,11 @@ urlpatterns = [
         r'^api/escuela',
         informe_views.ConsultaEscuelaApi.as_view(),
         name="consulta_escuela"
-        )
+        ),
+    url(
+        r'^api/nueva/',
+        informe_views.ConsultaEscuelaApiDos.as_view(),
+        name="consulta_escuela_2"
+        ),
+
 ]

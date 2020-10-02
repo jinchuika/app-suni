@@ -60,7 +60,48 @@ class Informe {
             {data: "Maestros_desertores"}
 
           ],
+          footerCallback: function( tfoot, data, start, end, display){
+              var api = this.api();
+              var acumulador_ninos_beneficiados = 0;
+              var acumulador_docentes = 0;
+              var acumulador_equipo_entregado=0;
+              var acumulador_maestros_capacitados=0;
+              var acumulador_promovidos=0;
+              var acumulador_no_promovidos=0;
+              var acumulador_inconclusos=0;
+              for (var i in data){
+                //console.log(data[i].Ninos_beneficiados)
+
+                acumulador_ninos_beneficiados= acumulador_ninos_beneficiados + data[i].Ninos_beneficiados;
+                acumulador_docentes = acumulador_docentes + data[i].Docentes;
+                acumulador_equipo_entregado=acumulador_equipo_entregado+data[i].Equipo_entregado;
+                acumulador_maestros_capacitados=acumulador_maestros_capacitados+data[i].Maestros_capacitados;
+                acumulador_promovidos=  acumulador_promovidos+data[i].Maestros_promovidos;
+                acumulador_no_promovidos=acumulador_no_promovidos+data[i].Maestros_no_promovidos;
+                acumulador_inconclusos=acumulador_inconclusos+data[i].Maestros_desertores;
+
+               $("#escuela").text(Number(i)+1);
+               $("#ninos").text(acumulador_ninos_beneficiados);
+               $("#equipo").text(acumulador_equipo_entregado);
+               $("#capacitados").text(acumulador_maestros_capacitados);
+                $(tfoot).find('th').eq(5).html(acumulador_ninos_beneficiados);
+                $(tfoot).find('th').eq(6).html(acumulador_docentes);
+                $(tfoot).find('th').eq(12).html(acumulador_equipo_entregado);
+                $(tfoot).find('th').eq(16).html(acumulador_maestros_capacitados);
+                $(tfoot).find('th').eq(17).html(acumulador_promovidos);
+                $(tfoot).find('th').eq(18).html(acumulador_no_promovidos);
+                $(tfoot).find('th').eq(19).html(acumulador_inconclusos);
+
+
+
+                //console.log(nuevo);
+              };
+
+            },
         });
+        });
+        $('#informe-list-form #id_departamento').on('change', function () {
+            listar_municipio_departamento('#informe-list-form #id_departamento', '#informe-list-form #id_municipio', true);
         });
   }
 }
