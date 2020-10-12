@@ -81,7 +81,7 @@ class SedeSerializer(serializers.ModelSerializer):
     capacitador = serializers.StringRelatedField(source='capacitador.get_full_name')
     grupos = serializers.StringRelatedField(source='grupos.count')
     urlsede=serializers.StringRelatedField(source='get_absolute_url')
-    fecha_creacion = serializers.DateField(format='%Y')
+    fecha_creacion = serializers.DateTimeField(format="%Y-%m-%d")
 
     class Meta:
         model = Sede

@@ -1446,7 +1446,7 @@ CalendarioCyD.init = function () {
 (function(GrupoList, $, undefined){
     var grupo_informe = $("#grupo-list-form");
     var url_informe_grupo = $("#grupo-list").data("url");
-    
+
     var tablaGrupo = $('#grupo-list').DataTable({
         buttons: ['excel', 'pdf', 'copy'],
         searching:true,
@@ -1600,7 +1600,7 @@ CalendarioCyD.init = function () {
     }).on('xhr.dt', function(e, settings, json, xhr) {
         $('#spinner').hide();
     });
-    
+
     SedeList.init = function () {
         $('#spinner').hide();
         sede_informe.submit(function (e) {
@@ -1663,7 +1663,7 @@ CalendarioCyD.init = function () {
                 }
             });
         });
-    }    
+    }
 }(window.SedeList = window.SedeList || {}, jQuery));
 
 class AgregarCurso{
