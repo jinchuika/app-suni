@@ -68,7 +68,7 @@ class BienestarInforme {
 
     bienestar_form.submit(function (e){
       e.preventDefault();
-      console.log(bienestar_form.attr('action'));
+
        /**/
        /*linea tiempo seleccionar*/
        $.ajax({
@@ -79,7 +79,7 @@ class BienestarInforme {
            console.log("Error");
          },
          success:function(data){
-           console.log(data);
+           
            var fecha_individual=[];
            var respuesta_no_individual=[];
            var respuesta_si_individual=[];

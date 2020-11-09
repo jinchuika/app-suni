@@ -93,7 +93,7 @@ class SedeCreateView(LoginRequiredMixin, GroupRequiredMixin, CreateView):
     template_name = 'cyd/sede_add.html'
 
     def form_valid(self, form):
-        form.instance.capacitador = self.request.user 
+        form.instance.capacitador = self.request.user
         form.instance.fecha_creacion = datetime.now()
 
         municipio = form.instance.municipio
@@ -103,7 +103,6 @@ class SedeCreateView(LoginRequiredMixin, GroupRequiredMixin, CreateView):
                 escuela = Escuela.objects.get(codigo=udi)
                 form.instance.nombre = str(municipio.departamento.nombre) + str(", ") + str(municipio.nombre) + str("("+ udi +")") + str("("+ str(form.instance.tipo_sede) + ")")
                 form.instance.escuela_beneficiada = escuela
-                form.instance.mapa = escuela.mapa
             except ObjectDoesNotExist:
                 form.add_error('udi', 'El UDI no es válido o no existe.')
                 return self.form_invalid(form)
@@ -129,14 +128,13 @@ class SedeUpdateView(LoginRequiredMixin, UpdateView):
 
     def get_form(self, form_class=None):
         form = super(SedeUpdateView, self).get_form(form_class)
-        if self.request.user.groups.filter(name="cyd_capacitador").exists():
-            form.fields['capacitador'].queryset = form.fields['capacitador'].queryset.filter(id=self.request.user.id)
+        form.fields['udi'].initial = self.object.escuela_beneficiada.codigo
+        # if self.request.user.groups.filter(name="cyd_capacitador").exists():
+            # form.fields['capacitador'].queryset = form.fields['capacitador'].queryset.filter(id=self.request.user.id)
         return form
 
     def get_initial(self):
         initial = super(SedeUpdateView, self).get_initial()
-        initial['lat'] = self.object.mapa.lat
-        initial['lng'] = self.object.mapa.lng
         return initial
 
     def form_valid(self, form):
@@ -152,21 +150,7 @@ class SedeUpdateView(LoginRequiredMixin, UpdateView):
             self.object.mapa.lat = form.cleaned_data['lat']
             self.object.mapa.lng = form.cleaned_data['lng']
             self.object.mapa.save()
-        return super(SedeUpdateView, self).form_valid(form) 
-
-
-class SedeListView(LoginRequiredMixin, FormView):
-    """Muestra el listado de sedes que se han creado"""
-    model = cyd_m.Sede
-    template_name = 'cyd/sede_list.html'
-    form_class = cyd_f.SedeFilterFormInforme
-    group_required = [u"cyd_capacitador", u"cyd_admin"]
-
-    def get_form(self, form_class=None):
-        form = super(SedeListView, self).get_form(form_class)
-        if self.request.user.groups.filter(name="cyd_capacitador").exists():
-            form.fields['capacitador'].widget = forms.HiddenInput()
-        return form
+        return super(SedeUpdateView, self).form_valid(form)
 
     def get_queryset(self):
         if self.request.user.groups.filter(name="cyd_capacitador").exists():
@@ -174,15 +158,8 @@ class SedeListView(LoginRequiredMixin, FormView):
         else:
             return cyd_m.Sede.objects.all()
 
-
-class GrupoCreateView(LoginRequiredMixin, GroupRequiredMixin, CreateView):
-    """Creacion de grupos desde una vista"""
-    group_required = [u"cyd", u"cyd_capacitador", u"cyd_admin", ]
-    redirect_unauthenticated_users = True
-    raise_exception = True
-    model = cyd_m.Grupo
-    template_name = 'cyd/grupo_add.html'
-    form_class = cyd_f.GrupoForm
+    def get_success_url(self):
+        return reverse('grupo_detail', kwargs={'pk': self.object.id})
 
     def get_form(self, form_class=None):
         form = super(GrupoCreateView, self).get_form(form_class)
@@ -203,9 +180,7 @@ class GrupoDetailView(LoginRequiredMixin, DetailView):
     template_name = 'cyd/grupo_detail.html'
 
     def get_context_data(self, **kwargs):
-        print("detalle de grupo")
         ultimo_grupo= cyd_m.Grupo.objects.filter(sede=self.object.sede,curso=self.object.curso).last()
-        print(ultimo_grupo.numero)
         context = super(GrupoDetailView, self).get_context_data(**kwargs)
         context['genero_list'] = cyd_m.ParGenero.objects.all()
         context['grupo_list_form'] = cyd_f.GrupoListForm()
@@ -338,6 +313,7 @@ class ParticipanteCreateListView(LoginRequiredMixin, GroupRequiredMixin, FormVie
     def get_context_data(self, **kwargs):
         context = super(ParticipanteCreateListView, self).get_context_data(**kwargs)
         context['rol_list'] = cyd_m.ParRol.objects.all()
+        context['genero_list'] = cyd_m.ParGenero.objects.all()
         return context
 
     def get_form(self, form_class=None):
@@ -354,33 +330,56 @@ class ParticipanteJsonCreateView(LoginRequiredMixin, JsonRequestResponseMixin, C
 
     def post(self, request, *args, **kwargs):
         try:
-            if self.request_json['genero'] == 'M':
-                id_genero = 1
+            if self.request_json['genero'].isdigit():
+                genero = cyd_m.ParGenero.objects.get(id=self.request_json['genero'])
             else:
-                id_genero = 2
+                genero = cyd_m.ParGenero.objects.get(genero=self.request_json['genero'])
+
+            if self.request_json['rol'].isdigit():
+                rol = cyd_m.ParRol.objects.get(id=self.request_json['rol'])
+            else:
+                rol = cyd_m.ParRol.objects.get(nombre=self.request_json['rol'])
+
             escuela = Escuela.objects.get(codigo=self.request_json['udi'])
             grupo = cyd_m.Grupo.objects.get(id=self.request_json['grupo'])
-            rol = cyd_m.ParRol.objects.get(id=self.request_json['rol'])
-            genero = cyd_m.ParGenero.objects.get(id=id_genero)
+            etnia = cyd_m.ParEtnia.objects.get(id=self.request_json['etnia'] if 'etnia' in self.request_json else 1)
+            escolaridad = cyd_m.ParEscolaridad.objects.get(id=self.request_json['escolaridad'] if 'escolaridad' in self.request_json else 1)
+
             participante = cyd_m.Participante.objects.create(
                 dpi=self.request_json['dpi'],
                 nombre=self.request_json['nombre'],
                 apellido=self.request_json['apellido'],
                 genero=genero,
                 rol=rol,
-                mail=self.request_json['mail'],
-                tel_movil=self.request_json['tel_movil'],
+                mail=self.request_json['mail'] if 'mail' in self.request_json else "",
+                tel_movil=self.request_json['tel_movil'] if 'tel_movil' in self.request_json else "",
                 escuela=escuela,
-                slug=self.request_json['dpi'])
+                slug=self.request_json['dpi'],
+                activo=True,
+                etnia=etnia,
+                escolaridad=escolaridad)
             participante.asignar(grupo)
         except IntegrityError:
+            participante = cyd_m.Participante.objects.get(slug=self.request_json['dpi'])
 
-            asignar_grupo =  cyd_m.Asignacion(
-                participante=cyd_m.Participante.objects.get(slug=self.request_json['dpi']),
-                grupo=grupo
-            )
-            asignar_grupo.save()
-            error_dict = {u"message": u"Asignado correctamente"}
+            participante.nombre = self.request_json['nombre']
+            participante.apellido = self.request_json['apellido']
+            participante.genero = genero
+            participante.rol = rol
+            participante.mail = self.request_json['mail'] if 'mail' in self.request_json else ""
+            participante.tel_movil = self.request_json['tel_movil'] if 'tel_movil' in self.request_json else ""
+            participante.escuela = escuela
+            participante.save()
+
+            asignacion_existe = cyd_m.Asignacion.objects.filter(participante=participante, grupo=grupo)
+            if len(asignacion_existe) == 0:
+                asignar_grupo =  cyd_m.Asignacion(
+                    participante=participante,
+                    grupo=grupo
+                )
+                asignar_grupo.save()
+
+            error_dict = {u"message": u"Asignado correctamente", u"status": u"ok"}
             #return self.render_bad_request_response(error_dict)
             return self.render_json_response(error_dict)
         return self.render_json_response({'status': 'ok'})
@@ -422,7 +421,10 @@ class ParticipanteBuscarView(LoginRequiredMixin, JsonRequestResponseMixin, FormV
 
     def get_form(self, form_class=None):
         form = super(ParticipanteBuscarView, self).get_form(form_class)
-        form.fields['sede'].queryset = cyd_m.Sede.objects.all()
+        if self.request.user.groups.filter(name="cyd_capacitador").exists():
+            form.fields['sede'].queryset = self.request.user.sedes.all()
+        else:
+            form.fields['sede'].queryset = cyd_m.Sede.objects.filter(activa=True)
         return form
 
     def get_context_data(self, **kwargs):
@@ -430,8 +432,7 @@ class ParticipanteBuscarView(LoginRequiredMixin, JsonRequestResponseMixin, FormV
         context['asignar_form'] = cyd_f.ParticipanteAsignarForm()
 
         if self.request.user.groups.filter(name="cyd_capacitador").exists():
-            #context['asignar_form'].fields['sede'].queryset = self.request.user.sedes.all()
-            context['asignar_form'].fields['sede'].queryset = cyd_m.Sede.objects.all()
+            context['asignar_form'].fields['sede'].queryset = self.request.user.sedes.all()
         return context
 
 class ParticipanteUpdateView(LoginRequiredMixin, UpdateView):
@@ -715,11 +716,19 @@ class InformeGrupo(views.APIView):
             datos_grupo['Correo']=asignacion.participante.mail
             datos_grupo['Escuela']=asignacion.participante.escuela.nombre
             datos_grupo['Udi']=asignacion.participante.escuela.codigo
-            datos_grupo['Etnia']=asignacion.participante.etnia.nombre
+            try:
+                datos_grupo['Etnia']=asignacion.participante.etnia.nombre
+            except Exception as e:
+                datos_grupo['Etnia']="No tiene asignado"
+
             datos_grupo['Curso']=asignacion.grupo.curso.nombre
             datos_grupo['Grupo']=asignacion.grupo.numero
             datos_grupo['Telefono']=asignacion.participante.tel_movil
-            datos_grupo['Escolaridad']=asignacion.participante.escolaridad.nombre
+            try:
+                datos_grupo['Escolaridad']=asignacion.participante.escolaridad.nombre
+            except Exception as e:
+                datos_grupo['Escolaridad']="No tiene"
+
             datos_grupo['url']=asignacion.participante.get_absolute_url()
             listado_grupo.append(datos_grupo)
         return Response(

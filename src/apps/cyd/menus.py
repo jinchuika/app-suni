@@ -20,13 +20,6 @@ cyd_children = (
         weight=10,
         icon="fa-users"),)
 
-cyd_calendario_children = (
-    ViewMenuItem(
-        "Capacitación",
-        reverse_lazy("cyd_calendario"),
-        weight=10,
-        icon="fa-calendar"),)
-
 cyd_participantes_children = (
     ViewMenuItem(
         "Nuevo",
@@ -44,6 +37,20 @@ cyd_participantes_children = (
         weight=20,
         icon="fa-search"),)
 
+cyd_control_academico_children = (
+    ViewMenuItem(
+        "Control Académico",
+        reverse_lazy("control_academico_grupo"),
+        weight=12,
+        icon="fa-book"),)
+
+cyd_calendario_children = (
+    ViewMenuItem(
+        "Capacitación",
+        reverse_lazy("cyd_calendario"),
+        weight=10,
+        icon="fa-calendar"),)
+
 Menu.add_item(
     "user",
     ViewMenuItem(
@@ -57,19 +64,29 @@ Menu.add_item(
 Menu.add_item(
     "user",
     ViewMenuItem(
-        "Calendario",
+        "Participantes",
         '#',
-        weight=20,
-        icon="fa-calendar",
+        weight=10,
+        icon="fa-user",
         group="cyd",
-        children=cyd_calendario_children),)
+        children=cyd_participantes_children),)
 
 Menu.add_item(
     "user",
     ViewMenuItem(
-        "Participantes",
+        "Control Académico",
         '#',
-        weight=30,
-        icon="fa-user",
+        weight=10,
+        icon="fa-book",
         group="cyd",
-        children=cyd_participantes_children),)
+        children=cyd_control_academico_children),)
+
+Menu.add_item(
+    "user",
+    ViewMenuItem(
+        "Calendario",
+        '#',
+        weight=10,
+        icon="fa-calendar",
+        group="cyd",
+        children=cyd_calendario_children),)

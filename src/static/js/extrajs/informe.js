@@ -6,7 +6,7 @@ $( "#id_codigo" )
     var regex_udi = /\d{2}-\d{2}-\d{4}-\d{2}/;
     if(regex_udi.test(valor)){
       $('#boton_enviar').prop('disabled', false);
-    }else{    
+    }else{
       bootbox.alert({message: "<h3><i class='fa fa-frown-o' style='font-size: 45px;'></i>&nbsp;&nbsp;&nbsp;HA OCURRIDO UN ERROR!!</h3></br>" + "Este Formato de UDI no es correco", className:"modal modal-danger fade"});
       $('#boton_enviar').prop('disabled', true);
     }
@@ -112,7 +112,25 @@ $( "#id_codigo" )
 
             },
         });
+        $('table tr:eq(0)')
+            .children('th')
+            .css('vertical-align', 'middle')
+            .append('<span class="glyphicon glyphicon-remove" style="cursor: pointer"></span>');
+            $('span.glyphicon-remove')
+                .click(function(event) {
+                    var tdIndex = $(this).parent('th').index()
+                    console.log("Esto es un mosaico");
+                    //$(this).parent('th').remove()
+
+                    tabla.column(tdIndex).visible( false );
+
+                    $('table tr').each(function() {
+                        $(this).find('td').eq(tdIndex).fadeOut()
+                    })
+                })
+
         });
+
         $('#informe-list-form #id_departamento').on('change', function () {
             listar_municipio_departamento('#informe-list-form #id_departamento', '#informe-list-form #id_municipio', true);
         });

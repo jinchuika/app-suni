@@ -35,7 +35,7 @@ class Control {
     }
 
     var container = document.getElementById('tabla_importar');
-    tabla_importar = new Handsontable(container, {
+    var tabla_importar = new Handsontable(container, {
         colWidths: 178,
         colHeaders: ["Nombre","Nota"],
         columns: [
@@ -64,7 +64,7 @@ class Control {
     });
     /*redireccionar excel*/
     $('#btn-excel').on('click', function () {
-      console.log($('#btn-excel').data("url"));    
+      console.log($('#btn-excel').data("url"));
       window.open($('#btn-excel').data("url"), '_blank');
     });
     /**/

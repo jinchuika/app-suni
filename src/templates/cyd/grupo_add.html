@@ -38,9 +38,14 @@
 					<div class="box-header">
 						<h3 class="box-title">Grupos en esta sede</h3>
 					</div>
-					<div class="box-body">
-						<table class="table table-hover">
-
+					<div class="box-body table-responsive">
+						<table class="table table-hover" id="grupo-list2" data-url="{% url 'grupo_api_list' %}">
+							<thead>
+								<th></th>
+								<th>Participantes</th>
+								<th>Capacitador</th>
+								<th>Año</th>
+							</thead>
 						</table>
 					</div>
 				</div>
@@ -53,7 +58,8 @@
 <script src="{% static "js/extrajs/cyd.js" %}"></script>
 <script>
 		 /**/
-		 var  nuevo2 = new crearGrupos();
+		 GrupoAdd.init();
+
 		 /**/
 </script>
 {% endblock extra_js %}

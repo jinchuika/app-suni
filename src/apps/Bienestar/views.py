@@ -28,8 +28,7 @@ class BienestarExcelAddView(LoginRequiredMixin, TemplateView):
             file_list =os.listdir(settings.MEDIA_ROOT_EXCEL_BIENESTAR)
             number_file=len(file_list)
             myfile=request.FILES['myfile']
-            new_name=str('Bienestar') + str(number_file) +str(".")+str(myfile.name.split(".")[-1])
-            print(new_name)
+            new_name=str('Bienestar') + str(number_file) +str(".")+str(myfile.name.split(".")[-1])            
             fs=FileSystemStorage(location=settings.MEDIA_ROOT_EXCEL_BIENESTAR)
             filename=fs.save(new_name, myfile)
             uploaded_file_url=fs.url(filename)
@@ -139,9 +138,9 @@ class InformeBienestarJson(LoginRequiredMixin, views.APIView):
             datos_colaborador=Colaborador.objects.filter(email=correo.email, fecha__gte=fecha_min,fecha__lte=fecha_max).first()
             datos_buscar_colaborador=Colaborador.objects.filter(email=correo.email, fecha__gte=fecha_min,fecha__lte=fecha_max)
             respuesta_si=Colaborador.objects.filter(email=correo.email, fecha__gte=fecha_min,fecha__lte=fecha_max,pregunta4='Sí').count()
-            respuesta_no=Colaborador.objects.filter(email=correo.email, fecha__gte=fecha_min,fecha__lte=fecha_max,pregunta4='No').count()            
+            respuesta_no=Colaborador.objects.filter(email=correo.email, fecha__gte=fecha_min,fecha__lte=fecha_max,pregunta4='No').count()
             datos_nuevos['nombre']=datos_colaborador.usuario
-            datos_nuevos['dpi']=int(float(datos_colaborador.dpi))
+            datos_nuevos['dpi']=int(float(datos_colaborador.dpi)) if datos_colaborador.dpi else ""
             datos_nuevos['edad']=datos_colaborador.edad
             for datos_enviar in datos_buscar_colaborador:
                 datos_corregidos={}

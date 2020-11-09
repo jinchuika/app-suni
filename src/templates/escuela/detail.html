@@ -268,7 +268,9 @@
 		 										</div>
 		 										<div class="col-md-6" id="semestre" data-codigo="{{ escuela.codigo }}" data-url="{% url "visita_api_add" %}" data-redirect="{% url "registro_add"%}">
 													Seguimiento de impacto
+														{% if request.user|has_group:"mye" %}
 															<button class="btn btn-xs btn-info" id="btn-seguimiento" style="margin-left: 38%;">+Nuevo seguimiento</button>
+														{%endif%}
 														{% include "controlNotas/dashboardBarraSeguimiento.html" with  grafica_seguimiento=impacto_progreso impacto_visita=impacto_visita %}
 		 										</div>
 		 									</div>

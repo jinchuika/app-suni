@@ -6,15 +6,19 @@
 					<th>No.</th>
 					<th>Nombre</th>
 					<th>Apellido</th>
+					<th width="20%"></th>
 				</tr>
 			</thead>
 			<tbody>
-				{% for participante in participante_list %}
-				<tr>
-					<td>{{ forloop.counter }}</td>
-					<td>{{ participante.nombre }}</td>
-					<td>{{ participante.apellido }}</td>
-				</tr>
+				{% for participante in participante_list.participantes %}
+					{% for item in participante.listado %}
+					<tr>
+						<td>{{ forloop.counter }}</td>
+						<td>{{ item.nombre }}</td>
+						<td>{{ item.apellido }}</td>
+						<td><a href="{{ item.get_absolute_url }}" target="_blank" class='btn btn-block btn-success'><i class='fa fa-eye'></i> Detalle</a></td>
+					</tr>
+					{% endfor %}
 				{% endfor %}
 			</tbody>
 		</table>

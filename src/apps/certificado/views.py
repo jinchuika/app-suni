@@ -13,12 +13,12 @@ from django.middleware import csrf
 from apps.cyd.models import Participante
 from django.conf import settings
 from django.http import HttpResponse
-from reportlab.pdfgen import canvas
+"""from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter, landscape
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.utils import ImageReader
 from reportlab.pdfbase.ttfonts import TTFont
-from reportlab.pdfbase.pdfmetrics import registerFont
+from reportlab.pdfbase.pdfmetrics import registerFont"""
 from django.core.urlresolvers import reverse_lazy
 from django.core.files.uploadedfile import InMemoryUploadedFile
 
@@ -393,10 +393,3 @@ class ConstanciaPdfView(View):
               return HttpResponse("Tienes nota de reprobado")
          else:
             return HttpResponse("No tiene asignado este curso")
-
-
-
-
-
-
-             

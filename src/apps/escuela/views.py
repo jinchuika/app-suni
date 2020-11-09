@@ -120,6 +120,8 @@ class EscuelaDetail(LoginRequiredMixin, DetailView):
         acumulador_promedio=0
         contador_materias =0
         segundo_acumulador=0
+        promedio_general=0
+        numero_materias=0
         for visita in self.object.visitas_kalite.all():
             for evaluacion in visita.evaluaciones.all():
                 if evaluacion.rubrica.nombre not in evaluacion_list:
@@ -144,21 +146,27 @@ class EscuelaDetail(LoginRequiredMixin, DetailView):
         materias2 =control_m.Evaluacion.objects.filter(visita__escuela__id=self.object.pk).values("materia").distinct()
         for materia in materias:
             notas = control_m.Notas.objects.filter(evaluacion__visita__escuela__id=self.object.pk,evaluacion__materia__id=materia["materia"]).aggregate(promedio=Avg('nota'))
+            numero_materias = numero_materias +1
             impacto_values = {"nombre": materia["materia__nombre"], "promedio": round(notas['promedio'],0), "color": materia["materia__color"]}
+            promedio_general = promedio_general + round(notas['promedio'],0)
             impacto_list.append(dict(impacto_values))
+        promedio_general_enviar=promedio_general / numero_materias
+        impacto_values = {"nombre": "Promedio General", "promedio": promedio_general_enviar, "color":"red"}
+        impacto_list.append(dict(impacto_values))        
+        impacto_list.insert(0, impacto_list.pop())
         context['grafica_impacto'] = impacto_list
         # Graficas de impacto barras de progreso
         visitas =control_m.Visita.objects.filter(escuela__id=self.object.pk)
         for visita in visitas:
-            evaluaciones = control_m.Evaluacion.objects.filter(visita__escuela__id=self.object.pk,visita__semestre=visita.semestre).values("visita__semestre","materia","materia__color","materia__nombre").distinct()            
+            evaluaciones = control_m.Evaluacion.objects.filter(visita__escuela__id=self.object.pk,visita__semestre=visita.semestre).values("visita__semestre","materia","materia__color","materia__nombre").distinct()
             acumulador_promedio=0
             contador_materias=0
+            numero_materias=numero_materias +1
             for evaluacion in evaluaciones:
                 notas = control_m.Notas.objects.filter(evaluacion__visita__semestre=visita.semestre,evaluacion__visita__escuela__id=self.object.pk,evaluacion__materia__id=evaluacion["materia"]).aggregate(promedio=Avg('nota'))
                 impacto_values_progreso = {"visita":str(visita.fecha.year)+"-"+str(visita.semestre),"nombre": evaluacion["materia__nombre"], "promedio": round(notas['promedio'],0), "color": evaluacion["materia__color"]}
                 impacto_progreso_list.append(dict(impacto_values_progreso))
                 acumulador_promedio= acumulador_promedio + round(notas['promedio'],0)
-                contador_materias=contador_materias  +1
             try:
                 promedio_total = (acumulador_promedio/contador_materias)
             except Exception as e:

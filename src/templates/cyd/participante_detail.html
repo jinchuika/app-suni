@@ -21,7 +21,7 @@
 	<div class="container-fluid">
 		<div class="row">
 			<div class="col-md-6">
-				<div class="box box-primary">
+				<div class="box box-success">
 					<div class="box-header">
 						<h3 class="box-title">Información</h3>
 					</div>
@@ -44,13 +44,13 @@
 
 							<dt>Género</dt>
 							<dd>
-								<a href="#" class="editable" data-name="genero" data-type="select" data-source="{ {% for genero in genero_list %}'{{ genero.id }}': '{{ genero.genero }}',{% endfor %} };" data-pk="{{ participante.id }}" data-url="{% url 'participante_api_update' pk=participante.id %}">
+								<a href="#" class="editable" data-name="genero" data-type="select" data-source="[{% for genero in genero_list %}{'{{ genero.id }}': '{{ genero.genero }}'},{% endfor %}]" data-pk="{{ participante.id }}" data-url="{% url 'participante_api_update' pk=participante.id %}">
 									{{ participante.genero|default_if_none:"" }}
 								</a>
 							</dd>
 
 							<dt>Escuela</dt>
-							<dd>{{ participante.escuela.nombre }} ({{ participante.escuela.codigo }})</dd>
+							<dd><a href="{{ participante.escuela.get_absolute_url }}" class="label label-info">{{ participante.escuela.nombre }} ({{ participante.escuela.codigo }})</a></dd>
 
 							<dt>Dirección</dt>
 							<dd>
@@ -82,14 +82,14 @@
 
 							<dt>Etnia</dt>
 							<dd>
-								<a href="#" class="editable" data-name="etnia" data-type="select" data-source="{ {% for etnia in etnia_list %}'{{ etnia.id }}': '{{ etnia.nombre }}',{% endfor %} };" data-pk="{{ participante.id }}" data-url="{% url 'participante_api_update' pk=participante.id %}">
+								<a href="#" class="editable" data-name="etnia" data-type="select" data-source="[{% for etnia in etnia_list %}{'{{ etnia.id }}': '{{ etnia.nombre }}'},{% endfor %}]" data-pk="{{ participante.id }}" data-url="{% url 'participante_api_update' pk=participante.id %}">
 									{{ participante.etnia|default_if_none:"" }}
 								</a>
 							</dd>
 
 							<dt>Escolaridad</dt>
 							<dd>
-								<a href="#" class="editable" data-name="escolaridad" data-type="select" data-source="{ {% for escolaridad in escolaridad_list %}"{{ escolaridad.id }}": "{{ escolaridad.nombre }}",{% endfor %} };" data-pk="{{ participante.id }}" data-url="{% url 'participante_api_update' pk=participante.id %}">
+								<a href="#" class="editable" data-name="escolaridad" data-type="select" data-source="[{% for escolaridad in escolaridad_list %}{'{{ escolaridad.id }}': '{{ escolaridad.nombre }}'},{% endfor %}]" data-pk="{{ participante.id }}" data-url="{% url 'participante_api_update' pk=participante.id %}">
 									{{ participante.escolaridad|default_if_none:"" }}
 								</a>
 							</dd>
@@ -176,7 +176,11 @@
 														{% endif %}
 													</td>
 													<td align="center">
-														<span class="badge bg-blue">{{ asignacion.get_nota_final }}</span>
+														{% if asignacion.get_nota_final >= asignacion.grupo.curso.nota_aprobacion %}
+															<span class="badge bg-green">{{ asignacion.get_nota_final }}</span>
+														{% else %}
+															<span class="badge bg-red">{{ asignacion.get_nota_final }}</span>
+														{% endif %}
 													</td>
 												</tr>
 											</table>
