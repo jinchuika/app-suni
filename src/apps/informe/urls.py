@@ -11,7 +11,7 @@ urlpatterns = [
         ),
     #  api escuela
     url(
-        r'^api/escuela',
+        r'^api/escuela/',
         informe_views.ConsultaEscuelaApi.as_view(),
         name="consulta_escuela"
         ),

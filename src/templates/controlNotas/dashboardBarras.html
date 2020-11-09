@@ -1,0 +1,7 @@
+{% load staticfiles  %}
+{% block content %}
+<canvas id="myChart" width="10" height="10" data-url="{% url 'visita_api_add' %}"></canvas>
+{% endblock content %}
+{% block extra_js %}
+<script src="{% static 'js/distributed/Chart.min.js' %}"></script>
+{% endblock extra_js %}

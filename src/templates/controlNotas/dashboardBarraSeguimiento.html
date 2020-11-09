@@ -1,0 +1,30 @@
+<div class="row">
+  <div class="col-md-2">
+    <span><b>Visita</b></span>
+  </div>
+  <div class="col-md-10">
+    <span><b>Progreso</b></span>
+  </div>
+</div>
+
+<!---->
+{% for visita in impacto_visita  %}
+<div class="row">
+  <div class="col-md-2">
+    {{visita.visita}}
+  </div>
+  <div class="col-md-10">
+    <div class="progress-group">
+    <span class="progress-text">Excelente Rendimiento</span>
+     <span class="progress-number"><b>{{visita.promedio_total}}</b></span>
+     {% for progreso in grafica_seguimiento  %}
+       {% if visita.visita == progreso.visita %}
+       <div class="progress sm">
+         <div class="progress-bar progress-bar-{{progreso.color}}" style="width:{{progreso.promedio|floatformat:"0"}}%"></div>
+       </div>
+       {% endif %}
+     {% endfor %}
+    </div>
+  </div>
+</div>
+{% endfor %}

@@ -14,8 +14,8 @@ from django.contrib.auth.models import User
 class informeForm(forms.Form):
     ESTADO_CHOICES = (
         (None, 'No importa'),
-        (False, 'Sí'),
-        (True, 'No'),)
+        (True, 'Sí'),
+        (False, 'No'),)
     codigo = forms.CharField(
         label='Udi',
         required=False)
@@ -37,10 +37,10 @@ class informeForm(forms.Form):
         required=False,
         widget=forms.TextInput(attrs={'class': 'form-control datepicker'}))
 
-    equipada = forms.BooleanField(
-        initial=False,
+    equipada = forms.ChoiceField(
+        widget=forms.Select(attrs={'class': 'form-control'}),
+        choices=ESTADO_CHOICES,
         required=False,
-        label='Equipada'
         )
     cooperante_tpe = forms.ModelChoiceField(
         label='Cooperante de equipamiento',
@@ -54,10 +54,10 @@ class informeForm(forms.Form):
         queryset=User.objects.filter(groups__name='cyd_capacitador'),
         required=False,
         widget=forms.Select(attrs={'class': 'form-control select2'}))
-    capacitada = forms.BooleanField(
-        initial=False,
+    capacitada = forms.ChoiceField(
+        widget=forms.Select(attrs={'class': 'form-control'}),
+        choices=ESTADO_CHOICES,
         required=False,
-        label='Capacitada'
         )
     fecha_min_capacitacion = forms.CharField(
         label='Fecha (min)',
@@ -66,7 +66,7 @@ class informeForm(forms.Form):
     fecha_max_capacitacion = forms.CharField(
         label='Fecha (max)',
         required=False,
-        widget=forms.TextInput(attrs={'class': 'form-control datepicker'}))    
+        widget=forms.TextInput(attrs={'class': 'form-control datepicker'}))
     def __init__(self, *args, **kwargs):
         super(informeForm, self).__init__(*args, **kwargs)
         self.fields['capacitador'].label_from_instance = lambda obj: "%s" % obj.get_full_name()

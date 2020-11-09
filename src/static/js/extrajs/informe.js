@@ -1,5 +1,19 @@
 class Informe {
   constructor() {
+$( "#id_codigo" )
+  .focusout(function() {
+    var valor = $( "#id_codigo" ).val();
+    var regex_udi = /\d{2}-\d{2}-\d{4}-\d{2}/;
+    if(regex_udi.test(valor)){
+      $('#boton_enviar').prop('disabled', false);
+    }else{    
+      bootbox.alert({message: "<h3><i class='fa fa-frown-o' style='font-size: 45px;'></i>&nbsp;&nbsp;&nbsp;HA OCURRIDO UN ERROR!!</h3></br>" + "Este Formato de UDI no es correco", className:"modal modal-danger fade"});
+      $('#boton_enviar').prop('disabled', true);
+    }
+  }).blur(function() {
+       $('#boton_enviar').prop('disabled', false);
+  });
+
     $('#informe-list-form').submit(function (e) {
             // Evita que se envíe el formulario
             e.preventDefault();
@@ -36,7 +50,6 @@ class Informe {
             {
                 data: "Equipada",
                 render: function (data) {
-
                     return data ? 'Sí' : 'No';
                 }
             },
