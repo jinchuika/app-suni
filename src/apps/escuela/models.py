@@ -7,6 +7,7 @@ from django.conf import settings
 from apps.main.models import Municipio, Coordenada
 from apps.main.utils import get_telefonica
 from apps.legacy import  models as legacy_m
+from django.core import serializers
 
 
 class EscArea(models.Model):
@@ -213,7 +214,7 @@ class Escuela(models.Model):
         respuesta = {'capacitada': True if len(self.participantes.all()) > 0 else False, 'participantes':[]}
         if respuesta['capacitada'] is True:
             personas = []
-            respuesta['participantes'].append({'listado': self.participantes.all()})
+            respuesta['participantes'].append({'listado': serializers.serialize('json', self.participantes.all())})
         return respuesta
 
     @property

@@ -274,7 +274,7 @@
             },
             {
                 data: "capacitacion",
-                render: function (data) {
+                render: function (data, type, full, meta) {
                     return data.capacitada ? 'Sí' : 'No';
                 }
             },

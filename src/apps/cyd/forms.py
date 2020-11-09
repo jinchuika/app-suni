@@ -186,27 +186,35 @@ class ParticipanteFormList(ParticipanteBaseForm):
         exclude = ('slug','activo','nombre', 'apellido', 'dpi', 'genero', 'rol', 'mail', 'tel_movil')
 
 class ParticipanteBuscarForm(ParticipanteForm, forms.ModelForm):
+    departamento = forms.ModelChoiceField(
+        queryset=Departamento.objects.all(),
+        widget=forms.Select(attrs={'class': 'form-control', 'data-url': reverse_lazy('municipio_api_list')}),
+        required=False)
+    municipio = forms.ModelChoiceField(
+        queryset=Municipio.objects.all(),
+        widget=forms.Select(attrs={'class': 'form-control'}),
+        required=False)
     dpi = forms.CharField(
         required=False,
         widget=forms.TextInput(attrs={'class': 'form-control', 'maxlength': '13', 'placeholder': '0000000000000'}))
     nombre = forms.CharField(required=False)
-    capacitador = forms.ModelChoiceField(
-        queryset=User.objects.filter(groups__name='cyd_capacitador'))
+    capacitador = forms.ModelChoiceField(queryset=User.objects.filter(groups__name='cyd_capacitador'))
 
     class Meta:
         model = Participante
-        fields = ['dpi', 'nombre', 'capacitador']
+        fields = ['dpi', 'nombre', 'departamento', 'municipio', 'capacitador']
 
     def __init__(self, *args, **kwargs):
         super(ParticipanteBuscarForm, self).__init__(*args, **kwargs)
         self.fields['capacitador'].label_from_instance = lambda obj: "%s" % obj.get_full_name()
-        #self.fields.pop('grupo')
+        self.fields.pop('udi')
 
 class ParticipanteAsignarForm(ParticipanteFormList):
     # class ParticipanteAsignarForm(ParticipanteBaseForm):
     def __init__(self, *args, **kwargs):
         super(ParticipanteAsignarForm, self).__init__(*args, **kwargs)
-        self.fields.pop('udi')
+        if request.user.groups.filter(name="cyd_capacitador").exists():
+            self.fields.pop('capacitador')
 
 
 class AsesoriaForm(forms.ModelForm):
