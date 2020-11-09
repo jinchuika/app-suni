@@ -93,7 +93,7 @@ class SedeCreateView(LoginRequiredMixin, GroupRequiredMixin, CreateView):
     template_name = 'cyd/sede_add.html'
 
     def form_valid(self, form):
-        form.instance.capacitador = self.request.user 
+        form.instance.capacitador = self.request.user
         form.instance.fecha_creacion = datetime.now()
 
         municipio = form.instance.municipio
@@ -138,32 +138,19 @@ class SedeUpdateView(LoginRequiredMixin, UpdateView):
         return initial
 
     def form_valid(self, form):
-        municipio = form.instance.municipio
-        udi = form.cleaned_data['udi']
-        if udi != "":
-            try:
-                escuela = Escuela.objects.get(codigo=udi)
-                form.instance.nombre = str(municipio.departamento.nombre) + str(", ") + str(municipio.nombre) + str("("+ udi +")") + str("("+ str(form.instance.tipo_sede) + ")")
-                form.instance.escuela_beneficiada = escuela
-            except ObjectDoesNotExist:
-                form.add_error('udi', 'El UDI no es válido o no existe.')
-                return self.form_invalid(form)
-                
-        return super(SedeUpdateView, self).form_valid(form) 
-
-
-class SedeListView(LoginRequiredMixin, FormView):
-    """Muestra el listado de sedes que se han creado"""
-    model = cyd_m.Sede
-    template_name = 'cyd/sede_list.html'
-    form_class = cyd_f.SedeFilterFormInforme
-    group_required = [u"cyd_capacitador", u"cyd_admin"]
-
-    def get_form(self, form_class=None):
-        form = super(SedeListView, self).get_form(form_class)
-        if self.request.user.groups.filter(name="cyd_capacitador").exists():
-            form.fields['capacitador'].widget = forms.HiddenInput()
-        return form
+        respuesta = form.save(commit=False)
+        if self.object.mapa is None:
+            coordenada = Coordenada(
+                lat=form.cleaned_data['lat'],
+                lng=form.cleaned_data['lng'],
+                descripcion='De la sede ' + respuesta.nombre)
+            coordenada.save()
+            self.object.mapa = coordenada
+        else:
+            self.object.mapa.lat = form.cleaned_data['lat']
+            self.object.mapa.lng = form.cleaned_data['lng']
+            self.object.mapa.save()
+        return super(SedeUpdateView, self).form_valid(form)
 
     def get_queryset(self):
         if self.request.user.groups.filter(name="cyd_capacitador").exists():
@@ -171,15 +158,8 @@ class SedeListView(LoginRequiredMixin, FormView):
         else:
             return cyd_m.Sede.objects.all()
 
-
-class GrupoCreateView(LoginRequiredMixin, GroupRequiredMixin, CreateView):
-    """Creacion de grupos desde una vista"""
-    group_required = [u"cyd", u"cyd_capacitador", u"cyd_admin", ]
-    redirect_unauthenticated_users = True
-    raise_exception = True
-    model = cyd_m.Grupo
-    template_name = 'cyd/grupo_add.html'
-    form_class = cyd_f.GrupoForm
+    def get_success_url(self):
+        return reverse('grupo_detail', kwargs={'pk': self.object.id})
 
     def get_success_url(self):
         return reverse('grupo_detail', kwargs={'pk': self.object.id})
@@ -739,11 +719,19 @@ class InformeGrupo(views.APIView):
             datos_grupo['Correo']=asignacion.participante.mail
             datos_grupo['Escuela']=asignacion.participante.escuela.nombre
             datos_grupo['Udi']=asignacion.participante.escuela.codigo
-            datos_grupo['Etnia']=asignacion.participante.etnia.nombre
+            try:
+                datos_grupo['Etnia']=asignacion.participante.etnia.nombre
+            except Exception as e:
+                datos_grupo['Etnia']="No tiene asignado"
+
             datos_grupo['Curso']=asignacion.grupo.curso.nombre
             datos_grupo['Grupo']=asignacion.grupo.numero
             datos_grupo['Telefono']=asignacion.participante.tel_movil
-            datos_grupo['Escolaridad']=asignacion.participante.escolaridad.nombre
+            try:
+                datos_grupo['Escolaridad']=asignacion.participante.escolaridad.nombre
+            except Exception as e:
+                datos_grupo['Escolaridad']="No tiene"
+
             datos_grupo['url']=asignacion.participante.get_absolute_url()
             listado_grupo.append(datos_grupo)
         return Response(

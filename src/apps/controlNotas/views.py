@@ -8,7 +8,7 @@ from rest_framework import views, status
 from rest_framework.response import Response
 from django.core.exceptions import ObjectDoesNotExist
 from braces.views import (
-    LoginRequiredMixin)
+    LoginRequiredMixin, GroupRequiredMixin)
 import os
 from django.conf import settings
 from django.core.files.storage import FileSystemStorage
@@ -21,7 +21,7 @@ from django.db.models import Avg, Count, Min, Sum
 class ControlExcelAddView( TemplateView):
     template_name = 'controlNotas/tablasNota.html'
 
-class RegistrosExcelAddView(LoginRequiredMixin, TemplateView):
+class RegistrosExcelAddView(LoginRequiredMixin, TemplateView, GroupRequiredMixin):
     template_name = 'controlNotas/cargar_excel.html'
     def post(self,request):
         if request.method == 'POST' and request.FILES['myfile']:
@@ -29,7 +29,6 @@ class RegistrosExcelAddView(LoginRequiredMixin, TemplateView):
             number_file=len(file_list)
             myfile=request.FILES['myfile']
             new_name=str('Impacto') + str(number_file) +str(".")+str(myfile.name.split(".")[-1])
-            print(new_name)
             fs=FileSystemStorage(location=settings.MEDIA_ROOT_EXCEL_IMPACTO)
             filename=fs.save(new_name, myfile)
             uploaded_file_url=fs.url(filename)
@@ -38,12 +37,12 @@ class RegistrosExcelAddView(LoginRequiredMixin, TemplateView):
         })
         return render(request,'ControlNotas/cargar_excel.html')
 
-class RegistrosAddView(CreateView):
+class RegistrosAddView(CreateView, GroupRequiredMixin, LoginRequiredMixin):
+    group_required = [u"mye",]
     template_name = 'controlNotas/registros.html'
     model = control_m.Visita
     form_class = control_f.EvaluacionForm
-
-    def get_context_data(self, **kwargs):
+    def get_context_data(self, **kwargs):               
         contador_materias=0
         id_contador=0
         progreso=0
@@ -76,7 +75,7 @@ class RegistrosAddView(CreateView):
                 datos_participante["alumno"]=value['alumno']
                 datos_participante["nota"]=round(value['nota'],2)
                 alumno_enviar.append(datos_participante)
-            datos_enviar["alumno"]=alumno_enviar            
+            datos_enviar["alumno"]=alumno_enviar
             alumno_enviar=[]
             notas_enviar=[]
             context['escuela_porcentaje'] = round((progreso / id_contador),2)

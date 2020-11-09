@@ -1,9 +1,11 @@
 {% extends "base/base.html" %}
-{% load staticfiles %}
+
+{% load staticfiles has_group%}
 {% block page_title %}
 <title>Registros de {{ escuela }}</title>
 {% endblock page_title %}
-{% block content %}
+{% block content  %}
+{% if  request.user|has_group:"mye"%}
 <section class="content">
 	<div class="container-fluid">
 		<div class="row">
@@ -16,12 +18,15 @@
 		 				</div>
 						{{form}}
 		         	<div id="tabla_importar"></div>
-		 				<div class="box-footer">
-		 					{% csrf_token %}
-		 					<button class="btn btn-success" id="btn-crear" data-url={% url 'alumno_add' %}><i class="fa fa-file-excel-o" aria-hidden="true" ></i> Cargar excel</button>
-		 					<button class="btn btn-primary" id="btn-clear"><i class="fa fa-check" aria-hidden="true"></i> Guardar Notas</button>
-							<button class="btn btn-info" id="btn-excel" data-url={% url 'impacto_excel_add' %}><i class="fa fa-cloud-upload" aria-hidden="true" ></i>Subir Archivo Excel</button>
-						</div>
+
+							<div class="box-footer">
+			 					{% csrf_token %}
+			 					<button class="btn btn-success" id="btn-crear" data-url={% url 'alumno_add' %}><i class="fa fa-file-excel-o" aria-hidden="true" ></i> Cargar excel</button>
+			 					<button class="btn btn-primary" id="btn-clear"><i class="fa fa-check" aria-hidden="true"></i> Guardar Notas</button>
+								<button class="btn btn-info" id="btn-excel" data-url={% url 'impacto_excel_add' %}><i class="fa fa-cloud-upload" aria-hidden="true" ></i>Subir Archivo Excel</button>
+							</div>
+
+
 		 			</div>
 				<!--	<div id="tabla_importar">
 					</div>-->
@@ -112,6 +117,7 @@
       </div>
 		</div>
 	</section>
+	{% endif %}
 	{% block extra_css %}
 	<link rel="stylesheet" media="screen" href="{% static "css/handsontable.min.css" %}">
 	<style type="text/css">
@@ -122,6 +128,7 @@
 	</style>
 	{% endblock extra_css %}
 	{% endblock content %}
+
 	{% block extra_js %}
 	{% include "base/dataTables.html" %}
 	<script src="{% static "js/distributed/handsontable.min.js" %}"></script>
