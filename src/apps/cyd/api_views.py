@@ -212,7 +212,7 @@ class SedeViewSetInforme(CsrfExemptMixin, viewsets.ModelViewSet):
         queryset = Sede.objects.filter(activa=True)
         if "cyd_capacitador" in self.request.user.groups.values_list('name', flat=True):
             queryset = self.request.user.sedes.filter(activa=True)
-
+            
         return queryset
 class AsignacionViewSet(CsrfExemptMixin, viewsets.ModelViewSet):
     serializer_class = AsignacionSerializer

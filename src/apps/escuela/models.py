@@ -8,6 +8,7 @@ from apps.main.models import Municipio, Coordenada
 from apps.main.utils import get_telefonica
 from apps.legacy import  models as legacy_m
 
+
 class EscArea(models.Model):
     area = models.CharField(max_length=20)
 
@@ -139,6 +140,13 @@ class Escuela(models.Model):
             return None
     poblacion = property(get_poblacion)
 
+    def get_maestros(self):
+        if self.poblaciones.count() > 0:
+            return self.poblaciones.latest('fecha').total_maestro
+        else:
+            return None
+    maestros = property(get_maestros)
+
     def es_equipada(self):
         return True if self.equipamiento.count() > 0 else False
     equipada = property(es_equipada)
@@ -186,8 +194,8 @@ class Escuela(models.Model):
                 resp = requests.post(url=url, data=params)
             except:
                 time.sleep(5)
-            
-            
+
+
             return resp.json()
         else:
             return [[], []]
@@ -211,6 +219,11 @@ class Escuela(models.Model):
     @property
     def equipada(self):
         return self.equipamiento.count() > 0
+
+    def datos_equipamiento(self):
+        return self.equipamiento.last()
+
+
 
 
 class EscContactoRol(models.Model):

@@ -25,6 +25,8 @@ from apps.escuela.models import (
     Escuela, EscContacto, EscContactoTelefono, EscContactoMail, EscPoblacion,
     EscMatricula, EscRendimientoAcademico)
 from apps.main.mixins import InformeMixin
+from apps.controlNotas import models as control_m
+from django.db.models import Avg, Count, Min, Sum
 
 
 class EscuelaCrear(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
@@ -105,10 +107,19 @@ class EscuelaDetail(LoginRequiredMixin, DetailView):
 
         # Obtener gráficas de KA Lite
         kalite_list = []
+        impacto_list=[]
+        impacto_progreso_list=[]
+        impacto_visita_list=[]
         evaluacion_list = []
         values = {}
+        impacto_values={}
+        impacto_values_progreso={}
+        impacto_values_visita={}
         num_visitas = {}
         evaluacion_color = {}
+        acumulador_promedio=0
+        contador_materias =0
+        segundo_acumulador=0
         for visita in self.object.visitas_kalite.all():
             for evaluacion in visita.evaluaciones.all():
                 if evaluacion.rubrica.nombre not in evaluacion_list:
@@ -128,7 +139,34 @@ class EscuelaDetail(LoginRequiredMixin, DetailView):
             kalite_list.append(dict(value))
 
         context['grafica_kalite'] = kalite_list
-
+        # Grafica de impacto
+        materias =control_m.Evaluacion.objects.filter(visita__escuela__id=self.object.pk).values("materia","materia__nombre","materia__color").distinct()
+        materias2 =control_m.Evaluacion.objects.filter(visita__escuela__id=self.object.pk).values("materia").distinct()
+        for materia in materias:
+            notas = control_m.Notas.objects.filter(evaluacion__visita__escuela__id=self.object.pk,evaluacion__materia__id=materia["materia"]).aggregate(promedio=Avg('nota'))
+            impacto_values = {"nombre": materia["materia__nombre"], "promedio": round(notas['promedio'],0), "color": materia["materia__color"]}
+            impacto_list.append(dict(impacto_values))
+        context['grafica_impacto'] = impacto_list
+        # Graficas de impacto barras de progreso
+        visitas =control_m.Visita.objects.filter(escuela__id=self.object.pk)
+        for visita in visitas:
+            evaluaciones = control_m.Evaluacion.objects.filter(visita__escuela__id=self.object.pk,visita__semestre=visita.semestre).values("visita__semestre","materia","materia__color","materia__nombre").distinct()            
+            acumulador_promedio=0
+            contador_materias=0
+            for evaluacion in evaluaciones:
+                notas = control_m.Notas.objects.filter(evaluacion__visita__semestre=visita.semestre,evaluacion__visita__escuela__id=self.object.pk,evaluacion__materia__id=evaluacion["materia"]).aggregate(promedio=Avg('nota'))
+                impacto_values_progreso = {"visita":str(visita.fecha.year)+"-"+str(visita.semestre),"nombre": evaluacion["materia__nombre"], "promedio": round(notas['promedio'],0), "color": evaluacion["materia__color"]}
+                impacto_progreso_list.append(dict(impacto_values_progreso))
+                acumulador_promedio= acumulador_promedio + round(notas['promedio'],0)
+                contador_materias=contador_materias  +1
+            try:
+                promedio_total = (acumulador_promedio/contador_materias)
+            except Exception as e:
+                promedio_total =0
+            impacto_values_visita={"visita":str(visita.fecha.year)+"-"+str(visita.semestre),"promedio_total": round(promedio_total,0)}
+            impacto_visita_list.append(dict(impacto_values_visita))
+        context['impacto_progreso']= impacto_progreso_list
+        context['impacto_visita']= impacto_visita_list
         return context
 
 
@@ -294,6 +332,7 @@ class EscuelaBuscar(InformeMixin):
         return queryset
 
     def create_response(self, queryset):
+        print(queryset)
         """Summary
 
         Args:

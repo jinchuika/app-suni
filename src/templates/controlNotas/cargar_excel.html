@@ -1,0 +1,28 @@
+{% extends "base/base.html" %}
+
+{% load staticfiles %}
+{% block content %}
+
+
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+  <div class="form-group">
+    <label for="exampleFormControlFile1">Seleccione el archivo a cargar</label>
+    <input type="file" class="form-control-file" name="myfile">
+     <button class="btn btn-primary" type="submit">Cargar archivo xlsx</button>
+
+  </div>
+</form>
+<!--<button id="generar-graficas" class="btn btn-success" type="submit" data-url="{%url 'bienestar_json'%}">Generar Graficas</button>-->
+
+  {% if uploaded_file_url %}
+  <div class="alert alert-success" role="alert">
+  <p>Archivo cargado!</p>
+</div>
+
+  {% endif %}
+
+  <p><a href="{% url 'registro_add' %}">Inicio</a></p>
+{% endblock %}
+{% block extra_js %}
+{% endblock extra_js %}
