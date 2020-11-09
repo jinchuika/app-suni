@@ -161,6 +161,9 @@ class SedeUpdateView(LoginRequiredMixin, UpdateView):
     def get_success_url(self):
         return reverse('grupo_detail', kwargs={'pk': self.object.id})
 
+    def get_success_url(self):
+        return reverse('grupo_detail', kwargs={'pk': self.object.id})
+
     def get_form(self, form_class=None):
         form = super(GrupoCreateView, self).get_form(form_class)
         if self.request.user.groups.filter(name="cyd_capacitador").exists():
