@@ -58,6 +58,7 @@ src/src/settings_dev.py
 src/src/settings_prod.py
 src/src/settings_stage.py
 src/src/settings_dev_live.py
+src/apps/certificado/views.py
 
 # Flask stuff:
 instance/
