@@ -442,10 +442,10 @@ class ParticipanteBuscarView(LoginRequiredMixin, JsonRequestResponseMixin, FormV
     form_class = cyd_f.ParticipanteBuscarForm
     template_name = 'cyd/participante_buscar.html'
 
-    def get_form(self, form_class=None):
+    def get_form(self, form_class=None, **kwargs):
         form = super(ParticipanteBuscarView, self).get_form(form_class)
         if self.request.user.groups.filter(name="cyd_capacitador").exists():
-            form.fields['sede'].queryset = self.request.user.sedes.all()
+            form.fields['sede'].queryset = self.request.user.sedes.filter(activa=True)
         else:
             form.fields['sede'].queryset = cyd_m.Sede.objects.filter(activa=True)
         return form

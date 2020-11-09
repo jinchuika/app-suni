@@ -121,7 +121,7 @@ class ListadoMaestroView(TemplateView):
                 if fecha_final.year == datetime.date.today().year:
                   if datetime.date.today() <= fecha_valida_cert:
                     # Validación por año de pandemia
-                    if fecha_final.year == 2020 and fecha_final.month <= 4:
+                    if fecha_final.year == 2020 and fecha_final.month <= 4 or grupo_naat == 3 or grupo_naat == 2:
                       year_cert = True
 
                 # Crear Objeto Asignacion por sede
@@ -194,7 +194,7 @@ class DiplomaPdfView(View):
          fecha_valida_cert = fecha_final + datetime.timedelta(days=290)
          if fecha_final.year == datetime.date.today().year:
             if datetime.date.today() <= fecha_valida_cert:
-              if fecha_final.year == 2020 and fecha_final.month <= 4:
+              if fecha_final.year == 2020 and fecha_final.month <= 4 or grupo_naat == 3 or grupo_naat == 2:
                 year_cert = True
 
          if year_cert == False:

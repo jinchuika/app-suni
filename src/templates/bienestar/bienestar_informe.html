@@ -27,8 +27,72 @@
 					</div>
 				</div>
 				<!--Aca termina el formulario-->
-	</div>
+				<div class="box box-solid">
+					<div class="box-header">
+						<h3 class="box-title"><span id="titulo_alerta"></span></h3>
+					</div>
+					<div class="box-body table-responsive">
+						<table id="riesgo-table" class="table table-striped table-hover table-condensed" data-url="{% url 'api_informe_individual_pie' %}">
+
+						</table>
+					</div>
+				</div>
+	</div>			
  <div class="col-sm-9">
+ 	 <div class="row">
+ 	 	<div class="col-lg-3 col-xs-6">
+ 	 		<div class="small-box bg-aqua">
+ 	 			<div class="inner">
+ 	 				<h3>{{ extra.riesgo_individual }}</h3>
+ 	 				<h5>PERSONAS EN RIESGO</h5>
+ 	 				<h6><b>SALUD INDIVIDUAL</b></h6>
+ 	 			</div>
+ 	 			<div class="icon">
+ 	 				<i class="ion ion-person"></i>
+ 	 			</div>
+ 	 			<a href="#" class="small-box-footer">Más información  <i class="fa fa-arrow-circle-right"></i></a>
+ 	 		</div>
+ 	 	</div>
+ 	 	<div class="col-lg-3 col-xs-6">
+ 	 		<div class="small-box bg-green">
+ 	 			<div class="inner">
+ 	 				<h3>{{ extra.riesgo_familiar }}</h3>
+ 	 				<h5>PERSONAS EN RIESGO</h5>
+ 	 				<h6><b>SALUD FAMILIAR</b></h6>
+ 	 			</div>
+ 	 			<div class="icon">
+ 	 				<i class="ion ion-android-people"></i>
+ 	 			</div>
+ 	 			<a href="#" class="small-box-footer">Más información  <i class="fa fa-arrow-circle-right"></i></a>
+ 	 		</div>
+ 	 	</div>
+ 	 	<div class="col-lg-3 col-xs-6">
+ 	 		<div class="small-box bg-yellow">
+ 	 			<div class="inner">
+ 	 				<h3>{{ extra.riesgo_comunidad }}</h3>
+ 	 				<h5>PERSONAS EN RIESGO</h5>
+ 	 				<h6><b>SALUD COMUNITARIA</b></h6>
+ 	 			</div>
+ 	 			<div class="icon">
+ 	 				<i class="ion ion-android-bus"></i>
+ 	 			</div>
+ 	 			<a href="#" class="small-box-footer">Más información  <i class="fa fa-arrow-circle-right"></i></a>
+ 	 		</div>
+ 	 	</div>
+ 	 	<div class="col-lg-3 col-xs-6">
+ 	 		<div class="small-box bg-red">
+ 	 			<div class="inner">
+ 	 				<h3>{{ extra.riesgo_mental }}</h3>
+ 	 				<h5>PERSONAS EN RIESGO</h5>
+ 	 				<h6><b>SALUD MENTAL</b></h6>
+ 	 			</div>
+ 	 			<div class="icon">
+ 	 				<i class="ion ion-android-happy"></i>
+ 	 			</div>
+ 	 			<a href="#" class="small-box-footer">Más información  <i class="fa fa-arrow-circle-right"></i></a>
+ 	 		</div>
+ 	 	</div>
+ 	 </div>
 	 <div class="box-group" id="accordion">
 		<div class="panel box box-info">
 				<div class="box-header with-border">
@@ -61,7 +125,7 @@
 	                                    <tr>
 											<th style="width:50px;">Fecha</th>
 											<th style="width:150px;">Correo Electronico</th>
-												<th style="width:150px;">Nombre</th>
+												<th style="width:200px;">Nombre</th>
 												<th style="width:30px;">Edad</th>
 												<th style="width:100px;">DPI</th>
 												<th style="width:150px;">¿Padeces de alguna enfermedad o condición que te coloque en riesgo?</th>
@@ -142,7 +206,7 @@
 						<h4 class="box-title">
 								<a data-toggle="collapse" data-parent="#accordion" href="#linea_tiempo" class="collapsed"
 									 aria-expanded="false">
-										Linea de tiempo - Salud Individual
+										Linea de tiempo
 								</a>
 						</h4>
 				</div>
@@ -155,49 +219,11 @@
 						</div>
 				</div>
 		</div>
-
-		<div class="panel box box-warning">
-				<div class="box-header with-border">
-						<h4 class="box-title">
-								<a data-toggle="collapse" data-parent="#accordion" href="#linea_tiempo_familiar" class="collapsed"
-									 aria-expanded="false">
-										Linea de tiempo - Salud Familiar
-								</a>
-						</h4>
-				</div>
-				<div id="linea_tiempo_familiar" class="panel-collapse collapse" aria-expanded="false" style="height: 0px;">
-						<div class="box-body">
-									<canvas id="grafico-linea-tiempo-todos" data-url="{% url 'linea_tiempo_informe_api' %}" style="display: block; width: 254px; height: 127px;" width="254" height="127" class="chartjs-render-monitor"></canvas>
-									<canvas id="grafico-linea-tiempo-individual" data-url="{% url 'linea_tiempo_informe_api' %}" style="display: block; width: 254px; height: 127px;" width="254" height="127" class="chartjs-render-monitor"></canvas>
-							<!--Lineas de tiempo-->
-							<!--Fin lineas de tiempo-->
-						</div>
-				</div>
-		</div>
-
-		<div class="panel box box-gray">
-				<div class="box-header with-border">
-						<h4 class="box-title">
-								<a data-toggle="collapse" data-parent="#accordion" href="#linea_tiempo_comunidad" class="collapsed"
-									 aria-expanded="false">
-										Linea de tiempo - Salud Comunidad
-								</a>
-						</h4>
-				</div>
-				<div id="linea_tiempo_comunidad" class="panel-collapse collapse" aria-expanded="false" style="height: 0px;">
-						<div class="box-body">
-									<canvas id="grafico-linea-tiempo-todos" data-url="{% url 'linea_tiempo_informe_api' %}" style="display: block; width: 254px; height: 127px;" width="254" height="127" class="chartjs-render-monitor"></canvas>
-									<canvas id="grafico-linea-tiempo-individual" data-url="{% url 'linea_tiempo_informe_api' %}" style="display: block; width: 254px; height: 127px;" width="254" height="127" class="chartjs-render-monitor"></canvas>
-							<!--Lineas de tiempo-->
-							<!--Fin lineas de tiempo-->
-						</div>
-				</div>
-		</div>
-
 	</div>
 </div>
 
 {% endblock content %}
+
 {% block extra_js %}
 {% include "base/dataTables.html" %}
 <script src="{% static "js/extrajs/bienestar.js" %}"></script>

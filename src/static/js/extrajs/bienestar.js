@@ -1,3 +1,16 @@
+function listar_riesgo(span_input) {
+  $(span_input).html('0');
+  $.get($(span_input).data('url'),
+  {
+      colaborador: $('#bienestar-list-form #id_colaborador').val(),
+      fecha_inicial: $('#bienestar-list-form #id_fecha_min').val(),
+      fecha_fin: $('#bienestar-list-form #id_fecha_max').val()
+  },
+  function (respuesta) {
+    $(span_input).html(respuesta.cantidad)
+  });
+}
+
 class BienestarInforme {
   constructor() {
     /**/
