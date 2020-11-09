@@ -1,6 +1,7 @@
 {% extends "base/base.html" %}
 
 {% load staticfiles editable_field %}
+{% load staticfiles has_group %}
 
 {% block page_title %}
 <title>Grupo {{ grupo }}</title>
@@ -151,6 +152,9 @@
 										<th>Escuela</th>
 										<th>Nota</th>
 										<th>Resultado</th>
+										{% if request.user|has_group:"cyd_capacitador" %}
+										<th></th>
+										{% endif %}
 									</tr>
 								</thead>
 								<tbody>
@@ -188,6 +192,11 @@
 													<span class="badge bg-red">Reprobado</span>
 												{% endif %}
 											</td>
+											{% if request.user|has_group:"cyd_capacitador" %}
+											<td>
+												<button class="eliminar-asignacion btn btn-danger"  data-asignacion="{{asignacion.id}}" data-ulr="{%url 'asignacion_desactivar'%}"><i class='fa fa-trash'></i> Eliminar</button>
+											</td>
+											{% endif %}
 										</tr>
 									{% endfor %}
 								</tbody>

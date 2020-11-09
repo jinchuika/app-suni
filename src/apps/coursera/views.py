@@ -162,6 +162,7 @@ class ResultadoCourseraMonitoreoJson(LoginRequiredMixin, views.APIView):
                 total_aceptacion =(total_miembros['total_miem']/total_invitaciones['total_invi'])*100
                 total_inscrito =coursera_m.Monitoreo.objects.aggregate(total_ins=Sum('inscritos'))
                 total_graduados =coursera_m.Monitoreo.objects.aggregate(total_gradu=Sum('graduados'))
+                cuerpo_datos2['fecha']=datos.fecha
                 cuerpo_datos2['aliado']=str(datos.aliado)
                 cuerpo_datos2['invitaciones']=datos.invitaciones
                 cuerpo_datos2['miembros']=datos.miembros

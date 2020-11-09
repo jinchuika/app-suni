@@ -17,6 +17,7 @@ class CourseraInforme {
         processing:true,
         },
       columns: [
+        {data: "fecha"},
         {data: "aliado"},
         {data: "miembros"},
         {data: "invitaciones"},
@@ -27,11 +28,11 @@ class CourseraInforme {
       footerCallback: function( tfoot, data, start, end, display){
           var api = this.api();
           for (var i in data){
-            $(tfoot).find('th').eq(1).html( data[0].total_miembros);
-            $(tfoot).find('th').eq(2).html( data[0].total_invitaciones);
-            $(tfoot).find('th').eq(3).html( data[0].total_inscrito);
-            $(tfoot).find('th').eq(4).html( data[0].total_aceptacion.toFixed(2));
-            $(tfoot).find('th').eq(5).html( data[0].total_graduados);
+            $(tfoot).find('th').eq(2).html( data[0].total_miembros);
+            $(tfoot).find('th').eq(3).html( data[0].total_invitaciones);
+            $(tfoot).find('th').eq(4).html( data[0].total_inscrito);
+            $(tfoot).find('th').eq(5).html( data[0].total_aceptacion.toFixed(2));
+            $(tfoot).find('th').eq(6).html( data[0].total_graduados);
           };
         },
     });

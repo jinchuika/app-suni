@@ -142,11 +142,49 @@
 						<h4 class="box-title">
 								<a data-toggle="collapse" data-parent="#accordion" href="#linea_tiempo" class="collapsed"
 									 aria-expanded="false">
-										Linea de tiempo
+										Linea de tiempo - Salud Individual
 								</a>
 						</h4>
 				</div>
 				<div id="linea_tiempo" class="panel-collapse collapse" aria-expanded="false" style="height: 0px;">
+						<div class="box-body">
+									<canvas id="grafico-linea-tiempo-todos" data-url="{% url 'linea_tiempo_informe_api' %}" style="display: block; width: 254px; height: 127px;" width="254" height="127" class="chartjs-render-monitor"></canvas>
+									<canvas id="grafico-linea-tiempo-individual" data-url="{% url 'linea_tiempo_informe_api' %}" style="display: block; width: 254px; height: 127px;" width="254" height="127" class="chartjs-render-monitor"></canvas>
+							<!--Lineas de tiempo-->
+							<!--Fin lineas de tiempo-->
+						</div>
+				</div>
+		</div>
+
+		<div class="panel box box-warning">
+				<div class="box-header with-border">
+						<h4 class="box-title">
+								<a data-toggle="collapse" data-parent="#accordion" href="#linea_tiempo_familiar" class="collapsed"
+									 aria-expanded="false">
+										Linea de tiempo - Salud Familiar
+								</a>
+						</h4>
+				</div>
+				<div id="linea_tiempo_familiar" class="panel-collapse collapse" aria-expanded="false" style="height: 0px;">
+						<div class="box-body">
+									<canvas id="grafico-linea-tiempo-todos" data-url="{% url 'linea_tiempo_informe_api' %}" style="display: block; width: 254px; height: 127px;" width="254" height="127" class="chartjs-render-monitor"></canvas>
+									<canvas id="grafico-linea-tiempo-individual" data-url="{% url 'linea_tiempo_informe_api' %}" style="display: block; width: 254px; height: 127px;" width="254" height="127" class="chartjs-render-monitor"></canvas>
+							<!--Lineas de tiempo-->
+							<!--Fin lineas de tiempo-->
+						</div>
+				</div>
+		</div>
+
+		<div class="panel box box-gray">
+				<div class="box-header with-border">
+						<h4 class="box-title">
+								<a data-toggle="collapse" data-parent="#accordion" href="#linea_tiempo_comunidad" class="collapsed"
+									 aria-expanded="false">
+										Linea de tiempo - Salud Comunidad
+								</a>
+						</h4>
+				</div>
+				<div id="linea_tiempo_comunidad" class="panel-collapse collapse" aria-expanded="false" style="height: 0px;">
 						<div class="box-body">
 									<canvas id="grafico-linea-tiempo-todos" data-url="{% url 'linea_tiempo_informe_api' %}" style="display: block; width: 254px; height: 127px;" width="254" height="127" class="chartjs-render-monitor"></canvas>
 									<canvas id="grafico-linea-tiempo-individual" data-url="{% url 'linea_tiempo_informe_api' %}" style="display: block; width: 254px; height: 127px;" width="254" height="127" class="chartjs-render-monitor"></canvas>
