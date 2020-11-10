@@ -58,7 +58,7 @@
 								<span class="progress-text">{{mas.materias}}</span>
 								<span class="progress-number"><b>{{mas.notas}}%</b></span>
 									<div class="progress sm">
-										<div class="progress-bar progress-bar-green" style="width:{{mas.notas|floatformat:"0"}}%"></div>
+										<div class="progress-bar progress-bar-{{mas.color}}" style="width:{{mas.notas|floatformat:"0"}}%"></div>
 									</div>
 							 </div>
 						 </div>
@@ -76,7 +76,7 @@
 								<h4 class="box-title">
 									<a data-toggle="collapse" data-parent="#accordion" href="#registros_visitas_{{tablas.id}}_{{tablas.grado}}" class="collapsed"
 										 aria-expanded="false">
-											{{tablas.materias}} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+											{{tablas.materias}}({{tablas.grado}}) &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 											&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 											&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 										  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
