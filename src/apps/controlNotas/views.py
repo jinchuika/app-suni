@@ -42,7 +42,7 @@ class RegistrosAddView(CreateView, GroupRequiredMixin, LoginRequiredMixin):
     template_name = 'controlNotas/registros.html'
     model = control_m.Visita
     form_class = control_f.EvaluacionForm
-    def get_context_data(self, **kwargs):               
+    def get_context_data(self, **kwargs):
         contador_materias=0
         id_contador=0
         progreso=0
@@ -55,8 +55,8 @@ class RegistrosAddView(CreateView, GroupRequiredMixin, LoginRequiredMixin):
         nombre_escuela= str(nombre.escuela) + str("-")+str(nombre.semestre)
         context['escuela'] = nombre_escuela
         context['escuela_nombre'] = str(nombre.escuela)
-        materia =control_m.Notas.objects.filter(evaluacion__visita__escuela__id=nombre.escuela.id,evaluacion__visita__semestre=nombre.semestre).values('evaluacion__materia').distinct()
-        #materia =control_m.Notas.objects.filter(evaluacion__visita__escuela__id=nombre.escuela.id,evaluacion__visita__semestre=nombre.semestre).values('evaluacion__materia','evaluacion__grado').distinct()
+        #materia =control_m.Notas.objects.filter(evaluacion__visita__escuela__id=nombre.escuela.id,evaluacion__visita__semestre=nombre.semestre).values('evaluacion__materia').distinct()
+        materia =control_m.Notas.objects.filter(evaluacion__visita__escuela__id=nombre.escuela.id,evaluacion__visita__semestre=nombre.semestre).values('evaluacion__materia','evaluacion__grado__nombre_grado').distinct()
         for data in materia:
             datos_enviar={}
             materia =control_m.Materia.objects.filter(id=data["evaluacion__materia"]).values('nombre','icon','id','color')
@@ -65,15 +65,15 @@ class RegistrosAddView(CreateView, GroupRequiredMixin, LoginRequiredMixin):
             datos_enviar["icono"]=materia[0]['icon']
             datos_enviar["materias"]=materia[0]['nombre']
             datos_enviar["id"]=materia[0]['id']
-            #datos_enviar["grado"]=data["evaluacion__grado"]
             datos_enviar["color"]=materia[0]['color']
+            datos_enviar["grado"]=data["evaluacion__grado__nombre_grado"]
             notas = control_m.Notas.objects.filter(evaluacion__materia=data["evaluacion__materia"]).aggregate(total_util=Avg('nota'))
-            participantes =control_m.Notas.objects.filter(evaluacion__materia=data["evaluacion__materia"]).values('alumno','nota')
+            participantes =control_m.Notas.objects.filter(evaluacion__materia=data["evaluacion__materia"]).values('alumno','nota','evaluacion__grado__nombre_grado',"evaluacion__grado")
             progreso= progreso + notas["total_util"]
             for value in participantes:
                 datos_participante ={}
                 datos_participante["alumno"]=value['alumno']
-                datos_participante["nota"]=round(value['nota'],2)
+                datos_participante["nota"]=round(value['nota'],2)                
                 alumno_enviar.append(datos_participante)
             datos_enviar["alumno"]=alumno_enviar
             alumno_enviar=[]

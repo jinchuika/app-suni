@@ -150,12 +150,12 @@ class EscuelaDetail(LoginRequiredMixin, DetailView):
             impacto_values = {"nombre": materia["materia__nombre"], "promedio": round(notas['promedio'],0), "color": materia["materia__color"]}
             promedio_general = promedio_general + round(notas['promedio'],0)
             impacto_list.append(dict(impacto_values))
-        try:
-            promedio_general_enviar= promedio_general / numero_materias
-        except ZeroDivisionError:
-            promedio_general_enviar = 0
-        impacto_values = {"nombre": "Promedio General", "promedio": promedio_general_enviar, "color":"red"}
-        impacto_list.append(dict(impacto_values))        
+            try:
+                promedio_general_enviar=promedio_general / numero_materias
+            except Exception as e:
+                promedio_general_enviar=0
+            impacto_values = {"nombre": "Promedio General", "promedio": promedio_general_enviar, "color":"red"}
+        impacto_list.append(dict(impacto_values))
         impacto_list.insert(0, impacto_list.pop())
         context['grafica_impacto'] = impacto_list
         # Graficas de impacto barras de progreso
