@@ -138,19 +138,31 @@ class SedeUpdateView(LoginRequiredMixin, UpdateView):
         return initial
 
     def form_valid(self, form):
-        respuesta = form.save(commit=False)
-        if self.object.mapa is None:
-            coordenada = Coordenada(
-                lat=form.cleaned_data['lat'],
-                lng=form.cleaned_data['lng'],
-                descripcion='De la sede ' + respuesta.nombre)
-            coordenada.save()
-            self.object.mapa = coordenada
-        else:
-            self.object.mapa.lat = form.cleaned_data['lat']
-            self.object.mapa.lng = form.cleaned_data['lng']
-            self.object.mapa.save()
+        municipio = form.instance.municipio
+        udi = form.cleaned_data['udi']
+        if udi != "":
+            try:
+                escuela = Escuela.objects.get(codigo=udi)
+                form.instance.nombre = str(municipio.departamento.nombre) + str(", ") + str(municipio.nombre) + str("("+ udi +")") + str("("+ str(form.instance.tipo_sede) + ")")
+                form.instance.escuela_beneficiada = escuela
+            except ObjectDoesNotExist:
+                form.add_error('udi', 'El UDI no es válido o no existe.')
+                return self.form_invalid(form)
+
         return super(SedeUpdateView, self).form_valid(form)
+
+class SedeListView(LoginRequiredMixin, FormView):   
+    """Muestra el listado de sedes que se han creado""" 
+    model = cyd_m.Sede  
+    template_name = 'cyd/sede_list.html'    
+    form_class = cyd_f.SedeFilterFormInforme    
+    group_required = [u"cyd_capacitador", u"cyd_admin"] 
+
+    def get_form(self, form_class=None):    
+        form = super(SedeListView, self).get_form(form_class)   
+        if self.request.user.groups.filter(name="cyd_capacitador").exists():    
+            form.fields['capacitador'].widget = forms.HiddenInput() 
+        return form
 
     def get_queryset(self):
         if self.request.user.groups.filter(name="cyd_capacitador").exists():
@@ -158,8 +170,14 @@ class SedeUpdateView(LoginRequiredMixin, UpdateView):
         else:
             return cyd_m.Sede.objects.all()
 
-    def get_success_url(self):
-        return reverse('grupo_detail', kwargs={'pk': self.object.id})
+class GrupoCreateView(LoginRequiredMixin, GroupRequiredMixin, CreateView):
+    """Creacion de grupos desde una vista"""    
+    group_required = [u"cyd", u"cyd_capacitador", u"cyd_admin", ]   
+    redirect_unauthenticated_users = True   
+    raise_exception = True  
+    model = cyd_m.Grupo 
+    template_name = 'cyd/grupo_add.html'    
+    form_class = cyd_f.GrupoForm
 
     def get_success_url(self):
         return reverse('grupo_detail', kwargs={'pk': self.object.id})
