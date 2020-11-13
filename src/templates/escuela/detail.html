@@ -266,7 +266,7 @@
 		 										<div class="col-md-6">
 													{% include "controlNotas/dashboard.html" with  grafica_impacto=grafica_impacto %}
 		 										</div>
-		 										<div class="col-md-6" id="semestre" data-codigo="{{ escuela.codigo }}" data-url="{% url "visita_api_add" %}" data-redirect="{% url "registro_add"%}">
+		 										<div class="col-md-6" id="semestre" data-codigo="{{ escuela.codigo }}" data-url="{% url "visita_api_add" %}" data-redirect="{% url "registro_add"%}" data-semestre="{% url "semestre_api"%}">
 													Seguimiento de impacto
 														{% if request.user|has_group:"mye" %}
 															<button class="btn btn-xs btn-info" id="btn-seguimiento" style="margin-left: 38%;">+Nuevo seguimiento</button>

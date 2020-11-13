@@ -142,14 +142,19 @@ class EscuelaDetail(LoginRequiredMixin, DetailView):
 
         context['grafica_kalite'] = kalite_list
         # Grafica de impacto
-        materias =control_m.Evaluacion.objects.filter(visita__escuela__id=self.object.pk).values("materia","materia__nombre","materia__color").distinct()
-        materias2 =control_m.Evaluacion.objects.filter(visita__escuela__id=self.object.pk).values("materia").distinct()
+        ordenar=[]
+        materias =control_m.Evaluacion.objects.filter(visita__escuela__id=self.object.pk).distinct().values("materia","materia__nombre","materia__color")
         for materia in materias:
             notas = control_m.Notas.objects.filter(evaluacion__visita__escuela__id=self.object.pk,evaluacion__materia__id=materia["materia"]).aggregate(promedio=Avg('nota'))
             numero_materias = numero_materias +1
-            impacto_values = {"nombre": materia["materia__nombre"], "promedio": round(notas['promedio'],0), "color": materia["materia__color"]}
-            promedio_general = promedio_general + round(notas['promedio'],0)
-            impacto_list.append(dict(impacto_values))
+            ordenar.append(materia["materia__nombre"])
+            ordenar=list(dict.fromkeys(ordenar))
+            if numero_materias <= len(ordenar):
+                impacto_values = {"nombre": materia["materia__nombre"], "promedio": round(notas['promedio'],0), "color": materia["materia__color"]}
+                promedio_general = promedio_general + round(notas['promedio'],0)
+                impacto_list.append(dict(impacto_values))
+            else:
+                promedio_general = promedio_general + round(notas['promedio'],0)
             try:
                 promedio_general_enviar=promedio_general / numero_materias
             except Exception as e:
@@ -157,15 +162,15 @@ class EscuelaDetail(LoginRequiredMixin, DetailView):
             impacto_values = {"nombre": "Promedio General", "promedio": promedio_general_enviar, "color":"red"}
         impacto_list.append(dict(impacto_values))
         impacto_list.insert(0, impacto_list.pop())
-        context['grafica_impacto'] = impacto_list
+        context['grafica_impacto'] = impacto_list        
         # Graficas de impacto barras de progreso
         visitas =control_m.Visita.objects.filter(escuela__id=self.object.pk)
         for visita in visitas:
             evaluaciones = control_m.Evaluacion.objects.filter(visita__escuela__id=self.object.pk,visita__semestre=visita.semestre).values("visita__semestre","materia","materia__color","materia__nombre").distinct()
             acumulador_promedio=0
             contador_materias=0
-            numero_materias=numero_materias +1
             for evaluacion in evaluaciones:
+                contador_materias = contador_materias +1
                 notas = control_m.Notas.objects.filter(evaluacion__visita__semestre=visita.semestre,evaluacion__visita__escuela__id=self.object.pk,evaluacion__materia__id=evaluacion["materia"]).aggregate(promedio=Avg('nota'))
                 impacto_values_progreso = {"visita":str(visita.fecha.year)+"-"+str(visita.semestre),"nombre": evaluacion["materia__nombre"], "promedio": round(notas['promedio'],0), "color": evaluacion["materia__color"]}
                 impacto_progreso_list.append(dict(impacto_values_progreso))
