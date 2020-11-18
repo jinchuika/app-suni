@@ -64,8 +64,76 @@ class Control {
     });
     /*redireccionar excel*/
     $('#btn-excel').on('click', function () {
-      console.log($('#btn-excel').data("url"));
-      window.open($('#btn-excel').data("url"), '_blank');
+      //window.open($('#btn-excel').data("url"), '_blank');
+      var uploadHtml = "<div>" +
+      "<label class='upload-area' style='width:100%;text-align:center;' for='myfile'>" +
+          " <form enctype='multipart/form-data' id='formuploadajax' method='post'>"+
+          "<input id='myfile' name='myfile' type='file' style='display:none;' multiple='true'>" +
+          "</form>"+
+          "<i class='fa fa-cloud-upload fa-3x'></i>" +
+          "<br />" +
+          "Click aca" +
+      "</label>" +
+      "<br />" +
+      "<span style='margin-left:5px !important;' id='fileList'></span>" +
+  "</div><div class='clearfix'></div>";
+
+  bootbox.dialog({
+      message: uploadHtml,
+      title: "Subri archivo Excel",
+      buttons: {
+          success: {
+              label: "Subir",
+              className: "btn-default",
+              callback: function () {
+                  // what you wanna do here ...
+                  var formData = new FormData(document.getElementById("formuploadajax"));
+                 $.ajax({
+                    beforeSend: function(xhr, settings) {
+                        xhr.setRequestHeader("X-CSRFToken", $("[name=csrfmiddlewaretoken]").val());
+                    },
+                    url:$('#btn-excel').data("url"),
+                    dataType:"html",
+                    data:formData,
+                    contentType: false,
+                    processData: false,
+                    error:function(){
+                      console.log("Error");
+                    },
+                    success:function(data){
+                    bootbox.alert("Archivo subido exitosamente")
+                    $.ajax({
+                      url:$('#btn-excel').data("alumno"),
+                      dataType:'json',
+                      error:function(){
+                        console.log("Error");
+                      },
+                      success:function(data){                      
+                        tabla_importar.loadData(data);
+                      },
+                      type: 'GET'
+                    }
+                    );
+                    /*fin ajax*/
+
+                    },
+                    type: 'POST'
+                  }
+                );
+                  /*fin ajax*/
+              }
+          }
+      }
+  });
+  var fileList = document.getElementById("myfile");
+ fileList.addEventListener("change", function (e) {
+     var list = "";
+     for (var i = 0; i < this.files.length; i++) {
+         //list += "<div class='col-xs-12 file-list'>" + this.files[i].name + "</div>"
+         list= this.files[i].name ;
+     }
+     $("#fileList").text(list);
+ }, false);
     });
     /**/
     /**Guardar informacion**/
@@ -86,7 +154,7 @@ class Control {
         beforeSend: function(xhr, settings) {
             xhr.setRequestHeader("X-CSRFToken", $("[name=csrfmiddlewaretoken]").val());
         },
-        url:$('#btn-crear').data("url"),
+        url:$('#btn-excel').data("alumno"),
         dataType:'json',
         data:{datos:data_send,
               materia:$("#id_materia").val(),

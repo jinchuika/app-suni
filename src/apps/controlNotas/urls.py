@@ -14,4 +14,5 @@ url(
 #api
 url(r'^api/alumno/$', ResultadoNotasJson.as_view(), name='alumno_add'),
 url(r'^api/visita/$', VisitasAddView.as_view(), name='visita_api_add'),
+url(r'^api/bimestre/$', ObtenerBimestres.as_view(), name='semestre_api'),
 ]

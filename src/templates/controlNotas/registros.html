@@ -16,51 +16,67 @@
 		 				<div class="box-header with-border">
 		 					<h3 class="box-title">Ingreso de Notas</h3>
 		 				</div>
-						{{form}}
-		         	<div id="tabla_importar"></div>
-
+						<div class="box-body">
+							{{form}}
+			         	<div id="tabla_importar"></div>
+						</div>
 							<div class="box-footer">
 			 					{% csrf_token %}
-			 					<button class="btn btn-success" id="btn-crear" data-url={% url 'alumno_add' %}><i class="fa fa-file-excel-o" aria-hidden="true" ></i> Cargar excel</button>
-			 					<button class="btn btn-primary" id="btn-clear"><i class="fa fa-check" aria-hidden="true"></i> Guardar Notas</button>
-								<button class="btn btn-info" id="btn-excel" data-url={% url 'impacto_excel_add' %}><i class="fa fa-cloud-upload" aria-hidden="true" ></i>Subir Archivo Excel</button>
+			 				<!--	<button class="btn btn-success" id="btn-crear" data-url={% url 'alumno_add' %} data-excel={%url 'impacto_excel_add'%}><i class="fa fa-file-excel-o" aria-hidden="true" ></i> Cargar excel</button>-->
+									<button class="btn btn-success" id="btn-excel" data-url={% url 'impacto_excel_add' %} data-alumno={% url 'alumno_add' %}><i class="fa fa-cloud-upload" aria-hidden="true" ></i>Subir Archivo Excel</button>
+								<button class="btn btn-primary" id="btn-clear"><i class="fa fa-check" aria-hidden="true"></i> Guardar Notas</button>
+
 							</div>
-
-
 		 			</div>
-				<!--	<div id="tabla_importar">
-					</div>-->
+
          </div>
          <div class="col-md-6">
 					 <!--Escuela-->
 					 <div class="row">
 						 <div class="col-md-2">
-							 	<i class="fa fa-university" aria-hidden="true"></i>
+							 	<!--<i class="fa fa-university" aria-hidden="true"></i>-->
 						 </div>
 						 <div class="col-md-10">
-							 <div class="progress-group">
-								<span class="progress-text">{{escuela_nombre}}</span>
-								<span class="progress-number"><b>{{escuela_porcentaje}}%</b></span>
-									<div class="progress sm">
-										<div class="progress-bar progress-bar-blue" style="width:{{escuela_porcentaje|floatformat:"0"}}%"></div>
-									</div>
-							 </div>
+							 <!-- Apply any bg-* class to to the info-box to color it -->
+							<div class="info-box bg-red">
+							  <span class="info-box-icon"><i class="fa fa-university"></i></span>
+							  <div class="info-box-content">
+							    <span class="info-box-text">{{escuela_nombre}}</span>
+							    <span class="info-box-number">{{escuela_porcentaje}}%</span>
+							    <!-- The progress section is optional -->
+							    <div class="progress">
+							      <div class="progress-bar" style="width: {{escuela_porcentaje|floatformat:"0"}}%"></div>
+							    </div>
+							  </div>
+							  <!-- /.info-box-content -->
+							</div>
+							<!-- /.info-box -->
+
 						 </div>
 					 </div>
 					 <!--Fin Escuela-->
-					 {% for mas in datos  %}
+					 {% for materia in datos  %}
 					 <div class="row">
 						 <div class="col-md-2">
-							 	<i class="{{mas.icono}}" aria-hidden="true"></i>
+							 <!--	<i class="{{mas.icono}}" aria-hidden="true"></i> -->
 						 </div>
 						 <div class="col-md-10">
-							 <div class="progress-group">
-								<span class="progress-text">{{mas.materias}}</span>
-								<span class="progress-number"><b>{{mas.notas}}%</b></span>
-									<div class="progress sm">
-										<div class="progress-bar progress-bar-{{mas.color}}" style="width:{{mas.notas|floatformat:"0"}}%"></div>
-									</div>
+							 <div class="info-box bg-{{materia.color}}">
+								 <span class="info-box-icon"><i class="{{materia.icono}}"></i></span>
+								 <div class="info-box-content">
+									 <span class="info-box-text">{{materia.materias}}</span>
+									 <span class="info-box-number">{{materia.notas}}%</span>
+									 <!-- The progress section is optional -->
+									 <div class="progress">
+										 <div class="progress-bar" style="width:{{materia.notas|floatformat:"0"}}%"></div>
+									 </div>
+									 <span class="progress-description">
+										 	{{materia.grado}}
+									</span>
+								 </div>
+								 <!-- /.info-box-content -->
 							 </div>
+							 <!-- /.info-box -->
 						 </div>
 					 </div>
 					 {% endfor %}
@@ -76,18 +92,15 @@
 								<h4 class="box-title">
 									<a data-toggle="collapse" data-parent="#accordion" href="#registros_visitas_{{tablas.id}}_{{tablas.grado}}" class="collapsed"
 										 aria-expanded="false">
-											{{tablas.materias}}({{tablas.grado}}) &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-											&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-											&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-										  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-										  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-										  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-										  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-									    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-									    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-									    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-											&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-										  {{tablas.notas}}%
+										 <div>
+										 	{{tablas.materias}}({{tablas.grado}})
+											<div style="position: relative;left: 1126px;top: -22px;">
+ 											 {{tablas.notas}}%
+ 										 </div>
+										 </div>
+
+
+
 									</a>
 								</h4>
 						</div>

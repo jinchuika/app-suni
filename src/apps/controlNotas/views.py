@@ -17,6 +17,8 @@ from apps.escuela.models import Escuela
 from apps.controlNotas import models as control_m
 from apps.controlNotas import forms as control_f
 from django.db.models import Avg, Count, Min, Sum
+import shutil
+
 # Create your views here.
 class ControlExcelAddView( TemplateView):
     template_name = 'controlNotas/tablasNota.html'
@@ -28,13 +30,12 @@ class RegistrosExcelAddView(LoginRequiredMixin, TemplateView, GroupRequiredMixin
             file_list =os.listdir(settings.MEDIA_ROOT_EXCEL_IMPACTO)
             number_file=len(file_list)
             myfile=request.FILES['myfile']
-            new_name=str('Impacto') + str(number_file) +str(".")+str(myfile.name.split(".")[-1])
+            new_name=str('Impacto') + str(number_file+1) +str(".")+str(myfile.name.split(".")[-1])
             fs=FileSystemStorage(location=settings.MEDIA_ROOT_EXCEL_IMPACTO)
             filename=fs.save(new_name, myfile)
             uploaded_file_url=fs.url(filename)
             return render(request, 'controlNotas/cargar_excel.html',{
-                'uploaded_file_url':uploaded_file_url
-        })
+                'uploaded_file_url':uploaded_file_url})
         return render(request,'ControlNotas/cargar_excel.html')
 
 class RegistrosAddView(CreateView, GroupRequiredMixin, LoginRequiredMixin):
@@ -54,8 +55,7 @@ class RegistrosAddView(CreateView, GroupRequiredMixin, LoginRequiredMixin):
         nombre=control_m.Visita.objects.all().last()
         nombre_escuela= str(nombre.escuela) + str("-")+str(nombre.semestre)
         context['escuela'] = nombre_escuela
-        context['escuela_nombre'] = str(nombre.escuela)
-        #materia =control_m.Notas.objects.filter(evaluacion__visita__escuela__id=nombre.escuela.id,evaluacion__visita__semestre=nombre.semestre).values('evaluacion__materia').distinct()
+        context['escuela_nombre'] = str(nombre.escuela)        
         materia =control_m.Notas.objects.filter(evaluacion__visita__escuela__id=nombre.escuela.id,evaluacion__visita__semestre=nombre.semestre).values('evaluacion__materia','evaluacion__grado__nombre_grado').distinct()
         for data in materia:
             datos_enviar={}
@@ -67,13 +67,13 @@ class RegistrosAddView(CreateView, GroupRequiredMixin, LoginRequiredMixin):
             datos_enviar["id"]=materia[0]['id']
             datos_enviar["color"]=materia[0]['color']
             datos_enviar["grado"]=data["evaluacion__grado__nombre_grado"]
-            notas = control_m.Notas.objects.filter(evaluacion__materia=data["evaluacion__materia"]).aggregate(total_util=Avg('nota'))
-            participantes =control_m.Notas.objects.filter(evaluacion__materia=data["evaluacion__materia"]).values('alumno','nota','evaluacion__grado__nombre_grado',"evaluacion__grado")
+            notas = control_m.Notas.objects.filter(evaluacion__visita=nombre,evaluacion__materia=data["evaluacion__materia"]).aggregate(total_util=Avg('nota'))
+            participantes =control_m.Notas.objects.filter(evaluacion__visita=nombre,evaluacion__materia=data["evaluacion__materia"]).values('alumno','nota','evaluacion__grado__nombre_grado',"evaluacion__grado")
             progreso= progreso + notas["total_util"]
             for value in participantes:
                 datos_participante ={}
                 datos_participante["alumno"]=value['alumno']
-                datos_participante["nota"]=round(value['nota'],2)                
+                datos_participante["nota"]=round(value['nota'],2)
                 alumno_enviar.append(datos_participante)
             datos_enviar["alumno"]=alumno_enviar
             alumno_enviar=[]
@@ -101,11 +101,13 @@ class ResultadoNotasJson(LoginRequiredMixin, views.APIView):
             m_row = sheet_obj.max_row
             m_col= sheet_obj.max_column
             for i in range(1, m_row+1):
-            #for i in range(2, m_row+1):
                 nombre=sheet_obj.cell(row=i, column=1).value
+                nota=sheet_obj.cell(row=i, column=2).value
                 recolectar_datos = {}
                 recolectar_datos["nombre"]=nombre
+                recolectar_datos["nota"]=nota
                 datos_enviar.append(recolectar_datos)
+            os.remove(ruta)
             return Response(
                 datos_enviar,
                 status=status.HTTP_200_OK
@@ -177,4 +179,19 @@ class VisitasAddView(LoginRequiredMixin, views.APIView):
                 datos_enviar,
                 status=status.HTTP_200_OK
 
+            )
+class ObtenerBimestres(LoginRequiredMixin, views.APIView):
+        """ Importar registros de excel con DjangoRestFramework para Bienestar
+        """
+        def get(self, request):
+            bimestres=control_m.Semestre.objects.all()
+            data_enviar=[]
+            for data in bimestres:
+                  data_bimestres={}
+                  data_bimestres["text"]=data.numero
+                  data_bimestres["value"]=data.numero
+                  data_enviar.append(data_bimestres)
+            return Response(
+                data_enviar,
+                status=status.HTTP_200_OK
             )

@@ -20,7 +20,7 @@
      {% for progreso in grafica_seguimiento  %}
        {% if visita.visita == progreso.visita %}
        <div class="progress sm">
-         <div class="progress-bar progress-bar-{{progreso.color}}" style="width:{{progreso.promedio|floatformat:"0"}}%"></div>
+         <div class="progress-bar progress-bar-{{progreso.color}}" style="width:{{progreso.promedio|floatformat:"0"}}%" data-toggle="tooltip" data-placement="top" title="{{progreso.nombre}}"></div>
        </div>
        {% endif %}
      {% endfor %}
