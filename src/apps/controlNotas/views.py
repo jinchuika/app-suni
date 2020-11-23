@@ -55,8 +55,8 @@ class RegistrosAddView(CreateView, GroupRequiredMixin, LoginRequiredMixin):
         nombre=control_m.Visita.objects.all().last()
         nombre_escuela= str(nombre.escuela) + str("-")+str(nombre.semestre)
         context['escuela'] = nombre_escuela
-        context['escuela_nombre'] = str(nombre.escuela)        
-        materia =control_m.Notas.objects.filter(evaluacion__visita__escuela__id=nombre.escuela.id,evaluacion__visita__semestre=nombre.semestre).values('evaluacion__materia','evaluacion__grado__nombre_grado').distinct()
+        context['escuela_nombre'] = str(nombre.escuela)
+        materia =control_m.Notas.objects.filter(evaluacion__visita__escuela__id=nombre.escuela.id,evaluacion__visita__semestre=nombre.semestre).values('evaluacion__materia','evaluacion__grado__nombre_grado','evaluacion__grado__id').distinct()
         for data in materia:
             datos_enviar={}
             materia =control_m.Materia.objects.filter(id=data["evaluacion__materia"]).values('nombre','icon','id','color')
@@ -67,8 +67,9 @@ class RegistrosAddView(CreateView, GroupRequiredMixin, LoginRequiredMixin):
             datos_enviar["id"]=materia[0]['id']
             datos_enviar["color"]=materia[0]['color']
             datos_enviar["grado"]=data["evaluacion__grado__nombre_grado"]
-            notas = control_m.Notas.objects.filter(evaluacion__visita=nombre,evaluacion__materia=data["evaluacion__materia"]).aggregate(total_util=Avg('nota'))
-            participantes =control_m.Notas.objects.filter(evaluacion__visita=nombre,evaluacion__materia=data["evaluacion__materia"]).values('alumno','nota','evaluacion__grado__nombre_grado',"evaluacion__grado")
+            datos_enviar["grado_id"]=data["evaluacion__grado__id"]
+            notas = control_m.Notas.objects.filter(evaluacion__visita=nombre,evaluacion__materia=data["evaluacion__materia"],evaluacion__grado=data["evaluacion__grado__id"]).aggregate(total_util=Avg('nota'))
+            participantes =control_m.Notas.objects.filter(evaluacion__visita=nombre,evaluacion__materia=data["evaluacion__materia"],evaluacion__grado=data["evaluacion__grado__id"]).values('alumno','nota','evaluacion__grado__nombre_grado',"evaluacion__grado")
             progreso= progreso + notas["total_util"]
             for value in participantes:
                 datos_participante ={}
