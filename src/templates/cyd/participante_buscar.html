@@ -19,14 +19,20 @@
 				<div class="box">
 					<div class="box-body">
 						<form action="{% url 'participante_api_list' %}" id="participante-buscar-form">
-							{% csrf_token %}
-							{% for field in form %}
-							<div class="form-group">
-								{{ field.label_tag }}
-								{{ field|add_class:"form-control" }}
-								<span class="help-block" id="{{ field.help_text }}"></span>
+							<div class="box-header">
+								<input type="submit" class="btn btn-primary col-md-12" value="GENERAR INFORME" /><br />
+								<br /><h3 class="box-title">Filtros</h3>
 							</div>
-							{% endfor %}
+							<div class="box-body">
+								{% csrf_token %}
+								{% for field in form %}
+								<div class="form-group">
+									{{ field.label_tag }}
+									{{ field|add_class:"form-control" }}
+									<span class="help-block" id="{{ field.help_text }}"></span>
+								</div>
+								{% endfor %}
+							</div>
 						</form>
 					</div>
 				</div>

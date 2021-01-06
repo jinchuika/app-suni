@@ -80,19 +80,22 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {% for sede in escuela.get_sedes %}
-                                            {% with sede.get_participantes as participantes %}
-                                            <tr>
-                                                <td>{{ forloop.counter }}</td>
-                                                <td>{{ sede.nombre }}</td>
-                                                <td>{{ sede.get_escuelas.count }}</td>
-                                                <td>{{ participantes.listado.count }}</td>
-                                                <td>{{ participantes.resumen.estado.aprobado.cantidad }}</td>
-                                                <td>{{ participantes.resumen.estado.reprobado.cantidad }}</td>
-                                                <td>{{ participantes.resumen.estado.nivelar.cantidad }}</td>
-                                            </tr>
-                                            {% endwith %}
-                                        {% endfor %}
+                                        {% with escuela.get_sedes as sedes %}
+                                            {% for sede in sedes.listado %}
+                                                {% with sede.sede.get_participantes as participantes %}
+                                                <tr>
+                                                    <td>{{ forloop.counter }}</td>
+                                                    <td><a href="{{ sede.sede.get_absolute_url }}" target="_blank">{{ sede.sede.nombre }}</a></td>
+                                                    <td>{{ sede.sede.capacitador.get_full_name }}</td>
+                                                    <td>{{ sede.sede.get_escuelas.count }}</td>
+                                                    <td>{{ participantes.listado.count }}</td>
+                                                    <td>{{ participantes.resumen.estado.aprobado.cantidad }}</td>
+                                                    <td>{{ participantes.resumen.estado.reprobado.cantidad }}</td>
+                                                    <td>{{ participantes.resumen.estado.nivelar.cantidad }}</td>
+                                                </tr>
+                                                {% endwith %}
+                                            {% endfor %}
+                                        {% endwith %}
                                     </tbody>
                                 </table>
                             </div>
@@ -111,7 +114,7 @@
                 </div>
                 <div id="participantes_list" class="panel-collapse collapse" aria-expanded="false" style="height: 0px;">
                     <div class="box-body">
-                        {% include "cyd/participante_escuela_list.html" with participante_list=escuela.capacitacion.participantes %}
+                        {% include "cyd/participante_escuela_list.html" with participante_list=escuela.capacitacion %}
                     </div>
                 </div>
             </div>

@@ -58,6 +58,122 @@
 
     // Public
     PerfilEscuela.init = function () {
+      /**/
+      var visitas=[];
+      var promedio=[];
+      var ctx = document.getElementById('myChart');
+      $.get($("#myChart").data('url'),{escuela:$("#semestre").data('codigo')},
+          function (respuesta) {
+             $.each(respuesta, function (index,datos) {
+               visitas.push(datos.visita);
+               promedio.push(datos.promedio);
+              });
+          });
+      /*Inicio grafica*/
+
+
+       var myChart = new Chart(ctx, {
+         type: 'line',
+               data: {
+                 labels:visitas,
+                 datasets: [{
+                   label: 'visita',
+                   backgroundColor: 'rgb(255, 99, 132)',
+                   borderColor: 'rgb(255, 99, 132)',
+                   fill: false,
+                 }, {
+                   label: 'promedio',
+                   fill: false,
+                   backgroundColor: 'rgb(54, 162, 235)',
+                   borderColor: 'rgb(54, 162, 235)',
+                   data: promedio,
+                 }]
+               },
+               options: {
+                 responsive: true,
+                 title: {
+                   display: true,
+                   text: '¿ Promedio de las visitas realizadas a  escuelas'
+                 },
+                 tooltips: {
+                   mode: 'index',
+                   intersect: false,
+                 },
+                 hover: {
+                   mode: 'nearest',
+                   intersect: true
+                 },
+                 scales: {
+                   xAxes: [{
+                     display: true,
+                     scaleLabel: {
+                       display: true,
+                       labelString: 'Visitas'
+                     }
+                   }],
+                   yAxes: [{
+                     display: true,
+                     scaleLabel: {
+                       display: true,
+                       labelString: 'Promedio'
+                     }
+                   }]
+                 }
+               }
+   });
+      /*Fin graficas*/
+      //aca comieza el  nuevo boton de impacto
+      $('#btn-seguimiento').click(function () {
+        $.ajax({
+             url:$("#semestre").data('semestre'),
+             data:function (){
+             return {
+               asignacion: salida_pk,
+             }
+            },
+             error:function(error){
+               console.log(error);
+             },
+             success:function(data){
+               var listaDeDonantes = [];
+               for (var i in data){
+                 var donante = {}
+                 donante['text'] = data[i].text;
+                 donante['value'] =data[i].value;
+                 listaDeDonantes.push(donante);
+             }
+
+             bootbox.prompt({
+                  title: "Seleccione el Bimestre",
+                  inputType: 'select',
+                  inputOptions:listaDeDonantes,
+                  callback: function (result) {
+                    var escuela = $("#semestre").data('codigo');
+                    var url_visita = $("#semestre").data('url');
+                      $.ajax({
+                          beforeSend: function(xhr, settings) {
+                              xhr.setRequestHeader("X-CSRFToken", $('input[name="csrfmiddlewaretoken"]').val());
+                          },
+                          url: url_visita,
+                          data: {semestre:result,
+                                 escuela:escuela},
+                          type: 'post',
+                          success: function (respuesta) {
+                            //location.href =$("#semestre").data('redirect');
+                            window.open($("#semestre").data('redirect'), '_blank');
+
+                          }
+                      });
+
+                  }
+                });
+
+             },
+             type: 'GET'
+           }
+         );
+      });
+      //
         $('#form-nueva-solicitud').hide();
         $('#form-nuevo-equipamiento').hide();
         $('#btn-equipamiento').click(function () {
@@ -172,7 +288,7 @@
             },
             {
                 data: "capacitacion",
-                render: function (data) {
+                render: function (data, type, full, meta) {
                     return data.capacitada ? 'Sí' : 'No';
                 }
             },

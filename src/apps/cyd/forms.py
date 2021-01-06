@@ -6,7 +6,7 @@ from django.contrib.auth.models import User
 from apps.main.forms import GeoForm
 from apps.main.models import Departamento, Municipio
 from apps.cyd.models import (
-    Curso, CrAsistencia, CrHito, Sede, Grupo, Participante, Asesoria, NotaAsistencia,Calendario)
+    Curso, CrAsistencia, CrHito, Sede, Grupo, Participante, ParEtnia, ParEscolaridad, Asesoria, NotaAsistencia,Calendario)
 from apps.escuela.models import Escuela
 
 
@@ -60,9 +60,7 @@ class GrupoForm(forms.ModelForm):
         }
     def __init__(self, *args, **kwargs):
         super(GrupoForm, self).__init__(*args, **kwargs)
-        self.fields['numero'].label = "Cantidad"
-
-
+        self.fields['numero'].label = "Cantidad de grupos a crear"
 
 class SedeFilterForm(forms.Form):
     ESTADO_CHOICES = (
@@ -145,12 +143,26 @@ class ParticipanteForm(ParticipanteBaseForm):
     grupo = forms.ModelChoiceField(
         queryset=Grupo.objects.all(),
         widget=forms.Select(attrs={'class': 'select2', 'data-url': reverse_lazy('participante_api_list')}))
+    udi = forms.CharField(
+        help_text="udi_help",
+        widget=forms.TextInput(attrs={'class': 'form-control', 'maxlength': '13', 'required': 'true', 'placeholder': '00-00-0000-00', 'data-url': reverse_lazy('escuela_api_list')}))
+
+    dpi = forms.CharField(
+        help_text="dpi_help",
+        widget=forms.TextInput(attrs={'class': 'form-control', 'maxlength': '13', 'required': 'true', 'placeholder': '0000000000000', 'data-url': reverse_lazy('participante_api_list')}))
+
+    etnia = forms.ModelChoiceField(
+        queryset=ParEtnia.objects.all(),
+        widget=forms.Select(attrs={'class': 'select2'}))
+
+    escolaridad = forms.ModelChoiceField(
+        queryset=ParEscolaridad.objects.all(),
+        widget=forms.Select(attrs={'class': 'select2'}))
 
     class Meta:
         model = Participante
         fields = [
-            'sede', 'grupo', 'udi', 'nombre', 'apellido', 'dpi', 'genero', 'rol',
-            'mail', 'tel_movil']
+            'sede', 'grupo', 'udi', 'nombre', 'apellido', 'dpi', 'genero', 'rol', 'mail', 'tel_movil', 'etnia', 'escolaridad']
         exclude = ('slug','activo')
 
 class ParticipanteFormList(ParticipanteBaseForm):
@@ -164,35 +176,45 @@ class ParticipanteFormList(ParticipanteBaseForm):
     grupo = forms.ModelChoiceField(
         queryset=Grupo.objects.all(),
         widget=forms.Select(attrs={'class': 'select2', 'data-url': reverse_lazy('participante_api_list')}))
+    udi = forms.CharField(
+        help_text="udi_help",
+        widget=forms.TextInput(attrs={'class': 'form-control', 'maxlength': '13', 'required': 'true', 'placeholder': '00-00-0000-00', 'data-url': reverse_lazy('escuela_api_list')}))
 
     class Meta:
         model = Participante
-        fields = [
-            'sede', 'grupo', 'udi']
-        exclude = ('slug','activo','nombre', 'apellido', 'dpi', 'genero', 'rol',
-            'mail', 'tel_movil')
+        fields = ['sede', 'grupo', 'udi']
+        exclude = ('slug','activo','nombre', 'apellido', 'dpi', 'genero', 'rol', 'mail', 'tel_movil')
 
-
-class ParticipanteBuscarForm(ParticipanteForm, GeoForm, forms.ModelForm):
+class ParticipanteBuscarForm(ParticipanteForm, forms.ModelForm):
+    departamento = forms.ModelChoiceField(
+        queryset=Departamento.objects.all(),
+        widget=forms.Select(attrs={'class': 'form-control', 'data-url': reverse_lazy('municipio_api_list')}),
+        required=False)
+    municipio = forms.ModelChoiceField(
+        queryset=Municipio.objects.all(),
+        widget=forms.Select(attrs={'class': 'form-control'}),
+        required=False)
+    dpi = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-control', 'maxlength': '13', 'placeholder': '0000000000000'}))
     nombre = forms.CharField(required=False)
-    capacitador = forms.ModelChoiceField(
-        queryset=User.objects.filter(groups__name='cyd_capacitador'))
+    capacitador = forms.ModelChoiceField(queryset=User.objects.filter(groups__name='cyd_capacitador'))
 
     class Meta:
         model = Participante
-        fields = ['nombre', 'capacitador']
+        fields = ['dpi', 'nombre', 'departamento', 'municipio', 'capacitador']
 
     def __init__(self, *args, **kwargs):
         super(ParticipanteBuscarForm, self).__init__(*args, **kwargs)
         self.fields['capacitador'].label_from_instance = lambda obj: "%s" % obj.get_full_name()
-        #self.fields.pop('grupo')
-
+        self.fields.pop('udi')
 
 class ParticipanteAsignarForm(ParticipanteFormList):
     # class ParticipanteAsignarForm(ParticipanteBaseForm):
     def __init__(self, *args, **kwargs):
         super(ParticipanteAsignarForm, self).__init__(*args, **kwargs)
-        self.fields.pop('udi')
+        if request.user.groups.filter(name="cyd_capacitador").exists():
+            self.fields.pop('capacitador')
 
 
 class AsesoriaForm(forms.ModelForm):
@@ -230,12 +252,6 @@ class GrupoFilterFormInforme(forms.Form):
         queryset=Curso.objects.filter(activo=True),
         required=False,
         widget=forms.Select(attrs={'class': 'form-control select2', 'data-url': reverse_lazy('sede_api_list')}))
-    activo = forms.BooleanField(
-        initial=True,
-        required=False,
-        widget=forms.HiddenInput(),
-        label=''
-        )
 
     def __init__(self, *args, **kwargs):
         super(GrupoFilterFormInforme, self).__init__(*args, **kwargs)

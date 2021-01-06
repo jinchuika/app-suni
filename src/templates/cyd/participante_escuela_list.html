@@ -1,3 +1,4 @@
+{% load staticfiles load_json %}
 <div class="row">
 	<div class="col-md-12 table-responsive">
 		<table class="table table-striped table-condensed">
@@ -6,15 +7,19 @@
 					<th>No.</th>
 					<th>Nombre</th>
 					<th>Apellido</th>
+					<th width="20%"></th>
 				</tr>
 			</thead>
 			<tbody>
-				{% for participante in participante_list %}
-				<tr>
-					<td>{{ forloop.counter }}</td>
-					<td>{{ participante.nombre }}</td>
-					<td>{{ participante.apellido }}</td>
-				</tr>
+				{% for participante in participante_list.participantes %}
+					{% for item in participante.listado|load_json %}
+					<tr>
+						<td>{{ forloop.counter }}</td>
+						<td>{{ item.fields.nombre }}</td>
+						<td>{{ item.fields.apellido }}</td>
+						<td><a href="{{ field.get_absolute_url }}" target="_blank" class='btn btn-block btn-success'><i class='fa fa-eye'></i> Detalle</a></td>
+					</tr>					
+					{% endfor %}
 				{% endfor %}
 			</tbody>
 		</table>
