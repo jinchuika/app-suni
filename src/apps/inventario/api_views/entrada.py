@@ -316,7 +316,7 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
                 sum_solicitudes = sum_devoluciones = sum_paquetes = 0
                 solicitudes = inv_m.SolicitudMovimiento.objects.filter(no_salida=no_salida, tipo_dispositivo=validar_dispositivos, terminada=True, recibida=True, devolucion=False).aggregate(Sum('cantidad'))
                 devoluciones = inv_m.SolicitudMovimiento.objects.filter(no_salida=no_salida, tipo_dispositivo=validar_dispositivos, terminada=True, recibida=True, devolucion=True).aggregate(Sum('cantidad'))
-                paquetes = inv_m.Paquete.objects.filter(salida=no_salida, tipo_paquete__tipo_dispositivo=validar_dispositivos).aggregate(Sum('cantidad'))
+                paquetes = inv_m.Paquete.objects.filter(salida=no_salida, tipo_paquete__tipo_dispositivo=validar_dispositivos, desactivado=False).aggregate(Sum('cantidad'))
 
                 if solicitudes['cantidad__sum'] is not None:
                     sum_solicitudes = solicitudes['cantidad__sum']
