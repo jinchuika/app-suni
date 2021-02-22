@@ -37,9 +37,9 @@ class SalidaInventarioCreateView(LoginRequiredMixin, GroupRequiredMixin, CreateV
 
     def form_valid(self, form):
         form.instance.creada_por = self.request.user
-        form.instance.estado = inv_m.SalidaEstado.objects.get(id=1)        
-        su_udi = form.cleaned_data['udi']              
-        if form.instance.entrega:            
+        form.instance.estado = inv_m.SalidaEstado.objects.get(id=1)
+        su_udi = form.cleaned_data['udi']
+        if form.instance.entrega:
             if su_udi == "":
                 form.instance.udi = None
             else:
@@ -49,13 +49,13 @@ class SalidaInventarioCreateView(LoginRequiredMixin, GroupRequiredMixin, CreateV
                     form.add_error('udi', 'El UDI no es válido o no existe.')
                     return self.form_invalid(form)
 
-        else: 
+        else:
             form.instance.escuela = None
-            if form.instance.garantia is not None:                
+            if form.instance.garantia is not None:
                 escuela = tpe_m.TicketSoporte.objects.get(id=str(form.instance.garantia))
                 nueva_escuela = escuela.garantia.equipamiento.escuela.codigo
                 form.instance.escuela = escuela_m.Escuela.objects.get(codigo=nueva_escuela)
-            else:                
+            else:
                 form.instance.escuela = None
         return super(SalidaInventarioCreateView, self).form_valid(form)
 
@@ -86,8 +86,8 @@ class SalidaInventarioUpdateView(LoginRequiredMixin, GroupRequiredMixin, UpdateV
             paquete__salida__id=self.object.id,
             paquete__tipo_paquete=cpu,
             )
-        comentarios_cc= inv_m.SalidaComentario.objects.filter(salida=self.object.id)        
-        comentarios_conta=inv_m.RevisionComentario.objects.filter(revision__salida=self.object.id)       
+        comentarios_cc= inv_m.SalidaComentario.objects.filter(salida=self.object.id)
+        comentarios_conta=inv_m.RevisionComentario.objects.filter(revision__salida=self.object.id)
         context['CPU'] = total_cpu.count()
         context['Laptops'] = Total_Laptop.count()
         context['Tablets'] = Total_Tablet.count()
@@ -131,10 +131,10 @@ class SalidaInventarioListView(LoginRequiredMixin,  FormView):
     model = inv_m.SalidaInventario
     form_class = inv_f.SalidaInventarioListForm
     template_name = 'inventario/salida/salida_add.html'
-    
+
     def get_context_data(self, **kwargs):
-        context = super(SalidaInventarioListView, self).get_context_data(**kwargs)        
-        context['lista'] = 1 
+        context = super(SalidaInventarioListView, self).get_context_data(**kwargs)
+        context['lista'] = 1
         return context
 
 
@@ -271,8 +271,8 @@ class RevisionSalidaUpdateView(LoginRequiredMixin, GroupRequiredMixin, UpdateVie
     group_required = [u"inv_conta", u"inv_admin"]
 
     def get_context_data(self, *args, **kwargs):
-        context = super(RevisionSalidaUpdateView, self).get_context_data(*args, **kwargs)       
-        comentarios_cc= inv_m.SalidaComentario.objects.filter(salida=self.object.salida.id)      
+        context = super(RevisionSalidaUpdateView, self).get_context_data(*args, **kwargs)
+        comentarios_cc= inv_m.SalidaComentario.objects.filter(salida=self.object.salida.id)
         context['comentario_cc'] = comentarios_cc
         return context
 
@@ -407,6 +407,10 @@ class GarantiaPrintView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
             paquete__salida__id=self.object.id,
             paquete__tipo_paquete=CPU,
             )
+        laptops_server = inv_m.DispositivoPaquete.objects.filter(
+            paquete__salida__id=self.object.id,
+            paquete__tipo_paquete=Laptop,
+            )
         Total_Cpu = inv_m.Paquete.objects.filter(
             salida__id=self.object.id,
             tipo_paquete=CPU).aggregate(total_cpu=Sum('cantidad'))
@@ -423,6 +427,14 @@ class GarantiaPrintView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
                     cpu_servidor = cpu_servidor + 1
             except Exception as e:
                 print(e)
+
+        for servidor_laptop  in laptops_server:
+            nueva_laptop = inv_m.Dispositivo.objects.get(triage=servidor_laptop.dispositivo).cast()            
+            try:
+                if nueva_laptop.servidor is True:
+                    cpu_servidor = cpu_servidor + 1
+            except Exception as e:
+                print(e)
         if Total_Cpu['total_cpu'] is None:
             Total_Cpu['total_cpu'] = 0
         if Total_Laptop['total_laptop'] is None:
@@ -435,7 +447,13 @@ class GarantiaPrintView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
         else:
             context['cpu'] = 0
         Fecha = inv_m.SalidaInventario.objects.get(id=self.object.id)
-        context['fin_garantia'] = Fecha.fecha + relativedelta(months=12)
+        context['capacitada'] = Fecha.capacitada
+        if Fecha.meses_garantia:
+            context['fin_garantia'] = Fecha.fecha + relativedelta(months=6)
+            context["tiempo"] = "6 meses"
+        else:
+            context['fin_garantia'] = Fecha.fecha + relativedelta(months=12)
+            context["tiempo"] = " 1 año"
         context['dispositivo_total'] = Total_Entregado
         context['cpu_servidor'] = cpu_servidor
         return context
@@ -499,13 +517,21 @@ class TabletPrintView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
         nuevas_tablets = []
         Tablet = inv_m.PaqueteTipo.objects.get(nombre="Tablet")
         Cargador = inv_m.PaqueteTipo.objects.get(nombre="Cargadores")
-
+        Cargador_cubo = inv_m.PaqueteTipo.objects.get(nombre="CUBO DE CARGA PARA TABLET")
+        Cable_cargador = inv_m.PaqueteTipo.objects.get(nombre="CABLE DE DATOS PARA TABLET")
         Total_Tablet = inv_m.DispositivoPaquete.objects.filter(
             paquete__salida__id=self.object.id,
             paquete__tipo_paquete=Tablet)
         Total_Cargador = inv_m.Paquete.objects.filter(
             salida__id=self.object.id,
             tipo_paquete=Cargador).aggregate(cargadores=Sum('cantidad'))
+        Total_Cargador_Cubo = inv_m.Paquete.objects.filter(
+            salida__id=self.object.id,
+            tipo_paquete=Cargador_cubo).aggregate(cargadores=Sum('cantidad'))
+        Total_Cable_Cargador = inv_m.Paquete.objects.filter(
+            salida__id=self.object.id,
+            tipo_paquete=Cargador).aggregate(cargadores=Sum('cantidad'))
+
         for triage in Total_Tablet:
             nueva_tablet = inv_m.Dispositivo.objects.get(triage=triage.dispositivo).cast()
             nuevas_tablets.append(nueva_tablet)
@@ -520,7 +546,16 @@ class TabletPrintView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
             context['Encargado'] = "No Tiene Encargado"
         context['Tablets'] = nuevas_tablets
         context['Total'] = Total_Tablet.count()
-        context['Cargador'] = Total_Cargador['cargadores']
+        if Total_Cargador['cargadores'] != None:
+            context['Cargador'] = Total_Cargador['cargadores']
+            context['Descripcion'] = "Cargadores"
+        elif Total_Cargador_Cubo['cargadores'] != None:
+            context['Cargador'] = Total_Cargador_Cubo['cargadores']
+            context['Descripcion'] = "Cubos de carga"
+        else:
+            context['Cargador'] = Total_Cable_Cargador['cargadores']
+            context['Descripcion'] = "Cables de carga"
+
         return context
 
 
@@ -538,6 +573,7 @@ class TpePrintView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
         nuevos_teclados = []
         nuevos_monitores = []
         nuevos_mouse = []
+        contador_all_in_one =0
         cpu = inv_m.PaqueteTipo.objects.get(nombre="CPU")
         monitor = inv_m.PaqueteTipo.objects.get(nombre="MONITOR")
         mouse = inv_m.PaqueteTipo.objects.get(nombre="MOUSE")
@@ -595,6 +631,10 @@ class TpePrintView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
             paquete__salida__id=self.object.id,
             paquete__tipo_paquete=cpu,
             )
+        total_all_in_on = inv_m.DispositivoPaquete.objects.filter(
+            paquete__salida__id=self.object.id,
+            paquete__tipo_paquete=cpu,
+            )
         total_monitor = inv_m.DispositivoPaquete.objects.filter(
             paquete__salida__id=self.object.id,
             paquete__tipo_paquete=monitor,
@@ -614,6 +654,8 @@ class TpePrintView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
             ).aggregate(total_cables_vga=Sum('cantidad'))
         for triage in total_cpu:
             nueva_cpu = inv_m.Dispositivo.objects.get(triage=triage.dispositivo).cast()
+            if nueva_cpu.all_in_one:
+                contador_all_in_one += 1
             nuevos_cpus.append(nueva_cpu)
             try:
                 if nueva_cpu.servidor is True:
@@ -656,6 +698,7 @@ class TpePrintView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
         context['Wifi'] = total_inalambricas['total_inalambricas']
         context['Ethernet'] = total_alambricas['total_alambricas']
         context['Access'] = total_access_point['total_access_point']
+        context['AllInOne'] = contador_all_in_one
         try:
             red = "Mixta"
             if total_inalambricas['total_inalambricas'] > 0 and total_alambricas['total_alambricas'] == 0:
@@ -749,7 +792,7 @@ class PrestamoCartaPrintView(LoginRequiredMixin, GroupRequiredMixin, DetailView)
         else:
             context['cpu'] = 0
         context['cpu_servidor'] = cpu_servidor
-        context['dispositivo_total'] = Total_Entregado + cpu_servidor 
+        context['dispositivo_total'] = Total_Entregado + cpu_servidor
         escuela = inv_m.SalidaInventario.objects.get(id=self.object.id)
         try:
             encargado = escuela_m.EscContacto.objects.get(escuela=escuela.escuela, rol=5)
