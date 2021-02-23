@@ -93,10 +93,11 @@
 									<a target='_blank' href="{% url 'garantia_print' pk=object.id%}" class="btn btn-success">Constacia de Garantia</a>
 									<a target='_blank' href="{% url 'prestamo_carta_print' pk=object.id%}" class="btn btn-primary">Carta de Prestamo</a>
 								{% endif %}
-								{% if Laptops > 1 %}
+								{% if Laptops >= 1 %}
 								 <a target='_blank' href="{% url 'laptop_print' pk=object.id%}" class="btn btn-info">Entrega de Laptops</a>
+								 <a target='_blank' href="{% url 'tpe_print' pk=object.id%}" class="btn btn-info">Entrega TPE</a>
 								{% endif %}
-								{% if Tablets > 1 %}
+								{% if Tablets >= 1 %}
 								 <a target='_blank' href="{% url 'tablet_print' pk=object.id%}" class="btn btn-primary">Entrega de Tablets</a>
 								{% endif %}
 								{% if CPU >= 1 %}
@@ -121,7 +122,7 @@
                 </tr>
               </thead>
               <tbody>
-              </tbody>             
+              </tbody>
             </table>
             <!--	</div> -->
           </div>
@@ -134,8 +135,8 @@
 {% endblock content %}
 {% block extra_js %}
 <script src="{% static "js/extrajs/inventario.js" %}"></script>
-<script>   
-  let Rechazado = new Salidas();  
+<script>
+  let Rechazado = new Salidas();
 </script>
 
 {% endblock extra_js %}

@@ -19,7 +19,7 @@ class SalidaInventarioForm(forms.ModelForm):
     class Meta:
         model = inv_m.SalidaInventario
         fields = '__all__'
-        exclude = ('creada_por', 'escuela', 'necesita_revision', 'entrada','entrega','url')
+        exclude = ('creada_por', 'escuela', 'necesita_revision', 'entrada','entrega','url','capacitada','meses_garantia')
         widgets = {
             'en_creacion': forms.HiddenInput(),
             'estado': forms.HiddenInput(),
@@ -28,7 +28,7 @@ class SalidaInventarioForm(forms.ModelForm):
             'escuela': forms.TextInput({'class': 'form-control', 'tabindex': '7'}),
             'observaciones': forms.Textarea({'class': 'form-control', 'tabindex': '5'}),
             'reasignado_por': forms.HiddenInput(),
-            'garantia': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '4'}),            
+            'garantia': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '4'}),
             'cooperante': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '8'}),
         }
 
@@ -48,7 +48,7 @@ class SalidaInventarioUpdateForm(forms.ModelForm):
     """
     class Meta:
         model = inv_m.SalidaInventario
-        fields = ('cooperante', 'fecha', 'en_creacion', 'observaciones','url')
+        fields = ('cooperante', 'fecha', 'en_creacion', 'observaciones','url','capacitada','meses_garantia')
         labels = {
                 'en_creacion': _('En Desarrollo'),
         }
@@ -173,7 +173,7 @@ class SalidaInventarioListForm(forms.Form):
         label='No. Salida',
         required=False,
         widget=forms.NumberInput(attrs={'class': 'form-control'}))
-   
+
     tipo_salida = forms.ModelChoiceField(
         queryset=inv_m.SalidaTipo.objects.all(),
         label='Tipo',

@@ -118,7 +118,7 @@
 						<td style="border:solid; border-width: 1px;border-color:gray" >{{cpu.marca | default_if_none:"Generico"}}</td>
 						<td style="border:solid; border-width: 1px;border-color:gray" >{{cpu.modelo | default_if_none:"Generico"}}</td>
 						<td style="border:solid; border-width: 1px;border-color:gray" >{{cpu.disco_duro | default_if_none:"Generico"}}</td>
-						<td style="border:solid; border-width: 1px;border-color:gray" >{{cpu.disco_duro.capacidad | default_if_none:"Generico"}} {{cpu.disco_duro.medida | default_if_none:"" }}</td>																						
+						<td style="border:solid; border-width: 1px;border-color:gray" >{{cpu.disco_duro.capacidad | default_if_none:"Generico"}} {{cpu.disco_duro.medida | default_if_none:"" }}</td>
 						<td style="border:solid; border-width: 1px;border-color:gray" >{{cpu.procesador | default_if_none:"Generico"}}</td>
 						<td style="border:solid; border-width: 1px;border-color:gray" >{{cpu.ram| default_if_none:"Generico"}} {{cpu.ram_medida | default_if_none:""}}</td>
 						<td style="border:solid; border-width: 1px;border-color:gray" >{{cpu.version_sistema | default_if_none:"Generico"}}</td>
@@ -219,13 +219,20 @@
 			<td style="border:solid; border-width: 1px;border-color:gray"><center>{{Red}}</center></td>
 			<td width="2%">
 			</td>
+			{% if AllInOne > 0 %}
+			<td>
+				adaptadores de Wifi USB
+			</td>
+			{% else %}
 			<td>
 				Tarjetas Wifi
 			</td>
+			{% endif %}
 			<td width="1%"></td>
 			<td style="border:solid; border-width: 1px;border-color:gray"><center>{{Wifi|default_if_none:"0"}}</center></td>
 			<td width="2%">
 			</td>
+
 			<td> Ethernet</td>
 			<td width="1%"></td>
 			<td style="border:solid; border-width: 1px;border-color:gray"><center>{{Ethernet|default_if_none:"0"}}</center></td>
@@ -364,7 +371,7 @@ body{
 <script src="{% static "js/bootstrap.min.js" %}"></script>
 {% block extra_js %}
 <script>
-window.onload= function () { window.print();window.close();   }
+//window.onload= function () { window.print();window.close();   }
 </script>
 {% endblock extra_js %}
 </html>

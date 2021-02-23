@@ -56,7 +56,7 @@ class DispositivoViewSet(viewsets.ModelViewSet):
         modelo = self.request.query_params.get('modelo', None)
         tarima = self.request.query_params.get('tarima', None)
         etapa = self.request.query_params.get('etapa', None)
-        
+
         if tipo is None:
             tipo_dis = self.request.user.tipos_dispositivos.tipos.all()
         else:
@@ -91,10 +91,10 @@ class DispositivoViewSet(viewsets.ModelViewSet):
     @action(methods=['post'], detail=False)
     def cambiar_cantidad(self,request, pk=None):
         """ Metodo  que cambia la cantidad de un paquete
-        """       
+        """
         paquete= request.data['idpaquete']
         cantidad = request.data['cantidad']
-        new_cantidad= inv_m.Paquete.objects.get(id=paquete)        
+        new_cantidad= inv_m.Paquete.objects.get(id=paquete)
         new_cantidad.cantidad = cantidad
         new_cantidad.save()
         return Response(
@@ -147,12 +147,12 @@ class DispositivoViewSet(viewsets.ModelViewSet):
             data = inv_m.Mouse.objects.filter(
                 triage__in=paquetes
             ).values(
-                'triage',                
+                'triage',
                 'marca',
                 'modelo',
                 'serie',
                 'tarima',
-                'puerto',               
+                'puerto',
                 'tipo_mouse',
                 'caja',
                 'clase').order_by('triage')
@@ -276,7 +276,8 @@ class DispositivoViewSet(viewsets.ModelViewSet):
                 'ram',
                 'ram_medida',
                 'pulgadas',
-                'clase'
+                'clase',
+                'servidor'
                 ).order_by('triage')
             return JsonResponse({
                 'data': list(data),
@@ -375,7 +376,7 @@ class DispositivoViewSet(viewsets.ModelViewSet):
             usuario=self.request.user
         )
         nueva_bitacora.save()
-        
+
         # Enviar correo de notificación
         motivo = ''
         lista_enviar_correos = []
@@ -441,13 +442,13 @@ class DispositivoViewSet(viewsets.ModelViewSet):
         """
         id = request.data['id']
         respuesta = request.data['respuesta']
-        if respuesta == str(1):            
+        if respuesta == str(1):
             solicitudes_movimiento = inv_m.SolicitudMovimiento.objects.get(id=id)
             usado = kax_m.EstadoEquipo.objects.get(estado='Usado')
             area_tecnica = kax_m.Proveedor.objects.get(nombre="AREA TECNICA")
             devolucion = kax_m.TipoEntrada.objects.get(tipo="Devolucion")
             motivo = ''
-            if solicitudes_movimiento.devolucion is True:               
+            if solicitudes_movimiento.devolucion is True:
                 nuevo = kax_m.Entrada(
                     estado=usado,
                     proveedor=area_tecnica,
@@ -478,7 +479,7 @@ class DispositivoViewSet(viewsets.ModelViewSet):
                 )
                 nueva_bitacora.save()
                 motivo = "SUNI - Solicitud de Kardex Aprobada: " + str(id)
-            else:               
+            else:
                 tipo_salida = kax_m.TipoSalida.objects.get(tipo="Inventario SUNI")
                 nuevo = kax_m.Salida(
                     tecnico=self.request.user,
@@ -501,7 +502,7 @@ class DispositivoViewSet(viewsets.ModelViewSet):
                 solicitudes_movimiento.salida_kardex = nuevo_detalle
                 solicitudes_movimiento.autorizada_por = self.request.user
                 solicitudes_movimiento.save()
-                
+
                 # Agregar Registro a bitácora
                 nueva_bitacora = inv_m.SolicitudBitacora(
                     fecha_movimiento=datetime.now(),
@@ -528,7 +529,7 @@ class DispositivoViewSet(viewsets.ModelViewSet):
                     'url': "https://suni.funsepa.org" + str(solicitudes_movimiento.get_absolute_url()),
                 })
 
-            
+
             # Enviar Correo
             """send_mail(
                 motivo,
@@ -584,7 +585,7 @@ class DispositivoViewSet(viewsets.ModelViewSet):
                 fail_silently=True,
                 html_message = html_message
             )"""
-            
+
             return Response(
                 {'mensaje': 'Solicitud Rechazada'},
                 status=status.HTTP_200_OK
@@ -752,16 +753,16 @@ class DispositivosPaquetesViewSet(viewsets.ModelViewSet):
             nuevo_paquete = inv_m.Paquete.objects.get(id=paquete)
             nuevo_paquete.aprobado_kardex = False
             nuevo_paquete.save()
-        else:           
+        else:
             triage = request.data["triage"]
             cambio_estado = inv_m.Dispositivo.objects.get(triage=triage)
             cambio_estado.estado = inv_m.DispositivoEstado.objects.get(id=inv_m.DispositivoEstado.PD)
             cambio_estado.save()
-            desasignar_paquete = inv_m.DispositivoPaquete.objects.get(dispositivo__triage=triage)            
-            desasignar_paquete.aprobado = False  
-            desasignar_paquete.save()       
+            desasignar_paquete = inv_m.DispositivoPaquete.objects.get(dispositivo__triage=triage)
+            desasignar_paquete.aprobado = False
+            desasignar_paquete.save()
             desasignar_paquete.paquete.aprobado = False
-            desasignar_paquete.paquete.save()            
+            desasignar_paquete.paquete.save()
         return Response({
             'mensaje': 'El dispositivo a sido Rechazado'
         },
@@ -773,6 +774,7 @@ class DispositivosPaquetesViewSet(viewsets.ModelViewSet):
         """ Metodo para actualizar nuevos dispositivos mediante el grid
         """
         dispositivos = json.loads(request.data["datos_actualizar"])
+
         tipo = request.data["dispositivo"]
         if tipo == "TECLADO":
             for datos in dispositivos:
@@ -1031,6 +1033,7 @@ class DispositivosPaquetesViewSet(viewsets.ModelViewSet):
                 new_dispositivo.save()
         elif tipo == "LAPTOP":
             for datos in dispositivos:
+                print(datos['servidor'])
                 new_dispositivo = inv_m.Laptop.objects.get(triage=datos['triage'])
                 try:
                     new_dispositivo.marca = inv_m.DispositivoMarca.objects.get(id=datos['marca'])
@@ -1076,6 +1079,13 @@ class DispositivosPaquetesViewSet(viewsets.ModelViewSet):
                     new_dispositivo.clase = inv_m.DispositivoClase.objects.get(id=datos['clase'])
                 except ObjectDoesNotExist as e:
                     print("Clase no necesita actualizacion")
+                try:
+                    if datos['servidor']:
+                        new_dispositivo.servidor = True
+                    else:
+                         new_dispositivo.servidor = False
+                except ObjectDoesNotExist as e:
+                    print("Servidor no necesita actualizacion")
                 new_dispositivo.save()
         elif tipo == "SWITCH":
             for datos in dispositivos:
@@ -1171,14 +1181,14 @@ class DispositivosPaquetesViewSet(viewsets.ModelViewSet):
 class SolicitudMovimientoFilter(filters.FilterSet):
     """ Filtros para generar informe de  Salida
     """
-    estado = django_filters.NumberFilter(name='estado', method='filter_estado')    
+    estado = django_filters.NumberFilter(name='estado', method='filter_estado')
     fecha_min = django_filters.DateFilter(name='fecha_min', method='filter_fecha')
     fecha_max = django_filters.DateFilter(name='fecha_max', method='filter_fecha')
 
     class Meta:
         model = inv_m.SolicitudMovimiento
         fields = ['devolucion','estado','tipo_dispositivo','fecha_min', 'fecha_max']
-    
+
     def filter_fecha(self, queryset, name, value):
         if value and name == 'fecha_min':
             queryset = queryset.filter(fecha_creacion__gte=value)
@@ -1209,7 +1219,7 @@ class SolicitudMovimientoViewSet(viewsets.ModelViewSet):
         """
 
         fecha_min = self.request.query_params.get('fecha_min', None)
-        fecha_max = self.request.query_params.get('fecha_max', None)   
+        fecha_max = self.request.query_params.get('fecha_max', None)
         filtros = False
 
         # Obtener valores de lista para tipo
