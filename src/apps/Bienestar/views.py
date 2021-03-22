@@ -56,6 +56,32 @@ class BienestarListView(LoginRequiredMixin, FormView):
     template_name = 'bienestar/bienestar_informe.html'
     form_class = bienestar_f.BienestarInformeForm
 
+    def get_context_data(self, **kwargs):
+        context = super(BienestarListView, self).get_context_data(**kwargs)
+        colaboradores = Colaborador.objects.exclude(usuario__isnull=True).values_list('usuario',flat=True).distinct()
+        riesgo_individual = 0
+        riesgo_familiar = 0
+        riesgo_comunidad = 0
+        riesgo_mental = 0
+
+        for colaborador in colaboradores:
+            ultimo_registro = Colaborador.objects.filter(usuario=colaborador).order_by('-fecha')[0]
+
+            if ultimo_registro.pregunta4 == "Sí": riesgo_individual += 1
+
+            if ultimo_registro.pregunta7 == "Regular" or ultimo_registro.pregunta7 == "Malo": riesgo_mental += 1
+
+            if ultimo_registro.pregunta10 == "Sí": riesgo_familiar += 1
+
+            if ultimo_registro.pregunta14 == "Sí": riesgo_comunidad += 1
+
+        context['riesgo_individual'] = riesgo_individual
+        context['riesgo_familiar'] = riesgo_familiar
+        context['riesgo_comunidad'] = riesgo_comunidad
+        context['riesgo_mental'] = riesgo_mental
+
+        return context
+
 class ResultadoBienestarJson(LoginRequiredMixin, views.APIView):
         """ Importar registros de excel con DjangoRestFramework para Bienestar
         """
@@ -129,81 +155,42 @@ class InformeBienestarJson(LoginRequiredMixin, views.APIView):
         """ Regreso los datos obtenidos del modelo de `Bienestar` para generar el informe
         """
         def post(self, request):
-            datos_nuevos={}
-            datos_enviar_json=[]
             fecha_min =self.request.POST['fecha_min']
             fecha_max = self.request.POST['fecha_max']
             nombre = self.request.POST['colaborador']
-            correo=Colaborador.objects.get(usuario=nombre)
-            datos_colaborador=Colaborador.objects.filter(email=correo.email, fecha__gte=fecha_min,fecha__lte=fecha_max).first()
-            datos_buscar_colaborador=Colaborador.objects.filter(email=correo.email, fecha__gte=fecha_min,fecha__lte=fecha_max)
-            respuesta_si=Colaborador.objects.filter(email=correo.email, fecha__gte=fecha_min,fecha__lte=fecha_max,pregunta4='Sí').count()
-            respuesta_no=Colaborador.objects.filter(email=correo.email, fecha__gte=fecha_min,fecha__lte=fecha_max,pregunta4='No').count()
-            datos_nuevos['nombre']=datos_colaborador.usuario
-            datos_nuevos['dpi']=int(float(datos_colaborador.dpi)) if datos_colaborador.dpi else ""
-            datos_nuevos['edad']=datos_colaborador.edad
+            datos_enviar_json=[]
+            
+            if nombre:
+                correo=Colaborador.objects.get(usuario=nombre)
+                datos_buscar_colaborador=Colaborador.objects.filter(email=correo.email, fecha__gte=fecha_min,fecha__lte=fecha_max)
+            else:
+                datos_buscar_colaborador=Colaborador.objects.all()
+
             for datos_enviar in datos_buscar_colaborador:
                 datos_corregidos={}
-                if datos_enviar.usuario is None:
-                    datos_corregidos['fecha']=datos_enviar.fecha.date()
-                    datos_corregidos['nombre']=datos_nuevos['nombre']
-                    datos_corregidos['correo']=datos_enviar.email
-                    datos_corregidos['dpi']=datos_nuevos['dpi']
-                    datos_corregidos['edad']=datos_nuevos['edad']
-                    if datos_enviar.pregunta4 =='Sí':
-                        datos_corregidos['respuesta_si']=1
-                        datos_corregidos['respuesta_no']=0
-                    else:
-                        datos_corregidos['respuesta_no']=1
-                        datos_corregidos['respuesta_si']=0
-                    datos_corregidos['pregunta1']=datos_enviar.pregunta1
-                    datos_corregidos['pregunta2']=datos_enviar.pregunta2
-                    datos_corregidos['pregunta3']=datos_enviar.pregunta3
-                    datos_corregidos['pregunta4']=datos_enviar.pregunta4
-                    datos_corregidos['pregunta5']=datos_enviar.pregunta5
-                    datos_corregidos['pregunta6']=datos_enviar.pregunta6
-                    datos_corregidos['pregunta7']=datos_enviar.pregunta7
-                    datos_corregidos['pregunta8']=datos_enviar.pregunta8
-                    datos_corregidos['pregunta9']=datos_enviar.pregunta9
-                    datos_corregidos['pregunta10']=datos_enviar.pregunta10
-                    datos_corregidos['pregunta11']=datos_enviar.pregunta11
-                    datos_corregidos['pregunta12']=datos_enviar.pregunta12
-                    datos_corregidos['pregunta13']=datos_enviar.pregunta13
-                    datos_corregidos['pregunta14']=datos_enviar.pregunta14
-                    datos_corregidos['pregunta15']=datos_enviar.pregunta15
-                    datos_corregidos['pregunta16']=datos_enviar.pregunta16
-                    datos_corregidos['pregunta17']=datos_enviar.pregunta17
-                    datos_enviar_json.append(datos_corregidos)
-                else:
-                    datos_corregidos['fecha']=datos_enviar.fecha.date()
-                    datos_corregidos['nombre']=datos_enviar.usuario
-                    datos_corregidos['dpi']=int(float(datos_colaborador.dpi))
-                    datos_corregidos['edad']=datos_enviar.edad
-                    datos_corregidos['correo']=datos_enviar.email
-                    if datos_enviar.pregunta4 =='Sí':
-                        datos_corregidos['respuesta_si']=1
-                        datos_corregidos['respuesta_no']=0
-                    else:
-                        datos_corregidos['respuesta_no']=1
-                        datos_corregidos['respuesta_si']=0
-                    datos_corregidos['pregunta1']=datos_enviar.pregunta1
-                    datos_corregidos['pregunta2']=datos_enviar.pregunta2
-                    datos_corregidos['pregunta3']=datos_enviar.pregunta3
-                    datos_corregidos['pregunta4']=datos_enviar.pregunta4
-                    datos_corregidos['pregunta5']=datos_enviar.pregunta5
-                    datos_corregidos['pregunta6']=datos_enviar.pregunta6
-                    datos_corregidos['pregunta7']=datos_enviar.pregunta7
-                    datos_corregidos['pregunta8']=datos_enviar.pregunta8
-                    datos_corregidos['pregunta9']=datos_enviar.pregunta9
-                    datos_corregidos['pregunta10']=datos_enviar.pregunta10
-                    datos_corregidos['pregunta11']=datos_enviar.pregunta11
-                    datos_corregidos['pregunta12']=datos_enviar.pregunta12
-                    datos_corregidos['pregunta13']=datos_enviar.pregunta13
-                    datos_corregidos['pregunta14']=datos_enviar.pregunta14
-                    datos_corregidos['pregunta15']=datos_enviar.pregunta15
-                    datos_corregidos['pregunta16']=datos_enviar.pregunta16
-                    datos_corregidos['pregunta17']=datos_enviar.pregunta17
-                    datos_enviar_json.append(datos_corregidos)
+                datos_corregidos['fecha']=datos_enviar.fecha.date()
+                datos_corregidos['nombre']=datos_enviar.usuario
+                datos_corregidos['correo']=datos_enviar.email
+                datos_corregidos['dpi']=datos_enviar.dpi
+                datos_corregidos['edad']=datos_enviar.edad
+                datos_corregidos['pregunta1']=datos_enviar.pregunta1
+                datos_corregidos['pregunta2']=datos_enviar.pregunta2
+                datos_corregidos['pregunta3']=datos_enviar.pregunta3
+                datos_corregidos['pregunta4']=datos_enviar.pregunta4
+                datos_corregidos['pregunta5']=datos_enviar.pregunta5
+                datos_corregidos['pregunta6']=datos_enviar.pregunta6
+                datos_corregidos['pregunta7']=datos_enviar.pregunta7
+                datos_corregidos['pregunta8']=datos_enviar.pregunta8
+                datos_corregidos['pregunta9']=datos_enviar.pregunta9
+                datos_corregidos['pregunta10']=datos_enviar.pregunta10
+                datos_corregidos['pregunta11']=datos_enviar.pregunta11
+                datos_corregidos['pregunta12']=datos_enviar.pregunta12
+                datos_corregidos['pregunta13']=datos_enviar.pregunta13
+                datos_corregidos['pregunta14']=datos_enviar.pregunta14
+                datos_corregidos['pregunta15']=datos_enviar.pregunta15
+                datos_corregidos['pregunta16']=datos_enviar.pregunta16
+                datos_corregidos['pregunta17']=datos_enviar.pregunta17
+                datos_enviar_json.append(datos_corregidos)
             return Response(
                 datos_enviar_json,
                 status=status.HTTP_200_OK

@@ -3443,6 +3443,8 @@ class RepuestosList {
       var estado = $('#id_estado option:selected').val();
 
       var tabla = repuesto_tabla.DataTable({
+        dom: 'Bfrtip',
+        buttons: ['excel', 'pdf', 'copy'],
         destroy:true,
         searching:true,
         paging:true,
