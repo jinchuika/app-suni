@@ -90,6 +90,7 @@ urlpatterns = [
         name='solicitud_list'
         ),
     # Creacion del Historia de Solicitud
+    # punto de api
     url(
         r'^solicitud_comentarios/add/$',
         SolicitudComentarioCrear.as_view(),
@@ -109,6 +110,7 @@ urlpatterns = [
         name='validacion_update'
         ),
     # Agregar Comentarios
+    #punto de api
     url(
         r'^validacion_comentario/add/$',
         ValidacionComentarioCrear.as_view(),
