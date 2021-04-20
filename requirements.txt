@@ -26,7 +26,7 @@ oauthlib==2.0.0
 packaging==16.8
 persisting-theory==0.2.1
 Pillow==3.3.1
-py==1.4.31
+py==1.10.0
 pyparsing==2.1.10
 pytest==3.0.3
 pytest-cov==2.4.0
