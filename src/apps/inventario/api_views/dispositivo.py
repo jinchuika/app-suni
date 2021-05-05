@@ -37,6 +37,23 @@ class DispositivoFilter(filters.FilterSet):
     def filter_asignacion(self, qs, name, value):
         return qs.annotate(asignaciones=Count('asignacion')).filter(asignaciones=value)
 
+class DispositosDetalleAndroid(viewsets.ModelViewSet):
+    """ ViewSet para generar informes de :class:`Dispositivo`
+    que seran enviado a la aplicacion de Android
+    """
+    serializer_class = inv_s.DispositivoSerializer
+    filter_class = DispositivoFilter
+    ordering = ('entrada')
+
+    def get_queryset(self):
+        """ Este queryset se encarga de filtrar los dispositivo que se van a mostrar en lista
+            general
+        """
+        dispositivo = self.request.query_params.get('id', None)
+        triage = self.request.query_params.get('triage', None)
+        tipo = self.request.query_params.get('tipo', None)
+        return inv_m.Dispositivo.objects.filter(id=dispositivo)      
+
 
 class DispositivoViewSet(viewsets.ModelViewSet):
     """ ViewSet para generar informes de :class:`Dispositivo`

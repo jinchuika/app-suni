@@ -29,5 +29,11 @@ dispositivo_router.register(
     base_name='api_solicitudmovimiento'
 
 )
+dispositivo_router.register(
+    r'dispositivoapp',
+    api_views.DispositosDetalleAndroid,
+    base_name='api_detalle_dispositivo_app'
+
+)
 dispositivo_urlpatterns = []
 dispositivo_urlpatterns += dispositivo_router.urls
