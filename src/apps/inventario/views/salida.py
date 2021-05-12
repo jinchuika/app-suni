@@ -429,7 +429,7 @@ class GarantiaPrintView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
                 print(e)
 
         for servidor_laptop  in laptops_server:
-            nueva_laptop = inv_m.Dispositivo.objects.get(triage=servidor_laptop.dispositivo).cast()            
+            nueva_laptop = inv_m.Dispositivo.objects.get(triage=servidor_laptop.dispositivo).cast()
             try:
                 if nueva_laptop.servidor is True:
                     cpu_servidor = cpu_servidor + 1
@@ -518,7 +518,7 @@ class TabletPrintView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
         Tablet = inv_m.PaqueteTipo.objects.get(nombre="Tablet")
         Cargador = inv_m.PaqueteTipo.objects.get(nombre="Cargadores")
         Cargador_cubo = inv_m.PaqueteTipo.objects.get(nombre="CUBO DE CARGA PARA TABLET")
-        Cable_cargador = inv_m.PaqueteTipo.objects.get(nombre="CABLE DE DATOS PARA TABLET")
+        Cable_cargador = inv_m.PaqueteTipo.objects.get(nombre="CARGADOR ENTRADA GRANDE PARA TABLET")
         Total_Tablet = inv_m.DispositivoPaquete.objects.filter(
             paquete__salida__id=self.object.id,
             paquete__tipo_paquete=Tablet)
@@ -530,7 +530,7 @@ class TabletPrintView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
             tipo_paquete=Cargador_cubo).aggregate(cargadores=Sum('cantidad'))
         Total_Cable_Cargador = inv_m.Paquete.objects.filter(
             salida__id=self.object.id,
-            tipo_paquete=Cargador).aggregate(cargadores=Sum('cantidad'))
+            tipo_paquete=Cable_cargador).aggregate(cargadores=Sum('cantidad'))
 
         for triage in Total_Tablet:
             nueva_tablet = inv_m.Dispositivo.objects.get(triage=triage.dispositivo).cast()
