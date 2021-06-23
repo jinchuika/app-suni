@@ -91,7 +91,7 @@ class ListadoMaestroView(TemplateView):
                     id_sede = int(valor_data['id_sede'])
                     suma_curso += int(valor_data['nota'])
                     fecha_final = datetime.datetime.strptime(valor_data['fecha_final'], '%Y-%m-%d').date()
-                    fecha_valida_const = fecha_final + datetime.timedelta(days=90)
+                    fecha_valida_const = fecha_final + datetime.timedelta(days=31)
 
                     # Validar si recibió NAAT en la sede (18 o 22 semanas)
                     if grupo_naat == 1 or grupo_naat == 2 and naat == False:
@@ -103,7 +103,7 @@ class ListadoMaestroView(TemplateView):
                         naat = True
 
                     # Validar si la capacitación fué durante el año actual y si no ha expirado el periodo de tiempo
-                    if fecha_final.year == datetime.date.today().year:
+                    if fecha_final.year <= datetime.date.today().year:
                       if datetime.date.today() <= fecha_valida_const:
                         # Validación por año de pandemia
                         if fecha_final.year == 2020 and fecha_final.month >= 4:
@@ -117,11 +117,11 @@ class ListadoMaestroView(TemplateView):
                 promedio = suma_curso / len(asignaciones)
 
                 # Validar si la capacitación fué durante el año actual y si no ha expirado el periodo de tiempo
-                fecha_valida_cert = fecha_final + datetime.timedelta(days=290)
-                if fecha_final.year == datetime.date.today().year:
+                fecha_valida_cert = fecha_final + datetime.timedelta(days=80)
+                if fecha_final.year <= datetime.date.today().year:
                   if datetime.date.today() <= fecha_valida_cert:
                     # Validación por año de pandemia
-                    if fecha_final.year == 2020 and fecha_final.month <= 4 or grupo_naat == 3 or grupo_naat == 2:
+                    if fecha_final.year >= 2021:
                       year_cert = True
 
                 # Crear Objeto Asignacion por sede
@@ -191,10 +191,10 @@ class DiplomaPdfView(View):
               asignaciones.append(nuevo)
 
          # Validar si la capacitación fué durante el año actual y si no ha expirado el periodo de tiempo}
-         fecha_valida_cert = fecha_final + datetime.timedelta(days=290)
-         if fecha_final.year == datetime.date.today().year:
+         fecha_valida_cert = fecha_final + datetime.timedelta(days=80)
+         if fecha_final.year <= datetime.date.today().year:
             if datetime.date.today() <= fecha_valida_cert:
-              if fecha_final.year == 2020 and fecha_final.month <= 4 or grupo_naat == 3 or grupo_naat == 2:
+              if fecha_final.year >= 2021:
                 year_cert = True
 
          if year_cert == False:
@@ -324,9 +324,9 @@ class ConstanciaPdfView(View):
               url_constancia = str(registro['constancia'])
               asignaciones.append(registro)
 
-         fecha_valida_const = fecha_final + datetime.timedelta(days=90)
+         fecha_valida_const = fecha_final + datetime.timedelta(days=31)
          # Validar si la capacitación fué durante el año actual y si no ha expirado el periodo de tiempo
-         if fecha_final.year == datetime.date.today().year:
+         if fecha_final.year <= datetime.date.today().year:
             if datetime.date.today() <= fecha_valida_const:
               # Validación por año de pandemia
               if fecha_final.year == 2020 and fecha_final.month >= 4:

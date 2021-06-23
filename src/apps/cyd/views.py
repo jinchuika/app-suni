@@ -185,7 +185,7 @@ class GrupoCreateView(LoginRequiredMixin, GroupRequiredMixin, CreateView):
     def get_form(self, form_class=None):
         form = super(GrupoCreateView, self).get_form(form_class)
         if self.request.user.groups.filter(name="cyd_capacitador").exists():
-            form.fields['sede'].queryset = cyd_m.Sede.objects.filter(capacitador=self.request.user)
+            form.fields['sede'].queryset = cyd_m.Sede.objects.filter(capacitador=self.request.user, activa=True)
         return form
 
     def form_valid(self, form):
