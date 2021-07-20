@@ -84,6 +84,9 @@ class ListadoMaestroView(TemplateView):
                 year_const = False
                 fecha_final = 0
                 id_sede = 0
+                combo_completo = False
+                ka_lite = False
+                grupo_combos = 0
 
                 # Obtener Promedio de Cursos por Sede
                 for valor_data in data:
@@ -91,22 +94,26 @@ class ListadoMaestroView(TemplateView):
                     id_sede = int(valor_data['id_sede'])
                     suma_curso += int(valor_data['nota'])
                     fecha_final = datetime.datetime.strptime(valor_data['fecha_final'], '%Y-%m-%d').date()
+                    # Fecha válida para constancias (31 días)
                     fecha_valida_const = fecha_final + datetime.timedelta(days=90)
 
-                    # Validar si recibió NAAT en la sede (18 o 22 semanas)
+                    # Validar si recibió NAAT en la sede (18 o 22 semanas) o bien si recibió KaLite (Grupo 4)
                     if grupo_naat == 1 or grupo_naat == 2 and naat == False:
                       grupo = int(valor_data['grupo'])
-                      if grupo == 2:
+                      if grupo == 1:
+                        grupo_combos += 1 
+                      elif grupo == 2:
                         grupo_naat = 2
                       elif grupo == 3:
                         grupo_naat = 3
                         naat = True
+                      elif grupo == 4:
+                        grupo_combos += 1
+                        ka_lite = True
 
                     # Validar si la capacitación fué durante el año actual y si no ha expirado el periodo de tiempo
-                    if fecha_final.year == datetime.date.today().year:
+                    if fecha_final.year <= datetime.date.today().year:
                       if datetime.date.today() <= fecha_valida_const:
-                        # Validación por año de pandemia
-                        if fecha_final.year == 2020 and fecha_final.month >= 4:
                           year_const = True
                     valor_data['year_const'] = year_const
 
@@ -117,15 +124,19 @@ class ListadoMaestroView(TemplateView):
                 promedio = suma_curso / len(asignaciones)
 
                 # Validar si la capacitación fué durante el año actual y si no ha expirado el periodo de tiempo
-                fecha_valida_cert = fecha_final + datetime.timedelta(days=290)
-                if fecha_final.year == datetime.date.today().year:
+                fecha_valida_cert = fecha_final + datetime.timedelta(days=30)
+                if fecha_final.year <= datetime.date.today().year:
                   if datetime.date.today() <= fecha_valida_cert:
-                    # Validación por año de pandemia
-                    if fecha_final.year == 2020 and fecha_final.month <= 4 or grupo_naat == 3 or grupo_naat == 2:
                       year_cert = True
 
+                # Validar si se ha dado el combo completo:
+                if grupo_combos == 4 and ka_lite == True:
+                  combo_completo = True  
+                else: 
+                  combo_completo = False
+
                 # Crear Objeto Asignacion por sede
-                values = {"id": id_sede,"sede": sede, "asignaciones": asignaciones, "promedio": promedio, "grupo":grupo_naat, "year_cert":year_cert}
+                values = {"id": id_sede,"sede": sede, "asignaciones": asignaciones, "promedio": promedio, "grupo":grupo_naat, "year_cert":year_cert, "combo_completo":combo_completo}
                 sede_asignacion.append(dict(values))
 
                context['sedes'] = sede_asignacion
@@ -173,6 +184,9 @@ class DiplomaPdfView(View):
          fecha_final = 0
          naat = False
          grupo_naat = 1
+         combo_completo = False
+         ka_lite = False
+         grupo_combos = 0
          asignaciones = []
          for  nuevo in data:
             if int(nuevo['id_sede']) == int(id_sede):
@@ -182,27 +196,36 @@ class DiplomaPdfView(View):
               # Validar si recibió NAAT en la sede
               if grupo_naat == 1 or grupo_naat == 2 and naat == False:
                 grupo = int(nuevo['grupo'])
-                if grupo == 2:
+                if grupo==1:
+                  grupo_combos += 1
+                elif grupo == 2:
                   grupo_naat = 2
                 elif grupo == 3:
                   grupo_naat = 3
                   naat = True
+                elif grupo == 4:
+                  grupo_combos += 1
+                  ka_lite = True
 
               asignaciones.append(nuevo)
 
          # Validar si la capacitación fué durante el año actual y si no ha expirado el periodo de tiempo}
-         fecha_valida_cert = fecha_final + datetime.timedelta(days=290)
-         if fecha_final.year == datetime.date.today().year:
+         fecha_valida_cert = fecha_final + datetime.timedelta(days=300)
+         if fecha_final.year <= datetime.date.today().year:
             if datetime.date.today() <= fecha_valida_cert:
-              if fecha_final.year == 2020 and fecha_final.month <= 4 or grupo_naat == 3 or grupo_naat == 2:
+              if fecha_final.year >= 2021:
                 year_cert = True
 
          if year_cert == False:
             return HttpResponse("Curso No Válido")
 
+         if grupo_naat == 1:
+          if grupo_combos < 4 or ka_lite == False:
+            return HttpResponse("Programa de capacitación no finalizado")
+
          if len(asignaciones) > 0:
             promedio = suma_curso / len(asignaciones)
-            if promedio >= 71:
+            if promedio >= 75:
               #Creacion de codigos QR
               qr = qrcode.QRCode(
                 version=1,
@@ -225,15 +248,17 @@ class DiplomaPdfView(View):
               #creacion de tipo de hoja y asignar imagen para colocar de fondo
               h=letter
               if int(tipo_curso) == 2 and grupo_naat == 2:
-                ruta_diploma = str(settings.STATICFILES_DIRS[0] ) + str("/css/diploma/certificadoNaat22.jpg")
+                ruta_diploma = str(settings.STATICFILES_DIRS[0] ) + str("/css/diploma/CertificadoNaat22.png")
               elif int(tipo_curso) == 3 and grupo_naat == 3:
-                ruta_diploma = str(settings.STATICFILES_DIRS[0] ) + str("/css/diploma/certificadoNaat18.jpg")
+                ruta_diploma = str(settings.STATICFILES_DIRS[0] ) + str("/css/diploma/CertificadoNaat18.png")
               else:
-                ruta_diploma = str(settings.STATICFILES_DIRS[0] ) + str("/css/diploma/CertificadoTB.jpg")
+                ruta_diploma = str(settings.STATICFILES_DIRS[0] ) + str("/css/diploma/CertificadoTB.png")
 
               #obtener tipo de fuente que se le aplicara al nombre del diploma
-              ruta_ttf = str(settings.STATICFILES_DIRS[0] ) + str("/css/diploma/EdwardianScriptITC.ttf")
-              registerFont(TTFont('Edwardian',ruta_ttf))
+              ruta_ttf = str(settings.STATICFILES_DIRS[0] ) + str("/css/diploma/MyriadPro_BoldIt.ttf")
+              registerFont(TTFont('MyriadPro_BoldIt',ruta_ttf))
+              ruta_ttf = str(settings.STATICFILES_DIRS[0] ) + str("/css/diploma/MyriadPro_Regular.ttf")
+              registerFont(TTFont('MyriadPro_Regular',ruta_ttf))
               response = HttpResponse(content_type='application/pdf')
               if int(tipo_curso) == 2 and grupo_naat == 2:
                 response['Content-Disposition'] = 'filename="DiplomaFunsepaNaat22-{}.pdf"'.format(str(self.request.GET['dpi']))
@@ -246,26 +271,31 @@ class DiplomaPdfView(View):
               buffer = BytesIO()
               c = canvas.Canvas(buffer, pagesize=(landscape(letter)))
               x = 400
-              if int(tipo_curso) == 2 and grupo_naat == 2 or int(tipo_curso) == 3 and grupo_naat == 3:
+              y = 220
+              """if int(tipo_curso) == 2 and grupo_naat == 2 or int(tipo_curso) == 3 and grupo_naat == 3:
                 y = 275
               else:
-                y = 220
+                y = 220"""
               w = 103
               h = 119
 
               #creacion  de la imagen que se colocora de fondo
               c.drawImage(ruta_diploma, 0,0,width=792,height=612,anchor='sw',anchorAtXY=True,showBoundary=False)
               c.drawImage(ruta_qr,35,45,width=50,height=50,anchor='sw',anchorAtXY=True,showBoundary=False)
-              c.setFont("Edwardian",50,leading=None)
+              c.setFont("MyriadPro_Regular",30,leading=None)
               c.setFillColor((0,0,0))
-              if int(tipo_curso) == 2 and grupo_naat == 2 or int(tipo_curso) == 3 and grupo_naat == 3:
+              c.drawCentredString(x+w*0.0,y+h*0.5, str(data[0]['nombre'].upper())+" "+str(data[0]['apellido'].upper()))
+              c.setFont("MyriadPro_BoldIt",18,leading=None)
+              c.drawCentredString(x+w*0.0,60+h*0.5, "Guatemala, " + datetime.datetime.now().strftime("%d de %B del %Y"))
+              
+              """if int(tipo_curso) == 2 and grupo_naat == 2 or int(tipo_curso) == 3 and grupo_naat == 3:
                 c.drawCentredString(x+w*0.0,y+h*0.5, str(data[0]['nombre'])+" "+str(data[0]['apellido']))
-                c.setFont("Times-Bold",15,leading=None)
+                c.setFont("MyriadProBold",15,leading=None)
                 c.drawCentredString(x+w*0.0,75+h*0.5, "Guatemala, " + datetime.datetime.now().strftime("%d de %B del %Y"))
               else:
                 c.drawCentredString(x+w*0.0,y+h*0.5, str(data[0]['nombre'])+" "+str(data[0]['apellido']))
-                c.setFont("Times-Bold",15,leading=None)
-                c.drawCentredString(x+w*0.0,60+h*0.5, "Guatemala, " + datetime.datetime.now().strftime("%d de %B del %Y"))
+                c.setFont("MyriadProBold",15,leading=None)
+                c.drawCentredString(x+w*0.0,60+h*0.5, "Guatemala, " + datetime.datetime.now().strftime("%d de %B del %Y"))"""
               c.setTitle('Diploma Funsepa')
               c.showPage()
               c.save()
@@ -324,12 +354,10 @@ class ConstanciaPdfView(View):
               url_constancia = str(registro['constancia'])
               asignaciones.append(registro)
 
-         fecha_valida_const = fecha_final + datetime.timedelta(days=90)
+         fecha_valida_const = fecha_final + datetime.timedelta(days=300)
          # Validar si la capacitación fué durante el año actual y si no ha expirado el periodo de tiempo
-         if fecha_final.year == datetime.date.today().year:
+         if fecha_final.year <= datetime.date.today().year:
             if datetime.date.today() <= fecha_valida_const:
-              # Validación por año de pandemia
-              if fecha_final.year == 2020 and fecha_final.month >= 4:
                 year_const = True
 
          if year_const == False:

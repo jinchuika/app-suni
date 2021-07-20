@@ -12,5 +12,4 @@ def has_group(user, group_name):
 
 @register.filter(name='load_json')
 def load_json(data):
-	print("Entro")
 	return json.loads(data)

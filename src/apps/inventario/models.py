@@ -964,6 +964,7 @@ class Laptop(Dispositivo):
     ram = models.PositiveIntegerField(null=True, blank=True)
     ram_medida = models.ForeignKey(DispositivoMedida, null=True, blank=True)
     pulgadas = models.DecimalField(max_digits=3, decimal_places=1, null=True, blank=True)
+    servidor = models.BooleanField(default=False)
 
     class Meta:
         verbose_name = "Laptop"
@@ -1108,8 +1109,8 @@ class Repuesto(models.Model):
 
 
 class DispositivoRepuesto(models.Model):
-    dispositivo = models.ForeignKey(Dispositivo, on_delete=models.CASCADE)    
-    repuesto = models.ForeignKey(Repuesto, on_delete=models.CASCADE)   
+    dispositivo = models.ForeignKey(Dispositivo, on_delete=models.CASCADE)
+    repuesto = models.ForeignKey(Repuesto, on_delete=models.CASCADE)
     fecha_asignacion = models.DateTimeField(default=timezone.now)
     asignado_por = models.ForeignKey(User, on_delete=models.PROTECT)
 
@@ -1156,7 +1157,7 @@ class DesechoEmpresa(models.Model):
 class DesechoSalida(models.Model):
     fecha = models.DateField(default=timezone.now)
     empresa = models.ForeignKey(DesechoEmpresa, on_delete=models.PROTECT, related_name='salidas')
-    precio_total = models.DecimalField(max_digits=12, decimal_places=2, default=0.0)   
+    precio_total = models.DecimalField(max_digits=12, decimal_places=2, default=0.0)
     peso = models.DecimalField(max_digits=12, decimal_places=2, verbose_name='Peso (libras)', default=0.0)
     comprobante = models.PositiveIntegerField(default=0)
     creado_por = models.ForeignKey(User, on_delete=models.PROTECT)
@@ -1174,13 +1175,13 @@ class DesechoSalida(models.Model):
 
     def get_absolute_url(self):
         return reverse_lazy('desechosalida_update', kwargs={'pk': self.id})
-    
+
     def save(self, *args, **kwargs):
         super(DesechoSalida, self).save(*args, **kwargs)
         if not self.codigo_qr:
             self.crear_qrcode()
             super(DesechoSalida, self).save(*args, *kwargs)
-    
+
     def crear_qrcode(self):
         """Genera el código QR para apuntar al url de imagenes de desecho
         """
@@ -1332,6 +1333,8 @@ class SalidaInventario(models.Model):
         related_name='cooperante',
         null=True, blank=True)
     url = models.TextField(null=True, blank=True)
+    capacitada = models.BooleanField(default=False, verbose_name='Capacitada')
+    meses_garantia = models.BooleanField(default=False, verbose_name='6 meses de Garantia')
 
     class Meta:
         verbose_name = "Salida"
@@ -1444,7 +1447,7 @@ class Paquete(models.Model):
         related_name='paquetes',
         null=True,
         blank=True)
-    aprobado = models.BooleanField(default=False, blank=True) 
+    aprobado = models.BooleanField(default=False, blank=True)
     aprobado_kardex = models.BooleanField(default=False, blank=True)
     desactivado = models.BooleanField(default=False, blank=True)
     entrada = models.ManyToManyField(Entrada, related_name='tipo_entrada', blank=True, null=True)
@@ -1617,7 +1620,7 @@ class SolicitudMovimiento(models.Model):
                 self.terminada = True
             else:
                 print("Aun faltan dispositivos")
-                
+
                 # self.save()
         else:
             raise OperationalError('La solicitud ya fue terminada')

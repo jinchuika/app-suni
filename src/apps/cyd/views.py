@@ -151,17 +151,17 @@ class SedeUpdateView(LoginRequiredMixin, UpdateView):
 
         return super(SedeUpdateView, self).form_valid(form)
 
-class SedeListView(LoginRequiredMixin, FormView):   
-    """Muestra el listado de sedes que se han creado""" 
-    model = cyd_m.Sede  
-    template_name = 'cyd/sede_list.html'    
-    form_class = cyd_f.SedeFilterFormInforme    
-    group_required = [u"cyd_capacitador", u"cyd_admin"] 
+class SedeListView(LoginRequiredMixin, FormView):
+    """Muestra el listado de sedes que se han creado"""
+    model = cyd_m.Sede
+    template_name = 'cyd/sede_list.html'
+    form_class = cyd_f.SedeFilterFormInforme
+    group_required = [u"cyd_capacitador", u"cyd_admin"]
 
-    def get_form(self, form_class=None):    
-        form = super(SedeListView, self).get_form(form_class)   
-        if self.request.user.groups.filter(name="cyd_capacitador").exists():    
-            form.fields['capacitador'].widget = forms.HiddenInput() 
+    def get_form(self, form_class=None):
+        form = super(SedeListView, self).get_form(form_class)
+        if self.request.user.groups.filter(name="cyd_capacitador").exists():
+            form.fields['capacitador'].widget = forms.HiddenInput()
         return form
 
     def get_queryset(self):
@@ -171,12 +171,12 @@ class SedeListView(LoginRequiredMixin, FormView):
             return cyd_m.Sede.objects.all()
 
 class GrupoCreateView(LoginRequiredMixin, GroupRequiredMixin, CreateView):
-    """Creacion de grupos desde una vista"""    
-    group_required = [u"cyd", u"cyd_capacitador", u"cyd_admin", ]   
-    redirect_unauthenticated_users = True   
-    raise_exception = True  
-    model = cyd_m.Grupo 
-    template_name = 'cyd/grupo_add.html'    
+    """Creacion de grupos desde una vista"""
+    group_required = [u"cyd", u"cyd_capacitador", u"cyd_admin", ]
+    redirect_unauthenticated_users = True
+    raise_exception = True
+    model = cyd_m.Grupo
+    template_name = 'cyd/grupo_add.html'
     form_class = cyd_f.GrupoForm
 
     def get_success_url(self):
@@ -185,7 +185,7 @@ class GrupoCreateView(LoginRequiredMixin, GroupRequiredMixin, CreateView):
     def get_form(self, form_class=None):
         form = super(GrupoCreateView, self).get_form(form_class)
         if self.request.user.groups.filter(name="cyd_capacitador").exists():
-            form.fields['sede'].queryset = cyd_m.Sede.objects.filter(capacitador=self.request.user)
+            form.fields['sede'].queryset = cyd_m.Sede.objects.filter(capacitador=self.request.user, activa=True)
         return form
 
     def form_valid(self, form):
