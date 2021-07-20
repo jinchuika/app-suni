@@ -31,7 +31,6 @@ class SalidaContextMixin(ContextMixin):
 
 	def formset_salida_valid(self, formset):
 		salidas = formset.save(commit=False)
-		print(salidas)
 		for obj in formset.deleted_objects:
 			obj.delete()
 
