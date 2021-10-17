@@ -15,6 +15,7 @@ class SoftwareCreateForm(forms.ModelForm):
             'tipo': forms.Select(attrs={'class': 'form-control select2'}),
             'descripcion': forms.Textarea(attrs={'class': 'form-control'})
             }
+        exclude = ('creada_por', )
 
 
 class VersionSistemaForm(forms.ModelForm):
@@ -28,3 +29,4 @@ class VersionSistemaForm(forms.ModelForm):
             'so': forms.Select(attrs={'class': 'form-control select2'}),
             'software': forms.SelectMultiple(attrs={'class': 'form-control select2'})
             }
+        exclude = ('creada_por', )

@@ -16,7 +16,7 @@ class TipoItem(models.Model):
     """
 
     tipo = models.CharField(max_length=25)
-
+    ie_tipo_creada_por =models.ForeignKey(User, on_delete=models.CASCADE,default=User.objects.get(username="Admin").pk)
     class Meta:
         verbose_name = "Tipo de Item"
         verbose_name_plural = "Tipos de Items"
@@ -32,7 +32,7 @@ class MarcaItem(models.Model):
         marca (str): Nombre de la marca del equipo
     """
     marca = models.CharField(max_length=35)
-
+    ie_marca_creada_por =models.ForeignKey(User, on_delete=models.CASCADE,default=User.objects.get(username="Admin").pk)
     class Meta:
         verbose_name = "Marca de item"
         verbose_name_plural = "Marcas de items"
@@ -44,7 +44,7 @@ class MarcaItem(models.Model):
 class SoftwareItem(models.Model):
     software = models.CharField(max_length=100)
     sistema_operativo = models.BooleanField(default=False)
-
+    ie_software_creada_por =models.ForeignKey(User, on_delete=models.CASCADE,default=User.objects.get(username="Admin").pk)
     class Meta:
         verbose_name = "Software para equipo"
         verbose_name_plural = "Software para equipo"
@@ -68,7 +68,7 @@ class Item(models.Model):
     tipo = models.ForeignKey(TipoItem, on_delete=models.PROTECT)
     marca = models.ForeignKey(MarcaItem, on_delete=models.PROTECT)
     modelo = models.CharField(max_length=128)
-
+    ie_item_creada_por =models.ForeignKey(User, on_delete=models.CASCADE,default=User.objects.get(username="Admin").pk)
     class Meta:
         verbose_name = "Item"
         verbose_name_plural = "Items"
@@ -81,7 +81,7 @@ class Item(models.Model):
 
 class LaboratorioTipo(models.Model):
     tipo = models.CharField(max_length=35)
-
+    ie_laboratorio_tipo_creada_por =models.ForeignKey(User, on_delete=models.CASCADE,default=User.objects.get(username="Admin").pk)
     class Meta:
         verbose_name = "Tipo de laboratorio"
         verbose_name_plural = "Tipos de laboratorios"
@@ -136,7 +136,7 @@ class Laboratorio(models.Model):
         verbose_name='Población',
         on_delete=models.CASCADE)
     cantidad_computadoras = models.PositiveIntegerField(default=0, verbose_name='Cantidad de computadoras')
-
+    ie_laboratorio_creada_por =models.ForeignKey(User, on_delete=models.CASCADE,default=User.objects.get(username="Admin").pk)
     class Meta:
         verbose_name = "Laboratorio"
         verbose_name_plural = "Laboratorios"
@@ -152,7 +152,7 @@ class Computadora(models.Model):
     laboratorio = models.ForeignKey(Laboratorio, related_name='computadoras', on_delete=models.CASCADE)
     items = models.ManyToManyField(Item, through='Serie', related_name='computadoras')
     completa = models.BooleanField(default=False, blank=True)
-
+    ie_computadora_creada_por =models.ForeignKey(User, on_delete=models.CASCADE,default=User.objects.get(username="Admin").pk)
     class Meta:
         verbose_name = "Computadora"
         verbose_name_plural = "Computadoras"
@@ -186,7 +186,7 @@ class Requerimiento(models.Model):
     Description: Requerimiento para equipamiento
     """
     nombre = models.CharField(max_length=100)
-
+    ie_requerimiento_creada_por =models.ForeignKey(User, on_delete=models.CASCADE,default=User.objects.get(username="Admin").pk)
     def __str__(self):
         return self.nombre
 

@@ -38,6 +38,7 @@ class AsignacionNaat(models.Model):
     proceso = models.ForeignKey(ProcesoNaat, related_name='asignaciones', null=True, on_delete=models.CASCADE)
     fecha_asignacion = models.DateField(default=timezone.now)
     activa = models.BooleanField(default=True)
+    creado_por_asignacion =models.ForeignKey(User, on_delete=models.CASCADE,default=User.objects.get(username="Admin").pk)
 
     class Meta:
         verbose_name = "Asignación Naat"
@@ -57,8 +58,8 @@ class SesionPresencial(models.Model):
     hora_inicio = models.TimeField(verbose_name='Hora de inicio')
     hora_fin = models.TimeField(verbose_name='Hora de fin')
     observaciones = models.TextField(null=True, blank=True)
-
     asistentes = models.ManyToManyField(AsignacionNaat, blank=True)
+    creado_por_sesion =models.ForeignKey(User, on_delete=models.CASCADE,default=User.objects.get(username="Admin").pk)
 
     class Meta:
         verbose_name = "Sesión presencial"

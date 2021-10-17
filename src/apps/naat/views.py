@@ -120,6 +120,10 @@ class SesionPresencialCreateView(BaseNaatPermission, CreateView):
             form.fields['proceso'].empty_label = None
         return form
 
+    def form_valid(self, form):
+        form.instance.creado_por_sesion = self.request.user
+        return super( SesionPresencialCreateView, self).form_valid(form)
+
 
 class SesionPresencialUpdateView(BaseNaatPermission, UpdateView):
     """Vista para edición de :class:`SesionPresencial` de Naat.
@@ -133,6 +137,10 @@ class SesionPresencialUpdateView(BaseNaatPermission, UpdateView):
         form = super(SesionPresencialUpdateView, self).get_form(form_class)
         form.fields['asistentes'].queryset = naat_m.AsignacionNaat.objects.filter(proceso=form.instance.proceso)
         return form
+
+    def form_valid(self, form):
+        form.instance.creado_por_sesion = self.request.user
+        return super( SesionPresencialUpdateView, self).form_valid(form)
 
 
 class ProcesoNaatCreateView(BaseNaatPermission, CreateView):

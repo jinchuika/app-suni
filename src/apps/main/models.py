@@ -9,13 +9,14 @@ from django.urls import reverse
 
 from django.test import Client
 from django.core.files import File
-
+from django.contrib.auth.models import User
 
 class Departamento(models.Model):
     """
     Description: Departamento de Guatemala
     """
     nombre = models.CharField(max_length=30)
+    main_dep_creada_por =models.ForeignKey(User, on_delete=models.CASCADE,default=User.objects.get(username="Admin").pk)
 
     def __str__(self):
         return self.nombre
@@ -27,7 +28,7 @@ class Municipio(models.Model):
     """
     departamento = models.ForeignKey(Departamento, on_delete=models.PROTECT)
     nombre = models.CharField(max_length=150)
-
+    main_mun_creada_por =models.ForeignKey(User, on_delete=models.CASCADE,default=User.objects.get(username="Admin").pk)
     def __str__(self):
         return self.nombre + " (" + str(self.departamento) + ")"
 
@@ -36,7 +37,7 @@ class Coordenada(models.Model):
     lat = models.CharField(max_length=25, verbose_name="Latitud")
     lng = models.CharField(max_length=25, verbose_name="Longitud")
     descripcion = models.CharField(max_length=70, null=True, blank=True, verbose_name="Descripción")
-
+    main_coo_creada_por =models.ForeignKey(User, on_delete=models.CASCADE,default=User.objects.get(username="Admin").pk)
     def __str__(self):
         if self.descripcion:
             return self.descripcion
@@ -53,7 +54,7 @@ class ArchivoGenerado(models.Model):
 
     input_url = models.CharField(max_length=50, null=True, blank=True)
     activo = models.BooleanField(default=True, blank=True)
-
+    main_arch_creada_por =models.ForeignKey(User, on_delete=models.CASCADE,default=User.objects.get(username="Admin").pk)
     class Meta:
         verbose_name = "Archivo fijo"
         verbose_name_plural = "Archivos fijos"

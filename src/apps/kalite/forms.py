@@ -14,13 +14,14 @@ class TipoVisitaForm(forms.ModelForm):
         widgets = {
             'rubricas': forms.CheckboxSelectMultiple()
         }
+        exclude = ('tipo_visita_creada_por',)
 
 
 class RubricaForm(forms.ModelForm):
     class Meta:
         model = kalite_models.Rubrica
         fields = '__all__'
-
+        exclude = ('rubrica_creada_por',)
 
 class IndicadorForm(forms.ModelForm):
     class Meta:
@@ -29,7 +30,7 @@ class IndicadorForm(forms.ModelForm):
         widgets = {
             'rubrica': forms.HiddenInput()
         }
-
+        exclude = ('indicador_creada_por',)
 
 class VisitaForm(forms.ModelForm):
     class Meta:
@@ -48,7 +49,7 @@ class GradoForm(forms.ModelForm):
         widgets = {
             'visita': forms.HiddenInput()
         }
-
+        exclude = ('grado_creada_por',)
 
 class VisitaInformeForm(GeoDateForm):
 

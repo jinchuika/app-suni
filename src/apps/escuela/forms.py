@@ -25,7 +25,7 @@ class FormEscuelaCrear(forms.ModelForm):
     class Meta:
         model = Escuela
         fields = '__all__'
-        exclude = ['mapa']
+        exclude = ['mapa','esc_creado_por']
         widgets = {
             'municipio': forms.Select(attrs={'class': 'select2'})
         }
@@ -107,6 +107,7 @@ class EscPoblacionForm(forms.ModelForm):
         widgets = {
             'escuela': forms.HiddenInput()
         }
+        exclude = ('esc_poblacion_creado_por',)
 
 
 class ContactoForm(forms.ModelForm):
@@ -122,14 +123,15 @@ class ContactoForm(forms.ModelForm):
         fields = '__all__'
         widgets = {
             'escuela': forms.HiddenInput()
+            #'esc_contacto_creado_por': forms.HiddenInput()
         }
-
+        exclude = ('esc_contacto_creado_por',)
 
 class EscContactoTelefonoForm(forms.ModelForm):
     class Meta:
         model = EscContactoTelefono
         fields = '__all__'
-        exclude = ['contacto']
+        exclude = ['contacto','esc_contacto_telefono_creado_por',]
 
 
 class EscContactoTelefonoFormset(BaseFormSet):
@@ -169,7 +171,7 @@ class EscMatriculaForm(forms.ModelForm):
         widgets = {
             'escuela': forms.HiddenInput()
         }
-
+        exclude =("esc_matricula_creado_por",)
 
 class EscRendimientoAcademicoForm(forms.ModelForm):
 
@@ -183,3 +185,4 @@ class EscRendimientoAcademicoForm(forms.ModelForm):
         widgets = {
             'escuela': forms.HiddenInput()
         }
+        exclude = ('esc_rendimiento_academico_creado_por',)

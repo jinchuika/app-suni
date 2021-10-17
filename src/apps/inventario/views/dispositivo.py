@@ -44,6 +44,13 @@ class AsignacionTecnicoUpdateView(LoginRequiredMixin, UpdateView):
     form_class = inv_f.AsignacionTecnicoForm
     template_name = 'inventario/dispositivo/asignaciontecnico_form.html'
 
+    """def form_valid(self, form):
+        print(form.instance.usuario)
+        form.instance.usuario = form.instance.usuario
+        form.instance.creada_por = self.request.user
+        return super(AsignacionTecnicoUpdateView, self).form_valid(form)"""
+
+
     def get_success_url(self):
         return reverse('asignaciontecnico_list')
 
@@ -149,7 +156,7 @@ class DevolucionCreateView(LoginRequiredMixin, CreateView):
     form_class = inv_f.DevolucionCreateForm
     group_required = [u"inv_admin", u"inv_tecnico"]
 
-    def form_valid(self, form):        
+    def form_valid(self, form):
         cantidad = form.cleaned_data['cantidad']
         tipo_dispositivo = form.cleaned_data['tipo_dispositivo']
         no_salida = form.cleaned_data['no_salida']
@@ -172,7 +179,7 @@ class DevolucionCreateView(LoginRequiredMixin, CreateView):
 
             if paquetes['cantidad__sum'] is not None:
                 sum_paquetes = paquetes['cantidad__sum']
-        
+
             numero_dispositivos = sum_solicitudes - sum_devoluciones - sum_paquetes
         else:
             dispositivos_salida = inv_m.CambioEtapa.objects.filter(solicitud__no_salida=no_salida, etapa_final=etapa).values('dispositivo')
@@ -246,8 +253,9 @@ class SolicitudMovimientoUpdateView(LoginRequiredMixin, UpdateView):
 
         return form
 
-    def form_valid(self, form):        
+    def form_valid(self, form):
         form.instance.autorizada_por = self.request.user
+        form.instance.creada_por = self.request.user
         form.instance.cambiar_etapa(
             lista_dispositivos=form.cleaned_data['dispositivos'],
             usuario=self.request.user
@@ -256,7 +264,7 @@ class SolicitudMovimientoUpdateView(LoginRequiredMixin, UpdateView):
 
     def get_context_data(self, *args, **kwargs):
             context = super(SolicitudMovimientoUpdateView, self).get_context_data(*args, **kwargs)
-            context['dispositivos_no'] = inv_m.CambioEtapa.objects.filter(solicitud=self.object.id).count() 
+            context['dispositivos_no'] = inv_m.CambioEtapa.objects.filter(solicitud=self.object.id).count()
             return context
 
 
@@ -343,6 +351,11 @@ class TecladoUpdateView(LoginRequiredMixin, UpdateView):
     query_pk_and_slug = True
     template_name = 'inventario/dispositivo/teclado/teclado_form.html'
 
+
+    def form_valid(self, form):
+        form.instance.creada_por = self.request.user
+        return super(TecladoUpdateView, self).form_valid(form)
+
     def get_success_url(self):
         if self.object.entrada_detalle.id != 1:
             return reverse_lazy('detalles_dispositivos', kwargs={'pk': self.object.entrada, 'detalle': self.object.entrada_detalle.id})
@@ -362,7 +375,9 @@ class MonitorDetailView(LoginRequiredMixin, DispositivoDetailView):
      mostrando los datos necesarios
     """
     model = inv_m.Monitor
-    template_name = 'inventario/dispositivo/monitor/monitor_detail.html'
+    template_name = 'inventario/dispositivo/monitor/monitor_detail.html'\
+
+
 
 
 class MonitorUptadeView(LoginRequiredMixin, UpdateView):
@@ -375,6 +390,10 @@ class MonitorUptadeView(LoginRequiredMixin, UpdateView):
     slug_url_kwarg = "triage"
     query_pk_and_slug = True
     template_name = 'inventario/dispositivo/monitor/monitor_edit.html'
+
+    def form_valid(self, form):
+        form.instance.creada_por = self.request.user
+        return super(MonitorUptadeView, self).form_valid(form)
 
     def get_success_url(self):
         if self.object.entrada_detalle.id != 1:
@@ -399,6 +418,10 @@ class MouseUptadeView(LoginRequiredMixin, UpdateView):
     slug_url_kwarg = "triage"
     query_pk_and_slug = True
     template_name = 'inventario/dispositivo/mouse/mouse_edit.html'
+
+    def form_valid(self, form):
+        form.instance.creada_por = self.request.user
+        return super(MouseUptadeView, self).form_valid(form)
 
     def get_success_url(self):
         if self.object.entrada_detalle.id != 1:
@@ -425,31 +448,33 @@ class CPUptadeView(LoginRequiredMixin, UpdateView):
     template_name = 'inventario/dispositivo/cpu/cpu_edit.html'
 
     def form_valid(self, form):
+        form.instance.creada_por = self.request.user
         hdd = form.cleaned_data['disco_duro']
         if hdd:
             disco = inv_m.HDD.objects.get(triage=hdd)
             disco.asignado = True
+            disco.creada_por = self.request.user
             disco.save()
 
         return super(CPUptadeView, self).form_valid(form)
 
 
-    def get_context_data(self, **kwargs):       
-        context =super(CPUptadeView,self).get_context_data(**kwargs)          
+    def get_context_data(self, **kwargs):
+        context =super(CPUptadeView,self).get_context_data(**kwargs)
         try:
             context["disco_duro"]=self.object.disco_duro.id
             disco = inv_m.HDD.objects.get(id=self.object.disco_duro.id)
-            context["triage"]=self.object.disco_duro        
+            context["triage"]=self.object.disco_duro
         except:
-            context["disco_duro"]="---------" 
-            context["triage"]="-----------" 
+            context["disco_duro"]="---------"
+            context["triage"]="-----------"
         return context
 
     def get_success_url(self):
         if self.object.entrada_detalle.id != 1:
             return reverse_lazy('detalles_dispositivos', kwargs={'pk': self.object.entrada, 'detalle': self.object.entrada_detalle.id})
         else:
-            return reverse_lazy('cpu_detail', kwargs={'triage': self.object.triage})   
+            return reverse_lazy('cpu_detail', kwargs={'triage': self.object.triage})
 
 
 class LaptopDetailView(LoginRequiredMixin, DispositivoDetailView):
@@ -470,23 +495,25 @@ class LaptopUptadeView(LoginRequiredMixin, UpdateView):
     template_name = 'inventario/dispositivo/laptop/laptop_edit.html'
 
     def form_valid(self, form):
+        form.instance.creada_por = self.request.user
         hdd = form.cleaned_data['disco_duro']
         if hdd:
             disco = inv_m.HDD.objects.get(triage=hdd)
             disco.asignado = True
+            disco.creada_por = self.request.user
             disco.save()
 
         return super(LaptopUptadeView, self).form_valid(form)
 
-    def get_context_data(self, **kwargs):       
-        context =super(LaptopUptadeView,self).get_context_data(**kwargs)          
+    def get_context_data(self, **kwargs):
+        context =super(LaptopUptadeView,self).get_context_data(**kwargs)
         try:
             context["disco_duro"]=self.object.disco_duro.id
             disco = inv_m.HDD.objects.get(id=self.object.disco_duro.id)
-            context["triage"]=self.object.disco_duro        
+            context["triage"]=self.object.disco_duro
         except:
-            context["disco_duro"]="---------" 
-            context["triage"]="-----------" 
+            context["disco_duro"]="---------"
+            context["triage"]="-----------"
         return context
 
     def get_success_url(self):
@@ -513,6 +540,10 @@ class TabletUptadeView(LoginRequiredMixin, UpdateView):
     query_pk_and_slug = True
     template_name = 'inventario/dispositivo/tablet/tablet_edit.html'
 
+    def form_valid(self, form):
+        form.instance.creada_por = self.request.user
+        return super(TabletUptadeView, self).form_valid(form)
+
     def get_success_url(self):
         if self.object.entrada_detalle.id != 1:
             return reverse_lazy('detalles_dispositivos', kwargs={'pk': self.object.entrada, 'detalle': self.object.entrada_detalle.id})
@@ -537,6 +568,10 @@ class HDDUptadeView(LoginRequiredMixin, UpdateView):
     query_pk_and_slug = True
     template_name = 'inventario/dispositivo/hdd/hdd_edit.html'
 
+    def form_valid(self, form):
+        form.instance.creada_por = self.request.user
+        return super(HDDUptadeView, self).form_valid(form)
+
     def get_success_url(self):
         if self.object.entrada_detalle.id != 1:
             return reverse_lazy('detalles_dispositivos', kwargs={'pk': self.object.entrada, 'detalle': self.object.entrada_detalle.id})
@@ -559,6 +594,10 @@ class DispositivoRedUptadeView(LoginRequiredMixin, UpdateView):
     slug_url_kwarg = "triage"
     query_pk_and_slug = True
     template_name = 'inventario/dispositivo/red/red_edit.html'
+
+    def form_valid(self, form):
+        form.instance.creada_por = self.request.user
+        return super(DispositivoRedUptadeView, self).form_valid(form)
 
     def get_success_url(self):
         if self.object.entrada_detalle.id != 1:
@@ -583,6 +622,10 @@ class DispositivoAccessPointUptadeView(LoginRequiredMixin, UpdateView):
     query_pk_and_slug = True
     template_name = 'inventario/dispositivo/ap/ap_edit.html'
 
+    def form_valid(self, form):
+        form.instance.creada_por = self.request.user
+        return super(DispositivoAccessPointUptadeView, self).form_valid(form)
+
     def get_success_url(self):
         if self.object.entrada_detalle.id != 1:
             return reverse_lazy('detalles_dispositivos', kwargs={'pk': self.object.entrada, 'detalle': self.object.entrada_detalle.id})
@@ -597,6 +640,10 @@ class DispositivoTipoCreateView(LoginRequiredMixin, CreateView):
     model = inv_m.DispositivoTipo
     template_name = 'inventario/dispositivo/dispositivotipo_add.html'
     form_class = inv_f.DispositivoTipoForm
+
+    def form_valid(self, form):
+        form.instance.creada_por = self.request.user
+        return super(DispositivoTipoCreateView, self).form_valid(form)
 
     def get_context_data(self, **kwargs):
         context = super(DispositivoTipoCreateView, self).get_context_data(**kwargs)

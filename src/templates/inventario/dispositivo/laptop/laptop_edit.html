@@ -43,7 +43,7 @@
 {% endblock content %}
 {% block extra_js %}
 <script>
-  var disco = $("#disco").data("id");  
+  var disco = $("#disco").data("id");
   var triage = $("#disco").data("triage");
   var newOption = new Option(triage,disco,false,false);
   $("#id_disco_duro").append(newOption).trigger("change");

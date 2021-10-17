@@ -21,6 +21,7 @@ class Materia(models.Model):
     nombre = models.CharField(max_length=35)
     color = models.CharField(default='green', choices=COLOR_CHOICES, max_length=20)
     icon = models.CharField(max_length=25,default='fa-check-square-o')
+    materia_creado_por =models.ForeignKey(User, on_delete=models.CASCADE,default=User.objects.get(username="Admin").pk)
 
     class Meta:
         verbose_name = 'Materia'
@@ -33,7 +34,7 @@ class Materia(models.Model):
 class Grado(models.Model):
     """Se guardan el nombre de los grados"""
     nombre_grado = models.CharField(max_length=35,verbose_name="nombre")
-
+    cn_grado_creado_por =models.ForeignKey(User, on_delete=models.CASCADE,related_name="cn_grado_creado_por",default=User.objects.get(username="Admin").pk)
     class Meta:
         verbose_name = 'Grado'
         verbose_name_plural = 'Grados'
@@ -44,7 +45,7 @@ class Grado(models.Model):
 class Semestre(models.Model):
     """Guarada el semestre correspondiente"""
     numero = models.IntegerField()
-
+    cn_semestre_creado_por =models.ForeignKey(User, on_delete=models.CASCADE,default=User.objects.get(username="Admin").pk)
     class Meta:
         verbose_name = 'Semestre'
         verbose_name_plural = 'Semestres'
@@ -74,6 +75,7 @@ class Evaluacion(models.Model):
     materia = models.ForeignKey(Materia, related_name='materias', on_delete=models.CASCADE)
     grado = models.ForeignKey(Grado, related_name='grados', on_delete=models.CASCADE)
     observacion = models.TextField(null=True, blank=True, verbose_name='Observaciones')
+    cn_evaluacion_creado_por =models.ForeignKey(User, on_delete=models.CASCADE, related_name="cn_evaluacion_creado_por",default=User.objects.get(username="Admin").pk)
 
     class Meta:
         verbose_name = 'Evaluacion'
@@ -88,7 +90,7 @@ class Notas(models.Model):
     evaluacion= models.ForeignKey(Evaluacion, related_name='notas', on_delete=models.CASCADE)
     alumno=models.CharField(max_length=250,verbose_name="nombre del alumno")
     nota= models.IntegerField()
-
+    cn_notas_creado_por =models.ForeignKey(User, on_delete=models.CASCADE,default=User.objects.get(username="Admin").pk)
     class Meta:
         verbose_name = 'Nota'
         verbose_name_plural = 'Notas'

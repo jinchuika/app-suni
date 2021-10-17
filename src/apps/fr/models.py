@@ -1,13 +1,13 @@
 from django.db import models
 from django.urls import reverse_lazy
-
+from django.contrib.auth.models import User
 
 class Empresa(models.Model):
     nombre = models.CharField(max_length=50)
     direccion = models.CharField(max_length=50, null=True, blank=True)
     telefono = models.CharField(max_length=12, null=True, blank=True)
     descripcion = models.TextField(null=True, blank=True)
-
+    fr_empresa_creada_por =models.ForeignKey(User, on_delete=models.CASCADE,default=User.objects.get(username="Admin").pk)
     class Meta:
         verbose_name = 'Empresa'
         verbose_name_plural = 'Empresas'
@@ -21,7 +21,7 @@ class Empresa(models.Model):
 
 class TipoEvento(models.Model):
     tipo_evento = models.CharField(max_length=50)
-
+    fr_tipo_evento_creada_por =models.ForeignKey(User, on_delete=models.CASCADE,default=User.objects.get(username="Admin").pk)
     class Meta:
         verbose_name = 'Tipo de evento'
         verbose_name_plural = 'Tipos de eventos'
@@ -45,7 +45,7 @@ class Evento(models.Model):
     direccion = models.CharField(max_length=100, null=True, blank=True)
     fecha = models.DateField(null=True, blank=True)
     color = models.CharField(default='green', choices=COLOR_CHOICES, max_length=10)
-
+    fr_evento_creada_por =models.ForeignKey(User, on_delete=models.CASCADE,default=User.objects.get(username="Admin").pk)
     class Meta:
         verbose_name = 'Evento'
         verbose_name_plural = 'Eventos'
@@ -68,7 +68,7 @@ class Etiqueta(models.Model):
     etiqueta = models.CharField(max_length=50)
     descripcion = models.TextField(null=True, blank=True)
     color = models.CharField(default='purple', choices=COLOR_CHOICES, max_length=10)
-
+    fr_etiqueta_creada_por =models.ForeignKey(User, on_delete=models.CASCADE,default=User.objects.get(username="Admin").pk)
     class Meta:
         verbose_name = 'Etiqueta'
         verbose_name_plural = 'Etiquetas'
@@ -87,7 +87,7 @@ class Contacto(models.Model):
     evento = models.ManyToManyField(Evento, related_name='contacto')
     observacion = models.TextField(null=True, blank=True)
     puesto = models.CharField(max_length=75)
-
+    fr_contacto_creada_por =models.ForeignKey(User, on_delete=models.CASCADE,default=User.objects.get(username="Admin").pk)
     class Meta:
         verbose_name = 'Contacto'
         verbose_name_plural = 'Contactos'

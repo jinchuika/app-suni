@@ -60,13 +60,13 @@ class DesechoDispositivoViewSet(viewsets.ModelViewSet):
         else:
             id_detalle = request.data["detalle"]
             comentario = request.data["comentario"]
-            detalle = inv_m.DesechoDetalle.objects.get(id=id_detalle)            
+            detalle = inv_m.DesechoDetalle.objects.get(id=id_detalle)
             comentario_rechazar_detalle=inv_m.DesechoComentario(
                 desecho= detalle.desecho,
                 comentario = comentario,
                 creado_por= self.request.user,
                 entrada_detalle= detalle.entrada_detalle
-            ) 
+            )
             comentario_rechazar_detalle.save()
             detalle.delete()
             return Response(
@@ -115,7 +115,7 @@ class DesechoDispositivoViewSet(viewsets.ModelViewSet):
                 comentario = comentario,
                 creado_por= self.request.user,
                 dispositivo= detalle.dispositivo
-            ) 
+            )
             comentario_rechazar_detalle.save()
             detalle.delete()
             return Response(
@@ -144,11 +144,12 @@ class DesechoDispositivoViewSet(viewsets.ModelViewSet):
             aprobar_dispositivos = inv_m.DesechoDispositivo.objects.filter(desecho=id_desecho)
             if detalles_aprobados == detalles:
                 if dispositivos_aprobados == dispositivos:
-                    periodo_actual = conta_m.PeriodoFiscal.objects.get(actual=True)                    
+                    periodo_actual = conta_m.PeriodoFiscal.objects.get(actual=True)
                     for aprobar in aprobar_dispositivos:
                         precio = conta_m.PrecioDispositivo.objects.get(dispositivo = aprobar.dispositivo, activo= True)
                         aprobar.dispositivo.etapa = inv_m.DispositivoEtapa.objects.get(id=inv_m.DispositivoEtapa.DS)
                         aprobar.dispositivo.valido = False
+                        aprobar.dispositivo.creada_por = self.request.user
                         aprobar.dispositivo.save()
 
                         # Generar movimiento de salida
@@ -158,7 +159,8 @@ class DesechoDispositivoViewSet(viewsets.ModelViewSet):
                             periodo_fiscal=periodo_actual,
                             tipo_movimiento=conta_m.MovimientoDispositivo.BAJA,
                             referencia='Salida Desecho{}'.format(desecho.id),
-                            precio=precio.precio)
+                            precio=precio.precio,
+                            creado_por = self.request.user)
                         movimiento.save()
 
                     desecho.en_creacion = False
@@ -183,7 +185,7 @@ class DesechoDispositivoViewSet(viewsets.ModelViewSet):
 class DesechoSalidaFilter(filters.FilterSet):
     """ Filtros para generar informe de  Salida
     """
-    id = django_filters.NumberFilter(name="id")    
+    id = django_filters.NumberFilter(name="id")
     en_creacion = django_filters.CharFilter(name='en_creacion')
     fecha_min = django_filters.DateFilter(name='fecha_min', method='filter_fecha')
     fecha_max = django_filters.DateFilter(name='fecha_max', method='filter_fecha')
@@ -191,7 +193,7 @@ class DesechoSalidaFilter(filters.FilterSet):
     class Meta:
         model = inv_m.DesechoSalida
         fields = ['id', 'en_creacion', 'fecha_min', 'fecha_max']
-    
+
     def filter_fecha(self, queryset, name, value):
         if value and name == 'fecha_min':
             queryset = queryset.filter(fecha__gte=value)

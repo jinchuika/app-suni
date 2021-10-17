@@ -7,7 +7,7 @@ class EvaluacionForm(forms.ModelForm):
     """
     class Meta:
         model = control_m.Evaluacion
-        exclude = ('visita',)
+        exclude = ('visita','cn_evaluacion_creado_por')
         fields = '__all__'
         widgets = {
             'materia': forms.Select(attrs={'class': 'form-control select2'}),

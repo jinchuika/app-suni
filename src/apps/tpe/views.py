@@ -41,6 +41,10 @@ class EquipamientoUpdateView(LoginRequiredMixin, PermissionRequiredMixin, Update
     redirect_unauthenticated_users = False
     raise_exception = True
 
+    def form_valid(self, form):
+        form.instance.creado_por = self.request.user
+        return super(EquipamientoUpdateView, self).form_valid(form)
+
 
 class EquipamientoDetailView(EscuelaDetail):
 
@@ -140,6 +144,7 @@ class GarantiaCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView
     raise_exception = True
 
     def form_valid(self, form):
+        form.instance.creado_por = self.request.user
         form.instance.id = form.cleaned_data['equipamiento'].id
         return super(GarantiaCreateView, self).form_valid(form)
 
@@ -302,6 +307,7 @@ class ReparacionUpdateView(LoginRequiredMixin, UpdateView):
             form.instance.estado = tpe_m.TicketReparacionEstado.objects.get(id=2)
         else:
             form.instance.estado = tpe_m.TicketReparacionEstado.objects.get(id=3)
+        form.instance.usuario = self.request.user
         return super(ReparacionUpdateView, self).form_valid(form)
 
 
@@ -311,6 +317,10 @@ class ReparacionRepuestoCreateView(CreateView):
 
     def get_success_url(self):
         return reverse('reparacion_update', kwargs={'pk': self.object.reparacion.id})
+
+    def form_valid(self, form):
+        form.instance.usuario = self.request.user
+        return super(ReparacionRepuestoCreateView, self).form_valid(form)
 
 
 class ReparacionRepuestoUpdateView(GroupRequiredMixin, UpdateView):

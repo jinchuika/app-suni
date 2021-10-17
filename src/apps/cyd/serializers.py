@@ -71,6 +71,7 @@ class GrupoSerializer(serializers.ModelSerializer):
     urlsede = serializers.StringRelatedField(source ="sede.get_absolute_url")
     fecha_creacion = serializers.DateTimeField(source= "sede.fecha_creacion", format='%Y')
 
+
     class Meta:
         model = Grupo
         fields = ('id', 'sede', 'numero', 'curso','curso_id' ,'asistencias', 'comentario','capacitador','urlgrupo', 'urlsede', 'fecha_creacion')
@@ -94,7 +95,7 @@ class SedeSerializer(serializers.ModelSerializer):
 class AsesoriaSerializer(serializers.ModelSerializer):
     """Para crear y listar periodos de :model:`cyd.Asesoria`."""
     url = serializers.HyperlinkedIdentityField(view_name='asesoria_api_detail', lookup_field='pk')
-
+    cyd_asesoria_creado_por = serializers.HiddenField(default=serializers.CurrentUserDefault())
     class Meta:
         model = Asesoria
         fields = '__all__'

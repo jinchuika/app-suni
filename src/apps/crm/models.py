@@ -12,7 +12,7 @@ class DonanteTipo(models.Model):
     - Individual
     """
     tipo = models.CharField(max_length=20, verbose_name="Tipo de Donante")
-
+    creado_por = models.ForeignKey(User, on_delete=models.PROTECT, null=True, blank=True,default=User.objects.get(username="Admin").pk)
     class Meta:
         verbose_name = "Tipo de Donante"
         verbose_name_plural = "Tipos de Donantes"
@@ -25,7 +25,7 @@ class OfertaTipo(models.Model):
     """ Tipo de oferta que se va a utilizar
     """
     oferta_tipo = models.CharField(max_length=50, blank=True, verbose_name="Tipo de Oferta")
-
+    creado_por = models.ForeignKey(User, on_delete=models.PROTECT, null=True,blank=True,default=User.objects.get(username="Admin").pk)
     class Meta:
         verbose_name = "Tipo de Oferta"
         verbose_name_plural = "Tipos de Ofertas"
@@ -45,7 +45,7 @@ class Donante(models.Model):
     comentario = models.TextField(verbose_name="Comentario", null=True, blank=True)
     tipo_donante = models.ForeignKey(DonanteTipo, on_delete=models.PROTECT)
     nit = models.CharField(max_length=15, verbose_name="Numero de Nit", null=True, blank=True)
-
+    creado_por = models.ForeignKey(User, on_delete=models.PROTECT,null=True,blank=True,default=User.objects.get(username="Admin").pk)
     class Meta:
         verbose_name = "Donante"
         verbose_name_plural = "Donantes"

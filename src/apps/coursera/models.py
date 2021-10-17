@@ -8,7 +8,7 @@ class Aliado(models.Model):
     """Aliados al programa Coursera para Guatemala:
     """
     aliado = models.CharField(max_length=50, verbose_name="Aliado Coursera")
-
+    creado_por =models.ForeignKey(User, on_delete=models.CASCADE,default=User.objects.get(username="Admin").pk)
 
     class Meta:
         verbose_name = "Aliado"
@@ -27,6 +27,7 @@ class Monitoreo(models.Model):
     aceptacion=models.DecimalField(default=0,max_digits=5, decimal_places=2)
     inscritos = models.PositiveIntegerField(default=0, verbose_name="No. Inscritos")
     graduados = models.PositiveIntegerField(default=0, verbose_name="No. Graduados")
+
 
     class Meta:
         verbose_name = "Monitoreo"
@@ -50,6 +51,7 @@ class Historial(models.Model):
     enrolled_courses =models.PositiveIntegerField(default=0, verbose_name="Enrolled courses ")
     completed_courses = models.PositiveIntegerField(default=0, verbose_name="Completed courses")
     member = models.IntegerField(choices=MEMBER_STATE, default=1, verbose_name="Member state")
+
     class Meta:
         verbose_name = "Historico"
         verbose_name_plural = "Historial de monitoreo"

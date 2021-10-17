@@ -17,7 +17,7 @@ from apps.escuela.models import Escuela
 class Curso(models.Model):
     """Curso para impartir en la  capacitación."""
 
-    GRUPO_CERTIFICADO = (
+    GRUPO_CERTIFICADOS = (
         (1, "Tecnología Básica Nivel Intermedio"),
         (2, "NAAT 22 Semanas"),
         (3, "NAAT 18 Semanas")
@@ -27,7 +27,8 @@ class Curso(models.Model):
     nota_aprobacion = models.IntegerField()
     porcentaje = models.IntegerField(null=True, blank=True)
     activo = models.BooleanField(default=True, blank=True, verbose_name='Activo')
-    grupo_certificado = models.IntegerField(choices=GRUPO_CERTIFICADO, default=1)
+    grupos_certificado = models.IntegerField(choices=GRUPO_CERTIFICADOS, default=1)
+    cyd_curso_creado_por =models.ForeignKey(User, on_delete=models.CASCADE,default=User.objects.get(username="Admin").pk)
 
     def __str__(self):
         return self.nombre
@@ -49,6 +50,8 @@ class CrAsistencia(models.Model):
     curso = models.ForeignKey(Curso, related_name="asistencias", on_delete=models.CASCADE)
     modulo_num = models.IntegerField()
     punteo_max = models.IntegerField()
+    cyd_cr_asistencia_creado_por =models.ForeignKey(User, on_delete=models.CASCADE,default=User.objects.get(username="Admin").pk)
+
 
     class Meta:
         unique_together = ('curso', 'modulo_num',)  # Un curso no puede tener dos veces el mismo módulo
@@ -64,6 +67,8 @@ class CrHito(models.Model):
     curso = models.ForeignKey(Curso, related_name="hitos", on_delete=models.CASCADE)
     nombre = models.CharField(max_length=40)
     punteo_max = models.IntegerField()
+    cyd_cr_hito_creado_por =models.ForeignKey(User, on_delete=models.CASCADE,default=User.objects.get(username="Admin").pk)
+
 
     class Meta:
         verbose_name = "Hito de curso"
@@ -74,7 +79,7 @@ class CrHito(models.Model):
 
 
 class Sede(models.Model):
-    TIPO_SEDE = (
+    TIPO_SEDES = (
         ("B", "ESCUELA BENEFICIADA"),
         ("NB", "ESCUELA NO BENEFICIADA")
     )
@@ -87,11 +92,12 @@ class Sede(models.Model):
     mapa = models.ForeignKey(Coordenada, null=True, blank=True, on_delete=models.CASCADE)
     activa = models.BooleanField(default=True, blank=True, verbose_name='Activa')
     escuela_beneficiada = models.ForeignKey(Escuela, on_delete=models.PROTECT, related_name='escuela_beneficiada', blank=True, null=True)
-    tipo_sede = models.CharField(max_length=2, verbose_name='Tipo de Sede' , choices=TIPO_SEDE, default='B')
+    tipo_sede = models.CharField(max_length=2, verbose_name='Tipo de Sede' , choices=TIPO_SEDES, default='B')
     fecha_creacion = models.DateField(null=True, blank=True)
     url = models.TextField(null=True, blank=True,verbose_name='Carpeta Fotos')
     url_archivos = models.TextField(null=True, blank=True,verbose_name='Carpeta Archivos')
     fecha_creacion = models.DateTimeField(default=timezone.now)
+
 
     class Meta:
         verbose_name = "Sede"
@@ -130,7 +136,6 @@ class Sede(models.Model):
         participantes = Participante.objects.filter(
             asignaciones__grupo__sede__id=self.id, activo=True).annotate(
             cursos_sede=Count('asignaciones'))
-        print(participantes)
         for participante in participantes:
             asignaciones = participante.asignaciones.filter(grupo__sede=self)
             resultado['listado'].append({
@@ -165,6 +170,7 @@ class Asesoria(models.Model):
     hora_inicio = models.TimeField(null=True, blank=True)
     hora_fin = models.TimeField(null=True, blank=True)
     observacion = models.TextField(null=True, blank=True, verbose_name='Observaciones')
+    cyd_asesorias_creado_por =models.ForeignKey(User, on_delete=models.CASCADE,default=User.objects.get(username="Admin").pk)
 
     class Meta:
         verbose_name = 'Período de asesoría'
@@ -181,6 +187,7 @@ class Grupo(models.Model):
     curso = models.ForeignKey(Curso, on_delete=models.CASCADE)
     comentario = models.TextField(null=True, blank=True)
     activo = models.BooleanField(default=True, blank=True, verbose_name='Activo')
+    cyd_grupo_creado_por =models.ForeignKey(User, on_delete=models.CASCADE,default=User.objects.get(username="Admin").pk)
 
     class Meta:
         verbose_name = "Grupo de capacitación"
@@ -227,6 +234,7 @@ class Calendario(models.Model):
     hora_inicio = models.TimeField(null=True, blank=True, verbose_name='Hora de inicio')
     hora_fin = models.TimeField(null=True, blank=True, verbose_name='Hora de fin')
     observacion = models.TextField(null=True, blank=True, verbose_name='Observaciones')
+    cyd_calendario_creado_por =models.ForeignKey(User, on_delete=models.CASCADE,default=User.objects.get(username="Admin").pk)
 
     class Meta:
         verbose_name = "Calendario de grupos"
@@ -253,6 +261,7 @@ class Calendario(models.Model):
 class ParRol(models.Model):
     """Rol del participante."""
     nombre = models.CharField(max_length=20)
+    cyd_rol_creado_por =models.ForeignKey(User, on_delete=models.CASCADE,default=User.objects.get(username="Admin").pk)
 
     class Meta:
         verbose_name = "Rol de participante"
@@ -265,6 +274,7 @@ class ParRol(models.Model):
 class ParEtnia(models.Model):
     """Etnia del participante."""
     nombre = models.CharField(max_length=20)
+    cyd_etnia_creado_por =models.ForeignKey(User, on_delete=models.CASCADE,default=User.objects.get(username="Admin").pk)
 
     class Meta:
         verbose_name = "Etnia de participante"
@@ -276,7 +286,7 @@ class ParEtnia(models.Model):
 
 class ParEscolaridad(models.Model):
     nombre = models.CharField(max_length=20)
-
+    cyd_escolaridad_creado_por =models.ForeignKey(User, on_delete=models.CASCADE,default=User.objects.get(username="Admin").pk)
     class Meta:
         verbose_name = "Escolaridad de participante"
         verbose_name_plural = "Escolaridades de participante"
@@ -288,6 +298,7 @@ class ParEscolaridad(models.Model):
 class ParGenero(models.Model):
     """Género para el :class:`cyd.Participante`."""
     genero = models.CharField(max_length=8)
+    cyd_genero_creado_por =models.ForeignKey(User, on_delete=models.CASCADE,default=User.objects.get(username="Admin").pk)
 
     class Meta:
         verbose_name = "Género"
@@ -320,7 +331,7 @@ class Participante(models.Model):
 
     slug = models.SlugField(max_length=20, null=True, blank=True)
     activo = models.BooleanField(default=True, blank=True, verbose_name='Activo')
-
+    cyd_participante_creado_por =models.ForeignKey(User, on_delete=models.CASCADE,default=User.objects.get(username="Admin").pk)
 
     class Meta:
         verbose_name = "Participante"
@@ -360,6 +371,7 @@ class Asignacion(models.Model):
     participante = models.ForeignKey(Participante, related_name='asignaciones', on_delete=models.CASCADE)
     grupo = models.ForeignKey(Grupo, related_name='asignados', on_delete=models.CASCADE)
     abandono=models.BooleanField(default=False, blank=True, verbose_name='Abandono')
+    cyd_asignacion_creado_por =models.ForeignKey(User, on_delete=models.CASCADE,default=User.objects.get(username="Admin").pk)
 
     class Meta:
         verbose_name = "Asignación"
@@ -399,6 +411,7 @@ class Asignacion(models.Model):
         for calendario in self.grupo.asistencias.all():
             self.notas_asistencias.create(gr_calendario=calendario)
         for hito in self.grupo.curso.hitos.all():
+            print(hito)
             self.notas_hitos.create(cr_hito=hito)
 
     def get_nota_final(self):
@@ -432,6 +445,7 @@ class NotaAsistencia(models.Model):
     asignacion = models.ForeignKey(Asignacion, related_name='notas_asistencias', on_delete=models.CASCADE)
     gr_calendario = models.ForeignKey(Calendario, related_name='notas_asociadas', on_delete=models.CASCADE)
     nota = models.IntegerField(default=0)
+    cyd_nota_asistencia_creado_por =models.ForeignKey(User, on_delete=models.CASCADE,default=User.objects.get(username="Admin").pk)
 
     class Meta:
         """No pueden existir dos registros de notas para el mismo período de capacitación."""
@@ -456,6 +470,7 @@ class NotaHito(models.Model):
     asignacion = models.ForeignKey(Asignacion, related_name='notas_hitos', on_delete=models.CASCADE)
     cr_hito = models.ForeignKey(CrHito, on_delete=models.CASCADE)
     nota = models.IntegerField(default=0)
+    cyd_nota_hito_creado_por =models.ForeignKey(User, on_delete=models.CASCADE,default=User.objects.get(username="Admin").pk)
 
     class Meta:
         """No pueden existir dos registros de notas para el mismo hito."""

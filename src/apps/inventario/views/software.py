@@ -25,6 +25,11 @@ class SoftwareCreateView(LoginRequiredMixin, CreateView):
     form_class = inv_f.SoftwareCreateForm
     template_name = 'inventario/software/software_add.html'
 
+
+    def form_valid(self, form):
+        form.instance.creada_por = self.request.user
+        return super(SoftwareCreateView, self).form_valid(form)
+
     def get_success_url(self):
         return reverse('software_list')
 
@@ -58,6 +63,10 @@ class VersionSistemaCreateView(LoginRequiredMixin, CreateView):
     """
     form_class = inv_f.VersionSistemaForm
     template_name = 'inventario/software/versionsistema_add.html'
+
+    def form_valid(self, form):
+        form.instance.creada_por = self.request.user
+        return super(VersionSistemaCreateView, self).form_valid(form)
 
     def get_success_url(self):
         return reverse('versionsistema_list')
