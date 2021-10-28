@@ -52,7 +52,7 @@ class DispositosDetalleAndroid(viewsets.ModelViewSet):
         dispositivo = self.request.query_params.get('id', None)
         triage = self.request.query_params.get('triage', None)
         tipo = self.request.query_params.get('tipo', None)
-        return inv_m.Dispositivo.objects.filter(id=dispositivo)      
+        return inv_m.Dispositivo.objects.filter(id=dispositivo)
 
 
 class DispositivoViewSet(viewsets.ModelViewSet):
@@ -1049,8 +1049,7 @@ class DispositivosPaquetesViewSet(viewsets.ModelViewSet):
                     print("Clase no necesita actualizacion")
                 new_dispositivo.save()
         elif tipo == "LAPTOP":
-            for datos in dispositivos:
-                print(datos['servidor'])
+            for datos in dispositivos:                
                 new_dispositivo = inv_m.Laptop.objects.get(triage=datos['triage'])
                 try:
                     new_dispositivo.marca = inv_m.DispositivoMarca.objects.get(id=datos['marca'])
