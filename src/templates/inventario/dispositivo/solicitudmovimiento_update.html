@@ -27,10 +27,20 @@
                         <form action="" method="post">
                             {% csrf_token %}
                             <table id="solicitud-table" class="table table-condensed" data-cantidad="{{ form.instance.cantidad }}" data-dispo="{{dispositivos_no}}">
+                                {%if object.no_salida%}
                                 <tr>
                                     <th>Salida</th>
                                         <td><a href="{{form.instance.no_salida.get_absolute_url}}" target="_blank">{{form.instance.no_salida |default_if_none:""}}</a></td>
                                     </tr>
+                                <tr>
+                                {%else%}
+                                    {%if object.no_inventariointerno%}
+                                    <tr>
+                                        <th>Asignación</th>
+                                        <td><a href="{{object.no_inventariointerno.get_absolute_url}}" target="_blank">{{object.no_inventariointerno |default_if_none:""}}</a></td>
+                                    </tr>
+                                    {% endif %}
+                                {% endif %}
                                 <tr>
                                     <th>Cantidad</th>
                                     <td>{{ form.instance.cantidad }}</td>

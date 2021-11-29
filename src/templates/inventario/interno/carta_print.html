@@ -1,0 +1,452 @@
+{% load staticfiles%}
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>CARTA DE RESPONSABILIDAD</title>
+	</head>
+</html>
+<!--ENCABEZADO DE DATOS E IMAGENES -->
+<header>
+	<div class="logo_izquierdo">
+		<img  width="250" style="display:block; margin: auto;" src="{% static "image/Logo_Funsepa-01.png" %}">
+	</div>
+	<center>
+		<div class="encabezado">
+			<h2 style="	color: #154458;">
+				<b>FICHA DE RESPONSABILIDAD<br></b>
+			</h2>
+			<a class="encabezado2"><b><u>Ciudad de Guatemala, {{ inventariointerno.fecha_asignacion }}</u></b></a>
+			<b>
+				<table class="encabezado3" width="830">
+					<table>
+						<b>
+							<br>
+							<td style="width:10%;">COLABORADOR(A)</td>
+							<td style="border:solid; border-width: 1px; border-color: gray; width: 30%; padding-left: 10px;" height="28">{{ inventariointerno.colaborador_asignado.perfil }}</td>
+							<td style="width: 10%;">&nbsp;&nbsp;&nbsp;CARGO</td>
+							<td style="border:solid; border-width: 1px; border-color: gray; width: 50%; padding-left: 10px;" height="28">{{ inventariointerno.colaborador_asignado.perfil.cargo }}</td>
+						</b>
+					</table>
+				</table>
+			</b>
+		</div>
+	</center>
+</header>
+<!--FIN DE DATOS E IMAGENES -->
+
+<!--DETALLE DE EQUIPO -->
+<body>
+	<div id="cuerpo_asignacion" style="padding-top: 20px;">
+		<center>
+			<table bgcolor="#154458" style="font-size: 20px; color: white;" width="975" height="15">
+				<center>
+					<th><center>DESCRIPCIÓN DEL EQUIPO</center></th>
+				</center>
+			</table>
+			<table class="datos" style="width: 100%">
+				<thead style="font-size: 15px; background-color: #00659a !important; color: white;">
+					<tr>
+						<th style="width:10%;">TRIAGE</th>
+						<th style="width:90%;" colspan="2">ESPECIFICACIONES DE EQUIPO</th>
+					</tr>
+				</thead>
+				<tbody>
+					{% for dispositivo in inventariointerno.dispositivos.all %}
+					<!-- TECLADOS -->
+					{% if dispositivo.dispositivo.tipo.id == 1 %}
+					<tr>
+						<td rowspan="5"><h4><center>{{ dispositivo.dispositivo.triage|default_if_none:"" }}</center></h4></td>
+						<td width="10%"><b>Tipo:</b></td>
+						<td width="90%">{{ dispositivo.dispositivo.tipo|default_if_none:"" }}</td>				
+					</tr>
+					<tr>
+						<td width="10%"><b>Marca:</b></td>
+						<td width="90%">{{ dispositivo.dispositivo.marca|default_if_none:"" }}</td>
+					</tr>
+					<tr>
+						<td width="10%"><b>Modelo:</b></td>
+						<td width="90%">{{ dispositivo.dispositivo.modelo|default_if_none:"" }} | {{ dispositivo.dispositivo.serie|default_if_none:"" }}</td>
+					</tr>
+					<tr>
+						<td width="10%"><b>Puerto:</b></td>
+						<td width="90%">{{ dispositivo.dispositivo.puerto|default_if_none:"" }}</td>
+					</tr>
+					<tr>
+						<td width="10%"><b>Observaciones:</b></td>
+						<td width="90%">{{ dispositivo.dispositivo.descripcion|default_if_none:"" }}</td>
+					</tr>
+					<!-- MOUSE -->
+					{% elif dispositivo.dispositivo.tipo.id == 2 %}
+					<tr>
+						<td rowspan="5"><h4><center>{{ dispositivo.dispositivo.triage|default_if_none:"" }}</center></h4></td>
+						<td width="10%"><b>Tipo:</b></td>
+						<td width="90%">{{ dispositivo.dispositivo.tipo|default_if_none:"" }}</td>				
+					</tr>
+					<tr>
+						<td width="10%"><b>Marca:</b></td>
+						<td width="90%">{{ dispositivo.dispositivo.marca|default_if_none:"" }}</td>
+					</tr>
+					<tr>
+						<td width="10%"><b>Modelo:</b></td>
+						<td width="90%">{{ dispositivo.dispositivo.modelo|default_if_none:"" }} | {{ dispositivo.dispositivo.serie|default_if_none:"" }}</td>
+					</tr>
+					<tr>
+						<td width="10%"><b>Tipo Mouse:</b></td>
+						<td width="90%">{{ dispositivo.dispositivo.tipo|default_if_none:"" }}</td>
+					</tr>
+					<tr>
+						<td width="10%"><b>Observaciones:</b></td>
+						<td width="90%">{{ dispositivo.dispositivo.descripcion|default_if_none:"" }}</td>
+					</tr>
+					<!-- HDD -->
+					{% elif dispositivo.dispositivo.tipo.id == 3 %}
+					<tr>
+						<td rowspan="6"><h4><center>{{ dispositivo.dispositivo.triage|default_if_none:"" }}</center></h4></td>
+						<td width="10%"><b>Tipo:</b></td>
+						<td width="90%">{{ dispositivo.dispositivo.tipo|default_if_none:"" }}</td>				
+					</tr>
+					<tr>
+						<td width="10%"><b>Marca:</b></td>
+						<td width="90%">{{ dispositivo.dispositivo.marca|default_if_none:"" }}</td>
+					</tr>
+					<tr>
+						<td width="10%"><b>Modelo:</b></td>
+						<td width="90%">{{ dispositivo.dispositivo.modelo|default_if_none:"" }} | {{ dispositivo.dispositivo.serie|default_if_none:"" }}</td>
+					</tr>
+					<tr>
+						<td width="10%"><b>Puerto:</b></td>
+						<td width="90%">{{ dispositivo.dispositivo.puerto|default_if_none:"" }}</td>
+					</tr>
+					<tr>
+						<td width="10%"><b>Capacidad:</b></td>
+						<td width="90%">{{ dispositivo.dispositivo.capacidad|default_if_none:"" }} {{ dispositivo.dispositivo.medida|default_if_none:"" }}</td>
+					</tr>
+					<tr>
+						<td width="10%"><b>Observaciones:</b></td>
+						<td width="90%">{{ dispositivo.dispositivo.descripcion|default_if_none:"" }}</td>
+					</tr>
+					<!-- TABLET -->
+					{% elif dispositivo.dispositivo.tipo.id == 4 %}
+					<tr>
+						<td rowspan="9"><h4><center>{{ dispositivo.dispositivo.triage|default_if_none:"" }}</center></h4></td>
+						<td width="10%"><b>Tipo:</b></td>
+						<td width="90%">{{ dispositivo.dispositivo.tipo|default_if_none:"" }}</td>				
+					</tr>
+					<tr>
+						<td width="10%"><b>Marca:</b></td>
+						<td width="90%">{{ dispositivo.dispositivo.marca|default_if_none:"" }}</td>
+					</tr>
+					<tr>
+						<td width="10%"><b>Modelo:</b></td>
+						<td width="90%">{{ dispositivo.dispositivo.modelo|default_if_none:"" }} | {{ dispositivo.dispositivo.serie|default_if_none:"" }}</td>
+					</tr>
+					<tr>
+						<td width="10%"><b>Almacenamiento:</b></td>
+						<td width="90%">{{ dispositivo.dispositivo.almacenamiento|default_if_none:"" }} {{ dispositivo.dispositivo.medida_almacenamiento|default_if_none:"" }}</td>
+					</tr>
+					<tr>
+						<td width="10%"><b>RAM:</b></td>
+						<td width="90%">{{ dispositivo.dispositivo.ram|default_if_none:"" }} {{ dispositivo.dispositivo.medida_ram|default_if_none:"" }}</td>
+					</tr>
+					<tr>
+						<td width="10%"><b>Procesador:</b></td>
+						<td width="90%">{{ dispositivo.dispositivo.procesador|default_if_none:"" }}</td>
+					</tr>
+					<tr>
+						<td width="10%"><b>Pulgadas:</b></td>
+						<td width="90%">{{ dispositivo.dispositivo.pulgadas|default_if_none:"" }}</td>
+					</tr>
+					<tr>
+						<td width="10%"><b>S.O.:</b></td>
+						<td width="90%">{{ dispositivo.dispositivo.so_id|default_if_none:"" }} - {{ dispositivo.dispositivo.version_sistema|default_if_none:"" }}</td>
+					</tr>
+					<tr>
+						<td width="10%"><b>Observaciones:</b></td>
+						<td width="90%">{{ dispositivo.dispositivo.descripcion|default_if_none:"" }}</td>
+					</tr>
+					<!-- MONITOR -->
+					{% elif dispositivo.dispositivo.tipo.id == 5 %}
+					<tr>
+						<td rowspan="7"><h4><center>{{ dispositivo.dispositivo.triage|default_if_none:"" }}</center></h4></td>
+						<td width="10%"><b>Tipo:</b></td>
+						<td width="90%">{{ dispositivo.dispositivo.tipo|default_if_none:"" }}</td>				
+					</tr>
+					<tr>
+						<td width="10%"><b>Marca:</b></td>
+						<td width="90%">{{ dispositivo.dispositivo.marca|default_if_none:"" }}</td>
+					</tr>
+					<tr>
+						<td width="10%"><b>Modelo:</b></td>
+						<td width="90%">{{ dispositivo.dispositivo.modelo|default_if_none:"" }} | {{ dispositivo.dispositivo.serie|default_if_none:"" }}</td>
+					</tr>
+					<tr>
+						<td width="10%"><b>Tipo Monitor:</b></td>
+						<td width="90%">{{ dispositivo.dispositivo.tipo_monitor|default_if_none:"" }}</td>
+					</tr>
+					<tr>
+						<td width="10%"><b>Puerto:</b></td>
+						<td width="90%">{{ dispositivo.dispositivo.puerto|default_if_none:"" }}</td>
+					</tr>
+					<tr>
+						<td width="10%"><b>Pulgadas:</b></td>
+						<td width="90%">{{ dispositivo.dispositivo.pulgadas|default_if_none:"" }}</td>
+					</tr>
+					<tr>
+						<td width="10%"><b>Observaciones:</b></td>
+						<td width="90%">{{ dispositivo.dispositivo.descripcion|default_if_none:"" }}</td>
+					</tr>
+					<!-- CPU -->
+					{% elif dispositivo.dispositivo.tipo.id == 6 %}
+					<tr>
+						<td rowspan="9"><h4><center>{{ dispositivo.dispositivo.triage|default_if_none:"" }}</center></h4></td>
+						<td width="10%"><b>Tipo:</b></td>
+						<td width="90%">{{ dispositivo.dispositivo.tipo|default_if_none:"" }}</td>				
+					</tr>
+					<tr>
+						<td width="10%"><b>Marca:</b></td>
+						<td width="90%">{{ dispositivo.dispositivo.marca|default_if_none:"" }}</td>
+					</tr>
+					<tr>
+						<td width="10%"><b>Modelo:</b></td>
+						<td width="90%">{{ dispositivo.dispositivo.modelo|default_if_none:"" }} | {{ dispositivo.dispositivo.serie|default_if_none:"" }}</td>
+					</tr>
+					<tr>
+						<td width="10%"><b>Almacenamiento:</b></td>
+						<td width="90%">{{ dispositivo.dispositivo.disco_duro|default_if_none:"" }} ({{ dispositivo.dispositivo.disco_duro.capacidad|default_if_none:"" }} {{ dispositivo.dispositivo.disco_duro.medida|default_if_none:"" }})</td>
+					</tr>
+					<tr>
+						<td width="10%"><b>RAM:</b></td>
+						<td width="90%">{{ dispositivo.dispositivo.ram|default_if_none:"" }} {{ dispositivo.dispositivo.ram_medida|default_if_none:"" }}</td>
+					</tr>
+					<tr>
+						<td width="10%"><b>Procesador:</b></td>
+						<td width="90%">{{ dispositivo.dispositivo.procesador|default_if_none:"" }}</td>
+					</tr>
+					<tr>
+						<td width="10%"><b>Servidor:</b></td>
+						<td><input type="checkbox" name="servidor" class="icheckbox_square-red" disabled  {% if dispositivo.dispositivo.procesador.servidor %} checked {% endif %} /></td>
+					</tr>
+					<tr>
+						<td width="10%"><b>All in One:</b></td>
+						<td><input type="checkbox" name="all_in_one" class="icheckbox_square-red" disabled  {% if dispositivo.dispositivo.procesador.all_in_one %} checked {% endif %} /></td>
+					</tr>
+					<tr>
+						<td width="10%"><b>Observaciones:</b></td>
+						<td width="90%">{{ dispositivo.dispositivo.descripcion|default_if_none:"" }}</td>
+					</tr>
+					<!-- LAPTOP -->
+					{% elif dispositivo.dispositivo.tipo.id == 7 %}
+					<tr>
+						<td rowspan="9"><h4><center>{{ dispositivo.dispositivo.triage|default_if_none:"" }}</center></h4></td>
+						<td width="10%"><b>Tipo:</b></td>
+						<td width="90%">{{ dispositivo.dispositivo.tipo|default_if_none:"" }}</td>				
+					</tr>
+					<tr>
+						<td width="10%"><b>Marca:</b></td>
+						<td width="90%">{{ dispositivo.dispositivo.marca|default_if_none:"" }}</td>
+					</tr>
+					<tr>
+						<td width="10%"><b>Modelo:</b></td>
+						<td width="90%">{{ dispositivo.dispositivo.modelo|default_if_none:"" }} | {{ dispositivo.dispositivo.serie|default_if_none:"" }}</td>
+					</tr>
+					<tr>
+						<td width="10%"><b>Almacenamiento:</b></td>
+						<td width="90%">{{ dispositivo.dispositivo.disco_duro|default_if_none:"" }} ({{ dispositivo.dispositivo.disco_duro.capacidad|default_if_none:"" }} {{ dispositivo.dispositivo.disco_duro.medida|default_if_none:"" }})</td>
+					</tr>
+					<tr>
+						<td width="10%"><b>RAM:</b></td>
+						<td width="90%">{{ dispositivo.dispositivo.ram|default_if_none:"" }} {{ dispositivo.dispositivo.ram_medida|default_if_none:"" }}</td>
+					</tr>
+					<tr>
+						<td width="10%"><b>Procesador:</b></td>
+						<td width="90%">{{ dispositivo.dispositivo.procesador|default_if_none:"" }}</td>
+					</tr>
+					<tr>
+						<td width="10%"><b>Servidor:</b></td>
+						<td><input type="checkbox" name="servidor" class="icheckbox_square-red" disabled  {% if dispositivo.dispositivo.procesador.servidor %} checked {% endif %} /></td>
+					</tr>
+					<tr>
+						<td width="10%"><b>All in One:</b></td>
+						<td><input type="checkbox" name="all_in_one" class="icheckbox_square-red" disabled  {% if dispositivo.dispositivo.procesador.all_in_one %} checked {% endif %} /></td>
+					</tr>
+					<tr>
+						<td width="10%"><b>Observaciones:</b></td>
+						<td width="90%">{{ dispositivo.dispositivo.descripcion|default_if_none:"" }}</td>
+					</tr>
+					<!-- SWITCH -->
+					{% elif dispositivo.dispositivo.tipo.id == 8 %}
+					<tr>
+						<td rowspan="7"><h4><center>{{ dispositivo.dispositivo.triage|default_if_none:"" }}</center></h4></td>
+						<td width="10%"><b>Tipo:</b></td>
+						<td width="90%">{{ dispositivo.dispositivo.tipo|default_if_none:"" }}</td>				
+					</tr>
+					<tr>
+						<td width="10%"><b>Marca:</b></td>
+						<td width="90%">{{ dispositivo.dispositivo.marca|default_if_none:"" }}</td>
+					</tr>
+					<tr>
+						<td width="10%"><b>Modelo:</b></td>
+						<td width="90%">{{ dispositivo.dispositivo.modelo|default_if_none:"" }} | {{ dispositivo.dispositivo.serie|default_if_none:"" }}</td>
+					</tr>
+					<tr>
+						<td width="10%"><b>Velocidad:</b></td>
+						<td width="90%">{{ dispositivo.dispositivo.velocidad|default_if_none:"" }} {{ dispositivo.dispositivo.velocidad_medida|default_if_none:"" }}</td>
+					</tr>
+					<tr>
+						<td width="10%"><b>Puertos:</b></td>
+						<td width="90%">{{ dispositivo.dispositivo.cantidad_puertos|default_if_none:"" }}</td>
+					</tr>
+					<tr>
+						<td width="10%"><b>Tipo Puerto:</b></td>
+						<td width="90%">{{ dispositivo.dispositivo.puerto|default_if_none:"" }}</td>
+					</tr>
+					<tr>
+						<td width="10%"><b>Observaciones:</b></td>
+						<td width="90%">{{ dispositivo.dispositivo.descripcion|default_if_none:"" }}</td>
+					</tr>
+					<!-- ACCESS POINT -->
+					{% elif dispositivo.dispositivo.tipo.id == 9 %}
+					<tr>
+						<td rowspan="7"><h4><center>{{ dispositivo.dispositivo.triage|default_if_none:"" }}</center></h4></td>
+						<td width="10%"><b>Tipo:</b></td>
+						<td width="90%">{{ dispositivo.dispositivo.tipo|default_if_none:"" }}</td>				
+					</tr>
+					<tr>
+						<td width="10%"><b>Marca:</b></td>
+						<td width="90%">{{ dispositivo.dispositivo.marca|default_if_none:"" }}</td>
+					</tr>
+					<tr>
+						<td width="10%"><b>Modelo:</b></td>
+						<td width="90%">{{ dispositivo.dispositivo.modelo|default_if_none:"" }} | {{ dispositivo.dispositivo.serie|default_if_none:"" }}</td>
+					</tr>
+					<tr>
+						<td width="10%"><b>Velocidad:</b></td>
+						<td width="90%">{{ dispositivo.dispositivo.velocidad|default_if_none:"" }} {{ dispositivo.dispositivo.velocidad_medida|default_if_none:"" }}</td>
+					</tr>
+					<tr>
+						<td width="10%"><b>Puertos:</b></td>
+						<td width="90%">{{ dispositivo.dispositivo.cantidad_puertos|default_if_none:"" }}</td>
+					</tr>
+					<tr>
+						<td width="10%"><b>Tipo Puerto:</b></td>
+						<td width="90%">{{ dispositivo.dispositivo.puerto|default_if_none:"" }}</td>
+					</tr>
+					<tr>
+						<td width="10%"><b>Observaciones:</b></td>
+						<td width="90%">{{ dispositivo.dispositivo.descripcion|default_if_none:"" }}</td>
+					</tr>
+					{% endif %}
+					{% endfor %}
+					<tr style="height:50px;">
+						<td><h4><center>ADICIONALES</center></h4></td>
+						<td colspan="2"></td>
+					</tr>
+				</tbody>
+			</table>
+		</center>
+		<div class="parrafo">
+			<p align="justify">
+				Me responsabilizo de cualquier tipo de lesión y daños que pudiera causar tanto mi persona como terceras personas que utilicen este equipo. De igual manera, soy responsable del correcto uso del equipo, que en caso de dañar o causar avería por descuido o irresponsabilidad, responderé con mis propios bienes hasta solucionar la reparación. Asumo también la responsabilidad de respetar las políticas de FUNSEPA sobre el uso de equipo. 
+			</p>
+		</div>
+	</div>
+	<div id="firmas_asignacion">
+		<center>
+			<table style="font-size: 20px;">
+				<tr style="height:220px;">
+					<td>
+						<hr width="430" style="border-color:black; border-width: 1px;">
+						<center>Firma Colaborador</center>
+					</td>
+					<td width="200"></td>
+					<td>
+						<hr width="430" style="border-color:black; border-width: 1px;">
+						<center>Bodega General</center>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<hr width="430" style="border-color:black; border-width: 1px;">
+						<center>Administrador IT</center>
+					</td>
+					<td width="200"></td>
+					<td>
+						<hr width="430" style="border-color:black; border-width: 1px;">
+						<center>Coordinación de Área</center>
+					</td>
+				</tr>
+			</table>
+		</center>
+	</div>
+	<hr style="margin-top: 30px; border-color:gray; border-width: 0.5px;">
+	<h4>DEVOLUCIÓN DE EQUIPO A LA FUNDACIÓN.</h4>
+	<div class="parrafo" style="margin-top:-5mm;">
+		<p align="justify">
+			Doy fe que el equipo que hoy recibo posee las mismas especificaciones que dicho equipo poseía al momento de la firma anterior, además doy fe que el equipo está en correcto funcionamiento. 
+		</p>
+	</div>
+	<div id="firmas_devolucion">
+		<center>
+			<table>
+				<tr style="height: 100px;">
+					<td>
+						<center>
+							<hr width="430" style="border-color:black; border-width: 1px;">
+							<center>Fecha Devolución</center>
+						</center>
+						
+					</td>
+				</tr>
+			</table>
+			<table style="font-size: 20px;">
+				<tr style="height:150px;">
+					<td>
+						<hr width="280" style="border-color:black; border-width: 1px;">
+						<center>Firma Colaborador</center>
+					</td>
+					<td width="100"></td>
+					<td>
+						<hr width="280" style="border-color:black; border-width: 1px;">
+						<center>Administrador IT</center>
+					</td>
+					<td width="100"></td>
+					<td>
+						<hr width="280" style="border-color:black; border-width: 1px;">
+						<center>Bodega General</center>
+					</td>
+				</tr>
+			</table>
+		</center>
+	</div>
+</body>
+
+<!--CSS -->
+<style type="text/css">
+	body{
+		font-family: arial;
+		background-image: none;
+		-webkit-print-color-adjust: exact; /*economy | exact*/
+		color-adjust: exact;
+	}
+	.encabezado{
+		margin:10px;
+		margin-top:-9mm;
+	}
+	.encabezado2{
+		padding-bottom: 15px !important;
+		font-size:14px;
+		text-align: center;
+	}
+	.encabezado3{
+		font-size:14px;
+	}
+
+	.datos tr:nth-child(even){
+		background-color: #e8ecf6;
+	}
+	.contador {
+		margin-left:  370px;
+		font-family: arial;
+		font-size: 18px
+	}
+</style>

@@ -164,6 +164,24 @@ contabilidad_children = (
     ),
 )
 
+# Inventario Interno
+interno_children = (
+    ViewMenuItem(
+        "Inventario Interno",
+        reverse_lazy('inventariointerno_add'),
+        weight=12,
+        group="inv_interno,inv_cc",
+        icon="fa-pencil-square-o",
+    ),
+    ViewMenuItem(
+        "Informe",
+        reverse_lazy('inventariointerno_list'),
+        weight=12,
+        group="inv_interno,inv_cc,inv_conta",
+        icon="fa-bar-chart",
+    ),
+)
+
 # Administrador
 admin_children = (
     ViewMenuItem(
@@ -281,6 +299,18 @@ Menu.add_item(
         children=contabilidad_children
     )
 )
+Menu.add_item(
+    "user",
+    ViewMenuItem(
+        "Inventario Interno",
+        reverse_lazy('entrada_list'),
+        weight=10,
+        icon="fa-building",
+        group="inv_admin,inv_cc,inv_interno",
+        children=interno_children
+    )
+)
+
 Menu.add_item(
     "user",
     ViewMenuItem(

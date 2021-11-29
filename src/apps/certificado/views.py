@@ -90,6 +90,8 @@ class ListadoMaestroView(TemplateView):
 
                 # Obtener Promedio de Cursos por Sede
                 for valor_data in data:
+                  print("Valor Data")
+                  print(valor_data)
                   if sede == valor_data['sede']:
                     id_sede = int(valor_data['id_sede'])
                     suma_curso += int(valor_data['nota'])
@@ -210,7 +212,7 @@ class DiplomaPdfView(View):
               asignaciones.append(nuevo)
 
          # Validar si la capacitación fué durante el año actual y si no ha expirado el periodo de tiempo}
-         fecha_valida_cert = fecha_final + datetime.timedelta(days=300)
+         fecha_valida_cert = fecha_final + datetime.timedelta(days=30)
          if fecha_final.year <= datetime.date.today().year:
             if datetime.date.today() <= fecha_valida_cert:
               if fecha_final.year >= 2021:
@@ -354,7 +356,7 @@ class ConstanciaPdfView(View):
               url_constancia = str(registro['constancia'])
               asignaciones.append(registro)
 
-         fecha_valida_const = fecha_final + datetime.timedelta(days=300)
+         fecha_valida_const = fecha_final + datetime.timedelta(days=90)
          # Validar si la capacitación fué durante el año actual y si no ha expirado el periodo de tiempo
          if fecha_final.year <= datetime.date.today().year:
             if datetime.date.today() <= fecha_valida_const:
