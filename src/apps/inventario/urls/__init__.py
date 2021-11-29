@@ -17,6 +17,7 @@ from .desecho import urlpatterns as desecho_urls
 from .salida import urlpatterns as salida_urls
 from .repuesto import urlpatterns as repuesto_urls
 from .prestamo import urlpatterns as prestamo_urls
+from .interno import urlpatterns as interno_urls
 
 urlpatterns = list(
     dispositivo_urls +
@@ -26,7 +27,8 @@ urlpatterns = list(
     desecho_urls +
     salida_urls +
     repuesto_urls +
-    prestamo_urls
+    prestamo_urls +
+    interno_urls
 )
 
 urlpatterns.append(

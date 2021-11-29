@@ -388,12 +388,14 @@ class AsignacionTecnicoForm(forms.ModelForm):
 class SolicitudMovimientoCreateForm(forms.ModelForm):
     """Formulario para el control de las Solicitud de Movimiento de la empresa.
     """
-    field_order = ['no_salida', 'tipo_dispositivo', 'cantidad', 'observaciones']
+    field_order = ['inventario_interno', 'no_inventariointerno','no_salida', 'tipo_dispositivo', 'cantidad', 'observaciones']
 
     no_salida = forms.ModelChoiceField(
         queryset=inv_m.SalidaInventario.objects.filter(en_creacion=True, estado__nombre="Pendiente"),
         widget=forms.Select(attrs={'class': 'form-control select2'})
     )
+
+    inventario_interno = forms.BooleanField(widget=forms.CheckboxInput(attrs={'class': 'icheckbox_flat-green'}))
 
     class Meta:
         model = inv_m.SolicitudMovimiento
@@ -411,14 +413,23 @@ class SolicitudMovimientoCreateForm(forms.ModelForm):
             'rechazar',
             'salida_kardex',
             'entrada_kardex'
-
             ]
         widgets = {
-            'no_salida': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '1', 'required': 'true'}),
+            'no_salida': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '1', 'required': 'false'}),
             'tipo_dispositivo': forms.Select(attrs={'id': 'tipo_dispositivo_movimiento', 'class': 'form-control select2', 'tabindex': '2'}),
             'cantidad': forms.TextInput({'class': 'form-control', 'tabindex': '3'}),
             'observaciones': forms.Textarea({'class': 'form-control', 'tabindex': '4'}),
         }
+
+    def __init__(self, *args, **kwargs):
+        super(SolicitudMovimientoCreateForm, self).__init__(*args, **kwargs)
+        self.fields['no_inventariointerno'].widget = forms.Select(attrs={'style': "visibility:hidden", 'class': 'form-control select2', 'tabindex': '1'})
+        self.fields['no_inventariointerno'].label = "No Inventario Interno"
+        self.fields['no_inventariointerno'].queryset = inv_m.InventarioInterno.objects.filter(borrador=True)
+        self.fields['no_inventariointerno'].required = False
+        self.fields['no_salida'].required = False
+        self.fields['inventario_interno'].required = False
+
 
 
 class SolicitudMovimientoInformeForm(forms.Form):
@@ -467,11 +478,19 @@ class SolicitudMovimientoInformeForm(forms.Form):
 class DevolucionCreateForm(forms.ModelForm):
     """Formulario para el control de las Solicitud de Movimiento de la empresa.
     """
-    field_order = ['no_salida', 'tipo_dispositivo', 'cantidad', 'observaciones']
+    field_order = ['inventario_interno', 'no_inventariointerno', 'no_salida', 'tipo_dispositivo', 'cantidad', 'observaciones']
+
+    inventario_interno = forms.BooleanField(widget=forms.CheckboxInput(attrs={'class': 'icheckbox_flat-green'}))
     
     no_salida = forms.ModelChoiceField(
         queryset=inv_m.SalidaInventario.objects.filter(en_creacion=True, estado__nombre="Pendiente"),
         widget=forms.Select(attrs={'class': 'form-control select2'})
+    )
+
+    no_inventariointerno = forms.ModelChoiceField(
+        queryset=inv_m.InventarioInterno.objects.filter(borrador=True),
+        label= 'No Inventario Interno',
+        widget=forms.Select(attrs={'class': 'form-control select2', 'style': 'visibility:hidden'})
     )
 
     class Meta:
@@ -491,12 +510,23 @@ class DevolucionCreateForm(forms.ModelForm):
             'entrada_kardex'
             ]
         widgets = {
-            'no_salida': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '1', 'required': 'true'}),
+            'no_salida': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '1'}),
+            'no_inventariointerno': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '1'}),
             'tipo_dispositivo': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '2'}),
             'cantidad': forms.TextInput({'class': 'form-control', 'tabindex': '3'}),
             'desecho': forms.CheckboxInput({'class': 'icheckbox_square-red', 'tabindex': '4'}),
             'observaciones': forms.Textarea({'class': 'form-control', 'tabindex': '5'}),
         }
+
+    def __init__(self, *args, **kwargs):
+        super(DevolucionCreateForm, self).__init__(*args, **kwargs)
+        self.fields['no_inventariointerno'].widget = forms.Select(
+                attrs={'style': "visibility:hidden", 'class': 'form-control select2', 'tabindex': '1'})
+        self.fields['no_inventariointerno'].label = "No Inventario Interno"
+        self.fields['no_inventariointerno'].queryset = inv_m.InventarioInterno.objects.filter(borrador=True)
+        self.fields['no_inventariointerno'].required = False
+        self.fields['no_salida'].required = False
+        self.fields['inventario_interno'].required = False
 
 
 class SolicitudMovimientoUpdateForm(forms.ModelForm):
