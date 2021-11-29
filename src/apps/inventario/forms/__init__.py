@@ -6,3 +6,4 @@ from .desecho import *
 from .salida import *
 from .repuesto import *
 from .prestamo import *
+from .interno import *

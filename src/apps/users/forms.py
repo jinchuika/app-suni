@@ -54,7 +54,7 @@ class PerfilCrearForm(forms.ModelForm):
 
     class Meta:
         model = Perfil
-        fields = ['dpi', 'genero', 'fecha_nacimiento', 'direccion']
+        fields = ['dpi', 'genero', 'fecha_nacimiento', 'direccion', 'cargo']
 
 
 class PerfilForm(forms.ModelForm):
@@ -80,4 +80,4 @@ class PerfilForm(forms.ModelForm):
 
     class Meta:
         model = Perfil
-        fields = ['dpi', 'genero', 'fecha_nacimiento', 'direccion', 'foto']
+        fields = ['dpi', 'genero', 'fecha_nacimiento', 'direccion', 'foto', 'cargo']

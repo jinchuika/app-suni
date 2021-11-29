@@ -54,10 +54,19 @@
                             <form action="" method="post">
                                 {% csrf_token %}
                                 <table class="table table-condensed">
+                                    {%if object.no_salida%}
                                     <tr>
                                         <th>Salida</th>
                                         <td><a href="{{object.no_salida.get_absolute_url}}" target="_blank">{{object.no_salida |default_if_none:""}}</a></td>
                                     </tr>
+                                    {%else%}
+                                        {%if object.no_inventariointerno%}
+                                        <tr>
+                                            <th>Asignación</th>
+                                            <td><a href="{{object.no_inventariointerno.get_absolute_url}}" target="_blank">{{object.no_inventariointerno |default_if_none:""}}</a></td>
+                                        </tr>
+                                        {% endif %}
+                                     {% endif %}
                                     <tr>
                                         <th>Cantidad</th>
                                         <td>{{ object.cantidad }}</td>

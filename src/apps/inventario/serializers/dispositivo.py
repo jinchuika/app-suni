@@ -2,6 +2,7 @@ from rest_framework import serializers
 from django.urls import reverse_lazy
 from apps.inventario import models as inv_m
 from .bodega import DispositivoSerializer
+from django.core import serializers as serializers_django
 
 
 class DispositivoPaqueteSerializer(serializers.ModelSerializer):
@@ -80,9 +81,30 @@ class SolicitudMovimientoSerializer(serializers.ModelSerializer):
     autorizada_por = serializers.StringRelatedField(source='autorizada_por.get_full_name')
     tipo_dispositivo = serializers.StringRelatedField()
     url = serializers.StringRelatedField(source='get_absolute_url')
-    url_salida = serializers.StringRelatedField(source='no_salida.get_absolute_url')
-    no_salida_str = serializers.StringRelatedField(source='no_salida')
+    url_salida = serializers.SerializerMethodField()
+    no_salida_str = serializers.SerializerMethodField()
+
     class Meta:
         model = inv_m.SolicitudMovimiento
         fields = '__all__'
+
+    def get_no_salida_str(self, obj):
+        if obj.no_salida != None:
+            return str(obj.no_salida)
+        elif obj.no_inventariointerno != None:
+            return str(obj.no_inventariointerno)
+        else: return None
+
+    def get_url_salida(self, obj):
+        if obj.no_salida != None:
+            if obj.no_salida.en_creacion:
+                return reverse_lazy('salidainventario_edit', kwargs={'pk': obj.no_salida.id})
+            else:
+                return reverse_lazy('salidainventario_detail', kwargs={'pk': obj.no_salida.id})
+        elif obj.no_inventariointerno != None:
+            if obj.no_inventariointerno.borrador:
+                return reverse_lazy('inventariointerno_edit', kwargs={'pk': obj.no_inventariointerno.id})
+            else:
+                return reverse_lazy('inventariointerno_detail', kwargs={'pk': obj.no_inventariointerno.id})
+        else: return None
 

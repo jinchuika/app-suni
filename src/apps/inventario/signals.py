@@ -103,6 +103,23 @@ pre_save.connect(calcular_salida, sender=inventario_m.SalidaInventario)
 
 
 # pre_save.connect(calcular_indice_paquete, sender=inventario_m.Paquete)
+
+# Asignaciones de inventario
+def calcular_inventario_interno(sender, instance, **kwargs):
+    """ Se encarga de calcular el número de asignación para los registros de la :class: 'InventarioInterno'.
+    El número sigue un correlativo de acuerdo al número de registro ingresado.
+    """
+    print('Inventario calcular_inventario_interno')
+    if not instance.pk:
+        indice = 0
+        asignaciones = inventario_m.InventarioInterno.objects.all()
+        if len(asignaciones) != 0:
+            ultimo = asignaciones.only('id').latest('id')
+            indice = int(ultimo.no_asignacion.split('-')[1])
+        instance.no_asignacion = '{}-{}'.format('A', indice + 1)
+
+pre_save.connect(calcular_inventario_interno, sender=inventario_m.InventarioInterno)
+
 def crear_bitacora(sender, instance, created, **kwargs):
     """ Se encarga de crear los registros de la :class:`SolicitudBitacora`
     """
