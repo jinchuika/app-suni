@@ -1215,6 +1215,29 @@ class SolicitudMovimiento {
 
 class SolicitudMovimientoValidar {
   constructor() {
+    $("[for='id_no_inventariointerno']").css({"visibility":"hidden"});
+    $('#id_no_inventariointerno').next(".select2-container").hide();
+    $('#id_no_inventariointerno').prop('required',false);
+    $('#id_no_salida').prop('required',true);
+
+    $('.icheckbox_flat-green').change( function() {
+      if(this.checked){
+        $("[for='id_no_inventariointerno']").css({"visibility":"visible"});
+        $('#id_no_inventariointerno').next(".select2-container").show();
+        $("[for='id_no_salida']").css({"visibility":"hidden"});
+        $('#id_no_salida').next(".select2-container").hide();
+        $('#id_no_inventariointerno').prop('required',true);
+        $('#id_no_salida').prop('required',false);
+      } else {
+        $("[for='id_no_inventariointerno']").css({"visibility":"hidden"});
+        $('#id_no_inventariointerno').next(".select2-container").hide();
+        $("[for='id_no_salida']").css({"visibility":"visible"});
+        $('#id_no_salida').next(".select2-container").show();
+        $('#id_no_inventariointerno').prop('required',false);
+        $('#id_no_salida').prop('required',true);
+      }
+    });
+    
     var tipo_dispositivo;
     $('#tipo_dispositivo_movimiento').change( function() {
       tipo_dispositivo=$('#tipo_dispositivo_movimiento option:selected').text();
@@ -1243,6 +1266,9 @@ class SolicitudMovimientoValidar {
     $('#id_tipo_dispositivo').change( function() {
       tipo_dispositivo=$('#id_tipo_dispositivo option:selected').text();
       var no_salida=$('#id_no_salida option:selected').val();
+      var no_inventariointerno=$('#id_no_inventariointerno option:selected').val();
+      var chk_invinterno = $('#id_inventario_interno').is(":checked");
+
       $.ajax({
           type: "POST",
           async:false,
@@ -1250,8 +1276,10 @@ class SolicitudMovimientoValidar {
           dataType: 'json',
           data: {
             csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
+            inventario_interno: chk_invinterno,
             tipo_dispositivo: tipo_dispositivo,
             no_salida: no_salida,
+            no_inventariointerno: no_inventariointerno,
           },
           success: function (response) {
             var disponibles = response['mensaje'];
@@ -3428,6 +3456,7 @@ class PaqueteDetail {
     });
    }
 }
+
 class RepuestosList {
   constructor() {
     $('#repuesto-list').submit(function (e) {
@@ -4068,7 +4097,7 @@ class EntradaDetalle_Dispositivo {
               return "<a href="+full.url+" class='btn btn-block btn-success' >"+full.id+"</a>";
             }},
             {data: "no_salida", className: "nowrap", render: function(data, type, full, meta){
-              if(full.no_salida ==null){
+              if(full.no_salida_str == null){
                 return ""
               } else {
                 return "<a href="+full.url_salida+">"+full.no_salida_str+"</a>";

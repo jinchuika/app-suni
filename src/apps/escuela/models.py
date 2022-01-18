@@ -161,7 +161,7 @@ class Escuela(models.Model):
             for asignacion in asignaciones:
                 if asignacion.grupo.sede not in sedes:
                     sedes.append(asignacion.grupo.sede)
-        for e in Sede.objects.filter(escuela_beneficiada=self.id):
+        for e in Sede.objects.filter(escuela_beneficiada=self.id, activa=True):
             if e not in sedes:
                 sedes.append(e)
         for sede in sedes:

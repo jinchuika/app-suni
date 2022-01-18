@@ -89,6 +89,8 @@
   <script src="{% static "js/extrajs/inventario.js" %}"></script>
   <script src="{% static "js/i18n/es.js" %}"></script>
   <script>
-  let Revicion = new SolicitudMovimientoValidar();
+    $(document).ready(function(){
+      let Solicitud = new SolicitudMovimientoValidar();
+    });
   </script>
   {% endblock extra_js %}

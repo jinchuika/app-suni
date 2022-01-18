@@ -26,6 +26,7 @@ class DispositivoFilter(filters.FilterSet):
     """Filtros para el ViewSet de Dispositivo"""
     buscador = filters.CharFilter(name='buscador', method='filter_buscador')
     asignaciones = filters.NumberFilter(name='asignacion', method='filter_asignacion')
+    inventario_interno = filters.NumberFilter(name='inventario_interno', method='filter_invinterno')
 
     class Meta:
         model = inv_m.Dispositivo
@@ -36,6 +37,10 @@ class DispositivoFilter(filters.FilterSet):
 
     def filter_asignacion(self, qs, name, value):
         return qs.annotate(asignaciones=Count('asignacion')).filter(asignaciones=value)
+
+    def filter_invinterno(self, qs, name, value):
+        dispositivos_asignacion= inv_m.CambioEtapa.objects.filter(solicitud__no_inventariointerno=value).values('dispositivo')
+        return qs.filter(id__in=dispositivos_asignacion, etapa=inv_m.DispositivoEtapa.TR)
 
 class DispositosDetalleAndroid(viewsets.ModelViewSet):
     """ ViewSet para generar informes de :class:`Dispositivo`

@@ -336,6 +336,7 @@ class DispositivoEtapa(models.Model):
     DS = 4  # Desecho
     LS = 5  # Listo
     EN = 6  # Entregado
+    II = 7  # Inventario Interno
 
     proceso = models.CharField(max_length=30)
     estados_disponibles = models.ManyToManyField(DispositivoEstado)
@@ -1109,7 +1110,6 @@ class Repuesto(models.Model):
         return 'R-{}'.format(self.id)
 
     def save(self, *args, **kwargs):
-        print('Salvar')
         super(Repuesto, self).save(*args, **kwargs)
         if not self.codigo_qr:
             self.crear_qrcode()
@@ -1589,6 +1589,85 @@ class RevisionComentario(models.Model):
     def __str__(self):
         return '{}'.format(self.comentario[15:])
 
+class IInternoEstado(models.Model):
+
+    """Para indicar si está en Borrador, Asignado o Devuelto
+    """
+    BR = 1
+    AS = 2
+    DV = 3
+
+    nombre = models.CharField(max_length=45)
+
+    class Meta:
+        verbose_name = "Estado de inventario interno"
+        verbose_name_plural = "Estados de inventario interno"
+
+    def __str__(self):
+        return self.nombre
+
+class InventarioInterno(models.Model):
+    """El objetivo es llevar el control de los dispositivos con triage asignados a los colaboradores para la realización de sus labores
+    diarias o bien para un evento en específico. 
+    """
+    no_asignacion = models.CharField(max_length=10, blank=True, editable=False, db_index=True)
+    colaborador_asignado = models.ForeignKey(User, on_delete=models.PROTECT, related_name='asignaciones', blank=True, null=True)
+    fecha_asignacion = models.DateField(default=timezone.now)
+    creada_por = models.ForeignKey(User, on_delete=models.PROTECT, related_name='registro', blank=True, null=True)
+    fecha_devolucion = models.DateTimeField(null=True, blank=True)
+    estado = models.ForeignKey(IInternoEstado, on_delete=models.PROTECT, related_name='estados',  null=True, blank=True)
+    borrador = models.BooleanField(default=True, blank=True)
+
+    class Meta:
+        verbose_name = 'Inventario Interno'
+        verbose_name_plural = 'Asignación a Colaboradores'
+
+    def __str__(self):
+        return str(self.no_asignacion)
+
+    def get_absolute_url(self):
+        if self.borrador:
+            return reverse_lazy('inventariointerno_edit', kwargs={'pk': self.id})
+        else:
+            return reverse_lazy('inventariointerno_detail', kwargs={'pk': self.id})
+
+
+class IInternoDispositivo(models.Model):
+    """Un conjunto de :class:'Dispositivo' que se asignan a colaboradores activos dentro de la fundación. 
+    Solamente podrán asignarse dispositivos con triage.
+    """
+    no_asignacion = models.ForeignKey(InventarioInterno, on_delete=models.PROTECT, related_name="dispositivos")
+    dispositivo = models.ForeignKey(Dispositivo, on_delete=models.PROTECT, related_name='asignaciones')
+    fecha_creacion = models.DateTimeField(default=timezone.now)
+    asignado_por = models.ForeignKey(User, on_delete=models.PROTECT, related_name='dispositivos_asignados', null=True, blank=True)
+    fecha_aprobacion = models.DateTimeField(null=True, blank=True)
+    aprobado_por = models.ForeignKey(User, on_delete=models.PROTECT, null=True, blank=True, related_name='dispositivos_aprobados')
+    indice = models.PositiveIntegerField(null=True, blank=True)
+
+    class Meta:
+        verbose_name = "Asignación Dispositivo - Inventario Interno"
+        verbose_name_plural = "Asignaciónes Dispositivo - Inventario Interno"
+
+    def __str__(self):
+        return '{no_asignacion}-{indice} -> {dispositivo}'.format(no_asignacion=self.no_asignacion, indice=self.indice, dispositivo=self.dispositivo)
+
+
+class IIRevisionComentario(models.Model):
+    """Comentarios de revisión de dispositivos por el área de Control de Calidad.
+    """
+    no_asignacion = models.ForeignKey(InventarioInterno, on_delete=models.PROTECT, related_name="revisiones")
+    revisado_por = models.ForeignKey(User, on_delete=models.PROTECT, blank=True, null=True)
+    fecha_registro = models.DateTimeField(default=timezone.now, verbose_name='Fecha de revisión')
+    comentario = models.TextField()
+    dispositivo = models.ForeignKey(Dispositivo, on_delete=models.PROTECT, related_name="revisados")
+
+    class Meta:
+        verbose_name = 'Revisión de asignación a inventario interno'
+        verbose_name_plural = 'Revisiónes de asignación a inventario interno'
+
+    def __str__(self):
+        return '{}'.format(self.comentario[15:])
+
 
 class SolicitudMovimiento(models.Model):
     """Solicitud de un técnico de área para cambiar cierta cantidad de dispositivos de la etapa. Por ejemplo:
@@ -1625,6 +1704,7 @@ class SolicitudMovimiento(models.Model):
         related_name='entrada_kardex')
     observaciones = models.TextField(null=True, blank=True)
     no_salida = models.ForeignKey(SalidaInventario, on_delete=models.PROTECT, related_name='salida_inventario', null=True)
+    no_inventariointerno = models.ForeignKey(InventarioInterno, on_delete=models.PROTECT, related_name='solicitudes', null=True)
 
     class Meta:
         verbose_name = 'Solicitud de movimiento'
@@ -1817,7 +1897,6 @@ class SolicitudBitacora(models.Model):
         related_name='bitacora_accion'
     )
     usuario = models.ForeignKey(User, on_delete=models.CASCADE, related_name='bitacora_usuario')
-
 
     class Meta:
         verbose_name = 'Bitacora'

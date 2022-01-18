@@ -53,6 +53,7 @@ class Perfil(models.Model):
         blank=True,
         editable=True,)
     color = models.CharField(max_length=20, default='#0073b7', choices=COLOR_CHOICES)
+    cargo = models.CharField(max_length=75, null=True, blank=True)
 
     organizacion = models.ForeignKey(
         Organizacion,

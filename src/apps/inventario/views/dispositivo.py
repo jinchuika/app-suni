@@ -101,10 +101,26 @@ class SolicitudMovimientoCreateView(LoginRequiredMixin, CreateView):
     def form_valid(self, form):
         cantidad = form.cleaned_data['cantidad']
         tipo_dispositivo = form.cleaned_data['tipo_dispositivo']
+        chk_inventario_interno = form.cleaned_data['inventario_interno']
+        no_salida = form.cleaned_data['no_salida']
+        no_inventariointerno = form.cleaned_data['no_inventariointerno']
+
+        if cantidad <= 0:
+            form.add_error('cantidad', 'La cantidad debe ser mayor a 0')
+            return self.form_invalid(form)
+
+        if chk_inventario_interno and no_inventariointerno == None:
+            form.add_error('no_inventariointerno', 'Seleccione una asignación de inventario interno')
+            return self.form_invalid(form)
+        elif not chk_inventario_interno and no_salida == None:
+            form.add_error('no_salida', 'Seleccione una entrega')
+            return self.form_invalid(form)
+
         etapa_transito = inv_m.DispositivoEtapa.objects.get(id=inv_m.DispositivoEtapa.AB)
         estado = inv_m.DispositivoEstado.objects.get(id=inv_m.DispositivoEstado.PD)
         validar_dispositivos = inv_m.DispositivoTipo.objects.get(tipo=tipo_dispositivo)
         numero_dispositivos = inv_m.Dispositivo.objects.filter(tipo=validar_dispositivos, etapa=etapa_transito, estado=estado).count()
+
         if(validar_dispositivos.kardex):
             cantidad_kardex = kax_m.Equipo.objects.get(nombre=tipo_dispositivo)
             if(cantidad > cantidad_kardex.existencia):
@@ -160,6 +176,19 @@ class DevolucionCreateView(LoginRequiredMixin, CreateView):
         cantidad = form.cleaned_data['cantidad']
         tipo_dispositivo = form.cleaned_data['tipo_dispositivo']
         no_salida = form.cleaned_data['no_salida']
+        inventario_interno = form.cleaned_data['inventario_interno']
+        no_inventariointerno = form.cleaned_data['no_inventariointerno']
+
+        if cantidad <= 0:
+            form.add_error('cantidad', 'La cantidad debe ser mayor a 0')
+            return self.form_invalid(form)
+
+        if inventario_interno and no_inventariointerno == None:
+            form.add_error('no_inventariointerno', 'Seleccione una asignación de inventario interno')
+            return self.form_invalid(form)
+        elif not inventario_interno and no_salida == None:
+            form.add_error('no_salida', 'Seleccione una entrega')
+            return self.form_invalid(form)
 
         etapa = inv_m.DispositivoEtapa.objects.get(id=inv_m.DispositivoEtapa.TR)
         estado = inv_m.DispositivoEstado.objects.get(id=inv_m.DispositivoEstado.PD)
@@ -167,9 +196,14 @@ class DevolucionCreateView(LoginRequiredMixin, CreateView):
 
         if(validar_dispositivos.kardex):
             sum_solicitudes = sum_devoluciones = sum_paquetes = 0
-            solicitudes = inv_m.SolicitudMovimiento.objects.filter(no_salida=no_salida, tipo_dispositivo=validar_dispositivos, terminada=True, recibida=True, devolucion=False).aggregate(Sum('cantidad'))
-            devoluciones = inv_m.SolicitudMovimiento.objects.filter(no_salida=no_salida, tipo_dispositivo=validar_dispositivos, terminada=True, recibida=True, devolucion=True).aggregate(Sum('cantidad'))
-            paquetes = inv_m.Paquete.objects.filter(salida=no_salida, tipo_paquete__tipo_dispositivo=validar_dispositivos, desactivado=False).aggregate(Sum('cantidad'))
+            if not inventario_interno:
+                solicitudes = inv_m.SolicitudMovimiento.objects.filter(no_salida=no_salida, tipo_dispositivo=validar_dispositivos, terminada=True, recibida=True, devolucion=False).aggregate(Sum('cantidad'))
+                devoluciones = inv_m.SolicitudMovimiento.objects.filter(no_salida=no_salida, tipo_dispositivo=validar_dispositivos, terminada=True, recibida=True, devolucion=True).aggregate(Sum('cantidad'))
+                paquetes = inv_m.Paquete.objects.filter(salida=no_salida, tipo_paquete__tipo_dispositivo=validar_dispositivos, desactivado=False).aggregate(Sum('cantidad'))
+            else:
+                solicitudes = inv_m.SolicitudMovimiento.objects.filter(no_inventariointerno=no_inventariointerno, tipo_dispositivo=validar_dispositivos, terminada=True, recibida=True, devolucion=False).aggregate(Sum('cantidad'))
+                devoluciones = inv_m.SolicitudMovimiento.objects.filter(no_inventariointerno=no_inventariointerno, tipo_dispositivo=validar_dispositivos, terminada=True, recibida=True, devolucion=True).aggregate(Sum('cantidad'))
+                paquetes['cantidad__sum'] = inv_m.IInternoDispositivo.objects.filter(no_asignacion=no_inventariointerno, dispositivo__tipo=validar_dispositivos).count()
 
             if solicitudes['cantidad__sum'] is not None:
                 sum_solicitudes = solicitudes['cantidad__sum']
@@ -182,7 +216,11 @@ class DevolucionCreateView(LoginRequiredMixin, CreateView):
 
             numero_dispositivos = sum_solicitudes - sum_devoluciones - sum_paquetes
         else:
-            dispositivos_salida = inv_m.CambioEtapa.objects.filter(solicitud__no_salida=no_salida, etapa_final=etapa).values('dispositivo')
+            if not inventario_interno:
+                dispositivos_salida = inv_m.CambioEtapa.objects.filter(solicitud__no_salida=no_salida, etapa_final=etapa).values('dispositivo')
+            else:
+                dispositivos_salida = inv_m.CambioEtapa.objects.filter(solicitud__no_inventariointerno=no_inventariointerno, etapa_final=etapa).values('dispositivo')
+
             numero_dispositivos = inv_m.Dispositivo.objects.filter(id__in=dispositivos_salida, tipo=validar_dispositivos, etapa=etapa, estado=estado).count()
 
         if(cantidad > numero_dispositivos):
@@ -228,10 +266,16 @@ class SolicitudMovimientoUpdateView(LoginRequiredMixin, UpdateView):
     def get_form(self, form_class=None):
         form = super(SolicitudMovimientoUpdateView, self).get_form(form_class)
         estado = inv_m.DispositivoEstado.objects.get(id=inv_m.DispositivoEstado.PD)
-        dispositivos_salida = inv_m.CambioEtapa.objects.filter(
-            solicitud__no_salida = self.object.no_salida,
-            solicitud__devolucion=False
-        ).values('dispositivo')
+        if self.object.no_salida:
+            dispositivos_salida = inv_m.CambioEtapa.objects.filter(
+                solicitud__no_salida = self.object.no_salida,
+                solicitud__devolucion=False
+            ).values('dispositivo')
+        elif self.object.no_inventariointerno:
+            dispositivos_salida = inv_m.CambioEtapa.objects.filter(
+                solicitud__no_inventariointerno = self.object.no_inventariointerno,
+                solicitud__devolucion=False
+            ).values('dispositivo')
 
         form.fields['dispositivos'].widget = forms.SelectMultiple(attrs={
             'data-api-url': reverse_lazy('inventario_api:api_dispositivo-list'),

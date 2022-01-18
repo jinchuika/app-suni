@@ -303,20 +303,27 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
 
     @action(methods=['post'], detail=False)
     def validar_devoluciones(self, request, pk=None):
+        bln_inventariointerno = request.data['inventario_interno']
         tipo_dispositivo = request.data['tipo_dispositivo']
         no_salida = request.data['no_salida']
+        no_inventariointerno = request.data['no_inventariointerno']
 
         etapa = inv_m.DispositivoEtapa.objects.get(id=inv_m.DispositivoEtapa.TR)
         estado = inv_m.DispositivoEstado.objects.get(id=inv_m.DispositivoEstado.PD)
         validar_dispositivos = inv_m.DispositivoTipo.objects.get(tipo=tipo_dispositivo)
         numero_dispositivos = 0
 
-        if no_salida != "":
+        if no_salida != "" or no_inventariointerno != "":
             if(validar_dispositivos.kardex):
                 sum_solicitudes = sum_devoluciones = sum_paquetes = 0
-                solicitudes = inv_m.SolicitudMovimiento.objects.filter(no_salida=no_salida, tipo_dispositivo=validar_dispositivos, terminada=True, recibida=True, devolucion=False).aggregate(Sum('cantidad'))
-                devoluciones = inv_m.SolicitudMovimiento.objects.filter(no_salida=no_salida, tipo_dispositivo=validar_dispositivos, terminada=True, recibida=True, devolucion=True).aggregate(Sum('cantidad'))
-                paquetes = inv_m.Paquete.objects.filter(salida=no_salida, tipo_paquete__tipo_dispositivo=validar_dispositivos, desactivado=False).aggregate(Sum('cantidad'))
+                if bln_inventariointerno == "false":
+                    solicitudes = inv_m.SolicitudMovimiento.objects.filter(no_salida=no_salida, tipo_dispositivo=validar_dispositivos, terminada=True, recibida=True, devolucion=False).aggregate(Sum('cantidad'))
+                    devoluciones = inv_m.SolicitudMovimiento.objects.filter(no_salida=no_salida, tipo_dispositivo=validar_dispositivos, terminada=True, recibida=True, devolucion=True).aggregate(Sum('cantidad'))
+                    paquetes = inv_m.Paquete.objects.filter(salida=no_salida, tipo_paquete__tipo_dispositivo=validar_dispositivos, desactivado=False).aggregate(Sum('cantidad'))
+                else:
+                    solicitudes = inv_m.SolicitudMovimiento.objects.filter(no_inventariointerno=no_inventariointerno, tipo_dispositivo=validar_dispositivos, terminada=True, recibida=True, devolucion=False).aggregate(Sum('cantidad'))
+                    devoluciones = inv_m.SolicitudMovimiento.objects.filter(no_inventariointerno=no_inventariointerno, tipo_dispositivo=validar_dispositivos, terminada=True, recibida=True, devolucion=True).aggregate(Sum('cantidad'))
+                    paquetes['cantidad__sum'] = inv_m.IInternoDispositivo.objects.filter(no_asignacion=no_inventariointerno, dispositivo__tipo=validar_dispositivos).count()
 
                 if solicitudes['cantidad__sum'] is not None:
                     sum_solicitudes = solicitudes['cantidad__sum']
@@ -329,7 +336,10 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
 
                 numero_dispositivos = sum_solicitudes - sum_devoluciones - sum_paquetes
             else:
-                dispositivos_salida = inv_m.CambioEtapa.objects.filter(solicitud__no_salida=no_salida, etapa_final=etapa).values('dispositivo')
+                if bln_inventariointerno == "false":
+                    dispositivos_salida = inv_m.CambioEtapa.objects.filter(solicitud__no_salida=no_salida, etapa_final=etapa).values('dispositivo')
+                else:
+                    dispositivos_salida = inv_m.CambioEtapa.objects.filter(solicitud__no_inventariointerno=no_inventariointerno, etapa_final=etapa).values('dispositivo')
                 numero_dispositivos = inv_m.Dispositivo.objects.filter(
                     id__in=dispositivos_salida,
                     tipo=validar_dispositivos,

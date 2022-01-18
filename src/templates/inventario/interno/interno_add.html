@@ -1,0 +1,112 @@
+{% extends "base/base.html" %}
+{% load widget_tweaks staticfiles %}
+{% load inventario_extras %}
+
+{% block page_title %}
+<title>INVENTARIO INTERNO</title>
+{% endblock page_title %}
+
+{% block content %}
+{% if form.errors %}
+    <div class="alert alert-error">
+      <h4>Advertencia!</h4>
+      <ul>
+        {% for field in form %}
+          {% if field.errors %}
+            {% for error in field.errors %}
+              <li><p class="error">{{ error|escape }}</p></li>
+            {% endfor %}
+          {% endif %}
+        {% endfor %}
+      </ul>
+      {% if form.non_field_errors %}
+        {{ form.non_field_errors }}
+      {% endif %}
+    </div>
+  {% endif %}
+<section class="content">
+	<div class="container-fluid">
+		<div class="row"> 
+			{% if request.user|has_group:"inv_interno" or request.user|has_group:"inv_admin" %}   
+			<div class="col-md-4">
+				<!--Caja-->
+				<div class="box">
+					<!---->
+					<div class="box-header">
+						<div class="box-title">
+							<h3><b>NUEVA ASIGNACIÓN</b></h3>
+						</div>
+						<div class="box-body">
+							<table class="table table-condensed">
+								<form action="{% url 'inventariointerno_add' %}" method="post">
+									{% csrf_token %}
+									<table class="table table-condensed">
+										{% for field in form.visible_fields %}
+										<tr>
+											<td style="width:40%;"><label for="id_{{ field.name }}" class="control-label">{{ field.label }}</label></td>
+											<td>{{ field }}</td>
+										</tr>
+										{% endfor %}
+										<tr>
+											<td>
+												<input type="submit" class="btn btn-success" value="Guardar" tabindex="9" />
+											</td>
+										</tr>
+									</table>
+								</form>
+							</table>
+						</div>
+					</div>
+				</div>
+				<!--Fin caja-->  
+			</div>
+			{% endif %}
+			<div class="col-md-8">
+				<div class="box">
+					<div class="box-header">
+						<div class="box-title">
+							<h3><b>Listado de Asignaciones</b></h3>
+						</div>
+						<div class="box-body">
+							<table  id="interno-table" class="table display" data-url="{%url 'inventario_api:api_inventariointerno-list' %} " data-urldevolver="{%url 'inventario_api:api_inventariointerno-devolver-asignacion'%}">
+								<thead>
+									<th>No.</th>
+									<th>Asignado A </th>
+									<th>Fecha Asignación</th>
+									<th>Fecha Devolución</th>
+									<th>Estado</th>
+									<th>Asignado por</th>
+									<th>No. Dispositivos</th>
+									<th></th>
+								</thead>
+								<tbody id="interno-table-body">
+								</tbody>
+								<tfoot>                  
+									<th>No.</th>
+									<th>Asignado A </th>
+									<th>Fecha Asignación</th>
+									<th>Fecha Devolución</th>
+									<th>Estado</th>
+									<th>Registrado por</th>
+									<th>No. Dispositivos</th>
+									<th></th>                  
+								</tfoot>
+							</table>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+{% endblock content %}
+{% block extra_js %}
+{% include "base/dataTables.html" %}
+    <script src="{% static "js/extrajs/interno.js" %}"></script>
+    <script>
+    	$(document).ready(function(){
+    		let Asignacion = new InventarioInterno();
+    		let Buscador = new BuscadorTabla();
+    	});
+    </script>
+{% endblock extra_js %}

@@ -67,7 +67,6 @@ class RepuestosQRprintList(LoginRequiredMixin, DetailView):
     template_name = 'inventario/repuesto/imprimir_qr_list.html'
 
     def get_context_data(self, **kwargs):
-        print(self.request)
         no = self.request.GET['id']
         tarima = self.request.GET['tarima']
         tipo = self.request.GET['tipo']
