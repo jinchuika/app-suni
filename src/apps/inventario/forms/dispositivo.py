@@ -21,7 +21,8 @@ class TecladoForm(forms.ModelForm):
             'estado',
             'etapa',
             'valido',
-            'codigo_qr']
+            'codigo_qr',
+            'creada_por']
         widgets = {
             'marca': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '1'}),
             'modelo': forms.TextInput(attrs={'class': 'form-control', 'tabindex': '2'}),
@@ -49,7 +50,8 @@ class CPUForm(forms.ModelForm):
             'estado',
             'etapa',
             'valido',
-            'codigo_qr'
+            'codigo_qr',
+            'creada_por'
             ]
         widgets = {
             'marca': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '1'}),
@@ -70,7 +72,7 @@ class CPUForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
-        super(CPUForm, self).__init__(*args, **kwargs)        
+        super(CPUForm, self).__init__(*args, **kwargs)
         self.fields['disco_duro'].queryset = inv_m.HDD.objects.filter(valido=True)
 
 
@@ -89,7 +91,8 @@ class LaptopForm(forms.ModelForm):
             'estado',
             'etapa',
             'valido',
-            'codigo_qr'
+            'codigo_qr',
+            'creada_por'
             ]
         widgets = {
             'marca': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '1'}),
@@ -126,7 +129,8 @@ class MonitorForm(forms.ModelForm):
             'estado',
             'etapa',
             'valido',
-            'codigo_qr'
+            'codigo_qr',
+            'creada_por'
             ]
         widgets = {
             'marca': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '1'}),
@@ -156,7 +160,8 @@ class MouseForm(forms.ModelForm):
             'estado',
             'etapa',
             'valido',
-            'codigo_qr'
+            'codigo_qr',
+            'creada_por'
             ]
         widgets = {
             'marca': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '1'}),
@@ -186,7 +191,8 @@ class DispositivoRedForm(forms.ModelForm):
             'estado',
             'etapa',
             'valido',
-            'codigo_qr'
+            'codigo_qr',
+            'creada_por'
             ]
         widgets = {
             'marca': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '1'}),
@@ -217,7 +223,8 @@ class DispositivoAccessPointForm(forms.ModelForm):
             'estado',
             'etapa',
             'valido',
-            'codigo_qr'
+            'codigo_qr',
+            'creada_por'
             ]
         widgets = {
             'marca': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '1'}),
@@ -248,7 +255,8 @@ class TabletForm(forms.ModelForm):
             'estado',
             'etapa',
             'valido',
-            'codigo_qr'
+            'codigo_qr',
+            'creada_por'
             ]
         widgets = {
             'marca': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '1'}),
@@ -285,7 +293,8 @@ class HDDForm(forms.ModelForm):
             'etapa',
             'valido',
             'codigo_qr',
-            'asignado'
+            'asignado',
+            'creada_por'
             ]
         widgets = {
             'marca': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '1'}),
@@ -378,6 +387,7 @@ class AsignacionTecnicoForm(forms.ModelForm):
         widgets = {
             'usuario': forms.Select(attrs={'class': 'select2 form-control'})
         }
+        exclude = ('creada_por', )
 
     def __init__(self, *args, **kwargs):
         super(AsignacionTecnicoForm, self).__init__(*args, **kwargs)
@@ -473,7 +483,7 @@ class SolicitudMovimientoInformeForm(forms.Form):
     fecha_max = forms.CharField(
         label='Fecha (max)',
         required=False,
-        widget=forms.TextInput(attrs={'class': 'form-control datepicker'}))  
+        widget=forms.TextInput(attrs={'class': 'form-control datepicker'}))
 
 class DevolucionCreateForm(forms.ModelForm):
     """Formulario para el control de las Solicitud de Movimiento de la empresa.
@@ -558,6 +568,7 @@ class DispositivoTipoForm(forms.ModelForm):
             'tipo': forms.TextInput({'class': 'form-control'}),
             'slug': forms.TextInput({'class': 'form-control'}),
             }
+        exclude = ('creada_por', )
 
 
 class DispositivosTarimaForm(forms.ModelForm):
@@ -572,7 +583,7 @@ class DispositivosTarimaForm(forms.ModelForm):
             'estado': forms.HiddenInput(),
             'etapa': forms.HiddenInput(),
         }
-
+        exclude =('creada_por', )
 
 class DispositivosTarimaFormNew(forms.Form):
     """Este Formulario se encarga de enviar los filtros para  su respectivo informe de Ofertas
@@ -603,7 +614,8 @@ class CPUFormUpdate(forms.ModelForm):
             'estado',
             'etapa',
             'valido',
-            'codigo_qr'
+            'codigo_qr',
+            'creada_por'
             ]
         widgets = {
             'marca': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '1'}),

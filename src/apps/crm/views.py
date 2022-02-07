@@ -22,6 +22,10 @@ class DonanteCreateView(LoginRequiredMixin, CreateView):
     def get_success_url(self):
         return reverse_lazy('donante_detail', kwargs={'pk': self.object.id})
 
+    def form_valid(self, form):
+        form.instance.creado_por = self.request.user
+        return super(DonanteCreateView, self).form_valid(form)
+
 
 class DonanteDetailView(LoginRequiredMixin, DetailView):
     """Vista para detalle de :class:`Donante`. con sus respectivos filtros
@@ -44,6 +48,10 @@ class DonanteUpdateView(LoginRequiredMixin, UpdateView):
         context['ContactoForm'] = crm_f.ContactoForm(initial={'donante': self.object})
         context['OfertaForm'] = crm_f.OfertaForm()
         return context
+
+    def form_valid(self, form):
+        form.instance.creado_por = self.request.user
+        return super(DonanteUpdateView, self).form_valid(form)
 
 
 class DonanteListView(LoginRequiredMixin, ListView):

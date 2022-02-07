@@ -1,0 +1,84 @@
+{% extends "base/base.html" %}
+{%load staticfiles widget_tweaks %}
+{% block page_title %}
+<title>Listado de proveedores</title>
+{% endblock page_title %}
+{% block content %}
+<section class="content">
+  <div class="container-fluid">
+    <div class="row">
+        <div class="box">
+          <div class="box-header">
+
+            <div class="row">
+							<div class="col-md-9">
+								<h3 class="box-title">Listado de Proveedores</h3>
+							</div>
+							<div class="col-md-3">
+                {% csrf_token %}
+                <div id="contact"><button type="button" class="btn btn-info btn" data-toggle="modal" data-target="#contact-modal">Crear nuevo proveedor</button></div>
+							</div>
+						</div>
+          </div>
+          <div class="box-body">
+            <table id="proveedores-recaudacion-table" class="table table-striped table-hover table-bordered table-condensed" data-url="{% url 'recaudacionFondos_api:api_proveedor-list' %}">
+								<thead>
+									<tr>
+										<th>Proveedor</th>
+										<th>Equipo Ingresado</th>
+										<th>Cantidad de Entradas</th>
+									</tr>
+								</thead>
+								<tbody id="proveedores-recaudacion-table-body">
+								</tbody>
+							</table>
+          </div>
+        </div>
+    </div>
+  </div>
+  <!-- Creacion de formulario para  crear nuevo proveedor -->
+  <div id="contact-modal" class="modal fade" role="dialog">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<a class="close" data-dismiss="modal">×</a>
+				<h3>Nuevo proveedor</h3>
+			</div>
+			<form id="contactForm" name="contact" role="form">
+				<div class="modal-body">
+					<div class="form-group">
+						<label for="nombre">Nombre</label>
+						<input type="text" name="nombre" class="form-control" required>
+					</div>
+					<div class="form-group">
+						<label for="email">Correo</label>
+						<input type="email" name="email" class="form-control">
+					</div>
+					<div class="form-group">
+						<label for="telefono">Numero de Telefónico</label>
+						<input type="tel" name="telefono" class="form-control">
+					</div>
+          <div class="form-group">
+						<label for="direccion">Direccion</label>
+						<textarea name="direccion" class="form-control"></textarea>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+					<input type="submit" class="btn btn-success" id="submit" value="Crear proveedor">
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+</section>
+{% endblock content %}
+{% block extra_js %}
+{% include "base/dataTables.html" %}
+<script src="{% static "js/pdfmake.min.js" %}"></script>
+<script src="{% static "js/vfs_fonts.js" %}"></script>
+<script src="{% static "js/extrajs/recaudacionFondos.js" %}"></script>
+<script>
+  var nuevo  = new Recaudacion();
+</script>
+{% endblock extra_js %}

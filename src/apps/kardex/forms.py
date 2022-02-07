@@ -11,19 +11,19 @@ class EquipoForm(forms.ModelForm):
     class Meta:
         model = Equipo
         fields = '__all__'
-
+        exclude = ('creado_por',)
 
 class ProveedorForm(forms.ModelForm):
     class Meta:
         model = Proveedor
         fields = '__all__'
-
+        exclude = ('creado_por',)
 
 class EntradaForm(forms.ModelForm):
     class Meta:
         model = Entrada
         fields = '__all__'
-        exclude = ('terminada',)
+        exclude = ('terminada','creado_por',)
         widgets = {
             'equipo': forms.Select(attrs={'class': 'select2'}),
             'proveedor': forms.Select(attrs={'class': 'select2'}),
@@ -44,7 +44,6 @@ class EntradaDetalleForm(forms.ModelForm):
             'equipo': forms.Select(attrs={'class': 'select2'}),
             'entrada': forms.HiddenInput()
         }
-
 
 class EntradaCerrarForm(forms.ModelForm):
 

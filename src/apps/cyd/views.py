@@ -58,6 +58,7 @@ class CursoCreateView(LoginRequiredMixin, GroupRequiredMixin, CreateView):
             return self.form_invalid(form, formset_list=(hito_formset, asistencia_formset))
 
     def form_valid(self, form, **kwargs):
+
         self.object = form.save()
         for formset in kwargs['formset_list']:
             formset.instance = self.object
@@ -378,7 +379,8 @@ class ParticipanteJsonCreateView(LoginRequiredMixin, JsonRequestResponseMixin, C
                 slug=self.request_json['dpi'],
                 activo=True,
                 etnia=etnia,
-                escolaridad=escolaridad)
+                escolaridad=escolaridad,
+                cyd_participante_creado_por = self.request.user)
             participante.asignar(grupo)
         except IntegrityError:
             participante = cyd_m.Participante.objects.get(slug=self.request_json['dpi'])
@@ -390,13 +392,15 @@ class ParticipanteJsonCreateView(LoginRequiredMixin, JsonRequestResponseMixin, C
             participante.mail = self.request_json['mail'] if 'mail' in self.request_json else ""
             participante.tel_movil = self.request_json['tel_movil'] if 'tel_movil' in self.request_json else ""
             participante.escuela = escuela
+            participante.cyd_participante_creado_por = self.request.user
             participante.save()
 
             asignacion_existe = cyd_m.Asignacion.objects.filter(participante=participante, grupo=grupo)
             if len(asignacion_existe) == 0:
                 asignar_grupo =  cyd_m.Asignacion(
                     participante=participante,
-                    grupo=grupo
+                    grupo=grupo,
+                    cyd_asignacion_creado_por = self.request.user
                 )
                 asignar_grupo.save()
 
@@ -984,7 +988,8 @@ class CreacionCursosApi(views.APIView):
         nuevo_curso=cyd_m.Curso(
         nombre=self.request.POST["datos[nombre]"],
         nota_aprobacion=self.request.POST["datos[nota_aprobacion]"],
-        porcentaje=self.request.POST["datos[porcentaje]"]
+        porcentaje=self.request.POST["datos[porcentaje]"],
+        cyd_curso_creado_por = self.request.user
         )
         nuevo_curso.save()
         print(cyd_m.Curso.objects.last())
@@ -993,7 +998,8 @@ class CreacionCursosApi(views.APIView):
                 nueva_asistencia=cyd_m.CrAsistencia(
                     curso=cyd_m.Curso.objects.last(),
                     modulo_num=str(x+1),
-                    punteo_max=self.request.POST["datos[asistencias-"+str(x)+"-punteo_max]"]
+                    punteo_max=self.request.POST["datos[asistencias-"+str(x)+"-punteo_max]"],
+                    cyd_cr_asistencia_creado_por= self.request.user
                 )
                 nueva_asistencia.save()
                 print("modulo:"+str(x+1)+" punteo:"+self.request.POST["datos[asistencias-"+str(x)+"-punteo_max]"])
@@ -1004,7 +1010,8 @@ class CreacionCursosApi(views.APIView):
                 nuevo_hito=cyd_m.CrHito(
                     curso=cyd_m.Curso.objects.last(),
                     nombre=self.request.POST["datos[hitos-"+str(x)+"-nombre]"],
-                    punteo_max=self.request.POST["datos[hitos-"+str(x)+"-punteo_max]"]
+                    punteo_max=self.request.POST["datos[hitos-"+str(x)+"-punteo_max]"],
+                    cyd_cr_hito_creado_por =self.request.user
                 )
                 nuevo_hito.save()
                 print("Nombre:"+self.request.POST["datos[hitos-"+str(x)+"-nombre]"]+" punteo:"+self.request.POST["datos[hitos-"+str(x)+"-punteo_max]"])

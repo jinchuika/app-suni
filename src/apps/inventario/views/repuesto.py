@@ -32,7 +32,7 @@ class RepuestosDetailView(LoginRequiredMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super(RepuestosDetailView, self).get_context_data(**kwargs)
-        comentarios=inv_m.RepuestoComentario.objects.filter(repuesto=self.object.id)   
+        comentarios=inv_m.RepuestoComentario.objects.filter(repuesto=self.object.id)
         context['comentarios'] = comentarios
         return context
 
@@ -43,6 +43,11 @@ class RepuestosUpdateView(LoginRequiredMixin, UpdateView):
     model = inv_m.Repuesto
     template_name = 'inventario/repuesto/repuesto_edit.html'
     form_class = inv_f.RepuestosUpdateForm
+
+
+    def form_valid(self, form):
+        form.instance.creada_por = self.request.user
+        return super(RepuestosUpdateView, self).form_valid(form)
 
     def get_success_url(self):
         return reverse_lazy('repuesto_detail', kwargs={'pk': self.object.id})
@@ -71,7 +76,7 @@ class RepuestosQRprintList(LoginRequiredMixin, DetailView):
         tarima_print = inv_m.Repuesto.objects.all()
         if no:
             tarima_print = inv_m.Repuesto.objects.filter(id=no)
-        else: 
+        else:
             if tarima:
                 tarima_print = tarima_print.filter(tarima=tarima).order_by('id')
             if tipo:

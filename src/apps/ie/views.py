@@ -160,6 +160,10 @@ class RequerimientoCreateView(LoginRequiredMixin, CreateView):
     form_class = RequerimientoForm
     success_url = reverse_lazy('ie_versionvalidacion_add')
 
+    def form_valid(self, form):
+        form.instance.ie_requerimiento_creada_por = self.request.user
+        return super(RequerimientoCreateView, self).form_valid(form)
+
 
 class ValidacionCreateView(LoginRequiredMixin, CreateView):
     model = Validacion

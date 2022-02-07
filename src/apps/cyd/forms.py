@@ -15,6 +15,7 @@ class CursoForm(forms.ModelForm):
         model = Curso
         exclude = ('activo',)
         fields = '__all__'
+        exclude = ['cyd_curso_creado_por',]
 
 
 CrHitoFormSet = inlineformset_factory(
@@ -41,7 +42,7 @@ class SedeForm(forms.ModelForm):
     class Meta:
         model = Sede
         fields = '__all__'
-        exclude = ('nombre', 'capacitador', 'escuela_beneficiada', 'mapa', 'activa', 'fecha_creacion')
+        exclude = ('nombre', 'capacitador', 'escuela_beneficiada', 'mapa', 'activa', 'fecha_creacion',)
         widgets = {
             'municipio': forms.Select(attrs={'class': 'select2', 'required': 'true', 'tabindex': '1'}),
             'direccion': forms.TextInput({'class': 'form-control', 'placeholder': 'Avenida, Calle, Zona','onkeyup': 'this.value = this.value.toUpperCase();' ,'tabindex': '2'}),
@@ -53,7 +54,7 @@ class GrupoForm(forms.ModelForm):
     class Meta:
         model = Grupo
         fields = '__all__'
-        exclude = ('activo',)
+        exclude = ('activo','cyd_grupo_creado_por',)
         widgets = {
             'sede': forms.Select(attrs={'class': 'select2'}),
             'numero': forms.NumberInput(attrs={'class': 'form-reset','size':'5'}),
@@ -122,7 +123,7 @@ class ParticipanteBaseForm(forms.ModelForm):
         fields = [
             'udi', 'nombre', 'apellido', 'dpi', 'genero', 'rol',
             'mail', 'tel_movil']
-        exclude = ('slug','activo',)
+        exclude = ('slug','activo','cyd_participante_creado_por', )
         widgets = {
             'nombre': forms.TextInput(attrs={'class': 'form-reset'}),
             'apellido': forms.TextInput(attrs={'class': 'form-reset'}),
@@ -163,7 +164,7 @@ class ParticipanteForm(ParticipanteBaseForm):
         model = Participante
         fields = [
             'sede', 'grupo', 'udi', 'nombre', 'apellido', 'dpi', 'genero', 'rol', 'mail', 'tel_movil', 'etnia', 'escolaridad']
-        exclude = ('slug','activo')
+        exclude = ('slug','activo','cyd_participante_creado_por')
 
 class ParticipanteFormList(ParticipanteBaseForm):
     """
@@ -183,7 +184,7 @@ class ParticipanteFormList(ParticipanteBaseForm):
     class Meta:
         model = Participante
         fields = ['sede', 'grupo', 'udi']
-        exclude = ('slug','activo','nombre', 'apellido', 'dpi', 'genero', 'rol', 'mail', 'tel_movil')
+        exclude = ('slug','activo','nombre', 'apellido', 'dpi', 'genero', 'rol', 'mail', 'tel_movil','cyd_participante_creado_por',)
 
 class ParticipanteBuscarForm(ParticipanteForm, forms.ModelForm):
     departamento = forms.ModelChoiceField(
@@ -230,7 +231,7 @@ class AsesoriaForm(forms.ModelForm):
             'hora_fin': forms.TextInput(attrs={'class': 'form-control'}),
             'observacion': forms.TextInput(attrs={'class': 'form-control'})
         }
-
+        exclude = ('cyd_asesorias_creado_por',)
 
 class GrupoListForm(forms.Form):
     """Formulario para listar :model:`cyd.Grupo` en una :model:`cyd.Sede`.

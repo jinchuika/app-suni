@@ -31,6 +31,7 @@ def crear_calendario(grupo):
             hora_inicio=dt.time(0,0,0),
             hora_fin=dt.time(0,0,0),
             observacion='',
+            cyd_calendario_creado_por=grupo.cyd_grupo_creado_por
         )
         nueva_asistencia.save()
 
@@ -97,6 +98,7 @@ class GrupoViewSet(CsrfExemptMixin, viewsets.ModelViewSet):
                 curso=curso,
                 comentario=comentario,
                 activo=True,
+                cyd_grupo_creado_por = request.user
                 )
                 nuevo_grupo.save()
                 crear_calendario(nuevo_grupo)
@@ -108,6 +110,7 @@ class GrupoViewSet(CsrfExemptMixin, viewsets.ModelViewSet):
                 curso=curso,
                 comentario=comentario,
                 activo=True,
+                cyd_grupo_creado_por = request.user
                 )
                 nuevo_grupo.save()
                 crear_calendario(nuevo_grupo)
@@ -212,7 +215,7 @@ class SedeViewSetInforme(CsrfExemptMixin, viewsets.ModelViewSet):
         queryset = Sede.objects.filter(activa=True)
         if "cyd_capacitador" in self.request.user.groups.values_list('name', flat=True):
             queryset = self.request.user.sedes.filter(activa=True)
-            
+
         return queryset
 class AsignacionViewSet(CsrfExemptMixin, viewsets.ModelViewSet):
     serializer_class = AsignacionSerializer

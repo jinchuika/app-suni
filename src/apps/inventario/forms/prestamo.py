@@ -24,6 +24,7 @@ class PrestamoForm(forms.ModelForm):
             'tipo_prestamo': forms.Select(attrs={'class': 'form-control select2 '}),
             'prestado_a': forms.Select(attrs={'class': 'form-control select2'}),
         }
+        exclude = {'creada_por', }
 
     def __init__(self, *args, **kwargs):
         super(PrestamoForm, self).__init__(*args, **kwargs)

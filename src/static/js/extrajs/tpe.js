@@ -2,7 +2,7 @@
 
     // Public
     ReparacionDetalle.init = function () {
-        $('.form-nueva-reparacion').hide();
+        //$('.form-nueva-reparacion').hide();
         $('#repuesto-nuevo-form').hide();
         $('#repuesto-nuevo-button').on('click', function () {
             $('#repuesto-nuevo-form').toggle();

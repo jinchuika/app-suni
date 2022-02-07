@@ -4,7 +4,7 @@
 <title>CPU</title>
 {% endblock page_title %}
 {% block content %}
-    {% if object.estado.id == 1 or object.estado.id == 2  and object.etapa.id == 1 or object.etapa.id == 2 or object.etapa.id == 3 %}
+{% if object.estado.id == 1 or object.estado.id == 2  and object.etapa.id == 1 or object.etapa.id == 2 or object.etapa.id == 3 %}
 <section class="content">
   <div class="container-fluid">
     <div class="row">
@@ -43,7 +43,7 @@
 {% endblock content %}
 {% block extra_js %}
 <script>
-  var disco = $("#disco").data("id");  
+  var disco = $("#disco").data("id");
   var triage = $("#disco").data("triage");
   var newOption = new Option(triage,disco,false,false);
   $("#id_disco_duro").append(newOption).trigger("change");

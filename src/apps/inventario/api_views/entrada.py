@@ -333,7 +333,7 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
 
                 if paquetes['cantidad__sum'] is not None:
                     sum_paquetes = paquetes['cantidad__sum']
-        
+
                 numero_dispositivos = sum_solicitudes - sum_devoluciones - sum_paquetes
             else:
                 if bln_inventariointerno == "false":
@@ -458,7 +458,7 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
                 'servidor',
                 'all_in_one',
                 'clase'
-                ).order_by('triage')            
+                ).order_by('triage')
             return JsonResponse({
                 'data': list(data),
                 'marcas': list(tipos),
@@ -514,7 +514,8 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
                 'ram',
                 'ram_medida',
                 'pulgadas',
-                'clase'
+                'clase',
+                'servidor'
                 )
             return JsonResponse({
                 'data': list(data),

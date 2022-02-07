@@ -11,6 +11,7 @@ class Cooperante(models.Model):
     Description: Cooperante para equipamiento
     """
     nombre = models.CharField(max_length=100)
+    creado_por = models.ForeignKey(User, on_delete=models.CASCADE,default=User.objects.get(username="Admin").pk)
 
     def get_absolute_url(self):
         return reverse_lazy('cooperante_detail', args=[str(self.id)])
@@ -27,7 +28,7 @@ class Proyecto(models.Model):
     Description: Proyecto de equipamiento
     """
     nombre = models.CharField(max_length=100)
-
+    creado_por = models.ForeignKey(User, on_delete=models.CASCADE,default=User.objects.get(username="Admin").pk)
     def __str__(self):
         return self.nombre
 
@@ -44,7 +45,7 @@ class Requisito(models.Model):
     Description: Requerimiento de solicitud
     """
     nombre = models.CharField(max_length=50)
-
+    creado_por = models.ForeignKey(User, on_delete=models.CASCADE,default=User.objects.get(username="Admin").pk)
     def __str__(self):
         return self.nombre
 
@@ -55,7 +56,7 @@ class SolicitudVersion(models.Model):
     """
     nombre = models.CharField(max_length=50)
     requisito = models.ManyToManyField(Requisito, blank=True)
-
+    creado_por = models.ForeignKey(User, on_delete=models.CASCADE,default=User.objects.get(username="Admin").pk)
     class Meta:
         verbose_name = 'Versión de solicitud'
         verbose_name_plural = 'Versiones de solicitud'
@@ -69,7 +70,7 @@ class Medio(models.Model):
     Description: Medio de comunicación
     """
     medio = models.CharField(max_length=50)
-
+    creado_por = models.ForeignKey(User, on_delete=models.CASCADE,default=User.objects.get(username="Admin").pk)
     def __str__(self):
         return self.medio
 
@@ -96,7 +97,7 @@ class Solicitud(models.Model):
     medio = models.ManyToManyField(Medio, blank=True)
 
     observacion = models.TextField(null=True, blank=True)
-
+    creado_por = models.ForeignKey(User, on_delete=models.CASCADE,default=User.objects.get(username="Admin").pk)
     class Meta:
         verbose_name = 'Solicitud'
         verbose_name_plural = 'Solicitudes'
@@ -124,7 +125,7 @@ class Solicitud(models.Model):
 class ValidacionVersion(models.Model):
     nombre = models.CharField(max_length=30)
     requisito = models.ManyToManyField(Requisito, blank=True)
-
+    creado_por = models.ForeignKey(User, on_delete=models.CASCADE,default=User.objects.get(username="Admin").pk)
     class Meta:
         verbose_name = "Versión de validación"
         verbose_name_plural = "Versiones de validación"
@@ -135,7 +136,7 @@ class ValidacionVersion(models.Model):
 
 class ValidacionTipo(models.Model):
     nombre = models.CharField(max_length=30)
-
+    creado_por = models.ForeignKey(User, on_delete=models.CASCADE,default=User.objects.get(username="Admin").pk)
     class Meta:
         verbose_name = "Tipo de validación"
         verbose_name_plural = "Tipos de validación"
@@ -164,7 +165,7 @@ class Validacion(models.Model):
 
     observacion = models.TextField(null=True, blank=True)
     completada = models.BooleanField(default=False, blank=True)
-
+    creado_por = models.ForeignKey(User, on_delete=models.CASCADE,related_name="mye_creada_por",default=User.objects.get(username="Admin").pk)
     class Meta:
         verbose_name = "Validacion"
         verbose_name_plural = "Validaciones"

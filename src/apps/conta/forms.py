@@ -20,7 +20,7 @@ class PeriodoFiscalForm(forms.ModelForm):
             'fecha_inicio': forms.TextInput({'class': 'form-control datepicker'}),
             'fecha_fin': forms.TextInput({'class': 'form-control datepicker'})
         }
-
+        exclude = ['creado_por']
 
 class PeriodoFiscalUpdateForm(forms.ModelForm):
     """ Formulario para la actualizacion de los periodos fiscales
@@ -28,7 +28,7 @@ class PeriodoFiscalUpdateForm(forms.ModelForm):
     class Meta:
         model = conta_m.PeriodoFiscal
         fields = '__all__'
-        exclude = ['fecha_fin', 'fecha_inicio']
+        exclude = ['fecha_fin', 'fecha_inicio','creado_por']
 
 
 class PrecioEstandarForm(forms.ModelForm):
@@ -44,7 +44,7 @@ class PrecioEstandarForm(forms.ModelForm):
             'precio': forms.NumberInput(attrs={'class': 'form-control'}),
             'inventario': forms.Select(attrs={'class': 'form-control select2'})
         }
-
+        exclude = ['creado_por']
 
 class PrecioEstandarInformeForm(forms.Form):
     """ Formulario para la aplicacion de filtros de busqueda de precio estandar

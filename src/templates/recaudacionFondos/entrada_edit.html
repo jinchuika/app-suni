@@ -1,0 +1,24 @@
+{% extends "base/base.html" %}
+
+{% load staticfiles has_group %}
+
+{% block page_title %}
+<title>Entrada - {{entrada.id}} </title>
+{% endblock page_title %}
+
+{% block content %}
+<section class="content">
+	<div class="container-fluid">
+    Entrada - {{entrada.id}}
+	</div>
+</section>
+
+
+{% endblock content %}
+
+{% block extra_js %}
+<script src="{% static "js/extrajs/tpe.js" %}"></script>
+<script>
+
+</script>
+{% endblock extra_js %}

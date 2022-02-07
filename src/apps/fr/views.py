@@ -56,6 +56,10 @@ class CreateEmpresa(LoginRequiredMixin, ListMixin, CreateView):
     template_name = "fr/empresa.html"
     success_url = reverse_lazy('contacto_empresa')
 
+    def form_valid(self, form):
+        form.instance.fr_empresa_creada_por = self.request.user
+        return super(CreateEmpresa, self).form_valid(form)
+
 
 class EditEmpresa(LoginRequiredMixin, UpdateView):
     model = Empresa
@@ -76,6 +80,10 @@ class CreateEvento(LoginRequiredMixin, ListMixin, CreateView):
     template_name = "fr/evento.html"
     success_url= reverse_lazy('contacto_evento')
 
+    def form_valid(self, form):
+        form.instance.fr_evento_creada_por= self.request.user
+        return super(CreateEvento, self).form_valid(form)
+
 
 class CreateContacto(LoginRequiredMixin, ListMixin, CreateView):
     model = Contacto
@@ -83,11 +91,15 @@ class CreateContacto(LoginRequiredMixin, ListMixin, CreateView):
     template_name = "fr/contacto.html"
     success_url= reverse_lazy('contacto_contactos')
 
+    def form_valid(self, form):
+        form.instance.fr_contacto_creada_por = self.request.user
+        return super(CreateContacto, self).form_valid(form)
+
 
 class ContactoEtiqueta(LoginRequiredMixin, ContactListMixin, DetailView):
     model = Etiqueta
     pk_url_kwarg = 'tag_pk'
-    
+
 
 class ContactoEvento(LoginRequiredMixin, ContactListMixin, DetailView):
     model = Evento
@@ -103,7 +115,11 @@ class CreateContactIntoEmpresa(LoginRequiredMixin, ListMixin, ContactoContextMix
     def get_initial(self):
         empresa = get_object_or_404(Empresa, id=self.kwargs.get('empresa_pk'))
         return { 'empresa': empresa }
-    
+
+    def form_valid(self, form):
+        form.instance.fr_contacto_creada_por = self.request.user
+        return super(CreateContactIntoEmpresa, self).form_valid(form)
+
 class EditContacto(LoginRequiredMixin, ListMixin, ContactoContextMixin, UpdateView):
     model = Contacto
     form_class = FormContactoEmpresa

@@ -10,6 +10,7 @@ from apps.conta import models as conta_m
 
 
 def ingresar_dispositivo(entrada, modelo, tipo, entrada_detalle, precio=None):
+    print(entrada_detalle.creado_por)
     with transaction.atomic():
         periodo_actual = conta_m.PeriodoFiscal.objects.get(actual=True)
         if not precio or precio == 0.0:
@@ -18,7 +19,7 @@ def ingresar_dispositivo(entrada, modelo, tipo, entrada_detalle, precio=None):
                 periodo=periodo_actual,
                 inventario=conta_m.PrecioEstandar.DISPOSITIVO)
             precio = precio_estandar.precio
-        nuevo_dispositivo = modelo(entrada=entrada, tipo=tipo, entrada_detalle=entrada_detalle)
+        nuevo_dispositivo = modelo(entrada=entrada, tipo=tipo, entrada_detalle=entrada_detalle,creada_por = entrada_detalle.creado_por)
         # Antes de ejecutar el save, se dispara la señal `calcular_triage`
         # Durante el `save` se genera el código QR
         nuevo_dispositivo.save()
@@ -26,14 +27,16 @@ def ingresar_dispositivo(entrada, modelo, tipo, entrada_detalle, precio=None):
         nuevo_precio = conta_m.PrecioDispositivo(
             dispositivo=nuevo_dispositivo,
             periodo=periodo_actual,
-            precio=precio)
+            precio=precio,
+            creado_por = entrada_detalle.creado_por)
         nuevo_precio.save()
         movimiento = conta_m.MovimientoDispositivo(
             dispositivo=nuevo_dispositivo,
             periodo_fiscal=periodo_actual,
             tipo_movimiento=conta_m.MovimientoDispositivo.ALTA,
             referencia='Entrada {}'.format(entrada),
-            precio=precio)
+            precio=precio,
+            creado_por = entrada_detalle.creado_por)
         movimiento.save()
 
 
@@ -51,13 +54,15 @@ def ingresar_repuesto(entrada, modelo_repuesto, estado, tipo, entrada_detalle, p
             tipo=tipo,
             entrada_detalle=entrada_detalle,
             disponible=True,
-            estado=estado
+            estado=estado,
+            creada_por = entrada_detalle.creado_por
         )
         nuevo_repuesto.save()
         nuevo_precio = conta_m.PrecioRepuesto(
             repuesto=nuevo_repuesto,
             precio=precio,
-            periodo=periodo_actual
+            periodo=periodo_actual,
+            creado_por = entrada_detalle.creado_por
         )
         nuevo_precio.save()
         # Crear el registro del movimiento
@@ -66,6 +71,7 @@ def ingresar_repuesto(entrada, modelo_repuesto, estado, tipo, entrada_detalle, p
             precio=precio,
             periodo_fiscal=periodo_actual,
             tipo_movimiento=conta_m.MovimientoRepuesto.ALTA,
-            referencia='Entrada {}'.format(entrada)
+            referencia='Entrada {}'.format(entrada),
+            creado_por = entrada_detalle.creado_por
         )
         movimiento.save()

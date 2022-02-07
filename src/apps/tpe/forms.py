@@ -27,7 +27,7 @@ class EquipamientoForm(ModelForm):
     class Meta:
         model = tpe_m.Equipamiento
         fields = '__all__'
-        exclude = ('id',)
+        exclude = ('id','creado_por', )
         widgets = {
             'escuela': forms.HiddenInput(),
             'estado': forms.Select(attrs={'class': 'form-control'}),
@@ -47,7 +47,7 @@ class GarantiaForm(forms.ModelForm):
     class Meta:
         model = tpe_m.Garantia
         fields = '__all__'
-        exclude = ('id', )
+        exclude = ('id','creado_por' )
         widgets = {
             'equipamiento': forms.Select(attrs={'class': 'form-control select2'}),
             'fecha_vencimiento': forms.TextInput(attrs={'class': 'form-control datepicker'})
@@ -322,7 +322,7 @@ class EvaluacionMonitoreoForm(forms.ModelForm):
             'monitoreo': forms.HiddenInput(),
             'pregunta': forms.HiddenInput()
         }
-
+        exclude = ('creado_por', )
 
 class DispositivoReparacionListForm(forms.Form):
     TECNICOS_REPARACION = tpe_m.TicketReparacion.objects.values('tecnico_asignado').distinct()

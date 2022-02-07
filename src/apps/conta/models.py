@@ -14,6 +14,7 @@ class PeriodoFiscal(models.Model):
     fecha_inicio = models.DateField()
     fecha_fin = models.DateField()
     actual = models.BooleanField(default=False, blank=True)
+    creado_por = models.ForeignKey(User, on_delete=models.PROTECT,default=49, blank=True, null=True)
 
     class Meta:
         verbose_name = 'Periodo fiscal'
@@ -66,6 +67,7 @@ class PrecioDispositivo(models.Model):
     periodo = models.ForeignKey(PeriodoFiscal, on_delete=models.CASCADE, related_name='precios_dispositivo')
     activo = models.BooleanField(default=True, blank=True)
     fecha_creacion = models.DateField(default=timezone.now)
+    creado_por = models.ForeignKey(User, on_delete=models.PROTECT)
 
     class Meta:
         verbose_name = 'Precio de dispositivo'
@@ -85,6 +87,7 @@ class PrecioRepuesto(models.Model):
     periodo = models.ForeignKey(PeriodoFiscal, on_delete=models.CASCADE, related_name='precios_repuesto')
     activo = models.BooleanField(default=True, blank=True)
     fecha_creacion = models.DateField(default=timezone.now)
+    creado_por = models.ForeignKey(User, on_delete=models.PROTECT)
 
     class Meta:
         verbose_name = 'Precio de repuesto'
@@ -115,6 +118,7 @@ class MovimientoDispositivo(models.Model):
     precio = models.DecimalField(max_digits=14, decimal_places=2, default=0.0)
     referencia = models.CharField(max_length=30, null=True, blank=True)
     observaciones = models.TextField(null=True, blank=True)
+    creado_por = models.ForeignKey(User, on_delete=models.PROTECT,default=49, blank=True, null=True)
 
     class Meta:
         verbose_name = 'Movimiento de dispositivo'
@@ -144,6 +148,7 @@ class MovimientoRepuesto(models.Model):
     precio = models.DecimalField(max_digits=14, decimal_places=2, default=0.0)
     referencia = models.CharField(max_length=30, null=True, blank=True)
     observaciones = models.TextField(null=True, blank=True)
+    creado_por = models.ForeignKey(User, on_delete=models.PROTECT)
 
     class Meta:
         verbose_name = 'Movimiento de repuesto'

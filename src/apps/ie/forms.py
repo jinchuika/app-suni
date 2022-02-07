@@ -18,13 +18,14 @@ class LaboratorioCreateForm(forms.ModelForm):
         widgets = {
             'escuela': forms.HiddenInput()
         }
+        exclude = ('ie_laboratorio_creada_por',)
 
 
 class LaboratorioUpdateForm(forms.ModelForm):
     class Meta:
         model = Laboratorio
         fields = '__all__'
-        exclude = ('escuela', 'organizacion')
+        exclude = ('escuela', 'organizacion','ie_laboratorio_creada_por',)
         widgets = {
             'fecha': forms.TextInput(attrs={'class': 'datepicker form-control'}),
             'observaciones': forms.Textarea(attrs={'class': 'form-control'}),
@@ -49,7 +50,7 @@ class ComputadoraForm(forms.ModelForm):
         widgets = {
             'laboratorio': forms.HiddenInput()
         }
-
+        exclude = ('escuela', 'organizacion','ie_laboratorio_creada_por')
 
 class SerieForm(forms.ModelForm):
     class Meta:
@@ -114,11 +115,12 @@ class IEValidacionVersionForm(forms.ModelForm):
         }
 
 
+
 class RequerimientoForm(forms.ModelForm):
     class Meta:
         model = Requerimiento
         fields = '__all__'
-
+        exclude = ('ie_requerimiento_creada_por',)
 
 class LaboratorioInformeForm(forms.ModelForm):
     codigo = forms.CharField(
@@ -136,6 +138,7 @@ class LaboratorioInformeForm(forms.ModelForm):
     class Meta:
         model = Laboratorio
         fields = ('organizacion',)
+        exclude =('ie_laboratorio_creada_por',)
 
     def __init__(self, *args, **kwargs):
         super(LaboratorioInformeForm, self).__init__(*args, **kwargs)
@@ -158,7 +161,7 @@ class ValidacionInformeForm(forms.ModelForm):
     class Meta:
         model = Validacion
         fields = ('organizacion',)
-
+        exclude =('ie_laboratorio_creada_por',)
     def __init__(self, *args, **kwargs):
         super(ValidacionInformeForm, self).__init__(*args, **kwargs)
         self.fields['organizacion'].required = False
