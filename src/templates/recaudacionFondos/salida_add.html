@@ -1,0 +1,117 @@
+{% extends "base/base.html" %}
+{% load staticfiles widget_tweaks %}
+
+{% block page_title %}
+<title>Salidas recaudacion de fondos </title>
+{% endblock page_title %}
+
+{% block content %}
+<section class="content-header">
+	<h1>Salida recaudacion de fondos</h1>
+</section>
+
+<section class="content">
+	<div class="container-fluid">
+		<div class="row-fluid">
+			<div class="col-md-8 col-md-offset-2">
+				<div class="nav-tabs-custom">
+					<!-- pestañas -->
+					<ul class="nav nav-tabs nav-justified">
+						<li class="active">
+							<a href="#nueva-salida" data-toggle="tab"><i class="fa fa-sign-in"></i> Nueva salida</a>
+						</li>
+						<li>
+							<a href="#buscar-salida" data-toggle="tab"><i class="fa fa-search"></i>Salida en curso </a>
+						</li>
+						<li>
+							<a href="#listar-salida" data-toggle="tab"><i class="fa fa-list"></i> informe de  salidas</a>
+						</li>
+					</ul>
+					<!-- /pestañas -->
+
+					<div class="tab-content">
+						<!-- panel de creación -->
+						<div class="tab-pane active" id="nueva-salida">
+							<form action="{{ action }}" method="post">
+								{% csrf_token %}
+								<table class="table table-hover table-condensed">
+									{% for field in form %}
+									<tr>
+										<td>{{ field.label_tag }}</td>
+										<td>{{ field|add_class:"form-control" }}</td>
+									</tr>
+									{% endfor %}
+									<tr>
+										<td></td>
+										<td><button class="btn btn-primary btn-block">Guardar</button></td>
+									</tr>
+								</table>
+							</form>
+						</div>
+						<!-- /panel de creación -->
+
+						<!-- panel de búsqueda -->
+						<div class="tab-pane" id="buscar-salida">
+							<form id="salida-buscar-form" action="{% url 'recaudacionFondos_api:api_salidas-list' %}">
+								<div class="input-group input-group-sm">
+									<input type="number" min="1" class="form-control" id="salida-id">
+									<span class="input-group-btn">
+										<input type="submit" class="btn btn-info btn-flat" value="Buscar">
+									</span>
+								</div>
+							</form>
+
+							{% if pendientes_list.count > 0 %}
+							<h4 class="box-title">Pendientes</h4>
+							<ul class="nav nav-pills nav-stacked">
+							{% for salida_pendiente in pendientes_list %}
+								<li>
+									<a href="{{ salida_pendiente.get_absolute_url }}">
+										Salida {{ salida_pendiente.id }}
+											<span class="pull-center text-green">{{ salida_pendiente.tipo }}</span>
+										<span class="pull-right text-red"><i class="fa fa-calendar"></i> {{ salida_pendiente.fecha|date:"Y-m-d" }}</span>
+									</a>
+								</li>
+							{% endfor %}
+							</ul>
+							{% endif %}
+						</div>
+						<!-- /panel de búsqueda -->
+
+						<!-- panel para listado de entradas -->
+						<div class="tab-pane" id="listar-salida">
+							<form id="filter-form-salidas" action="{% url 'recaudacionFondos_api:api_salidas-list' %}">
+								{{ filter_form.as_p }}
+								<input type="submit" class="btn btn-success" value="Buscar">
+							</form>
+
+							<table class="table table-hover" id="tabla-salidas">
+								<thead>
+									<tr>
+										<th>No. Salida</th>
+										<th>Tipo</th>
+										<th>Fecha</th>
+									</tr>
+								</thead>
+								<tbody id="tbody-salidas"></tbody>
+							</table>
+						</div>
+						<!-- /panel para listado de entradas -->
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+
+{% endblock content %}
+
+
+{% block extra_js %}
+<script src="{% static "js/pdfmake.min.js" %}"></script>
+<script src="{% static "js/vfs_fonts.js" %}"></script>
+<script src="{% static "js/extrajs/recaudacionFondos.js" %}"></script>
+<script>
+	var nuevo  = new Salida();
+</script>
+{% endblock extra_js %}
