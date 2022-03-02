@@ -4,6 +4,7 @@ from django.core.exceptions import ObjectDoesNotExist
 
 from apps.inventario import models as inv_m
 from apps.kardex import models as kax_m
+from django.contrib.auth.models import User
 
 
 class EntradaDetalleSerializer(serializers.ModelSerializer):
@@ -28,8 +29,10 @@ class EntradaDetalleSerializer(serializers.ModelSerializer):
     es_kardex = serializers.StringRelatedField(source='tipo_dispositivo.kardex')
     url_kardex = serializers.SerializerMethodField(read_only=True)
     # Desecho
-    existencia_desecho = serializers.IntegerField(read_only=True)    
+    existencia_desecho = serializers.IntegerField(read_only=True)
     fecha_desecho = serializers.SerializerMethodField(read_only=True)
+    grupos = serializers.SerializerMethodField(read_only=True)
+
 
     class Meta:
         model = inv_m.EntradaDetalle
@@ -67,7 +70,10 @@ class EntradaDetalleSerializer(serializers.ModelSerializer):
             'url_kardex',
             'existencia_desecho',
             'es_kardex',
-            'fecha_desecho'           
+            'fecha_desecho',
+            'autorizado',
+            'pendiente_autorizar',
+            'grupos'
             )
 
     def get_tdispositivo(self, object):
@@ -101,13 +107,47 @@ class EntradaDetalleSerializer(serializers.ModelSerializer):
     def get_existencia_desecho(self, obj):
         inventario_desecho = obj.existencia_desecho.all()
         return inventario_desecho
-    
+
     def get_fecha_desecho(self, obj):
-         fecha = inv_m.DesechoComentario.objects.filter(entrada_detalle=obj.id).last()        
+         fecha = inv_m.DesechoComentario.objects.filter(entrada_detalle=obj.id).last()
          if fecha is None:
             return ""
-         else:        
+         else:
             return fecha.fecha_revision.date()
+
+    def get_grupos(self, object):
+        """ Este  metodo sirver para obtener el usuario que se va a enviar al javascript para mostrar
+            los botones de autorizado y revisado en el detalle de entrada
+            si es admin enviara el numero 1 o 3  de regreso
+            si es el sub jefe enviara el numero 2
+            si es otro usuario envirara el numero 4 
+        """
+        contador = 0
+        asignacion = 0
+        usuario = self.context.get('request',None).user
+        grupos  = User.objects.get(username=usuario)
+        for data in grupos.groups.all():
+            if str(data) == "inv_admin":
+                contador = contador +1
+                asignacion = 1
+            elif str(data) == "inv_sub_jefe":
+                asignacion = 2
+                contador = contador + 1
+            else:
+                contador = 0
+        if contador == 0 :
+            print("Es  otro usuario")
+            return 4
+        elif contador == 1:
+            if asignacion == 1:
+                print("Es el admin")
+                return 1
+            else:
+                print("Es el subjefe")
+                return 2
+        else:
+            print("es el admin otra vez")
+            return 3
 
 
 

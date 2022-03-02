@@ -163,6 +163,8 @@ class EntradaDetalle(models.Model):
     qr_repuestos = models.BooleanField(default=False, blank=True, verbose_name='Imprimir Qr Repuesto')
     qr_dispositivo = models.BooleanField(default=False, blank=True, verbose_name='Imprimir Qr Dispositivo')
     impreso = models.BooleanField(default=False, blank=True, verbose_name='Impreso')
+    pendiente_autorizar = models.BooleanField(default=False, blank=True, verbose_name='pendiente')
+    autorizado = models.BooleanField(default=False, blank=True, verbose_name='autorizado')
     # Creacion de fechas
     fecha_dispositivo = models.DateField(blank=True, null=True)
     fecha_repuesto = models.DateField(blank=True, null=True)
@@ -1608,7 +1610,7 @@ class IInternoEstado(models.Model):
 
 class InventarioInterno(models.Model):
     """El objetivo es llevar el control de los dispositivos con triage asignados a los colaboradores para la realización de sus labores
-    diarias o bien para un evento en específico. 
+    diarias o bien para un evento en específico.
     """
     no_asignacion = models.CharField(max_length=10, blank=True, editable=False, db_index=True)
     colaborador_asignado = models.ForeignKey(User, on_delete=models.PROTECT, related_name='asignaciones', blank=True, null=True)
@@ -1633,7 +1635,7 @@ class InventarioInterno(models.Model):
 
 
 class IInternoDispositivo(models.Model):
-    """Un conjunto de :class:'Dispositivo' que se asignan a colaboradores activos dentro de la fundación. 
+    """Un conjunto de :class:'Dispositivo' que se asignan a colaboradores activos dentro de la fundación.
     Solamente podrán asignarse dispositivos con triage.
     """
     no_asignacion = models.ForeignKey(InventarioInterno, on_delete=models.PROTECT, related_name="dispositivos")

@@ -119,21 +119,62 @@ class EntradaUpdate {
                 {data: "precio_descontado"},
                 {data: "precio_total"},
                 {data: "creado_por"},
+                {data: "",render: function(data, type, full, meta){
+                  if(full.pendiente_autorizar == false){
+                     return "	<span class='label label-danger'>Pendiente</span>";
+                  }else{
+                    if(full.autorizado == false){
+                        return "	<span class='label label-warning'>Revisado</span>";
+                    }else{
+                        return "	<span class='label label-success'>Autorizado</span>";
+                    }
+
+                  }
+
+                }},
                 {
                     data: "",render: function(data, type, full, meta){
-                      if(full.dispositivos_creados == true || full.repuestos_creados == true ){
-                          if(full.usa_triage == "False"){
-                            if(full.ingresado_kardex == true){
-                              return "";
-                            }else{
-                              return "<a href="+full.update_url+" class='btn btn-info btn-editar'>Editar</a>";
-                            }
+                      if(full.grupos == 4){
+                        if(full.autorizado == true){
+                          if(full.dispositivos_creados == true || full.repuestos_creados == true ){
+                              if(full.usa_triage == "False"){
+                                if(full.ingresado_kardex == true){
+                                  return "";
+                                }else{
+                                  return "<a href="+full.update_url+" class='btn btn-info btn-editar'>Editar</a>";
+                                }
+                              }else{
+                                  return "";
+                              }
                           }else{
-                              return "";
+                            return "<a href="+full.update_url+" class='btn btn-info btn-editar'>Editar</a>";
                           }
+                        }else{
+                          return "";
+                        }
+
                       }else{
-                        return "<a href="+full.update_url+" class='btn btn-info btn-editar'>Editar</a>";
+                        if(full.grupos ==  1 || full.grupos == 3){
+                          if(full.pendiente_autorizar == true){
+                            if (full.autorizado == false){
+                                return "<a  class='btn btn-info btn-autorizar'>Autorizar</a>";
+                            }else{
+                              return "";
+                            }
+
+                        }else{
+                          return "";
+                        }
+                        }else{
+                          if(full.pendiente_autorizar == false){
+                            return "<a  class='btn btn-info btn-aprobar'>Aprobar</a>";
+                          }else{
+                            return "";
+                          }
+
+                        }
                       }
+
                     }
                 },
                 {
@@ -307,6 +348,17 @@ class EntradaUpdate {
                     });
 
         });
+        /*Botones para  autorizar y aprobar la revison de los dispositivos*/
+        tablabody.on('click', '.btn-aprobar', function () {
+           let data_fila = tabla_temp.tabla.row($(this).parents('tr')).data();
+           EntradaUpdate.validar_detalles(tabla_temp.api_url,data_fila.id,data_fila.autorizado,data_fila.pendiente_autorizar);
+
+        });
+        tablabody.on('click', '.btn-autorizar', function () {
+           let data_fila = tabla_temp.tabla.row($(this).parents('tr')).data();
+           EntradaUpdate.validar_detalles(tabla_temp.api_url,data_fila.id,data_fila.autorizado,data_fila.pendiente_autorizar);
+
+        });
         //kardex
         tablabody.on('click', '.btn-kardex', function () {
             let data_fila = tabla_temp.tabla.row($(this).parents('tr')).data();
@@ -353,6 +405,26 @@ class EntradaUpdate {
             document.getElementById("detalleForm").reset();
         });
 
+
+    }
+
+    static validar_detalles(urldetalles, id, autorizado, pendiente_autorizar) {
+      $.ajax({
+            type: "post",
+            url: urldetalles+"autorizar_detalles/",
+            dataType: 'json',
+            data: {
+              csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
+              id:id,
+              autorizado:autorizado,
+              pendiente_autorizar:pendiente_autorizar,
+            },
+            success: function (response) {
+              $("#entrada-table").DataTable().ajax.reload();
+               console.log("Abrir");
+
+            },
+        });
 
     }
 
@@ -1237,7 +1309,7 @@ class SolicitudMovimientoValidar {
         $('#id_no_salida').prop('required',true);
       }
     });
-    
+
     var tipo_dispositivo;
     $('#tipo_dispositivo_movimiento').change( function() {
       tipo_dispositivo=$('#tipo_dispositivo_movimiento option:selected').text();
