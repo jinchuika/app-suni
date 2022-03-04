@@ -136,21 +136,33 @@ class EntradaUpdate {
                     data: "",render: function(data, type, full, meta){
                       if(full.grupos == 4){
                         if(full.autorizado == true){
+                          return "";
+                        }else{
                           if(full.dispositivos_creados == true || full.repuestos_creados == true ){
                               if(full.usa_triage == "False"){
                                 if(full.ingresado_kardex == true){
                                   return "";
                                 }else{
-                                  return "<a href="+full.update_url+" class='btn btn-info btn-editar'>Editar</a>";
+                                  var total_detalle_editar = full.util + full.desecho + full.repuesto;
+                                  if (total_detalle_editar != full.total){
+                                    return "<a href="+full.update_url+" class='btn btn-info btn-editar'>Editar</a>";
+                                  }else{
+                                    return "";
+                                  }
+
                                 }
                               }else{
                                   return "";
                               }
                           }else{
-                            return "<a href="+full.update_url+" class='btn btn-info btn-editar'>Editar</a>";
+                            var total_detalle_editar_normal = full.util + full.desecho + full.repuesto;
+                            if(total_detalle_editar_normal != full.total){
+                              return "<a href="+full.update_url+" class='btn btn-info btn-editar'>Editar</a>";
+                            }else{
+                              return "";
+                            }
+
                           }
-                        }else{
-                          return "";
                         }
 
                       }else{
@@ -167,7 +179,12 @@ class EntradaUpdate {
                         }
                         }else{
                           if(full.pendiente_autorizar == false){
-                            return "<a  class='btn btn-info btn-aprobar'>Aprobar</a>";
+                            var total_detalle = full.util + full.desecho + full.repuesto;
+                            if (total_detalle == full.total){
+                              return "<a  class='btn btn-info btn-aprobar'>Aprobar</a>";
+                            }else{
+                              return "";
+                            }
                           }else{
                             return "";
                           }
@@ -179,47 +196,57 @@ class EntradaUpdate {
                 },
                 {
                     data: "", render: function(data, type, full, meta){
-                      if(full.tipo_entrada != "Especial"){
-                          if(full.dispositivos_creados == false){
-                            if(full.usa_triage == "True" && full.util >= 1){
-                              return "<button class='btn btn-primary btn-dispositivo'>Crear Disp</button>";
-                            }else{
-                              return "";
-                            }
-                          }else{
-                             if(full.enviar_kardex == true){
-                               if(full.ingresado_kardex == true){
-                                 return "<a target='_blank' rel='noopener noreferrer' href="+full.url_kardex+" class='btn btn-success btn-ulrKardex'>Detalle</a>";
-                               }else{
-                                 if(full.util > 0 && full.es_kardex == "True"){
-                                  return "<a target='_blank' rel='noopener noreferrer' class='btn btn-success btn-kardex'>Agregar a kardex</a>";
+                      if (full.grupos == 4){
+                        if(full.tipo_entrada != "Especial"){
+                            if(full.dispositivos_creados == false){
+                              if(full.usa_triage == "True" && full.util >= 1){
+                                if(full.autorizado !=false){
+                                  return "<button class='btn btn-primary btn-dispositivo'>Crear Disp</button>";
                                 }else{
                                   return "";
                                 }
 
-                               }
-
-                             }else{
-
-                             }
-                              if(full.qr_dispositivo == true){
-                                if(full.usa_triage == "True"){
-                                    return "<a target='_blank' rel='noopener noreferrer' href="+full.dispositivo_list+" class='btn btn-success'>Listado Dispositivo</a>";
-                                }else{
-                                  return " ";
-                                }
-
                               }else{
-                                if(full.usa_triage == "True"){
-                                    return "<a target='_blank' rel='noopener noreferrer' href="+full.dispositivo_qr+" class='btn btn-primary btn-Qrdispositivo'>QR Dispositivo</a>";
-                                }else {
-                                  return " ";
-                                }
+                                return "";
+                              }
+                            }else{
+                               if(full.enviar_kardex == true){
+                                 if(full.ingresado_kardex == true){
+                                   return "<a target='_blank' rel='noopener noreferrer' href="+full.url_kardex+" class='btn btn-success btn-ulrKardex'>Detalle</a>";
+                                 }else{
+                                   if(full.util > 0 && full.es_kardex == "True"){
+                                    return "<a target='_blank' rel='noopener noreferrer' class='btn btn-success btn-kardex'>Agregar a kardex</a>";
+                                  }else{
+                                    return "";
+                                  }
+
+                                 }
+
+                               }else{
+
+                               }
+                                if(full.qr_dispositivo == true){
+                                  if(full.usa_triage == "True"){
+                                      return "<a target='_blank' rel='noopener noreferrer' href="+full.dispositivo_list+" class='btn btn-success'>Listado Dispositivo</a>";
+                                  }else{
+                                    return " ";
+                                  }
+
+                                }else{
+                                  if(full.usa_triage == "True"){
+                                      return "<a target='_blank' rel='noopener noreferrer' href="+full.dispositivo_qr+" class='btn btn-primary btn-Qrdispositivo'>QR Dispositivo</a>";
+                                  }else {
+                                    return " ";
+                                  }
+                              }
                             }
-                          }
+                        }else{
+                          return "";
+                        }
                       }else{
                         return "";
                       }
+
 
                     }
                 },
