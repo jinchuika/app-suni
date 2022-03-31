@@ -41,7 +41,7 @@
       </li>
       <li>
         <h6>
-          Las _________<u><b>{{dispositivo_total}}</b></u>__________  {% if cpu == 1 %}tablets{% else %}computadoras{% endif %} y _________<u><b>{{cpu_servidor}}</b></u>__________ servidor entregados por FUNSEPA a {{salidainventario.escuela.nombre}}
+          Las _________<u><b>{{dispositivo_total}}</b></u>__________  {% if cpu == 1 %}tablets{% else %}computadoras{% endif %} y _________<u><b>{{cpu_servidor}}</b></u>__________  {% if laptop == True %}servidor tipo Laptop{% else %}servidor{% endif %} entregados por FUNSEPA a {{salidainventario.escuela.nombre}}
           UDI {{salidainventario.escuela.codigo}} en calidad
           de préstamo se encuentran funcionando en su totalidad, de caso contrario informar al técnico
           encargado de la entrega para que haga las correcciones correspondientes. Solicitamos al

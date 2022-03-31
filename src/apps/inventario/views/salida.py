@@ -434,6 +434,7 @@ class GarantiaPrintView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
             try:
                 if nueva_laptop.servidor is True:
                     cpu_servidor = cpu_servidor + 1
+                    context['laptop'] = True
             except Exception as e:
                 print(e)
         if Total_Cpu['total_cpu'] is None:
@@ -516,10 +517,12 @@ class TabletPrintView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super(TabletPrintView, self).get_context_data(**kwargs)
         nuevas_tablets = []
+        total_cargadores_mostrar = 0
         Tablet = inv_m.PaqueteTipo.objects.get(nombre="Tablet")
         Cargador = inv_m.PaqueteTipo.objects.get(nombre="Cargadores")
         Cargador_cubo = inv_m.PaqueteTipo.objects.get(nombre="CUBO DE CARGA PARA TABLET")
-        Cable_cargador = inv_m.PaqueteTipo.objects.get(nombre="CARGADOR ENTRADA GRANDE PARA TABLET")
+        Cable_cargador = inv_m.PaqueteTipo.objects.get(nombre="CABLE DE DATOS PARA TABLET")
+        Cargador_grande = inv_m.PaqueteTipo.objects.get(nombre="CARGADOR ENTRADA GRANDE PARA TABLET")
         Total_Tablet = inv_m.DispositivoPaquete.objects.filter(
             paquete__salida__id=self.object.id,
             paquete__tipo_paquete=Tablet)
@@ -532,6 +535,9 @@ class TabletPrintView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
         Total_Cable_Cargador = inv_m.Paquete.objects.filter(
             salida__id=self.object.id,
             tipo_paquete=Cable_cargador).aggregate(cargadores=Sum('cantidad'))
+        Total_Cargador_grande = inv_m.Paquete.objects.filter(
+            salida__id=self.object.id,
+            tipo_paquete=Cargador_grande).aggregate(cargadores=Sum('cantidad'))
 
         for triage in Total_Tablet:
             nueva_tablet = inv_m.Dispositivo.objects.get(triage=triage.dispositivo).cast()
@@ -548,15 +554,15 @@ class TabletPrintView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
         context['Tablets'] = nuevas_tablets
         context['Total'] = Total_Tablet.count()
         if Total_Cargador['cargadores'] != None:
-            context['Cargador'] = Total_Cargador['cargadores']
-            context['Descripcion'] = "Cargadores"
-        elif Total_Cargador_Cubo['cargadores'] != None:
-            context['Cargador'] = Total_Cargador_Cubo['cargadores']
-            context['Descripcion'] = "Cubos de carga"
-        else:
-            context['Cargador'] = Total_Cable_Cargador['cargadores']
-            context['Descripcion'] = "Cables de carga"
-
+            total_cargadores_mostrar += Total_Cargador['cargadores']
+        if Total_Cargador_Cubo['cargadores'] != None:
+            total_cargadores_mostrar += Total_Cargador_Cubo['cargadores']
+        if Total_Cargador_grande['cargadores'] != None:
+            total_cargadores_mostrar += Total_Cargador_grande['cargadores']
+        if Total_Cable_Cargador['cargadores'] != None:
+            total_cargadores_mostrar += Total_Cable_Cargador['cargadores']
+        context['Cargador'] = total_cargadores_mostrar
+        context['Descripcion'] = "Cargadores"
         return context
 
 
@@ -575,6 +581,7 @@ class TpePrintView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
         nuevos_monitores = []
         nuevos_mouse = []
         contador_all_in_one =0
+        total_inalambricas_mostrar = 0
         cpu = inv_m.PaqueteTipo.objects.get(nombre="CPU")
         monitor = inv_m.PaqueteTipo.objects.get(nombre="MONITOR")
         mouse = inv_m.PaqueteTipo.objects.get(nombre="MOUSE")
@@ -603,11 +610,20 @@ class TpePrintView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
             inalambricas = inv_m.PaqueteTipo.objects.get(nombre="TARJETA DE RED INALAMBRICA")
         except ObjectDoesNotExist as e:
             inalambricas = 0
+        try:
+            inalambricas_usb = inv_m.PaqueteTipo.objects.get(nombre="Adaptadores de WIFI USB")
+        except ObjectDoesNotExist as e:
+            inalambricas_usb = 0
         total_inalambricas = inv_m.Paquete.objects.filter(
             salida=self.object.id,
             tipo_paquete=inalambricas,
             desactivado=False
             ).aggregate(total_inalambricas=Sum('cantidad'))
+        total_inalambricas_usb = inv_m.Paquete.objects.filter(
+            salida=self.object.id,
+            tipo_paquete=inalambricas_usb,
+            desactivado=False
+            ).aggregate(total_inalambricas_usb=Sum('cantidad'))
         total_alambricas = inv_m.Paquete.objects.filter(
             salida=self.object.id,
             tipo_paquete=alambricas,
@@ -687,6 +703,7 @@ class TpePrintView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
             print(e)
             context['Jornada'] = "No tiene Jornada"
             context['Encargado'] = "No Tiene Encargado"
+        total_inalambricas_mostrar = int( total_inalambricas['total_inalambricas'] or 0) + total_inalambricas_usb['total_inalambricas_usb']
         context['CPUs'] = nuevos_cpus
         context['Monitores'] = nuevos_monitores
         context['Teclados'] = nuevos_teclados
@@ -696,7 +713,7 @@ class TpePrintView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
         context['CablesVga'] = total_cables_vga['total_cables_vga']
         context['CablesPoder'] = total_cables_poder['total_cables_poder']
         context['Switch'] = total_switch['total_switch']
-        context['Wifi'] = total_inalambricas['total_inalambricas']
+        context['Wifi'] = total_inalambricas_mostrar
         context['Ethernet'] = total_alambricas['total_alambricas']
         context['Access'] = total_access_point['total_access_point']
         context['AllInOne'] = contador_all_in_one
