@@ -3024,6 +3024,7 @@ class PaqueteDetail {
     var urlAprobarControl = $("#rechazar-dispositivo").data('urlaprobar');
     var lista_triage = [];
     var estado_inicial = $('#id_dispositivos').data('estado-inicial');
+    let id_salida = $('#salida-id').data('pk');
     tablabodyRechazar.on('click','.btn-rechazar', function () {
       let data_triage = $(this).attr("data-triage");
       let data_paquete=$(this).attr("data-paquete");
@@ -3165,6 +3166,7 @@ class PaqueteDetail {
               etapa:etapa_inicial,
               tipo:tipo_dipositivo,
               estado:1,
+              id_salida:id_salida,
               buscador:slug +"-"+params.term
             };
           },

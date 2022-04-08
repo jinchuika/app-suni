@@ -703,7 +703,7 @@ class TpePrintView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
             print(e)
             context['Jornada'] = "No tiene Jornada"
             context['Encargado'] = "No Tiene Encargado"
-        total_inalambricas_mostrar = int( total_inalambricas['total_inalambricas'] or 0) + total_inalambricas_usb['total_inalambricas_usb']
+        total_inalambricas_mostrar = int( total_inalambricas['total_inalambricas'] or 0) + int( total_inalambricas_usb['total_inalambricas_usb'] or 0)
         context['CPUs'] = nuevos_cpus
         context['Monitores'] = nuevos_monitores
         context['Teclados'] = nuevos_teclados
