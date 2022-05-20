@@ -1091,6 +1091,7 @@ class EntradaDetalleDetail {
                     });
 
     SalidaDetalleList.init = function () {
+        console.log(urlFinalizar);
         $('#btn-terminar').click(function () {
 
           var val_url = $("#id_url").val();
@@ -4437,9 +4438,7 @@ class ResumenBodega{
     precioestandar_informe.submit(function (e){
       e.preventDefault();
       var tablaPrecio = $('#precioestandar-table').DataTable({
-        footerCallback: function( tfoot, data, start, end, display){
-          $(tfoot).html("El inventario esta cuadrado con el digital segun lo reflejado en el Suni")
-          },
+
         dom: 'Bfrtip',
         buttons: ['excel', 'pdf', 'copy'],
         searching:true,
@@ -4478,9 +4477,7 @@ class ResumenBodega{
     /** Imprimir informe**/
     $("#imprimir-bodega").click(function (e) {
         e.preventDefault();
-        console.log("Fecha minima: "+ $("#id_fecha_min").val() + "Fecha Maxima: " +$("#id_fecha_max").val() + "Dispositivo: " + $("#id_tipo_dispositivo").val() );
-        window.location.href = $('#precioestandar-table').data("url") + "?fecha_min="+$("#id_fecha_min").val() +"&"+"fecha_max="+$("#id_fecha_max").val();
-
+        window.open($('#precioestandar-table').data("url") + "?fecha_min="+$("#id_fecha_min").val() +"&"+"fecha_max="+$("#id_fecha_max").val(), '_blank')
     })
   }
 }

@@ -207,6 +207,10 @@ class ContabilidadSalidasInformeListView(LoginRequiredMixin, FormView):
     model = conta_m.PrecioEstandar
     template_name = 'conta/informe_salidas.html'
     form_class = conta_f.SalidasInformeForm
+    def get_form(self, form_class=None):
+        form = super(ContabilidadSalidasInformeListView, self).get_form(form_class)
+        form.fields['tipo_dispositivo'].queryset = inv_m.AsignacionTecnico.objects.get(usuario=self.request.user ).tipos.filter(usa_triage=True)
+        return form
 
 class ContabilidadDesechoInformeListView(LoginRequiredMixin, FormView):
     """Vista utilizada para listar las salidas por rango de fechas y tipo de dispositivo.

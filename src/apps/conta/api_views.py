@@ -23,9 +23,7 @@ class PeriodoFiscalViewSet(viewsets.ModelViewSet):
     def validar_periodo(self, request, pk=None):
         """ Funcion para validar los periodos fiscales
         """
-        print(self.request.user)
         usuario =User.objects.get(username=self.request.user)
-        print(usuario)
         fecha_fin = request.data["fecha_fin"]
         fecha_inicio = request.data["fecha_inicio"]
         try:
