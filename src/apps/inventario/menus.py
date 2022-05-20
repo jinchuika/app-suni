@@ -61,7 +61,7 @@ dispositivos_children = (
         icon="fa-linux",
     ),
     ViewMenuItem(
-        "Softwate",
+        "Software",
         reverse_lazy('software_list'),
         weight=12,
         group="inv_bodega",
@@ -72,13 +72,13 @@ dispositivos_children = (
         reverse_lazy('dispositivo_list'),
         weight=12,
         icon=" fa-mobile-phone",
-    ),    
+    ),
     ViewMenuItem(
         "Asignacion Repuestos",
         reverse_lazy('repuesto_list'),
         weight=12,
         icon="fa-archive",
-    ),   
+    ),
 )
 # Salidas
 salidas_children = (

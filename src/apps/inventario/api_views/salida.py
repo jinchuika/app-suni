@@ -368,8 +368,7 @@ class RevisionSalidaViewSet(viewsets.ModelViewSet):
             for dispositivos in dispositivosPaquetes:
 
                 if dispositivos.dispositivo.tipo == inv_m.DispositivoTipo.objects.get(tipo="CPU"):
-                    dd = inv_m.CPU.objects.get(triage = dispositivos.dispositivo.triage)
-                    print(dd.disco_duro)
+                    dd = inv_m.CPU.objects.get(triage = dispositivos.dispositivo.triage)                    
                     if not dd.disco_duro is None:
                         dd.disco_duro.estado = inv_m.DispositivoEstado.objects.get(id=inv_m.DispositivoEstado.EN)
                         dd.disco_duro.etapa = inv_m.DispositivoEtapa.objects.get(id=inv_m.DispositivoEtapa.EN)

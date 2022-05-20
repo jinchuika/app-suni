@@ -39,7 +39,7 @@ class DesechoSalidaUpdateForm(forms.ModelForm):
     class Meta:
         model = inv_m.DesechoSalida
         fields = '__all__'
-        exclude = ('creado_por','codigo_qr')
+        exclude = ('creado_por','codigo_qr','revision_sub_jefe','revision_jefe')
         widgets = {
                 'en_creacion': forms.HiddenInput(),
                 'empresa': forms.Select(attrs={'class': 'form-control select2'}),

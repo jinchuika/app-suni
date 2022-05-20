@@ -23,8 +23,8 @@ from django.db import connection
 from apps.escuela import models as escuela_m
 
 """
-    Función que devuelve la existencia y saldo monetario basado en el tipo de dispositivo, 
-    fecha y periodo a buscar. 
+    Función que devuelve la existencia y saldo monetario basado en el tipo de dispositivo,
+    fecha y periodo a buscar.
 """
 def get_existencia(tipo_dispositivo, fecha, periodo):
     result = {}
@@ -186,7 +186,7 @@ class ContabilidadEntradaInformeListView(LoginRequiredMixin, FormView):
 
     def get_form(self, form_class=None):
         form = super(ContabilidadEntradaInformeListView, self).get_form(form_class)
-        form.fields['tipo_dispositivo'].queryset = self.request.user.tipos_dispositivos.tipos.filter(usa_triage=True)
+        form.fields['tipo_dispositivo'].queryset = inv_m.AsignacionTecnico.objects.get(usuario=self.request.user ).tipos.filter(usa_triage=True)
         return form
 
 class ContabilidadEntradaDispInformeListView(LoginRequiredMixin, FormView):
@@ -198,7 +198,7 @@ class ContabilidadEntradaDispInformeListView(LoginRequiredMixin, FormView):
 
     def get_form(self, form_class=None):
         form = super(ContabilidadEntradaDispInformeListView, self).get_form(form_class)
-        form.fields['tipo_dispositivo'].queryset = self.request.user.tipos_dispositivos.tipos.filter(usa_triage=True)
+        form.fields['tipo_dispositivo'].queryset = inv_m.AsignacionTecnico.objects.get(usuario=self.request.user ).tipos.filter(usa_triage=True)
         return form
 
 class ContabilidadSalidasInformeListView(LoginRequiredMixin, FormView):
@@ -215,6 +215,11 @@ class ContabilidadDesechoInformeListView(LoginRequiredMixin, FormView):
     template_name = 'conta/informe_desecho.html'
     form_class = conta_f.DesechoInformeForm
 
+    def get_form(self, form_class=None):
+        form = super(ContabilidadDesechoInformeListView, self).get_form(form_class)
+        form.fields['tipo_dispositivo'].queryset = inv_m.AsignacionTecnico.objects.get(usuario=self.request.user ).tipos.filter(usa_triage=True)
+        return form
+
 class ContabilidadResumenInformeListView(LoginRequiredMixin, FormView):
     """Vista utilizada para listar el resumen de Inventario.
     """
@@ -224,11 +229,11 @@ class ContabilidadResumenInformeListView(LoginRequiredMixin, FormView):
 
     def get_form(self, form_class=None):
         form = super(ContabilidadResumenInformeListView, self).get_form(form_class)
-        form.fields['tipo_dispositivo'].queryset = self.request.user.tipos_dispositivos.tipos.filter(usa_triage=True)
+        form.fields['tipo_dispositivo'].queryset = inv_m.AsignacionTecnico.objects.get(usuario=self.request.user ).tipos.filter(usa_triage=True)
         return form
 
 class InformeCantidadJson(views.APIView):
-    
+
     def get(self, request):
         repuesto_dispositivo = self.request.GET['dispositivo']
         id_periodo = self.request.GET['periodo']
@@ -424,7 +429,7 @@ class InformeEntradaJson(views.APIView):
                 precio = datos_entrada['precio_unitario__sum']
                 cantidad = datos_entrada['util__sum']
                 dispositivo = {}
-                
+
                 # Validar Precio de Compra y Donación
                 if (not precio or precio == 0) and not entrada.tipo.contable:
                     # Obtener Precio Estandar
@@ -505,14 +510,14 @@ class InformeEntradaDispositivoJson(views.APIView):
             for detalle in entrada_detalle:
                 entrada = inv_m.Entrada.objects.get(pk=detalle.entrada_detalle.entrada.id)
                 dispositivo = {}
-            
+
                 dispositivo['triage'] = detalle.triage
                 dispositivo['entrada'] = detalle.entrada_detalle.entrada.id
                 dispositivo['fecha'] = detalle.entrada_detalle.fecha_dispositivo
                 dispositivo['tipo_entrada'] = detalle.entrada_detalle.entrada.tipo.nombre
                 dispositivo['url'] = detalle.get_absolute_url()
                 dispositivo['url_entrada'] = detalle.entrada_detalle.entrada.get_absolute_url()
-    
+
                 dispositivo['total_final'] = existencia_anterior
                 dispositivo['rango_fechas'] = str(fecha_inicio)+"  AL  "+str(fecha_fin)
                 dispositivo['tipo_dispositivo'] = tipo_dispositivo_nombre.tipo
@@ -523,7 +528,7 @@ class InformeEntradaDispositivoJson(views.APIView):
             print("No existe en el periodo fiscal")
 
 class InformeSalidaJson(views.APIView):
-    """ Listar las salidas por el tipo seleccionado, si es compra o no traer o excluir los dispositivos de compra del listado. 
+    """ Listar las salidas por el tipo seleccionado, si es compra o no traer o excluir los dispositivos de compra del listado.
     """
     def get(self, request):
         try:
@@ -572,7 +577,7 @@ class InformeSalidaJson(views.APIView):
             lista = []
 
             # Armar Query de Consulta
-            sql_select = '''SELECT isi.id as 'Salida', COUNT(*) AS 'CANTIDAD', cpd.precio AS 'PRECIO', SUM(cpd.precio) AS 'TOTAL' 
+            sql_select = '''SELECT isi.id as 'Salida', COUNT(*) AS 'CANTIDAD', cpd.precio AS 'PRECIO', SUM(cpd.precio) AS 'TOTAL'
                     FROM inventario_dispositivopaquete idp
                     INNER JOIN inventario_dispositivo id on idp.dispositivo_id = id.id
                     INNER JOIN inventario_paquete ip on idp.paquete_id = ip.id
@@ -659,8 +664,8 @@ class InformeSalidaJson(views.APIView):
             print("No existe en el periodo fiscal")
 
 class InformeDesechoJson(views.APIView):
-    """ Lista todas las salidas de desecho con triage que han sucedido en un rango de fechas, 
-    Solamente cuentan aquellas salidas que han sido cerradas. 
+    """ Lista todas las salidas de desecho con triage que han sucedido en un rango de fechas,
+    Solamente cuentan aquellas salidas que han sido cerradas.
     """
     def get(self, request):
         try:
@@ -710,12 +715,12 @@ class InformeDesechoJson(views.APIView):
             precio_actual = total_actual['precio_estandar']
             precio_total = total_actual['saldo_total']
             existencia_actual = total_actual['existencia']
-            
+
             for datos_desecho in salida_detalle:
                 salida = inv_m.DesechoSalida.objects.get(pk=datos_desecho['desecho'])
                 cantidad = datos_desecho['dispositivo__count']
                 dispositivo = {}
-                
+
                 # Obtener Precio Estandar
                 precio = conta_m.PrecioEstandar.objects.get(
                     tipo_dispositivo=tipo_dispositivo,
@@ -741,8 +746,8 @@ class InformeDesechoJson(views.APIView):
             print("No existe en el periodo fiscal")
 
 class InformeResumenJson(views.APIView):
-    """ Lista todas las salidas de desecho con triage que han sucedido en un rango de fechas, 
-    Solamente cuentan aquellas salidas que han sido cerradas. 
+    """ Lista todas las salidas de desecho con triage que han sucedido en un rango de fechas,
+    Solamente cuentan aquellas salidas que han sido cerradas.
     """
     def get(self, request):
         fecha_inicio = self.request.GET['fecha_min']

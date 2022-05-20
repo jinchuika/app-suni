@@ -7,7 +7,7 @@
 {%else%}
 <title>Desecho</title>
 {%endif%}
-{% endblock page_title %} 
+{% endblock page_title %}
 {% block content %}
 {% if desechosalida.en_creacion %}
 <section class="content">
@@ -69,7 +69,7 @@
           </div>
         </div>
         <!--Fin de la Informacion-->
-        {% if request.user|has_group:"inv_monitoreo" or request.user|has_group:"inv_admin" %} 
+        {% if request.user|has_group:"inv_monitoreo" or request.user|has_group:"inv_admin" %}
         <div class="box">
           <div class="box-header">
             <div class="row">
@@ -78,7 +78,7 @@
               </div>
               <div class="col-md-6">
                <a target='_blank' href="{% url 'desechoempresa_update' pk=object.empresa.id%}" class="btn btn-success">Editar Empresa</a>
-               <input id="btn-terminar" type="submit" class="btn btn-danger" value="Finalizar" />
+               <input id="btn-terminar" type="submit" class="btn btn-danger" value="Finalizar" disabled />
               </div>
             </div>
           </div>
@@ -104,7 +104,7 @@
         {%endif%}
         <!--Fin de Entrada-->
           {%if  form.instance.id%}
-          {% if request.user|has_group:"inv_bodega" or request.user|has_group:"inv_admin" %} 
+          {% if request.user|has_group:"inv_bodega" or request.user|has_group:"inv_admin" %}
           <div class="box">
               <div class="box-header">
                 <div class="box-title">
@@ -134,11 +134,17 @@
             <div class="box-header">
               <div class="box-title">
                     <h3><b>Desechos Por Entrada</b></h3>
+                    {% if request.user|has_group:"inv_sub_jefe" %}
+                        <input id="btn-sub" type="submit" class="btn btn-warning" value="Aprobar" />
+                    {%endif%}
+                    {% if  request.user|has_group:"inv_admin" %}
+                        <input id="btn-jefe" type="submit" class="btn btn-danger" value="Aprobar" />
+                    {%endif%}
               </div>
             </div>
             <div class="box-body">
               <table id="salida-table" class="table table-condensed" data-api="{% url 'inventario_api:api_desechodetalle-list' %}" data-pk ="{{form.instance.id}}" data-apiaprobar="{% url 'inventario_api:api_desechodispositivo-aprobar-detalle' %}" data-apirechazar="{% url 'inventario_api:api_desechodispositivo-rechazar-detalle' %}" data-finalizar="{% url 'inventario_api:api_desechodispositivo-finalizar-desecho' %}"
-              data-redireccion="{% url 'desechosalida_detail' pk=form.instance.id%}">
+              data-redireccion="{% url 'desechosalida_detail' pk=form.instance.id%}" data-desechovalidacion="{% url 'desechosalida_validar'%}">
                 <thead>
                   <tr>
                     <th>Dispositivo</th>

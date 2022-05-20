@@ -1,7 +1,7 @@
 import django_filters
 from django_filters import rest_framework as filter
 from django_filters import rest_framework as filters
-from rest_framework import status, viewsets
+from rest_framework import status, viewsets, views
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from braces.views import LoginRequiredMixin

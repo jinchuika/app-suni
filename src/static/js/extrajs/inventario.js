@@ -786,6 +786,7 @@ class EntradaDetalleDetail {
     var urlTipoDispositivo = $('#dispositivo-table').data("tipo");
     var urlFinalizar = $('#salida-table').data("finalizar");
     var urlredireccion = $('#salida-table').data("redireccion");
+    var urlValidarDesecho = $('#salida-table').data("desechovalidacion");
     $('#id_entrada_detalle').empty();
     var tabla = $('#salida-table').DataTable({
         searching: true,
@@ -1091,31 +1092,148 @@ class EntradaDetalleDetail {
 
     SalidaDetalleList.init = function () {
         $('#btn-terminar').click(function () {
-            bootbox.confirm({
-                message: "¿Está seguro que quiere dar por finalizada la edición de la salida?",
-                buttons: {
-                    confirm: {
-                        label: '<i class="fa fa-check"></i> Confirmar',
-                        className: 'btn-success'
-                    },
-                    cancel: {
-                        label: '<i class="fa fa-times"></i> Cancelar',
-                        className: 'btn-danger'
-                    }
-                },
-                callback: function (result) {
-                    if (result == true) {
-                      $.ajax({
-                        type: "POST",
-                        url: urlFinalizar,
+
+          var val_url = $("#id_url").val();
+
+          if(val_url){
+              bootbox.confirm({
+                  message: "¿Está seguro que quiere dar por finalizada la edición de la salida?",
+                  buttons: {
+                      confirm: {
+                          label: '<i class="fa fa-check"></i> Confirmar',
+                          className: 'btn-success'
+                      },
+                      cancel: {
+                          label: '<i class="fa fa-times"></i> Cancelar',
+                          className: 'btn-danger'
+                      }
+                  },
+                  callback: function (result) {
+                      if (result == true) {
+                        $.ajax({
+                          type: "POST",
+                          url: urlFinalizar,
+                          dataType: 'json',
+                          data: {
+                            csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
+                            id:pk
+                          },
+                          success: function (response) {
+                               bootbox.alert({message: "<h2>"+response.mensaje+"</h2>", className:"modal modal-success fade in"});
+                               window.location= urlredireccion;
+                          },
+                          error: function (response) {
+                            var mensaje = JSON.parse(response.responseText)
+                            bootbox.alert({message: "<h3><i class='fa fa-frown-o' style='font-size: 45px;'></i>&nbsp;&nbsp;&nbsp;HA OCURRIDO UN ERROR!!</h3></br>" + mensaje['mensaje'], className:"modal modal-danger fade"});
+                          }
+                      });
+
+                      }
+
+                  }
+              });
+
+          }else{
+            bootbox.alert("Ingrese por favor una url que sea valida")
+          }
+
+
+        });
+
+        /**/
+        $('#btn-sub').click(function () {
+          bootbox.confirm({
+              message: "¿Está seguro que desea validar esta informacion de desecho supervisor de produccion?",
+              buttons: {
+                  confirm: {
+                      label: '<i class="fa fa-check"></i> Confirmar',
+                      className: 'btn-success'
+                  },
+                  cancel: {
+                      label: '<i class="fa fa-times"></i> Rechazar',
+                      className: 'btn-danger'
+                  }
+              },
+              callback: function (result) {
+                  if (result == true) {
+                  $.ajax({
+                      type: "GET",
+                      url: urlValidarDesecho ,
+                      dataType: 'json',
+                      data: {
+                        csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
+                        id:pk,
+                        jefe:false,
+                        aprobado:true
+                      },
+                      success: function (response) {
+                           bootbox.alert({message: "<h2>"+response.mensaje+"</h2>", className:"modal modal-success fade in"});
+                           //window.location= urlredireccion;
+                      },
+                      error: function (response) {
+                        var mensaje = JSON.parse(response.responseText)
+                        bootbox.alert({message: "<h3><i class='fa fa-frown-o' style='font-size: 45px;'></i>&nbsp;&nbsp;&nbsp;HA OCURRIDO UN ERROR!!</h3></br>" + mensaje['mensaje'], className:"modal modal-danger fade"});
+                      }
+                  });
+
+                }else{
+                    $.ajax({
+                        type: "GET",
+                        url: urlValidarDesecho ,
                         dataType: 'json',
                         data: {
                           csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
-                          id:pk
+                          id:pk,
+                          jefe:false,
+                          aprobado:false
                         },
                         success: function (response) {
                              bootbox.alert({message: "<h2>"+response.mensaje+"</h2>", className:"modal modal-success fade in"});
-                             window.location= urlredireccion;
+                             //window.location= urlredireccion;
+                        },
+                        error: function (response) {
+                          var mensaje = JSON.parse(response.responseText)
+                          bootbox.alert({message: "<h3><i class='fa fa-frown-o' style='font-size: 45px;'></i>&nbsp;&nbsp;&nbsp;HA OCURRIDO UN ERROR!!</h3></br>" + mensaje['mensaje'], className:"modal modal-danger fade"});
+                        }
+                    });
+                }
+
+              }
+          });
+
+
+        });
+        /**/
+        /**/
+        $('#btn-jefe').click(function () {
+          bootbox.confirm({
+              message: "¿Está seguro que desea validar esta informacion de desecho Administradora de centro de reacondicinamiento?",
+              buttons: {
+                  confirm: {
+                      label: '<i class="fa fa-check"></i> Confirmar',
+                      className: 'btn-success'
+                  },
+                  cancel: {
+                      label: '<i class="fa fa-times"></i> Rechazar',
+                      className: 'btn-danger'
+                  }
+              },
+              callback: function (result) {
+                  if (result == true) {
+                    $.ajax({
+                        type: "GET",
+                        url: urlValidarDesecho ,
+                        dataType: 'json',
+                        data: {
+                          csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
+                          id:pk,
+                          jefe:true,
+                          aprobado:true
+                        },
+                        success: function (response) {
+                             bootbox.alert({message: "<h2>"+response.mensaje+"</h2>", className:"modal modal-success fade in"});
+                             //window.location= urlredireccion;
+                             document.getElementById('btn-terminar').disabled = false;
                         },
                         error: function (response) {
                           var mensaje = JSON.parse(response.responseText)
@@ -1123,13 +1241,35 @@ class EntradaDetalleDetail {
                         }
                     });
 
-                    }
+                  }else{
+                      $.ajax({
+                          type: "GET",
+                          url: urlValidarDesecho ,
+                          dataType: 'json',
+                          data: {
+                            csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
+                            id:pk,
+                            jefe:true,
+                            aprobado:false
+                          },
+                          success: function (response) {
+                               bootbox.alert({message: "<h2>"+response.mensaje+"</h2>", className:"modal modal-success fade in"});
 
-                }
-            });
+                               //window.location= urlredireccion;
+                          },
+                          error: function (response) {
+                            var mensaje = JSON.parse(response.responseText)
+                            bootbox.alert({message: "<h3><i class='fa fa-frown-o' style='font-size: 45px;'></i>&nbsp;&nbsp;&nbsp;HA OCURRIDO UN ERROR!!</h3></br>" + mensaje['mensaje'], className:"modal modal-danger fade"});
+                          }
+                      });
+                  }
+
+              }
+          });
 
 
         });
+        /**/
 
         /** Uso de DRF**/
         $('#detalleForm').submit(function (e) {
@@ -4288,3 +4428,60 @@ class BuscadorTabla{
   });
   }
 }
+/*Informe de entrada*/
+class ResumenBodega{
+  constructor(){
+
+    let precioestandar_informe = $("#precioestandar-list-form");
+    var urlPrecio= $('#precioestandar-table').data("api");
+    precioestandar_informe.submit(function (e){
+      e.preventDefault();
+      var tablaPrecio = $('#precioestandar-table').DataTable({
+        footerCallback: function( tfoot, data, start, end, display){
+          $(tfoot).html("El inventario esta cuadrado con el digital segun lo reflejado en el Suni")
+          },
+        dom: 'Bfrtip',
+        buttons: ['excel', 'pdf', 'copy'],
+        searching:true,
+        paging:false,
+        ordering:true,
+        processing:true,
+        destroy:true,
+        ajax:{
+          url:urlPrecio,
+          dataSrc:'',
+          cache:false,
+          processing:true,
+          data: function () {
+            return $('#precioestandar-list-form').serializeObject(true);
+          }
+        },
+        columns: [
+          {data: "tipo"},
+          {data: "saldo_anterior", render: function(data, type, full, meta){
+            return parseFloat(full.saldo_anterior).toLocaleString('en');
+          }},
+          {data: "entradas", render: function(data, type, full, meta){
+            return parseFloat(full.entradas).toLocaleString('en');
+          }},
+          {data: "salidas", render: function(data, type, full, meta){
+            return parseFloat(full.salidas).toLocaleString('en');
+          }},
+          {data: "existencia", render: function(data, type, full, meta){
+            return parseFloat(full.existencia).toLocaleString('en');
+          }},
+        ]
+      });
+      tablaPrecio.clear().draw();
+      //tablaPrecio.ajax.reload();
+    });
+    /** Imprimir informe**/
+    $("#imprimir-bodega").click(function (e) {
+        e.preventDefault();
+        console.log("Fecha minima: "+ $("#id_fecha_min").val() + "Fecha Maxima: " +$("#id_fecha_max").val() + "Dispositivo: " + $("#id_tipo_dispositivo").val() );
+        window.location.href = $('#precioestandar-table').data("url") + "?fecha_min="+$("#id_fecha_min").val() +"&"+"fecha_max="+$("#id_fecha_max").val();
+
+    })
+  }
+}
+//

@@ -57,4 +57,10 @@ urlpatterns = [
         inventario_v.DesechoSalidaPrintView.as_view(),
         name='desechosalida_print'
     ),
+    # Validacion de  jefes
+    url(
+        r'^desecho/validar/$',
+        inventario_v.ValidacionesDesechoJson.as_view(),
+        name='desechosalida_validar'
+    ),
 ]

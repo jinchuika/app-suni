@@ -551,6 +551,7 @@ class Dispositivo(models.Model):
     descripcion = models.TextField(null=True, blank=True)
     creada_por = models.ForeignKey(User, on_delete=models.PROTECT,default=User.objects.get(username="Admin").pk)
 
+
     class Meta:
         verbose_name = "Dispositivo"
         verbose_name_plural = "Dispositivos"
@@ -1201,6 +1202,8 @@ class DesechoSalida(models.Model):
     en_creacion = models.BooleanField(default=True, blank=True, verbose_name='En creación')
     codigo_qr = et_fields.ThumbnailerImageField(upload_to='qr_desecho', blank=True, null=True)
     url = models.TextField(null=True, blank=True)
+    revision_sub_jefe = models.BooleanField(default=False, blank=True, verbose_name='sub_revision')
+    revision_jefe = models.BooleanField(default=False, blank=True, verbose_name='jefe_revision')
 
     class Meta:
         verbose_name = "Salida de desecho"
