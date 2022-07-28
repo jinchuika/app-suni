@@ -366,6 +366,36 @@ class RevisionSalidaViewSet(viewsets.ModelViewSet):
                                                                            aprobado=True)
 
             for dispositivos in dispositivosPaquetes:
+
+                if dispositivos.dispositivo.tipo == inv_m.DispositivoTipo.objects.get(tipo="CPU"):
+                    dd = inv_m.CPU.objects.get(triage = dispositivos.dispositivo.triage)                    
+                    if not dd.disco_duro is None:
+                        dd.disco_duro.estado = inv_m.DispositivoEstado.objects.get(id=inv_m.DispositivoEstado.EN)
+                        dd.disco_duro.etapa = inv_m.DispositivoEtapa.objects.get(id=inv_m.DispositivoEtapa.EN)
+
+                        dd.disco_duro.save()
+                        periodo_actual = conta_m.PeriodoFiscal.objects.get(actual=True)
+                        precio_dispositivo = conta_m.PrecioDispositivo.objects.get(dispositivo__triage=dd.disco_duro, activo=True)
+                        movimiento_dispositivo = conta_m.MovimientoDispositivo.objects.filter(dispositivo__triage = dd.disco_duro, tipo_movimiento = conta_m.MovimientoDispositivo.BAJA)
+                        if len(movimiento_dispositivo) == 0:
+                            movimiento = conta_m.MovimientoDispositivo(
+                                dispositivo=dd.disco_duro,
+                                periodo_fiscal=periodo_actual,
+                                tipo_movimiento=conta_m.MovimientoDispositivo.BAJA,
+                                referencia='Salida {}'.format(finalizar_salida),
+                                precio=precio_dispositivo.precio,
+                                fecha = finalizar_salida.fecha,
+                                creado_por=self.request.user
+                                )
+                            movimiento.save()
+                    else:
+                        return Response(
+                            {
+                                'mensaje': 'No hay discos duros asignados '
+                            },
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                        )
+
                 dispositivos.dispositivo.etapa = inv_m.DispositivoEtapa.objects.get(id=inv_m.DispositivoEtapa.EN)
                 dispositivos.dispositivo.valido = False
                 dispositivos.dispositivo.save()

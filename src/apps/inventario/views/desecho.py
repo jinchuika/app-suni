@@ -6,8 +6,8 @@ from braces.views import (
 from apps.inventario import models as inv_m
 from apps.inventario import forms as inv_f
 from django.db.models import Sum
-
-
+from rest_framework import status, views
+from rest_framework.response import Response
 class DesechoEmpresaCreateView(LoginRequiredMixin, CreateView, GroupRequiredMixin):
     """Vista   para obtener los datos de Entrada mediante una :class:`DesechoEmpresa`
     Funciona  para recibir los datos de un  'DesechoEmpresaForm' mediante el metodo  POST.  y
@@ -133,3 +133,40 @@ class DesechoSalidaListView(LoginRequiredMixin,  FormView, GroupRequiredMixin):
     template_name = 'inventario/desecho/desechosalida_list.html'
     form_class = inv_f.DesechoInventarioListForm
     group_required = [u"inv_bodega", u"inv_admin", u"inv_monitoreo"]
+
+
+class ValidacionesDesechoJson(views.APIView):
+    def get(self, request):
+         jefe = self.request.GET['jefe']
+         aprobado = self.request.GET['aprobado']
+         numero_desecho = self.request.GET['id']
+         if jefe=='true' and aprobado== 'true':
+             desecho = inv_m.DesechoSalida.objects.get(id=numero_desecho)
+             if desecho.revision_sub_jefe == True:
+                 desecho.revision_jefe = True
+                 desecho.save()
+             else:
+                return Response(
+                        {
+                            'mensaje': 'El sub jefe de produccion aun no a autorizado el detalle'
+                        },
+                        status=status.HTTP_401_UNAUTHORIZED
+                    )
+         elif jefe=='true' and aprobado == 'false':
+             desecho = inv_m.DesechoSalida.objects.get(id=numero_desecho)
+             desecho.revision_sub_jefe = False
+             desecho.save()
+         elif jefe=='false' and aprobado == 'true':
+             desecho = inv_m.DesechoSalida.objects.get(id=numero_desecho)
+             desecho.revision_sub_jefe = True
+             desecho.save()
+         else:
+             desecho = inv_m.DesechoSalida.objects.get(id=numero_desecho)
+             desecho.revision_bodega  = False
+             desecho.save()
+         return Response(
+                {
+                    'mensaje': 'Detalle Aprobado'
+                },
+                status=status.HTTP_200_OK
+            )

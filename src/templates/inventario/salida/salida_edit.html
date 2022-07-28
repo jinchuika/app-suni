@@ -110,6 +110,7 @@
 									<h3 class="box-title">Listado de Paquetes</h3>
 							</div>
 							<div class="col-md-9">
+									<a target='_blank' href="{% url 'tpe_print' pk=object.id%}" class="btn btn-info">Entrega TPE</a>
 								{% if salidainventario.tipo_salida|stringformat:"s" == "Entrega" %}
 									<a target='_blank' href="{% url 'garantia_print' pk=object.id%}" class="btn btn-success">Constacia de Garantia</a>
 									<a target='_blank' href="{% url 'prestamo_carta_print' pk=object.id%}" class="btn btn-primary">Carta de Prestamo</a>
@@ -121,12 +122,11 @@
 								 <a target='_blank' href="{% url 'tablet_print' pk=object.id%}" class="btn btn-primary">Entrega de Tablets</a>
 								{% endif %}
 								{% if  salidainventario.tipo_salida|stringformat:"s" == "Entrega" or salidainventario.tipo_salida|stringformat:"s" == "Renovacion" or salidainventario.tipo_salida|stringformat:"s" == "A terceros"%}
-								 {% if CPU >= 1 %}									
-									<a target='_blank' href="{% url 'tpe_print' pk=object.id%}" class="btn btn-info">Entrega TPE</a>
+								 {% if CPU >= 1 %}
 									<a target='_blank' href="{% url 'mineduc_print' pk=object.id%}" class="btn btn-success">Entrega MINEDUC</a>
-								{% endif %}								
 								{% endif %}
-								
+								{% endif %}
+
 
 							</div>
 						</div>
@@ -147,11 +147,11 @@
 								</tr>
 							</thead>
 							<tbody>
-							</tbody>														
+							</tbody>
 						</table>
 						<!--	</div> -->
 					</div>
-					
+
 				</div>
 				<!--Historicos -->
 				{% if request.user|has_group:"inv_cc" or request.user|has_group:"inv_admin" %}
@@ -160,7 +160,7 @@
 					<div>
 						<h5><b>Historico de control de calidad</b></h5>
 						{% for control in comentario_cc  %}
-							Dispositivo {{control}}	<br>					
+							Dispositivo {{control}}	<br>
 						{% endfor %}
 					</div>
 					<div>
@@ -170,10 +170,10 @@
 						{% endfor %}
 					</div>
 					</div>
-				</div> 
+				</div>
 				{%endif%}
 			<!---->
-			</div>			
+			</div>
 		</div>
 	</div>
 </section>
@@ -189,7 +189,7 @@
 	$("#fecha").datepicker( "refresh" )
 	let Rechazado = new Salidas();
 	//let Buscador = new BuscadorTabla();
-	
+
 });
 </script>
 {% endblock extra_js %}

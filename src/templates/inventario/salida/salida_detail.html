@@ -89,19 +89,20 @@
                   <h3 class="box-title">Listado de Paquetes</h3>
               </div>
               <div class="col-md-9">
+								<a target='_blank' href="{% url 'tpe_print' pk=object.id%}" class="btn btn-info">Entrega TPE</a>
 								{% if salidainventario.tipo_salida|stringformat:"s" == "Entrega" %}
 									<a target='_blank' href="{% url 'garantia_print' pk=object.id%}" class="btn btn-success">Constacia de Garantia</a>
 									<a target='_blank' href="{% url 'prestamo_carta_print' pk=object.id%}" class="btn btn-primary">Carta de Prestamo</a>
 								{% endif %}
 								{% if Laptops >= 1 %}
 								 <a target='_blank' href="{% url 'laptop_print' pk=object.id%}" class="btn btn-info">Entrega de Laptops</a>
-								 <a target='_blank' href="{% url 'tpe_print' pk=object.id%}" class="btn btn-info">Entrega TPE</a>
+								
 								{% endif %}
 								{% if Tablets >= 1 %}
 								 <a target='_blank' href="{% url 'tablet_print' pk=object.id%}" class="btn btn-primary">Entrega de Tablets</a>
 								{% endif %}
 								{% if CPU >= 1 %}
-								 <a target='_blank' href="{% url 'tpe_print' pk=object.id%}" class="btn btn-info">Entrega TPE</a>
+
 								 <a target='_blank' href="{% url 'mineduc_print' pk=object.id%}" class="btn btn-success">Entrega MINEDUC</a>
 								{% endif %}
               </div>

@@ -365,6 +365,29 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
         )
 
     @action(methods=['post'], detail=False)
+    def autorizar_detalles(self, request, pk=None):
+        """ autoriza  el detalle de dispositivo  para que los usuarios de bodega puedan
+        crear los dispositivos
+        """
+        id = request.data['id']
+        autorizado = request.data['autorizado']
+        pendiente_autorizar = request.data['pendiente_autorizar']
+        entrada_detalle = inv_m.EntradaDetalle.objects.get(id=id)
+        if entrada_detalle.pendiente_autorizar is False:
+            entrada_detalle.pendiente_autorizar = True
+            entrada_detalle.save()
+        else:
+            if entrada_detalle.autorizado is False:
+                entrada_detalle.autorizado = True
+                entrada_detalle.save()
+
+        return Response(
+            {'mensaje': 'Autorizado'},
+            status=status.HTTP_200_OK
+        )
+
+
+    @action(methods=['post'], detail=False)
     def nuevo_grid(self, request, pk=None):
         """ Este se conecta con el grid para editar la informacion de los dipositivos y guardarlos
         """
@@ -592,6 +615,7 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
                 'medida': list(medida),
                 'dispositivo': str(tipo)
                 })
+
 
 
 class EntradaFilter(filters.FilterSet):

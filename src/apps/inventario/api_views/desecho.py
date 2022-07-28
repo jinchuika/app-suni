@@ -1,7 +1,7 @@
 import django_filters
 from django_filters import rest_framework as filter
 from django_filters import rest_framework as filters
-from rest_framework import status, viewsets
+from rest_framework import status, viewsets, views
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from braces.views import LoginRequiredMixin
@@ -137,50 +137,59 @@ class DesechoDispositivoViewSet(viewsets.ModelViewSet):
         else:
             id_desecho = request.data["id"]
             desecho = inv_m.DesechoSalida.objects.get(id=id_desecho)
-            detalles = inv_m.DesechoDetalle.objects.filter(desecho=id_desecho).count()
-            detalles_aprobados = inv_m.DesechoDetalle.objects.filter(desecho=id_desecho, aprobado=True).count()
-            dispositivos = inv_m.DesechoDispositivo.objects.filter(desecho=id_desecho).count()
-            dispositivos_aprobados = inv_m.DesechoDispositivo.objects.filter(desecho=id_desecho, aprobado=True).count()
-            aprobar_dispositivos = inv_m.DesechoDispositivo.objects.filter(desecho=id_desecho)
-            if detalles_aprobados == detalles:
-                if dispositivos_aprobados == dispositivos:
-                    periodo_actual = conta_m.PeriodoFiscal.objects.get(actual=True)
-                    for aprobar in aprobar_dispositivos:
-                        precio = conta_m.PrecioDispositivo.objects.get(dispositivo = aprobar.dispositivo, activo= True)
-                        aprobar.dispositivo.etapa = inv_m.DispositivoEtapa.objects.get(id=inv_m.DispositivoEtapa.DS)
-                        aprobar.dispositivo.valido = False
-                        aprobar.dispositivo.creada_por = self.request.user
-                        aprobar.dispositivo.save()
+            if desecho.revision_sub_jefe==True and desecho.revision_jefe==True:
+                detalles = inv_m.DesechoDetalle.objects.filter(desecho=id_desecho).count()
+                detalles_aprobados = inv_m.DesechoDetalle.objects.filter(desecho=id_desecho, aprobado=True).count()
+                dispositivos = inv_m.DesechoDispositivo.objects.filter(desecho=id_desecho).count()
+                dispositivos_aprobados = inv_m.DesechoDispositivo.objects.filter(desecho=id_desecho, aprobado=True).count()
+                aprobar_dispositivos = inv_m.DesechoDispositivo.objects.filter(desecho=id_desecho)
+                if detalles_aprobados == detalles:
+                    if dispositivos_aprobados == dispositivos:
+                        periodo_actual = conta_m.PeriodoFiscal.objects.get(actual=True)
+                        for aprobar in aprobar_dispositivos:
+                            precio = conta_m.PrecioDispositivo.objects.get(dispositivo = aprobar.dispositivo, activo= True)
+                            aprobar.dispositivo.etapa = inv_m.DispositivoEtapa.objects.get(id=inv_m.DispositivoEtapa.DS)
+                            aprobar.dispositivo.valido = False
+                            aprobar.dispositivo.creada_por = self.request.user
+                            aprobar.dispositivo.save()
 
-                        # Generar movimiento de salida
-                        movimiento = conta_m.MovimientoDispositivo(
-                            fecha=desecho.fecha,
-                            dispositivo=aprobar.dispositivo,
-                            periodo_fiscal=periodo_actual,
-                            tipo_movimiento=conta_m.MovimientoDispositivo.BAJA,
-                            referencia='Salida Desecho{}'.format(desecho.id),
-                            precio=precio.precio,
-                            creado_por = self.request.user)
-                        movimiento.save()
+                            # Generar movimiento de salida
+                            movimiento = conta_m.MovimientoDispositivo(
+                                fecha=desecho.fecha,
+                                dispositivo=aprobar.dispositivo,
+                                periodo_fiscal=periodo_actual,
+                                tipo_movimiento=conta_m.MovimientoDispositivo.BAJA,
+                                referencia='Salida Desecho{}'.format(desecho.id),
+                                precio=precio.precio,
+                                creado_por = self.request.user)
+                            movimiento.save()
 
-                    desecho.en_creacion = False
-                    desecho.save()
-                    return Response(
-                            {
-                                'mensaje': 'Salida de Desecho Finalizada'
-                            },
-                            status=status.HTTP_200_OK
+                        desecho.en_creacion = False
+                        desecho.save()
+                        return Response(
+                                {
+                                    'mensaje': 'Salida de Desecho Finalizada'
+                                },
+                                status=status.HTTP_200_OK
+                            )
+                    else:
+                        return Response(
+                            {'mensaje': 'Faltan dispositivos por aprobar'},
+                            status=status.HTTP_400_BAD_REQUEST
                         )
                 else:
                     return Response(
-                        {'mensaje': 'Faltan dispositivos por aprobar'},
+                        {'mensaje': 'Faltan detalles de desecho por aprobar'},
                         status=status.HTTP_400_BAD_REQUEST
                     )
             else:
                 return Response(
-                    {'mensaje': 'Faltan detalles de desecho por aprobar'},
+                    {'mensaje': 'No  puede cerrar aun el desecho falta que lo revise el supervisor de producción o  la administradora del  centro de reacondicionamiento comuníquese con alguno de los 2 para poder resolver el problema '},
                     status=status.HTTP_400_BAD_REQUEST
                 )
+
+
+
 
 class DesechoSalidaFilter(filters.FilterSet):
     """ Filtros para generar informe de  Salida

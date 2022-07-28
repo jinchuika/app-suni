@@ -2,12 +2,15 @@ from django.shortcuts import render, redirect
 
 from apps.inventario import models as inv_m
 from apps.inventario import forms as inv_f
-
-from django.views.generic import ListView, CreateView, UpdateView, DeleteView, TemplateView, DetailView
+from apps.conta import models as conta_m
+from django.views.generic import ListView, CreateView, UpdateView, DeleteView, TemplateView, DetailView, FormView
 
 from django.core.urlresolvers import reverse_lazy
 from django.http import HttpResponse, HttpResponseRedirect
-
+from apps.conta import forms as conta_f
+from braces.views import (
+    LoginRequiredMixin, PermissionRequiredMixin, GroupRequiredMixin,
+    CsrfExemptMixin, JsonRequestResponseMixin)
 # Create your views here.
 
 
@@ -109,3 +112,18 @@ class PasilloActualizarUpdateView(UpdateView):
 
 class SectorDetailView(DetailView):
     model = inv_m.Sector
+
+class BodegaResumenInformeListView(LoginRequiredMixin, FormView):
+    """Vista utilizada para listar el resumen de Inventario para Bodega.
+    """
+    model = conta_m.PrecioEstandar
+    template_name = 'inventario/bodega/informebodegaresumen.html'
+    form_class = conta_f.ResumenInformeForm
+
+    def get_form(self, form_class=None):
+        form = super(BodegaResumenInformeListView, self).get_form(form_class)
+        form.fields['tipo_dispositivo'].queryset = self.request.user.tipos_dispositivos.tipos.filter(usa_triage=True)
+        return form
+
+class BodegaResumenInformePrintView( TemplateView):
+    template_name = 'inventario/bodega/informebodegaresumenprint.html'

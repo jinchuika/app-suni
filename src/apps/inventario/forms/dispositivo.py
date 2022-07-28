@@ -491,7 +491,7 @@ class DevolucionCreateForm(forms.ModelForm):
     field_order = ['inventario_interno', 'no_inventariointerno', 'no_salida', 'tipo_dispositivo', 'cantidad', 'observaciones']
 
     inventario_interno = forms.BooleanField(widget=forms.CheckboxInput(attrs={'class': 'icheckbox_flat-green'}))
-    
+
     no_salida = forms.ModelChoiceField(
         queryset=inv_m.SalidaInventario.objects.filter(en_creacion=True, estado__nombre="Pendiente"),
         widget=forms.Select(attrs={'class': 'form-control select2'})
@@ -637,4 +637,6 @@ class CPUFormUpdate(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(CPUFormUpdate, self).__init__(*args, **kwargs)
-        self.fields['disco_duro'].queryset = inv_m.HDD.objects.filter(valido=True,asignado=False)
+        dispositivos = inv_m.CambioEtapa.objects.get(dispositivo=self.instance)
+        movimiento = inv_m.SolicitudMovimiento.objects.get(no_salida = dispositivos.solicitud.no_salida,tipo_dispositivo__tipo="HDD")
+        self.fields['disco_duro'].queryset = inv_m.CambioEtapa.objects.filter(solicitud = movimiento).values_list('dispositivo__triage',flat=True)
