@@ -10,6 +10,7 @@ from apps.escuela import models as escuela_m
 
 class EquipamientoEstado(models.Model):
     estado = models.CharField(max_length=50)
+    creado_por = models.ForeignKey(User, on_delete=models.CASCADE,default=User.objects.get(username="Admin").pk)
 
     def __str__(self):
         return self.estado
@@ -17,6 +18,7 @@ class EquipamientoEstado(models.Model):
 
 class EquipamientoTipoRed(models.Model):
     tipo = models.CharField(max_length=50)
+    creado_por = models.ForeignKey(User, on_delete=models.CASCADE,default=User.objects.get(username="Admin").pk)
 
     def __str__(self):
         return self.tipo
@@ -24,7 +26,7 @@ class EquipamientoTipoRed(models.Model):
 
 class EquipamientoOs(models.Model):
     sistema_operativo = models.CharField(max_length=50)
-
+    creado_por = models.ForeignKey(User, on_delete=models.CASCADE,default=User.objects.get(username="Admin").pk)
     def __str__(self):
         return self.sistema_operativo
 
@@ -74,7 +76,7 @@ class Equipamiento(models.Model):
 
     cooperante = models.ManyToManyField('mye.Cooperante', blank=True, related_name='equipamientos')
     proyecto = models.ManyToManyField('mye.Proyecto', blank=True, related_name='equipamientos')
-
+    creado_por = models.ForeignKey(User, on_delete=models.CASCADE,default=User.objects.get(username="Admin").pk)
     def __str__(self):
         return str(self.id)
 
@@ -109,6 +111,7 @@ class Garantia(models.Model):
     equipamiento = models.ForeignKey(Equipamiento, related_name='garantias', on_delete=models.CASCADE)
     fecha_vencimiento = models.DateField(null=True, blank=True)
     por_funsepa = models.BooleanField(blank=True)
+    creado_por = models.ForeignKey(User, on_delete=models.CASCADE,default=User.objects.get(username="Admin").pk)
 
     class Meta:
         verbose_name = "Garantía"
@@ -191,7 +194,7 @@ class TicketSoporte(models.Model):
 
 class TicketRegistroTipo(models.Model):
     tipo = models.CharField(max_length=30)
-
+    creado_por = models.ForeignKey(User, on_delete=models.CASCADE,default=User.objects.get(username="Admin").pk)
     class Meta:
         verbose_name = "Soporte - Tipo de registro"
         verbose_name_plural = "Soporte - Tipos de registro"
@@ -223,6 +226,7 @@ class TicketRegistro(models.Model):
 
 class TicketTransporteTipo(models.Model):
     tipo = models.CharField(max_length=30)
+    creado_por = models.ForeignKey(User, blank=True, on_delete=models.CASCADE,default=User.objects.get(username="Admin").pk)
 
     class Meta:
         verbose_name = "Tipo de transporte de garantías"
@@ -255,6 +259,7 @@ class TicketTransporte(models.Model):
 
 class DispositivoTipo(models.Model):
     tipo = models.CharField(max_length=75)
+    tpe_creada_por = models.ForeignKey(User, on_delete=models.CASCADE, related_name="tpe_creada_por",default=User.objects.get(username="Admin").pk)
 
     class Meta:
         verbose_name = "Tipo de dispositivo"
@@ -266,7 +271,7 @@ class DispositivoTipo(models.Model):
 
 class TicketReparacionTipo(models.Model):
     tipo = models.CharField(max_length=45)
-
+    creado_por = models.ForeignKey(User, on_delete=models.CASCADE,default=User.objects.get(username="Admin").pk)
     class Meta:
         verbose_name = "Tipo de reparación"
         verbose_name_plural = "Tipos de reparación"
@@ -277,7 +282,7 @@ class TicketReparacionTipo(models.Model):
 
 class TicketReparacionEstado(models.Model):
     estado = models.CharField(max_length=45)
-
+    creado_por = models.ForeignKey(User, on_delete=models.CASCADE,default=User.objects.get(username="Admin").pk)
     class Meta:
         verbose_name = "Estado de reparación"
         verbose_name_plural = "Estados de reparación"
@@ -355,7 +360,7 @@ class Monitoreo(models.Model):
         preguntas = EvaluacionPregunta.objects.filter(activa=True)
         for pregunta in preguntas:
             punteo = (pregunta.maximo - pregunta.minimo) / 2
-            self.evaluaciones.create(pregunta=pregunta, punteo=int(punteo))
+            self.evaluaciones.create(pregunta=pregunta, punteo=int(punteo),creado_por=self.creado_por)
 
     @property
     def porcentaje_evaluacion(self):
@@ -372,6 +377,7 @@ class EvaluacionPregunta(models.Model):
     activa = models.BooleanField(default=True)
     minimo = models.PositiveIntegerField(default=1)
     maximo = models.PositiveIntegerField(default=5)
+    creado_por = models.ForeignKey(User, on_delete=models.CASCADE,default=User.objects.get(username="Admin").pk)
 
     class Meta:
         verbose_name = "Pregunta de evaluación"
@@ -392,6 +398,7 @@ class EvaluacionMonitoreo(models.Model):
     monitoreo = models.ForeignKey(Monitoreo, related_name='evaluaciones', on_delete=models.CASCADE)
     pregunta = models.ForeignKey(EvaluacionPregunta, on_delete=models.CASCADE)
     punteo = models.PositiveSmallIntegerField()
+    creado_por = models.ForeignKey(User, on_delete=models.CASCADE,default=User.objects.get(username="Admin").pk)
 
     class Meta:
         verbose_name = "Evaluación de monitoreo"

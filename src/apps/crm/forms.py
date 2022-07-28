@@ -15,7 +15,7 @@ class DonanteForm(forms.ModelForm):
         widgets = {
             'fax': forms.NumberInput(attrs={'class': 'form-control', 'step': '1'})
         }
-
+        exclude = ['creado_por']
 
 class ContactoForm(forms.ModelForm):
     """Formulario para la  :class:`ContactoCreateView` y :class:`ContactoDetailView`

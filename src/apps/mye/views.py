@@ -26,6 +26,10 @@ class CooperanteCrear(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     permission_required = 'mye.add_cooperante'
     raise_exception = True
 
+    def form_valid(self, form):
+        form.instance.creado_por = self.request.user
+        return super(CooperanteCrear, self).form_valid(form)
+
 
 class CooperanteDetalle(LoginRequiredMixin, DetailView):
     """Esta vista es la encargada de  mostrar los detalles de :class:`Cooperante`
@@ -140,6 +144,7 @@ class SolicitudCrearView(LoginRequiredMixin, PermissionRequiredMixin, CreateView
     raise_exception = True
 
     def form_valid(self, form):
+        form.instance.creado_por = self.request.user
         response = super(SolicitudCrearView, self).form_valid(form)
         if self.request.is_ajax():
             data = {
@@ -213,6 +218,7 @@ class ValidacionCrearView(LoginRequiredMixin, PermissionRequiredMixin, CreateVie
     raise_exception = True
 
     def form_valid(self, form):
+        form.instance.creado_por = self.request.user 
         response = super(ValidacionCrearView, self).form_valid(form)
         if self.request.is_ajax():
             data = {

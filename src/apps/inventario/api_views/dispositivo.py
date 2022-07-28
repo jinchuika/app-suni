@@ -57,7 +57,7 @@ class DispositosDetalleAndroid(viewsets.ModelViewSet):
         dispositivo = self.request.query_params.get('id', None)
         triage = self.request.query_params.get('triage', None)
         tipo = self.request.query_params.get('tipo', None)
-        return inv_m.Dispositivo.objects.filter(id=dispositivo)      
+        return inv_m.Dispositivo.objects.filter(id=dispositivo)
 
 
 class DispositivoViewSet(viewsets.ModelViewSet):
@@ -78,6 +78,9 @@ class DispositivoViewSet(viewsets.ModelViewSet):
         modelo = self.request.query_params.get('modelo', None)
         tarima = self.request.query_params.get('tarima', None)
         etapa = self.request.query_params.get('etapa', None)
+        salida = self.request.query_params.get('id_salida', None)
+        lista_dispositivos = []
+
 
         if tipo is None:
             tipo_dis = self.request.user.tipos_dispositivos.tipos.all()
@@ -85,7 +88,14 @@ class DispositivoViewSet(viewsets.ModelViewSet):
             tipo_dis = inv_m.DispositivoTipo.objects.filter(id=tipo)
 
         if triage or dispositivo or etapa:
-            return inv_m.Dispositivo.objects.all().filter(tipo__in=tipo_dis)
+            nueva_salida  = inv_m.SalidaInventario.objects.get(id=salida)
+            dispositivos_salida = inv_m.CambioEtapa.objects.filter(
+                solicitud__no_salida = salida,
+                dispositivo__tipo = tipo_dis
+            )
+            for data in dispositivos_salida.values('dispositivo'):
+                lista_dispositivos.append(data['dispositivo'])            
+            return inv_m.Dispositivo.objects.all().filter(id__in=lista_dispositivos)
         elif tipo or marca or modelo or tarima:
             # Se encarga de mostrar mas rapido los dispositivos que se usan con mas frecuencia
             # o mayor cantidad en el inventario
@@ -1055,7 +1065,6 @@ class DispositivosPaquetesViewSet(viewsets.ModelViewSet):
                 new_dispositivo.save()
         elif tipo == "LAPTOP":
             for datos in dispositivos:
-                print(datos['servidor'])
                 new_dispositivo = inv_m.Laptop.objects.get(triage=datos['triage'])
                 try:
                     new_dispositivo.marca = inv_m.DispositivoMarca.objects.get(id=datos['marca'])

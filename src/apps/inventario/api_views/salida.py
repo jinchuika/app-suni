@@ -24,7 +24,7 @@ class SalidaInventarioFilter(filters.FilterSet):
     """ Filtros para generar informe de  Salida
     """
     id = django_filters.NumberFilter(name="id")
-    tipo_salida= django_filters.CharFilter(name='tipo_salida')   
+    tipo_salida= django_filters.CharFilter(name='tipo_salida')
     estado = django_filters.CharFilter(name='estado')
     fecha_min = django_filters.DateFilter(name='fecha_min', method='filter_fecha')
     fecha_max = django_filters.DateFilter(name='fecha_max', method='filter_fecha')
@@ -32,7 +32,7 @@ class SalidaInventarioFilter(filters.FilterSet):
     class Meta:
         model = inv_m.SalidaInventario
         fields = ['id', 'tipo_salida', 'estado', 'fecha_min', 'fecha_max']
-    
+
     def filter_fecha(self, queryset, name, value):
         if value and name == 'fecha_min':
             queryset = queryset.filter(fecha__gte=value)
@@ -65,7 +65,7 @@ class SalidaInventarioViewSet(viewsets.ModelViewSet):
                     tipo_dispositivo__tipo=validar_dispositivo).aggregate(altas_cantidad=Sum('cantidad'))
                 if altas['altas_cantidad'] is None:
                     altas['altas_cantidad'] = 0
-                
+
                 bajas = inv_m.SolicitudMovimiento.objects.filter(
                     recibida=True,
                     devolucion=True,
@@ -73,7 +73,7 @@ class SalidaInventarioViewSet(viewsets.ModelViewSet):
                     tipo_dispositivo__tipo=validar_dispositivo).aggregate(bajas_cantidad=Sum('cantidad'))
                 if bajas['bajas_cantidad'] is None:
                     bajas['bajas_cantidad'] = 0
-                
+
                 salidas = inv_m.Paquete.objects.filter(
                     tipo_paquete=validar_dispositivo,
                     desactivado=False,
@@ -81,9 +81,9 @@ class SalidaInventarioViewSet(viewsets.ModelViewSet):
                 ).aggregate(salidas_cantidad=Sum('cantidad'))
                 if salidas['salidas_cantidad'] is None:
                     salidas['salidas_cantidad'] = 0
-                
+
                 total = altas['altas_cantidad'] - (bajas['bajas_cantidad'] + salidas['salidas_cantidad'])
-                
+
                 return Response(
                     {'mensaje': total},
                     status=status.HTTP_200_OK
@@ -110,7 +110,7 @@ class SalidaInventarioViewSet(viewsets.ModelViewSet):
                 tipo_dispositivo__tipo=tipo).aggregate(altas_cantidad=Sum('cantidad'))
             if altas['altas_cantidad'] is None:
                 altas['altas_cantidad'] = 0
-            
+
             bajas = inv_m.SolicitudMovimiento.objects.filter(
                 recibida=True,
                 devolucion=True,
@@ -118,7 +118,7 @@ class SalidaInventarioViewSet(viewsets.ModelViewSet):
                 tipo_dispositivo__tipo=tipo).aggregate(bajas_cantidad=Sum('cantidad'))
             if bajas['bajas_cantidad'] is None:
                 bajas['bajas_cantidad'] = 0
-            
+
             salidas = inv_m.Paquete.objects.filter(
                 tipo_paquete=tipo,
                 desactivado=False,
@@ -126,7 +126,7 @@ class SalidaInventarioViewSet(viewsets.ModelViewSet):
                 ).aggregate(salidas_cantidad=Sum('cantidad'))
             if salidas['salidas_cantidad'] is None:
                 salidas['salidas_cantidad'] = 0
-            
+
             total = altas['altas_cantidad'] - (bajas['bajas_cantidad'] + salidas['salidas_cantidad'])
 
             paquete_salida['id'] = tipo.id
@@ -366,6 +366,36 @@ class RevisionSalidaViewSet(viewsets.ModelViewSet):
                                                                            aprobado=True)
 
             for dispositivos in dispositivosPaquetes:
+
+                if dispositivos.dispositivo.tipo == inv_m.DispositivoTipo.objects.get(tipo="CPU"):
+                    dd = inv_m.CPU.objects.get(triage = dispositivos.dispositivo.triage)                    
+                    if not dd.disco_duro is None:
+                        dd.disco_duro.estado = inv_m.DispositivoEstado.objects.get(id=inv_m.DispositivoEstado.EN)
+                        dd.disco_duro.etapa = inv_m.DispositivoEtapa.objects.get(id=inv_m.DispositivoEtapa.EN)
+
+                        dd.disco_duro.save()
+                        periodo_actual = conta_m.PeriodoFiscal.objects.get(actual=True)
+                        precio_dispositivo = conta_m.PrecioDispositivo.objects.get(dispositivo__triage=dd.disco_duro, activo=True)
+                        movimiento_dispositivo = conta_m.MovimientoDispositivo.objects.filter(dispositivo__triage = dd.disco_duro, tipo_movimiento = conta_m.MovimientoDispositivo.BAJA)
+                        if len(movimiento_dispositivo) == 0:
+                            movimiento = conta_m.MovimientoDispositivo(
+                                dispositivo=dd.disco_duro,
+                                periodo_fiscal=periodo_actual,
+                                tipo_movimiento=conta_m.MovimientoDispositivo.BAJA,
+                                referencia='Salida {}'.format(finalizar_salida),
+                                precio=precio_dispositivo.precio,
+                                fecha = finalizar_salida.fecha,
+                                creado_por=self.request.user
+                                )
+                            movimiento.save()
+                    else:
+                        return Response(
+                            {
+                                'mensaje': 'No hay discos duros asignados '
+                            },
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                        )
+
                 dispositivos.dispositivo.etapa = inv_m.DispositivoEtapa.objects.get(id=inv_m.DispositivoEtapa.EN)
                 dispositivos.dispositivo.valido = False
                 dispositivos.dispositivo.save()
@@ -390,7 +420,8 @@ class RevisionSalidaViewSet(viewsets.ModelViewSet):
                         tipo_movimiento=conta_m.MovimientoDispositivo.BAJA,
                         referencia='Salida {}'.format(salida),
                         precio=precio_dispositivo.precio,
-                        fecha = finalizar_salida.fecha)
+                        fecha = finalizar_salida.fecha,
+                        creado_por=self.request.user)
                     movimiento.save()
         salida.aprobada = True
         salida.save()
@@ -432,7 +463,7 @@ class RevisionSalidaViewSet(viewsets.ModelViewSet):
         id_paquete = request.data["idpaquete"]
         tipo = request.data["tipo"]
         try:
-            asignacion_fecha = inv_m.DispositivoPaquete.objects.get(dispositivo__triage=triage)            
+            asignacion_fecha = inv_m.DispositivoPaquete.objects.get(dispositivo__triage=triage)
             if str(id_paquete) == str(asignacion_fecha.paquete.id):
                 asignacion_fecha.aprobado = True
                 asignacion_fecha.fecha_aprobacion = datetime.now()

@@ -138,6 +138,11 @@ urlpatterns = [
   url(
       r'^controlnotas/',
       include('apps.controlNotas.urls')),
+
+  # Contiene las direcciones de recaudacion de fondos
+  url(
+      r'^recaudacion/',
+      include('apps.recaudacionFondos.urls')),
 ]
 
 if settings.DEBUG and settings.DEBUG_TOOLBAR:

@@ -1,0 +1,163 @@
+
+{%load staticfiles %}
+
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>
+Resumen de Bodega
+  </title>
+	<link rel="stylesheet" type="text/css" href="{% static "css/bootstrap.min.css" %}">
+	<link rel="icon" type="image/ico" href="{% static 'image/favicon.ico'%}">
+	<link rel="stylesheet" type="text/css" href="{% static "css/font-awesome.min.css" %}">
+</head>
+<header>
+	<div class="encabezado">
+      <img src="{% static "image/Logo_Funsepa-01.png" %}" width="150" height="150" style="margin-top: -40px;" />
+      <h1><p id="fecha"></p></h1>
+  </div>
+  <h3><p id="rango" style="margin-top: -40px;"></p></h3>
+</header>
+
+<body>
+    {% csrf_token %}
+
+  <table id="tabla"  data-url="{%url 'contabilidad_api_resumen'%}" style="width:100%" >
+    <thead>
+      <tr>
+        <th bgcolor="#b3c4dd" ><h3>Tipo</h3></th>
+        <th  bgcolor="#b3c4dd" style="width: 13%;" ><h3>Existencia Inicial</h3></th>
+        <th bgcolor="#b3c4dd" ><h3>Entradas</h3></th>
+        <th bgcolor="#b3c4dd" ><h3>Salidas</h3></th>
+        <th bgcolor="#b3c4dd" style="width: 13%;" ><h3>Existencia Final</h3></th>
+        <th bgcolor="#b3c4dd" style="width: 21%; text-align:center"><h3>Firmas</h3></th>
+      </tr>
+    </thead>
+    <tbody  >
+			<div class="overlay">
+			<i  id= "spinner" class="fa fa-refresh fa-spin" style="margin-left: 750px;"></i>
+		</div>
+    </tbody>
+  </table>
+</br>
+<b> El inventario está cuadrado con el digital según lo reflejado en el SUNI, revisado  por el supervisor de produccion ,  el área técnica e Inventarios y Compras </b>
+</br>
+</br>
+<table style="width:100%">
+  <tr>
+    <th style="text-align: center;">
+      <br />
+      <h6>
+        _____________________________________
+				<div class="">
+					<br />
+	       <p> Vobo. ADMIN C.R </br>
+					   Liza Marroquín
+				 </p>
+
+				</div>
+
+      </h6>
+    </th>
+    <th style="text-align: center;">
+      <br />
+      <h6>
+        ________________________________
+				<div class="">
+					<br>
+	          Sup. de Produccion
+	        <br>
+	         Kelvin de León
+				</div>
+
+      </h6>
+    </th>
+    <th style="text-align: center;">
+      <br />
+      <h6>
+        ________________________________
+				<div class="">
+					<br>
+					Inventarios y Compras
+					<br>
+					Herbert Díaz
+				</div>
+
+      </h6>
+    </th >
+    <th style="text-align: center;">
+      <br />
+      <h6>
+        ________________________________
+				<div class="">
+					<br>
+	          Auxiliar de bodega
+	        <br>
+	         Larzen Ceballos
+				</div>
+
+      </h6>
+    </th>
+    <th style="text-align: center;">
+      <br />
+      <h6>
+        ________________________________
+				<div class="">
+					<br>
+						Coordinadora
+					<br>
+					Karla del Valle
+				</div>
+
+      </h6>
+    </th>
+  </tr>
+</table>
+
+</body>
+<style type="text/css">
+@page{
+margin-top: 0mm;
+margin-bottom: 0mm;
+}
+body{
+font-family: arial;
+ background-image: none;
+-webkit-print-color-adjust: exact; /*economy | exact*/
+	color-adjust: exact;
+}
+
+
+#tabla tr:nth-child(odd){
+background-color: #F2F2F2;
+}
+#tabla tr:nth-child(even){
+background-color: #e5e5e5;
+}
+
+#borde1{
+border-bottom: 2px solid #333333;
+}
+
+#fecha{
+text-align:center;
+position:fixed;
+top:0px;
+left:200px;
+
+}
+
+
+</style>
+<script src="{% static "js/jquery.min.js" %}"></script>
+<script src="{% static "js/bootstrap.min.js" %}"></script>
+{% block extra_js %}
+
+<script src="{% static "js/extrajs/bodegainventario.js" %}"></script>
+<script>
+ let nuevo = new ResumenBodegaPrint();
+</script>
+</script>
+{% endblock extra_js %}
+</html>

@@ -8,11 +8,11 @@ from apps.main.models import Municipio, Coordenada
 from apps.main.utils import get_telefonica
 from apps.legacy import  models as legacy_m
 from django.core import serializers
-
+from django.contrib.auth.models import User
 
 class EscArea(models.Model):
     area = models.CharField(max_length=20)
-
+    esc_area_creado_por =models.ForeignKey(User, on_delete=models.CASCADE,default=User.objects.get(username="Admin").pk)
     class Meta:
         verbose_name = 'Área'
         verbose_name_plural = 'Áreas'
@@ -26,7 +26,7 @@ class EscJornada(models.Model):
     Description: Jornada de la escuela
     """
     jornada = models.CharField(max_length=20)
-
+    esc_jornada_creado_por =models.ForeignKey(User, on_delete=models.CASCADE,default=User.objects.get(username="Admin").pk)
     class Meta:
         verbose_name = 'Jornada'
         verbose_name_plural = 'Jornadas'
@@ -40,7 +40,7 @@ class EscModalidad(models.Model):
     Description: Modalidad de la escuela
     """
     modalidad = models.CharField(max_length=20)
-
+    esc_modalidad_creado_por =models.ForeignKey(User, on_delete=models.CASCADE,default=User.objects.get(username="Admin").pk)
     class Meta:
         verbose_name = 'Modalidad'
         verbose_name_plural = 'Modalidades'
@@ -54,7 +54,7 @@ class EscNivel(models.Model):
     Description: Nivel de la escuela
     """
     nivel = models.CharField(max_length=30)
-
+    esc_nivel_creado_por =models.ForeignKey(User, on_delete=models.CASCADE,default=User.objects.get(username="Admin").pk)
     class Meta:
         verbose_name = 'Nivel'
         verbose_name_plural = 'Niveles'
@@ -68,7 +68,7 @@ class EscPlan(models.Model):
     Description: Plan de la escuela (diario, fin de semana, etc.)
     """
     plan = models.CharField(max_length=20)
-
+    esc_plan_creado_por =models.ForeignKey(User, on_delete=models.CASCADE,default=User.objects.get(username="Admin").pk)
     class Meta:
         verbose_name = 'Plan'
         verbose_name_plural = 'Planes'
@@ -82,7 +82,7 @@ class EscSector(models.Model):
     Description: Sector de la escuela (oficial, privado, etc.)
     """
     sector = models.CharField(max_length=20)
-
+    esc_sector_creado_por =models.ForeignKey(User, on_delete=models.CASCADE,default=User.objects.get(username="Admin").pk)
     class Meta:
         verbose_name = 'Sector'
         verbose_name_plural = 'Sectores'
@@ -96,7 +96,7 @@ class EscStatus(models.Model):
     Description: Status de la escuela (Abierta, cerrada)
     """
     status = models.CharField(max_length=25)
-
+    esc_status_creado_por =models.ForeignKey(User, on_delete=models.CASCADE,default=User.objects.get(username="Admin").pk)
     class Meta:
         verbose_name = 'Status'
         verbose_name_plural = 'Statues'
@@ -123,7 +123,7 @@ class Escuela(models.Model):
     jornada = models.ForeignKey(EscJornada, on_delete=models.PROTECT)
     plan = models.ForeignKey(EscPlan, on_delete=models.PROTECT)
     mapa = models.ForeignKey(Coordenada, null=True, blank=True, on_delete=models.CASCADE)
-
+    esc_creado_por =models.ForeignKey(User, on_delete=models.CASCADE,default=User.objects.get(username="Admin").pk)
     class Meta:
         verbose_name = "Escuela"
         verbose_name_plural = "Escuelas"
@@ -232,7 +232,7 @@ class EscContactoRol(models.Model):
     Description: Rol para el contacto de escuela
     """
     rol = models.CharField(max_length=30)
-
+    esc_rol_creado_por =models.ForeignKey(User, on_delete=models.CASCADE,default=User.objects.get(username="Admin").pk)
     class Meta:
         verbose_name = "Rol de contacto"
         verbose_name_plural = "Roles de contacto"
@@ -246,7 +246,7 @@ class EscContacto(models.Model):
     nombre = models.CharField(max_length=100)
     apellido = models.CharField(max_length=100)
     rol = models.ForeignKey(EscContactoRol, on_delete=models.PROTECT)
-
+    esc_contacto_creado_por =models.ForeignKey(User, on_delete=models.CASCADE,default=User.objects.get(username="Admin").pk)
     class Meta:
         verbose_name = "Contacto"
         verbose_name_plural = "Contactos de escuela"
@@ -258,7 +258,7 @@ class EscContacto(models.Model):
 class EscContactoTelefono(models.Model):
     contacto = models.ForeignKey(EscContacto, related_name="telefono", null=True, on_delete=models.CASCADE)
     telefono = models.IntegerField()
-
+    esc_contacto_telefono_creado_por =models.ForeignKey(User, on_delete=models.CASCADE,default=User.objects.get(username="Admin").pk)
     def get_empresa(self):
         return get_telefonica(self.telefono)
     empresa = property(get_empresa)
@@ -273,7 +273,7 @@ class EscContactoMail(models.Model):
     """
     contacto = models.ForeignKey(EscContacto, related_name="mail", null=True, on_delete=models.CASCADE)
     mail = models.EmailField(max_length=125)
-
+    esc_contacto_telefono_creado_por =models.ForeignKey(User, on_delete=models.CASCADE,default=User.objects.get(username="Admin").pk)
     def __str__(self):
         return self.mail
 
@@ -299,6 +299,7 @@ class EscPoblacion(models.Model):
         null=True,
         blank=True,
         verbose_name='Total de docentes')
+    esc_poblacion_creado_por =models.ForeignKey(User, on_delete=models.CASCADE,default=User.objects.get(username="Admin").pk)
 
     class Meta:
         verbose_name = "Población de escuela"
@@ -307,14 +308,19 @@ class EscPoblacion(models.Model):
     def __str__(self):
         return str(self.escuela)[:15] + " - " + str(self.fecha)
 
-    def save(self, *args, **kwargs):
+    def save(self,*args, **kwargs):
         """En caso de que no se hubiera ingresado el total, suma las cantidades
         detalladas para establecerlo.
         """
+
+        #print(EscPoblacion.objects.last())
+        #self.esc_poblacion_creado_por = EscPoblacion.objects.last().esc_poblacion_creado_por
         if self.total_alumno is None or self.total_alumno == 0:
+            self.esc_poblacion_creado_por = EscPoblacion.objects.last().esc_poblacion_creado_por
             self.total_alumno = self.alumna + self.alumno
         if self.total_maestro is None or self.total_maestro == 0:
             self.total_maestro = self.maestra + self.maestro
+
         super(EscPoblacion, self).save(*args, **kwargs)
 
     def get_absolute_url(self):
@@ -334,7 +340,7 @@ class EscMatricula(models.Model):
     h_promovido = models.PositiveIntegerField(default=0, verbose_name='Hombres promovidos')
     h_no_promovido = models.PositiveIntegerField(default=0, verbose_name='Hombres no promovidos')
     h_retirado = models.PositiveIntegerField(default=0, verbose_name='Hombres retirados')
-
+    esc_matricula_creado_por =models.ForeignKey(User, on_delete=models.CASCADE,default=User.objects.get(username="Admin").pk)
     class Meta:
         verbose_name = "Matrícula de escuela"
         verbose_name_plural = "Matrículas de escuelas"
@@ -424,7 +430,7 @@ class EscRendimientoMateria(models.Model):
     """
 
     materia = models.CharField(max_length=20)
-
+    esc_redimiento_materia_creado_por =models.ForeignKey(User, on_delete=models.CASCADE,default=User.objects.get(username="Admin").pk)
     class Meta:
         verbose_name = "Materia de rendimiento"
         verbose_name_plural = "Materias de rendimiento"
@@ -446,6 +452,7 @@ class EscRendimientoAcademico(models.Model):
     satisfactorio = models.DecimalField(max_digits=5, decimal_places=2)
     excelente = models.DecimalField(max_digits=5, decimal_places=2)
     no_evaluado = models.DecimalField(max_digits=5, decimal_places=2)
+    esc_rendimiento_academico_creado_por =models.ForeignKey(User, on_delete=models.CASCADE,default=User.objects.get(username="Admin").pk)
 
     class Meta:
         verbose_name = "Rendimiento académico"

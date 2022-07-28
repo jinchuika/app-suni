@@ -14,7 +14,7 @@ class DesechoEmpresaForm(forms.ModelForm):
             'telefono': forms.TextInput({'class': 'form-control'}),
             'dpi':forms.TextInput({'class': 'form-control'}),
         }
-
+        exclude = ('creada_por', )
 
 class DesechoSalidaForm(forms.ModelForm):
     """Formulario para el control de salida de desechos de la empresa.
@@ -39,7 +39,7 @@ class DesechoSalidaUpdateForm(forms.ModelForm):
     class Meta:
         model = inv_m.DesechoSalida
         fields = '__all__'
-        exclude = ('creado_por','codigo_qr')
+        exclude = ('creado_por','codigo_qr','revision_sub_jefe','revision_jefe')
         widgets = {
                 'en_creacion': forms.HiddenInput(),
                 'empresa': forms.Select(attrs={'class': 'form-control select2'}),
@@ -58,7 +58,7 @@ class DesechoDetalleForm(forms.ModelForm):
     class Meta:
         model = inv_m.DesechoDetalle
         fields = ['tipo_dispositivo', 'entrada_detalle', 'cantidad', 'desecho']
-        exclude = ('aprobado',)
+        exclude = ('aprobado','creada_por', )
         widgets = {
                 'desecho': forms.HiddenInput(),
                 'tipo_dispositivo': forms.Select(attrs={'class': 'form-control select2'}),
@@ -84,7 +84,7 @@ class DesechoDispositivoForm(forms.ModelForm):
     class Meta:
         model = inv_m.DesechoDispositivo
         fields = '__all__'
-        exclude = ('aprobado',)
+        exclude = ('aprobado','creada_por')
         widgets = {
                 'desecho': forms.HiddenInput(),
                 }

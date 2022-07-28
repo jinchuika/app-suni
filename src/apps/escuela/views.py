@@ -39,9 +39,10 @@ class EscuelaCrear(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     form_class = FormEscuelaCrear
 
     def form_valid(self, form):
+        form.instance.esc_creado_por = self.request.user
         response = super(EscuelaCrear, self).form_valid(form)
         if form.cleaned_data['lat'] and form.cleaned_data['lng']:
-            mapa = Coordenada(lat=form.cleaned_data['lat'], lng=form.cleaned_data['lng'])
+            mapa = Coordenada(lat=form.cleaned_data['lat'], lng=form.cleaned_data['lng'], main_coo_creada_por=self.request.user)
             mapa.save()
             self.object.mapa = mapa
             self.object.save()
@@ -162,7 +163,7 @@ class EscuelaDetail(LoginRequiredMixin, DetailView):
             impacto_values = {"nombre": "Promedio General", "promedio": promedio_general_enviar, "color":"red"}
         impacto_list.append(dict(impacto_values))
         impacto_list.insert(0, impacto_list.pop())
-        context['grafica_impacto'] = impacto_list        
+        context['grafica_impacto'] = impacto_list
         # Graficas de impacto barras de progreso
         visitas =control_m.Visita.objects.filter(escuela__id=self.object.pk)
         for visita in visitas:
@@ -205,14 +206,16 @@ class EscuelaEditar(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
         return initial
 
     def form_valid(self, form):
+        form.instance.esc_creado_por = self.request.user
         response = super(EscuelaEditar, self).form_valid(form)
         if form.cleaned_data['lat'] and form.cleaned_data['lng']:
             if self.object.mapa:
                 self.object.mapa.lat = form.cleaned_data['lat']
                 self.object.mapa.lng = form.cleaned_data['lng']
+                self.object.mapa.main_coo_creada_por = self.request.user
                 self.object.mapa.save()
             else:
-                mapa = Coordenada(lat=form.cleaned_data['lat'], lng=form.cleaned_data['lng'])
+                mapa = Coordenada(lat=form.cleaned_data['lat'], lng=form.cleaned_data['lng'],main_coo_creada_por=self.request.user)
                 mapa.save()
                 self.object.mapa = mapa
                 self.object.save()
@@ -227,12 +230,13 @@ class EscContactoCrear(LoginRequiredMixin, CreateView):
     form_class = ContactoForm
 
     def form_valid(self, form):
+        form.instance.esc_contacto_creado_por = self.request.user
         response = super(EscContactoCrear, self).form_valid(form)
         if form.cleaned_data['telefono']:
-            telefono = EscContactoTelefono(contacto=self.object, telefono=form.cleaned_data['telefono'])
+            telefono = EscContactoTelefono(contacto=self.object, telefono=form.cleaned_data['telefono'], esc_contacto_telefono_creado_por = self.request.user)
             telefono.save()
         if form.cleaned_data['mail']:
-            mail = EscContactoMail(contacto=self.object, mail=form.cleaned_data['mail'])
+            mail = EscContactoMail(contacto=self.object, mail=form.cleaned_data['mail'],esc_contacto_telefono_creado_por = self.request.user)
             mail.save()
         return response
 
@@ -273,10 +277,11 @@ class EscContactoEditar(LoginRequiredMixin, UpdateView):
         return initial
 
     def form_valid(self, form):
+        form.instance.esc_contacto_creado_por = self.request.user
         response = super(EscContactoEditar, self).form_valid(form)
         if form.cleaned_data['telefono']:
             if self.object.telefono.count() == 0:
-                telefono = EscContactoTelefono(contacto=self.object, telefono=form.cleaned_data['telefono'])
+                telefono = EscContactoTelefono(contacto=self.object, telefono=form.cleaned_data['telefono'],esc_contacto_telefono_creado_por = self.request.user)
                 telefono.save()
             else:
                 telefono = self.object.telefono.all().first()
@@ -284,7 +289,7 @@ class EscContactoEditar(LoginRequiredMixin, UpdateView):
                 telefono.save()
         if form.cleaned_data['mail']:
             if self.object.mail.count() == 0:
-                mail = EscContactoMail(contacto=self.object, mail=form.cleaned_data['mail'])
+                mail = EscContactoMail(contacto=self.object, mail=form.cleaned_data['mail'],esc_contacto_telefono_creado_por = self.request.user)
                 mail.save()
             else:
                 mail = self.object.mail.all().first()
@@ -382,6 +387,10 @@ class EscPoblacionCreateView(LoginRequiredMixin, PermissionRequiredMixin, Create
     raise_exception = True
     redirect_unauthenticated_users = True
 
+    def form_valid(self, form):
+        form.instance.esc_poblacion_creado_por = self.request.user
+        return super(EscPoblacionCreateView, self).form_valid(form)
+
 
 class EscMatriculaCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
 
@@ -401,6 +410,9 @@ class EscMatriculaCreateView(LoginRequiredMixin, PermissionRequiredMixin, Create
         """
         escuela = get_object_or_404(Escuela, id=self.kwargs.get('id_escuela'))
         return {'escuela': escuela}
+    def form_valid(self, form):
+        form.instance.esc_matricula_creado_por = self.request.user
+        return super(EscMatriculaCreateView, self).form_valid(form)
 
 
 class EscRendimientoAcademicoCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
@@ -421,3 +433,7 @@ class EscRendimientoAcademicoCreateView(LoginRequiredMixin, PermissionRequiredMi
         """
         escuela = get_object_or_404(Escuela, id=self.kwargs.get('id_escuela'))
         return {'escuela': escuela}
+
+    def form_valid(self, form):
+        form.instance.esc_rendimiento_academico_creado_por = self.request.user
+        return super(EscRendimientoAcademicoCreateView, self).form_valid(form)

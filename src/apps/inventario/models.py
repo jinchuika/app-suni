@@ -34,6 +34,7 @@ class EntradaTipo(models.Model):
     contable = models.BooleanField(default=False)
     contenedor = models.BooleanField(default=False)
     especial = models.BooleanField(default=False)
+    creada_por = models.ForeignKey(User, on_delete=models.PROTECT,default=User.objects.get(username="Admin").pk)
 
     class Meta:
         verbose_name = "Tipo de entrada"
@@ -49,7 +50,7 @@ class EntradaEstado(models.Model):
     """
 
     nombre = models.CharField(max_length=45)
-
+    creada_por = models.ForeignKey(User, on_delete=models.PROTECT,default=User.objects.get(username="Admin").pk)
     class Meta:
         verbose_name = "Estado de entrada"
         verbose_name_plural = "Estados de entrada"
@@ -114,6 +115,7 @@ class DispositivoTipo(models.Model):
     usa_triage = models.BooleanField(default=False)
     conta = models.BooleanField(default=False)
     kardex = models.BooleanField(default=False)
+    creada_por = models.ForeignKey(User, on_delete=models.PROTECT,default=User.objects.get(username="Admin").pk)
 
     class Meta:
         verbose_name = "Tipo de dispositivo"
@@ -161,6 +163,8 @@ class EntradaDetalle(models.Model):
     qr_repuestos = models.BooleanField(default=False, blank=True, verbose_name='Imprimir Qr Repuesto')
     qr_dispositivo = models.BooleanField(default=False, blank=True, verbose_name='Imprimir Qr Dispositivo')
     impreso = models.BooleanField(default=False, blank=True, verbose_name='Impreso')
+    pendiente_autorizar = models.BooleanField(default=False, blank=True, verbose_name='pendiente')
+    autorizado = models.BooleanField(default=False, blank=True, verbose_name='autorizado')
     # Creacion de fechas
     fecha_dispositivo = models.DateField(blank=True, null=True)
     fecha_repuesto = models.DateField(blank=True, null=True)
@@ -278,6 +282,7 @@ class DescuentoEntrada(models.Model):
     entrada = models.ForeignKey(Entrada, on_delete=models.CASCADE, related_name='descuentos')
     monto = models.DecimalField(max_digits=10, decimal_places=2)
     descripcion = models.TextField(null=True, blank=True)
+    creada_por = models.ForeignKey(User, on_delete=models.PROTECT,default=User.objects.get(username="Admin").pk)
 
     class Meta:
         verbose_name = "DescuentoEntrada"
@@ -304,6 +309,7 @@ class DispositivoEstado(models.Model):
     EN = 4
 
     estado = models.CharField(max_length=20)
+    creada_por = models.ForeignKey(User, on_delete=models.PROTECT,default=User.objects.get(username="Admin").pk)
 
     class Meta:
         verbose_name = "Estado de dispositivo"
@@ -336,6 +342,7 @@ class DispositivoEtapa(models.Model):
 
     proceso = models.CharField(max_length=30)
     estados_disponibles = models.ManyToManyField(DispositivoEstado)
+    creada_por = models.ForeignKey(User, on_delete=models.PROTECT,default=User.objects.get(username="Admin").pk)
 
     class Meta:
         verbose_name = "Etapa de dispositivo"
@@ -351,6 +358,7 @@ class DispositivoMarca(models.Model):
     """
 
     marca = models.CharField(max_length=20)
+    creada_por = models.ForeignKey(User, on_delete=models.PROTECT)
 
     class Meta:
         verbose_name = "Marca de dispositivo"
@@ -366,6 +374,7 @@ class DispositivoModelo(models.Model):
     """
 
     modelo = models.CharField(max_length=20)
+    creada_por = models.ForeignKey(User, on_delete=models.PROTECT,default=User.objects.get(username="Admin").pk)
 
     class Meta:
         verbose_name = "Modelo de dispositivo"
@@ -391,6 +400,7 @@ class Pasillo(models.Model):
 class Nivel(models.Model):
     nivel = models.CharField(max_length=1)
     pasillo = models.ForeignKey(Pasillo, on_delete=models.PROTECT, related_name='niveles')
+    creada_por = models.ForeignKey(User, on_delete=models.PROTECT,default=User.objects.get(username="Admin").pk)
 
     def __str__(self):
         return '{}{}'.format(self.pasillo, self.nivel)
@@ -403,6 +413,7 @@ class Sector(models.Model):
     sector = models.IntegerField(null=False)
     nivel = models.ForeignKey(Nivel, related_name='sectores')
     codigo_qr = et_fields.ThumbnailerImageField(upload_to='qr_sector', blank=True, null=True, editable=False)
+    creada_por = models.ForeignKey(User, on_delete=models.PROTECT,default=User.objects.get(username="Admin").pk)
 
     def __str__(self):
         return '{nivel}-{sector}'.format(nivel=self.nivel, sector=self.sector)
@@ -448,6 +459,7 @@ class Tarima(models.Model):
         related_name='tarimas'
     )
     codigo_qr = et_fields.ThumbnailerImageField(upload_to='qr_tarima', blank=True, null=True)
+    creada_por = models.ForeignKey(User, on_delete=models.PROTECT,default=User.objects.get(username="Admin").pk)
 
     def __str__(self):
         return str(self.id)
@@ -488,6 +500,7 @@ class DispositivoClase(models.Model):
     B = 2
     C = 3
     clase = models.CharField(max_length=20)
+    creada_por = models.ForeignKey(User, on_delete=models.PROTECT,default=User.objects.get(username="Admin").pk)
 
     class Meta:
         verbose_name = "Clase de dispositivo"
@@ -536,6 +549,8 @@ class Dispositivo(models.Model):
     tarima = models.ForeignKey(Tarima, on_delete=models.PROTECT, blank=True, null=True, related_name='dispositivos')
     valido = models.BooleanField(default=True, blank=True, verbose_name='Válido')
     descripcion = models.TextField(null=True, blank=True)
+    creada_por = models.ForeignKey(User, on_delete=models.PROTECT,default=User.objects.get(username="Admin").pk)
+
 
     class Meta:
         verbose_name = "Dispositivo"
@@ -642,6 +657,7 @@ class SoftwareTipo(models.Model):
     """
 
     tipo = models.CharField(max_length=25)
+    creada_por = models.ForeignKey(User, on_delete=models.PROTECT,default=User.objects.get(username="Admin").pk)
 
     class Meta:
         verbose_name = "Tipo de software"
@@ -659,6 +675,7 @@ class Software(models.Model):
     nombre = models.CharField(max_length=100)
     tipo = models.ForeignKey(SoftwareTipo, on_delete=models.CASCADE)
     descripcion = models.TextField(null=True, blank=True)
+    creada_por = models.ForeignKey(User, on_delete=models.PROTECT,default=User.objects.get(username="Admin").pk)
 
     class Meta:
         verbose_name = "Software"
@@ -680,6 +697,7 @@ class VersionSistema(models.Model):
     nombre = models.CharField(max_length=55)
     so = models.ForeignKey(Software, on_delete=models.CASCADE, related_name='versiones')
     software = models.ManyToManyField(Software, blank=True)
+    creada_por = models.ForeignKey(User, on_delete=models.PROTECT,default=User.objects.get(username="Admin").pk)
 
     class Meta:
         verbose_name = "Versión de sistema"
@@ -694,6 +712,7 @@ class VersionSistema(models.Model):
 
 class PuertoTipo(models.Model):
     nombre = models.CharField(max_length=30)
+    creada_por = models.ForeignKey(User, on_delete=models.PROTECT,default=User.objects.get(username="Admin").pk)
 
     class Meta:
         verbose_name = "Tipo de puerto"
@@ -710,6 +729,7 @@ class DispositivoPuerto(models.Model):
 
     nombre = models.CharField(max_length=15)
     tipo = models.ForeignKey(PuertoTipo, on_delete=models.PROTECT)
+    creada_por = models.ForeignKey(User, on_delete=models.PROTECT,default=User.objects.get(username="Admin").pk)
 
     class Meta:
         verbose_name = "Puerto"
@@ -725,6 +745,7 @@ class DispositivoMedida(models.Model):
     """
 
     nombre = models.CharField(max_length=15)
+    creada_por = models.ForeignKey(User, on_delete=models.PROTECT,default=User.objects.get(username="Admin").pk)
 
     class Meta:
         verbose_name = "Medida"
@@ -767,6 +788,7 @@ class MouseTipo(models.Model):
     """
 
     tipo = models.CharField(max_length=15)
+    creada_por = models.ForeignKey(User, on_delete=models.PROTECT)
 
     class Meta:
         verbose_name = "Tipo de mouse"
@@ -817,6 +839,7 @@ class HDD(Dispositivo):
     medida = models.ForeignKey(DispositivoMedida, null=True, blank=True)
     asignado = models.BooleanField(default=False, blank=True)
 
+
     class Meta:
         verbose_name = "HDD"
         verbose_name_plural = "HDDs"
@@ -844,6 +867,7 @@ class HDD(Dispositivo):
 
 class Procesador(models.Model):
     nombre = models.CharField(max_length=25)
+    creada_por = models.ForeignKey(User, on_delete=models.PROTECT,default=User.objects.get(username="Admin").pk)
 
     class Meta:
         verbose_name = "Procesador"
@@ -870,6 +894,7 @@ class Tablet(Dispositivo):
     medida_ram = models.ForeignKey(DispositivoMedida, null=True, blank=True, related_name='ram_tables')
     almacenamiento_externo = models.BooleanField(default=False)
 
+
     class Meta:
         verbose_name = "Tablet"
         verbose_name_plural = "Tablets"
@@ -892,6 +917,7 @@ class MonitorTipo(models.Model):
     """
 
     tipo = models.CharField(max_length=15)
+    creada_por = models.ForeignKey(User, on_delete=models.PROTECT,default=User.objects.get(username="Admin").pk)
 
     class Meta:
         verbose_name = "Tipo de monitor"
@@ -912,6 +938,7 @@ class Monitor(Dispositivo):
         blank=True,
         related_name='monitores')
     pulgadas = models.DecimalField(max_digits=3, decimal_places=1, null=True, blank=True)
+
 
     class Meta:
         verbose_name = "Monitor"
@@ -940,6 +967,7 @@ class CPU(Dispositivo):
     servidor = models.BooleanField(default=False)
     all_in_one = models.BooleanField(default=False)
 
+
     class Meta:
         verbose_name = "CPU"
         verbose_name_plural = "CPUs"
@@ -967,6 +995,7 @@ class Laptop(Dispositivo):
     pulgadas = models.DecimalField(max_digits=3, decimal_places=1, null=True, blank=True)
     servidor = models.BooleanField(default=False)
 
+
     class Meta:
         verbose_name = "Laptop"
         verbose_name_plural = "Laptops"
@@ -985,6 +1014,7 @@ class Laptop(Dispositivo):
 
 class TipoRed(models.Model):
     nombre = models.CharField(max_length=45)
+    creada_por = models.ForeignKey(User, on_delete=models.PROTECT,default=User.objects.get(username="Admin").pk)
 
     class Meta:
         verbose_name = "Tipo de dispositivo de red"
@@ -1002,6 +1032,8 @@ class DispositivoRed(Dispositivo):
     puerto = models.ForeignKey(DispositivoPuerto, null=True, blank=True)
     velocidad = models.PositiveIntegerField(null=True, blank=True)
     velocidad_medida = models.ForeignKey(DispositivoMedida, null=True, blank=True)
+
+
 
     class Meta:
         verbose_name = "Dispositivo de red"
@@ -1021,6 +1053,8 @@ class AccessPoint(Dispositivo):
     puerto = models.ForeignKey(DispositivoPuerto, null=True, blank=True)
     velocidad = models.PositiveIntegerField(null=True, blank=True)
     velocidad_medida = models.ForeignKey(DispositivoMedida, null=True, blank=True)
+
+
 
     class Meta:
         verbose_name = "Access Point"
@@ -1042,6 +1076,7 @@ class RepuestoEstado(models.Model):
     """
 
     nombre = models.CharField(max_length=25)
+    creada_por = models.ForeignKey(User, on_delete=models.PROTECT,default=User.objects.get(username="Admin").pk)
 
     class Meta:
         verbose_name = "Estado de repuesto"
@@ -1068,6 +1103,7 @@ class Repuesto(models.Model):
     valido = models.BooleanField(default=True, blank=True, verbose_name='Válido')
     marca = models.ForeignKey(DispositivoMarca, on_delete=models.CASCADE, null=True, blank=True)
     modelo = models.CharField(max_length=80, null=True, blank=True)
+    creada_por = models.ForeignKey(User, on_delete=models.PROTECT,default=User.objects.get(username="Admin").pk)
 
     class Meta:
         verbose_name = "Repuesto"
@@ -1127,7 +1163,7 @@ class RepuestoComentario(models.Model):
     dispositivo = models.ForeignKey(Dispositivo, on_delete=models.CASCADE, related_name='comentarios_repuesto_dispositivo')
     comentario = models.TextField()
     fecha_revision = models.DateTimeField(default=timezone.now)
-    creado_por = models.ForeignKey(User, on_delete=models.CASCADE)
+    creado_por = models.ForeignKey(User, on_delete=models.CASCADE,default=User.objects.get(username="Admin").pk)
 
     class Meta:
         verbose_name = 'Comentario de repuesto'
@@ -1142,6 +1178,7 @@ class DesechoEmpresa(models.Model):
     encargado = models.CharField(max_length=100)
     telefono = models.IntegerField(verbose_name="Número Telefónico")
     dpi = models.CharField(max_length=14)
+    creada_por = models.ForeignKey(User, on_delete=models.PROTECT,default=User.objects.get(username="Admin").pk)
 
     class Meta:
         verbose_name = "Empresa de desecho"
@@ -1165,6 +1202,8 @@ class DesechoSalida(models.Model):
     en_creacion = models.BooleanField(default=True, blank=True, verbose_name='En creación')
     codigo_qr = et_fields.ThumbnailerImageField(upload_to='qr_desecho', blank=True, null=True)
     url = models.TextField(null=True, blank=True)
+    revision_sub_jefe = models.BooleanField(default=False, blank=True, verbose_name='sub_revision')
+    revision_jefe = models.BooleanField(default=False, blank=True, verbose_name='jefe_revision')
 
     class Meta:
         verbose_name = "Salida de desecho"
@@ -1216,6 +1255,7 @@ class DesechoDetalle(models.Model):
     cantidad = models.PositiveIntegerField(default=0)
     tipo_dispositivo = models.ForeignKey(DispositivoTipo, on_delete=models.PROTECT, related_name='salidas_desecho')
     aprobado = models.BooleanField(default=False, blank=True)
+    creada_por = models.ForeignKey(User, on_delete=models.PROTECT,default=User.objects.get(username="Admin").pk)
 
     class Meta:
         verbose_name = "Detalle de salida de desecho"
@@ -1231,6 +1271,7 @@ class DesechoDispositivo(models.Model):
     desecho = models.ForeignKey(DesechoSalida, on_delete=models.PROTECT, related_name='detalles_dispositivos')
     dispositivo = models.ForeignKey(Dispositivo, on_delete=models.CASCADE, related_name='desecho')
     aprobado = models.BooleanField(default=False, blank=True)
+    creada_por = models.ForeignKey(User, on_delete=models.PROTECT,default=User.objects.get(username="Admin").pk)
 
     class Meta:
         verbose_name = "Dispositivo de desecho"
@@ -1275,6 +1316,7 @@ class SalidaTipo(models.Model):
     especial = models.BooleanField(default=False, blank=True, verbose_name='especial')
     equipamiento = models.BooleanField(default=False, blank=True, verbose_name='equipamiento')
     renovacion = models.BooleanField(default=False, blank=True, verbose_name='equipamiento')
+    creada_por = models.ForeignKey(User, on_delete=models.PROTECT,default=User.objects.get(username="Admin").pk)
 
     class Meta:
         verbose_name = "Tipo de salida"
@@ -1290,6 +1332,7 @@ class SalidaEstado(models.Model):
     """
 
     nombre = models.CharField(max_length=45)
+    creada_por = models.ForeignKey(User, on_delete=models.PROTECT,default=User.objects.get(username="Admin").pk)
 
     class Meta:
         verbose_name = "Estado de salida"
@@ -1406,7 +1449,7 @@ class SalidaComentario(models.Model):
     salida = models.ForeignKey(SalidaInventario, on_delete=models.CASCADE, related_name='comentarios')
     comentario = models.TextField()
     fecha_revision = models.DateTimeField(default=timezone.now)
-    creado_por = models.ForeignKey(User, on_delete=models.CASCADE)
+    creado_por = models.ForeignKey(User, on_delete=models.CASCADE,default=User.objects.get(username="Admin").pk)
 
     class Meta:
         verbose_name = 'Comentario de revisión de salida control de calidad'
@@ -1422,6 +1465,7 @@ class PaqueteTipo(models.Model):
     """
     nombre = models.CharField(max_length=35, verbose_name='Nombre del tipo')
     tipo_dispositivo = models.ForeignKey(DispositivoTipo, verbose_name='Tipos de dispositivo', null=True, blank=True)
+    creada_por = models.ForeignKey(User, on_delete=models.PROTECT,default=User.objects.get(username="Admin").pk)
 
     class Meta:
         verbose_name = "Tipo de paquete"
@@ -1541,7 +1585,7 @@ class RevisionComentario(models.Model):
     revision = models.ForeignKey(RevisionSalida, on_delete=models.CASCADE, related_name='comentarios')
     comentario = models.TextField()
     fecha_revision = models.DateTimeField(default=timezone.now)
-    creado_por = models.ForeignKey(User, on_delete=models.CASCADE)
+    creado_por = models.ForeignKey(User, on_delete=models.CASCADE,default=User.objects.get(username="Admin").pk)
 
     class Meta:
         verbose_name = 'Comentario de revisión'
@@ -1569,7 +1613,7 @@ class IInternoEstado(models.Model):
 
 class InventarioInterno(models.Model):
     """El objetivo es llevar el control de los dispositivos con triage asignados a los colaboradores para la realización de sus labores
-    diarias o bien para un evento en específico. 
+    diarias o bien para un evento en específico.
     """
     no_asignacion = models.CharField(max_length=10, blank=True, editable=False, db_index=True)
     colaborador_asignado = models.ForeignKey(User, on_delete=models.PROTECT, related_name='asignaciones', blank=True, null=True)
@@ -1594,7 +1638,7 @@ class InventarioInterno(models.Model):
 
 
 class IInternoDispositivo(models.Model):
-    """Un conjunto de :class:'Dispositivo' que se asignan a colaboradores activos dentro de la fundación. 
+    """Un conjunto de :class:'Dispositivo' que se asignan a colaboradores activos dentro de la fundación.
     Solamente podrán asignarse dispositivos con triage.
     """
     no_asignacion = models.ForeignKey(InventarioInterno, on_delete=models.PROTECT, related_name="dispositivos")
@@ -1683,6 +1727,7 @@ class SolicitudMovimiento(models.Model):
         En el ciclo for se realiza la validación para no hacer cambios en dispositivos que no sean del tipo de
         que se está solicitando.
         """
+        print(usuario)
         if not self.terminada:
             for dispositivo in lista_dispositivos:
                 if dispositivo.tipo == self.tipo_dispositivo:
@@ -1713,7 +1758,7 @@ class CambioEtapa(models.Model):
     etapa_inicial = models.ForeignKey(DispositivoEtapa, models.PROTECT, related_name='cambios_inicio')
     etapa_final = models.ForeignKey(DispositivoEtapa, models.PROTECT, related_name='cambios_final')
     fechahora = models.DateTimeField(default=timezone.now)
-    creado_por = models.ForeignKey(User, on_delete=models.PROTECT)
+    creado_por = models.ForeignKey(User, on_delete=models.PROTECT,default=User.objects.get(username="Admin").pk)
 
     class Meta:
         verbose_name = 'Cambio de etapa'
@@ -1728,10 +1773,12 @@ class CambioEtapa(models.Model):
         if self.etapa_inicial != self.etapa_final:
             super(CambioEtapa, self).save(*args, **kwargs)
             self.dispositivo.etapa = self.etapa_final
+            self.dispositivo.creada_por = self.creado_por
             self.dispositivo.tarima = None
             if self.solicitud.desecho:
                 estado_desecho = DispositivoEstado.objects.get(pk=DispositivoEstado.DS)
                 self.dispositivo.estado = estado_desecho
+                self.dispositivo.creada_por =  self.creado_por
             self.dispositivo.save()
 
 
@@ -1739,7 +1786,6 @@ class AsignacionTecnico(models.Model):
     """Registra qué dispositivos puede manipular un técnico"""
     usuario = models.OneToOneField(User, on_delete=models.CASCADE, unique=True, related_name='tipos_dispositivos')
     tipos = models.ManyToManyField(DispositivoTipo, related_name='tipos_disponibles', blank=True)
-
     class Meta:
         verbose_name = 'Asignacion de técnico'
         verbose_name_plural = 'Asignaciones de técnicos'
@@ -1755,7 +1801,7 @@ class CambioEstado(models.Model):
     dispositivo = models.ForeignKey(Dispositivo, on_delete=models.CASCADE, related_name='cambios_estado')
     estado = models.ForeignKey(DispositivoEstado, on_delete=models.PROTECT, related_name='cambios')
     fecha_hora = models.DateTimeField(default=timezone.now)
-    creado_por = models.ForeignKey(User, on_delete=models.CASCADE)
+    creado_por = models.ForeignKey(User, on_delete=models.CASCADE,default=User.objects.get(username="Admin").pk)
 
     class Meta:
         verbose_name = 'Cambio de estado'
@@ -1778,6 +1824,7 @@ class PrestamoTipo(models.Model):
 
     nombre = models.CharField(max_length=25)
     dias = models.PositiveIntegerField(default=0)
+    creada_por = models.ForeignKey(User, on_delete=models.PROTECT,default=User.objects.get(username="Admin").pk)
 
     class Meta:
         verbose_name = "Tipo de Prestamo"

@@ -101,7 +101,7 @@ class GradoSerializer(DynamicFieldsModelSerializer):
     total_ejercicios = serializers.IntegerField()
     promedio_ejercicios = serializers.FloatField(read_only=True)
     promedio_alcanzados = serializers.FloatField(read_only=True)
-
+    grado_creada_por = serializers.HiddenField(default=serializers.CurrentUserDefault())
     class Meta:
         model = kalite_m.Grado
         fields = '__all__'

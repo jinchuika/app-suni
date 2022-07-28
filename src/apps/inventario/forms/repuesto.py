@@ -50,7 +50,7 @@ class RepuestosUpdateForm(forms.ModelForm):
     class Meta:
         model = inv_m.Repuesto
         fields = '__all__'
-        exclude = ['tipo', 'estado', 'codigo_qr', 'entrada', 'entrada_detalle', 'impreso', 'disponible', 'valido']
+        exclude = ['tipo', 'estado', 'codigo_qr', 'entrada', 'entrada_detalle', 'impreso', 'disponible', 'valido','creada_por', ]
         widgets = {
             'descripcion': forms.Textarea(attrs={'cols': 80, 'rows': 5, 'class': 'form-control'}),
             'marca': forms.Select(attrs={'class': 'form-control select2'}),

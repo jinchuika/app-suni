@@ -16,7 +16,9 @@ class RubricaCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView)
     permission_required = 'kalite.add_rubrica'
     redirect_unauthenticated_users = True
     raise_exception = True
-
+    def form_valid(self, form):
+        form.instance.rubrica_creada_por = self.request.user
+        return super(RubricaCreateView, self).form_valid(form)
 
 class RubricaDetailView(LoginRequiredMixin, DetailView):
     model = Rubrica
@@ -36,7 +38,9 @@ class RubricaListView(LoginRequiredMixin, ListView):
 class IndicadorCreateView(LoginRequiredMixin, CreateView):
     model = Indicador
     form_class = kalite_forms.IndicadorForm
-
+    def form_valid(self, form):
+        form.instance.indicador_creada_por = self.request.user
+        return super(IndicadorCreateView, self).form_valid(form)
 
 class TipoVisitaCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     model = TipoVisita
@@ -47,6 +51,9 @@ class TipoVisitaCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateVi
     permission_required = 'kalite.add_tipovisita'
     redirect_unauthenticated_users = True
     raise_exception = True
+    def form_valid(self, form):
+        form.instance.tipo_visita_creada_por = self.request.user
+        return super(TipoVisitaCreateView, self).form_valid(form)
 
 
 class TipoVisitaListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):

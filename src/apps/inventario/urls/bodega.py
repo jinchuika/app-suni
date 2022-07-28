@@ -86,4 +86,16 @@ urlpatterns = [
         inv_v.SectorDetailView.as_view(),
         name='sector_detail'
         ),
+    #  informe de bodega
+    url(
+        r'^informe/resumebodega/$',
+        inv_v.BodegaResumenInformeListView.as_view(),
+        name='bodega_informe_resumen'
+        ),
+    #  imprimi informe de bodega
+    url(
+        r'^informe/resumebodega/print/$',
+        inv_v.BodegaResumenInformePrintView.as_view(),
+        name='bodega_informe_resumen_print'
+        ),
 ]

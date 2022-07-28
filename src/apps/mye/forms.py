@@ -16,6 +16,7 @@ class CooperanteForm(forms.ModelForm):
         model = mye_m.Cooperante
         fields = '__all__'
         widgets = {'nombre': forms.TextInput(attrs={'class': 'form-control'})}
+        exclude = ('creado_por',)
 
 
 class ProyectoForm(forms.ModelForm):
@@ -23,7 +24,7 @@ class ProyectoForm(forms.ModelForm):
         model = mye_m.Proyecto
         fields = '__all__'
         widgets = {'nombre': forms.TextInput(attrs={'class': 'form-control'})}
-
+        exclude = ('creado_por',)
 
 class CPFilterForm(forms.Form):
     equipamientos_min = forms.IntegerField(
@@ -79,7 +80,7 @@ class SolicitudVersionForm(forms.ModelForm):
         widgets = {
             'requisito': forms.CheckboxSelectMultiple()
         }
-
+        exclude = ('creado_por',)
 
 class SolicitudNuevaForm(forms.ModelForm):
 
@@ -137,7 +138,7 @@ class SolicitudForm(forms.ModelForm):
             'alumna', 'alumno', 'total_alumno', 'maestra', 'maestro', 'total_maestro',
             'requisito', 'medio', 'observacion',
         ]
-        exclude = ('escuela', ' poblacion')
+        exclude = ('escuela', ' poblacion','creado_por',)
         labels = {
             'formulario': 'Formulario físico',
             'jornada': 'Cantidad de jornadas en la escuela',
@@ -302,7 +303,7 @@ class ValidacionForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(ValidacionForm, self).__init__(*args, **kwargs)
-        version = mye_m.ValidacionVersion.objects.get(id=self.initial['version'])        
+        version = mye_m.ValidacionVersion.objects.get(id=self.initial['version'])
         self.fields['requisito'].queryset = mye_m.Requisito.objects.filter(id__in=version.requisito.all())
         if self.instance.poblacion:
             self.fields['alumna'].initial = self.instance.poblacion.alumna

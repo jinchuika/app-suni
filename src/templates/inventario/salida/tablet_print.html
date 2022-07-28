@@ -7,7 +7,7 @@
 <!--ENCABEZADO DE DATOS E IMAGENES -->
 <header>
 	<div class="logo_izquierdo">
-	<img  width= "125" height="100" style="float:left; margin:10px;"src="{% static "image/funsepalogo.png" %}">
+	<img  width= "125" height="100" style="float:left; margin:10px;"src="{% static "image/Logo_Funsepa-01.png" %}">
 	</div>
 	<center>
 <div class="encabezado" >
@@ -36,21 +36,47 @@ TELÉFONO 2435-2739 / 24319639</b>
 <table class="info" >
 	<b>
 	<br>
-	<td width="	250" >NOMBRE DE LA INSTITUCIÓN</td>
-	<td style="border:solid; border-width: 1px;border-color:gray" width="675" height="28">{{salidainventario.escuela}}</td>
-	<td  width="20"></td>
-	<td>DIRECCIÓN</td>
-	<td style="border:solid; border-width: 1px;border-color:gray" width="675" height="28">{{salidainventario.escuela.direccion}}</td>
+	{% if salidainventario.tipo_salida|stringformat:"s" == 'A terceros' %}
+<td width="	250" >NOMBRE DEL BENEFICIARIO</td>
+<td style="border:solid; border-width: 1px;border-color:gray" width="675" height="28">{{salidainventario.beneficiario}}</td>
+<td  width="20"></td>
+<td>DIRECCIÓN</td>
+<td style="border:solid; border-width: 1px;border-color:gray" width="675" height="28">
+		{% if  salidainventario.beneficiario.direccion %}{{salidainventario.beneficiario.direccion}} {% else %} NO APLICA{% endif %}
+</td>
+
+{% else %}
+<td width="	250" >NOMBRE DE LA INSTITUCIÓN</td>
+<td style="border:solid; border-width: 1px;border-color:gray" width="675" height="28">{{salidainventario.escuela}}</td>
+<td  width="20"></td>
+<td>DIRECCIÓN</td>
+<td style="border:solid; border-width: 1px;border-color:gray" width="675" height="28">{{salidainventario.escuela.direccion}}</td>
+
+{% endif %}
 	</b>
 </table>
 
 <table class="info2" >
 
+	{% if salidainventario.tipo_salida|stringformat:"s" == 'A terceros' %}
 	<td width="	250" >NOMBRE DEL ENCARGADO(A)</td>
-	<td style="border:solid; border-width: 1px;border-color:gray" width="700" height="28">{{Encargado}}</td>
+	<td style="border:solid; border-width: 1px;border-color:gray" width="700" height="28">&nbsp;&nbsp;NO APLICA</td>
 	<td  width="20"></td>
 	<td>TELEFONO(S)</td>
-	<td style="border:solid; border-width: 1px;border-color:gray" width="700" height="28">{{salidainventario.escuela.telefono}}</td>
+	<td style="border:solid; border-width: 1px;border-color:gray" width="700" height="28">&nbsp;&nbsp;
+
+			{% if  salidainventario.beneficiario.fax %}{{salidainventario.beneficiario.fax}} {% else %} NO APLICA{% endif %}
+	</td>
+	{% else %}
+	<td width="	250" >NOMBRE DEL ENCARGADO(A)</td>
+	<td style="border:solid; border-width: 1px;border-color:gray" width="700" height="28">&nbsp;&nbsp;{{Encargado}}</td>
+	<td  width="20"></td>
+	<td>TELEFONO(S)</td>
+	<td style="border:solid; border-width: 1px;border-color:gray" width="700" height="28">&nbsp;&nbsp;
+
+			{% if  Telefono|stringformat:"s" == 'None' %} {{salidainventario.escuela.telefono}}{% else %} NO APLICA{% endif %}
+	</td>
+	{% endif %}
 </table>
 </table>
 </b>

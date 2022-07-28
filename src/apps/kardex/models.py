@@ -9,7 +9,7 @@ from apps.inventario.models import SolicitudMovimiento as SolicitudMovimiento
 
 class Equipo(models.Model):
     nombre = models.CharField(max_length=70)
-
+    creado_por = models.ForeignKey(User, on_delete=models.PROTECT,default=User.objects.get(username="Admin").pk)
     class Meta:
         verbose_name = 'Equipo'
         verbose_name_plural = 'Equipo'
@@ -65,7 +65,7 @@ class Equipo(models.Model):
 
 class TipoProveedor(models.Model):
     tipo = models.CharField(max_length=15)
-
+    creado_por = models.ForeignKey(User, on_delete=models.PROTECT,default=User.objects.get(username="Admin").pk)
     class Meta:
         verbose_name = 'Tipo de Proveedor'
         verbose_name_plural = 'Tipos de Proveedore'
@@ -76,7 +76,7 @@ class TipoProveedor(models.Model):
 
 class EstadoEquipo(models.Model):
     estado = models.CharField(max_length=10)
-
+    creado_por = models.ForeignKey(User, on_delete=models.PROTECT,default=User.objects.get(username="Admin").pk)
     class Meta:
         verbose_name = 'Estado del equipo'
         verbose_name_plural = 'Estados del equipo'
@@ -87,7 +87,7 @@ class EstadoEquipo(models.Model):
 
 class TipoSalida(models.Model):
     tipo = models.CharField(max_length=25)
-
+    creado_por = models.ForeignKey(User, on_delete=models.PROTECT,default=User.objects.get(username="Admin").pk)
     class Meta:
         verbose_name = 'Tipo de salida'
         verbose_name_plural = 'Tipos de salida'
@@ -98,7 +98,7 @@ class TipoSalida(models.Model):
 
 class TipoEntrada(models.Model):
     tipo = models.CharField(max_length=25)
-
+    creado_por = models.ForeignKey(User, on_delete=models.PROTECT,default=User.objects.get(username="Admin").pk)
     class Meta:
         verbose_name = 'Tipo de entrada'
         verbose_name_plural = 'Tipos de entrada'
@@ -112,7 +112,7 @@ class Proveedor(models.Model):
     tipo = models.ForeignKey(TipoProveedor, on_delete=models.PROTECT)
     direccion = models.CharField(max_length=128, null=True, blank=True, verbose_name='Dirección')
     telefono = models.IntegerField(null=True, blank=True)
-
+    creado_por = models.ForeignKey(User, on_delete=models.PROTECT,default=User.objects.get(username="Admin").pk)
     class Meta:
         verbose_name = 'Proveedor'
         verbose_name_plural = 'Proveedores'
@@ -142,6 +142,7 @@ class Entrada(models.Model):
         related_name='inventario',
         null=True,
         blank=True)
+    creado_por = models.ForeignKey(User, on_delete=models.PROTECT,default=User.objects.get(username="Admin").pk)
 
     class Meta:
         verbose_name = 'Entrada'
@@ -172,7 +173,6 @@ class EntradaDetalle(models.Model):
     equipo = models.ForeignKey(Equipo, related_name='detalles_entrada', on_delete=models.CASCADE)
     cantidad = models.PositiveIntegerField()
     precio = models.DecimalField(max_digits=9, decimal_places=2, null=True, blank=True, default=0.0)
-
     class Meta:
         verbose_name = 'Detalle de entrada'
         verbose_name_plural = 'Detalles de entrada'
@@ -220,7 +220,6 @@ class SalidaDetalle(models.Model):
     salida = models.ForeignKey(Salida, related_name='detalles', null=True, on_delete=models.CASCADE)
     equipo = models.ForeignKey(Equipo, on_delete=models.PROTECT, related_name='detalles_salida')
     cantidad = models.PositiveIntegerField()
-
     class Meta:
         verbose_name = 'Detalle de salida'
         verbose_name_plural = 'Detalles de salida'

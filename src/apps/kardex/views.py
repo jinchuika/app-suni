@@ -46,6 +46,11 @@ class ProveedorCreateView(LoginRequiredMixin, GroupRequiredMixin, CreateView):
     form_class = ProveedorForm
     template_name = 'kardex/proveedor_form.html'
 
+    def form_valid(self, form):
+        form.instance.creado_por = self.request.user
+        return super(ProveedorCreateView, self).form_valid(form)
+
+
 
 class ProveedorUpdateView(LoginRequiredMixin, GroupRequiredMixin, UpdateView):
     group_required = [u"kardex", ]
@@ -75,6 +80,10 @@ class EquipoCreateView(LoginRequiredMixin, GroupRequiredMixin, CreateView):
     model = Equipo
     form_class = EquipoForm
 
+    def form_valid(self, form):
+        form.instance.creado_por = self.request.user
+        return super(EquipoCreateView, self).form_valid(form)
+
 
 class EntradaCreateView(LoginRequiredMixin, GroupRequiredMixin, CreateView):
     group_required = [u"kardex", ]
@@ -89,6 +98,10 @@ class EntradaCreateView(LoginRequiredMixin, GroupRequiredMixin, CreateView):
         context['pendientes_list'] = Entrada.objects.filter(terminada=False)
         context['filter_form'] = KardexInformeForm()
         return context
+
+    def form_valid(self, form):
+        form.instance.creado_por = self.request.user
+        return super(EntradaCreateView, self).form_valid(form)
 
 
 class EntradaDetailView(LoginRequiredMixin, GroupRequiredMixin, DetailView):

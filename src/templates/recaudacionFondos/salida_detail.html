@@ -1,0 +1,100 @@
+{% extends "base/base.html" %}
+
+{% load staticfiles l10n %}
+{% block content %}
+
+<section class="content">
+	<div class="row">
+		<section class="invoice">
+			<div class="row">
+				<div class="col-xs-12">
+					<h2 class="page-header">
+						<i class="fa fa-sign-in"></i> Salida No. {{ salida.id }}
+						<small class="pull-right">Fecha: </small>
+					</h2>
+				</div>
+			</div>
+			<div class="row invoice-info">
+				<div class="col-sm-3 invoice-col">
+					<b>Proveedor</b>
+					<address>
+						{{ salida.proveedor }}
+					</address>
+				</div>
+        <div class="col-sm-3 invoice-col">
+					<b>Fecha </b>
+					<address>
+						{{ salida.fecha|date:"Y-m-d" }}
+					</address>
+				</div>
+			</div>
+			<hr>
+
+			<div class="row">
+				<div class="col-xs-12 table-responsive">
+					<table class="table table-striped table-condensed table-hover">
+						<thead>
+							<tr>
+								<th>Cantidad</th>
+								<th>Articulo</th>
+								<th>Precio</th>
+							</tr>
+						</thead>
+						<tbody>
+							{% for detalle in salida.salida_detalle.all %}
+							<tr>
+								<td>{{ detalle.cantidad }}</td>
+								<td>{{ detalle.articulo }}</td>
+								<td>{{ detalle.precio }}</td>
+							</tr>
+							{% endfor %}
+						</tbody>
+					</table>
+				</div>
+			</div>
+
+			<div class="row">
+				<div class="col-xs-6">
+					<p class="lead">Observaciones:</p>
+
+					<p class="well well-sm no-shadow" style="margin-top: 10px;">
+						{{ salida.observaciones }}
+					</p>
+				</div>
+				{% if salida.terminada != True %}
+				<div class="col-xs-6">
+					<p class="lead">Agregar equipo</p>
+					<form id="detalle-form" action="{% url 'recaudacion_salidadetalle_add' %}" method="post" data-url = "{% url 'recaudacionFondos_api:api_articulo-list' %}">
+						{% csrf_token %}
+						<div class="table-responsive">
+							<table class="table">
+								{{ detalle_form.as_table }}
+							</table>
+						</div>
+						<input type="submit" class="btn btn-success pull-right" value="Agregar">
+					</form>
+				</div>
+				{% endif %}
+			</div>
+
+			<div class="row no-print">
+				<div class="col-xs-12">
+					{% if salida.terminada != True %}
+					<button id="terminar-salida-recaudacion" type="button" class="btn btn-danger" data-url="{% url 'recaudacionFondos_api:api_salidas-list' %}"  data-pk={{salida.id}}>Terminar</button>
+					{% else %}
+					 <a href="{{ salida.get_print_url }}" target="_blank" class="btn btn-default"><i class="fa fa-print"></i> Imprimir</a>
+					{% endif %}
+				</div>
+			</div>
+		</section>
+	</div>
+</section>
+{% endblock content %}
+
+
+{% block extra_js %}
+<script src="{% static "js/extrajs/recaudacionFondos.js" %}"></script>
+<script>
+  var nuevo  = new Salida();
+</script>
+{% endblock extra_js %}

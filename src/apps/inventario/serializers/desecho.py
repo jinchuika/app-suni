@@ -9,10 +9,10 @@ class DesechoDetalleSerializer(serializers.ModelSerializer):
     """
     tdispositivo = serializers.StringRelatedField(source='entrada_detalle.descripcion', read_only=True)
     entrada = serializers.StringRelatedField(source='entrada_detalle.entrada', read_only=True)
-
+    creada_por = serializers.HiddenField(default=serializers.CurrentUserDefault())
     class Meta:
         model = inv_m.DesechoDetalle
-        fields = ['id', 'desecho', 'entrada_detalle', 'cantidad', 'tdispositivo', 'tipo_dispositivo', 'aprobado', 'entrada']
+        fields = ['id', 'desecho', 'entrada_detalle', 'cantidad', 'tdispositivo', 'tipo_dispositivo', 'aprobado', 'entrada', 'creada_por']
 
     def validate(self, data):
         errors = {}
@@ -22,7 +22,7 @@ class DesechoDetalleSerializer(serializers.ModelSerializer):
         if entrada_detalle.existencia_desecho < cantidad:
             errors['error'] = u'Ingrese una cantidad válida'
             raise serializers.ValidationError(errors)
-        return data 
+        return data
 
 
 class DesechoDispositivoSerializer(serializers.ModelSerializer):
@@ -30,7 +30,7 @@ class DesechoDispositivoSerializer(serializers.ModelSerializer):
     """
     tipo = serializers.StringRelatedField(source='dispositivo.tipo')
     triage = serializers.StringRelatedField(source='dispositivo.triage')
-
+    creada_por = serializers.HiddenField(default=serializers.CurrentUserDefault())
     class Meta:
         model = inv_m.DesechoDispositivo
         fields = '__all__'
@@ -48,4 +48,3 @@ class DesechoSalidaSerializer(serializers.ModelSerializer):
 
     def get_url_detalle(self, obj):
         return reverse_lazy('desechosalida_detail', kwargs={'pk':obj.id})
-

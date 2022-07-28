@@ -23,6 +23,7 @@ class Rubrica(models.Model):
     descripcion = models.TextField(null=True, blank=True, verbose_name='Descripción')
     color = models.CharField(max_length=20, default="aqua", choices=COLOR_CHOICES)
     icon = models.CharField(max_length=25, default="fa-check-square-o")
+    rubrica_creada_por =models.ForeignKey(User, on_delete=models.CASCADE,default=User.objects.get(username="Admin").pk)
 
     class Meta:
         verbose_name = "Rúbrica"
@@ -42,6 +43,7 @@ class TipoVisita(models.Model):
     """
     nombre = models.CharField(max_length=30)
     rubricas = models.ManyToManyField(Rubrica)
+    tipo_visita_creada_por =models.ForeignKey(User, on_delete=models.CASCADE,default=User.objects.get(username="Admin").pk)
 
     class Meta:
         verbose_name = "Tipo de Visita"
@@ -64,6 +66,7 @@ class Visita(models.Model):
     capacitador = models.ForeignKey(User, related_name='visitas_kalite', on_delete=models.CASCADE)
     numero = models.PositiveIntegerField(default=1)
     observaciones = models.TextField(null=True, blank=True)
+    visita_creada_por =models.ForeignKey(User, on_delete=models.CASCADE,default=User.objects.get(username="Admin").pk)
 
     class Meta:
         verbose_name = "Visita de KA Lite"
@@ -135,7 +138,7 @@ class Indicador(models.Model):
     """Indicador a evaluar de la :class:`kalite.Rubrica`."""
     rubrica = models.ForeignKey(Rubrica, related_name='indicadores', on_delete=models.CASCADE)
     indicador = models.TextField()
-
+    indicador_creada_por =models.ForeignKey(User, on_delete=models.CASCADE,default=User.objects.get(username="Admin").pk)
     class Meta:
         verbose_name = "Indicador"
         verbose_name_plural = "Indicadores"
@@ -155,6 +158,7 @@ class Evaluacion(models.Model):
     visita = models.ForeignKey(Visita, related_name='evaluaciones', on_delete=models.CASCADE)
     rubrica = models.ForeignKey(Rubrica, on_delete=models.CASCADE)
     observaciones = models.TextField(null=True, blank=True)
+    evaluacion_creada_por =models.ForeignKey(User, on_delete=models.CASCADE,default=User.objects.get(username="Admin").pk)
 
     class Meta:
         verbose_name = "Evaluación"
@@ -217,6 +221,7 @@ class Punteo(models.Model):
     evaluacion = models.ForeignKey(Evaluacion, related_name='notas', on_delete=models.CASCADE)
     indicador = models.ForeignKey(Indicador, on_delete=models.CASCADE)
     nota = models.IntegerField(choices=NOTA_CHOICES, default=NOTA_1)
+    punteo_creada_por =models.ForeignKey(User, on_delete=models.CASCADE,default=User.objects.get(username="Admin").pk)
 
     class Meta:
         verbose_name = "Punteo"
@@ -252,7 +257,7 @@ class Grado(models.Model):
     total_estudiantes = models.PositiveIntegerField(verbose_name='Cantidad de estudiantes', default=1)
     alcanzados = models.PositiveIntegerField(verbose_name='Estudiantes alcanzados', default=1)
     total_ejercicios = models.PositiveIntegerField(verbose_name='Cantidad de ejercicios', default=1)
-
+    grado_creada_por =models.ForeignKey(User, on_delete=models.CASCADE,default=User.objects.get(username="Admin").pk)
     class Meta:
         verbose_name = "Grado"
         verbose_name_plural = "Grados"
@@ -296,7 +301,7 @@ class EjerciciosGrado(models.Model):
     grado = models.ForeignKey(Grado, related_name='ejercicios', on_delete=models.CASCADE)
     estudiantes = models.PositiveIntegerField(default=0)
     ejercicios = models.PositiveIntegerField()
-
+    ejercicio_creada_por =models.ForeignKey(User, on_delete=models.CASCADE,default=User.objects.get(username="Admin").pk)
     class Meta:
         verbose_name = "EjerciciosGrado"
         verbose_name_plural = "EjerciciosGrados"

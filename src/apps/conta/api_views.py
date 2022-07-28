@@ -4,7 +4,7 @@ from rest_framework import viewsets, status, views
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from braces.views import LoginRequiredMixin
-
+from django.contrib.auth.models import User
 from apps.conta import (
     serializers as conta_s,
     models as conta_m)
@@ -23,6 +23,7 @@ class PeriodoFiscalViewSet(viewsets.ModelViewSet):
     def validar_periodo(self, request, pk=None):
         """ Funcion para validar los periodos fiscales
         """
+        usuario =User.objects.get(username=self.request.user)
         fecha_fin = request.data["fecha_fin"]
         fecha_inicio = request.data["fecha_inicio"]
         try:
@@ -49,11 +50,14 @@ class PeriodoFiscalViewSet(viewsets.ModelViewSet):
                     )
             for nuevo in periodo_activo:
                 nuevo.actual = False
+                nuevo.creado_por = self.request.user
                 nuevo.save()
+        #actual=True
         nuevo_periodo = conta_m.PeriodoFiscal(
             fecha_fin=fecha_fin,
             fecha_inicio=fecha_fin,
-            actual=actual
+            actual=actual,
+            creado_por = self.request.user #42
         )
         nuevo_periodo.save()
         return Response(
@@ -79,7 +83,7 @@ class PrecioEstandarViewSet(viewsets.ModelViewSet):
         data_id = request.data['id']
 
         precio_estandar = conta_m.PrecioEstandar.objects.get(pk=data_id)
-        
+
         if precio_estandar.inventario == conta_m.PrecioEstandar.DISPOSITIVO:
             utiles = inv_m.Dispositivo.objects.filter(valido=True, tipo=precio_estandar.tipo_dispositivo)
             for dispositivo in utiles:
