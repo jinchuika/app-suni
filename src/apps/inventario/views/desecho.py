@@ -120,8 +120,10 @@ class DesechoSalidaPrintView(LoginRequiredMixin, DetailView, GroupRequiredMixin)
         context['desechodetalles'] = inv_m.DesechoDetalle.objects.filter(desecho=self.object.id)
         context['desechodispositivo'] = inv_m.DesechoDispositivo.objects.filter(desecho=self.object.id)
         total_detalles = inv_m.DesechoDetalle.objects.filter(
-            desecho=self.object.id).aggregate(total_util=Sum('cantidad'))
-        total_dispositivo = inv_m.DesechoDispositivo.objects.filter(desecho=self.object.id).count()
+                desecho=self.object.id).aggregate(total_util=Sum('cantidad'))        
+        if total_detalles['total_util'] is None:
+            total_detalles['total_util'] = 0
+        total_dispositivo = inv_m.DesechoDispositivo.objects.filter(desecho=self.object.id).count()        
         cantidad_total = total_dispositivo + total_detalles['total_util']
         context['cantidad_total'] = cantidad_total
         return context
