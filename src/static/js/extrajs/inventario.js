@@ -1999,7 +1999,7 @@ class Salidas {
         mes='0'+mes;
     }
     var fecha = year+'-'+mes+'-'+dia;
-    $('#id_fecha').val(fecha);
+    //$('#id_fecha').val(fecha); 
     $("[for='id_garantia']").css({"visibility":"hidden"});
     $("[for='id_beneficiario']").css({"visibility":"hidden"});
     $('#id_garantia').next(".select2-container").hide();
@@ -2298,7 +2298,8 @@ class Salidas {
 
         } else {
           bootbox.confirm({
-                      message: "Esta Seguro que quiere Terminar la Creacion de Salida",
+                      message: "<h3><i class='fa fa-info-circle' style='font-size: 45px;'></i>&nbsp;&nbsp;&nbsp;Esta Seguro que quiere Terminar la Creacion de la Salida Que Tiene La Fecha <b>\""+ $('#id_fecha').val()+"\"</b></h3></br>" ,
+                      className:"modal modal-warning fade",
                       buttons: {
                           confirm: {
                               label: 'Si',

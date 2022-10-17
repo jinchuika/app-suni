@@ -27,7 +27,7 @@ class Curso(models.Model):
     nota_aprobacion = models.IntegerField()
     porcentaje = models.IntegerField(null=True, blank=True)
     activo = models.BooleanField(default=True, blank=True, verbose_name='Activo')
-    grupos_certificado = models.IntegerField(choices=GRUPO_CERTIFICADOS, default=1)
+    #grupo_certificado = models.IntegerField(choices=GRUPO_CERTIFICADOS, default=1)
     cyd_curso_creado_por =models.ForeignKey(User, on_delete=models.CASCADE,default=User.objects.get(username="Admin").pk)
 
     def __str__(self):
@@ -68,6 +68,7 @@ class CrHito(models.Model):
     nombre = models.CharField(max_length=40)
     punteo_max = models.IntegerField()
     cyd_cr_hito_creado_por =models.ForeignKey(User, on_delete=models.CASCADE,default=User.objects.get(username="Admin").pk)
+  
 
 
     class Meta:
@@ -91,8 +92,8 @@ class Sede(models.Model):
     observacion = models.TextField(null=True, blank=True, verbose_name='Observaciones')
     mapa = models.ForeignKey(Coordenada, null=True, blank=True, on_delete=models.CASCADE)
     activa = models.BooleanField(default=True, blank=True, verbose_name='Activa')
-    escuela_beneficiada = models.ForeignKey(Escuela, on_delete=models.PROTECT, related_name='escuela_beneficiada', blank=True, null=True)
-    tipo_sede = models.CharField(max_length=2, verbose_name='Tipo de Sede' , choices=TIPO_SEDES, default='B')
+    #escuela_beneficiada = models.ForeignKey(Escuela, on_delete=models.PROTECT, related_name='escuela_beneficiada', blank=True, null=True)
+    #tipo_sede = models.CharField(max_length=2, verbose_name='Tipo de Sede' , choices=TIPO_SEDES, default='B')
     fecha_creacion = models.DateField(null=True, blank=True)
     url = models.TextField(null=True, blank=True,verbose_name='Carpeta Fotos')
     url_archivos = models.TextField(null=True, blank=True,verbose_name='Carpeta Archivos')
@@ -332,6 +333,7 @@ class Participante(models.Model):
     slug = models.SlugField(max_length=20, null=True, blank=True)
     activo = models.BooleanField(default=True, blank=True, verbose_name='Activo')
     cyd_participante_creado_por =models.ForeignKey(User, on_delete=models.CASCADE,default=User.objects.get(username="Admin").pk)
+    
 
     class Meta:
         verbose_name = "Participante"
@@ -371,8 +373,7 @@ class Asignacion(models.Model):
     participante = models.ForeignKey(Participante, related_name='asignaciones', on_delete=models.CASCADE)
     grupo = models.ForeignKey(Grupo, related_name='asignados', on_delete=models.CASCADE)
     abandono=models.BooleanField(default=False, blank=True, verbose_name='Abandono')
-    cyd_asignacion_creado_por =models.ForeignKey(User, on_delete=models.CASCADE,default=User.objects.get(username="Admin").pk)
-
+    
     class Meta:
         verbose_name = "Asignación"
         verbose_name_plural = "Asignaciones"
@@ -445,7 +446,7 @@ class NotaAsistencia(models.Model):
     asignacion = models.ForeignKey(Asignacion, related_name='notas_asistencias', on_delete=models.CASCADE)
     gr_calendario = models.ForeignKey(Calendario, related_name='notas_asociadas', on_delete=models.CASCADE)
     nota = models.IntegerField(default=0)
-    cyd_nota_asistencia_creado_por =models.ForeignKey(User, on_delete=models.CASCADE,default=User.objects.get(username="Admin").pk)
+   
 
     class Meta:
         """No pueden existir dos registros de notas para el mismo período de capacitación."""
@@ -470,7 +471,7 @@ class NotaHito(models.Model):
     asignacion = models.ForeignKey(Asignacion, related_name='notas_hitos', on_delete=models.CASCADE)
     cr_hito = models.ForeignKey(CrHito, on_delete=models.CASCADE)
     nota = models.IntegerField(default=0)
-    cyd_nota_hito_creado_por =models.ForeignKey(User, on_delete=models.CASCADE,default=User.objects.get(username="Admin").pk)
+    
 
     class Meta:
         """No pueden existir dos registros de notas para el mismo hito."""

@@ -106,7 +106,8 @@ class RepuestoInventarioViewSet(viewsets.ModelViewSet):
                 periodo_fiscal=periodo_actual,
                 tipo_movimiento=conta_m.MovimientoRepuesto.BAJA,
                 referencia='Salida {}'.format(salida),
-                precio=precio_repuesto.precio)
+                precio=precio_repuesto.precio,
+                creado_por  = request.user )
             movimiento.save()
 
         except ObjectDoesNotExist as e:
