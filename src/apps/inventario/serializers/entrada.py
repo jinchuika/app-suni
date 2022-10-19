@@ -1,3 +1,4 @@
+from calendar import c
 from rest_framework import serializers
 from django.urls import reverse_lazy
 from django.core.exceptions import ObjectDoesNotExist
@@ -122,32 +123,25 @@ class EntradaDetalleSerializer(serializers.ModelSerializer):
             si es el sub jefe enviara el numero 2
             si es otro usuario envirara el numero 4 
         """
-        contador = 0
-        asignacion = 0
+        contador = 4
         usuario = self.context.get('request',None).user
-        grupos  = User.objects.get(username=usuario)
-        for data in grupos.groups.all():
-            if str(data) == "inv_admin":
-                contador = contador +1
-                asignacion = 1
-            elif str(data) == "inv_sub_jefe":
-                asignacion = 2
-                contador = contador + 1
-            else:
-                contador = 0
-        if contador == 0 :
-            print("Es  otro usuario")
-            return 4
-        elif contador == 1:
-            if asignacion == 1:
-                print("Es el admin")
-                return 1
-            else:
-                print("Es el subjefe")
-                return 2
-        else:
-            print("es el admin otra vez")
-            return 3
+        grupos  = User.objects.get(username=usuario)        
+        for data in grupos.groups.all().values():
+            if data['name'] == "inv_admin":
+                print(data['id'])
+                contador = data['id']
+            elif data['name'] == "inv_sub_jefe":
+                print(data['id'])
+                contador = data['id']
+        return contador
+              
+               
+        
+        
+
+        
+        
+        
 
 
 

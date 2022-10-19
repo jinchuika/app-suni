@@ -92,7 +92,7 @@ class Sede(models.Model):
     observacion = models.TextField(null=True, blank=True, verbose_name='Observaciones')
     mapa = models.ForeignKey(Coordenada, null=True, blank=True, on_delete=models.CASCADE)
     activa = models.BooleanField(default=True, blank=True, verbose_name='Activa')
-    #escuela_beneficiada = models.ForeignKey(Escuela, on_delete=models.PROTECT, related_name='escuela_beneficiada', blank=True, null=True)
+    escuela_beneficiada = models.ForeignKey(Escuela, on_delete=models.PROTECT, related_name='escuela_beneficiada', blank=True, null=True)
     #tipo_sede = models.CharField(max_length=2, verbose_name='Tipo de Sede' , choices=TIPO_SEDES, default='B')
     fecha_creacion = models.DateField(null=True, blank=True)
     url = models.TextField(null=True, blank=True,verbose_name='Carpeta Fotos')

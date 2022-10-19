@@ -90,7 +90,9 @@ class EntradaDetalleForm(forms.ModelForm):
             'fecha_dispositivo',
             'fecha_repuesto',
             'enviar_kardex',
-            'ingresado_kardex',            
+            'ingresado_kardex', 
+            'pendiente_autorizar',
+            'autorizado'           
             ]
         widgets = {
             'entrada': forms.HiddenInput(),

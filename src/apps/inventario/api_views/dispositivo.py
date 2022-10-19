@@ -88,7 +88,7 @@ class DispositivoViewSet(viewsets.ModelViewSet):
             tipo_dis = inv_m.DispositivoTipo.objects.filter(id=tipo)
 
         if triage or dispositivo or etapa:
-            nueva_salida  = inv_m.SalidaInventario.objects.get(id=salida)
+            #nueva_salida  = inv_m.SalidaInventario.objects.get(id=salida)
             dispositivos_salida = inv_m.CambioEtapa.objects.filter(
                 solicitud__no_salida = salida,
                 dispositivo__tipo = tipo_dis

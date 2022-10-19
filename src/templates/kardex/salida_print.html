@@ -1,13 +1,14 @@
 {% extends "base/base-print.html" %}
-
+{%load staticfiles %}
 {% block content %}
 <section class="invoice">
 	<div class="row">
 		<div class="col-xs-12">
 			<h2 class="page-header">
 				<i class="fa fa-sign-out"></i> Salida No. {{ salida.id }}
-				<img class="img-responsive pull-right" height="82" width="82" src="{% static 'image/Logo_Funsepa-01.png' %}">
+				<img class="img-responsive pull-right" height="82" width="82" src="{% static "image/Logo_Funsepa-01.png" %}"/>
 			</h2>
+			
 		</div>
 	</div>
 	<div class="row invoice-info">

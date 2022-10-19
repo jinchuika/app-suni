@@ -61,7 +61,7 @@ class EntradaCreate {
 
     $('#id_tipo').change( function() {
       var selected_tipo = $('#id_tipo option:selected').text();
-      if(selected_tipo == 'Compra'){
+      if(selected_tipo == 'Compra' || selected_tipo == 'BEQT' ){
         $("[for='id_factura']").css({"visibility":"visible"});
         $("#id_factura").css({"visibility":"visible"});
       } else {
@@ -133,7 +133,7 @@ class EntradaUpdate {
 
                 }},
                 {
-                    data: "",render: function(data, type, full, meta){
+                    data: "",render: function(data, type, full, meta){                     
                       if(full.grupos == 4){
                         if(full.autorizado == true){
                           return "";
@@ -166,7 +166,7 @@ class EntradaUpdate {
                         }
 
                       }else{
-                        if(full.grupos ==  1 || full.grupos == 3){
+                        if(full.grupos ==  20){
                           if(full.pendiente_autorizar == true){
                             if (full.autorizado == false){
                                 return "<a  class='btn btn-info btn-autorizar'>Autorizar</a>";
@@ -696,6 +696,9 @@ class EntradaDetail {
 
         });
     }
+
+   
+     
 }
 
 
