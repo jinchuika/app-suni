@@ -85,17 +85,19 @@ class DispositivoViewSet(viewsets.ModelViewSet):
         if tipo is None:
             tipo_dis = self.request.user.tipos_dispositivos.tipos.all()
         else:
-            tipo_dis = inv_m.DispositivoTipo.objects.filter(id=tipo)
+            tipo_dis = inv_m.DispositivoTipo.objects.filter(id=tipo)       
 
-        if triage or dispositivo or etapa:
+        if  dispositivo or etapa:
             #nueva_salida  = inv_m.SalidaInventario.objects.get(id=salida)
             dispositivos_salida = inv_m.CambioEtapa.objects.filter(
                 solicitud__no_salida = salida,
                 dispositivo__tipo = tipo_dis
-            )
+            )            
             for data in dispositivos_salida.values('dispositivo'):
                 lista_dispositivos.append(data['dispositivo'])            
             return inv_m.Dispositivo.objects.all().filter(id__in=lista_dispositivos)
+        elif triage:
+            return inv_m.Dispositivo.objects.filter(triage=triage)
         elif tipo or marca or modelo or tarima:
             # Se encarga de mostrar mas rapido los dispositivos que se usan con mas frecuencia
             # o mayor cantidad en el inventario
