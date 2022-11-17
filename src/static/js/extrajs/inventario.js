@@ -1551,6 +1551,7 @@ class SolicitudMovimientoUpdate {
         var cantidad = $("#solicitud-table").data("cantidad");
         let cantidad_disponible = $("#solicitud-table").data("dispo");
         let cantidad_asignar = cantidad-cantidad_disponible;
+        let salida=  $("#solicitud-table").data("salida");
         $('#id_dispositivos').val("").trigger('change');
         var lista_triage = [];
         sel_dispositivos.select2({
@@ -1686,7 +1687,9 @@ class SolicitudMovimientoUpdate {
                    data:{
                      etapa: etapa_inicial,
                      estado: estado_inicial,
-                     triage: mensaje.triage
+                     triage: mensaje.triage,
+                     solicitud:true
+                    
                    },
                    error:function(){
                      console.log("Error");

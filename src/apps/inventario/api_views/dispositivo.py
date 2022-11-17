@@ -78,48 +78,55 @@ class DispositivoViewSet(viewsets.ModelViewSet):
         modelo = self.request.query_params.get('modelo', None)
         tarima = self.request.query_params.get('tarima', None)
         etapa = self.request.query_params.get('etapa', None)
+        estado = self.request.query_params.get('estado', None)
         salida = self.request.query_params.get('id_salida', None)
+        solicitud = self.request.query_params.get('solicitud', None)
         lista_dispositivos = []
-
-
-        if tipo is None:
-            tipo_dis = self.request.user.tipos_dispositivos.tipos.all()
-        else:
-            tipo_dis = inv_m.DispositivoTipo.objects.filter(id=tipo)       
-
-        if  dispositivo or etapa:
-            #nueva_salida  = inv_m.SalidaInventario.objects.get(id=salida)
-            dispositivos_salida = inv_m.CambioEtapa.objects.filter(
-                solicitud__no_salida = salida,
-                dispositivo__tipo = tipo_dis
-            )            
-            for data in dispositivos_salida.values('dispositivo'):
-                lista_dispositivos.append(data['dispositivo'])            
-            return inv_m.Dispositivo.objects.all().filter(id__in=lista_dispositivos)
-        elif triage:
-            return inv_m.Dispositivo.objects.filter(triage=triage)
-        elif tipo or marca or modelo or tarima:
-            # Se encarga de mostrar mas rapido los dispositivos que se usan con mas frecuencia
-            # o mayor cantidad en el inventario
-            if (tipo == str(1)):
-                return inv_m.Teclado.objects.filter(valido=True)
-            elif(tipo == str(2)):
-                return inv_m.Mouse.objects.filter(valido=True)
-            elif(tipo == str(3)):
-                return inv_m.HDD.objects.filter(valido=True)
-            elif(tipo == str(4)):
-                return inv_m.Tablet.objects.filter(valido=True)
-            elif(tipo == str(5)):
-                return inv_m.Monitor.objects.filter(valido=True)
-            elif(tipo == str(6)):
-                return inv_m.CPU.objects.filter(valido=True)
+        if bool(solicitud):
+            if estado == "1"  and etapa == "1":
+                return inv_m.Dispositivo.objects.filter(triage=triage)
             else:
-                return inv_m.Dispositivo.objects.filter(valido=True, tipo__in=tipo_dis)
+                return"Dispositivo no aceptado"
         else:
-            return inv_m.Dispositivo.objects.all().filter(
-                valido=True,
-                tipo__in=tipo_dis,
-                etapa=inv_m.DispositivoEtapa.TR)
+            if tipo is None:
+                tipo_dis = self.request.user.tipos_dispositivos.tipos.all()            
+            else:            
+                tipo_dis = inv_m.DispositivoTipo.objects.filter(id=tipo)
+                    
+
+            if  dispositivo or etapa:
+                #nueva_salida  = inv_m.SalidaInventario.objects.get(id=salida)                      
+                dispositivos_salida = inv_m.CambioEtapa.objects.filter(
+                    solicitud__no_salida = salida,
+                    dispositivo__tipo__in = tipo_dis
+                )                         
+                for data in dispositivos_salida.values('dispositivo'):
+                    lista_dispositivos.append(data['dispositivo'])            
+                return inv_m.Dispositivo.objects.all().filter(id__in=lista_dispositivos)
+            elif triage:
+                return inv_m.Dispositivo.objects.filter(triage=triage)
+            elif tipo or marca or modelo or tarima:
+                # Se encarga de mostrar mas rapido los dispositivos que se usan con mas frecuencia
+                # o mayor cantidad en el inventario
+                if (tipo == str(1)):
+                    return inv_m.Teclado.objects.filter(valido=True)
+                elif(tipo == str(2)):
+                    return inv_m.Mouse.objects.filter(valido=True)
+                elif(tipo == str(3)):
+                    return inv_m.HDD.objects.filter(valido=True)
+                elif(tipo == str(4)):
+                    return inv_m.Tablet.objects.filter(valido=True)
+                elif(tipo == str(5)):
+                    return inv_m.Monitor.objects.filter(valido=True)
+                elif(tipo == str(6)):
+                    return inv_m.CPU.objects.filter(valido=True)
+                else:
+                    return inv_m.Dispositivo.objects.filter(valido=True, tipo__in=tipo_dis)
+            else:
+                return inv_m.Dispositivo.objects.all().filter(
+                    valido=True,
+                    tipo__in=tipo_dis,
+                    etapa=inv_m.DispositivoEtapa.TR)
 
 
     @action(methods=['post'], detail=False)
@@ -155,8 +162,7 @@ class DispositivoViewSet(viewsets.ModelViewSet):
             etapa=inv_m.DispositivoEtapa.AB
 
         )
-        serializer = self.get_serializer(queryset, many=True)
-        #print(serializer.data)
+        serializer = self.get_serializer(queryset, many=True)        
         return Response(serializer.data)
 
     @action(methods=['post'], detail=False)

@@ -127,11 +127,9 @@ class EntradaDetalleSerializer(serializers.ModelSerializer):
         usuario = self.context.get('request',None).user
         grupos  = User.objects.get(username=usuario)        
         for data in grupos.groups.all().values():
-            if data['name'] == "inv_admin":
-                print(data['id'])
+            if data['name'] == "inv_admin":                
                 contador = data['id']
-            elif data['name'] == "inv_sub_jefe":
-                print(data['id'])
+            elif data['name'] == "inv_sub_jefe":                
                 contador = data['id']
         return contador
               
