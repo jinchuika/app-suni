@@ -1567,7 +1567,7 @@ class SolicitudMovimientoUpdate {
             e.preventDefault();
           }
         });
-        /*Scanner*/
+        /*Scanner Para Solicitudes de movimiento*/
         var inputStart, inputStop, firstKey, lastKey, timing, userFinishedEntering;
         var minChars = 3;
 
@@ -3171,7 +3171,7 @@ class PaqueteDetail {
     var urlAprobar = $("#rechazar-dispositivo").data('urlaprobar');
     var urlAprobarControl = $("#rechazar-dispositivo").data('urlaprobar');
     var lista_triage = [];
-    var estado_inicial = $('#id_dispositivos').data('estado-inicial');
+    var estado_inicial = $('#id_dispositivos').data('estado_inicial');
     let id_salida = $('#salida-id').data('pk');
     tablabodyRechazar.on('click','.btn-rechazar', function () {
       let data_triage = $(this).attr("data-triage");
@@ -3338,7 +3338,8 @@ class PaqueteDetail {
       }
     });
     /****/
-    //Scanner
+    //Scanner 
+    //Scanner para asignar los dipositivos a los paquetes
     var inputStart, inputStop, firstKey, lastKey, timing, userFinishedEntering;
       var minChars = 3;
 
@@ -3450,15 +3451,15 @@ class PaqueteDetail {
               var triage = $("#area_scanner").val();
                var mensaje = JSON.parse(triage);
                datos['text'] = mensaje.triage;
-               datos['id'] = mensaje.id;
+               datos['id'] = mensaje.id;              
                /*Api*/
                $.ajax({
-                 url:api_url,
+                 url:api_url +"asignar_dispositivo",
                  dataType:'json',
                  data:{
                    etapa: etapa_inicial,
                    estado: estado_inicial,
-                   id: mensaje.id
+                   id: mensaje.id,                  
                  },
                  error:function(){
                    console.log("Error");
@@ -3907,7 +3908,8 @@ class DispositivoList {
                  {data: "clase", className: "nowrap"},
                  {data: "tarima", className: "nowrap"},
                  {data: "estado", className: "nowrap"},
-                 {data: "etapa", className: "nowrap"}
+                 {data: "etapa", className: "nowrap"},
+                 {data: "procesador", className: "nowrap"}
              ]
            });
           /**/

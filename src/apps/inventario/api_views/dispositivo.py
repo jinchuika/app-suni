@@ -27,6 +27,7 @@ class DispositivoFilter(filters.FilterSet):
     buscador = filters.CharFilter(name='buscador', method='filter_buscador')
     asignaciones = filters.NumberFilter(name='asignacion', method='filter_asignacion')
     inventario_interno = filters.NumberFilter(name='inventario_interno', method='filter_invinterno')
+    procesador = filters.NumberFilter(name='procesador', method='filter_procesadores')
 
     class Meta:
         model = inv_m.Dispositivo
@@ -41,6 +42,10 @@ class DispositivoFilter(filters.FilterSet):
     def filter_invinterno(self, qs, name, value):
         dispositivos_asignacion= inv_m.CambioEtapa.objects.filter(solicitud__no_inventariointerno=value).values('dispositivo')
         return qs.filter(id__in=dispositivos_asignacion, etapa=inv_m.DispositivoEtapa.TR)
+
+    def filter_procesadores(self, qs, name , value):
+        procesador = inv_m.Procesador.objects.get(id=value)             
+        return qs.filter(procesador = procesador)
 
 class DispositosDetalleAndroid(viewsets.ModelViewSet):
     """ ViewSet para generar informes de :class:`Dispositivo`
@@ -80,21 +85,21 @@ class DispositivoViewSet(viewsets.ModelViewSet):
         etapa = self.request.query_params.get('etapa', None)
         estado = self.request.query_params.get('estado', None)
         salida = self.request.query_params.get('id_salida', None)
-        solicitud = self.request.query_params.get('solicitud', None)
-        lista_dispositivos = []
-        if bool(solicitud):
-            if estado == "1"  and etapa == "1":
+        solicitud = self.request.query_params.get('solicitud', None)               
+        lista_dispositivos = []      
+        if bool(solicitud):           
+            if estado == "1"  and etapa == "1":                
                 return inv_m.Dispositivo.objects.filter(triage=triage)
             else:
-                return"Dispositivo no aceptado"
-        else:
+                return"Dispositivo no aceptado"      
+        else:             
             if tipo is None:
                 tipo_dis = self.request.user.tipos_dispositivos.tipos.all()            
             else:            
                 tipo_dis = inv_m.DispositivoTipo.objects.filter(id=tipo)
                     
 
-            if  dispositivo or etapa:
+            if  dispositivo or etapa:                
                 #nueva_salida  = inv_m.SalidaInventario.objects.get(id=salida)                      
                 dispositivos_salida = inv_m.CambioEtapa.objects.filter(
                     solicitud__no_salida = salida,
@@ -103,9 +108,10 @@ class DispositivoViewSet(viewsets.ModelViewSet):
                 for data in dispositivos_salida.values('dispositivo'):
                     lista_dispositivos.append(data['dispositivo'])            
                 return inv_m.Dispositivo.objects.all().filter(id__in=lista_dispositivos)
-            elif triage:
+           
+            elif triage:               
                 return inv_m.Dispositivo.objects.filter(triage=triage)
-            elif tipo or marca or modelo or tarima:
+            elif tipo or marca or modelo or tarima:                
                 # Se encarga de mostrar mas rapido los dispositivos que se usan con mas frecuencia
                 # o mayor cantidad en el inventario
                 if (tipo == str(1)):
@@ -128,6 +134,20 @@ class DispositivoViewSet(viewsets.ModelViewSet):
                     tipo__in=tipo_dis,
                     etapa=inv_m.DispositivoEtapa.TR)
 
+
+    @action(methods=['get'], detail=False)
+    def asignar_dispositivo(self,request, pk=None):
+        """ Asigna los dispositos a los paquetes de la entrada
+        """
+        
+        if request.GET.get('etapa') == '2':
+            queryset = inv_m.Dispositivo.objects.filter(id=request.GET.get('id'))          
+            serializer = self.get_serializer(queryset, many=True)
+            return Response(serializer.data)
+        return Response(
+            {'mensaje': 'Dispositivo no encontrado'},
+            status=status.HTTP_200_OK
+        )
 
     @action(methods=['post'], detail=False)
     def cambiar_cantidad(self,request, pk=None):
