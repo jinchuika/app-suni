@@ -43,9 +43,19 @@ class DispositivoFilter(filters.FilterSet):
         dispositivos_asignacion= inv_m.CambioEtapa.objects.filter(solicitud__no_inventariointerno=value).values('dispositivo')
         return qs.filter(id__in=dispositivos_asignacion, etapa=inv_m.DispositivoEtapa.TR)
 
-    def filter_procesadores(self, qs, name , value):
-        procesador = inv_m.Procesador.objects.get(id=value)             
-        return qs.filter(procesador = procesador)
+    def filter_procesadores(self, qs, name , value):        
+        procesador = inv_m.Procesador.objects.get(id=value)
+        tipo_dispositivo= qs.last()
+        if tipo_dispositivo.tipo.id == 7:          
+            return qs.filter(laptop__procesador= procesador)
+        elif tipo_dispositivo.tipo.id == 4:           
+            return qs.filter(tablet__procesador = procesador)
+        elif tipo_dispositivo.tipo.id == 10:            
+            return qs.filter(procesador = procesador)
+        else:
+            print("Esto es cualquier otro dispsoitivo")
+                
+        
 
 class DispositosDetalleAndroid(viewsets.ModelViewSet):
     """ ViewSet para generar informes de :class:`Dispositivo`
