@@ -45,15 +45,20 @@ class DispositivoFilter(filters.FilterSet):
 
     def filter_procesadores(self, qs, name , value):        
         procesador = inv_m.Procesador.objects.get(id=value)
-        tipo_dispositivo= qs.last()
+        tipo_dispositivo= qs.last()        
         if tipo_dispositivo.tipo.id == 7:          
             return qs.filter(laptop__procesador= procesador)
         elif tipo_dispositivo.tipo.id == 4:           
-            return qs.filter(tablet__procesador = procesador)
-        elif tipo_dispositivo.tipo.id == 10:            
+            return qs.filter(procesador = procesador)
+        elif tipo_dispositivo.tipo.id == 6:            
             return qs.filter(procesador = procesador)
         else:
             print("Esto es cualquier otro dispsoitivo")
+            return  Response(
+                        {'mensaje': "Esta opcion soloe esta disponible para CPU, TABLET y LAPTOP"},
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+            
                 
         
 

@@ -61,7 +61,6 @@ class InventarioInternoViewSet(viewsets.ModelViewSet):
                 return Response({'mensaje': 'Tienes dispositivos pendientes de aprobar'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
             dispositivos_solicitados = inv_m.SolicitudMovimiento.objects.filter(no_inventariointerno=asignacion_ii, devolucion=False, recibida=True,salida_kardex=None).aggregate(total_cantidad=Sum('cantidad'))
-            print(dispositivos_solicitados)
             if(dispositivos_solicitados['total_cantidad'] is None):
                     dispositivos_solicitados['total_cantidad'] = 0
             devoluciones = inv_m.SolicitudMovimiento.objects.filter(no_inventariointerno=asignacion_ii, devolucion=True, recibida=True).aggregate(total_cantidad=Sum('cantidad'))
@@ -143,7 +142,7 @@ class IInternoDispositivoViewSet(viewsets.ModelViewSet):
             print("Estado")
             queryset = inv_m.IInternoDispositivo.objects.filter(no_asignacion__estado__id=inv_m.IInternoEstado.AS)
 
-        print(queryset)
+       
         return queryset
 
     @action(methods=['post'], detail=False)

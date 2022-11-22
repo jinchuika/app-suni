@@ -3895,6 +3895,10 @@ class DispositivoList {
                  cache: true,
                  data: function (params) {
                      return $('#dispositivo-list-form').serializeObject(true);
+                 },
+                 error:function(xhr, error, thrown){
+                  bootbox.alert({message: "<h3><i class='fa fa-frown-o' style='font-size: 45px;'></i>&nbsp;&nbsp;&nbsp;HA OCURRIDO UN ERROR!!</h3></br>" + "Esta opcion solo esta habilitada para CPU, TABLET y LAPTOP", className:"modal modal-danger fade"});
+
                  }
              },
              columns: [

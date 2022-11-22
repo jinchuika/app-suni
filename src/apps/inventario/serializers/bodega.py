@@ -43,12 +43,13 @@ class DispositivoSerializer(serializers.ModelSerializer):
          else:        
             return fecha.fecha_revision.date()
 
-    def get_procesador(self, obj):
-        
-        
-    
-        if (obj.tipo.id == 6 or obj.tipo.id== 4):
-            return str(obj.procesador)
+    def get_procesador(self, obj):          
+        if obj.tipo.id == 6:            
+            cpu_procesador = inv_m.CPU.objects.get(triage= obj)  
+            return str(cpu_procesador.procesador)
+        elif obj.tipo.id == 4:
+            tablet_procesador = inv_m.Tablet.objects.get(triage= obj)  
+            return str(tablet_procesador.procesador)
         elif  obj.tipo.id == 7:
             laptop_procesador = inv_m.Laptop.objects.get(triage= obj)            
             return str(laptop_procesador.procesador) 
