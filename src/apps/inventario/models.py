@@ -1709,7 +1709,7 @@ class SolicitudMovimiento(models.Model):
         related_name='entrada_kardex')
     observaciones = models.TextField(null=True, blank=True)
     no_salida = models.ForeignKey(SalidaInventario, on_delete=models.PROTECT, related_name='salida_inventario', null=True)
-    no_inventariointerno = models.ForeignKey(InventarioInterno, on_delete=models.PROTECT, related_name='solicitudes', null=True)
+    no_inventariointerno = models.ForeignKey(InventarioInterno, on_delete=models.PROTECT, related_name='solicitudes', null=True,blank=True)
 
     class Meta:
         verbose_name = 'Solicitud de movimiento'

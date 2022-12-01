@@ -371,6 +371,13 @@ class DispositivoInformeForm(forms.Form):
         widget=forms.Select(attrs={'class': 'form-control select2'})
 
     )
+    procesador= forms.ModelChoiceField(
+        queryset=inv_m.Procesador.objects.all(),
+        label='Procesador',
+        required=False,
+        widget=forms.Select(attrs={'class': 'form-control select2'})
+
+    )
 
 
 class AsignacionTecnicoForm(forms.ModelForm):

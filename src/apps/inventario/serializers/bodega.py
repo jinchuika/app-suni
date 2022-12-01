@@ -11,11 +11,12 @@ class DispositivoSerializer(serializers.ModelSerializer):
     estado = serializers.StringRelatedField()
     etapa = serializers.StringRelatedField()
     marca = serializers.StringRelatedField()
-    modelo = serializers.StringRelatedField()
+    modelo = serializers.StringRelatedField()    
     serie = serializers.StringRelatedField()
     clase = serializers.StringRelatedField()
     url = serializers.StringRelatedField(source='get_absolute_url')
     fecha_desecho = serializers.SerializerMethodField(read_only=True)
+    procesador = serializers.SerializerMethodField()
 
     class Meta:
         model = inv_m.Dispositivo
@@ -32,7 +33,8 @@ class DispositivoSerializer(serializers.ModelSerializer):
             'clase',
             'tarima',
             'url',
-            'fecha_desecho']
+            'fecha_desecho',
+            'procesador']
 
     def get_fecha_desecho(self, obj):
          fecha = inv_m.DesechoComentario.objects.filter(dispositivo=obj.id).last()        
@@ -40,6 +42,19 @@ class DispositivoSerializer(serializers.ModelSerializer):
             return ""
          else:        
             return fecha.fecha_revision.date()
+
+    def get_procesador(self, obj):          
+        if obj.tipo.id == 6:            
+            cpu_procesador = inv_m.CPU.objects.get(triage= obj)  
+            return str(cpu_procesador.procesador)
+        elif obj.tipo.id == 4:
+            tablet_procesador = inv_m.Tablet.objects.get(triage= obj)  
+            return str(tablet_procesador.procesador)
+        elif  obj.tipo.id == 7:
+            laptop_procesador = inv_m.Laptop.objects.get(triage= obj)            
+            return str(laptop_procesador.procesador) 
+        else:
+            return ""
 
 
 class TarimaSerializer(serializers.ModelSerializer):

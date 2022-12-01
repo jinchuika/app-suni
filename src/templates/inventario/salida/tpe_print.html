@@ -84,7 +84,7 @@
 			<td>TELEFONO(S)</td>
 			<td style="border:solid; border-width: 1px;border-color:gray" width="700" height="28">&nbsp;&nbsp;
 
-					{% if  Telefono|stringformat:"s" == 'None' %} {{Telefono}} {% else %} NO APLICA{% endif %}
+					{% if  Telefono|stringformat:"s" == 'None' %} NO APLICA {% else %} {{Telefono}} {% endif %}
 			</td>
 			{% endif %}
 	</tr>
@@ -246,15 +246,10 @@
 			<td style="border:solid; border-width: 1px;border-color:gray"><center>{{Red}}</center></td>
 			<td width="2%">
 			</td>
-			{% if AllInOne > 0 %}
 			<td>
-				adaptadores de Wifi USB
+				Adaptador Wifi
 			</td>
-			{% else %}
-			<td>
-				Tarjetas Wifi
-			</td>
-			{% endif %}
+			 
 			<td width="1%"></td>
 			<td style="border:solid; border-width: 1px;border-color:gray"><center>{{Wifi|default_if_none:"0"}}</center></td>
 			<td width="2%">
