@@ -21,14 +21,15 @@ class InventarioInternoSerializer(serializers.ModelSerializer):
         return reverse_lazy('inventariointerno_detail', kwargs={'pk': object.id})
 
     def get_no_dispositivos(self, object):
-    	dispositivos_asignados = inv_m.IInternoDispositivo.objects.filter(no_asignacion=object.id)
-    	return len(dispositivos_asignados)
+        dispositivos_asignados = inv_m.IInternoDispositivo.objects.filter(no_asignacion=object.id)
+        return len(dispositivos_asignados)
 
 class IInternoDispositivoSerializer(serializers.ModelSerializer):
 
     no_asignacion = InventarioInternoSerializer()
     dispositivo = DispositivoSerializer()
     asignado_por = serializers.StringRelatedField(source='asignado_por.get_full_name')
+    asignacion_dispositivo = serializers.SerializerMethodField()
 
     class Meta:
         model = inv_m.IInternoDispositivo

@@ -61,7 +61,7 @@ class EntradaCreate {
 
     $('#id_tipo').change( function() {
       var selected_tipo = $('#id_tipo option:selected').text();
-      if(selected_tipo == 'Compra'){
+      if(selected_tipo == 'Compra' || selected_tipo == 'BEQT' ){
         $("[for='id_factura']").css({"visibility":"visible"});
         $("#id_factura").css({"visibility":"visible"});
       } else {
@@ -133,7 +133,7 @@ class EntradaUpdate {
 
                 }},
                 {
-                    data: "",render: function(data, type, full, meta){
+                    data: "",render: function(data, type, full, meta){                     
                       if(full.grupos == 4){
                         if(full.autorizado == true){
                           return "";
@@ -166,7 +166,7 @@ class EntradaUpdate {
                         }
 
                       }else{
-                        if(full.grupos ==  1 || full.grupos == 3){
+                        if(full.grupos ==  20){
                           if(full.pendiente_autorizar == true){
                             if (full.autorizado == false){
                                 return "<a  class='btn btn-info btn-autorizar'>Autorizar</a>";
@@ -696,6 +696,9 @@ class EntradaDetail {
 
         });
     }
+
+   
+     
 }
 
 
@@ -1548,6 +1551,7 @@ class SolicitudMovimientoUpdate {
         var cantidad = $("#solicitud-table").data("cantidad");
         let cantidad_disponible = $("#solicitud-table").data("dispo");
         let cantidad_asignar = cantidad-cantidad_disponible;
+        let salida=  $("#solicitud-table").data("salida");
         $('#id_dispositivos').val("").trigger('change');
         var lista_triage = [];
         sel_dispositivos.select2({
@@ -1563,7 +1567,7 @@ class SolicitudMovimientoUpdate {
             e.preventDefault();
           }
         });
-        /*Scanner*/
+        /*Scanner Para Solicitudes de movimiento*/
         var inputStart, inputStop, firstKey, lastKey, timing, userFinishedEntering;
         var minChars = 3;
 
@@ -1683,7 +1687,9 @@ class SolicitudMovimientoUpdate {
                    data:{
                      etapa: etapa_inicial,
                      estado: estado_inicial,
-                     triage: mensaje.triage
+                     triage: mensaje.triage,
+                     solicitud:true
+                    
                    },
                    error:function(){
                      console.log("Error");
@@ -3165,7 +3171,7 @@ class PaqueteDetail {
     var urlAprobar = $("#rechazar-dispositivo").data('urlaprobar');
     var urlAprobarControl = $("#rechazar-dispositivo").data('urlaprobar');
     var lista_triage = [];
-    var estado_inicial = $('#id_dispositivos').data('estado-inicial');
+    var estado_inicial = $('#id_dispositivos').data('estado_inicial');
     let id_salida = $('#salida-id').data('pk');
     tablabodyRechazar.on('click','.btn-rechazar', function () {
       let data_triage = $(this).attr("data-triage");
@@ -3332,7 +3338,8 @@ class PaqueteDetail {
       }
     });
     /****/
-    //Scanner
+    //Scanner 
+    //Scanner para asignar los dipositivos a los paquetes
     var inputStart, inputStop, firstKey, lastKey, timing, userFinishedEntering;
       var minChars = 3;
 
@@ -3444,15 +3451,15 @@ class PaqueteDetail {
               var triage = $("#area_scanner").val();
                var mensaje = JSON.parse(triage);
                datos['text'] = mensaje.triage;
-               datos['id'] = mensaje.id;
+               datos['id'] = mensaje.id;              
                /*Api*/
                $.ajax({
-                 url:api_url,
+                 url:api_url +"asignar_dispositivo",
                  dataType:'json',
                  data:{
                    etapa: etapa_inicial,
                    estado: estado_inicial,
-                   id: mensaje.id
+                   id: mensaje.id,                  
                  },
                  error:function(){
                    console.log("Error");
@@ -3888,6 +3895,10 @@ class DispositivoList {
                  cache: true,
                  data: function (params) {
                      return $('#dispositivo-list-form').serializeObject(true);
+                 },
+                 error:function(xhr, error, thrown){
+                  bootbox.alert({message: "<h3><i class='fa fa-frown-o' style='font-size: 45px;'></i>&nbsp;&nbsp;&nbsp;HA OCURRIDO UN ERROR!!</h3></br>" + "Esta opcion solo esta habilitada para CPU, TABLET y LAPTOP", className:"modal modal-danger fade"});
+
                  }
              },
              columns: [
@@ -3901,7 +3912,8 @@ class DispositivoList {
                  {data: "clase", className: "nowrap"},
                  {data: "tarima", className: "nowrap"},
                  {data: "estado", className: "nowrap"},
-                 {data: "etapa", className: "nowrap"}
+                 {data: "etapa", className: "nowrap"},
+                 {data: "procesador", className: "nowrap"}
              ]
            });
           /**/
