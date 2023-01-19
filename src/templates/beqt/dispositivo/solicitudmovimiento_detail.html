@@ -1,0 +1,170 @@
+{% extends "base/base.html" %}
+{% load staticfiles widget_tweaks %}
+{% load inventario_extras %}
+{% block page_title %}
+    {%if object.devolucion%}
+    <title>BEQT : Devolución</title>
+    {%else%}
+    <title>BEQT : Solicitud de movimiento</title>
+    {%endif%}
+{% endblock page_title %}
+{% block content %}
+    <section class="content">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-5">
+                    <div class="box">
+                        <div class="box-header">
+                            {%if object.devolucion%}
+                                <h3 class="box-title">Devolución</h3>
+                            {%else%}
+                                <h3 class="box-title">Solicitud de movimiento</h3>
+                            {%endif%}
+
+                            <div class="box-tools pull-right">
+                              {%if object.tipo_dispositivo.usa_triage %}
+                                {%if not object.recibida%}
+                                  {% if object.terminada  %}
+                                    {% if request.user|has_group:"inv_bodega" and object.devolucion or request.user|has_group:"inv_tecnico" and not object.devolucion %}
+                                        <a id="btn-recibido" href="{% url 'beqt_api:api_dispositivo-solicitud' %}" data-id ="{{object.id}}" class="btn btn-info btn-sm">Recibido</a>
+                                    {% endif %}
+                                  {% else %}
+                                    {% if request.user|has_group:"inv_bodega" and not object.devolucion or request.user|has_group:"inv_tecnico" and object.devolucion %}
+                                        <a href="{% url 'solicitudmovimiento_beqt_update' pk=object.id %}" class="btn btn-warning btn-sm">Editar</a>
+                                    {% endif %}
+                                  {% endif %}
+                                {%endif%}
+                              {%else%}
+                                  {% if not object.terminada %}
+                                    {% if request.user|has_group:"inv_bodega" or request.user|has_group:"inv_admin" %}
+                                        <a id="aprobar-kardex" href="{% url 'inventario_api:api_dispositivo-solicitud-kardex' %}" data-id ="{{object.id}}"  class="btn btn-success btn-sm">Aprobar</a>
+                                        <a id="recibido-kardex" href="{% url 'inventario_api:api_dispositivo-solicitud-kardex' %}" data-id ="{{object.id}}" data-url="{%url 'solicitudmovimiento_list'%}" class="btn btn-warning btn-sm">Rechazar</a>
+                                    {%endif%}
+                                  {% else %}
+                                      {% if not object.recibida and not object.rechazar %}
+                                        {% if request.user|has_group:"inv_bodega" and object.devolucion or request.user|has_group:"inv_tecnico" and not object.devolucion or request.user|has_group:"inv_cc" and not object.devolucion %}
+                                            <a id="btn-recibido" href="{% url 'beqt_api:api_dispositivo-solicitud' %}" data-id ="{{object.id}}" class="btn btn-info btn-sm">Recibido</a>
+                                        {% endif %}
+                                      {% endif %}
+                                  {% endif %}
+                              {%endif%}
+                            </div>
+                        </div>
+                        <div class="box-body">
+                            <form action="" method="post">
+                                {% csrf_token %}
+                                <table class="table table-condensed">
+                                    {%if object.no_salida%}
+                                    <tr>
+                                        <th>Salida</th>
+                                        <td><a href="{{object.no_salida.get_absolute_url}}" target="_blank">{{object.no_salida |default_if_none:""}}</a></td>
+                                    </tr>                                    
+                                     {% endif %}
+                                    <tr>
+                                        <th>Cantidad</th>
+                                        <td>{{ object.cantidad }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Tipo</th>
+                                        <td>{{ object.tipo_dispositivo }}</td>
+                                    </tr>
+                                    {% if  object.tipo_dispositivo.usa_triage %}
+                                    <tr>
+                                        <th>Etapa inicial</th>
+                                        <td>{{ object.etapa_inicial }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Etapa final</th>
+                                        <td>{{ object.etapa_final }}</td>
+                                    </tr>                                 
+                                    {% endif %}
+                                    <tr>
+                                        <th>Solicitado por</th>
+                                        <td>
+                                            {{ object.creada_por.get_full_name }},
+                                            el {{ object.fecha_creacion|date:"Y-m-d" }}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>Estado</th>
+                                        <td>
+                                            {% if object.rechazar%}
+                                                <span class="label label-danger">RECHAZADA</span>
+                                            {%elif object.terminada and object.recibida%}
+                                                <span class="label label-success">Recibido</span>
+                                            {%elif object.terminada and not object.recibida%}
+                                                <span class="label label-warning">Entregado</span>
+                                            {% else %}
+                                                <span class="label label-danger">Pendiente</span> <br>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {%if object.devolucion%}
+                                    <tr>
+                                        <th>Tipo</th>
+                                        <td>
+                                            <span class="label label-danger">Devolución</span> <br>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>Desecho</th>
+                                        <td>
+                                            <input type="checkbox" name="desecho" class="icheckbox_square-red" disabled  {% if object.desecho %} checked {% endif %} />
+                                        </td>
+                                    </tr>
+                                    {% else %}
+                                    <tr>
+                                        <th>Autorizada por</th>
+                                        <td>
+                                            {{ object.autorizada_por.get_full_name }}
+                                        </td>
+                                    </tr>
+                                    {% endif %}
+                                    <tr>
+                                        <th>Observaciones</th>
+                                        <td>{{ object.observaciones }}</td>
+                                    </tr>
+                                </table>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                {% if  object.tipo_dispositivo.usa_triage  %}
+                <div class="col-md-7">
+                    <div class="box box-primary">
+                        <div class="box-body">
+                            <table id="movimientos-table-body" class="table table-condensed table-striped" >
+                                <thead>
+                                <tr>
+                                    <th>Dispositivo</th>
+                                    <th>Fecha</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for cambio in object.cambios.all %}
+                                    <tr>
+                                        <td>
+                                            <a href="{{cambio.dispositivo.get_absolute_url}}">{{ cambio.dispositivo }}</a>
+                                        </td>
+                                        <td>
+                                            {{ cambio.fechahora|date:"Y-m-d" }}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </section>
+{% endblock content %}
+{% block extra_js %}
+{% include "base/dataTables.html" %}
+<script src="{% static "js/extrajs/beqt.js" %}"></script>
+<script>
+ let Revicion = new SolicitudMovimiento();
+</script>
+{% endblock extra_js %}

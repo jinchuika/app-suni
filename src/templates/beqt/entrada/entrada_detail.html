@@ -1,0 +1,117 @@
+{% extends "base/base.html" %}
+{% load staticfiles %}
+{% load inventario_extras %}
+{% block page_title %}
+<title>ENTRADA - {{ entrada.id }}</title>
+{% endblock page_title %}
+{% block content %}
+<section class="content">
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-md-9">
+				<div class="box">
+					<div class="box-header">
+						<div class="row">
+							<div class="col-md-6">
+								<h3 class="box-title">ENTRADA NO. {{ entrada.id }}</h3>
+							</div>
+							{% if request.user|has_group:"inv_bodega" or request.user|has_group:"inv_admin" %}
+							<div class="col-md-6">
+									<a target="_blank" href="{% url 'carta_agradecimiento' pk=object.id%}" class="btn btn-success" >Carta Agradecimiento</a>
+									<a href="{% url 'reporte_sucio' pk=object.id%}" class="btn btn-primary" target="_blank">Constancia Útil</a>
+									<a href="{% url 'constancia_entrada' pk=object.id%}" class="btn btn-danger" target="_blank">Constancia Entrada</a>
+							</div>
+							{%endif%}
+						</div>
+					</div>
+					<div class="box-body">
+						<table class="table table-condensed table-responsive">
+							<tr>
+								<th>Tipo</th>
+								<td>{{ entrada.tipo }}</td>
+							</tr>
+							<tr>
+								<th>Fecha</th>
+								<td>{{entrada.fecha}}<br></td>
+							</tr>
+							<tr>
+								<th>Estado</th>
+								<td>
+									{%if entrada.en_creacion == True%}
+										<span class='label label-primary'>En Desarrollo</span>
+									{%else%}
+										<span class='label label-danger'>Finalizada</span>
+									{%endif%}
+									<br>
+								</td>
+							</tr>
+							<tr>
+								<th>Responsable</th>
+								<td>{{entrada.creada_por.get_full_name}}<br></td>
+							</tr>
+							<tr>
+								<th>Recibida por</th>
+								<td>{{entrada.recibida_por.get_full_name}}<br></td>
+							</tr>
+							<tr>
+								<th>Proveedor</th>
+								<td><a href="{{ entrada.proveedor.get_absolute_url }}">{{ entrada.proveedor }}</a><br></td>
+							</tr>
+							{%if entrada.tipo.contable%}
+							<tr>
+								<th>Factura</th>
+								<td>{{entrada.factura}}<br></td>
+							</tr>
+							{%endif%}
+							<tr>
+								<th>Observaciones</th>
+								<td>{{entrada.observaciones|default_if_none:"No Existe Observaciones"}}</td>
+							</tr>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+<section>
+	<div class="box">
+			<div class="box-header">
+					<div class="box-title">
+							<h3 class="box-title">Detalle del equipo</h3>
+					</div>
+			</div>
+			<div class="box-body table-responsive">
+					<table id="entrada-table" class="table table-condensed"
+								 data-api="{% url 'inventario_api:api_detalles-list' %}"
+								 data-pk="{{ entrada.id }}">
+							<thead>
+							<tr>
+									<th>Tipo de dispositivo</th>
+									<th>Útil</th>
+									<th>Repuesto</th>
+									<th>Desecho</th>
+									<th>Cantidad total</th>
+									<th>Precio Unitario</th>
+									<th>Precio Subtotal</th>
+									<th>Precio Descontado</th>
+									<th>Precio Total</th>
+									<th>Descripcion</th>
+									<th>Tecnico</th>
+									<th></th>
+									<th></th>
+
+							</tr>
+							</thead>
+					</table>
+			</div>
+	</div>
+</section>
+{% endblock content %}
+{% block extra_js %}
+<script src="{% static "js/extrajs/beqt.js" %}"></script>
+<script>
+    AlertaEnCreacion.init();
+    let pagina = new EntradaDetail();
+</script>
+{% endblock extra_js %}

@@ -1,0 +1,242 @@
+{% extends "base/base.html" %}
+{%load staticfiles widget_tweaks %}
+{% block page_title %}
+{%if form.instance.id%}
+<title>ENTRADA: {{form.instance.id}}</title>
+{%else%}
+<title>ENTRADAS PENDIENTES</title>
+{%endif%}
+{% endblock page_title %}
+{% block content %}
+{% if form.errors %}
+    <div class="alert alert-error">
+      <h4>Advertencia!</h4>
+      <ul>
+        {% for field in form %}
+          {% if field.errors %}
+            {% for error in field.errors %}
+              <li><p class="error">{{ error|escape }}</p></li>
+            {% endfor %}
+          {% endif %}
+        {% endfor %}
+      </ul>
+      {% if form.non_field_errors %}
+        {{ form.non_field_errors }}
+      {% endif %}
+    </div>
+  {% endif %}
+<section class="content">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-md-4">
+        <div class="box">
+          <div class="box-header">
+          {%if form.instance.id%}
+          <h3 class="box-title">
+              <b>
+                INFORMACIÓN DE ENTRADA
+              </b>
+            </h3>
+          {%else%}
+          <h3 class="box-title"><b>NUEVA ENTRADA</b></h3>          
+          {%endif%}
+          </div>
+          <div class="box-body">
+            {%if form.instance.id%}
+            <table class="table table-condensed">
+              <tr>
+                <th>
+                    Entrada numero :
+                </th>
+                <td>
+                  {{form.instance.id}}
+                </td>
+              </tr>
+              <tr>
+                <th>
+                    Tipo :
+                </th>
+                <td>
+                  {{form.instance.tipo}}
+                </td>
+              </tr>
+              <tr>
+                <th>
+                    Creada por:
+                </th>
+                <td>
+                  {{form.instance.creada_por.get_full_name}}
+                </td>
+              </tr>
+
+              <tr>
+                <th>
+                     Proveedor:
+                </th>
+                <td>
+                  {{form.instance.proveedor}}
+                </td>
+              </tr>
+            </table>
+            {%else%}
+            <table class="table table-condensed">
+              {%if form.instance.id%}
+              <form action="{% url 'entrada_beqt_update' pk=form.instance.id%}" method="post">
+              {%endif%}
+              <form action="{% url 'entrada_beqt_add' %}" method="post">
+                {%csrf_token%}
+                <table class="table table-condensed">
+                  {% for field in form %}
+                  <tr>
+                    <td><label for="id_{{ field.name }}" class="control-label">{{ field.label }}</label></td>
+                    <td>
+                      {% if field.label == "Fecha" %}
+                      <div class="input-group">
+                        <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                        {{ field }}
+                      </div>
+                      {% elif field.label == "Proveedor" %}
+                      <div class="input-group">
+                        {{ field }}
+                        <div class="input-group-btn">
+                          <a href="/crm/donante/add/" class="btn btn-primary" data-toggle="tooltip" title="Primero asegurese que no existe!" target="_blank"><i class="fa fa-plus-square"></i></a>
+                        </div>
+                      </div>
+                      {% else %}
+                      {{ field }}
+                      {%endif%}
+                    </td>
+                  </tr>
+                  {% endfor %}
+                  <tr>
+                    <td>
+                      <input type="submit" class="btn btn-success" value="Guardar" tabindex="6" />
+                    </td>
+                  </tr>
+                </table>
+              </form>
+            </table>
+            {%endif%}
+          </div>
+        </div>
+        <!--Fin de la Informacion-->
+        <div class="box">
+          <div class="box-header">
+            <div class="row">
+              <div class="col-md-9">
+                <h3 class="box-title"><b>ENTRADAS PENDIENTES</b></h3>
+              </div>
+            </div>
+          </div>
+          <div class="box-body">
+            <table class="table table-condensed dataTable">
+              <thead>
+                <th>No. Entrada</th>
+                <th>Fecha</th>
+                <th>Proveedor</th>
+              </thead>
+              <tbody>
+              {%for personas in listado %}
+              <tr>
+                <td>
+                  <a href="{{personas.get_absolute_url}}" class="btn btn-block btn-success">{{personas}}</a>
+                </td>
+                <td>
+                  {{personas.fecha}}
+                </td>
+                <td>
+                  {{personas.proveedor}}
+                </td>
+              </tr>
+              {%endfor%}
+              </tbody>
+              <tfoot>
+              <th>No. Entrada</th>
+              <th>Fecha</th>
+              <th>Proveedor</th>
+              </tfoot>              
+            </table>
+          </div>
+        </div>
+
+        <!--Fin de Entrada-->
+          {%if  form.instance.id%}
+          <div class="box">
+              <div class="box-header">
+                <div class="box-title">
+                      <h3><b>Detalles de Entrada</b></h3>
+                </div>
+              </div>
+              <div class="box-body">
+                {%include "beqt/entrada/entradadetalle_add.html"%}
+              </div>
+          </div>
+          {%endif%}
+      </div>
+      <div class="col-md-8">
+        {%if  form.instance.id%}
+        <div class="box">
+            <div class="box-header">
+              <div class="box-title">
+                    <h3><b>Detalles del Registro</b></h3>
+              </div>
+            </div>
+            <div class="box-body">
+              <table id="entrada-table" class="table table-condensed" data-api="{% url 'beqt_api:api_detalles-list' %}" data-pk ="{{form.instance.id}}">
+                <thead>
+                  <tr>
+                    <th>Tipo Dispositivo</th>
+                    <th>Util</th>
+                    <th>Repuesto</th>
+                    <th>Desecho</th>
+                    <th>Total</th>
+                    <th>Precio Unitario</th>
+                    <th>Precio Subtotal</th>
+                    <th>Precio Descontado</th>
+                    <th>Precio Total</th>
+                    <th>Creado Por</th>
+                    <th></th>
+                    <th></th>
+                  </tr>
+                </thead>
+              </table>
+            </div>
+        </div>
+        {%else%}
+      </div>
+    </div>
+  </div>
+  {%endif%}
+</section>
+{% endblock content %}
+{% block extra_js %}
+<script>
+  $(document).ready(function(){
+    $('[data-toggle="tooltip"]').tooltip();   
+  });
+  $(document).on('focus', '.select2', function (e) {
+    if (e.originalEvent) {
+        var s2element = $(this).siblings('select');
+        s2element.select2('open');
+        // Set focus back to select2 element on closing.
+        s2element.on('select2:closing', function (e) {
+            s2element.select2('focus');
+       });
+    }
+});
+</script>
+<script src="{% static "js/extrajs/beqt.js" %}"></script>
+{%if form.instance.id%}
+<script>
+  EntradaDetalleList.init();
+</script>
+{%else%}
+<script>
+ AlertaEnCreacion.init();
+</script>
+{%endif%}
+<script>
+  //let pagina = new EntradaCreate();
+  //let buscar =  new BuscadorTabla();
+</script>
+{% endblock extra_js %}

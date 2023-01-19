@@ -1,0 +1,71 @@
+{% extends "base/base.html" %}
+{%load widget_tweaks staticfiles %}
+{% block page_title %}
+<title>LISTADO SOLICITUD MOVIMIENTO</title>
+{% endblock page_title %}
+{% block content %}
+<section class="content">
+  <div class="container-fluid">
+    <div class="row">    
+      <div class="col-md-3">.
+      <!--Caja-->
+          <div class="box">
+            <!---->           
+            <div>
+            <form action="{% url 'beqt_api:api_solicitudmovimiento-list'%}" id="movimiento-list-form">
+              <div class="box-header">
+                <input type="submit" class="btn btn-primary col-md-12" value="Generar Informe" /><br /><br />
+                <h3 class="box-title">Filtros</h3>
+              </div>
+              <div class="box-body">
+                {% csrf_token %} {% for field in form %}
+                <div class="form-group">
+                  {{field.label_tag}} {{field}}
+                </div>
+                {% endfor %}
+              </div>
+            </form>
+           </div>  
+           
+            <!---->
+          </div> 
+        <!--Fin caja-->  
+        </div>
+      <div class="col-md-9">
+        <div class="box">
+          <div class="box-header">
+            <div class="box-title">
+                <h3><b>Listado de Solicitudes de Movimiento</b></h3>
+            </div>
+            <div class="box-body">
+              <table  id="movimiento-list-table" class="table  display" data-url="{%url 'beqt_api:api_solicitudmovimiento-list' %} ">
+                <thead>
+                  <th>No. Solicitud </th> 
+                  <th>Salida </th> 
+                  <th>Fecha</th>                
+                  <th>Dispositivo</th>
+                  <th>Cantidad</th>
+                  <th>Solicitada por</th>
+                  <th>Autorizada por</th>
+                  <th>Tipo</th>
+                  <th>Desecho</th>
+                  <th>Estado</th>
+                </thead>
+                <tbody id="movimiento-list-table-body">
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock content %}
+{% block extra_js %}
+{% include "base/dataTables.html" %}
+    <script src="{% static "js/extrajs/beqt.js" %}"></script>
+    <script> 
+    MovimientoList.init();
+    </script>
+{% endblock extra_js %}

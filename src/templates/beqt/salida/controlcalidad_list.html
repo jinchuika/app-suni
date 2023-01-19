@@ -1,0 +1,59 @@
+{% extends "base/base.html" %}
+{%load widget_tweaks static %}
+{% block page_title %}
+<title>Control de Calidad</title>
+{% endblock page_title %}
+{% block content %}
+<section class="content">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-md-6">
+        <div class="box">
+          <div class="box-header">
+            <div class="box-title">
+                <h3><b>Salidas pendientes</b></h3>
+            </div>
+            <div class="box-body">
+              <table class="table table-condensed dataTable">
+                <thead>
+                  <th>ID </th>
+                  <th>Tipo</th>
+                  <th>Fecha</th>
+                </thead>
+                <tbody>
+                  {%for salida in controlcalidad_list %}
+                    <tr>
+                      <td>
+                        <a href="{%url 'salidainventario_edit' pk=salida.id%}">{{salida}}</a>
+                      </td>
+                      <td>
+                        {{salida.tipo_salida}}
+                      </td>
+                      <td>
+                        {{salida.fecha}}
+                      </td>
+                    </tr>
+                  {%endfor%}
+                </tbody>
+                <tfoot>
+                  <th>ID </th>
+                  <th>Tipo</th>
+                  <th>Fecha</th>
+                </tfoot>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock content %}
+{% block extra_js %}
+{% include "base/dataTables.html" %}
+<script src="{% static "js/extrajs/inventario.js" %}"></script>
+<script>
+let buscar = new BuscadorTabla(); 
+</script>
+{% endblock extra_js %}
+

@@ -156,3 +156,32 @@ class MovimientoRepuesto(models.Model):
 
     def __str__(self):
         return '{} - {}'.format(self.tipo_movimiento, self.repuesto)
+
+#Registros de las bajas del modulo de BEQT
+class MovimientoDispositivoBeqt(models.Model):
+    """Transacción que indica altas o bajas de dispositivos en el inventario de beqt
+    La cantidad de existencias de un tipo de dispositivos se calcula sumando el campo `tipo_movimiento`, que tendrá los
+    valores de `-1` o `1` para bajas y altas, respectivamente.
+    """
+
+    BAJA = -1
+    ALTA = 1
+    TIPO_CHOICES = (
+        (BAJA, 'Baja'),
+        (ALTA, 'Alta')
+    )
+
+    fecha = models.DateField(default=timezone.now)
+    dispositivo = models.ForeignKey('beqt.DispositivoBeqt')   
+    tipo_movimiento = models.IntegerField(choices=TIPO_CHOICES, default=ALTA)
+    precio = models.DecimalField(max_digits=14, decimal_places=2, default=0.0)
+    referencia = models.CharField(max_length=30, null=True, blank=True)
+    observaciones = models.TextField(null=True, blank=True)
+    creado_por = models.ForeignKey(User, on_delete=models.PROTECT,default=49, blank=True, null=True)
+
+    class Meta:
+        verbose_name = 'Movimiento de dispositivo Beqt'
+        verbose_name_plural = 'Movimientos de dispositivos Beqt'
+
+    def __str__(self):
+        return '{} - {}'.format(self.tipo_movimiento, self.dispositivo)
