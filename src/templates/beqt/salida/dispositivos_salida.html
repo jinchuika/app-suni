@@ -1,7 +1,7 @@
 {% extends "base/base.html" %}
 {% load staticfiles widget_tweaks %}
 {% block page_title %}
-<title>Dispositivos Asignados</title>
+<title>BEQT : Dispositivos Asignados</title>
 {% endblock page_title %} {% block content %}
 <section class="content-header">
 	<h1>Dispositivos Asignados </h1>
@@ -17,7 +17,7 @@
 									<h3 class="box-title">Dispositivos Asignados</h3>
 							</div>
 							<div class="col-md-3">
-								<a class="btn btn-success" target="_blank" href="{% url 'paquetes_grid' pk=object.id%}">
+								<a class="btn btn-success" target="_blank" href="{% url 'paquetes_beqt_grid' pk=object.id%}">
 								 Editar dispositivo
 							 </a>
 							</div>
@@ -79,7 +79,7 @@
 {% endblock content %}
 {% block extra_js %}
 {% include "base/dataTables.html" %}
-<script src="{% static "js/extrajs/inventario.js" %}"></script>
+<script src="{% static "js/extrajs/beqt.js" %}"></script>
 <script src="{% static "js/i18n/es.js" %}"></script>
 <script>
 $(document).ready(function (){	

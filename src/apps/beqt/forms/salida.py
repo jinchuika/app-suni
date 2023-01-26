@@ -67,16 +67,16 @@ class PaqueteCantidadForm(forms.ModelForm):
     """ Formulario para  la creacion de la cantidad de paquetes.
         """
     tipo_paquete = forms.ModelChoiceField(
-        queryset=inv_m.PaqueteTipo.objects.all(),
+        queryset=beqt_m.PaqueteTipoBeqt.objects.all(),
         widget=forms.Select(attrs={'class': 'form-control select2'})
     )
     cantidad = forms.IntegerField(
         widget=forms.TextInput(attrs={'class': 'form-control'}))
     entrada = forms.ModelMultipleChoiceField(
         required=False,
-        queryset=beqt_m.Entrada.objects.filter(tipo=3),
+        queryset=beqt_m.Entrada.objects.filter(tipo=5),
         widget=forms.SelectMultiple(attrs={
-            'data-api-url': reverse_lazy('inventario_api:api_entrada-list')
+            'data-api-url': reverse_lazy('beqt_api:api_entrada_beqt-list')
         })
     )
 

@@ -1,7 +1,7 @@
 {% extends "base/base.html" %}
 {%load widget_tweaks static %}
 {% block page_title %}
-<title>Control de Calidad</title>
+<title>BEQT : Control de Calidad</title>
 {% endblock page_title %}
 {% block content %}
 <section class="content">
@@ -51,7 +51,7 @@
 {% endblock content %}
 {% block extra_js %}
 {% include "base/dataTables.html" %}
-<script src="{% static "js/extrajs/inventario.js" %}"></script>
+<script src="{% static "js/extrajs/beqt.js" %}"></script>
 <script>
 let buscar = new BuscadorTabla(); 
 </script>

@@ -141,7 +141,7 @@
                                 </tr>
                                 </thead>
                                 <tbody>
-                                {% for cambio in object.cambios.all %}
+                                {% for cambio in object.cambios_beqt.all %}
                                     <tr>
                                         <td>
                                             <a href="{{cambio.dispositivo.get_absolute_url}}">{{ cambio.dispositivo }}</a>

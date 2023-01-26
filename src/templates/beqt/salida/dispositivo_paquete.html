@@ -1,7 +1,7 @@
 {% extends 'base/base.html' %}
   {% load widget_tweaks staticfiles %}
 {% block page_title %}
-    <title>Asignación de dispositivos</title>
+    <title>BEQT : Asignación de dispositivos</title>
 {% endblock %}
 {% block content %}
     <section class="content">
@@ -54,7 +54,7 @@
 {% endblock content %}
 {% block extra_js %}
 {% include "base/dataTables.html" %}
-    <script src="{% static "js/extrajs/inventario.js" %}"></script>
+    <script src="{% static "js/extrajs/beqt.js" %}"></script>
     <script>
     $(document).ready(function () {
       let Estados = new SolicitudEstadoTipo();

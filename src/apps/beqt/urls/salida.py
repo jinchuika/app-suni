@@ -79,56 +79,56 @@ urlpatterns = [
     # Control de Calidad
     url(
         r'^salida/controlcalidad/$',
-        inv_v.ControlCalidadListView.as_view(),
-        name='controlcalidad_list'
+        beqt_v.ControlCalidadListView.as_view(),
+        name='controlcalidad_beqt_list'
     ),
     # Dispositivos Asignados
     url(
         r'^salida/dispositivoasignados/(?P<pk>\d+)/$',
-        inv_v.DispositivoAsignados.as_view(),
-        name='dispositivo_asignados'
+        beqt_v.DispositivoAsignados.as_view(),
+        name='dispositivo_beqt_asignados'
     ),
     # Imprimir Garantia
     url(
         r'^salida/(?P<pk>\d+)/garantia/$',
-        inv_v.GarantiaPrintView.as_view(),
-        name='garantia_print'
+        beqt_v.GarantiaPrintView.as_view(),
+        name='garantia_beqt_print'
     ),
     # Imprimir informe de laptops
     url(
         r'^salida/(?P<pk>\d+)/laptop/$',
-        inv_v.LaptopPrintView.as_view(),
-        name='laptop_print'
+        beqt_v.LaptopPrintView.as_view(),
+        name='laptop_beqt_print'
     ),
     # Imprimir informe de Tablets
     url(
         r'^salida/(?P<pk>\d+)/tablets/$',
-        inv_v.TabletPrintView.as_view(),
-        name='tablet_print'
+        beqt_v.TabletPrintView.as_view(),
+        name='tablet_beqt_print'
     ),
     # Imprimir informe de TPE
     url(
         r'^salida/(?P<pk>\d+)/tpe/$',
-        inv_v.TpePrintView.as_view(),
-        name='tpe_print'
+        beqt_v.TpePrintView.as_view(),
+        name='tpe_beqt_print'
     ),
     # Imprimir informe de mineduc
     url(
         r'^salida/(?P<pk>\d+)/mineduc/$',
-        inv_v.MineducPrintView.as_view(),
-        name='mineduc_print'
+        beqt_v.MineducPrintView.as_view(),
+        name='mineduc_beqt_print'
     ),
     # Imprimir carta e prestamo
     url(
         r'^salida/(?P<pk>\d+)/prestamo/$',
-        inv_v.PrestamoCartaPrintView.as_view(),
-        name='prestamo_carta_print'
+        beqt_v.PrestamoCartaPrintView.as_view(),
+        name='prestamo_carta_beqt_print'
     ),
     # Grid de dispsotivos en paquetes
     url(
         r'^salida/(?P<pk>\d+)/paquetesgrid/$',
-        inv_v.PaquetesDetalleGrid.as_view(),
-        name='paquetes_grid'
+        beqt_v.PaquetesDetalleGrid.as_view(),
+        name='paquetes_beqt_grid'
     ),
 
 

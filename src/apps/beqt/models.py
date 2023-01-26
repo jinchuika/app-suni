@@ -140,9 +140,7 @@ class EntradaDetalleBeqt(models.Model):
 
         super(EntradaDetalleBeqt, self).save(*args, **kwargs)
 
-    def crear_dispositivos(self, total=None):
-        print("Ingreso a creacion de dispositivos")
-        print(total)
+    def crear_dispositivos(self, total=None):        
         if total is None:
             total = self.total
         # Busca el modelo del `tipo_dispositivo` del objeto actual
@@ -333,7 +331,7 @@ class HDDBeqt(DispositivoBeqt):
         return self.triage
 
     def get_absolute_url(self):
-        return reverse_lazy('hdd_detail', kwargs={'triage': self.triage})
+        return reverse_lazy('hdd_beqt_detail', kwargs={'triage': self.triage})
 
     @property
     def en_uso(self):
@@ -376,7 +374,7 @@ class TabletBeqt(DispositivoBeqt):
         return self.triage
 
     def get_absolute_url(self):
-        return reverse_lazy('tablet_detail', kwargs={'triage': self.triage})
+        return reverse_lazy('tablet_beqt_detail', kwargs={'triage': self.triage})
 
 
 class LaptopBeqt(DispositivoBeqt):
@@ -404,7 +402,7 @@ class LaptopBeqt(DispositivoBeqt):
         return self.triage
 
     def get_absolute_url(self):
-        return reverse_lazy('laptop_detail', kwargs={'triage': self.triage})
+        return reverse_lazy('laptop_beqt_detail', kwargs={'triage': self.triage})
 
 
 class AccessPointBeqt(DispositivoBeqt):
@@ -423,7 +421,7 @@ class AccessPointBeqt(DispositivoBeqt):
         return self.triage
 
     def get_absolute_url(self):
-        return reverse_lazy('ap_detail', kwargs={'triage': self.triage})
+        return reverse_lazy('ap_beqt_detail', kwargs={'triage': self.triage})
 
 #Nuevos dispositivos
 
@@ -440,7 +438,7 @@ class CargadorLaptopBeqt(DispositivoBeqt):
         return self.triage
 
     def get_absolute_url(self):
-        return reverse_lazy('ups_detail', kwargs={'triage': self.triage})
+        return reverse_lazy('cargador_beqt_detail', kwargs={'triage': self.triage})
 
 
 class UpsBeqt(DispositivoBeqt):
@@ -457,7 +455,7 @@ class UpsBeqt(DispositivoBeqt):
         return self.triage
 
     def get_absolute_url(self):
-        return reverse_lazy('ups_detail', kwargs={'triage': self.triage})
+        return reverse_lazy('ups_beqt_detail', kwargs={'triage': self.triage})
 
 class RegletaBeqt(DispositivoBeqt):
     SLUG_TIPO = 'RB'
@@ -475,7 +473,7 @@ class RegletaBeqt(DispositivoBeqt):
         return self.triage
 
     def get_absolute_url(self):
-        return reverse_lazy('ups_detail', kwargs={'triage': self.triage})
+        return reverse_lazy('regleta_beqt_detail', kwargs={'triage': self.triage})
 
 
 class DispositivoRedBeqt(DispositivoBeqt):
@@ -495,7 +493,7 @@ class DispositivoRedBeqt(DispositivoBeqt):
         return self.triage
 
     def get_absolute_url(self):
-        return reverse_lazy('red_detail', kwargs={'triage': self.triage})
+        return reverse_lazy('red_beqt_detail', kwargs={'triage': self.triage})
 
 
 class SalidaTipoBeqt(models.Model):
@@ -559,16 +557,16 @@ class SalidaInventario(models.Model):
 
     def get_absolute_url(self):
         if self.en_creacion:
-            return reverse_lazy('salidainventario_edit', kwargs={'pk': self.id})
+            return reverse_lazy('salidainventario_beqt_edit', kwargs={'pk': self.id})
         else:
-            return reverse_lazy('salidainventario_detail', kwargs={'pk': self.id})
+            return reverse_lazy('salidainventario_beqt_detail', kwargs={'pk': self.id})
 
     def __str__(self):
         return str(self.no_salida)
 
     def crear_paquetes(self, cantidad, usuario, entrada, tipo_paquete=None):
         creados = 0
-        indice_actual = self.paquetes.count()
+        indice_actual = self.paquetes_beqt.count()
         if self.tipo_salida.especial:
             if entrada.count() == 0:
                 paquete = PaqueteBeqt(
@@ -686,7 +684,7 @@ class PaqueteBeqt(models.Model):
             paquete.save()
 
     def get_absolute_url(self):
-        return reverse_lazy('detalle_paquete', kwargs={'pk': self.id})
+        return reverse_lazy('detalle_paquete_beqt', kwargs={'pk': self.id})
 
     def asignar_dispositivo(self, lista_dispositivos, usuario):
         """Asigna los dispositivo a los diferentes paquetes que se han creado
@@ -751,7 +749,7 @@ class RevisionSalidaBeqt(models.Model):
         return str(self.salida)
 
     def get_absolute_url(self):
-        return reverse_lazy('revisionsalida_update', kwargs={'pk': self.id})
+        return reverse_lazy('revisionsalida_beqt_update', kwargs={'pk': self.id})
 
 
 class RevisionComentarioBeqt(models.Model):
@@ -876,7 +874,7 @@ class AsignacionTecnico(models.Model):
         return str(self.usuario)
 
     def get_absolute_url(self):
-        return reverse_lazy('asignaciontecnico_update', kwargs={'pk': self.id})
+        return reverse_lazy('asignaciontecnico_beqt_update', kwargs={'pk': self.id})
 
 
 class CambioEstadoBeqt(models.Model):

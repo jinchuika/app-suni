@@ -2,7 +2,7 @@
 {% load staticfiles widget_tweaks %}
 {% load inventario_extras %}
 {% block page_title %}
-<title>Salida {{salidainventario}} y Paquetes</title>
+<title>BEQT : Salida {{salidainventario}} y Paquetes</title>
 {% endblock page_title %}
 {% block content %}
 {% if salidainventario.en_creacion%}
@@ -19,7 +19,7 @@
 								<h3 class="box-title">INFORMACIÓN DE SALIDA</h3>
 							</div>
 							<div class="col-md-3">
-								<button  id="id-reasignar" class="btn btn-danger btn-rechazar" data-entrega={{salidainventario.beneficiario}} data-urlreasignar="{%url 'inventario_api:api_inventariosalidas-reasignar-salida'%}" data-urldonantes="{%url 'crm_api:donante-list'%}" data-kardex="{%url 'inventario_api:api_inventariosalidas-stock-kardex' pk=object.id%}" data-kardexaprobar="{%url 'inventario_api:api_revisionsalidas-aprobar-paquete-kardex' pk=object.id%}" data-kardexrechazar="{%url 'inventario_api:api_revisionsalidas-rechazar-paquete-kardex' pk=object.id%}">Reasignar</button>
+								<button  id="id-reasignar" class="btn btn-danger btn-rechazar" data-entrega={{salidainventario.beneficiario}} data-urlreasignar="{%url 'beqt_api:api_inventariosalidas_beqt-reasignar-salida'%}" data-urldonantes="{%url 'crm_api:donante-list'%}" data-kardex="{%url 'beqt_api:api_inventariosalidas_beqt-stock-kardex' pk=object.id%}">Reasignar</button>
 							</div>
 						</div>
 					</div>
@@ -76,7 +76,7 @@
 						<h3 class="box-title">AGREGAR PAQUETE</h3>
 					</div>
 					<div class="box-body">
-						 {% include "inventario/salida/paquetes_add.html" %}
+						 {% include "beqt/salida/paquetes_add.html" %}
 					</div>
 				</div>
 				{% if permiso.name == "inv_cc"  %}
@@ -107,7 +107,7 @@
 					<div class="box-header">
 						<div class="row">
 							<div class="col-md-3">
-									<h3 class="box-title">Listado de Paquetes</h3>
+									<h3 class="box-title">BEQT : Listado de Paquetes</h3>
 							</div>
 							<div class="col-md-9">
 									<a target='_blank' href="{% url 'tpe_print' pk=object.id%}" class="btn btn-info">Entrega TPE</a>
@@ -133,7 +133,7 @@
 					</div>
 					<div class="box-body  table-responsive">
 						<!--	<div class="col-md-12 table-responsive"> -->
-						<table  id="salidas-paquete-table" class="table table-striped table-hover table-bordered table-condensed dataTable" data-url="{%url 'inventario_api:api_paquete-list'%}" data-pk="{{salidainventario.id}}" data-beneficiario="{{salidainventario.beneficiario.id}}" data-tipo="{{salidainventario.tipo_salida.id}}" data-cuadrar="{%url 'inventario_api:api_inventariosalidas-cuadrar-salida'%}" data-urlfin="{%url 'inventario_api:api_revisionsalidas-aprobado' pk=salidainventario%}" data-urldetail="{%url 'salidainventario_detail' pk=salidainventario.id%}" data-garantia="{{salidainventario.tipo_salida}}" data-urlpaquetes="{%url 'inventario_api:api_inventariosalidas-stock-paquete' pk=object.id%}">
+						<table  id="salidas-paquete-table" class="table table-striped table-hover table-bordered table-condensed dataTable" data-url="{%url 'beqt_api:api_paquete-list'%}" data-pk="{{salidainventario.id}}" data-beneficiario="{{salidainventario.beneficiario.id}}" data-tipo="{{salidainventario.tipo_salida.id}}" data-cuadrar="{%url 'beqt_api:api_inventariosalidas_beqt-cuadrar-salida'%}" data-urlfin="{%url 'beqt_api:api_revisionsalidas_beqt-aprobado' pk=salidainventario%}" data-urldetail="{%url 'salidainventario_detail' pk=salidainventario.id%}" data-garantia="{{salidainventario.tipo_salida}}" data-urlpaquetes="{%url 'beqt_api:api_inventariosalidas_beqt-stock-paquete' pk=object.id%}">
 							<thead>
 								<tr>
 									<th>Paquete</th>
@@ -182,13 +182,13 @@
 {% endblock content %}
 {% block extra_js %}
 {% include "base/dataTables.html" %}
-<script src="{% static "js/extrajs/inventario.js" %}"></script>
+<script src="{% static "js/extrajs/beqt.js" %}"></script>
 <script src="{% static "js/i18n/es.js" %}"></script>
 <script>
  $(document).ready(function (){
-	//$("#id_fecha").datepicker( "refresh" );
+	$("#id_fecha").datepicker( "refresh" );
 	let Rechazado = new Salidas();
-	//let Buscador = new BuscadorTabla();
+	let Buscador = new BuscadorTabla();
 
 });
 </script>

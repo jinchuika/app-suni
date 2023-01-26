@@ -1,7 +1,7 @@
 {% extends "base/base.html" %}
 {% load staticfiles widget_tweaks %}
 {% block page_title %}
-<title>Paquetes - {{ paquete.id }}</title>
+<title>BEQT : Paquetes - {{ paquetebeqt.id }}</title>
 {% endblock page_title %} {% block content %}
 <section class="content">
 	<div class="container-fluid">
@@ -13,7 +13,7 @@
 					<div class="box-header">
 						<div class="row">
 							<div class="col-md-9">
-								<h3 class="box-title">Paquete No. {{ paquete }}</h3>
+								<h3 class="box-title">Paquete No. {{ paquetebeqt }}</h3>
 							</div>
 						</div>
 						<div class="col-md-3">
@@ -23,33 +23,33 @@
 						<table class="table table-condensed">
 							<tr>
 								<th>Salida </th>
-								<td id="salida-id"  data-url="{% url 'inventario_api:api_revisionsalidas-rechazar-dispositivo' pk=paquete.salida%}" data-urlhistorico="{% url 'historico_control' %}" data-id="{{  paquete.salida }}" data-pk="{{  paquete.salida.id }}" data-urlaprobar="{% url 'inventario_api:api_revisionsalidas-aprobar-dispositivo' pk=paquete.salida%}">{{ paquete.salida }}</td>
+								<td id="salida-id"  data-url="{% url 'beqt_api:api_revisionsalidas_beqt-rechazar-dispositivo' pk=paquetebeqt.salida%}" data-urlhistorico="{% url 'historico_control_beqt' %}" data-id="{{  paquetebeqt.salida }}" data-pk="{{  paquetebeqt.salida.id }}" data-urlaprobar="{% url 'beqt_api:api_revisionsalidas_beqt-aprobar-dispositivo' pk=paquetebeqt.salida%}">{{ paquetebeqt.salida }}</td>
 							</tr>
 							<tr >
 								<th>Fecha Creación</th>
 								<td>
-									{{paquete.fecha_creacion}}
+									{{paquetebeqt.fecha_creacion}}
 									<br>
 								</td>
 							</tr>
               <tr>
                 <th>Creado por</th>
                 <td>
-                  {{paquete.creado_por.get_full_name}}
+                  {{paquetebeqt.creado_por.get_full_name}}
                   <br>
                 </td>
               </tr>
               <tr>
                 <th>Tipo de Paquete</th>
                 <td>
-                  {{paquete.tipo_paquete}}
+                  {{paquetebeqt.tipo_paquete}}
                   <br>
                 </td>
               </tr>
               <tr>
                 <th>Aprobado</th>
                 <td>
-                  {%if paquete.aprobado %}
+                  {%if paquetebeqt.aprobado %}
 										Si
 									{%else%}
 										No
@@ -60,11 +60,11 @@
 							<tr>
 								<th>Cantidad</th>
 								<td>
-									{{paquete.cantidad}}
+									{{paquetebeqt.cantidad}}
 
 								</td>
-								{% if  paquete.salida.tipo_salida.id == 2%}
-								<td><a  id="editar_cantidad"class="btn btn-block btn-warning" data-cantidaUrl="{%url 'inventario_api:api_dispositivo-cambiar-cantidad' %} " data-nuevoid={{paquete.id}}>Editar cantidad</a></td>
+								{% if  paquetebeqt.salida.tipo_salida.id == 2%}
+								<td><a  id="editar_cantidad"class="btn btn-block btn-warning" data-cantidaUrl="{%url 'beqt_api:api_dispositivo-cambiar-cantidad' %} " data-nuevoid={{paquetebeqt.id}}>Editar cantidad</a></td>
 								{% endif %}
 
 							</tr>
@@ -90,7 +90,7 @@
 									Histórico
 								</th>
 							</tr>
-							<tbody id="body-salidas-{{paquete.salida}}">
+							<tbody id="body-salidas-{{paquetebeqt.salida}}">
 								{%for comentario in comentarios%}
 							 <tr>
 								 <td>
@@ -165,7 +165,7 @@
 								<label for="area_scanner_aprobar">Area de Scanner:</label>	<input id="area_scanner_aprobar" class="form-control" type="text" name="area_scanner_aprobar" style="width:50%">
 							</div>
 					</div>
-				<table  id="rechazar-dispositivo" class="table table-condensed" data-url="{% url 'inventario_api:api_revisionsalidas-rechazar-dispositivo' pk=paquete.salida%}" data-urlhistorico="{% url 'historico_control' %}" data-id="{{  paquete.salida }}" data-urlaprobar="{% url 'inventario_api:api_revisionsalidas-aprobar-dispositivo' pk=paquete.salida%}" data-dispo={{dispositivos_no}} data-paquete={{paquete.salida}} data-idpaquete={{paquete.id}} data-urlaprobar="{% url 'inventario_api:api_revisionsalidas-aprobar-dispositivo' pk=paquete.salida%}">
+				<table  id="rechazar-dispositivo" class="table table-condensed" data-url="{% url 'beqt_api:api_revisionsalidas_beqt-rechazar-dispositivo' pk=paquetebeqt.salida%}" data-urlhistorico="{% url 'historico_control_beqt' %}" data-id="{{  paquetebeqt.salida }}" data-urlaprobar="{% url 'beqt_api:api_revisionsalidas_beqt-aprobar-dispositivo' pk=paquetebeqt.salida%}" data-dispo={{dispositivos_no}} data-paquete={{paquetebeqt.salida}} data-idpaquete={{paquetebeqt.id}} data-urlaprobar="{% url 'beqt_api:api_revisionsalidas_beqt-aprobar-dispositivo' pk=paquetebeqt.salida%}">
 					{% csrf_token %}
 					<thead>
 						<th>No.</th>
@@ -198,7 +198,7 @@
 								{% if  dispositivo.dispositivo.estado.id == 2 %}
 
 								{% else %}
-									<button  id="id-aprobar" class="btn btn-primary btn-aprobar" data-triage="{{dispositivo.dispositivo.triage}}" data-paquete={{paquete.salida}} data-idpaquete={{paquete.id}} data-tipo={{dispositivo.dispositivo.tipo}}>Aprobar</button>
+									<button  id="id-aprobar" class="btn btn-primary btn-aprobar" data-triage="{{dispositivo.dispositivo.triage}}" data-paquete={{paquetebeqt.salida}} data-idpaquete={{paquetebeqt.id}} data-tipo={{dispositivo.dispositivo.tipo}}>Aprobar</button>
 
 								{% endif %}
 
@@ -208,7 +208,7 @@
 									<span class="label label-success">Revisado</span>
 
 								 {% else %}
-								 <button  id="id-rechazar" class="btn btn-danger btn-rechazar" data-triage="{{dispositivo.dispositivo.triage}}" data-paquete={{paquete.salida.id}} data-idpaquete={{paquete.id}} data-triagepaquete={{paquete}}>Rechazar</button>
+								 <button  id="id-rechazar" class="btn btn-danger btn-rechazar" data-triage="{{dispositivo.dispositivo.triage}}" data-paquete={{paquetebeqt.salida.id}} data-idpaquete={{paquetebeqt.id}} data-triagepaquete={{paquetebeqt}}>Rechazar</button>
 
 								 {%endif%}
 							</td>
@@ -222,7 +222,7 @@
 							Histórico
 						</th>
 					</tr>
-					<tbody id="body-salidas-{{paquete.salida}}">
+					<tbody id="body-salidas-{{paquetebeqt.salida}}">
 						{%for comentario in comentarios%}
 					 <tr>
 						 <td>
@@ -244,7 +244,7 @@
 </section>
 {% endblock content %}
 {% block extra_js %}
-<script src="{% static "js/extrajs/inventario.js" %}"></script>
+<script src="{% static "js/extrajs/beqt.js" %}"></script>
 <script src="{% static "js/i18n/es.js" %}"></script>
 <script>
 	$(document).ready(function (){

@@ -49,7 +49,7 @@ def calcular_salida(sender, instance, **kwargs):
         indice = 0
         tipo_salida = instance.tipo_salida
         if instance.tipo_salida.equipamiento:
-            tipo_salida = inventario_m.SalidaTipo.objects.get(equipamiento=True)
+            tipo_salida = beqt_m.SalidaTipoBeqt.objects.get(equipamiento=True)
             entregas = beqt_m.SalidaInventario.objects.filter(entrega=True, tipo_salida__renovacion=False)
         elif instance.tipo_salida.especial:
             entregas = beqt_m.SalidaInventario.objects.filter(tipo_salida=instance.tipo_salida, entrega=False).exclude(no_salida__contains='GN')

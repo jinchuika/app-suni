@@ -307,7 +307,7 @@ class SolicitudMovimientoUpdateForm(forms.ModelForm):
     dispositivos = forms.ModelMultipleChoiceField(
         queryset=beqt_m.DispositivoBeqt.objects.none(),
         widget=forms.SelectMultiple(attrs={
-            'data-api-url': reverse_lazy('inventario_api:api_dispositivo-list'),
+            'data-api-url': reverse_lazy('beqt_api:api_dispositivo-list'),
             'data-etapa-inicial': '',
             'data-tipo-dispositivo': ''
         })

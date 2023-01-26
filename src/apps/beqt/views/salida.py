@@ -86,7 +86,7 @@ class SalidaInventarioUpdateView(LoginRequiredMixin, GroupRequiredMixin, UpdateV
        
         comentarios_cc= beqt_m.SalidaComentarioBeqt.objects.filter(salida=self.object.id)
         comentarios_conta=beqt_m.RevisionComentarioBeqt.objects.filter(revision__salida=self.object.id)
-        context['CPU'] = 0
+        
         context['Laptops'] = Total_Laptop.count()
         context['Tablets'] = Total_Tablet.count()
         context['comentario_cc'] = comentarios_cc
@@ -141,35 +141,36 @@ class SalidaPaqueteUpdateView(LoginRequiredMixin, GroupRequiredMixin, UpdateView
     group_required = []
 
     def get_success_url(self):
-        return reverse_lazy('salidainventario_edit', kwargs={'pk': self.object.id})
+        return reverse_lazy('salidainventario_beqt_edit', kwargs={'pk': self.object.id})
 
     def get_form(self, form_class=None):
         print('Get Form')
         form = super(SalidaPaqueteUpdateView, self).get_form(form_class)
         form.fields['entrada'].widget = forms.SelectMultiple(attrs={
-            'data-api-url': reverse_lazy('inventario_api:api_entrada-list')
+            'data-api-url': reverse_lazy('beqt_api:api_entrada_beqt-list')
         })
-        form.fields['entrada'].queryset = inv_m.Entrada.objects.filter(
-            tipo=3
-        )
+        form.fields['entrada'].queryset = beqt_m.Entrada.objects.filter(
+            tipo=5
+        )        
         return form
 
     def form_valid(self, form):
         cantidad_disponible = form.cleaned_data['entrada']
         tipo = beqt_m.PaqueteTipoBeqt.objects.get(id=self.request.POST['tipo_paquete'])
-        cantidad = form.cleaned_data['cantidad']
-        if (cantidad_disponible.count() > 0):
+        cantidad = form.cleaned_data['cantidad']        
+        if (cantidad_disponible.count() > 0):            
             cantidad_total = 0
-            for disponibles in cantidad_disponible:
+            for disponibles in cantidad_disponible:              
                 try:
-                    detalles = beqt_m.EntradaDetalle.objects.filter(
+                    detalles = beqt_m.EntradaDetalleBeqt.objects.filter(
                         entrada=disponibles,
                         tipo_dispositivo=tipo.tipo_dispositivo.id
                         ).aggregate(total_util=Sum('util'))
+                    
                     cantidad_total = cantidad_total + detalles['total_util']
                 except TypeError as e:
                     messages.error(self.request, 'La entrada:'+str(disponibles)+" No tiene dispositivos de este tipo")
-            if(cantidad < cantidad_total):
+            if(cantidad < cantidad_total):                
                 form.instance.crear_paquetes(
                     cantidad=form.cleaned_data['cantidad'],
                     usuario=self.request.user,
@@ -178,7 +179,7 @@ class SalidaPaqueteUpdateView(LoginRequiredMixin, GroupRequiredMixin, UpdateView
                     )
             else:
                 messages.error(self.request, 'No Hay en existencia los dispositivos solicitados')
-        else:
+        else:           
             form.instance.crear_paquetes(
                 cantidad=form.cleaned_data['cantidad'],
                 usuario=self.request.user,
@@ -191,10 +192,10 @@ class SalidaPaqueteUpdateView(LoginRequiredMixin, GroupRequiredMixin, UpdateView
 class SalidaPaqueteDetailView(LoginRequiredMixin, GroupRequiredMixin, UpdateView):
     """Vista para detalle de :class:`Paquete`.
     """
-    model = inv_m.Paquete
-    template_name = 'inventario/salida/paquetes_detail.html'
-    form_class = inv_f.PaqueteUpdateForm
-    group_required = [u"inv_tecnico", u"inv_cc", u"inv_admin", u"inv_bodega"]
+    model = beqt_m.PaqueteBeqt
+    template_name = 'beqt/salida/paquetes_detail.html'
+    form_class = beqt_f.PaqueteUpdateForm
+    group_required = []
 
     def get_form(self, form_class=None):
         form = super(SalidaPaqueteDetailView, self).get_form(form_class)
@@ -202,7 +203,7 @@ class SalidaPaqueteDetailView(LoginRequiredMixin, GroupRequiredMixin, UpdateView
         estado = inv_m.DispositivoEstado.objects.get(id=inv_m.DispositivoEstado.PD)
         form.fields['dispositivos'].widget = forms.SelectMultiple(
             attrs={
-                'data-api-url': reverse_lazy('inventario_api:api_dispositivo-list'),
+                'data-api-url': reverse_lazy('beqt_api:api_dispositivo-list'),
                 'data-tipo-dispositivo': self.object.tipo_paquete.tipo_dispositivo.id,
                 'data-slug': self.object.tipo_paquete.tipo_dispositivo.slug,
                 'data-cantidad': self.object.cantidad,
@@ -210,7 +211,7 @@ class SalidaPaqueteDetailView(LoginRequiredMixin, GroupRequiredMixin, UpdateView
                 'data-estado_inicial': estado.id,
             }
         )
-        form.fields['dispositivos'].queryset = inv_m.Dispositivo.objects.filter(
+        form.fields['dispositivos'].queryset = beqt_m.DispositivoBeqt.objects.filter(
             etapa=inv_m.DispositivoEtapa.objects.get(id=inv_m.DispositivoEtapa.TR),
             tipo=self.object.tipo_paquete.tipo_dispositivo
         )
@@ -229,22 +230,22 @@ class SalidaPaqueteDetailView(LoginRequiredMixin, GroupRequiredMixin, UpdateView
 
     def get_context_data(self, **kwargs):
         context = super(SalidaPaqueteDetailView, self).get_context_data(**kwargs)
-        nuevo_id = inv_m.Paquete.objects.get(id=self.object.id)
-        context['dispositivos_paquetes'] = inv_m.DispositivoPaquete.objects.filter(paquete__id=self.object.id)
-        context['dispositivos_no'] = inv_m.DispositivoPaquete.objects.filter(paquete__id=self.object.id).count()
-        context['comentarios'] = inv_m.SalidaComentario.objects.filter(salida=nuevo_id.salida)
+        nuevo_id = beqt_m.PaqueteBeqt.objects.get(id=self.object.id)
+        context['dispositivos_paquetes'] = beqt_m.DispositivoPaquete.objects.filter(paquete__id=self.object.id)
+        context['dispositivos_no'] = beqt_m.DispositivoPaquete.objects.filter(paquete__id=self.object.id).count()
+        context['comentarios'] = beqt_m.SalidaComentarioBeqt.objects.filter(salida=nuevo_id.salida)
         return context
 
 
 class RevisionSalidaCreateView(LoginRequiredMixin, GroupRequiredMixin, CreateView):
     """Vista para creación de :class:`RevisionSalida`"""
-    model = inv_m.RevisionSalida
-    form_class = inv_f.RevisionSalidaCreateForm
-    template_name = 'inventario/salida/revisionsalida_add.html'
-    group_required = [u"inv_conta", u"inv_admin"]
+    model = beqt_m.RevisionSalidaBeqt
+    form_class = beqt_f.RevisionSalidaCreateForm
+    template_name = 'beqt/salida/revisionsalida_add.html'
+    group_required = []
 
     def get_success_url(self):
-        return reverse_lazy('revisionsalida_update', kwargs={'pk': self.object.id})
+        return reverse_lazy('revisionsalida_beqt_update', kwargs={'pk': self.object.id})
 
     def get_initial(self):
         return {
@@ -258,14 +259,14 @@ class RevisionSalidaCreateView(LoginRequiredMixin, GroupRequiredMixin, CreateVie
 
 class RevisionSalidaUpdateView(LoginRequiredMixin, GroupRequiredMixin, UpdateView):
     """Vista para edición de :class:`RevisionSalida`"""
-    model = inv_m.RevisionSalida
-    form_class = inv_f.RevisionSalidaUpdateForm
-    template_name = 'inventario/salida/revisionsalida_update.html'
-    group_required = [u"inv_conta", u"inv_admin"]
+    model = beqt_m.RevisionSalidaBeqt
+    form_class = beqt_f.RevisionSalidaUpdateForm
+    template_name = 'beqt/salida/revisionsalida_update.html'
+    group_required = []
 
     def get_context_data(self, *args, **kwargs):
         context = super(RevisionSalidaUpdateView, self).get_context_data(*args, **kwargs)
-        comentarios_cc= inv_m.SalidaComentario.objects.filter(salida=self.object.salida.id)
+        comentarios_cc= beqt_m.SalidaComentarioBeqt.objects.filter(salida=self.object.salida.id)
         context['comentario_cc'] = comentarios_cc
         return context
 
@@ -273,17 +274,17 @@ class RevisionSalidaUpdateView(LoginRequiredMixin, GroupRequiredMixin, UpdateVie
 class SalidaPaqueteView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
     """Vista para detalle de :class:`SalidaInventario`.on sus respectivos filtros
     """
-    model = inv_m.SalidaInventario
-    template_name = 'inventario/salida/dispositivo_paquete.html'
-    group_required = [u"inv_cc", u"inv_admin"]
+    model = beqt_m.SalidaInventario
+    template_name = 'beqt/salida/dispositivo_paquete.html'
+    group_required = []
 
     def get_context_data(self, **kwargs):
         context = super(SalidaPaqueteView, self).get_context_data(**kwargs)
-        paquete_form = inv_f.DispositivoPaqueteCreateForm()
+        paquete_form = beqt_f.DispositivoPaqueteCreateForm()
         paquete_form.fields['tipo'].queryset = inv_m.DispositivoTipo.objects.filter(
             id__in=self.request.user.tipos_dispositivos.tipos.all()
         )
-        paquete_form.fields['paquete'].queryset = inv_m.Paquete.objects.filter(salida=self.object,
+        paquete_form.fields['paquete'].queryset = beqt_m.PaqueteBeqt.objects.filter(salida=self.object,
                                                                                aprobado=False)
 
         context['paquete_form'] = paquete_form
@@ -294,9 +295,9 @@ class SalidaPaqueteView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
 class RevisionSalidaListView(LoginRequiredMixin, GroupRequiredMixin, ListView):
     """Vista para Los listados de :class:`RevisionSalida`. con sus respectivos datos
     """
-    model = inv_m.RevisionSalida
-    template_name = 'inventario/salida/revisionsalida_list.html'
-    group_required = [u"inv_cc", u"inv_admin", u"inv_conta"]
+    model = beqt_m.RevisionSalidaBeqt
+    template_name = 'beqt/salida/revisionsalida_list.html'
+    group_required = []
 
 
 class RevisionComentarioCreate(CsrfExemptMixin, JsonRequestResponseMixin, View):
@@ -309,14 +310,14 @@ class RevisionComentarioCreate(CsrfExemptMixin, JsonRequestResponseMixin, View):
     def post(self, request, *args, **kwargs):
         try:
             id_comentario = self.request_json["id_comentario"]
-            revision_salida = inv_m.RevisionSalida.objects.filter(salida=id_comentario)
+            revision_salida = beqt_m.RevisionSalidaBeqt.objects.filter(salida=id_comentario)
             comentario = self.request_json["comentario"]
             if not len(comentario) or len(revision_salida) == 0:
                 raise KeyError
         except KeyError:
             error_dict = {u"message": u"Sin Comentario"}
             return self.render_bad_request_response(error_dict)
-        comentario_revision = inv_m.RevisionComentario(
+        comentario_revision = beqt_m.RevisionComentarioBeqt(
             revision=revision_salida[0],
             comentario=comentario,
             creado_por=self.request.user)
@@ -338,14 +339,14 @@ class RevisionComentarioSalidaCreate(CsrfExemptMixin, JsonRequestResponseMixin, 
     def post(self, request, *args, **kwargs):
         try:
             id_comentario = self.request_json["id_comentario"]
-            revision_salida = inv_m.SalidaInventario.objects.filter(no_salida=id_comentario)
+            revision_salida = beqt_m.SalidaInventario.objects.filter(no_salida=id_comentario)
             comentario = self.request_json["comentario"]
             if not len(comentario) or len(revision_salida) == 0:
                 raise KeyError
         except KeyError:
             error_dict = {u"message": u"Sin Comentario"}
             return self.render_bad_request_response(error_dict)
-        comentario_revision = inv_m.SalidaComentario(
+        comentario_revision = beqt_m.SalidaComentarioBeqt(
             salida=revision_salida[0],
             comentario=comentario,
             creado_por=self.request.user)
@@ -360,87 +361,71 @@ class RevisionComentarioSalidaCreate(CsrfExemptMixin, JsonRequestResponseMixin, 
 class ControlCalidadListView(LoginRequiredMixin, GroupRequiredMixin, ListView):
     """Vista para Los listados de :class:`SalidaInventario`. con sus respectivos datos
     """
-    model = inv_m.SalidaInventario
-    template_name = 'inventario/salida/controlcalidad_list.html'
-    group_required = [u"inv_cc", u"inv_admin", u"inv_tecnico", u"inv_conta"]
+    model = beqt_m.SalidaInventario
+    template_name = 'beqt/salida/controlcalidad_list.html'
+    group_required = []
 
     def get_context_data(self, **kwargs):
         context = super(ControlCalidadListView, self).get_context_data(**kwargs)
-        context['controlcalidad_list'] = inv_m.SalidaInventario.objects.filter(en_creacion=True)
+        context['controlcalidad_list'] = beqt_m.SalidaInventario.objects.filter(en_creacion=True)
         return context
 
 
 class DispositivoAsignados(LoginRequiredMixin, GroupRequiredMixin, DetailView):
     """Vista encargada de ver los dispositivos que se fueron asignados a los paquetes
     """
-    model = inv_m.Paquete
-    template_name = 'inventario/salida/dispositivos_salida.html'
-    group_required = [u"inv_tecnico", u"inv_admin", u"inv_cc", u"inv_bodega"]
+    model = beqt_m.PaqueteBeqt
+    template_name = 'beqt/salida/dispositivos_salida.html'
+    group_required = []
 
     def get_context_data(self, **kwargs):
         context = super(DispositivoAsignados, self).get_context_data(**kwargs)
-        context['dispositivo_list'] = inv_m.DispositivoPaquete.objects.filter(paquete__id=self.object.id)
+        context['dispositivo_list'] = beqt_m.DispositivoPaquete.objects.filter(paquete__id=self.object.id)
         return context
 
 
 class GarantiaPrintView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
     """Vista encargada para imprimir las Garantias de las :class:`SalidaInventario`
     """
-    model = inv_m.SalidaInventario
-    template_name = 'inventario/salida/garantia_print.html'
-    group_required = [u"inv_tecnico", u"inv_admin", u"inv_cc"]
+    model = beqt_m.SalidaInventario
+    template_name = 'beqt/salida/garantia_print.html'
+    group_required = []
 
     def get_context_data(self, **kwargs):
         context = super(GarantiaPrintView, self).get_context_data(**kwargs)
-        cpu_servidor = 0
-        CPU = inv_m.PaqueteTipo.objects.get(nombre="CPU")
-        Laptop = inv_m.PaqueteTipo.objects.get(nombre="Laptop")
-        Tablet = inv_m.PaqueteTipo.objects.get(nombre="Tablet")
-        total_cpu = inv_m.DispositivoPaquete.objects.filter(
-            paquete__salida__id=self.object.id,
-            paquete__tipo_paquete=CPU,
-            )
-        laptops_server = inv_m.DispositivoPaquete.objects.filter(
+        cpu_servidor = 0       
+        Laptop = beqt_m.PaqueteTipoBeqt.objects.get(nombre="Laptop")
+        Tablet = beqt_m.PaqueteTipoBeqt.objects.get(nombre="Tablet")       
+        
+        laptops_server = beqt_m.DispositivoPaquete.objects.filter(
             paquete__salida__id=self.object.id,
             paquete__tipo_paquete=Laptop,
-            )
-        Total_Cpu = inv_m.Paquete.objects.filter(
-            salida__id=self.object.id,
-            tipo_paquete=CPU).aggregate(total_cpu=Sum('cantidad'))
-        Total_Laptop = inv_m.Paquete.objects.filter(
+            )        
+        Total_Laptop = beqt_m.PaqueteBeqt.objects.filter(
             salida__id=self.object.id,
             tipo_paquete=Laptop).aggregate(total_laptop=Sum('cantidad'))
-        Total_Tablet = inv_m.Paquete.objects.filter(
+        Total_Tablet = beqt_m.PaqueteBeqt.objects.filter(
             salida__id=self.object.id,
-            tipo_paquete=Tablet).aggregate(total_tablet=Sum('cantidad'))
-        for triage_cpu in total_cpu:
-            nuevo_cpu = inv_m.Dispositivo.objects.get(triage=triage_cpu.dispositivo).cast()
-            try:
-                if nuevo_cpu.servidor is True:
-                    cpu_servidor = cpu_servidor + 1
-            except Exception as e:
-                print(e)
+            tipo_paquete=Tablet).aggregate(total_tablet=Sum('cantidad'))       
 
         for servidor_laptop  in laptops_server:
-            nueva_laptop = inv_m.Dispositivo.objects.get(triage=servidor_laptop.dispositivo).cast()
+            nueva_laptop = beqt_m.DispositivoBeqt.objects.get(triage=servidor_laptop.dispositivo).cast()
             try:
                 if nueva_laptop.servidor is True:
                     cpu_servidor = cpu_servidor + 1
                     context['laptop'] = True
             except Exception as e:
-                print(e)
-        if Total_Cpu['total_cpu'] is None:
-            Total_Cpu['total_cpu'] = 0
+                print(e)       
         if Total_Laptop['total_laptop'] is None:
             Total_Laptop['total_laptop'] = 0
         if Total_Tablet['total_tablet'] is None:
             Total_Tablet['total_tablet'] = 0
-        Total_Entregado = (Total_Cpu['total_cpu']+Total_Laptop['total_laptop']+Total_Tablet['total_tablet']) - cpu_servidor
+        Total_Entregado = (Total_Laptop['total_laptop']+Total_Tablet['total_tablet']) - cpu_servidor
         if Total_Tablet['total_tablet'] > 1:
             context['cpu'] = 1
         else:
             context['cpu'] = 0
-        Fecha = inv_m.SalidaInventario.objects.get(id=self.object.id)
+        Fecha = beqt_m.SalidaInventario.objects.get(id=self.object.id)
         context['capacitada'] = Fecha.capacitada
         if Fecha.meses_garantia:
             context['fin_garantia'] = Fecha.fecha + relativedelta(months=6)
@@ -456,37 +441,25 @@ class GarantiaPrintView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
 class LaptopPrintView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
     """Vista encargada para imprimir las :class:`Laptop` de las salidas correspondiente
     """
-    model = inv_m.SalidaInventario
-    template_name = 'inventario/salida/laptop_print.html'
-    group_required = [u"inv_tecnico", u"inv_admin", u"inv_cc"]
+    model = beqt_m.SalidaInventario
+    template_name = 'beqt/salida/laptop_print.html'
+    group_required = []
 
     def get_context_data(self, **kwargs):
         context = super(LaptopPrintView, self).get_context_data(**kwargs)
         nuevas_laptops = []
         cpu_servidor = ""
-        Laptop = inv_m.PaqueteTipo.objects.get(nombre="Laptop")
-        cpu = inv_m.PaqueteTipo.objects.get(nombre="CPU")
-        Total_Laptop = inv_m.DispositivoPaquete.objects.filter(
+        Laptop = beqt_m.PaqueteTipoBeqt.objects.get(nombre="Laptop")      
+        Total_Laptop = beqt_m.DispositivoPaquete.objects.filter(
             paquete__salida__id=self.object.id,
-            paquete__tipo_paquete=Laptop)
-        total_cpu = inv_m.DispositivoPaquete.objects.filter(
+            paquete__tipo_paquete=Laptop)        
+        cantidad_total = beqt_m.DispositivoPaquete.objects.filter(
             paquete__salida__id=self.object.id,
-            paquete__tipo_paquete=cpu,
-            )
-        cantidad_total = inv_m.DispositivoPaquete.objects.filter(
-            paquete__salida__id=self.object.id,
-            paquete__tipo_paquete=Laptop).count()
-        for triage_cpu in total_cpu:
-            nuevo_cpu = inv_m.Dispositivo.objects.get(triage=triage_cpu.dispositivo).cast()
-            try:
-                if nuevo_cpu.servidor is True:
-                    cpu_servidor = str(nuevo_cpu.version_sistema)
-            except Exception as e:
-                print(e)
+            paquete__tipo_paquete=Laptop).count()        
         for triage in Total_Laptop:
-            nuevo_laptop = inv_m.Dispositivo.objects.get(triage=triage.dispositivo).cast()
+            nuevo_laptop = beqt_m.DispositivoBeqt.objects.get(triage=triage.dispositivo).cast()
             nuevas_laptops.append(nuevo_laptop)
-        escuela = inv_m.SalidaInventario.objects.get(id=self.object.id)
+        escuela = beqt_m.SalidaInventario.objects.get(id=self.object.id)
         try:
             encargado = escuela_m.EscContacto.objects.get(escuela=escuela.escuela, rol=5)
             context['Encargado'] = str(encargado.nombre)+" "+str(encargado.apellido)
@@ -502,34 +475,22 @@ class LaptopPrintView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
 class TabletPrintView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
     """Vista encargada para imprimir las :class:`Tablets` de las salidas correspondiente
     """
-    model = inv_m.SalidaInventario
-    template_name = 'inventario/salida/tablet_print.html'
-    group_required = [u"inv_tecnico", u"inv_admin", u"inv_cc"]
+    model = beqt_m.SalidaInventario
+    template_name = 'beqt/salida/tablet_print.html'
+    group_required = []
 
     def get_context_data(self, **kwargs):
         context = super(TabletPrintView, self).get_context_data(**kwargs)
         nuevas_tablets = []
         total_cargadores_mostrar = 0
-        Tablet = inv_m.PaqueteTipo.objects.get(nombre="Tablet")
-        Cargador = inv_m.PaqueteTipo.objects.get(nombre="Cargadores")
-        Cargador_cubo = inv_m.PaqueteTipo.objects.get(nombre="CUBO DE CARGA PARA TABLET")
-        Cable_cargador = inv_m.PaqueteTipo.objects.get(nombre="CABLE DE DATOS PARA TABLET")
-        Cargador_grande = inv_m.PaqueteTipo.objects.get(nombre="CARGADOR ENTRADA GRANDE PARA TABLET")
+        Tablet = beqt_m.PaqueteTipoBeqt.objects.get(nombre="Tablet")
+        Cargador = beqt_m.PaqueteTipoBeqt.objects.get(nombre="Cargadores")
         Total_Tablet = inv_m.DispositivoPaquete.objects.filter(
             paquete__salida__id=self.object.id,
             paquete__tipo_paquete=Tablet)
         Total_Cargador = inv_m.Paquete.objects.filter(
             salida__id=self.object.id,
-            tipo_paquete=Cargador).aggregate(cargadores=Sum('cantidad'))
-        Total_Cargador_Cubo = inv_m.Paquete.objects.filter(
-            salida__id=self.object.id,
-            tipo_paquete=Cargador_cubo).aggregate(cargadores=Sum('cantidad'))
-        Total_Cable_Cargador = inv_m.Paquete.objects.filter(
-            salida__id=self.object.id,
-            tipo_paquete=Cable_cargador).aggregate(cargadores=Sum('cantidad'))
-        Total_Cargador_grande = inv_m.Paquete.objects.filter(
-            salida__id=self.object.id,
-            tipo_paquete=Cargador_grande).aggregate(cargadores=Sum('cantidad'))
+            tipo_paquete=Cargador).aggregate(cargadores=Sum('cantidad'))       
 
         for triage in Total_Tablet:
             nueva_tablet = inv_m.Dispositivo.objects.get(triage=triage.dispositivo).cast()
@@ -546,13 +507,7 @@ class TabletPrintView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
         context['Tablets'] = nuevas_tablets
         context['Total'] = Total_Tablet.count()
         if Total_Cargador['cargadores'] != None:
-            total_cargadores_mostrar += Total_Cargador['cargadores']
-        if Total_Cargador_Cubo['cargadores'] != None:
-            total_cargadores_mostrar += Total_Cargador_Cubo['cargadores']
-        if Total_Cargador_grande['cargadores'] != None:
-            total_cargadores_mostrar += Total_Cargador_grande['cargadores']
-        if Total_Cable_Cargador['cargadores'] != None:
-            total_cargadores_mostrar += Total_Cable_Cargador['cargadores']
+            total_cargadores_mostrar += Total_Cargador['cargadores']       
         context['Cargador'] = total_cargadores_mostrar
         context['Descripcion'] = "Cargadores"
         return context
@@ -561,23 +516,14 @@ class TabletPrintView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
 class TpePrintView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
     """Vista encargada para imprimir las :class:`SalidaInventario` de las salidas correspondiente
     """
-    model = inv_m.SalidaInventario
-    template_name = 'inventario/salida/tpe_print.html'
-    group_required = [u"inv_tecnico", u"inv_admin", u"inv_cc"]
+    model = beqt_m.SalidaInventario
+    template_name = 'beqt/salida/tpe_print.html'
+    group_required = []
 
     def get_context_data(self, **kwargs):
         context = super(TpePrintView, self).get_context_data(**kwargs)
         cpu_servidor = ""
-        nuevos_cpus = []
-        nuevos_teclados = []
-        nuevos_monitores = []
-        nuevos_mouse = []
-        contador_all_in_one =0
-        total_inalambricas_mostrar = 0
-        cpu = inv_m.PaqueteTipo.objects.get(nombre="CPU")
-        monitor = inv_m.PaqueteTipo.objects.get(nombre="MONITOR")
-        mouse = inv_m.PaqueteTipo.objects.get(nombre="MOUSE")
-        teclado = inv_m.PaqueteTipo.objects.get(nombre="TECLADO")
+            
         try:
             cables_vga = inv_m.PaqueteTipo.objects.get(nombre="CABLE VGA")
         except ObjectDoesNotExist as e:
@@ -636,51 +582,8 @@ class TpePrintView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
             tipo_paquete=cables_poder,
             desactivado=False
             ).aggregate(total_cables_poder=Sum('cantidad'))
-        total_cpu = inv_m.DispositivoPaquete.objects.filter(
-            paquete__salida__id=self.object.id,
-            paquete__tipo_paquete=cpu,
-            )
-        total_all_in_on = inv_m.DispositivoPaquete.objects.filter(
-            paquete__salida__id=self.object.id,
-            paquete__tipo_paquete=cpu,
-            )
-        total_monitor = inv_m.DispositivoPaquete.objects.filter(
-            paquete__salida__id=self.object.id,
-            paquete__tipo_paquete=monitor,
-            )
-        total_teclado = inv_m.DispositivoPaquete.objects.filter(
-            paquete__salida__id=self.object.id,
-            paquete__tipo_paquete=teclado,
-            )
-        total_mouse = inv_m.DispositivoPaquete.objects.filter(
-            paquete__salida__id=self.object.id,
-            paquete__tipo_paquete=mouse,
-            )
-        total_cables_vga = inv_m.Paquete.objects.filter(
-            salida=self.object.id,
-            tipo_paquete=cables_vga,
-            desactivado=False
-            ).aggregate(total_cables_vga=Sum('cantidad'))
-        for triage in total_cpu:
-            nueva_cpu = inv_m.Dispositivo.objects.get(triage=triage.dispositivo).cast()
-            if nueva_cpu.all_in_one:
-                contador_all_in_one += 1
-            nuevos_cpus.append(nueva_cpu)
-            try:
-                if nueva_cpu.servidor is True:
-                    cpu_servidor = str(nueva_cpu.version_sistema)
-            except Exception as e:
-                print(e)
-        for triage_monitor in total_monitor:
-            nuevo_monitor = inv_m.Dispositivo.objects.get(triage=triage_monitor.dispositivo).cast()
-            nuevos_monitores.append(nuevo_monitor)
-        for triage_teclado in total_teclado:
-            nuevo_teclado = inv_m.Dispositivo.objects.get(triage=triage_teclado.dispositivo).cast()
-            nuevos_teclados.append(nuevo_teclado)
-        for triage_mouse in total_mouse:
-            nuevo_mouse = inv_m.Dispositivo.objects.get(triage=triage_mouse.dispositivo).cast()
-            nuevos_mouse.append(nuevo_mouse)
         escuela = inv_m.SalidaInventario.objects.get(id=self.object.id)
+         
         try:
             encargado = escuela_m.EscContacto.objects.filter(escuela=escuela.escuela, rol=5).reverse()[0]
             telefono = escuela_m.EscContactoTelefono.objects.get(contacto=encargado)
@@ -694,21 +597,8 @@ class TpePrintView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
         except IndexError as e:
             print(e)
             context['Jornada'] = "No tiene Jornada"
-            context['Encargado'] = "No Tiene Encargado"
-        total_inalambricas_mostrar = int( total_inalambricas['total_inalambricas'] or 0) + int( total_inalambricas_usb['total_inalambricas_usb'] or 0)
-        context['CPUs'] = nuevos_cpus
-        context['Monitores'] = nuevos_monitores
-        context['Teclados'] = nuevos_teclados
-        context['Mouses'] = nuevos_mouse
-        context['Total'] = total_cpu.count()
-        context['Servidor'] = cpu_servidor
-        context['CablesVga'] = total_cables_vga['total_cables_vga']
-        context['CablesPoder'] = total_cables_poder['total_cables_poder']
-        context['Switch'] = total_switch['total_switch']
-        context['Wifi'] = total_inalambricas_mostrar
-        context['Ethernet'] = total_alambricas['total_alambricas']
-        context['Access'] = total_access_point['total_access_point']
-        context['AllInOne'] = contador_all_in_one
+            context['Encargado'] = "No Tiene Encargado"     
+        
         try:
             red = "Mixta"
             if total_inalambricas['total_inalambricas'] > 0 and total_alambricas['total_alambricas'] == 0:
@@ -726,8 +616,8 @@ class MineducPrintView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
     """Vista encargada para imprimir las :class:`CPU` y la :class:`HDD` de las salidas correspondiente
     """
     model = inv_m.SalidaInventario
-    template_name = 'inventario/salida/mineduc_print.html'
-    group_required = [u"inv_tecnico", u"inv_admin", u"inv_cc"]
+    template_name = 'beqt/salida/mineduc_print.html'
+    group_required = []
 
     def get_context_data(self, **kwargs):
         context = super(MineducPrintView, self).get_context_data(**kwargs)
@@ -765,8 +655,8 @@ class PrestamoCartaPrintView(LoginRequiredMixin, GroupRequiredMixin, DetailView)
     """Vista encargada para imprimir las Carta de Prestamo de las :class:`SalidaInventario`
     """
     model = inv_m.SalidaInventario
-    template_name = 'inventario/salida/carta_prestamo_print.html'
-    group_required = [u"inv_tecnico", u"inv_admin", u"inv_cc"]
+    template_name = 'beqt/salida/carta_prestamo_print.html'
+    group_required = []
 
     def get_context_data(self, **kwargs):
         cpu_servidor = 0
@@ -818,6 +708,6 @@ class PrestamoCartaPrintView(LoginRequiredMixin, GroupRequiredMixin, DetailView)
 class PaquetesDetalleGrid(LoginRequiredMixin, GroupRequiredMixin, DetailView):
     """ Muestra los QR por Detalle de Entrada Creados
     """
-    model = inv_m.DispositivoPaquete
-    template_name = 'inventario/salida/dispositivos_grid_paquetes.html'
-    group_required = [u"inv_bodega", u"inv_tecnico", u"inv_admin"]
+    model = beqt_m.DispositivoPaquete
+    template_name = 'beqt/salida/dispositivos_grid_paquetes.html'
+    group_required = []

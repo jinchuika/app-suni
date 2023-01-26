@@ -52,7 +52,7 @@
             </div>
             {%else%}
            <div>
-            <form action="{% url 'inventario_api:api_inventariosalidas-list'%}" id="salida-list-form">
+            <form action="{% url 'beqt_api:api_inventariosalidas_beqt-list'%}" id="salida-list-form">
               <div class="box-header">
                 <input type="submit" class="btn btn-primary col-md-12" value="Generar Informe" /><br /><br />
                 <h3 class="box-title">Filtros</h3>
@@ -78,7 +78,7 @@
                 <h3><b>Listado de Salidas</b></h3>
             </div>
             <div class="box-body">
-              <table  id="salidas-table" class="table display" data-url="{%url 'inventario_api:api_inventariosalidas-list' %} ">
+              <table  id="salidas-table" class="table display" data-url="{%url 'beqt_api:api_inventariosalidas_beqt-list' %} ">
                 <thead>
                   <th>No. Salida </th>
                   <th>No. Referencia </th>
@@ -110,7 +110,7 @@
 {% endblock content %}
 {% block extra_js %}
 {% include "base/dataTables.html" %}
-    <script src="{% static "js/extrajs/inventario.js" %}"></script>
+    <script src="{% static "js/extrajs/beqt.js" %}"></script>
     <script>
     $(document).ready(function(){
           let Estados = new Salidas();

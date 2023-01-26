@@ -83,18 +83,13 @@
 			</div>
 			<div class="box-body table-responsive">
 					<table id="entrada-table" class="table table-condensed"
-								 data-api="{% url 'inventario_api:api_detalles-list' %}"
+								 data-api="{% url 'beqt_api:api_detalles_beqt-list' %}"
 								 data-pk="{{ entrada.id }}">
 							<thead>
 							<tr>
-									<th>Tipo de dispositivo</th>
-									<th>Útil</th>
-									<th>Repuesto</th>
-									<th>Desecho</th>
+									<th>Tipo de dispositivo</th>									
 									<th>Cantidad total</th>
-									<th>Precio Unitario</th>
-									<th>Precio Subtotal</th>
-									<th>Precio Descontado</th>
+									<th>Precio Unitario</th>									
 									<th>Precio Total</th>
 									<th>Descripcion</th>
 									<th>Tecnico</th>

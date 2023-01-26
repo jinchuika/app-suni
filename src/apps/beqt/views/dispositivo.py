@@ -185,7 +185,7 @@ class SolicitudMovimientoUpdateView(LoginRequiredMixin, UpdateView):
 
     def get_context_data(self, *args, **kwargs):
             context = super(SolicitudMovimientoUpdateView, self).get_context_data(*args, **kwargs)
-            context['dispositivos_no'] = inv_m.CambioEtapa.objects.filter(solicitud=self.object.id).count()
+            context['dispositivos_no'] = beqt_m.CambioEtapaBeqt.objects.filter(solicitud=self.object.id).count()
             return context
 
 

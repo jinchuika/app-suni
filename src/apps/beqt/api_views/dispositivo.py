@@ -26,7 +26,6 @@ class DispositivoFilter(filters.FilterSet):
     """Filtros para el ViewSet de Dispositivo"""
     buscador = filters.CharFilter(name='buscador', method='filter_buscador')
     asignaciones = filters.NumberFilter(name='asignacion', method='filter_asignacion')
-    inventario_interno = filters.NumberFilter(name='inventario_interno', method='filter_invinterno')
     procesador = filters.NumberFilter(name='procesador', method='filter_procesadores')
 
     class Meta:
@@ -37,11 +36,7 @@ class DispositivoFilter(filters.FilterSet):
         return qs.filter(triage__istartswith=value)
 
     def filter_asignacion(self, qs, name, value):
-        return qs.annotate(asignaciones=Count('asignacion')).filter(asignaciones=value)
-
-    def filter_invinterno(self, qs, name, value):
-        dispositivos_asignacion= inv_m.CambioEtapa.objects.filter(solicitud__no_inventariointerno=value).values('dispositivo')
-        return qs.filter(id__in=dispositivos_asignacion, etapa=inv_m.DispositivoEtapa.TR)
+        return qs.annotate(asignaciones=Count('asignacion')).filter(asignaciones=value)   
 
     def filter_procesadores(self, qs, name , value):        
         procesador = inv_m.Procesador.objects.get(id=value)
@@ -59,25 +54,6 @@ class DispositivoFilter(filters.FilterSet):
                         status=status.HTTP_400_BAD_REQUEST
                     )
             
-                
-        
-
-class DispositosDetalleAndroid(viewsets.ModelViewSet):
-    """ ViewSet para generar informes de :class:`Dispositivo`
-    que seran enviado a la aplicacion de Android
-    """
-    serializer_class = beqt_s.DispositivoSerializer
-    filter_class = DispositivoFilter
-    ordering = ('entrada')
-
-    def get_queryset(self):
-        """ Este queryset se encarga de filtrar los dispositivo que se van a mostrar en lista
-            general
-        """
-        dispositivo = self.request.query_params.get('id', None)
-        triage = self.request.query_params.get('triage', None)
-        tipo = self.request.query_params.get('tipo', None)
-        return beqt_m.DispositivoBeqt.objects.filter(id=dispositivo)
 
 
 class DispositivoViewSet(viewsets.ModelViewSet):
@@ -111,12 +87,12 @@ class DispositivoViewSet(viewsets.ModelViewSet):
             if tipo is None:
                 tipo_dis = self.request.user.tipos_dispositivos.tipos.all()            
             else:            
-                tipo_dis = inv_m.DispositivoTipo.objects.filter(id=tipo)
+                tipo_dis = beqt_m.DispositivoTipoBeqt.objects.filter(id=tipo)
                     
 
             if  dispositivo or etapa:                
                 #nueva_salida  = inv_m.SalidaInventario.objects.get(id=salida)                      
-                dispositivos_salida = inv_m.CambioEtapa.objects.filter(
+                dispositivos_salida = beqt_m.CambioEtapaBeqt.objects.filter(
                     solicitud__no_salida = salida,
                     dispositivo__tipo__in = tipo_dis
                 )                         
@@ -187,18 +163,7 @@ class DispositivoViewSet(viewsets.ModelViewSet):
 
         )
         serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)
-
-    @action(methods=['get'], detail=False)
-    def desecho(self, request, pk=None):
-        """Encargada de filtrar los dispositivos pendientes de sacar mediante desecho"""
-        queryset = beqt_m.DispositivoBeqt.objects.filter(
-            estado=inv_m.DispositivoEstado.DS,
-            etapa=inv_m.DispositivoEtapa.AB
-
-        )
-        serializer = self.get_serializer(queryset, many=True)        
-        return Response(serializer.data)
+        return Response(serializer.data)    
 
     @action(methods=['post'], detail=False)
     def grid_paquetes(self, request, pk=None):
@@ -376,7 +341,7 @@ class PaquetesFilter(filters.FilterSet):
 
     tipo_paquete = django_filters.NumberFilter(name='tipo_paquete')
     tipo_dispositivo = django_filters.ModelChoiceFilter(
-        queryset=inv_m.DispositivoTipo.objects.filter(usa_triage=True),
+        queryset=beqt_m.DispositivoTipoBeqt.objects.filter(usa_triage=True),
         name='tipo dispositivo',
         method='filter_tipo_dispositivo',
         )
@@ -391,7 +356,7 @@ class PaquetesFilter(filters.FilterSet):
         return qs
 
     def filter_asignacion(self, qs, name, value):
-        tipo_dis = self.request.user.tipos_dispositivos.tipos.all()
+        tipo_dis = self.request.user.tipos_dispositivos_beqt.tipos.all()
         tip_paquete = beqt_m.PaqueteTipoBeqt.objects.filter(tipo_dispositivo__in=tipo_dis)
         qs = qs.filter(salida=value, tipo_paquete__in=tip_paquete)
         return qs
@@ -442,32 +407,31 @@ class DispositivosPaquetesViewSet(viewsets.ModelViewSet):
 
     @action(methods=['post'], detail=False)
     def aprobar_conta_dispositivos(self, request, pk=None):
-        """ Metodo para aprobar los dispositivo en el area de contabilidad
-        """
+        """ Metodo para aprobar los dispositivo en el area de contabilidad       """
       
         triage = request.data["triage"]
         salida = request.data["salida"]
         tipo = request.data["tipo"]
-        dispositivo_salida = inv_m.DispositivoPaquete.objects.filter(dispositivo__triage=triage, paquete__salida=salida)
+        dispositivo_salida = beqt_m.DispositivoPaquete.objects.filter(dispositivo__triage=triage, paquete__salida=salida)
         if len(dispositivo_salida) > 0:
             if tipo == "TECLADO":
                 cambio_estado = inv_m.Teclado.objects.get(triage=triage)
             elif tipo == "MOUSE":
                 cambio_estado = inv_m.Mouse.objects.get(triage=triage)
             elif tipo == "HDD":
-                cambio_estado = beqt_m.HDD.objects.get(triage=triage)
+                cambio_estado = beqt_m.HDDBeqt.objects.get(triage=triage)
             elif tipo == "MONITOR":
                 cambio_estado = inv_m.Monitor.objects.get(triage=triage)
             elif tipo == "CPU":
                 cambio_estado = inv_m.CPU.objects.get(triage=triage)
             elif tipo == "TABLET":
-                cambio_estado = beqt_m.Tablet.objects.get(triage=triage)
+                cambio_estado = beqt_m.TabletBeqt.objects.get(triage=triage)
             elif tipo == "LAPTOP":
-                cambio_estado = beqt_m.Laptop.objects.get(triage=triage)
+                cambio_estado = beqt_m.LaptopBeqt.objects.get(triage=triage)
             elif tipo == "SWITCH":
                 cambio_estado = inv_m.DispositivoRed.objects.get(triage=triage)
             elif tipo == "ACCESS POINT":
-                cambio_estado = beqt_m.AccessPoint.objects.get(triage=triage)
+                cambio_estado = beqt_m.AccessPointBeqt.objects.get(triage=triage)
             else:
                 cambio_estado = beqt_m.DispositivoBeqt.objects.get(triage=triage)
             cambio_estado.etapa = inv_m.DispositivoEtapa.objects.get(id=inv_m.DispositivoEtapa.LS)

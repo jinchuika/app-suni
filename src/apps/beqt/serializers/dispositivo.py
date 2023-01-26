@@ -34,7 +34,7 @@ class DispositivoPaqueteSerializerConta(serializers.ModelSerializer):
 class PaqueteSerializer(serializers.ModelSerializer):
     """ Serializer para generar los datos que se mostraran de la :class:`Paquete`
     """
-    asignacion = DispositivoPaqueteSerializer(many=True)
+    asignacion = DispositivoPaqueteSerializer(source='asignacion_beqt',many=True)
     id = serializers.StringRelatedField(source='__str__')
     id_paquete = serializers.StringRelatedField(source='id')
     tipo_paquete = serializers.StringRelatedField()
@@ -72,7 +72,7 @@ class PaqueteSerializer(serializers.ModelSerializer):
         return numero_dispositivos
 
     def get_url_detail(self, obj):
-        return reverse_lazy('dispositivo_asignados', kwargs={'pk': obj.id})
+        return reverse_lazy('dispositivo_beqt_asignados', kwargs={'pk': obj.id})
 
 class SolicitudMovimientoSerializer(serializers.ModelSerializer):
     """ Serializer para generar los datos que se mostraran de la :class:`SolicitudMovimiento`

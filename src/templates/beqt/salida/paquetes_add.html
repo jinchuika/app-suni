@@ -2,10 +2,10 @@
 {% if request.user|has_group:"inv_cc" or request.user|has_group:"inv_admin" %} 
     {% load widget_tweaks %}
     {% block page_title %}
-        <title>Cantidad de Paquetes</title>
+        <title>BEQT : Cantidad de Paquetes</title>
     {% endblock page_title %}
     {% block content %}
-        <form action="{% url 'paquete_update' pk=salidainventario.id %}" method="post">
+        <form action="{% url 'paquete_beqt_update' pk=salidainventario.id %}" method="post">
             {% csrf_token %}
             <table class="table table-condensed">
                 {{ paquetes_form.as_table }}

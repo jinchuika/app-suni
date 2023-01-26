@@ -182,7 +182,7 @@
               </div>
             </div>
             <div class="box-body">
-              <table id="entrada-table" class="table table-condensed" data-api="{% url 'beqt_api:api_detalles-list' %}" data-pk ="{{form.instance.id}}">
+              <table id="entrada-table" class="table table-condensed" data-api="{% url 'beqt_api:api_detalles_beqt-list' %}" data-pk ="{{form.instance.id}}">
                 <thead>
                   <tr>
                     <th>Tipo Dispositivo</th>
@@ -236,7 +236,7 @@
 </script>
 {%endif%}
 <script>
-  //let pagina = new EntradaCreate();
-  //let buscar =  new BuscadorTabla();
+  let pagina = new EntradaCreate();
+  let buscar =  new BuscadorTabla();
 </script>
 {% endblock extra_js %}
