@@ -75,13 +75,87 @@ urlpatterns = [
         beqt_v.TabletUptadeView.as_view(),
         name='tablet_beqt_edit'
     ),
+     # Detalle de switch
+    url(
+        r'^red/(?P<triage>[\w\d-]+)/$',
+        beqt_v.DispositivoRedDetailView.as_view(),
+        name='red_beqt_detail'
+    ),
+    # Actualizacion de switch
+    url(
+        r'^red/(?P<triage>[\w\d-]+)/edit/$',
+        beqt_v.DispositivoRedUptadeView.as_view(),
+        name='red_beqt_edit'
+    ),
+     # Detalle de cargador de tablet
+    url(
+        r'^tablet/cargador/(?P<triage>[\w\d-]+)/$',
+        beqt_v.TabletCargadorDetailView.as_view(),
+        name='cargador_tablet_beqt_detail'
+    ),
+    # Actualizacion de cargador de tablet
+    url(
+        r'^tablet/cargador/(?P<triage>[\w\d-]+)/edit/$',
+        beqt_v.TabletCargadorUptadeView.as_view(),
+        name='cargador_tablet_beqt_edit'
+    ),
+    # Detalle de cargador de laptop
+    url(
+        r'^laptop/cargador/(?P<triage>[\w\d-]+)/$',
+        beqt_v.LaptopCargadorDetailView.as_view(),
+        name='cargador_laptop_beqt_detail'
+    ),
+     # Detalle de estuche de tablet
+    url(
+        r'^tablet/estuche/(?P<triage>[\w\d-]+)/$',
+        beqt_v.TabletEstucheDetailView.as_view(),
+        name='tablet_estuche_beqt_detail'
+    ),
+    # Actualizacion de estuche de tablet
+    url(
+        r'^tablet/estuche/(?P<triage>[\w\d-]+)/edit/$',
+        beqt_v.TabletEstucheUptadeView.as_view(),
+        name='tablet_estuche_beqt_edit'
+    ),
+   
+    # Actualizacion de cargador de laptop
+    url(
+        r'^laptop/cargador/(?P<triage>[\w\d-]+)/edit/$',
+        beqt_v.LaptopCargadorUptadeView.as_view(),
+        name='laptop_cargador_beqt_edit'
+    ),
+
+     # Detalle de regleta
+    url(
+        r'^regleta/(?P<triage>[\w\d-]+)/$',
+        beqt_v.RegletaDetailView.as_view(),
+        name='regleta_beqt_detail'
+    ),
+    # Actualizacion de regleta
+    url(
+        r'^regleta/(?P<triage>[\w\d-]+)/edit/$',
+        beqt_v.RegletaUptadeView.as_view(),
+        name='regleta_beqt_edit'
+    ),
+        # Detalle de ups
+    url(
+        r'^ups/(?P<triage>[\w\d-]+)/$',
+        beqt_v.UpsDetailView.as_view(),
+        name='ups_beqt_detail'
+    ),
+    # Actualizacion de ups
+     url(
+        r'^ups/(?P<triage>[\w\d-]+)/edit/$',
+        beqt_v.UpsUptadeView.as_view(),
+        name='ups_beqt_edit'
+    ),
     # Creacion de Solicitudes de movimiento
     url(
         r'^dispositivo/solicitudmovimiento/add/$',
         beqt_v.SolicitudMovimientoCreateView.as_view(),
         name='solicitudmovimiento_beqt_add'
     ),
-   
+    
     # Actualización de Solicitudes de movimiento
     url(
         r'^dispositivo/solicitudmovimiento/(?P<pk>\d+)/edit/$',

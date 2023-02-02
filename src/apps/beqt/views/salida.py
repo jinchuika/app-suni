@@ -70,7 +70,7 @@ class SalidaInventarioUpdateView(LoginRequiredMixin, GroupRequiredMixin, UpdateV
     model = beqt_m.SalidaInventario
     form_class = beqt_f.SalidaInventarioUpdateForm
     template_name = 'beqt/salida/salida_edit.html'
-    group_required = []
+    group_required = [u"inv_cc", u"inv_admin"]
 
     def get_context_data(self, *args, **kwargs):
         context = super(SalidaInventarioUpdateView, self).get_context_data(*args, **kwargs)
@@ -582,7 +582,7 @@ class TpePrintView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
             tipo_paquete=cables_poder,
             desactivado=False
             ).aggregate(total_cables_poder=Sum('cantidad'))
-        escuela = inv_m.SalidaInventario.objects.get(id=self.object.id)
+        escuela = beqt_m.SalidaInventario.objects.get(id=self.object.id)
          
         try:
             encargado = escuela_m.EscContacto.objects.filter(escuela=escuela.escuela, rol=5).reverse()[0]

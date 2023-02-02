@@ -114,6 +114,185 @@ class TabletForm(forms.ModelForm):
         }
 
 
+class CargadorTabletForm(forms.ModelForm):
+    """Formulario para la creación de :class:`Tablet`.
+    Se utiliza desde la vistas de Tablet."""
+    class Meta:
+        model = beqt_m.CargadorTabletBeqt
+        fields = '__all__'
+        exclude = [
+            'indice',
+            'entrada',
+            'tipo',
+            'entrada_detalle',
+            'impreso',
+            'estado',
+            'etapa',
+            'valido',
+            'codigo_qr',
+            'creada_por'
+            ]
+        widgets = {
+            'marca': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '1'}),
+            'modelo': forms.TextInput(attrs={'class': 'form-control', 'tabindex': '2'}),
+            'serie': forms.TextInput({'class': 'form-control ', 'tabindex': '3'}),
+            'tarima': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '4'}),          
+            'descripcion': forms.Textarea(attrs={'cols': 30, 'rows': 3, 'class': 'form-control', 'tabindex': '5'}),
+            'clase': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '15'}),
+            'alimentacion': forms.TextInput(attrs={'class': 'form-control'}),
+            'salida': forms.TextInput(attrs={'class': 'form-control'}),
+        }
+
+class CargadorLaptopForm(forms.ModelForm):
+    """Formulario para la creación de :class:`Tablet`.
+    Se utiliza desde la vistas de Tablet."""
+    class Meta:
+        model = beqt_m.CargadorLaptopBeqt
+        fields = '__all__'
+        exclude = [
+            'indice',
+            'entrada',
+            'tipo',
+            'entrada_detalle',
+            'impreso',
+            'estado',
+            'etapa',
+            'valido',
+            'codigo_qr',
+            'creada_por'
+            ]
+        widgets = {
+            'marca': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '1'}),
+            'modelo': forms.TextInput(attrs={'class': 'form-control', 'tabindex': '2'}),
+            'serie': forms.TextInput({'class': 'form-control ', 'tabindex': '3'}),
+            'tarima': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '4'}),          
+            'descripcion': forms.Textarea(attrs={'cols': 30, 'rows': 3, 'class': 'form-control', 'tabindex': '5'}),
+            'clase': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '15'}),
+            'voltaje': forms.TextInput(attrs={'class': 'form-control'}),
+        }
+
+
+class CaseTabletForm(forms.ModelForm):
+    """Formulario para la creación de :class:`Tablet`.
+    Se utiliza desde la vistas de Tablet."""
+    class Meta:
+        model = beqt_m.CaseTabletBeqt
+        fields = '__all__'
+        exclude = [
+            'indice',
+            'entrada',
+            'tipo',
+            'entrada_detalle',
+            'impreso',
+            'estado',
+            'etapa',
+            'valido',
+            'codigo_qr',
+            'creada_por'
+            ]
+        widgets = {
+            'marca': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '1'}),
+            'modelo': forms.TextInput(attrs={'class': 'form-control', 'tabindex': '2'}),
+            'serie': forms.TextInput({'class': 'form-control ', 'tabindex': '3'}),
+            'tarima': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '4'}),          
+            'descripcion': forms.Textarea(attrs={'cols': 30, 'rows': 3, 'class': 'form-control', 'tabindex': '5'}),
+            'clase': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '15'}),
+            'compatibilidad': forms.TextInput(attrs={'class': 'form-control'}),
+            'color': forms.TextInput(attrs={'class': 'form-control'}),
+            'estilo': forms.TextInput(attrs={'class': 'form-control'}),
+            'material': forms.TextInput(attrs={'class': 'form-control'}),
+            'dimensiones': forms.TextInput(attrs={'class': 'form-control'}),
+        }
+
+class RegletaForm(forms.ModelForm):
+    """Formulario para la creación de :class:`Tablet`.
+    Se utiliza desde la vistas de Tablet."""
+    class Meta:
+        model = beqt_m.RegletaBeqt
+        fields = '__all__'
+        exclude = [
+            'indice',
+            'entrada',
+            'tipo',
+            'entrada_detalle',
+            'impreso',
+            'estado',
+            'etapa',
+            'valido',
+            'codigo_qr',
+            'creada_por'
+            ]
+        widgets = {
+            'marca': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '1'}),
+            'modelo': forms.TextInput(attrs={'class': 'form-control', 'tabindex': '2'}),
+            'serie': forms.TextInput({'class': 'form-control ', 'tabindex': '3'}),
+            'tarima': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '4'}),          
+            'descripcion': forms.Textarea(attrs={'cols': 30, 'rows': 3, 'class': 'form-control', 'tabindex': '5'}),
+            'clase': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '15'}),            
+            'conexiones': forms.TextInput(attrs={'class': 'form-control'}),
+            'voltaje': forms.TextInput(attrs={'class': 'form-control'}),
+        }
+
+class UpsForm(forms.ModelForm):
+    """Formulario para la creación de :class:`Tablet`.
+    Se utiliza desde la vistas de Tablet."""
+    class Meta:
+        model = beqt_m.UpsBeqt
+        fields = '__all__'
+        exclude = [
+            'indice',
+            'entrada',
+            'tipo',
+            'entrada_detalle',
+            'impreso',
+            'estado',
+            'etapa',
+            'valido',
+            'codigo_qr',
+            'creada_por'
+            ]
+        widgets = {
+            'marca': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '1'}),
+            'modelo': forms.TextInput(attrs={'class': 'form-control', 'tabindex': '2'}),
+            'serie': forms.TextInput({'class': 'form-control ', 'tabindex': '3'}),
+            'tarima': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '4'}),          
+            'descripcion': forms.Textarea(attrs={'cols': 30, 'rows': 3, 'class': 'form-control', 'tabindex': '5'}),
+            'clase': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '15'}),            
+            'conexiones': forms.TextInput(attrs={'class': 'form-control'}),
+            'voltaje': forms.TextInput(attrs={'class': 'form-control'}),
+        }
+
+class DispositivoRedForm(forms.ModelForm):
+    """Formulario para la creación de :class:`DispositivoRed`.
+    Se utiliza desde la vistas de DispositivoRed."""
+    class Meta:
+        model = beqt_m.DispositivoRedBeqt
+        fields = '__all__'
+        exclude = [
+            'indice',
+            'entrada',
+            'tipo',
+            'entrada_detalle',
+            'impreso',
+            'estado',
+            'etapa',
+            'valido',
+            'codigo_qr',
+            'creada_por'
+            ]
+        widgets = {
+            'marca': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '1'}),
+            'modelo': forms.TextInput(attrs={'class': 'form-control', 'tabindex': '2'}),
+            'serie': forms.TextInput({'class': 'form-control ', 'tabindex': '3'}),
+            'tarima': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '4'}),
+            'cantidad_puertos': forms.NumberInput({'class': 'form-control', 'tabindex': '6'}),
+            'puerto': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '7'}),
+            'velocidad': forms.NumberInput({'class': 'form-control', 'tabindex': '8'}),
+            'velocidad_medida': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '9'}),
+            'descripcion': forms.Textarea(attrs={'cols': 30, 'rows': 3, 'class': 'form-control', 'tabindex': '5'}),
+            'clase': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '10'}),
+        }
+
 class HDDForm(forms.ModelForm):
     """Formulario para la actuliazacion de :class:`HDD`.
     Se utiliza desde la vistas de HDD."""

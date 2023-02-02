@@ -33,6 +33,6 @@
     </tr>
     <tr>
         <th>Pulgadas</th>
-        <td>{{ object.pulgadas }}</td>
+        <td>{{ object.pulgadas |default_if_none:""  }}</td>
     </tr>
 {% endblock info_dispositivo %}

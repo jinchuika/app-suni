@@ -121,7 +121,7 @@
                     </div>
                     <div class="box-body table-responsive">
                         <table class="table table-condensed">
-                            <form id="entrada-detalle-form" action="{% url 'entrada_beqt_update' pk=form.instance.id %}" method="post" data-api="{% url 'beqt_api:api_detalles_beqt-cuadrar-salida'%}" data-key="{{form.instance.id}}" data-apiqr="{%url 'inventario_api:api_detalles-imprimir-qr'%}">
+                            <form id="entrada-detalle-form" action="{% url 'entrada_beqt_update' pk=form.instance.id %}" method="post" data-api="{% url 'beqt_api:api_detalles_beqt-cuadrar-salida'%}" data-key="{{form.instance.id}}" data-apiqr="{%url 'beqt_api:api_detalles_beqt-imprimir-qr'%}">
                                 {% csrf_token %}
                                 <table class="table table-condensed">
                                     {{ form.as_table }}
@@ -147,9 +147,9 @@
                           </div>
                           {% if request.user|has_group:"inv_bodega" or request.user|has_group:"inv_admin" %}
                           <div class="col-md-6">
-                              <a href="{% url 'carta_agradecimiento' pk=object.id%}" class="btn btn-success" target="_blank">Carta Agradecimiento</a>
-                              <a href="{% url 'reporte_sucio' pk=object.id%}" class="btn btn-primary" target="_blank">Constancia Útil</a>
-                              <a href="{% url 'constancia_entrada' pk=object.id%}" class="btn btn-danger" target="_blank">Constancia Entrada</a>
+                              <a href="{% url 'carta_agradecimiento_beqt' pk=object.id%}" class="btn btn-success" target="_blank">Carta Agradecimiento</a>
+                              <a href="{% url 'reporte_sucio_beqt' pk=object.id%}" class="btn btn-primary" target="_blank">Constancia Útil</a>
+                              <a href="{% url 'constancia_entrada_beqt' pk=object.id%}" class="btn btn-danger" target="_blank">Constancia Entrada</a>
                           </div>
                           {%endif%}
                       </div>

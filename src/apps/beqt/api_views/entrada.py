@@ -54,6 +54,7 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
         """Metodo para imprimir los qr de dispositivo y repuestos por medio del detalle
         de entrada
         """
+        print("ingreso a imprimir qr")
         if "inv_bodega" in self.request.user.groups.values_list('name', flat=True):
             diferenciar = request.data['tipo']
             detalles_id = request.data['detalles_id']
@@ -213,109 +214,22 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
     def nuevo_grid(self, request, pk=None):
         """ Este se conecta con el grid para editar la informacion de los dipositivos y guardarlos
         """
+        print("Ingreso a nuevo grid")
         entrada_detalle = request.data['entrada_detalle']
         entrada = request.data['entrada']
-        tipo = inv_m.EntradaDetalle.objects.get(id=entrada_detalle).tipo_dispositivo
+        tipo = beqt_m.EntradaDetalleBeqt.objects.get(id=entrada_detalle).tipo_dispositivo
         tipos = inv_m.DispositivoMarca.objects.all().values()
         puertos = inv_m.DispositivoPuerto.objects.all().values()
         medida = inv_m.DispositivoMedida.objects.all().values()
         version_sis = inv_m.VersionSistema.objects.all().values()
         procesador = inv_m.Procesador.objects.all().values()
         os = inv_m.Software.objects.all().values()
-        disco = inv_m.HDD.objects.filter(
+        disco = beqt_m.HDDBeqt.objects.filter(
             estado=inv_m.DispositivoEstado.PD,
             etapa=inv_m.DispositivoEtapa.AB).values('triage')
-        if str(tipo) == "MOUSE":
-            tipos_mouse = inv_m.MouseTipo.objects.all().values()
-            data = inv_m.Mouse.objects.filter(
-                entrada_detalle=entrada_detalle
-            ).values(
-                'triage',
-                'marca',
-                'modelo',
-                'serie',
-                'tarima',
-                'puerto',
-                'tipo_mouse',
-                'caja',
-                'clase')
-            return JsonResponse({
-                'data': list(data),
-                'marcas': list(tipos),
-                'tipo': list(tipos_mouse),
-                'puertos': list(puertos),
-                'dispositivo': str(tipo)
-                })
-        elif str(tipo) == "TECLADO":
-            data = inv_m.Teclado.objects.filter(
-                entrada_detalle=entrada_detalle
-            ).values(
-                'triage',
-                'marca',
-                'modelo',
-                'serie',
-                'tarima',
-                'puerto',
-                'caja',
-                'clase'
-                )
-            return JsonResponse({
-                'data': list(data),
-                'marcas': list(tipos),
-                'puertos': list(puertos),
-                'dispositivo': str(tipo)
-                })
-        elif str(tipo) == "MONITOR":
-            tipos_monitor = inv_m.MonitorTipo.objects.all().values()
-            data = inv_m.Monitor.objects.filter(
-                entrada_detalle=entrada_detalle
-            ).values(
-                'triage',
-                'marca',
-                'modelo',
-                'serie',
-                'tarima',
-                'tipo_monitor',
-                'puerto',
-                'pulgadas',
-                'clase')
-            return JsonResponse({
-                'data': list(data),
-                'marcas': list(tipos),
-                'tipo': list(tipos_monitor),
-                'puertos': list(puertos),
-                'dispositivo': str(tipo)
-                })
-        elif str(tipo) == "CPU":
-            data = inv_m.CPU.objects.filter(
-                entrada_detalle=entrada_detalle
-            ).values(
-                'triage',
-                'marca',
-                'modelo',
-                'serie',
-                'tarima',
-                'procesador',
-                'version_sistema',
-                'disco_duro__triage',
-                'ram',
-                'ram_medida',
-                'servidor',
-                'all_in_one',
-                'clase'
-                ).order_by('triage')
-            return JsonResponse({
-                'data': list(data),
-                'marcas': list(tipos),
-                'puertos': list(puertos),
-                'medida': list(medida),
-                'dispositivo': str(tipo),
-                'sistemas': list(version_sis),
-                'procesador': list(procesador),
-                'hdd': list(disco)
-                })
-        elif str(tipo) == "TABLET":
-            data = inv_m.Tablet.objects.filter(
+        print("El nuevo tipo es:", tipo)
+        if str(tipo) == "TABLET":
+            data = beqt_m.TabletBeqt.objects.filter(
                 entrada_detalle=entrada_detalle
             ).values(
                 'triage',
@@ -345,7 +259,7 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
                 'os': list(os)
                 })
         elif str(tipo) == "LAPTOP":
-            data = inv_m.Laptop.objects.filter(
+            data = beqt_m.LaptopBeqt.objects.filter(
                 entrada_detalle=entrada_detalle
             ).values(
                 'triage',
@@ -372,7 +286,7 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
                 'hdd': list(disco)
                 })
         elif str(tipo) == "HDD":
-            data = inv_m.HDD.objects.filter(
+            data = beqt_m.HDDBeqt.objects.filter(
                 entrada_detalle=entrada_detalle
             ).values(
                 'triage',
@@ -393,7 +307,7 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
                 'dispositivo': str(tipo)
                 })
         elif str(tipo) == "SWITCH":
-            data = inv_m.DispositivoRed.objects.filter(
+            data = beqt_m.DispositivoRedBeqt.objects.filter(
                 entrada_detalle=entrada_detalle
             ).values(
                 'triage',
@@ -416,7 +330,7 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
                 })
 
         elif str(tipo) == "ACCESS POINT":
-            data = inv_m.AccessPoint.objects.filter(
+            data = beqt_m.AccessPointBeqt.objects.filter(
                 entrada_detalle=entrada_detalle
             ).values(
                 'triage',
@@ -437,6 +351,128 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
                 'medida': list(medida),
                 'dispositivo': str(tipo)
                 })
+
+        elif str(tipo) == "ADAPTADOR RED":
+            data = beqt_m.DispositivoRedBeqt.objects.filter(
+                entrada_detalle=entrada_detalle
+            ).values(
+                'triage',
+                'marca',
+                'modelo',
+                'serie',
+                'tarima',
+                'puerto',
+                'cantidad_puertos',
+                'velocidad',
+                'clase'
+                )
+            return JsonResponse({
+                'data': list(data),
+                'marcas': list(tipos),
+                'puertos': list(puertos),
+                'medida': list(medida),
+                'dispositivo': str(tipo)
+                })
+        elif str(tipo) == "CARGADOR  TABLET":
+            data = beqt_m.CargadorTabletBeqt.objects.filter(
+                entrada_detalle=entrada_detalle
+            ).values(
+                'triage',
+                'marca',
+                'modelo',
+                'serie',
+                'tarima',
+                'alimentacion',
+                'salida'
+                )
+            return JsonResponse({
+                'data': list(data),
+                'marcas': list(tipos),
+                'puertos': list(puertos),
+                'medida': list(medida),
+                'dispositivo': str(tipo)
+                })
+        elif str(tipo) == "CARGADOR LAPTOP":
+            data = beqt_m.CargadorLaptopBeqt.objects.filter(
+                entrada_detalle=entrada_detalle
+            ).values(
+                'triage',
+                'marca',
+                'modelo',
+                'serie',
+                'tarima',
+                'voltaje'
+                )
+            return JsonResponse({
+                'data': list(data),
+                'marcas': list(tipos),
+                'puertos': list(puertos),
+                'medida': list(medida),
+                'dispositivo': str(tipo)
+                })
+
+        elif str(tipo) == "ESTUCHE TABLET":
+            data = beqt_m.CaseTabletBeqt.objects.filter(
+                entrada_detalle=entrada_detalle
+            ).values(
+                'triage',
+                'marca',
+                'modelo',
+                'serie',
+                'tarima',
+                'compatibilidad',
+                'color',
+                'estilo',
+                'material',
+                'dimensiones'
+                )
+            return JsonResponse({
+                'data': list(data),
+                'marcas': list(tipos),
+                'puertos': list(puertos),
+                'medida': list(medida),
+                'dispositivo': str(tipo)
+                })
+        elif str(tipo) == "REGLETA":
+            data = beqt_m.RegletaBeqt.objects.filter(
+                entrada_detalle=entrada_detalle
+            ).values(
+                'triage',
+                'marca',
+                'modelo',
+                'serie',
+                'tarima',
+                'conexiones',
+                'voltaje'
+                )
+            return JsonResponse({
+                'data': list(data),
+                'marcas': list(tipos),
+                'puertos': list(puertos),
+                'medida': list(medida),
+                'dispositivo': str(tipo)
+                })
+
+        elif str(tipo) == "UPS":
+            data = beqt_m.UpsBeqt.objects.filter(
+                entrada_detalle=entrada_detalle
+            ).values(
+                'triage',
+                'marca',
+                'modelo',
+                'serie',
+                'tarima',
+                'conexiones',
+                'voltaje'
+                )
+            return JsonResponse({
+                'data': list(data),
+                'marcas': list(tipos),
+                'puertos': list(puertos),
+                'medida': list(medida),
+                'dispositivo': str(tipo)
+                })
+
 
 
 

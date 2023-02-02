@@ -17,9 +17,9 @@
 							</div>
 							{% if request.user|has_group:"inv_bodega" or request.user|has_group:"inv_admin" %}
 							<div class="col-md-6">
-									<a target="_blank" href="{% url 'carta_agradecimiento' pk=object.id%}" class="btn btn-success" >Carta Agradecimiento</a>
-									<a href="{% url 'reporte_sucio' pk=object.id%}" class="btn btn-primary" target="_blank">Constancia Útil</a>
-									<a href="{% url 'constancia_entrada' pk=object.id%}" class="btn btn-danger" target="_blank">Constancia Entrada</a>
+									<a target="_blank" href="{% url 'carta_agradecimiento_beqt' pk=object.id%}" class="btn btn-success" >Carta Agradecimiento</a>
+									<a href="{% url 'reporte_sucio_beqt' pk=object.id%}" class="btn btn-primary" target="_blank">Constancia Útil</a>
+									<a href="{% url 'constancia_entrada_beqt' pk=object.id%}" class="btn btn-danger" target="_blank">Constancia Entrada</a>
 							</div>
 							{%endif%}
 						</div>

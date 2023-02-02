@@ -1,7 +1,7 @@
 {% extends "base/base.html" %}
 {%load staticfiles%}
 {% block page_title %}
-  <title>Grid paquete {{object.paquete}} </title>
+  <title>BEQT Grid paquete {{object.paquete}} </title>
 {% endblock page_title %}
 {% block content %}
 <section class="content">
@@ -13,9 +13,9 @@
 
   <body>
     <div>
-        <h3><b>Dispositivos del paquete {{object.paquete}}</b></h3>
+        <h3><b>Dispositivos del paquete {{object.paquete}}</b></h3>        
     </div>
-      <div id="grid_id" class="code-html contents"  data-url="{%url 'inventario_api:api_dispositivopaquete-actualizar-dispositivos'%}" data-dispo="{%url 'inventario_api:api_dispositivo-grid-paquetes'%}" data-id={{object.id}}  >
+      <div id="grid_id" class="code-html contents"  data-url="{%url 'beqt_api:api_dispositivopaquete-actualizar-dispositivos'%}" data-dispo="{%url 'beqt_api:api_dispositivo-grid-paquetes'%}" data-id={{object.id}}  >
         {%csrf_token%}
         <div id="grid"></div>
         <button  onclick="actualizar_post()" class="btn btn-success">Guardar</button>

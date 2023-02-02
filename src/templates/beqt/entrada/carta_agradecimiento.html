@@ -1,0 +1,171 @@
+{%load staticfiles %}
+<!DOCTYPE html>
+<html>
+<head><title>
+CARTA DE AGRADECIMIENTO
+  </title>
+</head>
+  <meta charset="utf-8" />
+<body>
+
+  <div class="encabezado">
+    <img src="{% static "image/Logo_Funsepa-01.png" %}" width="150" height="150" />
+
+  </div>
+
+<div class="fecha">
+  <td>
+  Guatemala, {{entrada.fecha}}
+  </td>
+</div>
+<!--Saludo y presentacion-->
+<div class="presentacion">
+  <p>
+  Señores:
+  <br />
+  <!--Nombre del donante-->
+
+<td>
+{{entrada.proveedor}}
+</td>
+
+<br />
+Presentes
+  </p>
+</div>
+<br />
+<p class="saludo">
+  Estimados Señores.
+  <br />
+  <br />
+
+    Es un gusto nuevamente compartir con usted que la Fundación Sergio Paiz Andrade – FUNSEPA -, es una
+organización no lucrativa que contribuye en la educación de Guatemala, llevando computadoras a niños y niñas de
+escuelas públicas y capacitando a docentes en tecnología como herramienta pedagógica.
+<br />
+<br />
+Deseo extender nuestro profundo agradecimiento por el invaluable apoyo que recibimos de usted, donando el equipo
+que se detalla a continuación:
+</p>
+<center>
+<table class="cuerpo">
+{%for tipo in dispositivotipo_list%}
+  <tr>
+    <td>
+      {{tipo.descripcion}}
+    </td>
+    <td>
+      {{tipo.total}}
+    </td>
+  </tr>
+  {%endfor%}
+</table>
+</center>
+
+
+
+<p class="despedida">
+  <center >
+  Queremos asegurarle que su donativo será utilizado para apoyar a una de las más de 18,000 escuelas de<br />
+  Guatemala, que requieren de equipo de computación y capacitación a sus maestros sobre el uso de la tecnología en<br />
+  la educación. <br />
+  Estamos convencidos que su donación y contribución se transforma en mayores oportunidades de desarrollo y
+  educación a niños guatemaltecos. Reciba nuestro profundo agradecimiento, como Fundación nos sentimos
+  orgullosos de contar con amigos y colaboradores como ustedes, quienes sabemos comparten nuestra visión.
+  <br />
+  <br />
+  Agradezco anticipadamente su amable atención, y le invitamos a seguir participando de nuestra visión y compromiso
+con Guatemala.<br />
+Atentamente,
+<br />
+<br />
+<br />
+<br />
+<br />
+<div class="pie">
+
+
+Licda. Karla del Valle
+
+<br />
+<br />
+<br />
+<b>Coordinadora Programa Tecnología para Educar<br />
+Fundación Sergio Paiz Andrade – FUNSEPA</b>
+</p>
+</center>
+</div>
+
+<footer>
+  <p>
+    <center>
+
+    14 avenida 19-50 Zona 4 de Mixco, Condado el Naranjo. OfiBodegas San Sebastián, Bodega 36 Guatemala.<br />
++502 24352739/ 24319639<br />
+Email: info@funsepa.org www.funsepa.org
+
+</center>
+  </p>
+</footer>
+</div>
+
+
+
+
+<!--INICIA EL CSS-->
+<style type="text/css">
+
+body{
+  font-size: 12px;
+  font-family: tahoma;
+}
+@page{
+  margin-top: 0mm;
+  margin-bottom: 0mm;
+  margin-left: 10mm;
+  margin-right: 10mm;
+
+}
+.encabezado{
+margin-top: 50px;
+}
+.fecha{
+  text-align: right;
+  margin-top: -40px;
+}
+.presentacion{
+  margin-top: 40px;
+  margin-left: 7mm;
+}
+.cuerpo tr:nth-child(odd) {
+	background-color:#9d9fae;
+
+}
+
+.cuerpo tr:nth-child(even) {
+
+background-color:#aeafb5;
+
+}
+
+
+
+
+.saludo{
+  margin-left: 7mm;
+}
+.despedida{
+  margin-left: 7mm;
+}
+footer{
+  color: darkblue;
+  margin-top: 75px;
+}
+
+
+</style>
+{% block extra_js %}
+<script>
+window.onload= function () { window.print();window.close();   }
+</script>
+{% endblock extra_js %}

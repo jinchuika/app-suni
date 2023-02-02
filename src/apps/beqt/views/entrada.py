@@ -173,10 +173,10 @@ class ConstanciaUtil(LoginRequiredMixin, GroupRequiredMixin, DetailView):
         lista = []
         contador = 0
         context = super(ConstanciaUtil, self).get_context_data(**kwargs)
-        tipos_conta = beqt_m.DispositivoTipoBeqt.objects.filter(conta=True)
-
+        #tipos_conta = beqt_m.DispositivoTipoBeqt.objects.filter(conta=True)
+        tipos_conta = beqt_m.DispositivoTipoBeqt.objects.all()
         for tipo in tipos_conta:
-            detalles_mes = beqt_m.EntradaDetalleBeqt.objects.filter(entrada=self.object.id, tipo_dispositivo=tipo).exclude(fecha_dispositivo__isnull=True).annotate(month=ExtractMonth('fecha_dispositivo')).values('month').annotate(util=Sum('util')).annotate(total=Sum('total')).values('month','total','util')
+            detalles_mes = beqt_m.EntradaDetalleBeqt.objects.filter(entrada=self.object.id, tipo_dispositivo=tipo).exclude(fecha_dispositivo__isnull=True).annotate(month=ExtractMonth('fecha_dispositivo')).values('month').annotate(total=Sum('total')).values('month','total')
             for mes in detalles_mes:
                 responsables = []
                 detalles_entrada = beqt_m.EntradaDetalleBeqt.objects.filter(entrada=self.object.id, tipo_dispositivo=tipo, fecha_dispositivo__month=mes['month'])
@@ -188,8 +188,7 @@ class ConstanciaUtil(LoginRequiredMixin, GroupRequiredMixin, DetailView):
                 index = contador % 2
                 diccionario = {
                     'tipo_dispositivo': tipo.tipo,
-                    'cantidad': mes['total'],
-                    'util': mes['util'],
+                    'cantidad': mes['total'],                   
                     'mes': calendar.month_name[mes['month']],
                     'index': index,
                     'creado_por': ', '.join(str(x) for x in responsables),

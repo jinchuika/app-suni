@@ -68,7 +68,7 @@ class DispositivoDetailView(DetailView):
 
     def get_context_data(self, *args, **kwargs):
         context = super(DispositivoDetailView, self).get_context_data(*args, **kwargs)
-        context['form_falla'] = beqt_f.DispositivoFallaCreateForm(initial={'dispositivo': self.object})
+        #context['form_falla'] = beqt_f.DispositivoFallaCreateForm(initial={'dispositivo': self.object})
         return context
 
 
@@ -264,9 +264,9 @@ class LaptopUptadeView(LoginRequiredMixin, UpdateView):
 
     def get_success_url(self):
         if self.object.entrada_detalle.id != 1:
-            return reverse_lazy('detalles_dispositivos', kwargs={'pk': self.object.entrada, 'detalle': self.object.entrada_detalle.id})
+            return reverse_lazy('detalles_dispositivos_beqt', kwargs={'pk': self.object.entrada, 'detalle': self.object.entrada_detalle.id})
         else:
-            return reverse_lazy('laptop_detail', kwargs={'triage': self.object.triage})
+            return reverse_lazy('laptop_beqt_detail', kwargs={'triage': self.object.triage})
 
 
 class TabletDetailView(LoginRequiredMixin, DispositivoDetailView):
@@ -292,9 +292,148 @@ class TabletUptadeView(LoginRequiredMixin, UpdateView):
 
     def get_success_url(self):
         if self.object.entrada_detalle.id != 1:
-            return reverse_lazy('detalles_dispositivos', kwargs={'pk': self.object.entrada, 'detalle': self.object.entrada_detalle.id})
+            return reverse_lazy('detalles_dispositivos_beqt', kwargs={'pk': self.object.entrada, 'detalle': self.object.entrada_detalle.id})
         else:
-            return reverse_lazy('tablet_detail', kwargs={'triage': self.object.triage})
+            return reverse_lazy('tablet_beqt)detail', kwargs={'triage': self.object.triage})
+
+
+class TabletCargadorDetailView(LoginRequiredMixin, DispositivoDetailView):
+    """Vista de detalle de dispositivos tipo :class:`Tablet`"""
+    model = beqt_m.CargadorTabletBeqt
+    template_name = 'beqt/dispositivo/cargadorTablet/cargador_tablet_detail.html'
+
+
+class TabletCargadorUptadeView(LoginRequiredMixin, UpdateView):
+    """ Esta clase sirve para actualizar la  :class:`Tablet`
+     mostrando los datos necesarios
+    """
+    model = beqt_m.CargadorTabletBeqt
+    form_class = beqt_f.CargadorTabletForm
+    slug_field = "triage"
+    slug_url_kwarg = "triage"
+    query_pk_and_slug = True
+    template_name = 'beqt/dispositivo/cargadorTablet/cargador_tablet_edit.html'
+
+    def form_valid(self, form):
+        form.instance.creada_por = self.request.user
+        return super(TabletCargadorUptadeView, self).form_valid(form)
+
+    def get_success_url(self):
+        if self.object.entrada_detalle.id != 1:
+            return reverse_lazy('detalles_dispositivos_beqt', kwargs={'pk': self.object.entrada, 'detalle': self.object.entrada_detalle.id})
+        else:
+            return reverse_lazy('cargador_tablet_detail', kwargs={'triage': self.object.triage})
+
+
+class LaptopCargadorDetailView(LoginRequiredMixin, DispositivoDetailView):
+    """Vista de detalle de dispositivos tipo :class:`Tablet`"""
+    model = beqt_m.CargadorLaptopBeqt
+    template_name = 'beqt/dispositivo/cargadorLaptop/cargador_laptop_detail.html'
+
+
+class LaptopCargadorUptadeView(LoginRequiredMixin, UpdateView):
+    """ Esta clase sirve para actualizar la  :class:`Tablet`
+     mostrando los datos necesarios
+    """
+    model = beqt_m.CargadorLaptopBeqt
+    form_class = beqt_f.CargadorLaptopForm
+    slug_field = "triage"
+    slug_url_kwarg = "triage"
+    query_pk_and_slug = True
+    template_name = 'beqt/dispositivo/cargadorLaptop/cargador_laptop_edit.html'
+
+    def form_valid(self, form):
+        form.instance.creada_por = self.request.user
+        return super(LaptopCargadorUptadeView, self).form_valid(form)
+
+    def get_success_url(self):
+        if self.object.entrada_detalle.id != 1:
+            return reverse_lazy('detalles_dispositivos_beqt', kwargs={'pk': self.object.entrada, 'detalle': self.object.entrada_detalle.id})
+        else:
+            return reverse_lazy('cargador_laptop_detail', kwargs={'triage': self.object.triage})
+
+
+class TabletEstucheDetailView(LoginRequiredMixin, DispositivoDetailView):
+    """Vista de detalle de dispositivos tipo :class:`Tablet`"""
+    model = beqt_m.CaseTabletBeqt
+    template_name = 'beqt/dispositivo/estucheTablet/estuche_tablet_detail.html'
+
+
+class TabletEstucheUptadeView(LoginRequiredMixin, UpdateView):
+    """ Esta clase sirve para actualizar la  :class:`Tablet`
+     mostrando los datos necesarios
+    """
+    model = beqt_m.CaseTabletBeqt
+    form_class = beqt_f.CaseTabletForm
+    slug_field = "triage"
+    slug_url_kwarg = "triage"
+    query_pk_and_slug = True
+    template_name = 'beqt/dispositivo/estucheTablet/estuche_tablet_edit.html'
+
+    def form_valid(self, form):
+        form.instance.creada_por = self.request.user
+        return super(TabletEstucheUptadeView, self).form_valid(form)
+
+    def get_success_url(self):
+        if self.object.entrada_detalle.id != 1:
+            return reverse_lazy('detalles_dispositivos_beqt', kwargs={'pk': self.object.entrada, 'detalle': self.object.entrada_detalle.id})
+        else:
+            return reverse_lazy('estuche_tablet_detail', kwargs={'triage': self.object.triage})
+
+
+class RegletaDetailView(LoginRequiredMixin, DispositivoDetailView):
+    """Vista de detalle de dispositivos tipo :class:`Tablet`"""
+    model = beqt_m.RegletaBeqt
+    template_name = 'beqt/dispositivo/regleta/regleta_detail.html'
+
+
+class RegletaUptadeView(LoginRequiredMixin, UpdateView):
+    """ Esta clase sirve para actualizar la  :class:`Tablet`
+     mostrando los datos necesarios
+    """
+    model = beqt_m.RegletaBeqt
+    form_class = beqt_f.RegletaForm
+    slug_field = "triage"
+    slug_url_kwarg = "triage"
+    query_pk_and_slug = True
+    template_name = 'beqt/dispositivo/regleta/regleta_edit.html'
+
+    def form_valid(self, form):
+        form.instance.creada_por = self.request.user
+        return super(RegletaUptadeView, self).form_valid(form)
+
+    def get_success_url(self):
+        if self.object.entrada_detalle.id != 1:
+            return reverse_lazy('detalles_dispositivos_beqt', kwargs={'pk': self.object.entrada, 'detalle': self.object.entrada_detalle.id})
+        else:
+            return reverse_lazy('regleta_detail', kwargs={'triage': self.object.triage})
+
+class UpsDetailView(LoginRequiredMixin, DispositivoDetailView):
+    """Vista de detalle de dispositivos tipo :class:`Tablet`"""
+    model = beqt_m.UpsBeqt
+    template_name = 'beqt/dispositivo/ups/ups_detail.html'
+
+
+class UpsUptadeView(LoginRequiredMixin, UpdateView):
+    """ Esta clase sirve para actualizar la  :class:`Tablet`
+     mostrando los datos necesarios
+    """
+    model = beqt_m.UpsBeqt
+    form_class = beqt_f.UpsForm
+    slug_field = "triage"
+    slug_url_kwarg = "triage"
+    query_pk_and_slug = True
+    template_name = 'beqt/dispositivo/ups/ups_edit.html'
+
+    def form_valid(self, form):
+        form.instance.creada_por = self.request.user
+        return super(UpsUptadeView, self).form_valid(form)
+
+    def get_success_url(self):
+        if self.object.entrada_detalle.id != 1:
+            return reverse_lazy('detalles_dispositivos_beqt', kwargs={'pk': self.object.entrada, 'detalle': self.object.entrada_detalle.id})
+        else:
+            return reverse_lazy('ups_detail', kwargs={'triage': self.object.triage})
 
 
 class HDDDetailView(LoginRequiredMixin, DispositivoDetailView):
@@ -324,6 +463,31 @@ class HDDUptadeView(LoginRequiredMixin, UpdateView):
         else:
             return reverse_lazy('hdd_detail', kwargs={'triage': self.object.triage})
 
+class DispositivoRedDetailView(LoginRequiredMixin, DispositivoDetailView):
+    """Vista de detalle de dispositivos tipo :class:`DispositivoRed`"""
+    model = beqt_m.DispositivoRedBeqt
+    template_name = 'beqt/dispositivo/red/red_detail.html'
+
+
+class DispositivoRedUptadeView(LoginRequiredMixin, UpdateView):
+    """ Vista actualizar los  dispositivos tipo :class:`DispositivoRed`
+    """
+    model = beqt_m.DispositivoRedBeqt
+    form_class = beqt_f.DispositivoRedForm
+    slug_field = "triage"
+    slug_url_kwarg = "triage"
+    query_pk_and_slug = True
+    template_name = 'beqt/dispositivo/red/red_edit.html'
+
+    def form_valid(self, form):
+        form.instance.creada_por = self.request.user
+        return super(DispositivoRedUptadeView, self).form_valid(form)
+
+    def get_success_url(self):
+        if self.object.entrada_detalle.id != 1:            
+            return reverse_lazy('detalles_dispositivos_beqt', kwargs={'pk': self.object.entrada, 'detalle': self.object.entrada_detalle.id})
+        else:            
+            return reverse_lazy('red_beqt_detail', kwargs={'triage': self.object.triage})
 
 
 

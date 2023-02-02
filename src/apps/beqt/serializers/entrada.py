@@ -61,7 +61,7 @@ class EntradaDetalleSerializer(serializers.ModelSerializer):
         return reverse_lazy('imprimir_qr_beqt', kwargs={'pk': object.entrada, 'detalle': object.id})   
 
     def get_dispositivo_list(self, object):
-        return reverse_lazy('detalles_dispositivos', kwargs={'pk': object.entrada, 'detalle': object.id}) 
+        return reverse_lazy('detalles_dispositivos_beqt', kwargs={'pk': object.entrada, 'detalle': object.id}) 
 
     
     def get_grupos(self, object):

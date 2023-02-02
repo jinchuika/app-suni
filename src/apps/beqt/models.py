@@ -343,6 +343,56 @@ class HDDBeqt(DispositivoBeqt):
         return self.cpus.count() > 0 or self.laptops.count() > 0
 
 
+
+class CargadorTabletBeqt(DispositivoBeqt):
+    SLUG_TIPO = 'CTB'
+    indice = models.PositiveIntegerField(editable=False, unique=True)
+    alimentacion = models.CharField(max_length=80, null=True, blank=True,  verbose_name='Alimentacion')
+    salida = models.CharField(max_length=80, null=True, blank=True,  verbose_name='Salida voltaje')
+   
+
+    class Meta:
+        verbose_name = "Cargador Tablet"
+        verbose_name_plural = "Cargadores Tablets"
+        ordering = ['indice']
+        indexes = [
+            models.Index(fields=['indice']),
+        ]
+        db_table = 'dispositivo_cargador_tablet_beqt'
+
+    def __str__(self):
+        return self.triage
+
+    def get_absolute_url(self):
+        return reverse_lazy('cargador_tablet_beqt_detail', kwargs={'triage': self.triage})
+
+
+class CaseTabletBeqt(DispositivoBeqt):
+    SLUG_TIPO = 'ETB'
+    indice = models.PositiveIntegerField(editable=False, unique=True)
+    compatibilidad = models.CharField(max_length=80, null=True, blank=True,  verbose_name='Compatibilidad')
+    color = models.CharField(max_length=80, null=True, blank=True,  verbose_name='Color')
+    estilo = models.CharField(max_length=80, null=True, blank=True,  verbose_name='Estilo')
+    material = models.CharField(max_length=80, null=True, blank=True, verbose_name='Material')
+    dimensiones = models.CharField(max_length=80, null=True, blank=True,  verbose_name='Dimensiones')
+   
+
+    class Meta:
+        verbose_name = "Case Tablet"
+        verbose_name_plural = "Cases Tablets"
+        ordering = ['indice']
+        indexes = [
+            models.Index(fields=['indice']),
+        ]
+        db_table = 'dispositivo_case_tablet_beqt'
+
+    def __str__(self):
+        return self.triage
+
+    def get_absolute_url(self):
+        return reverse_lazy('case_tablet_beqt_detail', kwargs={'triage': self.triage})
+
+
 class TabletBeqt(DispositivoBeqt):
     SLUG_TIPO = 'TB'
     indice = models.PositiveIntegerField(editable=False, unique=True)
@@ -359,6 +409,8 @@ class TabletBeqt(DispositivoBeqt):
     ram = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True)
     medida_ram = models.ForeignKey(inv_m.DispositivoMedida, null=True, blank=True, related_name='ram_tables_beqt')
     almacenamiento_externo = models.BooleanField(default=False)
+    cargador = models.ForeignKey(CargadorTabletBeqt, related_name='cargador_tablets_beqt', null=True, blank=True ,verbose_name='Cargador')
+    estuche = models.ForeignKey(CaseTabletBeqt, related_name='case_tablets_beqt', null=True, blank=True, verbose_name='Case')
 
 
     class Meta:
@@ -375,6 +427,9 @@ class TabletBeqt(DispositivoBeqt):
 
     def get_absolute_url(self):
         return reverse_lazy('tablet_beqt_detail', kwargs={'triage': self.triage})
+
+
+
 
 
 class LaptopBeqt(DispositivoBeqt):
