@@ -97,7 +97,7 @@ class SolicitudMovimientoCreateView(LoginRequiredMixin, CreateView):
     model = beqt_m.SolicitudMovimientoBeqt
     template_name = 'beqt/dispositivo/solicitudmovimiento_add.html'
     form_class = beqt_f.SolicitudMovimientoCreateForm
-    group_required = []
+    #group_required = []
 
     def form_valid(self, form):
         cantidad = form.cleaned_data['cantidad']
@@ -143,7 +143,7 @@ class SolicitudMovimientoUpdateView(LoginRequiredMixin, UpdateView):
     model = beqt_m.SolicitudMovimientoBeqt
     form_class = beqt_f.SolicitudMovimientoUpdateForm
     template_name = 'beqt/dispositivo/solicitudmovimiento_update.html'
-    group_required = []
+    #group_required = []
 
     def get_form(self, form_class=None):
         form = super(SolicitudMovimientoUpdateView, self).get_form(form_class)
@@ -194,7 +194,7 @@ class SolicitudMovimientoDetailView(LoginRequiredMixin, DetailView):
     """
     model = beqt_m.SolicitudMovimientoBeqt
     template_name = 'beqt/dispositivo/solicitudmovimiento_detail.html'
-    group_required = []
+    #group_required = []
 
 
 class SolicitudMovimientoListView(LoginRequiredMixin, FormView):
@@ -539,7 +539,7 @@ class DispositivoTipoCreateView(LoginRequiredMixin, CreateView):
         return reverse('dispositivo_list')
 
 
-class DispositivoQRprint(LoginRequiredMixin, GroupRequiredMixin, DetailView):
+class DispositivoQRprint(LoginRequiredMixin, DetailView):
     """ Vista encargada de imprimir los codigos qr de  la class `Dispositivo`
     """
     model = beqt_m.DispositivoBeqt
@@ -547,7 +547,7 @@ class DispositivoQRprint(LoginRequiredMixin, GroupRequiredMixin, DetailView):
     slug_field = "triage"
     slug_url_kwarg = "triage"
     query_pk_and_slug = True
-    group_required = []
+    #group_required = []
 
 
 class DispositivosTarimaListView(LoginRequiredMixin, FormView):
