@@ -85,7 +85,7 @@ class DispositivoViewSet(viewsets.ModelViewSet):
                 return"Dispositivo no aceptado"      
         else:             
             if tipo is None:
-                tipo_dis = self.request.user.tipos_dispositivos.tipos.all()            
+                tipo_dis = self.request.user.tipos_dispositivos_beqt.tipos.all()            
             else:            
                 tipo_dis = beqt_m.DispositivoTipoBeqt.objects.filter(id=tipo)
                     
@@ -105,18 +105,27 @@ class DispositivoViewSet(viewsets.ModelViewSet):
             elif tipo or marca or modelo or tarima:                
                 # Se encarga de mostrar mas rapido los dispositivos que se usan con mas frecuencia
                 # o mayor cantidad en el inventario
+                print("Este es el tipo:", tipo)
                 if (tipo == str(1)):
-                    return inv_m.Teclado.objects.filter(valido=True)
+                    return beqt_m.HDDBeqt.objects.filter(valido=True)
                 elif(tipo == str(2)):
-                    return inv_m.Mouse.objects.filter(valido=True)
+                    return beqt_m.TabletBeqt.objects.filter(valido=True)
                 elif(tipo == str(3)):
-                    return inv_m.HDD.objects.filter(valido=True)
+                    return beqt_m.LaptopBeqt.objects.filter(valido=True)
                 elif(tipo == str(4)):
-                    return inv_m.Tablet.objects.filter(valido=True)
+                    return beqt_m.AccessPointBeqt.objects.filter(valido=True)
                 elif(tipo == str(5)):
-                    return inv_m.Monitor.objects.filter(valido=True)
+                    return beqt_m.CargadorLaptopBeqt.objects.filter(valido=True)
                 elif(tipo == str(6)):
-                    return inv_m.CPU.objects.filter(valido=True)
+                    return beqt_m.UpsBeqt.objects.filter(valido=True)
+                elif(tipo == str(7)):
+                    return beqt_m.RegletaBeqt.objects.filter(valido=True)
+                elif(tipo == str(8)):
+                    return beqt_m.DispositivoRedBeqt.objects.filter(valido=True)
+                elif(tipo == str(9)):
+                    return beqt_m.CargadorTabletBeqt.objects.filter(valido=True)
+                elif(tipo == str(10)):
+                    return beqt_m.CaseTabletBeqt.objects.filter(valido=True)
                 else:
                     return beqt_m.DispositivoBeqt.objects.filter(valido=True, tipo__in=tipo_dis)
             else:
@@ -762,7 +771,7 @@ class SolicitudMovimientoViewSet(viewsets.ModelViewSet):
 
         # Filtrar por tipos de dispositivos seleccionados
         if tipo_dispositivo == 0 or not tipo_dispositivo:
-            tipo_dis = self.request.user.tipos_dispositivos.tipos.all()
+            tipo_dis = self.request.user.tipos_dispositivos_beqt.tipos.all()
         else:
             tipo_dis = tipo_dispositivo
             filtros = True

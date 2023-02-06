@@ -390,7 +390,7 @@ class CaseTabletBeqt(DispositivoBeqt):
         return self.triage
 
     def get_absolute_url(self):
-        return reverse_lazy('case_tablet_beqt_detail', kwargs={'triage': self.triage})
+        return reverse_lazy('tablet_estuche_beqt_detail', kwargs={'triage': self.triage})
 
 
 class TabletBeqt(DispositivoBeqt):
@@ -493,7 +493,7 @@ class CargadorLaptopBeqt(DispositivoBeqt):
         return self.triage
 
     def get_absolute_url(self):
-        return reverse_lazy('cargador_beqt_detail', kwargs={'triage': self.triage})
+        return reverse_lazy('cargador_laptop_beqt_detail', kwargs={'triage': self.triage})
 
 
 class UpsBeqt(DispositivoBeqt):

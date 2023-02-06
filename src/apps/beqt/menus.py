@@ -11,7 +11,7 @@ entrada_children = (
         "Listado de Entradas de Beqt",
         reverse_lazy('entrada_beqt_list'),
         weight=12,
-        icon="fa-list",
+        icon="fa-list green-color",
     ),
     ViewMenuItem(
         "Agregar Entrada de Beqt",
@@ -147,7 +147,7 @@ Menu.add_item(
     "user",
     ViewMenuItem(
         "Solicitudes Beqt",
-        reverse_lazy('entrada_beqt_list'),
+        reverse_lazy('solicitudmovimiento_beqt_add'),
         weight=10,
         icon="fa-exchange",
         group="inv_tecnico,inv_cc,inventario",
@@ -158,7 +158,7 @@ Menu.add_item(
     "user",
     ViewMenuItem(
         "Dispositivos Beqt",
-        reverse_lazy('entrada_beqt_list'),
+        reverse_lazy('dispositivo_beqt_list'),
         weight=10,
         icon="fa-desktop",
         group="inventario",
@@ -169,7 +169,7 @@ Menu.add_item(
     "user",
     ViewMenuItem(
         "Salidas Beqt",
-        reverse_lazy('entrada_beqt_list'),
+        reverse_lazy('salidainventario_beqt_add'),
         weight=10,
         icon="fa-sign-out",
         group="inventario,inv_conta",

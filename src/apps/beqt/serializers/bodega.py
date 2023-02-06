@@ -33,15 +33,12 @@ class DispositivoSerializer(serializers.ModelSerializer):
             'url',
             'procesador']    
 
-    def get_procesador(self, obj):          
-        if obj.tipo.id == 6:            
-            cpu_procesador = inv_m.CPU.objects.get(triage= obj)  
-            return str(cpu_procesador.procesador)
-        elif obj.tipo.id == 4:
-            tablet_procesador = inv_m.Tablet.objects.get(triage= obj)  
+    def get_procesador(self, obj): 
+        if obj.tipo.id == 2:
+            tablet_procesador = beqt_m.TabletBeqt.objects.get(triage= obj)  
             return str(tablet_procesador.procesador)
-        elif  obj.tipo.id == 7:
-            laptop_procesador = inv_m.Laptop.objects.get(triage= obj)            
+        elif  obj.tipo.id == 3:
+            laptop_procesador = beqt_m.LaptopBeqt.objects.get(triage= obj)            
             return str(laptop_procesador.procesador) 
         else:
             return ""
@@ -70,6 +67,6 @@ class SectorSerializer(serializers.ModelSerializer):
         fields = ['id', 'sector', 'nivel', 'dispositivos']
 
     def get_dispositivos(self, obj, pk=None):
-        lista_dispositivos = inv_m.Dispositivo.objects.filter(tarima__sector=obj)
+        lista_dispositivos = beqt_m.DispositivoBeqt.objects.filter(tarima__sector=obj)
         dispositivos_s = DispositivoSerializer(lista_dispositivos, many=True)
         return dispositivos_s.data
