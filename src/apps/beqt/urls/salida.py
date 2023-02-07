@@ -1,5 +1,4 @@
 from django.conf.urls import url
-from apps.inventario import views as inv_v
 from apps.beqt import views as beqt_v
 
 urlpatterns = [

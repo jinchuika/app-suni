@@ -25,24 +25,24 @@
                               {%if object.tipo_dispositivo.usa_triage %}
                                 {%if not object.recibida%}
                                   {% if object.terminada  %}
-                                    {% if request.user|has_group:"inv_bodega" and object.devolucion or request.user|has_group:"inv_tecnico" and not object.devolucion %}
+                                    {% if request.user|has_group:"beqt_bodega" and object.devolucion or request.user|has_group:"beqt_tecnico" and not object.devolucion %}
                                         <a id="btn-recibido" href="{% url 'beqt_api:api_dispositivo-solicitud' %}" data-id ="{{object.id}}" class="btn btn-info btn-sm">Recibido</a>
                                     {% endif %}
                                   {% else %}
-                                    {% if request.user|has_group:"inv_bodega" and not object.devolucion or request.user|has_group:"inv_tecnico" and object.devolucion %}
+                                    {% if request.user|has_group:"beqt_bodega" and not object.devolucion or request.user|has_group:"beqt_tecnico" and object.devolucion %}
                                         <a href="{% url 'solicitudmovimiento_beqt_update' pk=object.id %}" class="btn btn-warning btn-sm">Editar</a>
                                     {% endif %}
                                   {% endif %}
                                 {%endif%}
                               {%else%}
                                   {% if not object.terminada %}
-                                    {% if request.user|has_group:"inv_bodega" or request.user|has_group:"inv_admin" %}
+                                    {% if request.user|has_group:"beqt_bodega" or request.user|has_group:"inv_admin" %}
                                         <a id="aprobar-kardex" href="{% url 'inventario_api:api_dispositivo-solicitud-kardex' %}" data-id ="{{object.id}}"  class="btn btn-success btn-sm">Aprobar</a>
                                         <a id="recibido-kardex" href="{% url 'inventario_api:api_dispositivo-solicitud-kardex' %}" data-id ="{{object.id}}" data-url="{%url 'solicitudmovimiento_list'%}" class="btn btn-warning btn-sm">Rechazar</a>
                                     {%endif%}
                                   {% else %}
                                       {% if not object.recibida and not object.rechazar %}
-                                        {% if request.user|has_group:"inv_bodega" and object.devolucion or request.user|has_group:"inv_tecnico" and not object.devolucion or request.user|has_group:"inv_cc" and not object.devolucion %}
+                                        {% if request.user|has_group:"beqt_bodega" and object.devolucion or request.user|has_group:"beqt_tecnico" and not object.devolucion or request.user|has_group:"beqt_cc" and not object.devolucion %}
                                             <a id="btn-recibido" href="{% url 'beqt_api:api_dispositivo-solicitud' %}" data-id ="{{object.id}}" class="btn btn-info btn-sm">Recibido</a>
                                         {% endif %}
                                       {% endif %}

@@ -11,7 +11,7 @@ from apps.beqt import forms as beqt_f
 import calendar
 
 
-class EntradaCreateView(LoginRequiredMixin, CreateView):
+class EntradaCreateView(LoginRequiredMixin, CreateView,GroupRequiredMixin):
     """Vista   para obtener los datos de Entrada mediante una :class:`entrada`
     Funciona  para recibir los datos de un  'EntradaForm' mediante el metodo  POST.  y
     nos muestra el template de visitas mediante el metodo GET. para el modulo de beqt
@@ -20,7 +20,7 @@ class EntradaCreateView(LoginRequiredMixin, CreateView):
     model = beqt_m.Entrada
     form_class = beqt_f.EntradaForm
     template_name = 'beqt/entrada/entrada_add.html'
-    #group_required = []    
+    group_required = [u"beqt_bodega", u"inv_admin"]  
 
     def form_valid(self, form):
         form.instance.creada_por = self.request.user
@@ -32,31 +32,31 @@ class EntradaCreateView(LoginRequiredMixin, CreateView):
         context['listado'] = beqt_m.Entrada.objects.filter(en_creacion='True')
         return context
 
-class EntradaDetailView(LoginRequiredMixin,  DetailView):
+class EntradaDetailView(LoginRequiredMixin,  DetailView,GroupRequiredMixin):
     """Para generar detalles de la :class:`entrada`   con sus respectivos campos.
     """
     model = beqt_m.Entrada
     template_name = 'beqt/entrada/entrada_detail.html'
-    #group_required = []
+    group_required = [u"beqt_bodega", u"beqt_tecnico", u"inv_admin", u"beqt_cc", u"inv_conta"]
 
 
-class EntradaListView(LoginRequiredMixin,  FormView):
+class EntradaListView(LoginRequiredMixin,  FormView,GroupRequiredMixin):
     """Vista Encargada para mostrar las Lista de la :class:'Entrada' con su respectivo
     formulario de busqueda de filtros
     """
     model = beqt_m.Entrada
     template_name = 'beqt/entrada/entrada_list.html'
     form_class = beqt_f.EntradaInformeForm
-    #group_required = []
+    group_required = [u"beqt_bodega", u"beqt_tecnico", u"inv_admin", u"beqt_cc", u"inv_conta"]
 
 
-class EntradaUpdateView(LoginRequiredMixin, UpdateView):
+class EntradaUpdateView(LoginRequiredMixin, UpdateView,GroupRequiredMixin):
     """Vista para actualizar de :class:`Entrada`. con sus respectivos campos
     """
     model = beqt_m.Entrada
     form_class = beqt_f.EntradaUpdateForm
     template_name = 'beqt/entrada/entrada_edit.html'
-    #group_required = []
+    group_required = [u"beqt_bodega", u"beqt_tecnico", u"inv_admin", u"beqt_cc"]
 
     def get_success_url(self):
         if self.object.en_creacion:
@@ -69,7 +69,7 @@ class EntradaUpdateView(LoginRequiredMixin, UpdateView):
         context['EntradaDetalleForm'] = beqt_f.EntradaDetalleForm(initial={'entrada': self.object})
         return context
 
-class EntradaDetalleView(LoginRequiredMixin, CreateView):
+class EntradaDetalleView(LoginRequiredMixin, CreateView,GroupRequiredMixin):
     """Vista   para obtener los datos de los Detalles de Entrada mediante una :class:`EntradaDetalle`
     Funciona  para recibir los datos de un  'EntradaDetalleForm' mediante el metodo  POST.  y
     nos muestra el template de visitas mediante el metodo GET.
@@ -77,16 +77,16 @@ class EntradaDetalleView(LoginRequiredMixin, CreateView):
     model = beqt_m.EntradaDetalleBeqt
     form_class = beqt_f.EntradaDetalleForm
     template_name = 'beqt/entrada/entradadetalle_add.html'
-    #group_required = []
+    group_required = [u"beqt_bodega",u"inv_admin"]
 
 
-class EntradaDetalleUpdateView(LoginRequiredMixin, UpdateView):
+class EntradaDetalleUpdateView(LoginRequiredMixin, UpdateView,GroupRequiredMixin):
     """Vista Encargada de actualizar los datos mediante la :class:`EntradaDetalle`.
     """
     model = beqt_m.EntradaDetalleBeqt
     form_class = beqt_f.EntradaDetalleUpdateForm
     template_name = 'beqt/entrada/entradadetalle_detail.html'
-    #group_required = []
+    group_required = [u"beqt_bodega", u"inv_admin"]
 
     def get_context_data(self, **kwargs):
         context = super(EntradaDetalleUpdateView, self).get_context_data(**kwargs)
@@ -105,12 +105,12 @@ class EntradaDetalleUpdateView(LoginRequiredMixin, UpdateView):
         return reverse('entrada_beqt_update', kwargs={'pk': self.object.entrada.id})
 
 
-class ImprimirQr(LoginRequiredMixin, DetailView):
+class ImprimirQr(LoginRequiredMixin, DetailView,GroupRequiredMixin):
     """ Muestra la impresion de los Qr de los Dispositivos
     """
     model = beqt_m.Entrada
     template_name = 'beqt/entrada/imprimir_qr.html'
-    #group_required = []
+    group_required = [u"beqt_bodega", u"inv_admin"]
 
     def get_context_data(self, **kwargs):
         context = super(ImprimirQr, self).get_context_data(**kwargs)
@@ -122,12 +122,12 @@ class ImprimirQr(LoginRequiredMixin, DetailView):
         context['dispositivo_qr'] = imprimir_qr
         return context
 
-class EntradaDetalleDispositivos(LoginRequiredMixin, DetailView):
+class EntradaDetalleDispositivos(LoginRequiredMixin, DetailView,GroupRequiredMixin):
     """ Muestra los QR por Detalle de Entrada Creados
     """
     model = beqt_m.Entrada
     template_name = 'beqt/entrada/dispositivos_grid.html'
-    #group_required = []
+    group_required = [u"beqt_bodega", u"beqt_tecnico", u"inv_admin"]
 
     def get_context_data(self, **kwargs):
         context = super(EntradaDetalleDispositivos, self).get_context_data(**kwargs)
@@ -136,12 +136,12 @@ class EntradaDetalleDispositivos(LoginRequiredMixin, DetailView):
         return context
 
 
-class CartaAgradecimiento(LoginRequiredMixin, DetailView):
+class CartaAgradecimiento(LoginRequiredMixin, DetailView,GroupRequiredMixin):
     """Muestra la carta agradecimiento
     """
     model = beqt_m.Entrada
     template_name = 'beqt/entrada/carta_agradecimiento.html'
-    #group_required = []
+    group_required = [u"beqt_bodega", u"inv_admin"]
 
     def get_context_data(self, **kwargs):
         context = super(CartaAgradecimiento, self).get_context_data(**kwargs)
@@ -149,12 +149,12 @@ class CartaAgradecimiento(LoginRequiredMixin, DetailView):
         return context
 
 
-class ConstanciaEntrada(LoginRequiredMixin, DetailView):
+class ConstanciaEntrada(LoginRequiredMixin, DetailView,GroupRequiredMixin):
     """Muestra la carta agradecimiento
     """
     model = beqt_m.Entrada
     template_name = 'inventario/entrada/constancia_entrada.html'
-    #group_required = [u"inv_bodega", u"inv_admin"]
+    group_required = [u"beqt_bodega", u"inv_admin"]
 
     def get_context_data(self, **kwargs):
         context = super(ConstanciaEntrada, self).get_context_data(**kwargs)
@@ -162,12 +162,12 @@ class ConstanciaEntrada(LoginRequiredMixin, DetailView):
         return context
 
 
-class ConstanciaUtil(LoginRequiredMixin, DetailView):
+class ConstanciaUtil(LoginRequiredMixin, DetailView,GroupRequiredMixin):
     """Muestra informe de la entrada en sucio
     """
     model = beqt_m.Entrada
     template_name = 'beqt/entrada/informe_sucio.html'
-    #group_required = [u"inv_bodega", u"inv_admin"]
+    group_required = [u"beqt_bodega", u"inv_admin"]
 
     def get_context_data(self, **kwargs):
         lista = []

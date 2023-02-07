@@ -7,6 +7,7 @@ from apps.beqt import models as beqt_m
 from apps.crm import models as crm_m
 from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
+from django.contrib.auth.models import User
 
 
 class SalidaInventarioForm(forms.ModelForm):
@@ -104,6 +105,7 @@ class RevisionSalidaCreateForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(RevisionSalidaCreateForm, self).__init__(*args, **kwargs)
+        self.fields['tecnico'].queryset = User.objects.filter(is_active=True)      
         self.fields['tecnico'].label_from_instance = lambda obj: "%s" % obj.get_full_name()
 
 

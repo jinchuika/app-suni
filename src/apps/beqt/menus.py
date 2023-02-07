@@ -33,7 +33,7 @@ solicitudes_children = (
         "Solicitud Movimiento de Beqt",
         reverse_lazy('solicitudmovimiento_beqt_add'),
         weight=12,
-        group="inv_cc,inv_tecnico",
+        group="beqt_cc,beqt_tecnico",
         icon="fa-clock-o",
     ),
 )
@@ -66,7 +66,7 @@ salidas_children = (
         "Agregar Salida de Beqt",
         reverse_lazy('salidainventario_beqt_add'),
         weight=12,
-        group="inv_cc",
+        group="beqt_cc",
         icon="fa-pencil-square-o",
     ),
     ViewMenuItem(
@@ -150,7 +150,7 @@ Menu.add_item(
         reverse_lazy('solicitudmovimiento_beqt_add'),
         weight=10,
         icon="fa-exchange",
-        group="inv_tecnico,inv_cc,inventario",
+        group="beqt_tecnico,beqt_cc,inventario",
         children=solicitudes_children
     )
 )
@@ -184,7 +184,7 @@ Menu.add_item(
         reverse_lazy('entrada_beqt_list'),
         weight=10,
         icon="fa-user",
-        group="inv_admin,inv_conta,inv_tecnico,inv_bodega",
+        group="inv_admin,inv_conta,beqt_tecnico,beqt_bodega",
         children=admin_children
     )
 )

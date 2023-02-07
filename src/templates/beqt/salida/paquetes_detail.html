@@ -7,7 +7,7 @@
 	<div class="container-fluid">
 		<div class="row">
 			{% for permiso in user.groups.all  %}
-			{% if permiso.name == "inv_tecnico" or permiso.name == 'inv_admin' %}
+			{% if permiso.name == "beqt_tecnico" or permiso.name == 'inv_admin' %}
 			<div class="col-md-7">
 				<div class="box">
 					<div class="box-header">
@@ -153,7 +153,7 @@
 			{% endif %}
 			{% endfor %}
 			{% for permiso in user.groups.all  %}
-			{% if permiso.name == "inv_cc" or permiso.name == 'inv_admin' %}
+			{% if permiso.name == "beqt_cc" or permiso.name == 'inv_admin' %}
 			<div class="col-md-7">
 				<div class="box">
 					<div class="box-header" >

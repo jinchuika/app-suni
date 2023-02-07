@@ -17,7 +17,7 @@
                               <div class="col-md-3">
                                   {% csrf_token %}
                                   {%for permiso in user.groups.all  %}
-                                    {% if permiso.name == "inv_bodega" %}
+                                    {% if permiso.name == "beqt_bodega" %}
                                     {%if not object.impreso%}
                                       <a id="qr-botton" target='_blank' rel='noopener noreferrer' href="{%url 'reportedispositivo_beqt_qr' triage=object.triage %}" data-dispositivo ="{{object.triage}}" data-url="{%url 'beqt_api:api_dispositivo-impresion-dispositivo'%}" class="btn btn-block btn-success">Imprimir QR </a>
                                     {%endif%}
@@ -91,7 +91,7 @@
                     </div>
                 </div>
                 {%for permiso in user.groups.all  %}
-                  {% if permiso.name == "inv_tecnico" or permiso.name == 'inv_admin' %}
+                  {% if permiso.name == "beqt_tecnico" or permiso.name == 'inv_admin' %}
                     <div class="col-md-6">
                         {% block fallas_dispositivo %}
                             {% include "beqt/dispositivo/snp_falla_list.html" with dispositivo=object %}

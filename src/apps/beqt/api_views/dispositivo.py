@@ -192,7 +192,7 @@ class DispositivoViewSet(viewsets.ModelViewSet):
             estado=inv_m.DispositivoEstado.PD,
             etapa=inv_m.DispositivoEtapa.AB).values('triage')        
         if str(tipo) == "TABLET":
-            data = inv_m.Tablet.objects.filter(
+            data = beqt_m.TabletBeqt.objects.filter(
                 triage__in=paquetes
             ).values(
                 'triage',
@@ -270,7 +270,7 @@ class DispositivoViewSet(viewsets.ModelViewSet):
                 'dispositivo': str(tipo)
                 })  
         elif str(tipo) == "ACCESS POINT":
-            data = inv_m.AccessPoint.objects.filter(
+            data = beqt_m.AccessPointBeqt.objects.filter(
                 triage__in=paquetes
             ).values(
                 'triage',
@@ -291,6 +291,150 @@ class DispositivoViewSet(viewsets.ModelViewSet):
                 'medida': list(medida),
                 'dispositivo': str(tipo)
                 })
+        elif str(tipo) == "SWITCH":
+            data = beqt_m.DispositivoRedBeqt.objects.filter(
+                triage__in=paquetes
+            ).values(
+                'triage',
+                'marca',
+                'modelo',
+                'serie',
+                'tarima',
+                'puerto',
+                'cantidad_puertos',
+                'velocidad',
+                'velocidad_medida',
+                'clase'
+                )
+            return JsonResponse({
+                'data': list(data),
+                'marcas': list(tipos),
+                'puertos': list(puertos),
+                'medida': list(medida),
+                'dispositivo': str(tipo)
+                })       
+
+        elif str(tipo) == "ADAPTADOR RED":
+            data = beqt_m.DispositivoRedBeqt.objects.filter(
+                triage__in=paquetes
+            ).values(
+                'triage',
+                'marca',
+                'modelo',
+                'serie',
+                'tarima',
+                'puerto',
+                'cantidad_puertos',
+                'velocidad',
+                'clase'
+                )
+            return JsonResponse({
+                'data': list(data),
+                'marcas': list(tipos),
+                'puertos': list(puertos),
+                'medida': list(medida),
+                'dispositivo': str(tipo)
+                })
+        elif str(tipo) == "CARGADOR  TABLET":
+            data = beqt_m.CargadorTabletBeqt.objects.filter(
+                etriage__in=paquetes
+            ).values(
+                'triage',
+                'marca',
+                'modelo',
+                'serie',
+                'tarima',
+                'alimentacion',
+                'salida'
+                )
+            return JsonResponse({
+                'data': list(data),
+                'marcas': list(tipos),
+                'puertos': list(puertos),
+                'medida': list(medida),
+                'dispositivo': str(tipo)
+                })
+        elif str(tipo) == "CARGADOR LAPTOP":
+            data = beqt_m.CargadorLaptopBeqt.objects.filter(
+                triage__in=paquetes
+            ).values(
+                'triage',
+                'marca',
+                'modelo',
+                'serie',
+                'tarima',
+                'voltaje'
+                )
+            return JsonResponse({
+                'data': list(data),
+                'marcas': list(tipos),
+                'puertos': list(puertos),
+                'medida': list(medida),
+                'dispositivo': str(tipo)
+                })
+
+        elif str(tipo) == "ESTUCHE TABLET":
+            data = beqt_m.CaseTabletBeqt.objects.filter(
+                triage__in=paquetes
+            ).values(
+                'triage',
+                'marca',
+                'modelo',
+                'serie',
+                'tarima',
+                'compatibilidad',
+                'color',
+                'estilo',
+                'material',
+                'dimensiones'
+                )
+            return JsonResponse({
+                'data': list(data),
+                'marcas': list(tipos),
+                'puertos': list(puertos),
+                'medida': list(medida),
+                'dispositivo': str(tipo)
+                })
+        elif str(tipo) == "REGLETA":
+            data = beqt_m.RegletaBeqt.objects.filter(
+                triage__in=paquetes
+            ).values(
+                'triage',
+                'marca',
+                'modelo',
+                'serie',
+                'tarima',
+                'conexiones',
+                'voltaje'
+                )
+            return JsonResponse({
+                'data': list(data),
+                'marcas': list(tipos),
+                'puertos': list(puertos),
+                'medida': list(medida),
+                'dispositivo': str(tipo)
+                })
+
+        elif str(tipo) == "UPS":
+            data = beqt_m.UpsBeqt.objects.filter(
+                triage__in=paquetes
+            ).values(
+                'triage',
+                'marca',
+                'modelo',
+                'serie',
+                'tarima',
+                'conexiones',
+                'voltaje'
+                )
+            return JsonResponse({
+                'data': list(data),
+                'marcas': list(tipos),
+                'puertos': list(puertos),
+                'medida': list(medida),
+                'dispositivo': str(tipo)
+                })
+
 
         return Response(
             {'mensaje': 'Solicitud Recibida'},
@@ -312,7 +456,7 @@ class DispositivoViewSet(viewsets.ModelViewSet):
 
     @action(methods=['post'], detail=False)
     def impresion_dispositivo(self, request, pk=None):
-        if "inv_tecnico" in self.request.user.groups.values_list('name', flat=True):
+        if "beqt_tecnico" in self.request.user.groups.values_list('name', flat=True):
             return Response(
                 {'mensaje': 'No Tienes la Autorizacion para esta accion'},
                 status=status.HTTP_401_UNAUTHORIZED
@@ -423,22 +567,14 @@ class DispositivosPaquetesViewSet(viewsets.ModelViewSet):
         tipo = request.data["tipo"]
         dispositivo_salida = beqt_m.DispositivoPaquete.objects.filter(dispositivo__triage=triage, paquete__salida=salida)
         if len(dispositivo_salida) > 0:
-            if tipo == "TECLADO":
-                cambio_estado = inv_m.Teclado.objects.get(triage=triage)
-            elif tipo == "MOUSE":
-                cambio_estado = inv_m.Mouse.objects.get(triage=triage)
-            elif tipo == "HDD":
-                cambio_estado = beqt_m.HDDBeqt.objects.get(triage=triage)
-            elif tipo == "MONITOR":
-                cambio_estado = inv_m.Monitor.objects.get(triage=triage)
-            elif tipo == "CPU":
-                cambio_estado = inv_m.CPU.objects.get(triage=triage)
+            if tipo == "HDD":
+                cambio_estado = beqt_m.HDDBeqt.objects.get(triage=triage)            
             elif tipo == "TABLET":
                 cambio_estado = beqt_m.TabletBeqt.objects.get(triage=triage)
             elif tipo == "LAPTOP":
                 cambio_estado = beqt_m.LaptopBeqt.objects.get(triage=triage)
             elif tipo == "SWITCH":
-                cambio_estado = inv_m.DispositivoRed.objects.get(triage=triage)
+                cambio_estado = beqt_m.DispositivoRedBeqt.objects.get(triage=triage)
             elif tipo == "ACCESS POINT":
                 cambio_estado = beqt_m.AccessPointBeqt.objects.get(triage=triage)
             else:
@@ -543,7 +679,7 @@ class DispositivosPaquetesViewSet(viewsets.ModelViewSet):
             
         elif tipo == "HDD":
             for datos in dispositivos:
-                new_dispositivo = inv_m.HDD.objects.get(triage=datos['triage'])
+                new_dispositivo = beqt_m.HDDBeqt.objects.get(triage=datos['triage'])
                 try:
                     new_dispositivo.marca = inv_m.DispositivoMarca.objects.get(id=datos['marca'])
                 except ObjectDoesNotExist as e:
@@ -580,7 +716,7 @@ class DispositivosPaquetesViewSet(viewsets.ModelViewSet):
        
         elif tipo == "TABLET":
             for datos in dispositivos:
-                new_dispositivo = inv_m.Tablet.objects.get(triage=datos['triage'])
+                new_dispositivo = beqt_m.TabletBeqt.objects.get(triage=datos['triage'])
                 try:
                     new_dispositivo.marca = inv_m.DispositivoMarca.objects.get(id=datos['marca'])
                 except ObjectDoesNotExist as e:
@@ -646,7 +782,7 @@ class DispositivosPaquetesViewSet(viewsets.ModelViewSet):
                 new_dispositivo.save()      
         elif tipo == "ACCESS POINT":
             for datos in dispositivos:
-                new_dispositivo = inv_m.AccessPoint.objects.get(triage=datos['triage'])
+                new_dispositivo = beqt_m.AccessPointBeqt.objects.get(triage=datos['triage'])
                 try:
                     new_dispositivo.marca = inv_m.DispositivoMarca.objects.get(id=datos['marca'])
                 except ObjectDoesNotExist as e:
@@ -798,7 +934,7 @@ class SolicitudMovimientoViewSet(viewsets.ModelViewSet):
 
         # Obtener data en caso no hayan seleccionado filtros
         if not filtros and fecha_min is None and fecha_max is None:
-            if "inv_bodega" in self.request.user.groups.values_list('name', flat=True):
+            if "beqt_bodega" in self.request.user.groups.values_list('name', flat=True):
                 queryset = queryset.filter(recibida=False, rechazar=False)
             else:
                 queryset = queryset.filter(recibida=False)

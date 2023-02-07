@@ -55,7 +55,7 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
         de entrada
         """
         print("ingreso a imprimir qr")
-        if "inv_bodega" in self.request.user.groups.values_list('name', flat=True):
+        if "beqt_bodega" in self.request.user.groups.values_list('name', flat=True):
             diferenciar = request.data['tipo']
             detalles_id = request.data['detalles_id']
             if(diferenciar == "dispositivo"):
@@ -77,7 +77,7 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
         """ Metodo para cuadrar los dispositivos de la :class:`EntradaDetalle`
         """
 
-        if "inv_bodega" in self.request.user.groups.values_list('name', flat=True):
+        if "beqt_bodega" in self.request.user.groups.values_list('name', flat=True):
             print("Ingresamos aca para poder estar bien")
             mensaje_cuadrar = ""
             entrad_id = request.data['primary_key']
@@ -139,7 +139,7 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
         """ Metodo para la Creacion de Dispositivos
         """
         print("ingreso aca para crear dispositivos")
-        if "inv_bodega" in self.request.user.groups.values_list('name', flat=True):
+        if "beqt_bodega" in self.request.user.groups.values_list('name', flat=True):
             print("ingeso a bodega")
             entrada_detalle = self.get_object()            
             try:

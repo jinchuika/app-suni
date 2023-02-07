@@ -19,7 +19,7 @@ from django import forms
 from dateutil.relativedelta import relativedelta
 
 
-class SalidaInventarioCreateView(LoginRequiredMixin, CreateView):
+class SalidaInventarioCreateView(LoginRequiredMixin, CreateView,GroupRequiredMixin):
     """Vista   para obtener los datos de Salida mediante una :class:`SalidaInventario`
     Funciona  para recibir los datos de un  'SalidaInventarioForm' mediante el metodo  POST.  y
     nos muestra el template de visitas mediante el metodo GET.
@@ -27,7 +27,7 @@ class SalidaInventarioCreateView(LoginRequiredMixin, CreateView):
     model = beqt_m.SalidaInventario
     form_class = beqt_f.SalidaInventarioForm
     template_name = 'beqt/salida/salida_add.html'
-    #group_required = []
+    group_required = [u"beqt_cc", u"inv_admin"]
 
     def get_success_url(self):
         return reverse_lazy('salidainventario_beqt_edit', kwargs={'pk': self.object.id})
@@ -62,7 +62,7 @@ class SalidaInventarioCreateView(LoginRequiredMixin, CreateView):
         return super(SalidaInventarioCreateView, self).form_valid(form)
 
 
-class SalidaInventarioUpdateView(LoginRequiredMixin, UpdateView):
+class SalidaInventarioUpdateView(LoginRequiredMixin, UpdateView,GroupRequiredMixin):
     """ Vista   para obtener los datos de Salida mediante una :class:`SalidaInventario`
     Funciona  para recibir los datos de un  'SalidaInventarioForm' mediante el metodo  POST.  y
     nos muestra el template de visitas mediante el metodo GET.
@@ -70,7 +70,7 @@ class SalidaInventarioUpdateView(LoginRequiredMixin, UpdateView):
     model = beqt_m.SalidaInventario
     form_class = beqt_f.SalidaInventarioUpdateForm
     template_name = 'beqt/salida/salida_edit.html'
-    #group_required = [u"inv_cc", u"inv_admin"]
+    group_required = [u"beqt_cc", u"inv_admin"]
 
     def get_context_data(self, *args, **kwargs):
         context = super(SalidaInventarioUpdateView, self).get_context_data(*args, **kwargs)
@@ -94,12 +94,12 @@ class SalidaInventarioUpdateView(LoginRequiredMixin, UpdateView):
         return context
 
 
-class SalidaInventarioDetailView(LoginRequiredMixin, DetailView):
+class SalidaInventarioDetailView(LoginRequiredMixin, DetailView,GroupRequiredMixin):
     """Vista encargada de mostrar los detalles de la :class:`SalidaInventario`
     """
     model = beqt_m.SalidaInventario
     template_name = 'beqt/salida/salida_detail.html'
-    #group_required = []
+    group_required = [u"beqt_cc", u"inv_admin", u"beqt_tecnico", u"beqt_bodega", u"inv_conta"]
 
     def get_context_data(self, *args, **kwargs):
         context = super(SalidaInventarioDetailView, self).get_context_data(*args, **kwargs)
@@ -130,7 +130,7 @@ class SalidaInventarioListView(LoginRequiredMixin,  FormView):
         return context
 
 
-class SalidaPaqueteUpdateView(LoginRequiredMixin,  UpdateView):
+class SalidaPaqueteUpdateView(LoginRequiredMixin,  UpdateView,GroupRequiredMixin):
     """ Vista   para obtener los datos de Paquete mediante una :class:`SalidaInventario`
     Funciona  para recibir los datos de un  'PaqueteCantidadForm' mediante el metodo  POST.  y
     nos muestra el template de visitas mediante el metodo GET.
@@ -138,7 +138,7 @@ class SalidaPaqueteUpdateView(LoginRequiredMixin,  UpdateView):
     model = beqt_m.SalidaInventario
     form_class = beqt_f.PaqueteCantidadForm
     template_name = 'beqt/salida/paquetes_add.html'
-    #group_required = []
+    group_required = [u"beqt_cc", u"inv_admin"]
 
     def get_success_url(self):
         return reverse_lazy('salidainventario_beqt_edit', kwargs={'pk': self.object.id})
@@ -189,13 +189,13 @@ class SalidaPaqueteUpdateView(LoginRequiredMixin,  UpdateView):
         return super(SalidaPaqueteUpdateView, self).form_valid(form)
 
 
-class SalidaPaqueteDetailView(LoginRequiredMixin,  UpdateView):
+class SalidaPaqueteDetailView(LoginRequiredMixin,  UpdateView,GroupRequiredMixin):
     """Vista para detalle de :class:`Paquete`.
     """
     model = beqt_m.PaqueteBeqt
     template_name = 'beqt/salida/paquetes_detail.html'
     form_class = beqt_f.PaqueteUpdateForm
-    #group_required = []
+    group_required = [u"beqt_tecnico", u"beqt_cc", u"inv_admin", u"beqt_bodega"]
 
     def get_form(self, form_class=None):
         form = super(SalidaPaqueteDetailView, self).get_form(form_class)
@@ -237,12 +237,12 @@ class SalidaPaqueteDetailView(LoginRequiredMixin,  UpdateView):
         return context
 
 
-class RevisionSalidaCreateView(LoginRequiredMixin,  CreateView):
+class RevisionSalidaCreateView(LoginRequiredMixin,  CreateView,GroupRequiredMixin):
     """Vista para creación de :class:`RevisionSalida`"""
     model = beqt_m.RevisionSalidaBeqt
     form_class = beqt_f.RevisionSalidaCreateForm
     template_name = 'beqt/salida/revisionsalida_add.html'
-    #group_required = []
+    group_required = [u"inv_conta", u"inv_admin"]
 
     def get_success_url(self):
         return reverse_lazy('revisionsalida_beqt_update', kwargs={'pk': self.object.id})
@@ -257,12 +257,12 @@ class RevisionSalidaCreateView(LoginRequiredMixin,  CreateView):
         return super(RevisionSalidaCreateView, self).form_valid(form)
 
 
-class RevisionSalidaUpdateView(LoginRequiredMixin,  UpdateView):
+class RevisionSalidaUpdateView(LoginRequiredMixin,  UpdateView,GroupRequiredMixin):
     """Vista para edición de :class:`RevisionSalida`"""
     model = beqt_m.RevisionSalidaBeqt
     form_class = beqt_f.RevisionSalidaUpdateForm
     template_name = 'beqt/salida/revisionsalida_update.html'
-    #group_required = []
+    group_required = [u"inv_conta", u"inv_admin"]
 
     def get_context_data(self, *args, **kwargs):
         context = super(RevisionSalidaUpdateView, self).get_context_data(*args, **kwargs)
@@ -271,12 +271,12 @@ class RevisionSalidaUpdateView(LoginRequiredMixin,  UpdateView):
         return context
 
 
-class SalidaPaqueteView(LoginRequiredMixin, DetailView):
+class SalidaPaqueteView(LoginRequiredMixin, DetailView,GroupRequiredMixin):
     """Vista para detalle de :class:`SalidaInventario`.on sus respectivos filtros
     """
     model = beqt_m.SalidaInventario
     template_name = 'beqt/salida/dispositivo_paquete.html'
-    #group_required = []
+    group_required = [u"beqt_cc", u"inv_admin"]
 
     def get_context_data(self, **kwargs):
         context = super(SalidaPaqueteView, self).get_context_data(**kwargs)
@@ -292,12 +292,12 @@ class SalidaPaqueteView(LoginRequiredMixin, DetailView):
         return context
 
 
-class RevisionSalidaListView(LoginRequiredMixin,  ListView):
+class RevisionSalidaListView(LoginRequiredMixin,  ListView,GroupRequiredMixin):
     """Vista para Los listados de :class:`RevisionSalida`. con sus respectivos datos
     """
     model = beqt_m.RevisionSalidaBeqt
     template_name = 'beqt/salida/revisionsalida_list.html'
-    #group_required = []
+    group_required = [u"beqt_cc", u"inv_admin", u"inv_conta"]
 
 
 class RevisionComentarioCreate(CsrfExemptMixin, JsonRequestResponseMixin, View):
@@ -358,12 +358,12 @@ class RevisionComentarioSalidaCreate(CsrfExemptMixin, JsonRequestResponseMixin, 
             })
 
 
-class ControlCalidadListView(LoginRequiredMixin,  ListView):
+class ControlCalidadListView(LoginRequiredMixin,  ListView,GroupRequiredMixin):
     """Vista para Los listados de :class:`SalidaInventario`. con sus respectivos datos
     """
     model = beqt_m.SalidaInventario
     template_name = 'beqt/salida/controlcalidad_list.html'
-    #group_required = []
+    group_required = [u"beqt_cc", u"inv_admin", u"beqt_tecnico", u"inv_conta"]
 
     def get_context_data(self, **kwargs):
         context = super(ControlCalidadListView, self).get_context_data(**kwargs)
@@ -371,12 +371,12 @@ class ControlCalidadListView(LoginRequiredMixin,  ListView):
         return context
 
 
-class DispositivoAsignados(LoginRequiredMixin, DetailView):
+class DispositivoAsignados(LoginRequiredMixin, DetailView,GroupRequiredMixin):
     """Vista encargada de ver los dispositivos que se fueron asignados a los paquetes
     """
     model = beqt_m.PaqueteBeqt
     template_name = 'beqt/salida/dispositivos_salida.html'
-    #group_required = []
+    group_required = [u"beqt_tecnico", u"inv_admin", u"beqt_cc", u"beqt_bodega"]
 
     def get_context_data(self, **kwargs):
         context = super(DispositivoAsignados, self).get_context_data(**kwargs)
@@ -384,12 +384,12 @@ class DispositivoAsignados(LoginRequiredMixin, DetailView):
         return context
 
 
-class GarantiaPrintView(LoginRequiredMixin,  DetailView):
+class GarantiaPrintView(LoginRequiredMixin,  DetailView,GroupRequiredMixin):
     """Vista encargada para imprimir las Garantias de las :class:`SalidaInventario`
     """
     model = beqt_m.SalidaInventario
     template_name = 'beqt/salida/garantia_print.html'
-    #group_required = []
+    group_required = [u"beqt_tecnico", u"inv_admin", u"beqt_cc"]
 
     def get_context_data(self, **kwargs):
         context = super(GarantiaPrintView, self).get_context_data(**kwargs)
@@ -438,12 +438,12 @@ class GarantiaPrintView(LoginRequiredMixin,  DetailView):
         return context
 
 
-class LaptopPrintView(LoginRequiredMixin,  DetailView):
+class LaptopPrintView(LoginRequiredMixin,  DetailView,GroupRequiredMixin):
     """Vista encargada para imprimir las :class:`Laptop` de las salidas correspondiente
     """
     model = beqt_m.SalidaInventario
     template_name = 'beqt/salida/laptop_print.html'
-    #group_required = []
+    group_required = [u"beqt_tecnico", u"inv_admin", u"beqt_cc"]
 
     def get_context_data(self, **kwargs):
         context = super(LaptopPrintView, self).get_context_data(**kwargs)
@@ -472,12 +472,12 @@ class LaptopPrintView(LoginRequiredMixin,  DetailView):
         return context
 
 
-class TabletPrintView(LoginRequiredMixin, DetailView):
+class TabletPrintView(LoginRequiredMixin, DetailView,GroupRequiredMixin):
     """Vista encargada para imprimir las :class:`Tablets` de las salidas correspondiente
     """
     model = beqt_m.SalidaInventario
     template_name = 'beqt/salida/tablet_print.html'
-    #group_required = []
+    group_required = [u"beqt_tecnico", u"inv_admin", u"beqt_cc"]
 
     def get_context_data(self, **kwargs):
         context = super(TabletPrintView, self).get_context_data(**kwargs)
@@ -513,12 +513,12 @@ class TabletPrintView(LoginRequiredMixin, DetailView):
         return context
 
 
-class TpePrintView(LoginRequiredMixin, DetailView):
+class TpePrintView(LoginRequiredMixin, DetailView,GroupRequiredMixin):
     """Vista encargada para imprimir las :class:`SalidaInventario` de las salidas correspondiente
     """
     model = beqt_m.SalidaInventario
     template_name = 'beqt/salida/tpe_print.html'
-    #group_required = []
+    group_required = [u"beqt_tecnico", u"inv_admin", u"beqt_cc"]
 
     def get_context_data(self, **kwargs):
         context = super(TpePrintView, self).get_context_data(**kwargs)
@@ -612,12 +612,12 @@ class TpePrintView(LoginRequiredMixin, DetailView):
         return context
 
 
-class MineducPrintView(LoginRequiredMixin, DetailView):
+class MineducPrintView(LoginRequiredMixin, DetailView,GroupRequiredMixin):
     """Vista encargada para imprimir las :class:`CPU` y la :class:`HDD` de las salidas correspondiente
     """
     model = inv_m.SalidaInventario
     template_name = 'beqt/salida/mineduc_print.html'
-    #group_required = []
+    group_required = [u"beqt_tecnico", u"inv_admin", u"beqt_cc"]
 
     def get_context_data(self, **kwargs):
         context = super(MineducPrintView, self).get_context_data(**kwargs)
@@ -651,12 +651,12 @@ class MineducPrintView(LoginRequiredMixin, DetailView):
         return context
 
 
-class PrestamoCartaPrintView(LoginRequiredMixin,  DetailView):
+class PrestamoCartaPrintView(LoginRequiredMixin,  DetailView,GroupRequiredMixin):
     """Vista encargada para imprimir las Carta de Prestamo de las :class:`SalidaInventario`
     """
     model = inv_m.SalidaInventario
     template_name = 'beqt/salida/carta_prestamo_print.html'
-    #group_required = []
+    group_required = [u"beqt_tecnico", u"inv_admin", u"beqt_cc"]
 
     def get_context_data(self, **kwargs):
         cpu_servidor = 0
@@ -705,9 +705,9 @@ class PrestamoCartaPrintView(LoginRequiredMixin,  DetailView):
         return context
 
 
-class PaquetesDetalleGrid(LoginRequiredMixin, DetailView):
+class PaquetesDetalleGrid(LoginRequiredMixin, DetailView,GroupRequiredMixin):
     """ Muestra los QR por Detalle de Entrada Creados
     """
     model = beqt_m.DispositivoPaquete
     template_name = 'beqt/salida/dispositivos_grid_paquetes.html'
-    #group_required = []
+    group_required = [u"beqt_bodega", u"beqt_tecnico", u"inv_admin"]

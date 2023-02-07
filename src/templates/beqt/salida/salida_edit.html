@@ -9,7 +9,7 @@
 <section class="content">
 	<div class="container-fluid">
 		<div class="row">
-			{% if request.user|has_group:"inv_cc" or request.user|has_group:"inv_admin" %}
+			{% if request.user|has_group:"beqt_cc" or request.user|has_group:"inv_admin" %}
 			<!-- Comienza el formulario -->
 			<div class="col-md-3 col-sm-3">
 				<div class="box">
@@ -79,7 +79,7 @@
 						 {% include "beqt/salida/paquetes_add.html" %}
 					</div>
 				</div>
-				{% if permiso.name == "inv_cc"  %}
+				{% if permiso.name == "beqt_cc"  %}
 				{% else %}
 				<div class="box">
 					<div class="box-body table-responsive">
@@ -154,7 +154,7 @@
 
 				</div>
 				<!--Historicos -->
-				{% if request.user|has_group:"inv_cc" or request.user|has_group:"inv_admin" %}
+				{% if request.user|has_group:"beqt_cc" or request.user|has_group:"inv_admin" %}
 				<div class="box box-primary">
 					<div>
 					<div>

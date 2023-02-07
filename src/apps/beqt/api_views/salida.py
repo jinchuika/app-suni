@@ -435,17 +435,9 @@ class RevisionSalidaViewSet(viewsets.ModelViewSet):
                 asignacion_fecha.aprobado = True
                 asignacion_fecha.fecha_aprobacion = datetime.now()
                 asignacion_fecha.save()
-                cantidad_paquetes = beqt_m.PaqueteBeqt.objects.get(id=id_paquete)
-                if tipo == "TECLADO":
-                    cambio_estado = inv_m.Teclado.objects.get(triage=triage)
-                elif tipo == "MOUSE":
-                    cambio_estado = inv_m.Mouse.objects.get(triage=triage)
-                elif tipo == "HDD":
-                    cambio_estado = inv_m.HDD.objects.get(triage=triage)
-                elif tipo == "MONITOR":
-                    cambio_estado = inv_m.Monitor.objects.get(triage=triage)
-                elif tipo == "CPU":
-                    cambio_estado = inv_m.CPU.objects.get(triage=triage)
+                cantidad_paquetes = beqt_m.PaqueteBeqt.objects.get(id=id_paquete)                
+                if tipo == "HDD":
+                    cambio_estado = beqt_m.HDDBeqt.objects.get(triage=triage) 
                 elif tipo == "TABLET":
                     cambio_estado = beqt_m.TabletBeqt.objects.get(triage=triage)
                 elif tipo == "LAPTOP":

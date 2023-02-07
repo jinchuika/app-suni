@@ -30,7 +30,7 @@ class AsignacionTecnicoCreateView(LoginRequiredMixin, CreateView):
     template_name = 'beqt/dispositivo/asignaciontecnico_form.html'
 
     def get_success_url(self):
-        return reverse('asignaciontecnico_list')
+        return reverse('asignaciontecnico_beqt_list')
 
 
 class AsignacionTecnicoListView(LoginRequiredMixin, ListView):
@@ -53,7 +53,7 @@ class AsignacionTecnicoUpdateView(LoginRequiredMixin, UpdateView):
 
 
     def get_success_url(self):
-        return reverse('asignaciontecnico_list')
+        return reverse('asignaciontecnico_beqt_list')
 
 
 class DispositivoDetailView(DetailView):
@@ -87,7 +87,7 @@ class DispositivoListView(LoginRequiredMixin, FormView):
         return form
 
 
-class SolicitudMovimientoCreateView(LoginRequiredMixin, CreateView):
+class SolicitudMovimientoCreateView(LoginRequiredMixin, CreateView,GroupRequiredMixin):
     """Vista   para obtener los datos de Solicitudslug_field = "triage"
     slug_url_kwarg = "triage"
     query_pk_and_slug = TrueMovimiento mediante una :class:`SolicitudMovimiento`
@@ -97,7 +97,7 @@ class SolicitudMovimientoCreateView(LoginRequiredMixin, CreateView):
     model = beqt_m.SolicitudMovimientoBeqt
     template_name = 'beqt/dispositivo/solicitudmovimiento_add.html'
     form_class = beqt_f.SolicitudMovimientoCreateForm
-    #group_required = []
+    group_required = [u"beqt_cc", u"inv_admin", u"beqt_tecnico", u"beqt_bodega"]
 
     def form_valid(self, form):
         cantidad = form.cleaned_data['cantidad']
@@ -138,12 +138,12 @@ class SolicitudMovimientoCreateView(LoginRequiredMixin, CreateView):
         return form
 
 
-class SolicitudMovimientoUpdateView(LoginRequiredMixin, UpdateView):
+class SolicitudMovimientoUpdateView(LoginRequiredMixin, UpdateView,GroupRequiredMixin):
     """Vista para crear `CambioDispositivo` a partir de una `SolicitudMovimiento`"""
     model = beqt_m.SolicitudMovimientoBeqt
     form_class = beqt_f.SolicitudMovimientoUpdateForm
     template_name = 'beqt/dispositivo/solicitudmovimiento_update.html'
-    #group_required = []
+    group_required = [u"beqt_cc", u"inv_admin", u"beqt_tecnico", u"beqt_bodega"]
 
     def get_form(self, form_class=None):
         form = super(SolicitudMovimientoUpdateView, self).get_form(form_class)
@@ -189,21 +189,21 @@ class SolicitudMovimientoUpdateView(LoginRequiredMixin, UpdateView):
             return context
 
 
-class SolicitudMovimientoDetailView(LoginRequiredMixin, DetailView):
+class SolicitudMovimientoDetailView(LoginRequiredMixin, DetailView,GroupRequiredMixin):
     """ Vista para ver los detalles de la :class:`SolicitudMovimiento`
     """
     model = beqt_m.SolicitudMovimientoBeqt
     template_name = 'beqt/dispositivo/solicitudmovimiento_detail.html'
-    #group_required = []
+    group_required = [u"beqt_cc", u"inv_admin", u"beqt_tecnico", u"beqt_bodega"]
 
 
-class SolicitudMovimientoListView(LoginRequiredMixin, FormView):
+class SolicitudMovimientoListView(LoginRequiredMixin, FormView,GroupRequiredMixin):
     """ Vista para ver la lista  de la :class:`SolicitudMovimiento`
     """
     model = beqt_m.SolicitudMovimientoBeqt
     template_name = 'beqt/dispositivo/solicitudmovimiento_list.html'
     form_class = beqt_f.SolicitudMovimientoInformeForm
-    group_required = []
+    group_required = [u"beqt_cc", u"inv_admin", u"beqt_tecnico", u"beqt_bodega"]
 
     def get_form(self, form_class=None):
         form = super(SolicitudMovimientoListView, self).get_form(form_class)
@@ -539,7 +539,7 @@ class DispositivoTipoCreateView(LoginRequiredMixin, CreateView):
         return reverse('dispositivo_list')
 
 
-class DispositivoQRprint(LoginRequiredMixin, DetailView):
+class DispositivoQRprint(LoginRequiredMixin, DetailView,GroupRequiredMixin):
     """ Vista encargada de imprimir los codigos qr de  la class `Dispositivo`
     """
     model = beqt_m.DispositivoBeqt
@@ -547,7 +547,7 @@ class DispositivoQRprint(LoginRequiredMixin, DetailView):
     slug_field = "triage"
     slug_url_kwarg = "triage"
     query_pk_and_slug = True
-    #group_required = []
+    group_required = [u"beqt_bodega", u"inv_admin"]
 
 
 class DispositivosTarimaListView(LoginRequiredMixin, FormView):

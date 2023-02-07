@@ -482,7 +482,7 @@ class EntradaDetail {
   /* --- INICIALIZACIÓN DEL METODO INIT DE LA VISTA LIST DE ENTRADAS --*/
   /* Cargar el listado de entradas en base a los filtros seleccionados*/
     var tabla = $('#entrada2-table').DataTable({
-        dom: 'Bfrtip',
+        dom: 'lfrtipB',
         buttons: ['excel', 'pdf', 'copy'],
         processing: true,
         ajax: {

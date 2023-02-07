@@ -7,7 +7,6 @@ from django.core.exceptions import ValidationError
 from apps.beqt import models as beqt_m
 from apps.inventario import models as inv_m
 from apps.crm import models as crm_m
-from apps.kardex import models as kax_m
 
 class EntradaForm(forms.ModelForm):
     """Formulario para la :`class`:`EntradaCreateView` que es la encargada de crear los datos
@@ -146,7 +145,9 @@ class EntradaDetalleForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         entrada = kwargs.pop('initial', None)['entrada']
+        
         super(EntradaDetalleForm, self).__init__(*args, **kwargs)
+        self.fields['tipo_dispositivo'].queryset = beqt_m.DispositivoTipoBeqt.objects.exclude(id=1)
         self.fields['entrada'].initial = entrada
 
         if entrada.tipo.contenedor:
