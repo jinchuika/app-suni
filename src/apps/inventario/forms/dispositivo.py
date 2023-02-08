@@ -643,7 +643,14 @@ class CPUFormUpdate(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
-        super(CPUFormUpdate, self).__init__(*args, **kwargs)
-        dispositivos = inv_m.CambioEtapa.objects.get(dispositivo=self.instance)
-        movimiento = inv_m.SolicitudMovimiento.objects.get(no_salida = dispositivos.solicitud.no_salida,tipo_dispositivo__tipo="HDD")
-        self.fields['disco_duro'].queryset = inv_m.CambioEtapa.objects.filter(solicitud = movimiento).values_list('dispositivo__triage',flat=True)
+        super(CPUFormUpdate, self).__init__(*args, **kwargs)        
+       
+        
+        try:
+             dispositivos = inv_m.CambioEtapa.objects.get(dispositivo=self.instance)
+             movimiento = inv_m.SolicitudMovimiento.objects.filter(no_salida = dispositivos.solicitud.no_salida,tipo_dispositivo__tipo="HDD")
+             self.fields['disco_duro'].queryset = inv_m.CambioEtapa.objects.filter(solicitud = movimiento).values_list('dispositivo__triage',flat=True)
+        except:
+             self.fields['disco_duro'].queryset = inv_m.HDD.objects.filter(valido=True,asignado=False)
+
+       

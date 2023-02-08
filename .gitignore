@@ -52,6 +52,7 @@ coverage.xml
 local_settings.py
 settings_dev.py
 settings_prod.py
+settings_nestle.py
 settings_stage.py
 src/src/settings.py
 src/src/settings_dev.py

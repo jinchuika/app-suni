@@ -1,0 +1,114 @@
+{% extends "base/base.html" %}
+{% load staticfiles thumbnail %}
+{% block page_title %}
+    <title>BEQT : {{ object }}</title>
+{% endblock page_title %}
+{% block content %}
+    <section class="content">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-5">
+                    <div class="box box-primary">
+                        <div class="box-header">
+                            <div class="row">
+                							<div class="col-md-9">
+                						       <h3 class="box-title">{{ object.triage }}</h3>
+                							</div>
+                              <div class="col-md-3">
+                                  {% csrf_token %}
+                                  {%for permiso in user.groups.all  %}
+                                    {% if permiso.name == "beqt_bodega" %}
+                                    {%if not object.impreso%}
+                                      <a id="qr-botton" target='_blank' rel='noopener noreferrer' href="{%url 'reportedispositivo_beqt_qr' triage=object.triage %}" data-dispositivo ="{{object.triage}}" data-url="{%url 'beqt_api:api_dispositivo-impresion-dispositivo'%}" class="btn btn-block btn-success">Imprimir QR </a>
+                                    {%endif%}
+                                    {% else %}
+                                    {% endif %}
+                                  {% endfor %}
+                            </div>
+                						</div>
+                        </div>
+                        <div class="box-body">
+                            <table class="table table-condensed table-striped">
+                                <tr>
+                                    <th>Entrada</th>
+                                    <td>
+                                        <a href="{{ object.entrada.get_absolute_url }}" class="btn-block">
+                                            {{ object.entrada }}
+                                        </a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Marca</th>
+                                    <td>
+                                        {{ object.marca|default_if_none:"" }}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Modelo</th>
+                                    <td>
+                                        {{ object.modelo|default_if_none:"" }}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Serie</th>
+                                    <td>{{ object.serie|default_if_none:"" }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Clase</th>
+                                    <td>{{ object.clase|default_if_none:"" }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Tarima</th>
+                                    <td>{{ object.tarima|default_if_none:"" }}</td>
+                                </tr>
+                                {% block info_dispositivo %}
+
+                                {% endblock %}
+                                <tr>
+                                    <th>Descripción</th>
+                                    <td>{{ object.descripcion|default_if_none:"" }}</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="box box-primary">
+                        <div class="box-body">
+                            <table class="table table-condensed table-striped">
+                                <tr>
+                                    <th>Estado</th>
+                                    <td>{{ object.estado|default_if_none:"" }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Etapa</th>
+                                    <td>{{ object.etapa|default_if_none:"" }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Válido</th>
+                                    <td><input type="checkbox" class="icheckbox_square-red" name="valido" disabled  {% if object.valido %} checked {% endif %} /></td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                {%for permiso in user.groups.all  %}
+                  {% if permiso.name == "beqt_tecnico" or permiso.name == 'inv_admin' %}
+                    <div class="col-md-6">
+                        {% block fallas_dispositivo %}
+                            {% include "beqt/dispositivo/snp_falla_list.html" with dispositivo=object %}
+                        {% endblock %}
+                    </div>
+                  {% else %}
+                  {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+{% endblock content %}
+{% block extra_js %}
+{% include "base/dataTables.html" %}
+<script src="{% static "js/extrajs/beqt.js" %}"></script>
+<script>
+ let Revicion = new DispositivosQR();
+</script>
+{% endblock extra_js %}
+

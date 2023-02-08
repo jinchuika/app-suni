@@ -1,14 +1,14 @@
 {% load menu %}
-<ul class="treeview-menu">
+<ul class="treeview-menu">  
     {% generate_menu %}
-	{% for item in items %}
+	{% for item in items %}       
         {% if item.visible %}
         	<li class="{% if item.selected %} active {% endif %} {% if item.children %} treeview {% endif %}">
             <a href="{{ item.url }}">
                 {% if item.icon %}
                 <i class="fa {{ item.icon }}"></i>
                 {% endif %}
-                {{ item.title }}
+                {{ item.title}}
             </a>
             {% if item.children %}
                 {% with items=item.children template_name='main-sidebar-sub.html' %}
