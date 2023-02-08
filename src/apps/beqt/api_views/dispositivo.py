@@ -335,7 +335,7 @@ class DispositivoViewSet(viewsets.ModelViewSet):
                 'medida': list(medida),
                 'dispositivo': str(tipo)
                 })
-        elif str(tipo) == "CARGADOR  TABLET":
+        elif str(tipo) == "CARGADOR TABLET":
             data = beqt_m.CargadorTabletBeqt.objects.filter(
                 etriage__in=paquetes
             ).values(
@@ -577,6 +577,18 @@ class DispositivosPaquetesViewSet(viewsets.ModelViewSet):
                 cambio_estado = beqt_m.DispositivoRedBeqt.objects.get(triage=triage)
             elif tipo == "ACCESS POINT":
                 cambio_estado = beqt_m.AccessPointBeqt.objects.get(triage=triage)
+            elif tipo == "ADAPTADOR RED":
+                cambio_estado = beqt_m.DispositivoRedBeqt.objects.get(triage=triage)
+            elif tipo == "CARGADOR TABLET":
+                cambio_estado = beqt_m.CargadorTabletBeqt.objects.get(triage=triage)
+            elif tipo == "CARGADOR LAPTOP":
+                cambio_estado = beqt_m.CargadorLaptopBeqt.objects.get(triage=triage)
+            elif tipo == "ESTUCHE TABLET":
+                cambio_estado = beqt_m.CaseTabletBeqt.objects.get(triage=triage)
+            elif tipo == "REGLETA":
+                cambio_estado = beqt_m.CaseTabletBeqt.objects.get(triage=triage)
+            elif tipo == "UPS":
+                cambio_estado = beqt_m.CaseTabletBeqt.objects.get(triage=triage)   
             else:
                 cambio_estado = beqt_m.DispositivoBeqt.objects.get(triage=triage)
             cambio_estado.etapa = inv_m.DispositivoEtapa.objects.get(id=inv_m.DispositivoEtapa.LS)
@@ -619,7 +631,7 @@ class DispositivosPaquetesViewSet(viewsets.ModelViewSet):
         """ Metodo para actualizar nuevos dispositivos mediante el grid
         """
         dispositivos = json.loads(request.data["datos_actualizar"])
-
+        print(dispositivos)
         tipo = request.data["dispositivo"]
         if tipo == "LAPTOP":
             for datos in dispositivos:
@@ -815,6 +827,252 @@ class DispositivosPaquetesViewSet(viewsets.ModelViewSet):
                     new_dispositivo.velocidad_medida = inv_m.DispositivoMedida.objects.get(id=datos['velocidad_medida'])
                 except ObjectDoesNotExist as e:
                     print("Velocidad medida no necesita actualizacion")
+                try:
+                    new_dispositivo.clase = inv_m.DispositivoClase.objects.get(id=datos['clase'])
+                except ObjectDoesNotExist as e:
+                    print("Clase no necesita actualizacion")
+                new_dispositivo.save()
+        elif tipo == "SWITCH":
+            for datos in dispositivos:
+                new_dispositivo = beqt_m.DispositivoRedBeqt.objects.get(triage=datos['triage'])
+                try:
+                    new_dispositivo.marca = inv_m.DispositivoMarca.objects.get(id=datos['marca'])
+                except ObjectDoesNotExist as e:
+                    print("Marca no necesita actualizar")
+                try:
+                    new_dispositivo.modelo = datos['modelo']
+                except ObjectDoesNotExist as e:
+                    print("Modelo no necesita actualizacion")
+                try:
+                    new_dispositivo.serie = datos['serie']
+                except ObjectDoesNotExist as e:
+                    print("Serie no necesita actualizacion")
+                try:
+                    new_dispositivo.tarima = inv_m.Tarima.objects.get(id=datos['tarima'])
+                except ObjectDoesNotExist as e:
+                    print("Tarima no necesita actualizacion")
+                try:
+                    new_dispositivo.puerto = inv_m.DispositivoPuerto.objects.get(id=datos['puerto'])
+                except ObjectDoesNotExist as e:
+                    print("Puerto no necesita actualizacion")
+                try:
+                    new_dispositivo.cantidad_puertos = datos['cantidad_puertos']
+                except ObjectDoesNotExist as e:
+                    print("Cantidad de puerto no necesita actualizacion")
+                try:
+                    new_dispositivo.velocidad = datos['velocidad']
+                except ObjectDoesNotExist as e:
+                    print("Velocidad de trasmicon no necesita actualizacion")                
+                try:
+                    new_dispositivo.clase = inv_m.DispositivoClase.objects.get(id=datos['clase'])
+                except ObjectDoesNotExist as e:
+                    print("Clase no necesita actualizacion")
+                new_dispositivo.save()
+        elif tipo == "ADAPTADOR RED":
+            for datos in dispositivos:
+                new_dispositivo = beqt_m.DispositivoRedBeqt.objects.get(triage=datos['triage'])
+                try:
+                    new_dispositivo.marca = inv_m.DispositivoMarca.objects.get(id=datos['marca'])
+                except ObjectDoesNotExist as e:
+                    print("Marca no necesita actualizar")
+                try:
+                    new_dispositivo.modelo = datos['modelo']
+                except ObjectDoesNotExist as e:
+                    print("Modelo no necesita actualizacion")
+                try:
+                    new_dispositivo.serie = datos['serie']
+                except ObjectDoesNotExist as e:
+                    print("Serie no necesita actualizacion")
+                try:
+                    new_dispositivo.tarima = inv_m.Tarima.objects.get(id=datos['tarima'])
+                except ObjectDoesNotExist as e:
+                    print("Tarima no necesita actualizacion")
+                try:
+                    new_dispositivo.puerto = inv_m.DispositivoPuerto.objects.get(id=datos['puerto'])
+                except ObjectDoesNotExist as e:
+                    print("Puerto no necesita actualizacion")
+                try:
+                    new_dispositivo.cantidad_puertos = datos['cantidad_puertos']
+                except ObjectDoesNotExist as e:
+                    print("Cantidad de puerto no necesita actualizacion")
+                try:
+                    new_dispositivo.velocidad = datos['velocidad']
+                except ObjectDoesNotExist as e:
+                    print("Velocidad de trasmicon no necesita actualizacion")                
+                try:
+                    new_dispositivo.clase = inv_m.DispositivoClase.objects.get(id=datos['clase'])
+                except ObjectDoesNotExist as e:
+                    print("Clase no necesita actualizacion")
+                new_dispositivo.save()
+
+        elif tipo == "CARGADOR TABLET":
+            for datos in dispositivos:
+                new_dispositivo = beqt_m.CargadorTabletBeqt.objects.get(triage=datos['triage'])
+                try:
+                    new_dispositivo.marca = inv_m.DispositivoMarca.objects.get(id=datos['marca'])
+                except ObjectDoesNotExist as e:
+                    print("Marca no necesita actualizar")
+                try:
+                    new_dispositivo.modelo = datos['modelo']
+                except ObjectDoesNotExist as e:
+                    print("Modelo no necesita actualizacion")
+                try:
+                    new_dispositivo.serie = datos['serie']
+                except ObjectDoesNotExist as e:
+                    print("Serie no necesita actualizacion")
+                try:
+                    new_dispositivo.tarima = inv_m.Tarima.objects.get(id=datos['tarima'])
+                except ObjectDoesNotExist as e:
+                    print("Tarima no necesita actualizacion")
+                try:
+                    new_dispositivo.alimentacion = datos['alimentacion']
+                except ObjectDoesNotExist as e:
+                    print("Alimentacion electrica no necesita actualizacion")
+                try:
+                    new_dispositivo.salida = datos['salida']
+                except ObjectDoesNotExist as e:
+                    print("Salida de Voltaje no necesita actualizacion")                             
+                try:
+                    new_dispositivo.clase = inv_m.DispositivoClase.objects.get(id=datos['clase'])
+                except ObjectDoesNotExist as e:
+                    print("Clase no necesita actualizacion")
+                new_dispositivo.save()
+        elif tipo == "CARGADOR LAPTOP":
+            for datos in dispositivos:
+                new_dispositivo = beqt_m.CargadorLaptopBeqt.objects.get(triage=datos['triage'])
+                try:
+                    new_dispositivo.marca = inv_m.DispositivoMarca.objects.get(id=datos['marca'])
+                except ObjectDoesNotExist as e:
+                    print("Marca no necesita actualizar")
+                try:
+                    new_dispositivo.modelo = datos['modelo']
+                except ObjectDoesNotExist as e:
+                    print("Modelo no necesita actualizacion")
+                try:
+                    new_dispositivo.serie = datos['serie']
+                except ObjectDoesNotExist as e:
+                    print("Serie no necesita actualizacion")
+                try:
+                    new_dispositivo.tarima = inv_m.Tarima.objects.get(id=datos['tarima'])
+                except ObjectDoesNotExist as e:
+                    print("Tarima no necesita actualizacion")                
+                try:
+                    new_dispositivo.voltaje = datos['voltaje']
+                except ObjectDoesNotExist as e:
+                    print("Voltaje no necesita actualizacion")                             
+                try:
+                    new_dispositivo.clase = inv_m.DispositivoClase.objects.get(id=datos['clase'])
+                except ObjectDoesNotExist as e:
+                    print("Clase no necesita actualizacion")
+                new_dispositivo.save()
+        elif tipo == "ESTUCHE TABLET":
+            for datos in dispositivos:
+                new_dispositivo = beqt_m.CaseTabletBeqt.objects.get(triage=datos['triage'])
+                try:
+                    new_dispositivo.marca = inv_m.DispositivoMarca.objects.get(id=datos['marca'])
+                except ObjectDoesNotExist as e:
+                    print("Marca no necesita actualizar")
+                try:
+                    new_dispositivo.modelo = datos['modelo']
+                except ObjectDoesNotExist as e:
+                    print("Modelo no necesita actualizacion")
+                try:
+                    new_dispositivo.serie = datos['serie']
+                except ObjectDoesNotExist as e:
+                    print("Serie no necesita actualizacion")
+                try:
+                    new_dispositivo.tarima = inv_m.Tarima.objects.get(id=datos['tarima'])
+                except ObjectDoesNotExist as e:
+                    print("Tarima no necesita actualizacion")                
+                try:
+                    new_dispositivo.compatibilidad = datos['compatibilidad']
+                except ObjectDoesNotExist as e:
+                    print("Compatibilidad no necesita actualizacion") 
+
+                try:
+                    new_dispositivo.color = datos['color']
+                except ObjectDoesNotExist as e:
+                    print("Color no necesita actualizacion")
+                try:
+                    new_dispositivo.estilo = datos['estilo']
+                except ObjectDoesNotExist as e:
+                    print("Estilo no necesita actualizacion") 
+
+                try:
+                    new_dispositivo.material = datos['material']
+                except ObjectDoesNotExist as e:
+                    print("Material no necesita actualizacion") 
+
+                try:
+                    new_dispositivo.dimensiones = datos['dimensiones']
+                except ObjectDoesNotExist as e:
+                    print("Dimensiones no necesita actualizacion")                              
+                try:
+                    new_dispositivo.clase = inv_m.DispositivoClase.objects.get(id=datos['clase'])
+                except ObjectDoesNotExist as e:
+                    print("Clase no necesita actualizacion")
+                new_dispositivo.save()
+
+        elif tipo == "REGLETA":
+            for datos in dispositivos:
+                new_dispositivo = beqt_m.RegletaBeqt.objects.get(triage=datos['triage'])
+                try:
+                    new_dispositivo.marca = inv_m.DispositivoMarca.objects.get(id=datos['marca'])
+                except ObjectDoesNotExist as e:
+                    print("Marca no necesita actualizar")
+                try:
+                    new_dispositivo.modelo = datos['modelo']
+                except ObjectDoesNotExist as e:
+                    print("Modelo no necesita actualizacion")
+                try:
+                    new_dispositivo.serie = datos['serie']
+                except ObjectDoesNotExist as e:
+                    print("Serie no necesita actualizacion")
+                try:
+                    new_dispositivo.tarima = inv_m.Tarima.objects.get(id=datos['tarima'])
+                except ObjectDoesNotExist as e:
+                    print("Tarima no necesita actualizacion")                
+                try:
+                    new_dispositivo.conexiones = datos['conexiones']
+                except ObjectDoesNotExist as e:
+                    print("Conexiones no necesita actualizacion")
+                try:
+                    new_dispositivo.voltaje = datos['voltaje']
+                except ObjectDoesNotExist as e:
+                    print("Voltaje no necesita actualizacion")                             
+                try:
+                    new_dispositivo.clase = inv_m.DispositivoClase.objects.get(id=datos['clase'])
+                except ObjectDoesNotExist as e:
+                    print("Clase no necesita actualizacion")
+                new_dispositivo.save()
+
+        elif tipo == "UPS":
+            for datos in dispositivos:
+                new_dispositivo = beqt_m.UpsBeqt.objects.get(triage=datos['triage'])
+                try:
+                    new_dispositivo.marca = inv_m.DispositivoMarca.objects.get(id=datos['marca'])
+                except ObjectDoesNotExist as e:
+                    print("Marca no necesita actualizar")
+                try:
+                    new_dispositivo.modelo = datos['modelo']
+                except ObjectDoesNotExist as e:
+                    print("Modelo no necesita actualizacion")
+                try:
+                    new_dispositivo.serie = datos['serie']
+                except ObjectDoesNotExist as e:
+                    print("Serie no necesita actualizacion")
+                try:
+                    new_dispositivo.tarima = inv_m.Tarima.objects.get(id=datos['tarima'])
+                except ObjectDoesNotExist as e:
+                    print("Tarima no necesita actualizacion")                
+                try:
+                    new_dispositivo.conexiones = datos['conexiones']
+                except ObjectDoesNotExist as e:
+                    print("Conexiones no necesita actualizacion")
+                try:
+                    new_dispositivo.voltaje = datos['voltaje']
+                except ObjectDoesNotExist as e:
+                    print("Voltaje no necesita actualizacion")                             
                 try:
                     new_dispositivo.clase = inv_m.DispositivoClase.objects.get(id=datos['clase'])
                 except ObjectDoesNotExist as e:

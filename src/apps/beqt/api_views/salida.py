@@ -446,6 +446,18 @@ class RevisionSalidaViewSet(viewsets.ModelViewSet):
                     cambio_estado = beqt_m.DispositivoRedBeqt.objects.get(triage=triage)
                 elif tipo == "ACCESS POINT":
                     cambio_estado = beqt_m.AccessPointBeqt.objects.get(triage=triage)
+                elif tipo == "ADAPTADOR RED":
+                    cambio_estado = beqt_m.DispositivoRedBeqt.objects.get(triage=triage)
+                elif tipo == "CARGADOR TABLET":
+                    cambio_estado = beqt_m.CargadorTabletBeqt.objects.get(triage=triage)
+                elif tipo == "CARGADOR LAPTOP":
+                    cambio_estado = beqt_m.CargadorLaptopBeqt.objects.get(triage=triage)
+                elif tipo == "ESTUCHE TABLET":
+                    cambio_estado = beqt_m.CaseTabletBeqt.objects.get(triage=triage)
+                elif tipo == "REGLETA":
+                    cambio_estado = beqt_m.RegletaBeqt.objects.get(triage=triage)
+                elif tipo == "UPS":
+                    cambio_estado = beqt_m.UpsBeqt.objects.get(triage=triage) 
                 else:
                     cambio_estado = beqt_m.DispositivoBeqt.objects.get(triage=triage)
                 asignaciones_aprobadas = beqt_m.DispositivoPaquete.objects.filter(paquete=id_paquete, aprobado=True).count()
