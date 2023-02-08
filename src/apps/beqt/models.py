@@ -506,7 +506,7 @@ class UpsBeqt(DispositivoBeqt):
     SLUG_TIPO = 'UPS'
     indice = models.PositiveIntegerField(editable=False, unique=True)   
     conexiones = models.PositiveIntegerField(null=True, blank=True)
-    voltaje = models.ForeignKey(inv_m.DispositivoMedida, null=True, blank=True)
+    voltaje = models.CharField(max_length=80, null=True, blank=True,  verbose_name='Voltaje')
 
     class Meta:
         verbose_name = "Ups"
@@ -522,7 +522,7 @@ class RegletaBeqt(DispositivoBeqt):
     SLUG_TIPO = 'RB'
     indice = models.PositiveIntegerField(editable=False, unique=True)   
     conexiones = models.PositiveIntegerField(null=True, blank=True)
-    voltaje = models.ForeignKey(inv_m.DispositivoMedida, null=True, blank=True)
+    voltaje =  models.CharField(max_length=80, null=True, blank=True,  verbose_name='Voltaje')
 
 
 

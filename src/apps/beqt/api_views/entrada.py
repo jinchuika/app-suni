@@ -379,7 +379,8 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
                 'serie',
                 'tarima',
                 'alimentacion',
-                'salida'
+                'salida',
+                'clase'
                 )
             return JsonResponse({
                 'data': list(data),
@@ -397,7 +398,9 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
                 'modelo',
                 'serie',
                 'tarima',
-                'voltaje'
+                'voltaje',
+                'clase'
+
                 )
             return JsonResponse({
                 'data': list(data),
@@ -420,7 +423,8 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
                 'color',
                 'estilo',
                 'material',
-                'dimensiones'
+                'dimensiones',
+                'clase'
                 )
             return JsonResponse({
                 'data': list(data),
@@ -439,7 +443,8 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
                 'serie',
                 'tarima',
                 'conexiones',
-                'voltaje'
+                'voltaje',
+                'clase'
                 )
             return JsonResponse({
                 'data': list(data),
@@ -459,7 +464,8 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
                 'serie',
                 'tarima',
                 'conexiones',
-                'voltaje'
+                'voltaje',
+                'clase'
                 )
             return JsonResponse({
                 'data': list(data),

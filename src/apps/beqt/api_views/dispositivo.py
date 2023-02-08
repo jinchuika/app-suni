@@ -345,7 +345,8 @@ class DispositivoViewSet(viewsets.ModelViewSet):
                 'serie',
                 'tarima',
                 'alimentacion',
-                'salida'
+                'salida',
+                'clase'
                 )
             return JsonResponse({
                 'data': list(data),
@@ -363,7 +364,8 @@ class DispositivoViewSet(viewsets.ModelViewSet):
                 'modelo',
                 'serie',
                 'tarima',
-                'voltaje'
+                'voltaje',
+                'clase'
                 )
             return JsonResponse({
                 'data': list(data),
@@ -386,7 +388,8 @@ class DispositivoViewSet(viewsets.ModelViewSet):
                 'color',
                 'estilo',
                 'material',
-                'dimensiones'
+                'dimensiones',
+                'clase'
                 )
             return JsonResponse({
                 'data': list(data),
@@ -405,7 +408,8 @@ class DispositivoViewSet(viewsets.ModelViewSet):
                 'serie',
                 'tarima',
                 'conexiones',
-                'voltaje'
+                'voltaje',
+                'clase'
                 )
             return JsonResponse({
                 'data': list(data),
@@ -425,7 +429,8 @@ class DispositivoViewSet(viewsets.ModelViewSet):
                 'serie',
                 'tarima',
                 'conexiones',
-                'voltaje'
+                'voltaje',
+                'clase'
                 )
             return JsonResponse({
                 'data': list(data),
@@ -630,8 +635,7 @@ class DispositivosPaquetesViewSet(viewsets.ModelViewSet):
     def actualizar_dispositivos(self, request, pk=None):
         """ Metodo para actualizar nuevos dispositivos mediante el grid
         """
-        dispositivos = json.loads(request.data["datos_actualizar"])
-        print(dispositivos)
+        dispositivos = json.loads(request.data["datos_actualizar"])       
         tipo = request.data["dispositivo"]
         if tipo == "LAPTOP":
             for datos in dispositivos:
