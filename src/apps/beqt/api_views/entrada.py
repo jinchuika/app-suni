@@ -369,7 +369,7 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
                 'medida': list(medida),
                 'dispositivo': str(tipo)
                 })
-        elif str(tipo) == "CARGADOR  TABLET":
+        elif str(tipo) == "CARGADOR TABLET":
             data = beqt_m.CargadorTabletBeqt.objects.filter(
                 entrada_detalle=entrada_detalle
             ).values(
