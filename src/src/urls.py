@@ -143,6 +143,11 @@ urlpatterns = [
   url(
       r'^recaudacion/',
       include('apps.recaudacionFondos.urls')),
+
+  # Contiene las direcciones de recaudacion de fondos
+  url(
+      r'^beqt/',
+      include('apps.beqt.urls')),
 ]
 
 if settings.DEBUG and settings.DEBUG_TOOLBAR:

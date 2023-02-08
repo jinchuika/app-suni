@@ -1,0 +1,38 @@
+{% extends "beqt/dispositivo/base_detail.html" %}
+{% block info_dispositivo %}
+<div >
+  <div class="row">
+    <div class="col-md-9">
+    </div>
+    <div class="col-md-3">
+          {% if object.estado.id == 1 or object.estado.id == 2  and object.etapa.id == 1 or object.etapa.id == 2 or object.etapa.id == 3 %}
+      <a href="{%url 'laptop_beqt_edit' triage=object.triage %}" class="btn btn-block btn-warning">Editar</a>
+      {%endif%}
+    </div>
+  </div>
+</div>
+    <tr>
+        <th>Procesador</th>
+        <td>{{ object.procesador|default_if_none:"" }}</td>
+    </tr>
+    <tr>
+        <th>Versión de sistema</th>
+        <td>{{ object.version_sistema|default_if_none:"" }} 
+             {% for nombre in object.version_sistema.software.all  %}
+          ,{{nombre}}
+         {% endfor %}  
+        </td>
+    </tr>
+    <tr>
+        <th>Disco duro</th>
+        <td>{{ object.disco_duro|default_if_none:"" }}</td>
+    </tr>
+    <tr>
+        <th>RAM</th>
+        <td>{{ object.ram|default_if_none:"" }} {{ object.ram_medida|default_if_none:"" }}</td>
+    </tr>
+    <tr>
+        <th>Pulgadas</th>
+        <td>{{ object.pulgadas |default_if_none:""  }}</td>
+    </tr>
+{% endblock info_dispositivo %}

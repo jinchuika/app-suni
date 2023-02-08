@@ -1,0 +1,131 @@
+{% extends "base/base.html" %}
+{%load widget_tweaks staticfiles %}
+{% block page_title %}
+{% if not lista  ==  1 %}
+<title>BEQT : SALIDAS</title>
+{%else%}
+<title>BEQT : LISTADO SALIDAS</title>
+{%endif%}
+{% endblock page_title %}
+{% block content %}
+<section class="content">
+  <div class="container-fluid">
+    <div class="row">    
+      <div class="col-md-3">.
+      <!--Caja-->
+          <div class="box">
+            <!---->
+            {% if not lista  ==  1 %}
+            <div class="box-header">
+              <div class="box-title">
+                <h3><b>AGREGAR SALIDA</b></h3>
+              </div>
+              <div class="box-body">
+                <table class="table table-condensed">
+                  <form id="salidaform" action="{{ action }}" method="post">
+                    {%csrf_token%}
+                    <table class="table table-condensed">
+                        {% for field in form.visible_fields %}
+                        <tr>
+                          <td><label for="id_{{ field.name }}" class="control-label">{{ field.label }}</label></td>
+                          <td>
+                            {% if field.label == "Fecha" %}
+                            <div class="input-group">
+                              <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                              {{ field }}
+                            </div>
+                            {% else %}
+                            {{ field }}
+                            {%endif%}
+                          </td>
+                        </tr>
+                        {% endfor %}
+                      <tr>
+                        <td>
+                          <input type="submit" class="btn btn-success" value="Guardar" tabindex="9" />
+                        </td>
+                      </tr>
+                    </table>
+                  </form>
+                </table>
+              </div>
+            </div>
+            {%else%}
+           <div>
+            <form action="{% url 'beqt_api:api_inventariosalidas_beqt-list'%}" id="salida-list-form">
+              <div class="box-header">
+                <input type="submit" class="btn btn-primary col-md-12" value="Generar Informe" /><br /><br />
+                <h3 class="box-title">Filtros</h3>
+              </div>
+              <div class="box-body">
+                {% csrf_token %} {% for field in form %}
+                <div class="form-group">
+                  {{field.label_tag}} {{field}}
+                </div>
+                {% endfor %}
+              </div>
+            </form>
+           </div>            
+            {%endif%}
+            <!---->
+          </div> 
+        <!--Fin caja-->  
+        </div>
+      <div class="col-md-9">
+        <div class="box">
+          <div class="box-header">
+            <div class="box-title">
+                <h3><b>Listado de Salidas</b></h3>
+            </div>
+            <div class="box-body">
+              <table  id="salidas-table" class="table display" data-url="{%url 'beqt_api:api_inventariosalidas_beqt-list' %} ">
+                <thead>
+                  <th>No. Salida </th>
+                  <th>No. Referencia </th>
+                  <th>Tipo</th>
+                  <th>Fecha</th>
+                  <th>Estado</th>
+                  <th>UDI</th>
+                  <th>Beneficiario</th>
+                </thead>
+                <tbody id="salidas-table-body">
+                </tbody>
+                <tfoot>                  
+                      <th>No. Salida </th>
+                      <th>No. Referencia </th>
+                      <th>Tipo</th>
+                      <th>Fecha</th>
+                      <th>Estado</th>
+                      <th>UDI</th>
+                      <th>Beneficiario</th>                  
+                </tfoot>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock content %}
+{% block extra_js %}
+{% include "base/dataTables.html" %}
+    <script src="{% static "js/extrajs/beqt.js" %}"></script>
+    <script>
+    $(document).ready(function(){
+          let Estados = new Salidas();
+          let Buscador = new BuscadorTabla();
+      });
+    $(document).on('focus', '.select2', function (e) {
+      if (e.originalEvent) {
+          var s2element = $(this).siblings('select');
+          s2element.select2('open');
+          // Set focus back to select2 element on closing.
+          s2element.on('select2:closing', function (e) {
+              s2element.select2('focus');
+         });
+      }
+    });
+    
+    </script>
+{% endblock extra_js %}

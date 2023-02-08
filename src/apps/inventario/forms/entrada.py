@@ -148,7 +148,9 @@ class EntradaDetalleUpdateForm(forms.ModelForm):
                     'ingresado_kardex',
                     'proveedor_kardex',
                     'tipo_entrada_kardex',
-                    'estado_kardex'
+                    'estado_kardex',
+                    'pendiente_autorizar',
+                    'autorizado' 
                     ]
         widgets = {
             'util': forms.NumberInput({'class': 'form-control'}),

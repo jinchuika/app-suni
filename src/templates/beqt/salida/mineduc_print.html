@@ -1,0 +1,324 @@
+{%load staticfiles %}
+<!DOCTYPE html>
+<html>
+<head>
+  <title>BEQT : Reporte Mineduc</title>
+</head>
+<meta charset="utf-8" />
+<body>
+  <img src="{% static "image/Logo_Funsepa-01.png" %}" width="240" height="95"/>
+  <table class="entrega" >
+    <tr>
+      <th style="font-size:12px; height="15px;"">
+        No. Entrega:
+      </th>
+      <td style="border-style: solid; border-color:lightgray; border-width: thin; font-size:12px height=15px;">
+        {{salidainventario}}
+      </td>
+    </tr>
+    <div class="encabezado">
+      <table class="datos">
+        <tr>
+          <th>
+            NOMBRE DE LA INSTITUCION
+          </th>
+          <td style="border-style: solid; border-color:lightgray; border-width: thin;">
+            {{salidainventario.escuela}}
+          </td>
+        </tr>
+        <tr>
+          <th>
+            DIRECCION:
+          </th>
+          <td style="border-style: solid; border-color:lightgray; border-width: thin;">
+            {{salidainventario.escuela.direccion}}
+          </td>
+        </tr>
+        <tr>
+          <th>
+            NOMBRE DEL ENCARGADO(A):
+          </th>
+          <td style="border-style: solid; border-color:lightgray; border-width: thin;">
+            {{Encargado}}
+          </td>
+        </tr>
+        <tr>
+          <th>
+            CODIGO UDI
+          </th>
+          <td style="border-style: solid; border-color:lightgray; border-width: thin;">
+            {{salidainventario.escuela.codigo}}
+          </td>
+        </tr>
+        <tr>
+          <th>
+            FECHA DE ENTREGA
+          </th>
+          <td style="border-style: solid; border-color:lightgray; border-width: thin;">
+            {{salidainventario.fecha}}
+          </td>
+        </tr>
+        <tr>
+          <th>
+          TELEFONO(S)
+          </th>
+          <td style="border-style: solid; border-color:lightgray; border-width: thin;">
+            {{salidainventario.escuela.telefono}}
+          </td>
+        </tr>
+      </table>
+    </div>
+    <!--CUERPO DEL DOCUMENTO-->
+    <table class="encabezado2">
+      <th>
+        <center>
+          CPU Y DISCO DURO
+        </center>
+      </th>
+    </table>
+<table class="cuerpo" style="width:1300px;">
+  <thead>
+    <tr>
+      <th >
+      <center>TRIAGE</center>
+      </th>
+      <th>
+        <center>MARCA</center>
+      </th>
+      <th>
+        <center>MODELO</center>
+      </th>
+      <th>
+        <center>PROCESADOR</center>
+      </th>
+      <th>
+        <center>HDD</center>
+      </th>
+      <th>
+        <center>RAM</center>
+      </th>
+      <th>
+        <center>WINDOWS</center>
+      </th>
+      <th>
+        <center>CAPACIDAD</center>
+      </th>
+      <th>
+        <center>MARCA</center>
+      </th>
+      <th>
+        <center>PUERTO</center>
+      </th>
+
+      <th>
+        <center>SERIE</center>
+      </th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for cpu  in CPUs  %}
+    <tr>
+      <td >
+        {{cpu}}
+      </td>
+      <td>
+        {{cpu.marca}}
+      </td>
+      <td>
+        {{cpu.modelo}}
+      </td>
+      <td>
+        {{cpu.procesador}}
+      </td>
+      <td>
+        {{cpu.disco_duro}}
+      </td>
+      <td>
+        {{cpu.ram}} {{cpu.ram_medida}}
+      </td>
+      <td>
+        {{cpu.version_sistema}}
+      </td>
+      <td>
+        {{cpu.disco_duro.capacidad}} {{cpu.disco_duro.medida}}
+      </td>
+      <td>
+        {{cpu.marca}}
+      </td>
+      <td>
+        {{cpu.disco_duro.puerto}}
+      </td>
+      <td>
+        {{cpu.serie |default_if_none:""}}
+      </td>
+    </tr>
+  {% endfor %}
+
+  </tbody>
+</table>
+<table class="conteo" style="width:150px;">
+  <tr>
+    <td>
+      <center>
+        {{Total}}
+      </center>
+    </td>
+  </tr>
+</table>
+<div class="pie">
+  <table>
+    <tr>
+      <th>
+        <center>
+_____________________________________________________
+        </center>
+      </th>
+      <th>
+        <center>
+_____________________________________________________
+        </center>
+      </th>
+    </tr>
+    <tr>
+      <td>
+        <center>
+          ENCARGADO
+        </center>
+      </td>
+      <td>
+        <center>
+          LICDA. KARLA DEL VALLE
+        </center>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <center>
+            FIRMA Y SELLO
+        </center>
+
+      </td>
+      <td>
+
+      </td>
+    </tr>
+  </table>
+</div>
+<footer>
+  <h>Nota: Todas las computadoras cuentan con sus respectivos cables de poder y de video.</h5>
+</footer>
+</body>
+
+<!--INICIA CSS-->
+<style type="text/css">
+@page{
+  margin-left: 5mm;
+  margin-right: 0mm;
+  margin-top: 0mm;
+  margin-bottom: 0mm;
+
+}
+body{
+  font-family: tahoma;
+  font-size: 10px;
+  -webkit-print-color-adjust: exact;
+  color-adjust: exact;
+}
+/*Encabezado*/
+.entrega{
+  margin-top: 15px;
+  margin-left: 70px;
+}
+.entrega td{
+    width: 150px;
+  font-weight: normal;
+}
+img{
+  margin-top: 25px;
+  margin-left: 70px;
+}
+/* datos del reporte*/
+.datos th{
+  width: 300px;
+  text-align: right;
+  height: 25px;
+}
+.datos td{
+  width: 700px;
+  height: 20px;
+}
+.datos{
+  font-size: 12px;
+}
+.datos{
+  margin-left: 240px;
+  margin-top: -135px;
+}
+/*termina datos del reporte*/
+/*inicia cuerpo del documento*/
+.encabezado2 th{
+  width: 1500px;
+  background-color: #d6dce5;
+  height: 25px;
+  font-weight: bold;
+  font-size: 14px;
+}
+.encabezado2{
+  margin-left: 15px;
+}
+.cuerpo{
+margin-left: 10px;
+}
+.cuerpo th{
+  background-color: #b3c4dd;
+  color: #3c5983;
+}
+.cuerpo td{
+  border: solid;
+  border-width: thin;
+  border-color: lightgray;
+  border-radius: 5px;
+  height: 15px;
+}
+.cuerpo tr:nth-child(odd) {
+	background-color:#e5e5e5;
+
+}
+
+.cuerpo tr:nth-child(even) {
+
+background-color:white;
+
+}
+.conteo{
+  margin-left: 10px;
+}
+.conteo td{
+  border-style: solid;
+  border-top-width: medium;
+  border-bottom-width: thin;
+  border-left-width: thin;
+  border-right-width: thin;
+  border-color: gray;
+  height: 20px;
+  border-radius: 5px;
+}
+/*termina cuerpo de ¡l documento*/
+/*inicia firmas y pie de pagina*/
+.pie{
+  margin-top: 35px;
+  margin-left: 100px;
+}
+.pie table {
+width: 1000px;
+}
+footer{
+  margin-top: 50px;
+}
+</style>
+{% block extra_js %}
+<script>
+window.onload= function () { window.print();window.close();   }
+</script>
+{% endblock extra_js %}
+</html>
