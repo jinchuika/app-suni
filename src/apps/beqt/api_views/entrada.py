@@ -54,7 +54,6 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
         """Metodo para imprimir los qr de dispositivo y repuestos por medio del detalle
         de entrada
         """
-        print("ingreso a imprimir qr")
         if "beqt_bodega" in self.request.user.groups.values_list('name', flat=True):
             diferenciar = request.data['tipo']
             detalles_id = request.data['detalles_id']
@@ -77,8 +76,7 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
         """ Metodo para cuadrar los dispositivos de la :class:`EntradaDetalle`
         """
 
-        if "beqt_bodega" in self.request.user.groups.values_list('name', flat=True):
-            print("Ingresamos aca para poder estar bien")
+        if "beqt_bodega" in self.request.user.groups.values_list('name', flat=True):            
             mensaje_cuadrar = ""
             entrad_id = request.data['primary_key']
             entrada = beqt_m.Entrada.objects.get(pk=entrad_id)
@@ -138,9 +136,7 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
     def crear_dispositivos(self, request, pk=None):
         """ Metodo para la Creacion de Dispositivos
         """
-        print("ingreso aca para crear dispositivos")
-        if "beqt_bodega" in self.request.user.groups.values_list('name', flat=True):
-            print("ingeso a bodega")
+        if "beqt_bodega" in self.request.user.groups.values_list('name', flat=True):            
             entrada_detalle = self.get_object()            
             try:
                 """entrada = entrada_detalle.entrada
@@ -214,7 +210,6 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
     def nuevo_grid(self, request, pk=None):
         """ Este se conecta con el grid para editar la informacion de los dipositivos y guardarlos
         """
-        print("Ingreso a nuevo grid")
         entrada_detalle = request.data['entrada_detalle']
         entrada = request.data['entrada']
         tipo = beqt_m.EntradaDetalleBeqt.objects.get(id=entrada_detalle).tipo_dispositivo
@@ -226,8 +221,7 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
         os = inv_m.Software.objects.all().values()
         disco = beqt_m.HDDBeqt.objects.filter(
             estado=inv_m.DispositivoEstado.PD,
-            etapa=inv_m.DispositivoEtapa.AB).values('triage')
-        print("El nuevo tipo es:", tipo)
+            etapa=inv_m.DispositivoEtapa.AB).values('triage')        
         if str(tipo) == "TABLET":
             data = beqt_m.TabletBeqt.objects.filter(
                 entrada_detalle=entrada_detalle
@@ -270,6 +264,8 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
                 'procesador',
                 'version_sistema',
                 'disco_duro__triage',
+                'almacenamiento',
+                'medida_almacenamiento',
                 'ram',
                 'ram_medida',
                 'pulgadas',

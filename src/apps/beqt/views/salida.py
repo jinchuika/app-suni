@@ -143,8 +143,7 @@ class SalidaPaqueteUpdateView(LoginRequiredMixin,  UpdateView,GroupRequiredMixin
     def get_success_url(self):
         return reverse_lazy('salidainventario_beqt_edit', kwargs={'pk': self.object.id})
 
-    def get_form(self, form_class=None):
-        print('Get Form')
+    def get_form(self, form_class=None):        
         form = super(SalidaPaqueteUpdateView, self).get_form(form_class)
         form.fields['entrada'].widget = forms.SelectMultiple(attrs={
             'data-api-url': reverse_lazy('beqt_api:api_entrada_beqt-list')

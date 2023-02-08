@@ -21,7 +21,8 @@ class LaptopForm(forms.ModelForm):
             'etapa',
             'valido',
             'codigo_qr',
-            'creada_por'
+            'creada_por',
+            'disco_duro'
             ]
         widgets = {
             'marca': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '1'}),
@@ -36,11 +37,13 @@ class LaptopForm(forms.ModelForm):
             'pulgadas': forms.NumberInput({'class': 'form-control', 'tabindex': '11'}),
             'descripcion': forms.Textarea(attrs={'cols': 30, 'rows': 3, 'class': 'form-control', 'tabindex': '5'}),
             'clase': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '11'}),
+            'almacenamiento': forms.NumberInput({'class': 'form-control', 'tabindex': '12'}),
+            'medida_almacenamiento': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '13'}),
         }
 
     def __init__(self, *args, **kwargs):
         super(LaptopForm, self).__init__(*args, **kwargs)
-        self.fields['disco_duro'].queryset = beqt_m.HDDBeqt.objects.filter(valido=True, asignado=False)
+        #self.fields['disco_duro'].queryset = beqt_m.HDDBeqt.objects.filter(valido=True, asignado=False)
 
 
 

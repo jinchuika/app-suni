@@ -90,8 +90,7 @@ class EntradaDetalleUpdateView(LoginRequiredMixin, UpdateView,GroupRequiredMixin
 
     def get_context_data(self, **kwargs):
         context = super(EntradaDetalleUpdateView, self).get_context_data(**kwargs)
-        detalle = beqt_m.EntradaDetalleBeqt.objects.get(id=self.object.id)
-        print(detalle.total * 1)
+        detalle = beqt_m.EntradaDetalleBeqt.objects.get(id=self.object.id)        
         context['datos'] = beqt_m.EntradaDetalleBeqt.objects.get(id=self.object.id)
         
         return context

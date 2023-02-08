@@ -48,7 +48,6 @@ class DispositivoFilter(filters.FilterSet):
         elif tipo_dispositivo.tipo.id == 6:            
             return qs.filter(procesador = procesador)
         else:
-            print("Esto es cualquier otro dispsoitivo")
             return  Response(
                         {'mensaje': "Esta opcion soloe esta disponible para CPU, TABLET y LAPTOP"},
                         status=status.HTTP_400_BAD_REQUEST
@@ -105,7 +104,6 @@ class DispositivoViewSet(viewsets.ModelViewSet):
             elif tipo or marca or modelo or tarima:                
                 # Se encarga de mostrar mas rapido los dispositivos que se usan con mas frecuencia
                 # o mayor cantidad en el inventario
-                print("Este es el tipo:", tipo)
                 if (tipo == str(1)):
                     return beqt_m.HDDBeqt.objects.filter(valido=True)
                 elif(tipo == str(2)):
@@ -233,6 +231,8 @@ class DispositivoViewSet(viewsets.ModelViewSet):
                 'procesador',
                 'version_sistema',
                 'disco_duro__triage',
+                'almacenamiento',
+                'medida_almacenamiento',
                 'ram',
                 'ram_medida',
                 'pulgadas',

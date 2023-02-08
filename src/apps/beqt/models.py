@@ -437,6 +437,12 @@ class LaptopBeqt(DispositivoBeqt):
     indice = models.PositiveIntegerField(editable=False, unique=True)
     procesador = models.ForeignKey(inv_m.Procesador, on_delete=models.PROTECT, null=True, blank=True)
     version_sistema = models.ForeignKey(inv_m.VersionSistema, on_delete=models.PROTECT, null=True, blank=True)
+    almacenamiento = models.PositiveIntegerField(null=True, blank=True)
+    medida_almacenamiento = models.ForeignKey(
+        inv_m.DispositivoMedida,
+        blank=True,
+        null=True,
+        related_name='almacenamiento_laptop_beqt')
     disco_duro = models.ForeignKey(HDDBeqt, on_delete=models.PROTECT, null=True, blank=True, related_name='laptops_beqt')
     ram = models.PositiveIntegerField(null=True, blank=True)
     ram_medida = models.ForeignKey(inv_m.DispositivoMedida, null=True, blank=True)
