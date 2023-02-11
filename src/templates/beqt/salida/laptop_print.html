@@ -92,14 +92,14 @@ TELÉFONO 2435-2739 / 24319639</b>
 </table>
 	<table class="datos">
 	<tr>
-		<th bgcolor="#b3c4dd" width="75" height="25"><center>Triage</center></th>
-		<th bgcolor="#b3c4dd"width="100"><center>Marca</center></th>
-		<th bgcolor="#b3c4dd"width="150"><center>Modelo</center></th>
-		<th bgcolor="#b3c4dd"width="75"><center>HDD</center></th>
-		<th bgcolor="#b3c4dd"width="75"><center>CAPACIDAD</center></th>
+		<th bgcolor="#b3c4dd" width="75" height="25"><center>TRIAGE</center></th>
+		<th bgcolor="#b3c4dd"width="100"><center>MARCA</center></th>
+		<th bgcolor="#b3c4dd"width="150"><center>MODELO</center></th>		
+		<th bgcolor="#b3c4dd"width="75"><center>ALMACENAMIENTO</center></th>
 		<th bgcolor="#b3c4dd"width="150"><center>PROCESADOR</center></th>
 		<th bgcolor="#b3c4dd"width="75"><center>RAM</center></th>
-		<th bgcolor="#b3c4dd"width="75"><center>WINDOWS</center></th>
+		<th bgcolor="#b3c4dd"width="90"><center>SISTEMA OPERATIVO</center></th>
+		<th bgcolor="#b3c4dd"width="90"><center>CARGADOR</center></th>
 	</tr>
 	{% for laptop in Laptos %}
 	<tr>
@@ -111,12 +111,9 @@ TELÉFONO 2435-2739 / 24319639</b>
 		</td>
 		<td>
 			{{laptop.modelo |default_if_none:""}}
-		</td>
+		</td>		
 		<td>
-			{{laptop.disco_duro|default_if_none:""}}
-		</td>
-		<td>
-			{{laptop.disco_duro.capacidad|default_if_none:""}}
+			{{laptop.almacenamiento|default_if_none:""}} {{laptop.medida_almacenamiento|default_if_none:""}}
 		</td>
 		<td>
 			{{laptop.procesador|default_if_none:""}}
@@ -126,6 +123,9 @@ TELÉFONO 2435-2739 / 24319639</b>
 		</td>
 		<td>
 			{{laptop.version_sistema|default_if_none:""}}
+		</td>
+		<td>
+			{{laptop.cargador|default_if_none:""}}
 		</td>
 	</tr>
 	{% endfor %}
@@ -142,14 +142,7 @@ TELÉFONO 2435-2739 / 24319639</b>
 	{% endif %}
 
 	<td style="border:solid; border-width: 1px;border-color:gray" width="150" height="25">{{Servidor}}</td>
-	<td width="100"><center>Red</center></td>
-	<td style="border:solid; border-width: 1px;border-color:gray" width="150" height="25"></td>
-
-	{% if salidainventario.tipo_salida|stringformat:"s"  == "Renovaciones" %}
- 	<td width="200"><center><input type="checkbox" checked>Renovación</center></td>
-	{% else %}
-	<td width="200"><center><input type="checkbox">Renovación</center></td>
-	{% endif %}
+	
 
 </table>
 <!--FIN DE CELDAS -->

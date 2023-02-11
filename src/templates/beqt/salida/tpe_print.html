@@ -104,13 +104,15 @@
 <table   class="datos"style="font-size: 20px; width: 100%" >
 	<thead>
 		<tr>
-			<td width="40%%" bgcolor="lightgray"><center>CPU</center></td>
-			<td  width="5%"></td>
-			<td width="20%" bgcolor="lightgray"><center>MONITOR</center></td>
-			<td  width="2%"></td>
-			<td width="15%" bgcolor="lightgray"><center>TECLADO</center></td>
-			<td  width="3%"></td>
-			<td width="15%" bgcolor="lightgray"><center>MOUSE</center></td>
+			<td width="30%" bgcolor="lightgray"><center>UPS</center></td>			
+			<td width="3%"></td>
+			<td width="15%" bgcolor="lightgray"><center>REGLETA</center></td>
+			<td width="2%"></td>	
+			<td width="15%" bgcolor="lightgray"><center>ADAPTADOR RED</center></td>
+			<td width="2%"></td>	
+			<td width="20%" bgcolor="lightgray"><center>ACCESS POINT</center></td>
+			
+			
 		</tr>
 	</thead>
 </table>
@@ -124,34 +126,30 @@
 <!--<center> -->
 	<br/>
 	<div class="">
-		<div class="col-md-5">
+		<div class="col-md-4">
 			<table class="datos" style="text-align:center;">
 				<thead>
 					<tr>
-						<th bgcolor="skyblue" width="15%"><center>Triage</center></th>
-						<th bgcolor="skyblue" width="12%"><center>Marca</center></th>
-						<th bgcolor="skyblue" width="12%"><center>Modelo</center></th>
-						<th bgcolor="skyblue" width="15%"><center>HDD</center></th>
-						<th bgcolor="skyblue" width="10%"><center>Capacidad</center></th>
-						<th bgcolor="skyblue" width="15%"><center>Procesador</center></th>
-						<th bgcolor="skyblue" width="9%"><center>RAM</center></th>
-						<th bgcolor="skyblue" width="19%"><center>Sistema</center></th>
+						<!--UPS-->
+						<th bgcolor="skyblue" width="20%"><center>Triage</center></th>
+						<th bgcolor="skyblue" width="20%"><center>Marca</center></th>
+						<th bgcolor="skyblue" width="25%"><center>Modelo</center></th>
+						<th bgcolor="skyblue" width="25%"><center>RTI</center></th>
+						<th bgcolor="skyblue" width="25%"><center>Conexiones</center></th>
+						<th bgcolor="skyblue" width="25%"><center>Voltaje</center></th>
 					</tr>
 				</thead>
 				<tbody>
-					{% for cpu in CPUs  %}
-						<tr>
-						<td style="border:solid; border-width: 1px;border-color:gray" height="36">{{cpu | default_if_none:"Generico"}}</td>
-						<td style="border:solid; border-width: 1px;border-color:gray" >{{cpu.marca | default_if_none:"Generico"}}</td>
-						<td style="border:solid; border-width: 1px;border-color:gray" >{{cpu.modelo | default_if_none:"Generico"}}</td>
-						<td style="border:solid; border-width: 1px;border-color:gray" >{{cpu.disco_duro | default_if_none:"Generico"}}</td>
-						<td style="border:solid; border-width: 1px;border-color:gray" >{{cpu.disco_duro.capacidad | default_if_none:"Generico"}} {{cpu.disco_duro.medida | default_if_none:"" }}</td>
-						<td style="border:solid; border-width: 1px;border-color:gray" >{{cpu.procesador | default_if_none:"Generico"}}</td>
-						<td style="border:solid; border-width: 1px;border-color:gray" >{{cpu.ram| default_if_none:"Generico"}} {{cpu.ram_medida | default_if_none:""}}</td>
-						<td style="border:solid; border-width: 1px;border-color:gray" >{{cpu.version_sistema | default_if_none:"Generico"}}</td>
-						<td  width="25	"></td>
-						</tr>
-						{% endfor %}
+					{% for ups  in Ups  %}
+					<tr>
+						<td style="border:solid; border-width: 1px;border-color:gray"  height="36">{{ups | default_if_none:"Generico"}}</td>
+						<td style="border:solid; border-width: 1px;border-color:gray" >{{ups.marca | default_if_none:"Generico"}}</td>
+						<td style="border:solid; border-width: 1px;border-color:gray" >{{ups.modelo | default_if_none:"Generico"}}</td>
+						<td style="border:solid; border-width: 1px;border-color:gray" >{{ups.serie | default_if_none:""}}</td>
+						<td style="border:solid; border-width: 1px;border-color:gray" >{{ups.conexiones | default_if_none:"Generico"}}</td>
+						<td style="border:solid; border-width: 1px;border-color:gray" >{{ups.voltaje | default_if_none:"Generico"}}</td>
+					</tr>
+	{% endfor %}
 				</tbody>
 			</table>
 		</div>
@@ -159,22 +157,25 @@
 			<table class="datos" style="text-align:center;">
 				<thead>
 					<tr>
-						<th bgcolor="skyblue" width="20%"><center>Triage</center></th>
-						<th bgcolor="skyblue" width="20%"><center>Tipo</center></th>
+						<!--REGLETA -->
+						<th bgcolor="skyblue" width="20%"><center>Triage</center></th>						
 						<th bgcolor="skyblue" width="20%"><center>Marca</center></th>
 						<th bgcolor="skyblue" width="25%"><center>Modelo</center></th>
-						<th bgcolor="skyblue" width="15%"><center>Tamaño</center></th>
+						<th bgcolor="skyblue" width="25%"><center>RTI</center></th>
+						<th bgcolor="skyblue" width="25%"><center>Conexiones</center></th>
+						<th bgcolor="skyblue" width="25%"><center>Voltaje</center></th>
 					</tr>
 				</thead>
 				<tbody>
 					<center>
-						{% for monitor in Monitores  %}
+						{% for regleta in Regletas  %}
 							<tr>
-		<td style="border:solid; border-width: 1px;border-color:gray" height="36">{{monitor | default_if_none:"Generico"}}</td>
-		<td style="border:solid; border-width: 1px;border-color:gray" >{{monitor.tipo | default_if_none:"Generico"}}</td>
-		<td style="border:solid; border-width: 1px;border-color:gray" >{{monitor.marca | default_if_none:"Generico"}}</td>
-		<td style="border:solid; border-width: 1px;border-color:gray" >{{monitor.modelo | default_if_none:"Generico"}}</td>
-		<td style="border:solid; border-width: 1px;border-color:gray" >{{monitor.pulgadas | default_if_none:"Generico"}}</td>
+		<td style="border:solid; border-width: 1px;border-color:gray" height="36">{{regleta | default_if_none:"Generico"}}</td>		
+		<td style="border:solid; border-width: 1px;border-color:gray" >{{regleta.marca | default_if_none:"Generico"}}</td>
+		<td style="border:solid; border-width: 1px;border-color:gray" >{{regleta.modelo | default_if_none:"Generico"}}</td>
+		<td style="border:solid; border-width: 1px;border-color:gray" >{{regleta.serie | default_if_none:""}}</td>
+		<td style="border:solid; border-width: 1px;border-color:gray" >{{regleta.conexiones | default_if_none:"Generico"}}</td>
+		<td style="border:solid; border-width: 1px;border-color:gray" >{{regleta.voltaje | default_if_none:"Generico"}}</td>
 		<td  width="25	"></td>
 	</tr>
 	{% endfor %}
@@ -183,41 +184,66 @@
 			</table>
 
 	</div>
-	<div class="col-sm-2">
+	<div class="col-md-2">
 		<table class="datos" style="text-align:center;">
 			<thead>
-				<tr>
+				<tr> 
+					<!--ADAPTADOR-->
 					<th bgcolor="skyblue" width="20%"><center>Triage</center></th>
 					<th bgcolor="skyblue" width="20%"><center>Marca</center></th>
-					<th bgcolor="skyblue" width="25%"><center>Modelo</center></th>
+					<th bgcolor="skyblue" width="12%"><center>Modelo</center></th>
+					<th bgcolor="skyblue" width="15%"><center>RTI</center></th>	
+					<th bgcolor="skyblue" width="15%"><center>Cantidad P</center></th>	
+					<th bgcolor="skyblue" width="15%"><center>Puerto</center></th>	
+					<th bgcolor="skyblue" width="15%"><center>Velocidad</center></th>						
 				</tr>
 			</thead>
 			<tbody>
-				{% for teclado  in Teclados  %}
-				<tr>
-					<td style="border:solid; border-width: 1px;border-color:gray"  height="36">{{teclado | default_if_none:"Generico"}}</td>
-					<td style="border:solid; border-width: 1px;border-color:gray" >{{teclado.marca | default_if_none:"Generico"}}</td>
-					<td style="border:solid; border-width: 1px;border-color:gray" >{{teclado.modelo | default_if_none:"Generico"}}</td>
-				</tr>
-{% endfor %}
+				{% for adaptador in Adaptadores  %}
+					<tr>
+					<td style="border:solid; border-width: 1px;border-color:gray" height="36">{{adaptador | default_if_none:"Generico"}}</td>
+					<td style="border:solid; border-width: 1px;border-color:gray" >{{adaptador.marca | default_if_none:"Generico"}}</td>
+					<td style="border:solid; border-width: 1px;border-color:gray" >{{adaptador.modelo | default_if_none:"Generico"}}</td>
+					<td style="border:solid; border-width: 1px;border-color:gray" >{{adaptador.serie | default_if_none:"Generico"}}</td>
+					<td style="border:solid; border-width: 1px;border-color:gray" >{{adaptador.cantidad_puertos | default_if_none:"Generico"}} </td>
+					<td style="border:solid; border-width: 1px;border-color:gray" >{{adaptador.puerto | default_if_none:"Generico"}}</td>
+					<td style="border:solid; border-width: 1px;border-color:gray" >{{adaptador.velocidad| default_if_none:"Generico"}} </td>
+					
+					<td  width="25	"></td>
+					</tr>
+					{% endfor %}
 			</tbody>
 		</table>
+	
 </div>
-<div class="col-md-2">
+<div class="col-md-3">
 	<table class="datos" style="text-align:center;">
 		<thead>
 			<tr>
+				<!--ACCESS POINT -->
 				<th bgcolor="skyblue" width="20%"><center>Triage</center></th>
 				<th bgcolor="skyblue" width="20%"><center>Marca</center></th>
 				<th bgcolor="skyblue" width="30%"><center>Modelo</center></th>
+				<th bgcolor="skyblue" width="30%"><center>RTI</center></th>
+				<th bgcolor="skyblue" width="30%"><center>Cantidad Puertos</center></th>
+				<th bgcolor="skyblue" width="30%"><center>Puerto</center></th>
+				<th bgcolor="skyblue" width="30%"><center>Velocidad</center></th>
+				<th bgcolor="skyblue" width="30%"><center>Medida Velocidad</center></th>
+				
 			</tr>
 		</thead>
 		<tbody>
-			{% for mouse in Mouses  %}
+			{% for access in Access  %}
 			<tr>
-				<td style="border:solid; border-width: 1px;border-color:gray" height="36">{{mouse | default_if_none:"Generico"}}</td>
-				<td style="border:solid; border-width: 1px;border-color:gray">{{mouse.marca | default_if_none:"Generico"}}</td>
-				<td style="border:solid; border-width: 1px;border-color:gray">{{mouse.modelo | default_if_none:"Generico"}}</td>
+				<td style="border:solid; border-width: 1px;border-color:gray" height="36">{{access | default_if_none:"Generico"}}</td>
+				<td style="border:solid; border-width: 1px;border-color:gray">{{access.marca | default_if_none:"Generico"}}</td>
+				<td style="border:solid; border-width: 1px;border-color:gray">{{access.modelo | default_if_none:"Generico"}}</td>
+				<td style="border:solid; border-width: 1px;border-color:gray" >{{access.serie | default_if_none:""}}</td>
+				<td style="border:solid; border-width: 1px;border-color:gray" >{{access.cantidad_puertos | default_if_none:"Generico"}}</td>
+				<td style="border:solid; border-width: 1px;border-color:gray" >{{access.puerto | default_if_none:"Generico"}}</td>
+				<td style="border:solid; border-width: 1px;border-color:gray" >{{access.velocidad | default_if_none:""}}</td>
+				<td style="border:solid; border-width: 1px;border-color:gray" >{{access.velocidad_medida | default_if_none:"Generico"}}</td>
+				
 			</tr>
 
 {% endfor %}
@@ -227,75 +253,11 @@
 </div>
 <!--</center> -->
 <br/>
-<table>
-		<td  width="13"></td>
-		<td style="border:solid; border-width: 1px;border-color:gray" width="120" height="25"><center>{{Total}}</center></td>
-		<td  width="30"></td>
-		{% if Servidor %}
-			<td width="200"><center><input type="checkbox" checked>Servidor</center></td>
-		{% else %}
-		<td width="200"><center><input type="checkbox" >Servidor</center></td>
-		{% endif %}
-			<td style="border:solid; border-width: 1px;border-color:gray"><center>{{Servidor}}</center></td>
-			<td width="2%">
-			</td>
-			<td>
-				Red
-			</td>
-			<td width="1%"></td>
-			<td style="border:solid; border-width: 1px;border-color:gray"><center>{{Red}}</center></td>
-			<td width="2%">
-			</td>
-			<td>
-				Adaptador Wifi
-			</td>
-			 
-			<td width="1%"></td>
-			<td style="border:solid; border-width: 1px;border-color:gray"><center>{{Wifi|default_if_none:"0"}}</center></td>
-			<td width="2%">
-			</td>
-
-			<td> Ethernet</td>
-			<td width="1%"></td>
-			<td style="border:solid; border-width: 1px;border-color:gray"><center>{{Ethernet|default_if_none:"0"}}</center></td>
-			<td width="2%">
-			</td>
-			<td>
-				Ap
-			</td>
-			<td width="1%"></td>
-			<td style="border:solid; border-width: 1px;border-color:gray"><center>{{Access|default_if_none:"0"}}</center></td>
-			<td width="2%">
-			</td>
-			<td>
-				Switch
-			</td>
-			<td width="1%"></td>
-			<td style="border:solid; border-width: 1px;border-color:gray"><center>{{Switch|default_if_none:"0"}}</center></td>
-			<td width="2%">
-			</td>
-			<td>
-				Cables de poder
-			</td>
-			<td width="1%"></td>
-			<td style="border:solid; border-width: 1px;border-color:gray"><center>{{CablesPoder|default_if_none:"0"}}</center></td>
-			<td width="2%">
-			</td>
-			<td>Cables VGA</td>
-			<td width="1%"></td>
-			<td style="border:solid; border-width: 1px;border-color:gray"><center>{{CablesVga|default_if_none:"0"}}</center></td>
-			<td width="2%"></td>
-			{% if salidainventario.tipo_salida|stringformat:"s"  == "Renovacion" %}
-			<td width="200"><center><input type="checkbox" checked>&nbsp;&nbsp;Renovación</center></td>
-			{% else %}
-			<td width="200"><center><input type="checkbox">&nbsp;&nbsp;Renovación</center></td>
-			{% endif %}
-	</table>
 <br>
 <br>
-	<br>
-	<br>
-	<br>
+<br>
+<br>
+<br>
 <center>
 	<table style="font-size: 20px;">
 
@@ -325,7 +287,6 @@
 
 <footer>
 <!--PIE DE PAGINA-->
-
 	<br>
 	<br>
 	<br>

@@ -139,7 +139,7 @@ Menu.add_item(
         reverse_lazy('entrada_beqt_list'),
         weight=10,
         icon="fa-sign-in",
-        group="inventario,inv_conta,beqt",
+        group="inv_conta,beqt",
         tipo="beqt",
         children=entrada_children
     )
@@ -151,7 +151,7 @@ Menu.add_item(
         reverse_lazy('solicitudmovimiento_beqt_add'),
         weight=10,
         icon="fa-exchange",
-        group="beqt_tecnico,beqt_cc,inventario,beqt",
+        group="beqt_tecnico,beqt_cc,beqt",
         tipo="beqt",
         children=solicitudes_children
     )
@@ -163,7 +163,7 @@ Menu.add_item(
         reverse_lazy('dispositivo_beqt_list'),
         weight=10,
         icon="fa-desktop",
-        group="inventario,beqt",
+        group="beqt",
         tipo="beqt",
         children=dispositivos_children
     )
@@ -175,7 +175,7 @@ Menu.add_item(
         reverse_lazy('salidainventario_beqt_add'),
         weight=10,
         icon="fa-sign-out",
-        group="inventario,inv_conta,beqt",
+        group="inv_conta,beqt",
         tipo="beqt",
         children=salidas_children
     )

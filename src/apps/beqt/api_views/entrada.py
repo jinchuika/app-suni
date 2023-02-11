@@ -218,6 +218,9 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
         medida = inv_m.DispositivoMedida.objects.all().values()
         version_sis = inv_m.VersionSistema.objects.all().values()
         procesador = inv_m.Procesador.objects.all().values()
+        estuche = beqt_m.CaseTabletBeqt.objects.all().values()
+        cargador_tablet = beqt_m.CargadorTabletBeqt.objects.all().values()
+        cargador_laptop = beqt_m.CargadorLaptopBeqt.objects.all().values()
         os = inv_m.Software.objects.all().values()
         disco = beqt_m.HDDBeqt.objects.filter(
             estado=inv_m.DispositivoEstado.PD,
@@ -240,7 +243,9 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
                 'medida_ram',
                 'almacenamiento_externo',
                 'pulgadas',
-                'clase'
+                'clase',
+                'cargador__triage',
+                'estuche__triage'
                 )
             return JsonResponse({
                 'data': list(data),
@@ -250,7 +255,9 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
                 'sistemas': list(version_sis),
                 'procesador': list(procesador),
                 'hdd': list(disco),
-                'os': list(os)
+                'os': list(os),
+                'cargador':list(cargador_tablet),
+                'estuche': list(estuche)
                 })
         elif str(tipo) == "LAPTOP":
             data = beqt_m.LaptopBeqt.objects.filter(
@@ -270,7 +277,8 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
                 'ram_medida',
                 'pulgadas',
                 'clase',
-                'servidor'
+                'servidor',
+                'cargador__triage'
                 )
             return JsonResponse({
                 'data': list(data),
@@ -279,7 +287,8 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
                 'dispositivo': str(tipo),
                 'sistemas': list(version_sis),
                 'procesador': list(procesador),
-                'hdd': list(disco)
+                'hdd': list(disco),
+                'cargador': list(cargador_laptop),
                 })
         elif str(tipo) == "HDD":
             data = beqt_m.HDDBeqt.objects.filter(

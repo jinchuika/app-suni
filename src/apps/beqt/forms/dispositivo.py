@@ -39,6 +39,7 @@ class LaptopForm(forms.ModelForm):
             'clase': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '11'}),
             'almacenamiento': forms.NumberInput({'class': 'form-control', 'tabindex': '12'}),
             'medida_almacenamiento': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '13'}),
+            'cargador': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '14'}),
         }
 
     def __init__(self, *args, **kwargs):
@@ -114,7 +115,14 @@ class TabletForm(forms.ModelForm):
             'almacenamiento_externo': forms.CheckboxInput({'class': 'icheckbox_square-red', 'tabindex': '14'}),
             'descripcion': forms.Textarea(attrs={'cols': 30, 'rows': 3, 'class': 'form-control', 'tabindex': '5'}),
             'clase': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '15'}),
+            'estuche': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '16'}),
+            'cargador': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '17'}),    
         }
+    def __init__(self, *args, **kwargs):
+        super(TabletForm, self).__init__(*args, **kwargs)        
+        #indice = str(self.instance).split("-")[1] 
+        #asignar = beqt_m.CargadorTabletBeqt.objects.get(triage="CTB-"+indice)      
+        
 
 
 class CargadorTabletForm(forms.ModelForm):
