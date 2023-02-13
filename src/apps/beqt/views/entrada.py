@@ -162,7 +162,7 @@ class ConstanciaEntrada(LoginRequiredMixin, DetailView,GroupRequiredMixin):
     """Muestra la carta agradecimiento
     """
     model = beqt_m.Entrada
-    template_name = 'inventario/entrada/constancia_entrada.html'
+    template_name = 'beqt/entrada/constancia_entrada.html'
     group_required = [u"beqt_bodega", u"inv_admin"]
 
     def get_context_data(self, **kwargs):
