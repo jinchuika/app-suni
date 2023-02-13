@@ -186,6 +186,9 @@ class DispositivoViewSet(viewsets.ModelViewSet):
         version_sis = inv_m.VersionSistema.objects.all().values()
         procesador = inv_m.Procesador.objects.all().values()
         os = inv_m.Software.objects.all().values()
+        estuche = beqt_m.CaseTabletBeqt.objects.all().values()
+        cargador_tablet = beqt_m.CargadorTabletBeqt.objects.all().values()
+        cargador_laptop = beqt_m.CargadorLaptopBeqt.objects.all().values()
         disco = beqt_m.HDDBeqt.objects.filter(
             estado=inv_m.DispositivoEstado.PD,
             etapa=inv_m.DispositivoEtapa.AB).values('triage')        
@@ -207,7 +210,9 @@ class DispositivoViewSet(viewsets.ModelViewSet):
                 'medida_ram',
                 'almacenamiento_externo',
                 'pulgadas',
-                'clase'
+                'clase',
+                'cargador__triage',
+                'estuche__triage'
                 ).order_by('triage')
             return JsonResponse({
                 'data': list(data),
@@ -217,7 +222,9 @@ class DispositivoViewSet(viewsets.ModelViewSet):
                 'sistemas': list(version_sis),
                 'procesador': list(procesador),
                 'hdd': list(disco),
-                'os': list(os)
+                'os': list(os),
+                'cargador':list(cargador_tablet),
+                'estuche': list(estuche)
                 })
         elif str(tipo) == "LAPTOP":
             data = beqt_m.LaptopBeqt.objects.filter(
@@ -237,7 +244,8 @@ class DispositivoViewSet(viewsets.ModelViewSet):
                 'ram_medida',
                 'pulgadas',
                 'clase',
-                'servidor'
+                'servidor',
+                'cargador__triage'
                 ).order_by('triage')
             return JsonResponse({
                 'data': list(data),
@@ -246,7 +254,8 @@ class DispositivoViewSet(viewsets.ModelViewSet):
                 'dispositivo': str(tipo),
                 'sistemas': list(version_sis),
                 'procesador': list(procesador),
-                'hdd': list(disco)
+                'hdd': list(disco),
+                'cargador': list(cargador_laptop),
                 })
         elif str(tipo) == "HDD":
             data = inv_m.HDD.objects.filter(
@@ -591,9 +600,9 @@ class DispositivosPaquetesViewSet(viewsets.ModelViewSet):
             elif tipo == "ESTUCHE TABLET":
                 cambio_estado = beqt_m.CaseTabletBeqt.objects.get(triage=triage)
             elif tipo == "REGLETA":
-                cambio_estado = beqt_m.CaseTabletBeqt.objects.get(triage=triage)
+                cambio_estado = beqt_m.RegletaBeqt.objects.get(triage=triage)
             elif tipo == "UPS":
-                cambio_estado = beqt_m.CaseTabletBeqt.objects.get(triage=triage)   
+                cambio_estado = beqt_m.UpsBeqt.objects.get(triage=triage)   
             else:
                 cambio_estado = beqt_m.DispositivoBeqt.objects.get(triage=triage)
             cambio_estado.etapa = inv_m.DispositivoEtapa.objects.get(id=inv_m.DispositivoEtapa.LS)
@@ -665,9 +674,14 @@ class DispositivosPaquetesViewSet(viewsets.ModelViewSet):
                 except ObjectDoesNotExist as e:
                     print("La version del sistema no necisita actualizacion")
                 try:
-                    new_dispositivo.disco_duro = inv_m.HDD.objects.get(triage=datos['disco_duro__triage'])
+                    new_dispositivo.disco_duro = beqt_m.HDDBeqt.objects.get(triage=datos['disco_duro__triage'])
                 except ObjectDoesNotExist as e:
                     print("El disco duro no necesita actualizacion")
+
+                try:
+                    new_dispositivo.cargador = beqt_m.CargadorLaptopBeqt.objects.get(triage=datos['cargador__triage'])
+                except ObjectDoesNotExist as e:
+                    print("El cargador no necesita actualizacion")
                 try:
                     new_dispositivo.ram = datos['ram']
                 except ObjectDoesNotExist as e:
@@ -684,6 +698,14 @@ class DispositivosPaquetesViewSet(viewsets.ModelViewSet):
                     new_dispositivo.clase = inv_m.DispositivoClase.objects.get(id=datos['clase'])
                 except ObjectDoesNotExist as e:
                     print("Clase no necesita actualizacion")
+                try:
+                    new_dispositivo.almacenamiento = datos['almacenamiento']
+                except ObjectDoesNotExist as e:
+                    print("Almacenamiento no necesita actualizacion")
+                try:
+                    new_dispositivo.medida_almacenamiento = inv_m.DispositivoMedida.objects.get(id=datos['medida_almacenamiento'])
+                except ObjectDoesNotExist as e:
+                    print("Medida de almacenamiento no necesita actualizacion")
                 try:
                     if datos['servidor']:
                         new_dispositivo.servidor = True
@@ -795,6 +817,14 @@ class DispositivosPaquetesViewSet(viewsets.ModelViewSet):
                     new_dispositivo.clase = inv_m.DispositivoClase.objects.get(id=datos['clase'])
                 except ObjectDoesNotExist as e:
                     print("Clase no necesita actualizacion")
+                try:
+                    new_dispositivo.cargador = beqt_m.CargadorTabletBeqt.objects.get(triage=datos['cargador__triage'])
+                except ObjectDoesNotExist as e:
+                    print("El cargador no necesita actualizacion")
+                try:
+                    new_dispositivo.estuche = beqt_m.CaseTabletBeqt.objects.get(triage=datos['estuche__triage'])
+                except ObjectDoesNotExist as e:
+                    print("El cargador no necesita actualizacion")
                 new_dispositivo.save()      
         elif tipo == "ACCESS POINT":
             for datos in dispositivos:

@@ -242,24 +242,24 @@ class LaptopUptadeView(LoginRequiredMixin, UpdateView):
 
     def form_valid(self, form):
         form.instance.creada_por = self.request.user
-        hdd = form.cleaned_data['disco_duro']
+        """hdd = form.cleaned_data['disco_duro']
         if hdd:
             disco = beqt_m.HDDBeqt.objects.get(triage=hdd)
             disco.asignado = True
             disco.creada_por = self.request.user
-            disco.save()
+            disco.save()"""
 
         return super(LaptopUptadeView, self).form_valid(form)
 
     def get_context_data(self, **kwargs):
         context =super(LaptopUptadeView,self).get_context_data(**kwargs)
-        try:
-            context["disco_duro"]=self.object.disco_duro.id
+        """try:
+           context["disco_duro"]=self.object.disco_duro.id
             disco = beqt_m.HDDBeqt.objects.get(id=self.object.disco_duro.id)
             context["triage"]=self.object.disco_duro
         except:
             context["disco_duro"]="---------"
-            context["triage"]="-----------"
+            context["triage"]="-----------"""
         return context
 
     def get_success_url(self):

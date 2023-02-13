@@ -99,6 +99,8 @@ TELÉFONO 2435-2739 / 24319639</b>
 		<th bgcolor="#b3c4dd"width="75"><center>Capacidad</center></th>
 		<th bgcolor="#b3c4dd"width="75"><center>Ram</center></th>
 		<th bgcolor="#b3c4dd"width="75"><center>Sistema</center></th>
+		<th bgcolor="#b3c4dd"width="75"><center>Cargador</center></th>
+		<th bgcolor="#b3c4dd"width="75"><center>Estuche</center></th>
 	</tr>
 	{% for tablet in Tablets %}
 	<tr>
@@ -120,6 +122,12 @@ TELÉFONO 2435-2739 / 24319639</b>
 		<td>
 			{{tablet.version_sistema|default_if_none:""}}
 		</td>
+		<td>
+			{{tablet.cargador|default_if_none:""}}
+		</td>
+		<td>
+			{{tablet.estuche|default_if_none:""}}
+		</td>
 	</tr>
 	{% endfor %}
 <!--FIN DE TITULOS DE LA TABLA-->
@@ -128,8 +136,10 @@ TELÉFONO 2435-2739 / 24319639</b>
 <table class="contador">
 	<td width="75">Total</td>
 	<td style="border-bottom:solid;" width="150"> <center>{{Total}} Tablets </center></td>
-	<td width="100"><center> y </center></td>
+	<td width="100"><center> ,</center></td>
 	<td style="border:solid; border-width: 1px;border-color:gray" width="150" height="25">{{Cargador}} {{Descripcion}}</td>
+	<td width="100"><center> y </center></td>
+	<td style="border:solid; border-width: 1px;border-color:gray" width="150" height="25">{{Cargador}} Estuches</td>
 	<td width="100"><center>Jornada</center></td>
 	<td style="border:solid; border-width: 1px;border-color:gray" width="150" height="25">{{Jornada}}</td>
 

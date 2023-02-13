@@ -9,7 +9,8 @@ from braces.views import (
 from apps.beqt import models as beqt_m
 from apps.beqt import forms as beqt_f
 import calendar
-
+from django.db.models.expressions import RawSQL
+import re
 
 class EntradaCreateView(LoginRequiredMixin, CreateView,GroupRequiredMixin):
     """Vista   para obtener los datos de Entrada mediante una :class:`entrada`
@@ -114,11 +115,20 @@ class ImprimirQr(LoginRequiredMixin, DetailView,GroupRequiredMixin):
     def get_context_data(self, **kwargs):
         context = super(ImprimirQr, self).get_context_data(**kwargs)
         imprimir_qr = beqt_m.DispositivoBeqt.objects.filter(entrada=self.object.id,
-                                                       entrada_detalle=self.kwargs['detalle']).order_by('triage')
+                                                       entrada_detalle=self.kwargs['detalle']).order_by("triage")       
+        
+        dispositivo_mostrar = []                                                                                          
         for dispositivo in imprimir_qr:
             dispositivo.impreso = True
             dispositivo.save()
-        context['dispositivo_qr'] = imprimir_qr
+            num = ""
+            for c in dispositivo.triage:
+                if c.isdigit():
+                    num = num + c
+            dispositivo_mostrar.append(dispositivo)   
+        #print("la lista es: ",sorted(nuevo,key=lambda s: int(re.search(r'\d+',s.triage).group())))
+        #context['dispositivo_qr'] = imprimir_qr
+        context['dispositivo_qr'] = sorted(dispositivo_mostrar,key=lambda s: int(re.search(r'\d+',s.triage).group()))
         return context
 
 class EntradaDetalleDispositivos(LoginRequiredMixin, DetailView,GroupRequiredMixin):
