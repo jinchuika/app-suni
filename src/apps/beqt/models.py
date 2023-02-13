@@ -209,7 +209,7 @@ class DispositivoBeqt(models.Model):
 
     class Meta:
         verbose_name = "Dispositivo"
-        verbose_name_plural = "Dispositivos"
+        verbose_name_plural = "Dispositivos"       
         indexes = [
             models.Index(fields=['triage']),
         ]
@@ -335,7 +335,7 @@ class HDDBeqt(DispositivoBeqt):
 
     @property
     def en_uso(self):
-        """Indica si fue asignado a un :class:`CPU` o :class:`Laptop`
+        """Indica si fue asignado a un :class:`Laptop`
 
         Returns:
             bool
@@ -428,8 +428,47 @@ class TabletBeqt(DispositivoBeqt):
     def get_absolute_url(self):
         return reverse_lazy('tablet_beqt_detail', kwargs={'triage': self.triage})
 
+class DispositivoRedBeqt(DispositivoBeqt):    
+    SLUG_TIPO = 'DRB'
+    indice = models.PositiveIntegerField(editable=False, unique=True)    
+    cantidad_puertos = models.PositiveIntegerField(null=True, blank=True)
+    puerto = models.ForeignKey(inv_m.DispositivoPuerto, null=True, blank=True)
+    velocidad = models.PositiveIntegerField(null=True, blank=True)   
 
 
+    class Meta:
+        verbose_name = "Dispositivo de red"
+        verbose_name_plural = "Dispositivos de red"
+        ordering = ['indice']
+        indexes = [
+            models.Index(fields=['indice']),
+        ]
+
+    def __str__(self):
+        return self.triage
+
+    def get_absolute_url(self):
+        return reverse_lazy('red_beqt_detail', kwargs={'triage': self.triage})
+
+
+class CargadorLaptopBeqt(DispositivoBeqt):
+    SLUG_TIPO = 'CLB'
+    indice = models.PositiveIntegerField(editable=False, unique=True)
+    voltaje = models.PositiveIntegerField(null=True, blank=True) 
+ 
+    class Meta:
+        verbose_name = "Cargador de laptop"
+        verbose_name_plural = "Cargadores de laptops"
+        ordering = ['indice']
+        indexes = [
+            models.Index(fields=['indice']),
+        ]
+
+    def __str__(self):
+        return self.triage
+
+    def get_absolute_url(self):
+        return reverse_lazy('cargador_laptop_beqt_detail', kwargs={'triage': self.triage})
 
 
 class LaptopBeqt(DispositivoBeqt):
@@ -447,7 +486,9 @@ class LaptopBeqt(DispositivoBeqt):
     ram = models.PositiveIntegerField(null=True, blank=True)
     ram_medida = models.ForeignKey(inv_m.DispositivoMedida, null=True, blank=True)
     pulgadas = models.DecimalField(max_digits=3, decimal_places=1, null=True, blank=True)
+    cargador = models.ForeignKey(CargadorLaptopBeqt, related_name='cargador_laptop_beqt', null=True, blank=True ,verbose_name='Cargador')
     servidor = models.BooleanField(default=False)
+    
 
 
     class Meta:
@@ -477,6 +518,10 @@ class AccessPointBeqt(DispositivoBeqt):
     class Meta:
         verbose_name = "Access Point"
         verbose_name_plural = "Access Point"
+        ordering = ['indice']
+        indexes = [
+            models.Index(fields=['indice']),
+        ]
 
     def __str__(self):
         return self.triage
@@ -485,22 +530,6 @@ class AccessPointBeqt(DispositivoBeqt):
         return reverse_lazy('ap_beqt_detail', kwargs={'triage': self.triage})
 
 #Nuevos dispositivos
-
-class CargadorLaptopBeqt(DispositivoBeqt):
-    SLUG_TIPO = 'CLB'
-    indice = models.PositiveIntegerField(editable=False, unique=True)
-    voltaje = models.PositiveIntegerField(null=True, blank=True) 
- 
-    class Meta:
-        verbose_name = "Cargador de laptop"
-        verbose_name_plural = "Cargadores de laptops"
-
-    def __str__(self):
-        return self.triage
-
-    def get_absolute_url(self):
-        return reverse_lazy('cargador_laptop_beqt_detail', kwargs={'triage': self.triage})
-
 
 class UpsBeqt(DispositivoBeqt):
     SLUG_TIPO = 'UPS'
@@ -511,6 +540,10 @@ class UpsBeqt(DispositivoBeqt):
     class Meta:
         verbose_name = "Ups"
         verbose_name_plural = "Ups"
+        ordering = ['indice']
+        indexes = [
+            models.Index(fields=['indice']),
+        ]
 
     def __str__(self):
         return self.triage
@@ -523,39 +556,19 @@ class RegletaBeqt(DispositivoBeqt):
     indice = models.PositiveIntegerField(editable=False, unique=True)   
     conexiones = models.PositiveIntegerField(null=True, blank=True)
     voltaje =  models.CharField(max_length=80, null=True, blank=True,  verbose_name='Voltaje')
-
-
-
     class Meta:
         verbose_name = "Regleta"
         verbose_name_plural = "Regletas"
+        ordering = ['indice']
+        indexes = [
+            models.Index(fields=['indice']),
+        ]
 
     def __str__(self):
         return self.triage
 
     def get_absolute_url(self):
         return reverse_lazy('regleta_beqt_detail', kwargs={'triage': self.triage})
-
-
-class DispositivoRedBeqt(DispositivoBeqt):
-    # Switch
-    SLUG_TIPO = 'DRB'
-    indice = models.PositiveIntegerField(editable=False, unique=True)    
-    cantidad_puertos = models.PositiveIntegerField(null=True, blank=True)
-    puerto = models.ForeignKey(inv_m.DispositivoPuerto, null=True, blank=True)
-    velocidad = models.PositiveIntegerField(null=True, blank=True)   
-
-
-    class Meta:
-        verbose_name = "Dispositivo de red"
-        verbose_name_plural = "Dispositivos de red"
-
-    def __str__(self):
-        return self.triage
-
-    def get_absolute_url(self):
-        return reverse_lazy('red_beqt_detail', kwargs={'triage': self.triage})
-
 
 class SalidaTipoBeqt(models.Model):
     nombre = models.CharField(max_length=30)

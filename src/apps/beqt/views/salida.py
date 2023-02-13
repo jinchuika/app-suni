@@ -17,7 +17,7 @@ from apps.beqt import forms as beqt_f
 from apps.tpe import models as tpe_m
 from django import forms
 from dateutil.relativedelta import relativedelta
-
+import re
 
 class SalidaInventarioCreateView(LoginRequiredMixin, CreateView,GroupRequiredMixin):
     """Vista   para obtener los datos de Salida mediante una :class:`SalidaInventario`
@@ -394,8 +394,8 @@ class GarantiaPrintView(LoginRequiredMixin,  DetailView,GroupRequiredMixin):
         context = super(GarantiaPrintView, self).get_context_data(**kwargs)
         cpu_servidor = 0       
         Laptop = beqt_m.PaqueteTipoBeqt.objects.get(nombre="Laptop")
-        Tablet = beqt_m.PaqueteTipoBeqt.objects.get(nombre="Tablet")       
-        
+        Tablet = beqt_m.PaqueteTipoBeqt.objects.get(nombre="Tablet")      
+       
         laptops_server = beqt_m.DispositivoPaquete.objects.filter(
             paquete__salida__id=self.object.id,
             paquete__tipo_paquete=Laptop,
@@ -432,7 +432,9 @@ class GarantiaPrintView(LoginRequiredMixin,  DetailView,GroupRequiredMixin):
         else:
             context['fin_garantia'] = Fecha.fecha + relativedelta(months=12)
             context["tiempo"] = " 1 año"
-        context['dispositivo_total'] = Total_Entregado
+        #context['dispositivo_total'] = Total_Entregado
+        context['total_tablet'] = Total_Tablet['total_tablet'] 
+        context['total_laptop'] = Total_Laptop['total_laptop'] - cpu_servidor
         context['cpu_servidor'] = cpu_servidor
         return context
 
@@ -455,9 +457,14 @@ class LaptopPrintView(LoginRequiredMixin,  DetailView,GroupRequiredMixin):
         cantidad_total = beqt_m.DispositivoPaquete.objects.filter(
             paquete__salida__id=self.object.id,
             paquete__tipo_paquete=Laptop).count()        
-        for triage in Total_Laptop:
-            nuevo_laptop = beqt_m.DispositivoBeqt.objects.get(triage=triage.dispositivo).cast()
-            nuevas_laptops.append(nuevo_laptop)
+        for triage in Total_Laptop:           
+            nuevo_laptop = beqt_m.DispositivoBeqt.objects.get(triage=triage.dispositivo).cast()            
+            nuevas_laptops.append(nuevo_laptop)                   
+            try:
+                if nuevo_laptop.servidor is True:
+                    cpu_servidor = str(nuevo_laptop.version_sistema)
+            except Exception as e:
+                print(e)
         escuela = beqt_m.SalidaInventario.objects.get(id=self.object.id)
         try:
             encargado = escuela_m.EscContacto.objects.get(escuela=escuela.escuela, rol=5)
@@ -465,7 +472,7 @@ class LaptopPrintView(LoginRequiredMixin,  DetailView,GroupRequiredMixin):
         except ObjectDoesNotExist as e:
             print(e)
             context['Encargado'] = "No Tiene Encargado"
-        context['Laptos'] = nuevas_laptops
+        context['Laptos'] =  sorted(nuevas_laptops,key=lambda s: int(re.search(r'\d+',s.triage).group()))
         context['Total'] = cantidad_total
         context['Servidor'] = cpu_servidor
         return context
@@ -483,18 +490,18 @@ class TabletPrintView(LoginRequiredMixin, DetailView,GroupRequiredMixin):
         nuevas_tablets = []
         total_cargadores_mostrar = 0
         Tablet = beqt_m.PaqueteTipoBeqt.objects.get(nombre="Tablet")
-        Cargador = beqt_m.PaqueteTipoBeqt.objects.get(nombre="Cargadores")
-        Total_Tablet = inv_m.DispositivoPaquete.objects.filter(
+        Cargador = beqt_m.PaqueteTipoBeqt.objects.get(nombre="Cargador tablet")
+        Total_Tablet = beqt_m.DispositivoPaquete.objects.filter(
             paquete__salida__id=self.object.id,
             paquete__tipo_paquete=Tablet)
-        Total_Cargador = inv_m.Paquete.objects.filter(
+        Total_Cargador = beqt_m.PaqueteBeqt.objects.filter(
             salida__id=self.object.id,
             tipo_paquete=Cargador).aggregate(cargadores=Sum('cantidad'))       
 
         for triage in Total_Tablet:
-            nueva_tablet = inv_m.Dispositivo.objects.get(triage=triage.dispositivo).cast()
+            nueva_tablet = beqt_m.DispositivoBeqt.objects.get(triage=triage.dispositivo).cast()
             nuevas_tablets.append(nueva_tablet)
-        escuela = inv_m.SalidaInventario.objects.get(id=self.object.id)
+        escuela = beqt_m.SalidaInventario.objects.get(id=self.object.id)
         try:
             encargado = escuela_m.EscContacto.objects.get(escuela=escuela.escuela, rol=5)
             context['Encargado'] = str(encargado.nombre)+" "+str(encargado.apellido)
@@ -503,7 +510,7 @@ class TabletPrintView(LoginRequiredMixin, DetailView,GroupRequiredMixin):
             print(e)
             context['Jornada'] = "No tiene Jornada"
             context['Encargado'] = "No Tiene Encargado"
-        context['Tablets'] = nuevas_tablets
+        context['Tablets'] =  sorted(nuevas_tablets,key=lambda s: int(re.search(r'\d+',s.triage).group()))
         context['Total'] = Total_Tablet.count()
         if Total_Cargador['cargadores'] != None:
             total_cargadores_mostrar += Total_Cargador['cargadores']       
@@ -522,67 +529,45 @@ class TpePrintView(LoginRequiredMixin, DetailView,GroupRequiredMixin):
     def get_context_data(self, **kwargs):
         context = super(TpePrintView, self).get_context_data(**kwargs)
         cpu_servidor = ""
-            
-        try:
-            cables_vga = inv_m.PaqueteTipo.objects.get(nombre="CABLE VGA")
-        except ObjectDoesNotExist as e:
-            cables_vga = 0
-        try:
-            cables_poder = inv_m.PaqueteTipo.objects.get(nombre="CABLE DE PODER")
-        except ObjectDoesNotExist as e:
-            cables_poder = 0
-        try:
-            access_point = inv_m.PaqueteTipo.objects.get(nombre="ACCESS POINT")
-        except ObjectDoesNotExist as e:
-            access_point = 0
-        try:
-            switch = inv_m.PaqueteTipo.objects.get(nombre="SWITCH")
-        except ObjectDoesNotExist as e:
-            switch = 0
-        try:
-            alambricas = inv_m.PaqueteTipo.objects.get(nombre="TARJETA DE RED ALAMBRICA")
-        except ObjectDoesNotExist as e:
-            alambricas = 0
-        try:
-            inalambricas = inv_m.PaqueteTipo.objects.get(nombre="TARJETA DE RED INALAMBRICA")
-        except ObjectDoesNotExist as e:
-            inalambricas = 0
-        try:
-            inalambricas_usb = inv_m.PaqueteTipo.objects.get(nombre="Adaptadores de WIFI USB")
-        except ObjectDoesNotExist as e:
-            inalambricas_usb = 0
-        total_inalambricas = inv_m.Paquete.objects.filter(
-            salida=self.object.id,
-            tipo_paquete=inalambricas,
-            desactivado=False
-            ).aggregate(total_inalambricas=Sum('cantidad'))
-        total_inalambricas_usb = inv_m.Paquete.objects.filter(
-            salida=self.object.id,
-            tipo_paquete=inalambricas_usb,
-            desactivado=False
-            ).aggregate(total_inalambricas_usb=Sum('cantidad'))
-        total_alambricas = inv_m.Paquete.objects.filter(
-            salida=self.object.id,
-            tipo_paquete=alambricas,
-            desactivado=False
-            ).aggregate(total_alambricas=Sum('cantidad'))
-        total_switch = inv_m.Paquete.objects.filter(
-            salida=self.object.id,
-            tipo_paquete=switch,
-            desactivado=False
-            ).aggregate(total_switch=Sum('cantidad'))
-        total_access_point = inv_m.Paquete.objects.filter(
-            salida=self.object.id,
-            tipo_paquete=access_point,
-            desactivado=False
-            ).aggregate(total_access_point=Sum('cantidad'))
-        total_cables_poder = inv_m.Paquete.objects.filter(
-            salida=self.object.id,
-            tipo_paquete=cables_poder,
-            desactivado=False
-            ).aggregate(total_cables_poder=Sum('cantidad'))
-        escuela = beqt_m.SalidaInventario.objects.get(id=self.object.id)
-         
+        nuevos_adaptadores = []
+        nuevas_regletas = []
+        nuevos_ups = []
+        nuevos_access = []           
+        adaptador_red = beqt_m.PaqueteTipoBeqt.objects.get(nombre="ADAPTADOR RED")
+        regleta= beqt_m.PaqueteTipoBeqt.objects.get(nombre="REGLETA")
+        ups = beqt_m.PaqueteTipoBeqt.objects.get(nombre="UPS")
+        access_point = beqt_m.PaqueteTipoBeqt.objects.get(nombre="ACCESS POINT")
+
+        total_adaptador = beqt_m.DispositivoPaquete.objects.filter(
+            paquete__salida__id=self.object.id,
+            paquete__tipo_paquete=adaptador_red,
+            )       
+        total_regleta = beqt_m.DispositivoPaquete.objects.filter(
+            paquete__salida__id=self.object.id,
+            paquete__tipo_paquete=regleta,
+            )
+        total_ups = beqt_m.DispositivoPaquete.objects.filter(
+            paquete__salida__id=self.object.id,
+            paquete__tipo_paquete=ups,
+            )
+        total_access = beqt_m.DispositivoPaquete.objects.filter(
+            paquete__salida__id=self.object.id,
+            paquete__tipo_paquete=access_point,
+            )
+        
+        for triage_adaptador in total_adaptador:
+            nuevo_adaptador = beqt_m.DispositivoBeqt.objects.get(triage=triage_adaptador.dispositivo).cast()
+            nuevos_adaptadores.append(nuevo_adaptador)
+        for triage_regleta in total_regleta:
+            nueva_regleta= beqt_m.DispositivoBeqt.objects.get(triage=triage_regleta.dispositivo).cast()
+            nuevas_regletas.append(nueva_regleta)
+        for triage_ups in total_ups:
+            nuevo_ups = beqt_m.DispositivoBeqt.objects.get(triage=triage_ups.dispositivo).cast()
+            nuevos_ups.append(nuevo_ups)
+        for triage_access in total_access:
+            nuevo_access = beqt_m.DispositivoBeqt.objects.get(triage=triage_access.dispositivo).cast()
+            nuevos_access.append(nuevo_access)
+        escuela = beqt_m.SalidaInventario.objects.get(id=self.object.id) 
         try:
             encargado = escuela_m.EscContacto.objects.filter(escuela=escuela.escuela, rol=5).reverse()[0]
             telefono = escuela_m.EscContactoTelefono.objects.get(contacto=encargado)
@@ -596,18 +581,11 @@ class TpePrintView(LoginRequiredMixin, DetailView,GroupRequiredMixin):
         except IndexError as e:
             print(e)
             context['Jornada'] = "No tiene Jornada"
-            context['Encargado'] = "No Tiene Encargado"     
-        
-        try:
-            red = "Mixta"
-            if total_inalambricas['total_inalambricas'] > 0 and total_alambricas['total_alambricas'] == 0:
-                red = "Inalambrica"
-            elif total_inalambricas['total_inalambricas'] == 0 and total_alambricas['total_alambricas'] > 0:
-                red = "Alambrica"
-
-            context['Red'] = red
-        except TypeError as e:
-            context['Red'] = 0
+            context['Encargado'] = "No Tiene Encargado"
+        context['Adaptadores'] =  sorted(nuevos_adaptadores,key=lambda s: int(re.search(r'\d+',s.triage).group()))
+        context['Regletas'] =  sorted(nuevas_regletas,key=lambda s: int(re.search(r'\d+',s.triage).group()))
+        context['Ups'] =  sorted(nuevos_ups,key=lambda s: int(re.search(r'\d+',s.triage).group()))
+        context['Access'] =  sorted(nuevos_access,key=lambda s: int(re.search(r'\d+',s.triage).group()))
         return context
 
 

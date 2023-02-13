@@ -15,6 +15,8 @@ var procesador=[];
 var hdd=[];
 var tipos_monitores =[];
 var os =[];
+var cargador=[];
+var estuche= [];
 var urldispositivo = $("#grid_id").data("url");
 $.ajax({
   type: 'POST',  
@@ -80,6 +82,12 @@ $.ajax({
                 }
                 if (name =="Tipo_monitor"){
                   name ="Tipo monitor";
+                }
+                if (name =="Cargador__triage"){
+                  name ="Cargador";
+                }
+                if (name =="Estuche__triage"){                      
+                  name ="Estuche";
                 }
                 //Creacion de los encabezados y obtenecion de la linea que se modifico en el grid
                 if(name=="Id" || name=="Url" || name=="Entrada" || name=="Estado" || name=="Etapa" || name=="Tarima"){
@@ -288,20 +296,67 @@ $.ajax({
                                                 useViewMode: true
                                               }});
                                         }else{
-                                          if(name!=""){
+                                          if(name=="Cargador"){
                                             encabezado.push({title:name,name:token_sin,
-                                                   onBeforeChange: function(ev){
+                                              onBeforeChange: function(ev){
                                                         console.log('Before change:' + ev);
                                                     },
                                                     onAfterChange: function(ev){
                                                       console.log('After change:' + ev);
                                                       linea.push(ev.rowKey);
                                                     }, editOptions: {
-                                                  type: 'text',
-                                                  maxLength: 50,
-                                                  useViewMode: false
+                                                    type: 'select',
+                                                    listItems:cargador,
+                                                    useViewMode: true
+                                                },
+                                                copyOptions:{
+                                                  useListItemText:true
+                                                },
+                                                component :{
+                                                  name:'select2'
                                                 }});
-                                              }
+                                            }else{
+                                                /* */
+                                                if(name=="Estuche"){
+                                                  encabezado.push({title:name,name:token_sin,
+                                                    onBeforeChange: function(ev){
+                                                              console.log('Before change:' + ev);
+                                                          },
+                                                          onAfterChange: function(ev){
+                                                            console.log('After change:' + ev);
+                                                            linea.push(ev.rowKey);
+                                                          }, editOptions: {
+                                                          type: 'select',
+                                                          listItems:estuche,
+                                                          useViewMode: true
+                                                      },
+                                                      copyOptions:{
+                                                        useListItemText:true
+                                                      },
+                                                      component :{
+                                                        name:'select2'
+                                                      }});
+                                                  }else{
+                                                    if(name!=""){
+                                                      encabezado.push({title:name,name:token_sin,
+                                                             onBeforeChange: function(ev){
+                                                                  console.log('Before change:' + ev);
+                                                              },
+                                                              onAfterChange: function(ev){
+                                                                console.log('After change:' + ev);
+                                                                linea.push(ev.rowKey);
+                                                              }, editOptions: {
+                                                            type: 'text',
+                                                            maxLength: 50,
+                                                            useViewMode: false
+                                                          }});
+                                                           }
+                                                  }
+
+                                                /**/
+
+                                            }                                  
+                                           
                                                }
                                             }
                                         }
@@ -426,6 +481,29 @@ $.ajax({
                       } catch (e) {
                         console.log("No usa este campo");
                       }
+                      //cargador
+                      try {
+                        for( f=0; f< response.cargador.length;f++){
+                            var id_cargador = response.cargador[f].triage
+                            var texto_cargador = response.cargador[f].triage
+                            var nuevo_ingreso_cargador = {text:texto_cargador,value:id_cargador.toString()}
+                            cargador.push(nuevo_ingreso_cargador);
+                        }
+                      } catch (e) {
+                        console.log("No usa este campo");
+                      } 
+
+                       //estuche o case
+                       try {
+                        for( t=0; t< response.estuche.length;t++){
+                            var id_estuche = response.estuche[t].triage
+                            var texto_estuche = response.estuche[t].triage
+                            var nuevo_ingreso_estuche = {text:texto_estuche,value:id_estuche.toString()}
+                            estuche.push(nuevo_ingreso_estuche);
+                        }
+                      } catch (e) {
+                        console.log("No usa este campo");
+                      } 
     //Inicido del grid y  nombre de los encabezados
         grid = new tui.Grid({
            el: $('#grid'),
