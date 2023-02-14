@@ -1,6 +1,7 @@
 {% extends "base/base.html" %}
 {% load staticfiles %}
 {% block page_title %}
+{% load inventario_extras %}
 <title>BEQT : informacion de salidas</title>
 {% endblock page_title %} {% block content %}
 <section class="content">
@@ -88,11 +89,12 @@
               <div class="col-md-3">
                   <h3 class="box-title">Listado de Paquetes</h3>
               </div>
+              {% if request.user|has_group:"beqt_cc" or request.user|has_group:"inv_admin" %}
               <div class="col-md-9">
 								<a target='_blank' href="{% url 'tpe_beqt_print' pk=object.id%}" class="btn btn-info">Entrega TPE</a>
 								{% if salidainventario.tipo_salida|stringformat:"s" == "Entrega" %}
 									<a target='_blank' href="{% url 'garantia_beqt_print' pk=object.id%}" class="btn btn-success">Constacia de Garantia</a>
-									<a target='_blank' href="{% url 'prestamo_carta_print' pk=object.id%}" class="btn btn-primary">Carta de Prestamo</a>
+									
 								{% endif %}
 								{% if Laptops >= 1 %}
 								 <a target='_blank' href="{% url 'laptop_beqt_print' pk=object.id%}" class="btn btn-info">Entrega de Laptops</a>
@@ -100,12 +102,10 @@
 								{% endif %}
 								{% if Tablets >= 1 %}
 								 <a target='_blank' href="{% url 'tablet_beqt_print' pk=object.id%}" class="btn btn-primary">Entrega de Tablets</a>
-								{% endif %}
-								{% if CPU >= 1 %}
-
-								 <a target='_blank' href="{% url 'mineduc_beqt_print' pk=object.id%}" class="btn btn-success">Entrega MINEDUC</a>
-								{% endif %}
+								{% endif %}								
               </div>
+              {% endif %}
+           
             </div>
           </div>
           <div class="box-body  table-responsive">

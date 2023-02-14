@@ -194,7 +194,7 @@ class SolicitudMovimientoDetailView(LoginRequiredMixin, DetailView,GroupRequired
     """
     model = beqt_m.SolicitudMovimientoBeqt
     template_name = 'beqt/dispositivo/solicitudmovimiento_detail.html'
-    group_required = [u"beqt_cc", u"inv_admin", u"beqt_tecnico", u"beqt_bodega"]
+    group_required = [u"beqt_cc", u"inv_admin", u"beqt_tecnico", u"beqt_bodega",u"consulta"]
 
 
 class SolicitudMovimientoListView(LoginRequiredMixin, FormView,GroupRequiredMixin):

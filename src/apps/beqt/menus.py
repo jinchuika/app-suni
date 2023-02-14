@@ -188,7 +188,7 @@ Menu.add_item(
         reverse_lazy('entrada_beqt_list'),
         weight=10,
         icon="fa-user",
-        group="inv_admin,inv_conta,beqt_tecnico,beqt_bodega,beqt",
+        group="inv_conta",
         tipo="beqt",
         children=admin_children
     )

@@ -1,6 +1,7 @@
 {% extends "base/base.html" %}
 {%load staticfiles widget_tweaks %}
 {% block page_title %}
+{% load inventario_extras %}
 {%if form.instance.id%}
 <title>BEQT ENTRADA: {{form.instance.id}}</title>
 {%else%}
@@ -108,11 +109,13 @@
                     </td>
                   </tr>
                   {% endfor %}
+                  {% if request.user|has_group:"beqt_bodega" or request.user|has_group:"inv_admin" %}
                   <tr>
                     <td>
                       <input type="submit" class="btn btn-success" value="Guardar" tabindex="6" />
                     </td>
                   </tr>
+                  {%endif%}
                 </table>
               </form>
             </table>
