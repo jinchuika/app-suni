@@ -52,6 +52,11 @@ def calcular_precio_unitario(sender, instance, **kwargs):
         else:
             instance.precio_descontado = porcentaje_descuento * instance.precio_unitario
             instance.precio_total = instance.precio_descontado * instance.total
+    else:
+        if instance.util:
+            instance.precio_total = instance.util * instance.precio_unitario
+        else:
+            pass
 
 
 pre_save.connect(calcular_precio_unitario, sender=inventario_m.EntradaDetalle)
