@@ -1,0 +1,365 @@
+{% load staticfiles%}
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Entrega TPE ({{salidainventario}})</title>
+	<link rel="stylesheet" type="text/css" href="{% static "css/bootstrap.min.css" %}">
+</head>
+
+<!--ENCABEZADO DATOS E IMAGENES-->
+<header>
+	<div class="logo_izquierdo">
+	<img  style="float:left; margin:10px;"src="{% static "image/LogosConsorcio_BEQT.png" %}">
+	</div>
+	<center>
+	</br>
+</br>
+</br>
+</br>
+</br>
+<b>
+<div class="encabezado">
+<a class="encabezado2" style="font-size: 14px;"><h1><b>ENTREGA DE EQUIPO</b></h1></a>
+</div>
+</b>
+<b>
+<hr style="border-color:black;" size:"9px">
+<table class="encabezado3" style="text-align:center">
+	<b>
+	<td width="15%" style="border:none">Fecha de entrega</td>
+	<td style="border:solid; border-width: 1px" width="15%" >{{salidainventario.fecha}}</td>
+	<td width="10%" style="border:none">Cooperante:</td>
+  <td width="15%" style="border:solid; border-width: 1px">{{salidainventario.cooperante}}</td>
+	<td  width="10%"></td>
+	<td style="font-size: 20px; border:none">Jornada</td>
+	<td style="border:solid; border-width: 1px; " width="150" height="25">{{Jornada}}</td>
+	<td  width="25"></td>
+	<td width="12%" style="border:none">Código UDI</td>
+	<td width:"15%" style="border:solid; border-width: 1px" width="0">{{salidainventario.escuela.codigo}}</td>
+	<td width="30"></td>
+	<td width="10%" style="border:none">No. Entrega:</td>
+	<td width="10%" style="border:solid; border-width: 1px" width="50">{{salidainventario}}</td>
+</table>
+<hr style="border-color:black;" size:"9px">
+</b>
+</center>
+</header>
+<!--FIN DE ENCABEZADO-->
+<body>
+<!--TABLA DE DATOS-->
+<hr style="border-color:black;" size:"9px">
+<table class="info" >
+	<tr>
+		{% if salidainventario.tipo_salida|stringformat:"s" == 'A terceros' %}
+		<td width="	250" >NOMBRE DEL BENEFICIARIO</td>
+		<td style="border:solid; border-width: 1px;border-color:gray" width="700" height="28">&nbsp;&nbsp;{{salidainventario.beneficiario}}</td>
+		<td  width="20"></td>
+		<td>DIRECCIÓN</td>
+		<td style="border:solid; border-width: 1px;border-color:gray" width="700" height="28">&nbsp;&nbsp;
+			{% if  salidainventario.beneficiario.direccion %}{{salidainventario.beneficiario.direccion}} {% else %} NO APLICA{% endif %}
+
+		</td>
+
+		{% else %}
+		<td width="	250" >NOMBRE DE LA INSTITUCIÓN</td>
+		<td style="border:solid; border-width: 1px;border-color:gray" width="700" height="28">&nbsp;&nbsp;{{salidainventario.escuela}}</td>
+		<td  width="20"></td>
+		<td>DIRECCIÓN</td>
+		<td style="border:solid; border-width: 1px;border-color:gray" width="700" height="28">&nbsp;&nbsp;{{salidainventario.escuela.direccion}}, {{salidainventario.escuela.municipio}}</td>
+
+		{% endif %}
+	</tr>
+</table>
+<br/>
+<table class="info">
+	<tr>
+		{% if salidainventario.tipo_salida|stringformat:"s" == 'A terceros' %}
+			<td width="	250" >NOMBRE DEL ENCARGADO(A)</td>
+			<td style="border:solid; border-width: 1px;border-color:gray" width="700" height="28">&nbsp;&nbsp;NO APLICA</td>
+			<td  width="20"></td>
+			<td>TELEFONO(S)</td>
+			<td style="border:solid; border-width: 1px;border-color:gray" width="700" height="28">&nbsp;&nbsp;
+
+					{% if  salidainventario.beneficiario.fax %}{{salidainventario.beneficiario.fax}} {% else %} NO APLICA{% endif %}
+			</td>
+			{% else %}
+			<td width="	250" >NOMBRE DEL ENCARGADO(A)</td>
+			<td style="border:solid; border-width: 1px;border-color:gray" width="700" height="28">&nbsp;&nbsp;{{Encargado}}</td>
+			<td  width="20"></td>
+			<td>TELEFONO(S)</td>
+			<td style="border:solid; border-width: 1px;border-color:gray" width="700" height="28">&nbsp;&nbsp;
+
+					{% if  Telefono|stringformat:"s" == 'None' %} NO APLICA {% else %} {{Telefono}} {% endif %}
+			</td>
+			{% endif %}
+	</tr>
+	</b>
+</table>
+<hr style="border-color:black;" size:"9px">
+<br/>
+<table class="info2" >
+
+</table>
+
+<!--FIN DE TABLA DE DATOS-->
+
+<!--TABLA DE LOS DISPOSITIVOS-->
+
+<!--<center> -->
+<div>
+	<div class="col-md-3" style="width: 20%;">
+		<h2 bgcolor="lightgray"> <center>UPS</center> </h2>
+		<table class="datos" style="text-align:center;">
+			<thead>
+				<tr>
+					<!--UPS-->
+					<th bgcolor="skyblue" >Triage</th>
+					<th bgcolor="skyblue" >Marca</th>
+					<th bgcolor="skyblue" >Modelo</th>
+					<th bgcolor="skyblue" >RTI</th>
+					<th bgcolor="skyblue" >Conexiones</th>
+					<th bgcolor="skyblue" >Voltaje</th>					
+				</tr>
+			</thead>
+			<tbody>
+				{% for ups  in Ups  %}
+				<tr>
+					<td style="border:solid; border-width: 1px;border-color:gray"  height="36">{{ups | default_if_none:"Generico"}}</td>
+					<td style="border:solid; border-width: 1px;border-color:gray" >{{ups.marca | default_if_none:"Generico"}}</td>
+					<td style="border:solid; border-width: 1px;border-color:gray" >{{ups.modelo | default_if_none:"Generico"}}</td>
+					<td style="border:solid; border-width: 1px;border-color:gray" >{{ups.serie | default_if_none:"Generico"}}</td>							
+					<td style="border:solid; border-width: 1px;border-color:gray" >{{ups.conexiones | default_if_none:"Generico"}}</td>
+					<td style="border:solid; border-width: 1px;border-color:gray" >{{ups.voltaje | default_if_none:"Generico"}}</td>
+					
+				</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+	</div>
+	<divc class="col-md-3"style="width: 16%;">
+		<h2 bgcolor="lightgray"> <center>REGLETAS</center> </h2>
+		<table class="datos" style="text-align:center;">
+			<thead>
+				<tr>
+					<!--REGLETA -->
+					<th bgcolor="skyblue"><center>Triage</center></th>						
+					<th bgcolor="skyblue"><center>Marca</center></th>
+					<th bgcolor="skyblue"><center>Modelo</center></th>						
+					<th bgcolor="skyblue"><center>Conexiones</center></th>
+					<th bgcolor="skyblue"><center>Voltaje</center></th>
+				</tr>
+			</thead>
+			<tbody>
+				<center>
+					{% for regleta in Regletas  %}
+						<tr>
+							<td style="border:solid; border-width: 1px;border-color:gray" height="36">{{regleta | default_if_none:"Generico"}}</td>		
+							<td style="border:solid; border-width: 1px;border-color:gray" >{{regleta.marca | default_if_none:"Generico"}}</td>
+							<td style="border:solid; border-width: 1px;border-color:gray" >{{regleta.modelo | default_if_none:"Generico"}}</td>		
+							<td style="border:solid; border-width: 1px;border-color:gray" >{{regleta.conexiones | default_if_none:"Generico"}}</td>
+							<td style="border:solid; border-width: 1px;border-color:gray" >{{regleta.voltaje | default_if_none:"Generico"}}</td>
+							
+						</tr>
+						{% endfor %}
+				</center>
+			</tbody>
+		</table>
+	</div>
+	<div class="col-md-3" style="width: 27%;">
+		<h2 bgcolor="lightgray"> <center>ADAPTADORES</center> </h2>
+		<table class="datos" style="text-align:center;">
+			<thead>
+				<tr> 
+					<!--ADAPTADOR-->
+					<th bgcolor="skyblue"><center>Triage</center></th>
+					<th bgcolor="skyblue" ><center>Marca</center></th>
+					<th bgcolor="skyblue" ><center>Modelo</center></th>
+					<th bgcolor="skyblue" ><center>RTI</center></th>	
+					<th bgcolor="skyblue" ><center>Puertos</center></th>	
+					<th bgcolor="skyblue" ><center>Puerto</center></th>	
+					<th bgcolor="skyblue" ><center>Velocidad</center></th>						
+				</tr>
+			</thead>
+			<tbody>
+				{% for adaptador in Adaptadores  %}
+					<tr>
+					<td style="border:solid; border-width: 1px;border-color:gray" height="36">{{adaptador | default_if_none:"Generico"}}</td>
+					<td style="border:solid; border-width: 1px;border-color:gray" >{{adaptador.marca | default_if_none:"Generico"}}</td>
+					<td style="border:solid; border-width: 1px;border-color:gray" >{{adaptador.modelo | default_if_none:"Generico"}}</td>
+					<td style="border:solid; border-width: 1px;border-color:gray" >{{adaptador.serie | default_if_none:"Generico"}}</td>
+					<td style="border:solid; border-width: 1px;border-color:gray" >{{adaptador.cantidad_puertos | default_if_none:"Generico"}} </td>
+					<td style="border:solid; border-width: 1px;border-color:gray" >{{adaptador.puerto | default_if_none:"Generico"}}</td>
+					<td style="border:solid; border-width: 1px;border-color:gray" >{{adaptador.velocidad| default_if_none:"Generico"}} </td>
+					</tr>
+					{% endfor %}
+			</tbody>
+		</table>
+	</div>
+	<div class"col-md-3">
+		<h2 bgcolor="lightgray"> <center>ACCESS POINT</center> </h2>
+		<table class="datos" style="text-align:center;">
+			<thead>
+				<tr>
+					<!--ACCESS POINT -->
+					<th bgcolor="skyblue" ><center>Triage</center></th>
+					<th bgcolor="skyblue" ><center>Marca</center></th>
+					<th bgcolor="skyblue" ><center>Modelo</center></th>
+					<th bgcolor="skyblue" ><center>RTI</center></th>
+					<th bgcolor="skyblue" ><center>Puertos</center></th>
+					<th bgcolor="skyblue" ><center>Puerto</center></th>
+					<th bgcolor="skyblue" ><center>Velocidad</center></th>
+					<th bgcolor="skyblue" ><center>Medida Velocidad</center></th>
+					
+				</tr>
+			</thead>
+			<tbody>
+				{% for access in Access  %}
+				<tr>
+					<td style="border:solid; border-width: 1px;border-color:gray" height="36">{{access | default_if_none:"Generico"}}</td>
+					<td style="border:solid; border-width: 1px;border-color:gray">{{access.marca | default_if_none:"Generico"}}</td>
+					<td style="border:solid; border-width: 1px;border-color:gray">{{access.modelo | default_if_none:"Generico"}}</td>
+					<td style="border:solid; border-width: 1px;border-color:gray" >{{access.serie | default_if_none:""}}</td>
+					<td style="border:solid; border-width: 1px;border-color:gray" >{{access.cantidad_puertos | default_if_none:"Generico"}}</td>
+					<td style="border:solid; border-width: 1px;border-color:gray" >{{access.puerto | default_if_none:"Generico"}}</td>
+					<td style="border:solid; border-width: 1px;border-color:gray" >{{access.velocidad | default_if_none:""}}</td>
+					<td style="border:solid; border-width: 1px;border-color:gray" >{{access.velocidad_medida | default_if_none:"Generico"}}</td>
+					
+				</tr>
+	
+				{% endfor %}
+			</tbody>
+		</table>
+	</div>
+</div>
+<!--</center> -->
+
+<!--FIN DE LA TABLA DE LOS DISPOSITIVOS-->
+
+
+<!--TABLA DE LOS CAMPOS-->
+
+<!--<center> -->
+	<br/>
+
+<!--</center> -->
+<br/>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<center>
+	<table style="font-size: 20px;">
+		<td>
+			<hr width="430" style="border-color:black; border-width: 1px;">
+			<center>ENCARGADO DE LA ESCUELA
+			<p><center>NOMBRE Y FIRMA</center></p></center>
+		</td>
+
+		<td width="600" valign="center" ><center>SELLO</center>
+		</td>
+
+		<td >
+			<hr width="430" style="border-color:black; border-width: 1px;">
+
+			<center>REPRESENTANTE DE FUNSEPA
+			<p><center>NOMBRE Y FIRMA</center></p></center>
+		</td>
+
+	</table>
+
+	</center>
+<!--TERMINAR TABLAS DE FIRMA Y SELLO-->
+
+
+</body>
+
+<footer>
+<!--PIE DE PAGINA-->
+	<br>
+	<br>
+	<br>
+
+	<table style="margin-left: 0px;">
+		<td width="1100"><h4>POR CUALQUIER FALLA EN EL EQUIPO COMUNÍCATE A NUESTROS NÚMEROS  DE
+			<p>TELÉFONO 2435-2739 / 24319639</p></b>
+			</h4>
+		</td>
+		<td style="font-size: 12px">Latitud</td>
+		<td width="1%"></td>
+		<td style="border:solid; border-width: 1px;border-color:gray" width="200" height="14">{{salidainventario.escuela.mapa.lat}}</td>
+				<td  width="30"></td>
+
+		<td style="font-size: 12px">Longitud</td>
+		<td width="1%"></td>
+		<td style="border:solid; border-width: 1px;border-color:gray" width="200" height="14">{{salidainventario.escuela.mapa.lng}}</td>
+	</table>
+
+<!--FIN DE PIE DE PAGINA-->
+</footer>
+
+
+
+
+<!--CSS-->
+<style type="text/css">
+@page{
+	margin-top: 0mm;
+	margin-right: 0mm;
+	margin-left: 0mm;
+	margin-bottom: 0mm;
+}
+body{
+	font-family: arial;
+	 background-image: none;
+	-webkit-print-color-adjust: exact; /*economy | exact*/
+    color-adjust: exact;
+}
+.encabezado{
+	color: #154458;
+	margin:10px;
+	margin-top:20mm;
+	font-size:22px;
+}
+.encabezado2{
+	font-size:12px;
+	text-align: center;
+	margin-top:10mm;
+}
+.encabezado3{
+	margin-top:0mm;
+	font-size:20px;
+}
+.info{
+	width: 1800px;
+}
+.datos tr:nth-child(odd){
+	background-color: #F2F2F2;
+}
+.datos tr:nth-child(even){
+	background-color: #fbfbfb;
+}
+</style>
+<script src="{% static "js/jquery.min.js" %}"></script>
+<script src="{% static "js/bootstrap.min.js" %}"></script>
+{% block extra_js %}
+<script>
+//window.onload= function () { window.print();window.close();   }
+</script>
+{% endblock extra_js %}
+</html>

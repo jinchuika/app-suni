@@ -523,7 +523,7 @@ class TpePrintView(LoginRequiredMixin, DetailView,GroupRequiredMixin):
     """Vista encargada para imprimir las :class:`SalidaInventario` de las salidas correspondiente
     """
     model = beqt_m.SalidaInventario
-    template_name = 'beqt/salida/tpe_print.html'
+    template_name = 'beqt/salida/tpe_beqt_print.html'
     group_required = [u"beqt_tecnico", u"inv_admin", u"beqt_cc"]
 
     def get_context_data(self, **kwargs):

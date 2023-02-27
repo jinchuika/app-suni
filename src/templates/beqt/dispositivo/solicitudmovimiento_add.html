@@ -1,6 +1,7 @@
 {% extends "base/base.html" %}
 {% load staticfiles widget_tweaks %}
 {% block page_title %}
+{% load inventario_extras %}
 {% if devolucion %}
 <title>BEQT : Devolución de Equipo</title>
 {% else %}
@@ -59,11 +60,13 @@
                     <table class="table table-condensed">
                       {{ form.as_table }}
                       {{ form.non_field_errors }}
+                      {% if request.user|has_group:"beqt_bodega"  or request.user|has_group:"beqt_tecnico" %}
                       <tr>
                         <td>
                           <input type="submit" class="btn btn-success" value="Guardar" tabindex="5" />
                         </td>
                       </tr>
+                      {%endif%}
                     </table>
                     {% if messages %}
                     <ul class="messages">

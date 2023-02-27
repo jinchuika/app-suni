@@ -75,7 +75,7 @@ class EntradaDetalleForm(forms.ModelForm):
         model = inv_m.EntradaDetalle
         fields = '__all__'
         exclude = [
-            'precio_unitario',
+            
             'precio_total',
             'precio_descontado',
             'creado_por',
@@ -102,7 +102,8 @@ class EntradaDetalleForm(forms.ModelForm):
             'descripcion': forms.TextInput({'class': 'form-control'}),
             'proveedor_kardex': forms.Select(attrs={'class': 'form-control select2'}),
             'estado_kardex': forms.Select(attrs={'class': 'form-control select2'}),
-            'tipo_entrada_kardex': forms.Select(attrs={'class': 'form-control select2'})
+            'tipo_entrada_kardex': forms.Select(attrs={'class': 'form-control select2'}),
+            'precio_unitario': forms.TextInput({'class': 'form-control', 'min': 1, 'type': 'number'}),
         }
 
     def __init__(self, *args, **kwargs):
@@ -118,11 +119,17 @@ class EntradaDetalleForm(forms.ModelForm):
             self.fields['precio_subtotal'].empty_label = None
             self.fields['precio_subtotal'].label = ''
             self.fields['precio_subtotal'].widget = forms.NumberInput(
-                attrs={'class': 'form-control', 'style': "visibility:hidden"})
+                attrs={'class': 'form-control', 'style': "visibility:hidden",'tabindex': '4'})
             self.fields['precio_subtotal'].initial = ""
         else:            
             self.fields['precio_subtotal'].widget = forms.NumberInput(
                 attrs={'class': 'form-control','step':".01"})
+            
+            self.fields['precio_unitario'].empty_label = None
+            self.fields['precio_unitario'].label = ''
+            self.fields['precio_unitario'].widget = forms.NumberInput(
+                attrs={'class': 'form-control', 'style': "visibility:hidden"})
+            self.fields['precio_unitario'].initial = ""
 
 class EntradaDetalleUpdateForm(forms.ModelForm):
     """ Formulario para la :`class`:`EntradaDetalleView` que es la encargada de actualizar  los datos

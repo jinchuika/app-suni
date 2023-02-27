@@ -9,7 +9,7 @@
 <section class="content">
     <div class="container-fluid">
         {% if not object.terminada and not object.tipo_dispositivo.kardex%}
-        {% if request.user|has_group:"beqt_bodega" and not object.devolucion or request.user|has_group:"beqt_tecnico" and object.devolucion %}
+        {% if request.user|has_group:"beqt_bodega" or request.user|has_group:"beqt_tecnico"  %}
         <div class="row">
             <div class="col-md-6">
                 <div class="box">
@@ -73,11 +73,14 @@
                                   </td>
                                 </tr>
                                 {{ form.as_table }}
+                                {% if request.user|has_group:"beqt_bodega"  or request.user|has_group:"beqt_tecnico" %}
                                 <tr>
                                     <td>
                                         <input type="submit" class="btn btn-success" value="Guardar"/>
                                     </td>
                                 </tr>
+                                {% endif %}
+                                
                             </table>
 
                         </form>

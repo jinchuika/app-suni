@@ -1,5 +1,6 @@
 {% extends "base/base.html" %}
 {%load staticfiles%}
+{% load inventario_extras %}
 {% block page_title %}
   <title>BEQT: Grid de {{dispositivo_qr.0.tipo}}</title>
 {% endblock page_title %}
@@ -15,7 +16,10 @@
       <div id="grid_id" class="code-html contents"  data-url="{%url 'beqt_api:api_dispositivopaquete-actualizar-dispositivos'%}" data-dispo="{%url 'beqt_api:api_detalles_beqt-nuevo-grid'%}" data-id={{object.id}}  >
         {%csrf_token%}
         <div id="grid"></div>
+        {% if request.user|has_group:"beqt_tecnico" or request.user|has_group:"inv_admin" or request.user|has_group:"beqt_cc" %}
         <button  onclick="actualizar_post()" class="btn btn-success">Guardar</button>
+        {% endif %}
+       
     </div>
   </body>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.0/jquery.js"></script>
