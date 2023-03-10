@@ -6,59 +6,63 @@
 </head>
 <!--ENCABEZADO DE DATOS E IMAGENES -->
 <header>
-	<div class="logo_izquierdo">
-	<img   style="float:left; margin:90px;"src="{% static "image/LogosConsorcio_BEQT.png" %}">	
-	</div>
-	<center>
-<div class="encabezado" >
-<h3 style="	color: #154458; ">
-<b>
-	POR CUALQUIER FALLA EN EL EQUIPO COMUNÍCATE A NUESTROS NÚMEROS  DE
-<br>
-TELÉFONO 2435-2739 / 24319639</b>
-</h3>
-<a class="encabezado2" ><b>ENTREGA DE EQUIPO</b></a>
-<b>
-<table class="encabezado3"  width="830" heigth="125">
+    <div class="logo_izquierdo">
+		<center>
+	    <img src="{% static "image/LogosConsorcio_BEQT.png" %}" width="90%">
+		</center>	
+    </div>
 
-	<center>
+    <div class="encabezado">
+		<center>
+        <h3 style = "color: #154458; margin-top: -20px">
+			<b>
+				POR CUALQUIER FALLA EN EL EQUIPO COMUNÍCATE A NUESTROS NÚMEROS  DE <br>
+				TELÉFONO 2435-2739 / 24319639
+			</b>
+		</h3>
+		<h4 class="encabezado2" style="margin-top: -10px"><b>ENTREGA DE EQUIPO</b></h4>
+    </div> 
 
-	<td>Fecha de entrega</td>
-	<td style="border:solid; border-width: 1px" width="100" height="18">{{salidainventario.fecha}}</td>
-	<td  width="18"></td>
-	<td>Código UDI</td>
-	<td style="border:solid; border-width: 1px" width="100" height="18">{{salidainventario.escuela.codigo}}</td>
-	<td  width="18			"></td>
-	<td>No. Entrega:</td>
-	<td style="border:solid; border-width: 1px" width="100" height="18	">{{salidainventario}}</td>
-	</center>
+	<div>
+		<center>
+			<table class="encabezado3"  width="830" >
+				<td><b>Fecha de entrega<b/></td>
+				<td style="border:solid; border-width: 1px" width="200" height="18">{{salidainventario.fecha}}</td>
+				<td width="18"></td>
+				<td><b>Código UDI<b/></td>
+				<td style="border:solid; border-width: 1px" width="100" height="18">{{salidainventario.escuela.codigo}}</td>
+				<td width="18"></td>
+				<td><b>No. Entrega:<b/></td>
+				<td style="border:solid; border-width: 1px" width="100" height="18	"><center>{{salidainventario}}</center></td>
+			</table>	
+		</center>
+		
+		<center>
+		<table class="info" style="margin-top:5px"><b>
+			{% if salidainventario.tipo_salida|stringformat:"s" == 'A terceros' %}
+			<td width="250">NOMBRE DEL BENEFICIARIO</td>
+			<td style="border:solid; border-width: 1px;border-color:gray" width="675" height="28">{{salidainventario.beneficiario}}</td>
+			<td  width="20"></td>
+			<td>DIRECCIÓN</td>
+			<td style="border:solid; border-width: 1px;border-color:gray" width="675" height="28">
+			{% if  salidainventario.beneficiario.direccion %}{{salidainventario.beneficiario.direccion}} {% else %} NO APLICA{% endif %}
+		    </td>
+			
+			{% else %}
+			<td width= "350">NOMBRE DE LA INSTITUCIÓN</td>
+			<td style="border:solid; border-width: 1px;border-color:gray" width="750" height="28">{{salidainventario.escuela}}</td>
+			<td  width="55"></td>
+			<td>DIRECCIÓN</td>
+			<td style="border:solid; border-width: 1px;border-color:gray" width="750" height="28">{{salidainventario.escuela.direccion}}</td>
+			<td  width="500"> </td>
+		    {% endif %}
+	    </b>
+	    </table>
+		</center>
 
 <table class="info" >
-	<b>
-	<br>
 	{% if salidainventario.tipo_salida|stringformat:"s" == 'A terceros' %}
-<td width="	250" >NOMBRE DEL BENEFICIARIO</td>
-	<td style="border:solid; border-width: 1px;border-color:gray" width="675" height="28">{{salidainventario.beneficiario}}</td>
-	<td  width="20"></td>
-	<td>DIRECCIÓN</td>
-	<td style="border:solid; border-width: 1px;border-color:gray" width="675" height="28">
-			{% if  salidainventario.beneficiario.direccion %}{{salidainventario.beneficiario.direccion}} {% else %} NO APLICA{% endif %}
-	</td>
-
-	{% else %}
-	<td width="	250" >NOMBRE DE LA INSTITUCIÓN</td>
-	<td style="border:solid; border-width: 1px;border-color:gray" width="675" height="28">{{salidainventario.escuela}}</td>
-	<td  width="20"></td>
-	<td>DIRECCIÓN</td>
-	<td style="border:solid; border-width: 1px;border-color:gray" width="675" height="28">{{salidainventario.escuela.direccion}}</td>
-
-	{% endif %}
-	</b>
-</table>
-
-<table class="info2" >
-	{% if salidainventario.tipo_salida|stringformat:"s" == 'A terceros' %}
-	<td width="	250" >NOMBRE DEL ENCARGADO(A)</td>
+	<td width="250">NOMBRE DEL ENCARGADO(A)</td>
 	<td style="border:solid; border-width: 1px;border-color:gray" width="700" height="28">&nbsp;&nbsp;NO APLICA</td>
 	<td  width="20"></td>
 	<td>TELEFONO(S)</td>
@@ -67,71 +71,84 @@ TELÉFONO 2435-2739 / 24319639</b>
 			{% if  salidainventario.beneficiario.fax %}{{salidainventario.beneficiario.fax}} {% else %} NO APLICA{% endif %}
 	</td>
 	{% else %}
-	<td width="	250" >NOMBRE DEL ENCARGADO(A)</td>
-	<td style="border:solid; border-width: 1px;border-color:gray" width="700" height="28">&nbsp;&nbsp;{{Encargado}}</td>
-	<td  width="20"></td>
+	<td width= "335">NOMBRE DEL ENCARGADO(A)</td>
+	<td style="border:solid; border-width: 1px;border-color:gray" width="750" height="28">&nbsp;&nbsp;{{Encargado}}</td>
+	<td  width="55"></td>
 	<td>TELEFONO(S)</td>
-	<td style="border:solid; border-width: 1px;border-color:gray" width="700" height="28">&nbsp;&nbsp;
+	<td style="border:solid; border-width: 1px;border-color:gray" width="750" height="28">&nbsp;&nbsp;
 
 			{% if  Telefono|stringformat:"s" == 'None' %} {{salidainventario.escuela.telefono}}{% else %} NO APLICA{% endif %}
 	</td>
 	{% endif %}
+	<td  width="500"> </td>
 </table>
 </table>
 </b>
 </center>
 </header>
+</div>
 <!--FIN DE DATOS E IMAGENES-->
+
 <body>
 
 <!--TITULOS DE LA TABLA-->
 <center>
-<table  bgcolor="lightgray" style="font-size: 20px"  width="975" height="10">
+<table  bgcolor="lightgray" style="font-size: 20px"  width="1224}5" height="10" >
 <center><th><center>LAPTOP</center></th></center>
 
 </table>
 	<table class="datos">
-	<tr>
-		<th bgcolor="#b3c4dd" width="75" height="25"><center>TRIAGE</center></th>
+	<tr> <center>
+		<th bgcolor="#b3c4dd"width="75" height="25"><center>TRIAGE</center></th>
 		<th bgcolor="#b3c4dd"width="100"><center>MARCA</center></th>
 		<th bgcolor="#b3c4dd"width="150"><center>MODELO</center></th>		
-		<th bgcolor="#b3c4dd"width="75"><center>ALMACENAMIENTO</center></th>
-		<th bgcolor="#b3c4dd"width="150"><center>PROCESADOR</center></th>
-		<th bgcolor="#b3c4dd"width="75"><center>RAM</center></th>
-		<th bgcolor="#b3c4dd"width="90"><center>SISTEMA OPERATIVO</center></th>
-		<th bgcolor="#b3c4dd"width="90"><center>CARGADOR</center></th>
+		<th bgcolor="#b3c4dd"width="80"><center>ALMACENAMIENTO</center></th>
+		<th bgcolor="#b3c4dd"width="130"><center>PROCESADOR</center></th>
+		<th bgcolor="#b3c4dd"width="60"><center>RAM</center></th>
+		<th bgcolor="#b3c4dd"width="200"><center>SISTEMA OPERATIVO</center></th>
+		<th bgcolor="#b3c4dd"width="110"><center>CARGADOR</center></th>
+		<th bgcolor="#b3c4dd"width="100"><center>SERIE</center></th>
+		<th bgcolor="#b3c4dd"width="110"><center>CODIGO RTI</center></th>
+	    </center> 
 	</tr>
 	{% for laptop in Laptos %}
-	<tr>
-		<td>
-			{{laptop|default_if_none:""}}
+	<tr> 
+		<td> <center>
+			{{laptop|default_if_none:""}}  </center>
 		</td>
-		<td>
-			{{laptop.marca |default_if_none:"" }}
+		<td> <center>
+			{{laptop.marca |default_if_none:"" }} </center>
 		</td>
-		<td>
-			{{laptop.modelo |default_if_none:""}}
+		<td> <center>
+			{{laptop.modelo |default_if_none:""}} </center>
 		</td>		
-		<td>
-			{{laptop.almacenamiento|default_if_none:""}} {{laptop.medida_almacenamiento|default_if_none:""}}
+		<td> <center>
+			{{laptop.almacenamiento|default_if_none:""}} {{laptop.medida_almacenamiento|default_if_none:""}} </center>
 		</td>
-		<td>
-			{{laptop.procesador|default_if_none:""}}
+		<td> <center>
+			{{laptop.procesador|default_if_none:""}} </center>
 		</td>
-		<td>
-			{{laptop.ram|default_if_none:""}}
+		<td> <center>
+			{{laptop.ram|default_if_none:""}} </center>
 		</td>
-		<td>
-			{{laptop.version_sistema|default_if_none:""}}
+		<td> <center>
+			{{laptop.version_sistema|default_if_none:""}} </center>
 		</td>
-		<td>
-			{{laptop.cargador|default_if_none:""}}
+		<td> <center>
+			{{laptop.cargador|default_if_none:""}} </center>
+		</td>
+		<td> <center>
+			{{laptop.serie|default_if_none:""}} </center>         <!--Revisar el # de serie y agregar el rti-->
+		</td>
+		<td> <center>
+			{{laptop.rti|default_if_none:"N/A"}} </center>
 		</td>
 	</tr>
 	{% endfor %}
 <!--FIN DE TITULOS DE LA TABLA-->
 </table>
 </center>
+
 <table class="contador">
 	<td width="75">Total</td>
 	<td style="border-bottom:solid;" width="150"> <center>{{Total}}</center></td>
@@ -141,26 +158,27 @@ TELÉFONO 2435-2739 / 24319639</b>
 	<td width="200"><center><input type="checkbox" >Servidor</center></td>
 	{% endif %}
 
-	<td style="border:solid; border-width: 1px;border-color:gray" width="150" height="25">{{Servidor}}</td>
-	
-
+	<td style="border:solid; border-width: 1px;border-color:gray; text-align:center" width="250" height="25">{{Servidor}}</td>
 </table>
 <!--FIN DE CELDAS -->
+
+
 <!--INICIO DE FIRMA Y SELLO -->
 </body>
 <footer>
-	<br>
-	<br>
 <br>
-	<br>
-	<br>
-
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
 <center>
 	<table style="font-size: 20px;">
 
 		<td  >
 			<hr width="430" style="border-color:black; border-width: 1px;">
-			<center>REPRESENTANTE DE LA ESCUELA
+			<center>REPRESENTANTE DEL ENTORNO VIRUAL
 			<p><center>NOMBRE Y FIRMA</center></p></center>
 		</td>
 
@@ -170,34 +188,26 @@ TELÉFONO 2435-2739 / 24319639</b>
 		<td >
 			<hr width="430" style="border-color:black; border-width: 1px;">
 
-			<center>REPRESENTANTE DE LA ESCUELA
+			<center>REPRESENTANTE DE FUNSEPA
 			<p><center>NOMBRE Y FIRMA</center></p></center>
 		</td>
-
 	</table>
 
 	</center>
 <!--TERMINAR TABLAS DE FIRMA Y SELLO-->
-
-
 </body>
 
 <!--PIE DE PAGINA-->
 <footer>
-
-
-	<br>
-	<br>
-	<br>
-
 	<table style="margin-left: 0px;">
-		<td width="1100">Nota: Todas las computadoras cuentan con sus respectivo cargador.</td>
+		<td width="950">Nota: Todas las computadoras cuentan con sus respectivo cargador.</td>
 		<td style="font-size: 12px">Latitud</td>
-		<td style="border:solid; border-width: 1px;border-color:gray" width="200" height="14">{{salidainventario.escuela.mapa.lat}}</td>
-				<td  width="30"></td>
+		<td style="border:solid; border-width: 1px;border-color:gray" width="130" height="14">{{salidainventario.escuela.mapa.lat}}</td>
+				<td  width="70"></td>
 
 		<td style="font-size: 12px">Longitud</td>
-		<td style="border:solid; border-width: 1px;border-color:gray" width="200" height="14">{{salidainventario.escuela.mapa.lng}}</td>
+		<td style="border:solid; border-width: 1px;border-color:gray" width="130" height="14">{{salidainventario.escuela.mapa.lng}}</td>
+		<td  width="70"></td>
 	</table>
 </footer>
 
@@ -211,6 +221,8 @@ TELÉFONO 2435-2739 / 24319639</b>
 	margin-top: 0mm;
 	margin-bottom: 0mm;
 }
+
+
 body{
 	font-family: arial;
 	 background-image: none;
@@ -233,9 +245,9 @@ body{
 	font-size:14px;
 }
 .info{
-	width: 1750px
+	width: 1700px
 }
-}
+
 .datos tr:nth-child(odd){
 	background-color: #F2F2F2;
 }
@@ -247,6 +259,7 @@ body{
 	font-family: arial;
 	font-size: 18px
 }
+
 </style>
 
 {% block extra_js %}

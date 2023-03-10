@@ -3,219 +3,225 @@
 <html>
 <head>
 	<title>Entrega TPE ({{salidainventario}})</title>
-	<link rel="stylesheet" type="text/css" href="{% static "css/bootstrap.min.css" %}">
 </head>
 
 <!--ENCABEZADO DATOS E IMAGENES-->
 <header>
 	<div class="logo_izquierdo">
-	<img  style="float:left; margin:10px;"src="{% static "image/LogosConsorcio_BEQT.png" %}">
+		<center>
+			<img  style="margin-top:20px;" src="{% static "image/LogosConsorcio_BEQT.png" %}">
+		</center>
 	</div>
-	<center>
-	</br>
-</br>
-</br>
-</br>
-</br>
-<b>
-<div class="encabezado">
-<a class="encabezado2" style="font-size: 14px;"><h1><b>ENTREGA DE EQUIPO</b></h1></a>
-</div>
-</b>
-<b>
-<hr style="border-color:black;" size:"9px">
-<table class="encabezado3" style="text-align:center">
-	<b>
-	<td width="15%" style="border:none">Fecha de entrega</td>
-	<td style="border:solid; border-width: 1px" width="15%" >{{salidainventario.fecha}}</td>
-	<td width="10%" style="border:none">Cooperante:</td>
-  <td width="15%" style="border:solid; border-width: 1px">{{salidainventario.cooperante}}</td>
-	<td  width="10%"></td>
-	<td style="font-size: 20px; border:none">Jornada</td>
-	<td style="border:solid; border-width: 1px; " width="150" height="25">{{Jornada}}</td>
-	<td  width="25"></td>
-	<td width="12%" style="border:none">Código UDI</td>
-	<td width:"15%" style="border:solid; border-width: 1px" width="0">{{salidainventario.escuela.codigo}}</td>
-	<td width="30"></td>
-	<td width="10%" style="border:none">No. Entrega:</td>
-	<td width="10%" style="border:solid; border-width: 1px" width="50">{{salidainventario}}</td>
-</table>
-<hr style="border-color:black;" size:"9px">
-</b>
+
+	
+	<div class="encabezado">
+		<center>
+			<h1 class="encabezado2" style="font-size: 14px; margin-top:-20px;"><h1><b>CONSTANCIA DE ENTREGA DE EQUIPO</b></h1></h1>
+		</center>
+	</div>
+
+<center>
+	<table class="encabezado3" style="text-align:center; margin-top:-10px;">
+		<td width="200">Fecha de entrega</td>
+		<td style="border:solid; border-width: 1px; border-collapse:collapse;" width="250">{{salidainventario.fecha}}</td>
+
+		<td width="150">Código UDI</td>
+		<td width:"150" style="border:solid; border-width: 1px">{{salidainventario.escuela.codigo}}</td>
+
+		<td width="200" style="border:none">No. Entrega:</td>
+		<td width="100" style="border:solid; border-width: 1px">{{salidainventario}}</td>
+	 </table>
 </center>
+{% comment %} <table BORDER CELLPADDING=10 CELLSPACING=0> 
+	<td> </td>
+	<td> </td>
+	<td> </td>
+	<td> </td>
+</table> {% endcomment %} 
 </header>
 <!--FIN DE ENCABEZADO-->
+
+
 <body>
 <!--TABLA DE DATOS-->
-<hr style="border-color:black;" size:"9px">
-<table class="info" >
-	<tr>
-		{% if salidainventario.tipo_salida|stringformat:"s" == 'A terceros' %}
-		<td width="	250" >NOMBRE DEL BENEFICIARIO</td>
-		<td style="border:solid; border-width: 1px;border-color:gray" width="700" height="28">&nbsp;&nbsp;{{salidainventario.beneficiario}}</td>
-		<td  width="20"></td>
-		<td>DIRECCIÓN</td>
-		<td style="border:solid; border-width: 1px;border-color:gray" width="700" height="28">&nbsp;&nbsp;
-			{% if  salidainventario.beneficiario.direccion %}{{salidainventario.beneficiario.direccion}} {% else %} NO APLICA{% endif %}
-
-		</td>
-
-		{% else %}
-		<td width="	250" >NOMBRE DE LA INSTITUCIÓN</td>
-		<td style="border:solid; border-width: 1px;border-color:gray" width="700" height="28">&nbsp;&nbsp;{{salidainventario.escuela}}</td>
-		<td  width="20"></td>
-		<td>DIRECCIÓN</td>
-		<td style="border:solid; border-width: 1px;border-color:gray" width="700" height="28">&nbsp;&nbsp;{{salidainventario.escuela.direccion}}, {{salidainventario.escuela.municipio}}</td>
-
-		{% endif %}
-	</tr>
-</table>
-<br/>
-<table class="info">
-	<tr>
-		{% if salidainventario.tipo_salida|stringformat:"s" == 'A terceros' %}
-			<td width="	250" >NOMBRE DEL ENCARGADO(A)</td>
-			<td style="border:solid; border-width: 1px;border-color:gray" width="700" height="28">&nbsp;&nbsp;NO APLICA</td>
-			<td  width="20"></td>
-			<td>TELEFONO(S)</td>
-			<td style="border:solid; border-width: 1px;border-color:gray" width="700" height="28">&nbsp;&nbsp;
-
-					{% if  salidainventario.beneficiario.fax %}{{salidainventario.beneficiario.fax}} {% else %} NO APLICA{% endif %}
-			</td>
-			{% else %}
-			<td width="	250" >NOMBRE DEL ENCARGADO(A)</td>
-			<td style="border:solid; border-width: 1px;border-color:gray" width="700" height="28">&nbsp;&nbsp;{{Encargado}}</td>
-			<td  width="20"></td>
-			<td>TELEFONO(S)</td>
-			<td style="border:solid; border-width: 1px;border-color:gray" width="700" height="28">&nbsp;&nbsp;
-
+</br>
+<div>
+	<center>
+		<table class="info"  >
+			<tr> 
+				{% if salidainventario.tipo_salida|stringformat:"s" == 'A terceros' %}
+				<td width="250">NOMBRE DEL BENEFICIARIO</td>
+				<td style="border:solid; border-width: 1px;border-color:gray" width="700" height="28">&nbsp;&nbsp;{{salidainventario.beneficiario}}</td>
+				<td  width="20"></td>
+				<td>DIRECCIÓN</td>
+				<td style="border:solid; border-width: 1px;border-color:gray" width="700" height="28">&nbsp;&nbsp;
+					{% if  salidainventario.beneficiario.direccion %}{{salidainventario.beneficiario.direccion}} {% else %} NO APLICA{% endif %}
+				</td>
+				{% else %}
+				
+				<td width="248">NOMBRE DE LA INSTITUCIÓN</td>
+				<td width="450" height="40" style="border:solid; border-width: 1px;border-color:gray">&nbsp;&nbsp;{{salidainventario.escuela}}</td>
+				<td width="45"></td>
+				<td width="50">DIRECCIÓN</td>
+				<td style="border:solid; border-width: 1px;border-color:gray">&nbsp;&nbsp;{{salidainventario.escuela.direccion}}, {{salidainventario.escuela.municipio}}</td>
+				<td width="250"></td>
+				{% endif %}
+			</tr>
+		</table>
+		
+		<table class="info">
+			<tr>
+				{% if salidainventario.tipo_salida|stringformat:"s" == 'A terceros' %}		
+				<td width="240" >NOMBRE DEL ENCARGADO(A)</td>
+				<td style="border:solid; border-width: 1px;border-color:gray" width="700" height="28">&nbsp;&nbsp;NO APLICA</td>
+				<td  width="20"></td>
+				<td>TELEFONO(S)</td>
+				<td style="border:solid; border-width: 1px;border-color:gray" width="700" height="28">&nbsp;&nbsp;
+				{% if  salidainventario.beneficiario.fax %}{{salidainventario.beneficiario.fax}} {% else %} NO APLICA{% endif %}
+			    </td>
+				
+				{% else %}
+				<td width="248">NOMBRE DEL ENCARGADO(A)</td>
+				<td width="450" style="border:solid; border-width: 1px;border-color:gray">&nbsp;&nbsp;{{Encargado}}</td>
+				<td width="20"></td>
+				<td width="100">TELEFONO(S)</td>
+				<td style="border:solid; border-width: 1px;border-color:gray" width="700">&nbsp;&nbsp;
 					{% if  Telefono|stringformat:"s" == 'None' %} NO APLICA {% else %} {{Telefono}} {% endif %}
-			</td>
-			{% endif %}
-	</tr>
-	</b>
-</table>
-<hr style="border-color:black;" size:"9px">
-<br/>
-<table class="info2" >
-
-</table>
-
+				</td>
+				<td width="250"> </td>
+				{% endif %}
+			</tr>
+		</table>
+	</center>
+</div> 
 <!--FIN DE TABLA DE DATOS-->
 
-<!--TABLA DE LOS DISPOSITIVOS-->
 
-<!--<center> -->
+
+<!--TABLA DE LOS DISPOSITIVOS-->
+<center>                                       <!--Para centrar el div cuando se escala la hoja en la vista o impresion-->
 <div>
-	<div class="col-md-3" style="width: 20%;">
-		<h2 bgcolor="lightgray"> <center>UPS</center> </h2>
-		<table class="datos" style="text-align:center;">
-			<thead>
+    </br> 
+    
+	<div class="col-md-3" style="float: left;  margin-right: 3cm; margin-left: 7cm;">
+		<table class="datos" style="text-align:center;" FRAME="border" RULES="none" >
+			<caption style="text-align:center; font-size:25px" >UPS</caption>
+			<thead style="text-align:center">
 				<tr>
 					<!--UPS-->
-					<th bgcolor="skyblue" >Triage</th>
-					<th bgcolor="skyblue" >Marca</th>
-					<th bgcolor="skyblue" >Modelo</th>
-					<th bgcolor="skyblue" >RTI</th>
-					<th bgcolor="skyblue" >Conexiones</th>
-					<th bgcolor="skyblue" >Voltaje</th>					
+					<th bgcolor="skyblue" width="60"><center>Triage</center></th>
+					<th style="border:solid; border-width: 1px;border-color:gray" bgcolor="skyblue" width="60" ><center>Marca</center></th>
+					<th style="border:solid; border-width: 1px;border-color:gray" bgcolor="skyblue" width="60"><center>Modelo</center></th>
+					<th style="border:solid; border-width: 1px;border-color:gray" bgcolor="skyblue" width="80"><center>Serie/RTI</center></th>
+					<th style="border:solid; border-width: 1px;border-color:gray" bgcolor="skyblue" width="90"><center>Conexiones</center></th>
+					<th style="border:solid; border-width: 1px;border-color:gray" bgcolor="skyblue" width="60"><center>Voltaje</center></th>		
+					
+					{% comment %} <th style="border:solid; border-width: 1px;border-color:gray" bgcolor="skyblue" width="60"><center>Voltaje</center></th>					 {% endcomment %}
+					
 				</tr>
 			</thead>
 			<tbody>
 				{% for ups  in Ups  %}
 				<tr>
-					<td style="border:solid; border-width: 1px;border-color:gray"  height="36">{{ups | default_if_none:"Generico"}}</td>
+					<td style="border:solid; border-width: 1px;border-color:gray" height="30">{{ups | default_if_none:"Generico"}}</td>
 					<td style="border:solid; border-width: 1px;border-color:gray" >{{ups.marca | default_if_none:"Generico"}}</td>
 					<td style="border:solid; border-width: 1px;border-color:gray" >{{ups.modelo | default_if_none:"Generico"}}</td>
 					<td style="border:solid; border-width: 1px;border-color:gray" >{{ups.serie | default_if_none:"Generico"}}</td>							
 					<td style="border:solid; border-width: 1px;border-color:gray" >{{ups.conexiones | default_if_none:"Generico"}}</td>
 					<td style="border:solid; border-width: 1px;border-color:gray" >{{ups.voltaje | default_if_none:"Generico"}}</td>
-					
 				</tr>
 				{% endfor %}
+				<td style="border:solid; border-width: 1px;border-color:gray" colspan="5">TOTAL DISPOSITIVOS</td>
+				<td style="border:solid; border-width: 1px;border-color:gray" >{{TotalSumaUPS}}</td>
 			</tbody>
 		</table>
 	</div>
-	<divc class="col-md-3"style="width: 16%;">
-		<h2 bgcolor="lightgray"> <center>REGLETAS</center> </h2>
-		<table class="datos" style="text-align:center;">
+    
+
+	<divc class="col-md-3">
+		<table class="datos" style="text-align:center;" FRAME="border" RULES="none" >
+			<caption style="text-align:center; font-size:25px" >REGLETAS</caption>
 			<thead>
 				<tr>
 					<!--REGLETA -->
-					<th bgcolor="skyblue"><center>Triage</center></th>						
-					<th bgcolor="skyblue"><center>Marca</center></th>
-					<th bgcolor="skyblue"><center>Modelo</center></th>						
-					<th bgcolor="skyblue"><center>Conexiones</center></th>
-					<th bgcolor="skyblue"><center>Voltaje</center></th>
+					<th style="border:solid; border-width: 1px;border-color:gray" bgcolor="skyblue" width="60"  ><center>Triage</center></th>						
+					<th style="border:solid; border-width: 1px;border-color:gray" bgcolor="skyblue" width="60"  ><center>Marca</center></th>
+					<th style="border:solid; border-width: 1px;border-color:gray" bgcolor="skyblue" width="90"  ><center>Modelo</center></th>	
+					<th style="border:solid; border-width: 1px;border-color:gray" bgcolor="skyblue" width="60"  ><center>Serie/RTI</center></th>						
+					<th style="border:solid; border-width: 1px;border-color:gray" bgcolor="skyblue" width="90"  ><center>Conexiones</center></th>
+					<th style="border:solid; border-width: 1px;border-color:gray" bgcolor="skyblue" width="60"  ><center>Voltaje</center></th>
 				</tr>
 			</thead>
 			<tbody>
 				<center>
 					{% for regleta in Regletas  %}
 						<tr>
-							<td style="border:solid; border-width: 1px;border-color:gray" height="36">{{regleta | default_if_none:"Generico"}}</td>		
+							<td style="border:solid; border-width: 1px;border-color:gray" height="29">{{regleta | default_if_none:"Generico"}}</td>		
 							<td style="border:solid; border-width: 1px;border-color:gray" >{{regleta.marca | default_if_none:"Generico"}}</td>
-							<td style="border:solid; border-width: 1px;border-color:gray" >{{regleta.modelo | default_if_none:"Generico"}}</td>		
+							<td style="border:solid; border-width: 1px;border-color:gray" >{{regleta.modelo | default_if_none:"Generico"}}</td>	
+							<td style="border:solid; border-width: 1px;border-color:gray" >{{regleta.serie | default_if_none:"N/A"}}</td>		
 							<td style="border:solid; border-width: 1px;border-color:gray" >{{regleta.conexiones | default_if_none:"Generico"}}</td>
 							<td style="border:solid; border-width: 1px;border-color:gray" >{{regleta.voltaje | default_if_none:"Generico"}}</td>
 							
 						</tr>
 						{% endfor %}
+						<td style="border:solid; border-width: 1px;border-color:gray" colspan="5">TOTAL DISPOSITIVOS</td>
+						<td style="border:solid; border-width: 1px;border-color:gray"> {{TotalSumaRegleta}} </td>
 				</center>
 			</tbody>
 		</table>
 	</div>
-	<div class="col-md-3" style="width: 27%;">
-		<h2 bgcolor="lightgray"> <center>ADAPTADORES</center> </h2>
-		<table class="datos" style="text-align:center;">
+	<div class="col-md-3" >
+		<table class="datos" style="text-align:center; "FRAME="border" RULES="none">
+			<caption style="text-align:center; font-size:25px" >ADAPTADORES</caption>
 			<thead>
 				<tr> 
 					<!--ADAPTADOR-->
-					<th bgcolor="skyblue"><center>Triage</center></th>
-					<th bgcolor="skyblue" ><center>Marca</center></th>
-					<th bgcolor="skyblue" ><center>Modelo</center></th>
-					<th bgcolor="skyblue" ><center>RTI</center></th>	
-					<th bgcolor="skyblue" ><center>Puertos</center></th>	
-					<th bgcolor="skyblue" ><center>Puerto</center></th>	
-					<th bgcolor="skyblue" ><center>Velocidad</center></th>						
+					<th style="border:solid; border-width: 1px;border-color:gray" bgcolor="skyblue"  width="95"><center>Triage</center></th>
+					<th style="border:solid; border-width: 1px;border-color:gray" bgcolor="skyblue"  width="95"><center>Marca</center></th>
+					<th style="border:solid; border-width: 1px;border-color:gray" bgcolor="skyblue"  width="95"><center>Modelo</center></th>
+					<th style="border:solid; border-width: 1px;border-color:gray" bgcolor="skyblue"  width="90"><center>Serie/RTI</center></th>	
+					<th style="border:solid; border-width: 1px;border-color:gray" bgcolor="skyblue"  width="90"><center>Puertos</center></th>	
+					<th style="border:solid; border-width: 1px;border-color:gray" bgcolor="skyblue"  width="90"><center>Puerto</center></th>						
 				</tr>
 			</thead>
 			<tbody>
 				{% for adaptador in Adaptadores  %}
 					<tr>
-					<td style="border:solid; border-width: 1px;border-color:gray" height="36">{{adaptador | default_if_none:"Generico"}}</td>
+					<td style="border:solid; border-width: 1px;border-color:gray" height="29">{{adaptador | default_if_none:"Generico"}}</td>
 					<td style="border:solid; border-width: 1px;border-color:gray" >{{adaptador.marca | default_if_none:"Generico"}}</td>
 					<td style="border:solid; border-width: 1px;border-color:gray" >{{adaptador.modelo | default_if_none:"Generico"}}</td>
 					<td style="border:solid; border-width: 1px;border-color:gray" >{{adaptador.serie | default_if_none:"Generico"}}</td>
 					<td style="border:solid; border-width: 1px;border-color:gray" >{{adaptador.cantidad_puertos | default_if_none:"Generico"}} </td>
 					<td style="border:solid; border-width: 1px;border-color:gray" >{{adaptador.puerto | default_if_none:"Generico"}}</td>
-					<td style="border:solid; border-width: 1px;border-color:gray" >{{adaptador.velocidad| default_if_none:"Generico"}} </td>
 					</tr>
 					{% endfor %}
+					<td style="border:solid; border-width: 1px;border-color:gray" colspan="5">TOTAL DISPOSITIVOS</td>
+					<td style="border:solid; border-width: 1px;border-color:gray" > {{TotalSumaAdaptador}} </td>
 			</tbody>
 		</table>
 	</div>
 	<div class"col-md-3">
-		<h2 bgcolor="lightgray"> <center>ACCESS POINT</center> </h2>
-		<table class="datos" style="text-align:center;">
+		<table class="datos" style="text-align:center; margin-left: 0px" FRAME="border" RULES="none">
+			<caption style="text-align:center; font-size:25px" >ACCESS POINT</caption>
 			<thead>
 				<tr>
 					<!--ACCESS POINT -->
-					<th bgcolor="skyblue" ><center>Triage</center></th>
-					<th bgcolor="skyblue" ><center>Marca</center></th>
-					<th bgcolor="skyblue" ><center>Modelo</center></th>
-					<th bgcolor="skyblue" ><center>RTI</center></th>
-					<th bgcolor="skyblue" ><center>Puertos</center></th>
-					<th bgcolor="skyblue" ><center>Puerto</center></th>
-					<th bgcolor="skyblue" ><center>Velocidad</center></th>
-					<th bgcolor="skyblue" ><center>Medida Velocidad</center></th>
+					<th style="border:solid; border-width: 1px;border-color:gray" bgcolor="skyblue" width="60"><center>Triage</center></th>
+					<th style="border:solid; border-width: 1px;border-color:gray" bgcolor="skyblue" width="65"><center>Marca</center></th>
+					<th style="border:solid; border-width: 1px;border-color:gray" bgcolor="skyblue" width="120"><center>Modelo</center></th>
+					<th style="border:solid; border-width: 1px;border-color:gray" bgcolor="skyblue" width="70"><center>Serie/RTI</center></th>
+					<th style="border:solid; border-width: 1px;border-color:gray" bgcolor="skyblue" width="60"><center>Puertos</center></th>
+					<th style="border:solid; border-width: 1px;border-color:gray" bgcolor="skyblue" width="90"><center>Puerto</center></th>
+					<th style="border:solid; border-width: 1px;border-color:gray" bgcolor="skyblue" width="90"><center>Velocidad</center></th>
+					<th style="border:solid; border-width: 1px;border-color:gray" bgcolor="skyblue" width="90"><center>Medida Velocidad</center></th>
 					
 				</tr>
 			</thead>
 			<tbody>
 				{% for access in Access  %}
 				<tr>
-					<td style="border:solid; border-width: 1px;border-color:gray" height="36">{{access | default_if_none:"Generico"}}</td>
+					<td style="border:solid; border-width: 1px;border-color:gray" height="29">{{access | default_if_none:"Generico"}}</td>
 					<td style="border:solid; border-width: 1px;border-color:gray">{{access.marca | default_if_none:"Generico"}}</td>
 					<td style="border:solid; border-width: 1px;border-color:gray">{{access.modelo | default_if_none:"Generico"}}</td>
 					<td style="border:solid; border-width: 1px;border-color:gray" >{{access.serie | default_if_none:""}}</td>
@@ -225,32 +231,15 @@
 					<td style="border:solid; border-width: 1px;border-color:gray" >{{access.velocidad_medida | default_if_none:"Generico"}}</td>
 					
 				</tr>
-	
 				{% endfor %}
+				<td style="border:solid; border-width: 1px;border-color:gray" colspan="7">TOTAL DISPOSITIVOS</td>
+				<td style="border:solid; border-width: 1px;border-color:gray"> {{TotalSumaAccess}}</td>
 			</tbody>
 		</table>
 	</div>
 </div>
-<!--</center> -->
-
+</center>
 <!--FIN DE LA TABLA DE LOS DISPOSITIVOS-->
-
-
-<!--TABLA DE LOS CAMPOS-->
-
-<!--<center> -->
-	<br/>
-
-<!--</center> -->
-<br/>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
 <br>
 <br>
 <br>
@@ -266,55 +255,45 @@
 <center>
 	<table style="font-size: 20px;">
 		<td>
-			<hr width="430" style="border-color:black; border-width: 1px;">
-			<center>ENCARGADO DE LA ESCUELA
-			<p><center>NOMBRE Y FIRMA</center></p></center>
+			<hr width="450" style="border-color:black; border-width: 1px;">
+			<center> REPRESENTANTE DEL ENTORNO VIRTUAL <br> NOMBRE Y FIRMA</center>
 		</td>
-
 		<td width="600" valign="center" ><center>SELLO</center>
 		</td>
-
 		<td >
 			<hr width="430" style="border-color:black; border-width: 1px;">
-
-			<center>REPRESENTANTE DE FUNSEPA
-			<p><center>NOMBRE Y FIRMA</center></p></center>
+			<center>REPRESENTANTE DE FUNSEPA <br> NOMBRE Y FIRMA</center>
 		</td>
 
 	</table>
 
 	</center>
 <!--TERMINAR TABLAS DE FIRMA Y SELLO-->
-
-
 </body>
 
 <footer>
 <!--PIE DE PAGINA-->
-	<br>
-	<br>
-	<br>
-
-	<table style="margin-left: 0px;">
-		<td width="1100"><h4>POR CUALQUIER FALLA EN EL EQUIPO COMUNÍCATE A NUESTROS NÚMEROS  DE
-			<p>TELÉFONO 2435-2739 / 24319639</p></b>
+	<table style="margin-left: 20px; float: left; line-height: 18px;">
+		<td width="1100">
+			<h4>
+				POR CUALQUIER FALLA EN EL EQUIPO COMUNÍCATE A NUESTROS NÚMEROS  DE<br> TELÉFONO 2435-2739 / 24319639  </b>
 			</h4>
 		</td>
+	</table>
+	<br>
+	<table style="float: left;">	
 		<td style="font-size: 12px">Latitud</td>
 		<td width="1%"></td>
-		<td style="border:solid; border-width: 1px;border-color:gray" width="200" height="14">{{salidainventario.escuela.mapa.lat}}</td>
+		<td style="border:solid; border-width: 1px;border-color:gray" width="100" height="7">{{salidainventario.escuela.mapa.lat}}</td>
 				<td  width="30"></td>
 
 		<td style="font-size: 12px">Longitud</td>
 		<td width="1%"></td>
-		<td style="border:solid; border-width: 1px;border-color:gray" width="200" height="14">{{salidainventario.escuela.mapa.lng}}</td>
+		<td style="border:solid; border-width: 1px;border-color:gray" width="100" height="7">{{salidainventario.escuela.mapa.lng}}</td>
 	</table>
 
 <!--FIN DE PIE DE PAGINA-->
 </footer>
-
-
-
 
 <!--CSS-->
 <style type="text/css">
@@ -329,17 +308,19 @@ body{
 	 background-image: none;
 	-webkit-print-color-adjust: exact; /*economy | exact*/
     color-adjust: exact;
+	margin-left: 1cm;
+	margin-right: 1cm;
 }
 .encabezado{
-	color: #154458;
+	color: #black;
 	margin:10px;
-	margin-top:20mm;
+
 	font-size:22px;
 }
 .encabezado2{
 	font-size:12px;
 	text-align: center;
-	margin-top:10mm;
+
 }
 .encabezado3{
 	margin-top:0mm;
@@ -354,6 +335,7 @@ body{
 .datos tr:nth-child(even){
 	background-color: #fbfbfb;
 }
+
 </style>
 <script src="{% static "js/jquery.min.js" %}"></script>
 <script src="{% static "js/bootstrap.min.js" %}"></script>
