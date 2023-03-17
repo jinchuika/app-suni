@@ -9,7 +9,7 @@
 <!--ENCABEZADO DATOS E IMAGENES-->
 <header>
 	<div class="logo_izquierdo">
-	<img  width= "200" height="180" style="float:left; margin:10px;"src="{% static "image/Logo_Funsepa-01.png" %}">
+	<img  style="float:left; margin:10px;"src="{% static "image/LogosConsorcio_BEQT.png" %}">
 	</div>
 	<center>
 <b>
@@ -131,12 +131,12 @@
 				<thead>
 					<tr>
 						<!--UPS-->
-						<th bgcolor="skyblue" width="20%"><center>Triage</center></th>
-						<th bgcolor="skyblue" width="20%"><center>Marca</center></th>
-						<th bgcolor="skyblue" width="25%"><center>Modelo</center></th>
-						<th bgcolor="skyblue" width="25%"><center>RTI</center></th>
-						<th bgcolor="skyblue" width="25%"><center>Conexiones</center></th>
-						<th bgcolor="skyblue" width="25%"><center>Voltaje</center></th>
+						<th bgcolor="skyblue" >Triage</th>
+						<th bgcolor="skyblue" >Marca</th>
+						<th bgcolor="skyblue" >Modelo</th>
+						<th bgcolor="skyblue" >RTI</th>
+						<th bgcolor="skyblue" >Conexiones</th>
+						<th bgcolor="skyblue" >Voltaje</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -145,7 +145,7 @@
 						<td style="border:solid; border-width: 1px;border-color:gray"  height="36">{{ups | default_if_none:"Generico"}}</td>
 						<td style="border:solid; border-width: 1px;border-color:gray" >{{ups.marca | default_if_none:"Generico"}}</td>
 						<td style="border:solid; border-width: 1px;border-color:gray" >{{ups.modelo | default_if_none:"Generico"}}</td>
-						<td style="border:solid; border-width: 1px;border-color:gray" >{{ups.serie | default_if_none:""}}</td>
+						<td style="border:solid; border-width: 1px;border-color:gray" >{{ups.serie | default_if_none:"Generico"}}</td>							
 						<td style="border:solid; border-width: 1px;border-color:gray" >{{ups.conexiones | default_if_none:"Generico"}}</td>
 						<td style="border:solid; border-width: 1px;border-color:gray" >{{ups.voltaje | default_if_none:"Generico"}}</td>
 					</tr>
@@ -153,17 +153,16 @@
 				</tbody>
 			</table>
 		</div>
-		<div class="col-md-3">
+		<div class="col-md-2">
 			<table class="datos" style="text-align:center;">
 				<thead>
 					<tr>
 						<!--REGLETA -->
-						<th bgcolor="skyblue" width="20%"><center>Triage</center></th>						
-						<th bgcolor="skyblue" width="20%"><center>Marca</center></th>
-						<th bgcolor="skyblue" width="25%"><center>Modelo</center></th>
-						<th bgcolor="skyblue" width="25%"><center>RTI</center></th>
-						<th bgcolor="skyblue" width="25%"><center>Conexiones</center></th>
-						<th bgcolor="skyblue" width="25%"><center>Voltaje</center></th>
+						<th bgcolor="skyblue" width="1%"><center>Triage</center></th>						
+						<th bgcolor="skyblue" width="1%"><center>Marca</center></th>
+						<th bgcolor="skyblue" width="5%"><center>Modelo</center></th>						
+						<th bgcolor="skyblue" width="5%"><center>Conexiones</center></th>
+						<th bgcolor="skyblue" width="5%"><center>Voltaje</center></th>
 					</tr>
 				</thead>
 				<tbody>
@@ -172,11 +171,10 @@
 							<tr>
 		<td style="border:solid; border-width: 1px;border-color:gray" height="36">{{regleta | default_if_none:"Generico"}}</td>		
 		<td style="border:solid; border-width: 1px;border-color:gray" >{{regleta.marca | default_if_none:"Generico"}}</td>
-		<td style="border:solid; border-width: 1px;border-color:gray" >{{regleta.modelo | default_if_none:"Generico"}}</td>
-		<td style="border:solid; border-width: 1px;border-color:gray" >{{regleta.serie | default_if_none:""}}</td>
+		<td style="border:solid; border-width: 1px;border-color:gray" >{{regleta.modelo | default_if_none:"Generico"}}</td>		
 		<td style="border:solid; border-width: 1px;border-color:gray" >{{regleta.conexiones | default_if_none:"Generico"}}</td>
 		<td style="border:solid; border-width: 1px;border-color:gray" >{{regleta.voltaje | default_if_none:"Generico"}}</td>
-		<td  width="25	"></td>
+		<td  width="25"></td>
 	</tr>
 	{% endfor %}
 					</center>
@@ -184,18 +182,18 @@
 			</table>
 
 	</div>
-	<div class="col-md-2">
+	<div class="col-md-3">
 		<table class="datos" style="text-align:center;">
 			<thead>
 				<tr> 
 					<!--ADAPTADOR-->
-					<th bgcolor="skyblue" width="20%"><center>Triage</center></th>
-					<th bgcolor="skyblue" width="20%"><center>Marca</center></th>
-					<th bgcolor="skyblue" width="12%"><center>Modelo</center></th>
-					<th bgcolor="skyblue" width="15%"><center>RTI</center></th>	
-					<th bgcolor="skyblue" width="15%"><center>Cantidad P</center></th>	
-					<th bgcolor="skyblue" width="15%"><center>Puerto</center></th>	
-					<th bgcolor="skyblue" width="15%"><center>Velocidad</center></th>						
+					<th bgcolor="skyblue" width="2%"><center>Triage</center></th>
+					<th bgcolor="skyblue" width="2%"><center>Marca</center></th>
+					<th bgcolor="skyblue" width="2%"><center>Modelo</center></th>
+					<th bgcolor="skyblue" width="5%"><center>RTI</center></th>	
+					<th bgcolor="skyblue" width="5%"><center>Cantidad P</center></th>	
+					<th bgcolor="skyblue" width="5%"><center>Puerto</center></th>	
+					<th bgcolor="skyblue" width="5%"><center>Velocidad</center></th>						
 				</tr>
 			</thead>
 			<tbody>
@@ -209,26 +207,26 @@
 					<td style="border:solid; border-width: 1px;border-color:gray" >{{adaptador.puerto | default_if_none:"Generico"}}</td>
 					<td style="border:solid; border-width: 1px;border-color:gray" >{{adaptador.velocidad| default_if_none:"Generico"}} </td>
 					
-					<td  width="25	"></td>
+					<td  width="25%"></td>
 					</tr>
 					{% endfor %}
 			</tbody>
 		</table>
 	
 </div>
-<div class="col-md-3">
+<div class="col-md-2">
 	<table class="datos" style="text-align:center;">
 		<thead>
 			<tr>
 				<!--ACCESS POINT -->
-				<th bgcolor="skyblue" width="20%"><center>Triage</center></th>
-				<th bgcolor="skyblue" width="20%"><center>Marca</center></th>
-				<th bgcolor="skyblue" width="30%"><center>Modelo</center></th>
-				<th bgcolor="skyblue" width="30%"><center>RTI</center></th>
-				<th bgcolor="skyblue" width="30%"><center>Cantidad Puertos</center></th>
-				<th bgcolor="skyblue" width="30%"><center>Puerto</center></th>
-				<th bgcolor="skyblue" width="30%"><center>Velocidad</center></th>
-				<th bgcolor="skyblue" width="30%"><center>Medida Velocidad</center></th>
+				<th bgcolor="skyblue" width="2%"><center>Triage</center></th>
+				<th bgcolor="skyblue" width="2%"><center>Marca</center></th>
+				<th bgcolor="skyblue" width="3%"><center>Modelo</center></th>
+				<th bgcolor="skyblue" width="3%"><center>RTI</center></th>
+				<th bgcolor="skyblue" width="3%"><center>Cantidad Puertos</center></th>
+				<th bgcolor="skyblue" width="3%"><center>Puerto</center></th>
+				<th bgcolor="skyblue" width="3%"><center>Velocidad</center></th>
+				<th bgcolor="skyblue" width="3%"><center>Medida Velocidad</center></th>
 				
 			</tr>
 		</thead>
@@ -258,10 +256,39 @@
 <br>
 <br>
 <br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
 <center>
 	<table style="font-size: 20px;">
-
-		<td  >
+		<td>
 			<hr width="430" style="border-color:black; border-width: 1px;">
 			<center>ENCARGADO DE LA ESCUELA
 			<p><center>NOMBRE Y FIRMA</center></p></center>

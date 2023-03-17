@@ -162,11 +162,11 @@ class SalidaPaqueteUpdateView(LoginRequiredMixin, GroupRequiredMixin, UpdateView
         )
         return form
 
-    def form_valid(self, form):
+    def form_valid(self, form):       
         cantidad_disponible = form.cleaned_data['entrada']
         tipo = inv_m.PaqueteTipo.objects.get(id=self.request.POST['tipo_paquete'])
         cantidad = form.cleaned_data['cantidad']
-        if (cantidad_disponible.count() > 0):
+        if (cantidad_disponible.count() > 0):           
             cantidad_total = 0
             for disponibles in cantidad_disponible:
                 try:
@@ -177,7 +177,7 @@ class SalidaPaqueteUpdateView(LoginRequiredMixin, GroupRequiredMixin, UpdateView
                     cantidad_total = cantidad_total + detalles['total_util']
                 except TypeError as e:
                     messages.error(self.request, 'La entrada:'+str(disponibles)+" No tiene dispositivos de este tipo")
-            if(cantidad < cantidad_total):
+            if(cantidad < cantidad_total):                
                 form.instance.crear_paquetes(
                     cantidad=form.cleaned_data['cantidad'],
                     usuario=self.request.user,
@@ -186,7 +186,7 @@ class SalidaPaqueteUpdateView(LoginRequiredMixin, GroupRequiredMixin, UpdateView
                     )
             else:
                 messages.error(self.request, 'No Hay en existencia los dispositivos solicitados')
-        else:
+        else:            
             form.instance.crear_paquetes(
                 cantidad=form.cleaned_data['cantidad'],
                 usuario=self.request.user,

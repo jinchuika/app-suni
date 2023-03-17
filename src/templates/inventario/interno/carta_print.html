@@ -236,6 +236,7 @@
 					</tr>
 					<!-- LAPTOP -->
 					{% elif dispositivo.dispositivo.tipo.id == 7 %}
+					
 					<tr>
 						<td rowspan="9"><h4><center>{{ dispositivo.dispositivo.triage|default_if_none:"" }}</center></h4></td>
 						<td width="10%"><b>Tipo:</b></td>
@@ -254,8 +255,8 @@
 						<td width="90%">{{ dispositivo.dispositivo.disco_duro|default_if_none:"" }} ({{ dispositivo.dispositivo.disco_duro.capacidad|default_if_none:"" }} {{ dispositivo.dispositivo.disco_duro.medida|default_if_none:"" }})</td>
 					</tr>
 					<tr>
-						<td width="10%"><b>RAM:</b></td>
-						<td width="90%">{{ dispositivo.dispositivo.ram|default_if_none:"" }} {{ dispositivo.dispositivo.ram_medida|default_if_none:"" }}</td>
+						<td width="10%"><b>RAM2:</b></td>
+						<td width="90%">{{ dispositivo.dispositivo.marca|default_if_none:"" }} {{ dispositivo.dispositivo.ram|default_if_none:"" }}</td>
 					</tr>
 					<tr>
 						<td width="10%"><b>Procesador:</b></td>
