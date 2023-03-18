@@ -554,7 +554,12 @@ class TpePrintView(LoginRequiredMixin, DetailView,GroupRequiredMixin):
             paquete__salida__id=self.object.id,
             paquete__tipo_paquete=access_point,
             )
-        
+
+        totalSumaRegleta = len(total_regleta)
+        totalSumaAccess = len(total_access)
+        totalSumaAdaptador = len(total_adaptador)
+        totalSumaUPS = len(total_ups)
+ 
         for triage_adaptador in total_adaptador:
             nuevo_adaptador = beqt_m.DispositivoBeqt.objects.get(triage=triage_adaptador.dispositivo).cast()
             nuevos_adaptadores.append(nuevo_adaptador)
@@ -583,9 +588,13 @@ class TpePrintView(LoginRequiredMixin, DetailView,GroupRequiredMixin):
             context['Jornada'] = "No tiene Jornada"
             context['Encargado'] = "No Tiene Encargado"
         context['Adaptadores'] =  sorted(nuevos_adaptadores,key=lambda s: int(re.search(r'\d+',s.triage).group()))
+        context['TotalSumaAdaptador'] = totalSumaAdaptador
         context['Regletas'] =  sorted(nuevas_regletas,key=lambda s: int(re.search(r'\d+',s.triage).group()))
+        context['TotalSumaRegleta'] = totalSumaRegleta
         context['Ups'] =  sorted(nuevos_ups,key=lambda s: int(re.search(r'\d+',s.triage).group()))
+        context['TotalSumaUPS'] = totalSumaUPS
         context['Access'] =  sorted(nuevos_access,key=lambda s: int(re.search(r'\d+',s.triage).group()))
+        context['TotalSumaAccess'] = totalSumaAccess
         return context
 
 

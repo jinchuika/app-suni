@@ -69,7 +69,9 @@ LOCAL_APPS = (
     'apps.coursera',
     'apps.Bienestar',
     'apps.informe',
-    'apps.controlNotas'
+    'apps.controlNotas',
+    'apps.recaudacionFondos',
+    'apps.beqt'
 )
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 
@@ -125,7 +127,7 @@ DATABASE_ROUTERS = ['apps.legacy.dbrouters.LegacyRouter', ]
 DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.mysql',
-            'NAME': 'prueba_final',
+            'NAME': 'suni_2702',
             'USER': 'root',
             'PASSWORD': '',
             'HOST': 'localhost',

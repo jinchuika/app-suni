@@ -8,6 +8,7 @@ from apps.inventario import models as inv_m
 from apps.crm import models as crm_m
 from apps.inventario import models as inventario_m
 from apps.escuela import models as escuela_m
+from apps.beqt import models as beqt_m
 
 
 class PeriodoFiscalForm(forms.ModelForm):
@@ -214,6 +215,87 @@ class ResumenInformeForm(forms.Form):
 
     tipo_dispositivo = forms.ModelMultipleChoiceField(
         queryset=inv_m.DispositivoTipo.objects.filter(usa_triage=True),
+        label='Dispositivo',
+        required=False,
+        widget=forms.SelectMultiple(attrs={'class': 'form-control select2'}))
+
+
+##Formularios de BEQT
+class EntradaDispositivoBeqtInformeForm(forms.Form):
+    """Este Formulario se encarga de enviar los filtros para  su respectivo informe de Dispositivos por Entrada
+    """
+    no_entrada = forms.IntegerField(
+        label='No. Entrada',
+        required=False,
+        widget=forms.NumberInput(attrs={'class': 'form-control'}))
+
+    tipo_dispositivo = forms.ModelChoiceField(
+        queryset=beqt_m.DispositivoTipoBeqt.objects.filter(usa_triage=True),
+        label='Tipo de Dispositivo',
+        required=True,
+        widget=forms.Select(attrs={'class': 'form-control select2'}))
+
+    fecha_min = forms.CharField(
+        label='Fecha (min)',
+        required=True,
+        widget=forms.TextInput(attrs={'class': 'form-control datepicker'}))
+    fecha_max = forms.CharField(
+        label='Fecha (max)',
+        required=True,
+        widget=forms.TextInput(attrs={'class': 'form-control datepicker'}))
+    
+
+class SalidasBeqtInformeForm(forms.Form):
+    """Este Formulario se encarga de enviar los filtros para  su respectivo informe de Salidas
+    """
+    udi = forms.CharField(
+        label='UDI',
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-control'}))
+
+    beneficiado = forms.ModelChoiceField(
+        queryset=crm_m.Donante.objects.all(),
+        label='Beneficiado',
+        widget=forms.Select(attrs={'class': 'form-control select2'}),
+        required=False)
+    tipo_salida = forms.ModelMultipleChoiceField(
+        queryset=inv_m.SalidaTipo.objects.filter(id=1),
+        label='Tipo de Salida',
+        required=False,
+        widget=forms.SelectMultiple(attrs={'class': 'select2', 'multiple': 'multiple'}))
+    
+
+    tipo_dispositivo = forms.ModelChoiceField(
+        queryset=inv_m.DispositivoTipo.objects.filter(usa_triage=True),
+        label='Tipo de Dispositivo',
+        required=True,
+        widget=forms.Select(attrs={'class': 'form-control select2'}))
+
+    fecha_min = forms.CharField(
+        label='Fecha (min)',
+        required=True,
+        widget=forms.TextInput(attrs={'class': 'form-control datepicker'}))
+    fecha_max = forms.CharField(
+        label='Fecha (max)',
+        required=True,
+        widget=forms.TextInput(attrs={'class': 'form-control datepicker'}))
+    
+
+
+class ResumenInformeBeqtForm(forms.Form):
+    """Este Formulario se encarga de enviar los filtros para  su respectivo informe de Resumen
+    """
+    fecha_min = forms.CharField(
+        label='Fecha (min)',
+        required=True,
+        widget=forms.TextInput(attrs={'class': 'form-control datepicker'}))
+    fecha_max = forms.CharField(
+        label='Fecha (max)',
+        required=True,
+        widget=forms.TextInput(attrs={'class': 'form-control datepicker'}))
+
+    tipo_dispositivo = forms.ModelMultipleChoiceField(
+        queryset=beqt_m.DispositivoTipoBeqt.objects.filter(usa_triage=True),
         label='Dispositivo',
         required=False,
         widget=forms.SelectMultiple(attrs={'class': 'form-control select2'}))

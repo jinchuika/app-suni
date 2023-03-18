@@ -60,6 +60,13 @@ class Equipamiento(models.Model):
         blank=True,
         verbose_name='SO de las PC',
         on_delete=models.CASCADE)
+    tablet_os = models.ForeignKey(
+        EquipamientoOs,
+        null=True,
+        blank=True,
+        related_name='os_tablet',
+        verbose_name='SO de las tablet',
+        on_delete=models.CASCADE)
     red = models.BooleanField(blank=True, default=False)
     tipo_red = models.ForeignKey(EquipamientoTipoRed, null=True, blank=True, on_delete=models.CASCADE)
     fotos = models.BooleanField(default=False, blank=True)

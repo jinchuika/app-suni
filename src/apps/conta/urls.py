@@ -112,7 +112,57 @@ urlpatterns = [
     conta_v.InformeResumenJson.as_view(),
     name='contabilidad_api_resumen'
     ),
+ # Urls para el modulo de BEQT 
 
+  # Informe de Entradas
+ url(
+    r'^beqt/informentrada/$',
+    conta_v.ContabilidadBEQTEntradaInformeListView.as_view(),
+    name='contabilidad_entrada_beqt'
+   ),
+
+ url(
+    r'^beqt/informentradapi/$',
+    conta_v.InformeEntradaBeqtJson.as_view(),
+    name='contabilidad_api_entrada_beqt'
+    ),
+     # Informe de Dispositivos x Entrada
+ url(
+    r'^beqt/informentradadispositivo/$',
+    conta_v.ContabilidadEntradaDispBeqtInformeListView.as_view(),
+    name='contabilidad_beqt_entrada_dispositivo'
+   ),
+    # Devolver Data de Informe de Dispositivos x Entrada
+ url(
+    r'^beqt/informentradadispositivoapi/$',
+    conta_v.InformeEntradaDispositivoBeqtJson.as_view(),
+    name='contabilidad_beqt_api_entrada_dispositivo'
+    ),
+  # Informe de Salidas por Donación
+ url(
+    r'^beqt/informesalidas/$',
+    conta_v.ContabilidadBeqtSalidasInformeListView.as_view(),
+    name='contabilidad_beqt_salidas'
+   ),
+ # Devolver Data de Informe de Entradas
+ url(
+    r'^beqt/informesalidasapi/$',
+    conta_v.InformeSalidaBeqtJson.as_view(),
+    name='contabilidad_beqt_api_salidas'
+    ),
+ 
+    # Informe de Resumen
+ url(
+    r'^beqt/informeresumen/$',
+    conta_v.ContabilidadResumenBeqtInformeListView.as_view(),
+    name='contabilidad_beqt_resumen'
+   ),
+ # Devolver Data de Resumen
+ url(
+    r'^beqt/informeresumenapi/$',
+    conta_v.InformeResumenBeqtJson.as_view(),
+    name='contabilidad_beqt_api_resumen'
+    ),   
  # Api
  url(r'^api/', include(('apps.conta.api_urls', 'conta'), namespace='conta_api'))
 ]
