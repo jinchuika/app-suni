@@ -7,169 +7,185 @@
   </title>
 </head>
 <meta charset="utf-8"/>
+
 <body>
   <div align="center">
-    <div  align="left" class="encabezado">
-      <img src="{% static "image/LogosConsorcio_BEQT.png" %}"  />      
+    <div class="encabezado">
+       <img src="{% static "image/LogosConsorcio_BEQT.png"%}" height="80"/>      <!--Imagenes de ecabezado -->
     </div>
-    <div align="centar" class="titulo">
+        <div style="font-size:22px">
       <h5>
         GARANTIA FUNSEPA
         <br>
-        OFICIO No. TPE {{salidainventario}}
-      </h5>
+        OFICIO No. TPE {{salidainventario}} 
     </div>
   </div>
+  
   <div align="justify">
-    <h6>
-      FUNSEPA se siente muy complacida de poder apoyar en la búsqueda de una educación de calidad de
-      nuestros niños por medio de la tecnología y agradece este centro educativo por su colaboración y
-      entusiasmo en la realización de este proyecto. Para aprovechar el apoyo de la mejor manera queremos
-      aclarar los siguientes puntos:
-    </h6>
+    <p> 
+        FUNSEPA se siente muy complacida de poder apoyar en la búsqueda de una educación de calidad para la niñez y adolescencia 
+        por medio de la tecnología y les agradece por su colaboración y entusiasmo en la realización de este proyecto. Para aprovechar el apoyo de la mejor manera 
+        queremos aclarar los siguientes puntos:
+    </p>
     <ul>
       <li>
-        <h6>
-          Es de suma importancia que el equipo de cómputo se mantenga en buen estado para que director,
-          maestros, niños y comunidad en general aprovechen los beneficios.{% if capacitada %}
-          Esto será posible llevando a la
-          práctica los conocimientos adquiridos en el proceso de capacitación respecto al mantenimiento
-          preventivo y reparación básica de fallas del mismo; así como la comunicación constante con
-          Funsepa.
+        <p>
+           Es de suma importancia que los dispositivos se mantengan en buen estado para que sus beneficios sean de provecho.
+           {% if capacitada %}
+           Esto será posible llevando a la
+           práctica los conocimientos adquiridos en el proceso de capacitación respecto al mantenimiento
+           preventivo y reparación básica de fallas del mismo; así como la comunicación constante con
+           Funsepa.
           {% endif %}
-        </h6>
+        </p>
       </li>
       <li>
-        <h6>
-          Las _________<u><b>{{total_tablet}}</b></u>__________  {% if cpu == 1 %}tablets  y  _________<u><b>{{total_laptop}}</b></u>__________ {% else %}computadoras{% endif %} Laptop con _________<u><b>{{cpu_servidor}}</b></u>__________  {% if laptop == True %}servidor tipo Laptop{% else %}servidor{% endif %} entregados por FUNSEPA a {{salidainventario.escuela.nombre}}
-          UDI {{salidainventario.escuela.codigo}} en calidad
-          de préstamo se encuentran funcionando en su totalidad, de caso contrario informar al técnico
-          encargado de la entrega para que haga las correcciones correspondientes. Solicitamos al
-          establecimiento probar todas las computadoras <b>ANTES</b> de firmar la presente nota que hace constar
-          su funcionamiento y recepción a total conformidad.
-        </h6>
+        <p>
+           Las _________<u><b>{{total_tablet}}</b></u>__________  {% if cpu == 1 %}tablets  y  _________<u><b>{{total_laptop}}</b></u>__________ {% else %}computadoras{% endif %} Laptop con _________<u><b>{{cpu_servidor}}</b></u>__________  {% if laptop == True %}servidor tipo Laptop{% else %}servidor{% endif %} entregados por FUNSEPA a {{salidainventario.escuela.nombre}}
+           UDI {{salidainventario.escuela.codigo}} en calidad
+           de préstamo se encuentran funcionando en su totalidad, de caso contrario informar al técnico
+           encargado de la entrega para que haga las correcciones correspondientes. Solicitamos al
+           establecimiento probar todos los dispositivos <b>ANTES</b> de firmar la presente nota que hace constar
+           su funcionamiento y recepción a total conformidad. </br> </br>
+        </p>
       </li>
       <li>
-        <h6>
-          Todas las computadoras se entregan con {{tiempo}} garantia, la cual inicia el {{salidainventario.fecha}}
-         y finaliza el {{fin_garantia}} . Adicional a este certificado, se le
-         está haciendo entrega de un Manual de Autosostenibilidad y Mantenimiento(En formato digital), y una Guía del Software
-         Educativo instalado en el equipo.
-       </h6>
+        <p>
+          Todos los dispositivos se entregan con {{tiempo}} garantia, la cual inicia el {{salidainventario.fecha}}
+          y finaliza el {{fin_garantia}}. Adicional a este certificado, se le
+          está haciendo entrega de un Manual de Autosostenibilidad y Mantenimiento (En formato digital), y una Guía del Software
+          Educativo instalado en el equipo.</br> </br>
+       <p>
       </li>
       <li>
-        <h6>
+        <p>
           Si durante el tiempo que dure la garantía el equipo presentara algún desperfecto, FUNSEPA se
-         <b>compromete</b> a reparar o cambiar las partes que se encuentren dañadas (no se debe extraer ninguna
-         pieza del equipo para efectos de garantía), <b>el valor del transporte hacia el Centro de
-         Reacondicionamiento es cubierto por FUNSEPA.</b>
-       </h6>
+          <b>compromete</b> a reparar o cambiar las partes que se encuentren dañadas (no se debe extraer ninguna
+          pieza del equipo para efectos de garantía), <b>el valor del transporte hacia el Centro de
+          Reacondicionamiento es cubierto por FUNSEPA.</b> </br> </br>
+       <p>
       </li>
       <li>
-        <h6>
-          Si el equipo de cómputo que se les entregó presentara algún desperfecto o daño <b>luego de finalizada</b>
-          la garantía, pueden comunicarse a FUNSEPA a los teléfonos<b> 24352739/ 24319639 </b>y llevarlo al Centro
-          de Reacondicionamiento donde se realizará un diagnóstico, FUNSEPA reparará daños menores, en
-          el caso que se necesite el cambio de alguna pieza se hará de conocimiento del Director y el costo
-          deberá ser cubierto por la escuela.
-        </h6>
+        <p>
+           Si el equipo de cómputo y tabletas  que se les entregó presentara algún desperfecto o daño <b>luego de finalizada</b>
+           la garantía, pueden comunicarse a FUNSEPA a los teléfonos<b> 24352739/ 24319639 </b>y llevarlo al Centro
+           de Reacondicionamiento donde se realizará un diagnóstico, FUNSEPA reparará daños menores, en
+           el caso que se necesite el cambio de alguna pieza se hará de conocimiento al encargado del entorno virtual
+           y el costo deberá ser cubierto por el entorno virtual.
+          </br> </br>
+        </p>
       </li>
       <li>
-        <h6>
-          Según el plan de sostenibilidad; es indispensable que la escuela vele por el buen
+        <p>
+          Según el plan de sostenibilidad; es indispensable que la institución vele por el buen
           funcionamiento del equipo entregado. Durante éste periodo se estará en constante
           comunicación y monitoreo sobre el uso del equipo y en caso se compruebe que el mismo no
           está siendo aprovechado para mejorar la educación de los niños Funsepa estará en derecho de
-          retirarlo.
-        </h6>
+          retirarlo.</br> </br>
+        </p>
       </li>
       <li>
-        <h6>
-          Es indispensable que los docentes asistan a las capacitaciones impartidas por FUNSEPA, ya
-          que de caso contrario el equipo entregado puede ser retirado arbitrariamente.
-        </h6>
+        <p>
+           Es indispensable que el personal encargado, asistan a las capacitaciones impartidas por FUNSEPA, ya
+           que de caso contrario el equipo entregado puede ser retirado arbitrariamente.</br>
+        </p>
       </li>
     </ul>
     <div>
-      <h6>
-        <b>Nota Importante:</b> Los Técnicos de FUNSEPA <b>no están autorizados</b> en ninguna circunstancia para recibir
-        dinero bajo ningún concepto. Cualquier duda por favor comunicarse DIRECTAMENTE con la Fundación.
-      </h6>
+      <p>
+      </br>
+         <b>Nota Importante:</b> Los Técnicos de FUNSEPA <b>no están autorizados</b> en ninguna circunstancia para recibir
+         dinero bajo ningún concepto. Cualquier duda por favor comunicarse DIRECTAMENTE con la Fundación. </br></br>
+      </p>
     </div>
   </div>
+
   <div>
     <table style="width:100%">
+      <br> <br> <br> <br> <br> <br>
       <tr>
         <th>
-          <br />
-          <h6>
-            ________________________________
-            <br />
-            Director de la Escuela
-            <br>
-            Nombre, firma y Sello
+          <h6 style="font-size:16px">
+            <hr style="border:0.005cm solid; width: 380px; margin-bottom: -16px;"> 
+             <br>
+             REPRESENTANTE DEL ENTORNO VIRTUAL
+             <br>
+             Nombre, firma y Sello
           </h6>
         </th>
         <th>
-          <br />
-          <h6>
-            _______________________________
-            <br />
-            Vo.Bo. Licda. Karla del Valle
+           <h6 style="font-size:16px"> 
+            <hr style="border:0.005cm solid; width: 380px; margin-bottom: -16px;"> 
             <br/>
-            Consultora/Coordinadora TPE
+            REPRESENTANTE DE FUNSEPA
+            <br/>
+            NOMBRE Y FIRMA
           </h6>
         </th>
       </tr>
     </table>
     <div align="center">
-      <h6>
-        Guatemala, {{salidainventario.fecha}}
-      </h6>
-        <br/>
+      <p>Sello</p>
+      <p> <br> <br> <br> 
+         Guatemala, {{salidainventario.fecha}} 
+      </p>
     </div>
   </div>
-  <div align="center">
+
+  <div style="margin-top:-20px">
     <footer>
-      <p>
         <center>
-          <h6>
-            14 avenida 19-50 Zona 4 de Mixco, Condado el Naranjo. OfiBodegas San Sebastián, Bodega 36 Guatemala.<br />
-            +502 24352739/ 24319639<br />
-            Email: info@funsepa.org www.funsepa.org
-          </h6>
-    </center>
-      </p>
+          <p style=" line-height: 18px;">
+             14 avenida 19-50 Zona 4 de Mixco, Condado el Naranjo. OfiBodegas San Sebastián, Bodega 36 Guatemala.<br />
+             +502 24352739/ 24319639<br />
+             Email: info@funsepa.org www.funsepa.org
+          </p>
+        </center>
     </footer>
   </div>
 </body>
+
+
 <style type="text/css">
+
+@page{
+  margin-top: 0mm;
+  margin-bottom: 0mm;
+}
+
 body{
-  position: absolute;
-  margin-top: 137px;
+  margin-top: 50px;
+  margin-left: 1cm;
+  margin-right: 8mm;
+
   font-size: 16.5px;
   z-index: 1;
   font-family: "Arial"
 }
-@page{
-  margin-top: 0mm;
-  margin-bottom: 0mm;
-  margin-left: 10mm;
-  margin-right: 10mm;
-}
+
 footer{
   color: #D3D3D3;
-  margin-top: 50px;
+  margin-top: 30px;
 }
-.encabezado{
-position: absolute;
-margin-top: -134px;
+
+.encabezado{ 
+align: center;
 z-index: 0;
 }
+
 h6{
   font-weight: normal;
   font-style: normal;
 }
+.img-container{
+  text-align: center;
+}
+
+p{
+  line-height: 24px;
+  font-size: 16px;
+}
+
 </style>
 </html>
 {% block extra_js %}

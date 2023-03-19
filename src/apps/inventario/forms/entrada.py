@@ -103,7 +103,7 @@ class EntradaDetalleForm(forms.ModelForm):
             'proveedor_kardex': forms.Select(attrs={'class': 'form-control select2'}),
             'estado_kardex': forms.Select(attrs={'class': 'form-control select2'}),
             'tipo_entrada_kardex': forms.Select(attrs={'class': 'form-control select2'}),
-            'precio_unitario': forms.TextInput({'class': 'form-control', 'min': 1, 'type': 'number'}),
+            'precio_unitario': forms.TextInput({'class': 'form-control', 'min': 1, 'type': 'number','step':"any"}),
         }
 
     def __init__(self, *args, **kwargs):
