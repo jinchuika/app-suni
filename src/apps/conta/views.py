@@ -48,13 +48,17 @@ def get_existencia(tipo_dispositivo, fecha, periodo):
         dispositivo__in=bajas).exclude(dispositivo__in=compras).values('dispositivo')
 
     # Obtener Precio Estandar Actual y Anterior
-    try:
+    
+    if periodo.fecha_fin.year <2023:
         precio = conta_m.PrecioEstandar.objects.filter(
             tipo_dispositivo=tipo_dispositivo,
             periodo=periodo,
-            inventario='dispositivo').first().precio
-    except:
-        precio = 10
+            inventario='dispositivo').first().precio       
+    else:      
+        precio_lote = conta_m.PrecioDispositivo.objects.filter(
+        dispositivo__in=utiles,
+        activo=True).aggregate(Sum('precio'))       
+        precio = precio_lote['precio__sum']        
     
 
     # Obtener Precio Total
@@ -62,11 +66,16 @@ def get_existencia(tipo_dispositivo, fecha, periodo):
         precio_tipo_dispositivo = conta_m.PrecioDispositivo.objects.filter(
             dispositivo__in=utiles,
             periodo__in=periodos_anteriores).aggregate(Sum('precio'))
-    else:
-        precio_tipo_dispositivo = conta_m.PrecioDispositivo.objects.filter(
+     else:    
+           if periodo.fecha_fin.year <2023:            
+            precio_tipo_dispositivo = conta_m.PrecioDispositivo.objects.filter(
             dispositivo__in=utiles,
             periodo=periodo).aggregate(Sum('precio'))
-
+        else:           
+            precio_tipo_dispositivo = conta_m.PrecioDispositivo.objects.filter(
+            dispositivo__in=utiles,
+            activo=True).aggregate(Sum('precio'))  
+            
     precio_tipo_compras = conta_m.PrecioDispositivo.objects.filter(
         dispositivo__in=compras,
         activo=True).aggregate(Sum('precio'))
@@ -75,7 +84,10 @@ def get_existencia(tipo_dispositivo, fecha, periodo):
         precio_tipo_dispositivo = precio_tipo_dispositivo['precio__sum']
     else:
         if precio is not None:
-            precio_tipo_dispositivo = len(utiles) * precio
+            if periodo.fecha_fin.year < 2023:
+                precio_tipo_dispositivo = len(utiles) * precio                
+            else:
+                precio_tipo_dispositivo = precio    
         else:
             precio_tipo_dispositivo = 0
 
