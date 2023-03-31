@@ -50,7 +50,7 @@ def get_existencia(tipo_dispositivo, fecha, periodo):
     # Obtener Precio Estandar Actual y Anterior
        try:
             
-            if periodo.fecha_fin.year <2023:
+            if periodo.fecha_fin.year <2023:  
                precio = conta_m.PrecioEstandar.objects.filter(
                   tipo_dispositivo=tipo_dispositivo,
                   periodo=periodo,
