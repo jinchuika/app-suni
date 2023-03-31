@@ -48,13 +48,13 @@ def get_existencia(tipo_dispositivo, fecha, periodo):
         dispositivo__in=bajas).exclude(dispositivo__in=compras).values('dispositivo')
 
     # Obtener Precio Estandar Actual y Anterior
-try:
-        precio = conta_m.PrecioEstandar.objects.filter(
-            tipo_dispositivo=tipo_dispositivo,
-            periodo=periodo,
-            inventario='dispositivo').first().precio
-    except:
-        precio = 10
+#try:
+ #       precio = conta_m.PrecioEstandar.objects.filter(
+  #          tipo_dispositivo=tipo_dispositivo,
+   #         periodo=periodo,
+    #        inventario='dispositivo').first().precio
+   # except:
+    #    precio = 10
    
     # Obtener Precio Total
     if periodo.fecha_fin.year <= 2018:
