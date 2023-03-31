@@ -48,7 +48,7 @@ def get_existencia(tipo_dispositivo, fecha, periodo):
         dispositivo__in=bajas).exclude(dispositivo__in=compras).values('dispositivo')
 
     # Obtener Precio Estandar Actual y Anterior
-     try:
+    try:
         precio = conta_m.PrecioEstandar.objects.filter(
             tipo_dispositivo=tipo_dispositivo,
             periodo=periodo,
