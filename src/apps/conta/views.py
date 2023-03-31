@@ -56,7 +56,6 @@ def get_existencia(tipo_dispositivo, fecha, periodo):
     except:
         precio = 10
    
-
     # Obtener Precio Total
     if periodo.fecha_fin.year <= 2018:
         precio_tipo_dispositivo = conta_m.PrecioDispositivo.objects.filter(
@@ -79,6 +78,13 @@ def get_existencia(tipo_dispositivo, fecha, periodo):
 
     precio_total = precio_tipo_dispositivo + precio_tipo_compras
     existencia = len(utiles) + len(compras)
+     else:
+            precio_tipo_dispositivo = 0
+
+    if precio_tipo_compras['precio__sum'] is not None:
+        precio_tipo_compras = precio_tipo_compras['precio__sum']
+    else:
+        precio_tipo_compras = 0
 
     result['saldo_total'] = precio_total
     result['existencia'] = existencia
