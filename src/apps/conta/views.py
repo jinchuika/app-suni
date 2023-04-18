@@ -773,18 +773,28 @@ class InformeDesechoJson(views.APIView):
             total_actual = get_existencia(tipo_dispositivo,fecha_fin,periodo)
             precio_actual = total_actual['precio_estandar']
             precio_total = total_actual['saldo_total']
-            existencia_actual = total_actual['existencia']
-
+            existencia_actual = total_actual['existencia']           
             for datos_desecho in salida_detalle:
                 salida = inv_m.DesechoSalida.objects.get(pk=datos_desecho['desecho'])
                 cantidad = datos_desecho['dispositivo__count']
                 dispositivo = {}
-
-                # Obtener Precio Estandar
-                precio = conta_m.PrecioEstandar.objects.get(
-                    tipo_dispositivo=tipo_dispositivo,
-                    periodo=periodo,
-                    inventario="dispositivo").precio
+                dispositivos_buscar = inv_m.DesechoDispositivo.objects.filter(desecho=datos_desecho['desecho']).values('dispositivo')                
+                # Obtener Precio Estandar               
+                if validar_fecha[0].fecha_inicio.year < 2023:
+                    print("2022 para abajo")
+                    periodo_2022 =conta_m.PeriodoFiscal.objects.get(fecha_fin__year=2022)                    
+                    precio = conta_m.PrecioEstandar.objects.get(
+                        tipo_dispositivo=tipo_dispositivo,
+                        periodo=periodo_2022.id,
+                        #periodo=periodo,
+                        inventario="dispositivo").precio
+                else:
+                    print("2023 para arriba")                    
+                    precio_lote = conta_m.PrecioDispositivo.objects.filter(
+                     dispositivo__in=dispositivos_buscar,
+                     activo=True
+                     ).aggregate(Sum('precio'))   
+                    precio= precio_lote['precio__sum'] / cantidad
 
                 dispositivo['fecha'] = salida.fecha
                 dispositivo['id'] = salida.id
