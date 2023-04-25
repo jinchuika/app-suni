@@ -43,7 +43,7 @@ class ListadoMaestroView(TemplateView):
         context = super(ListadoMaestroView, self).get_context_data(**kwargs)
 
         # Consumir Servicio PHP para obtener datos de suni capacitación por DPI
-        url = settings.LEGACY_URL['certificado']
+        url = settings.LEGACY_URL['certificado']        
         if url is not '':
              params = {'dpi': self.request.GET['dpi']}
              try:
@@ -53,24 +53,24 @@ class ListadoMaestroView(TemplateView):
         else:
              print("el dpi esta vacio")
         try:
-           data= resp.json()
+           data= resp.json()                    
            if len(data) is 0:
                context['validacion'] = 0
            else:
                sedes = []
                sede_asignacion = []
 
-               # Obtener Información General del Maestro
+               # Obtener Información General del Maestro              
                context['nombre'] = str(data[0]['nombre'])+" "+str(data[0]['apellido'])
                context['dpi']=self.request.GET['dpi']
                context['rol'] = data[0]['rol']
                context['escuela'] =data[0]['escuela']
-               context['email'] =data[0]['email']
-
+               context['email'] =data[0]['email']     
+               
                # Obtener Listado de Sedes
                for valor in data:
                   sede = valor['sede']
-                  if sede not in sedes:
+                  if sede not in sedes:                   
                     sedes.append(sede)
 
                # Recorrer Sedes del Maestro
@@ -87,21 +87,31 @@ class ListadoMaestroView(TemplateView):
                 combo_completo = False
                 ka_lite = False
                 grupo_combos = 0
-
+                gano_tni = 0
                 # Obtener Promedio de Cursos por Sede
-                for valor_data in data:
-                  print("Valor Data")
-                  print(valor_data)
-                  if sede == valor_data['sede']:
+                for valor_data in data:                 
+                  if sede == valor_data['sede']:                    
+                    validar_palabra = str(valor_data['descripcion'])                     
+                    if validar_palabra.find("beneficiada") is not -1:                                  
+                        context['beneficiada'] = 1
+                    else:
+                        context['beneficiada'] = 0
+                    #verificar si gano tni
+                    validar_nombre_tni = str(valor_data['curso'])
+                    if validar_nombre_tni.find("Tecnologia Nivel Intermedio") is not -1:                      
+                       if int(valor_data['nota']) < int(valor_data['nota_minima']):                                                    
+                          gano_tni = 0
+                       else:                              
+                          gano_tni= 1                                             
                     id_sede = int(valor_data['id_sede'])
                     suma_curso += int(valor_data['nota'])
                     fecha_final = datetime.datetime.strptime(valor_data['fecha_final'], '%Y-%m-%d').date()
                     # Fecha válida para constancias (31 días)
                     fecha_valida_const = fecha_final + datetime.timedelta(days=90)
 
-                    # Validar si recibió NAAT en la sede (18 o 22 semanas) o bien si recibió KaLite (Grupo 4)
-                    if grupo_naat == 1 or grupo_naat == 2 and naat == False:
-                      grupo = int(valor_data['grupo'])
+                    # Validar si recibió NAAT en la sede (18 o 22 semanas) o bien si recibió KaLite (Grupo 4)                   
+                    if grupo_naat == 1 or grupo_naat == 2 and naat == False:                      
+                      grupo = int(valor_data['grupo'])      
                       if grupo == 1:
                         grupo_combos += 1 
                       elif grupo == 2:
@@ -124,9 +134,8 @@ class ListadoMaestroView(TemplateView):
 
                 # Cálculo de Promedio
                 promedio = suma_curso / len(asignaciones)
-
                 # Validar si la capacitación fué durante el año actual y si no ha expirado el periodo de tiempo
-                fecha_valida_cert = fecha_final + datetime.timedelta(days=30)
+                fecha_valida_cert = fecha_final + datetime.timedelta(days=730)
                 if fecha_final.year <= datetime.date.today().year:
                   if datetime.date.today() <= fecha_valida_cert:
                       year_cert = True
@@ -137,15 +146,14 @@ class ListadoMaestroView(TemplateView):
                 else: 
                   combo_completo = False
 
-                # Crear Objeto Asignacion por sede
-                values = {"id": id_sede,"sede": sede, "asignaciones": asignaciones, "promedio": promedio, "grupo":grupo_naat, "year_cert":year_cert, "combo_completo":combo_completo}
-                sede_asignacion.append(dict(values))
-
+                # Crear Objeto Asignacion por sede                           
+                values = {"id": id_sede,"sede": sede, "asignaciones": asignaciones, "promedio": promedio, "grupo":grupo_naat, "year_cert":year_cert, "combo_completo":combo_completo,"gano_tni":gano_tni}
+                sede_asignacion.append(dict(values))               
                context['sedes'] = sede_asignacion
                context['validacion'] = 1
 
         except:
-          print("Oops!", sys.exc_info()[0], "occurred.")
+          print("Oops!", sys.exc_info()[0], "occurred.")         
           context['validacion'] = 0
         return context
 
@@ -212,7 +220,9 @@ class DiplomaPdfView(View):
               asignaciones.append(nuevo)
 
          # Validar si la capacitación fué durante el año actual y si no ha expirado el periodo de tiempo}
-         fecha_valida_cert = fecha_final + datetime.timedelta(days=30)
+         #fecha_valida_cert = fecha_final + datetime.timedelta(days=30)
+         fecha_valida_cert = fecha_final + datetime.timedelta(days=1095)
+         print("-->",fecha_valida_cert)
          if fecha_final.year <= datetime.date.today().year:
             if datetime.date.today() <= fecha_valida_cert:
               if fecha_final.year >= 2021:
@@ -254,7 +264,8 @@ class DiplomaPdfView(View):
               elif int(tipo_curso) == 3 and grupo_naat == 3:
                 ruta_diploma = str(settings.STATICFILES_DIRS[0] ) + str("/css/diploma/CertificadoNaat18.png")
               else:
-                ruta_diploma = str(settings.STATICFILES_DIRS[0] ) + str("/css/diploma/CertificadoTB.png")
+                #ruta_diploma = str(settings.STATICFILES_DIRS[0] ) + str("/css/diploma/CertificadoTB.png")
+                ruta_diploma = str(settings.STATICFILES_DIRS[0] ) + str("/css/diploma/CertificadoTNI2023.jpg")
 
               #obtener tipo de fuente que se le aplicara al nombre del diploma
               ruta_ttf = str(settings.STATICFILES_DIRS[0] ) + str("/css/diploma/MyriadPro_BoldIt.ttf")
@@ -335,7 +346,7 @@ class ConstanciaPdfView(View):
                 print("en espera")
       else:
              print("el dpi esta vacio")
-      data= resp.json()
+      data= resp.json()    
 
       # Se valida si se obtuvo información
       if len(data) is 0:
@@ -356,14 +367,15 @@ class ConstanciaPdfView(View):
               url_constancia = str(registro['constancia'])
               asignaciones.append(registro)
 
-         fecha_valida_const = fecha_final + datetime.timedelta(days=90)
+         #fecha_valida_const = fecha_final + datetime.timedelta(days=90)
+         fecha_valida_const = fecha_final + datetime.timedelta(days=365)
          # Validar si la capacitación fué durante el año actual y si no ha expirado el periodo de tiempo
          if fecha_final.year <= datetime.date.today().year:
             if datetime.date.today() <= fecha_valida_const:
                 year_const = True
 
          if year_const == False:
-            return HttpResponse("Curso No Válido")
+            return HttpResponse("Curso No Válido") #Certificado
 
          if len(asignaciones) > 0:
             if nota_curso >= nota_minima:
