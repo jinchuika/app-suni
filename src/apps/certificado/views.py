@@ -88,11 +88,13 @@ class ListadoMaestroView(TemplateView):
                 ka_lite = False
                 grupo_combos = 0
                 gano_tni = 0
+                centro_comunitario = False
+                solo_ka_lite = False
                 # Obtener Promedio de Cursos por Sede
                 for valor_data in data:                 
                   if sede == valor_data['sede']:                    
                     validar_palabra = str(valor_data['descripcion'])                     
-                    if validar_palabra.find("beneficiada") is not -1:                                  
+                    if validar_palabra.find("beneficiada") is not -1 or validar_palabra.find("BEQT") is not -1:                                                         
                         context['beneficiada'] = 1
                     else:
                         context['beneficiada'] = 0
@@ -122,6 +124,8 @@ class ListadoMaestroView(TemplateView):
                       elif grupo == 4:
                         grupo_combos += 1
                         ka_lite = True
+                      elif grupo ==5:
+                         centro_comunitario = True
 
                     # Validar si la capacitación fué durante el año actual y si no ha expirado el periodo de tiempo
                     if fecha_final.year <= datetime.date.today().year:
@@ -145,13 +149,15 @@ class ListadoMaestroView(TemplateView):
                   combo_completo = True  
                 else: 
                   combo_completo = False
-
+                
+                if grupo_combos == 1 and ka_lite == True:
+                   solo_ka_lite =  True
+                  
                 # Crear Objeto Asignacion por sede                           
-                values = {"id": id_sede,"sede": sede, "asignaciones": asignaciones, "promedio": promedio, "grupo":grupo_naat, "year_cert":year_cert, "combo_completo":combo_completo,"gano_tni":gano_tni}
-                sede_asignacion.append(dict(values))               
+                values = {"id": id_sede,"sede": sede, "asignaciones": asignaciones, "promedio": promedio, "grupo":grupo_naat, "year_cert":year_cert, "combo_completo":combo_completo,"gano_tni":gano_tni,"centro_comunitario":centro_comunitario,"solo_ka_lite":solo_ka_lite}
+                sede_asignacion.append(dict(values))                             
                context['sedes'] = sede_asignacion
                context['validacion'] = 1
-
         except:
           print("Oops!", sys.exc_info()[0], "occurred.")         
           context['validacion'] = 0
@@ -164,8 +170,7 @@ class DiplomaPdfView(View):
    def get( self, request, *args, **kwargs):
       # Obtener Parametros
       tipo_curso = self.request.GET['curso']
-      id_sede = self.request.GET['sede']
-
+      id_sede = self.request.GET['sede']      
       # Inicializar Variables
       curso_asignado = 0
       curso_aprobado = 0
@@ -198,6 +203,7 @@ class DiplomaPdfView(View):
          ka_lite = False
          grupo_combos = 0
          asignaciones = []
+         centro_comunitario = False        
          for  nuevo in data:
             if int(nuevo['id_sede']) == int(id_sede):
               suma_curso += int(nuevo['nota'])
@@ -216,6 +222,9 @@ class DiplomaPdfView(View):
                 elif grupo == 4:
                   grupo_combos += 1
                   ka_lite = True
+                elif grupo == 5:
+                   centro_comunitario = True
+                   print("Es centro comunitario1")
 
               asignaciones.append(nuevo)
 
@@ -230,10 +239,11 @@ class DiplomaPdfView(View):
 
          if year_cert == False:
             return HttpResponse("Curso No Válido")
-
-         if grupo_naat == 1:
-          if grupo_combos < 4 or ka_lite == False:
-            return HttpResponse("Programa de capacitación no finalizado")
+         if centro_comunitario is not True:
+            if grupo_naat == 1:
+              if grupo_combos < 4 or ka_lite == False:
+                return HttpResponse("Programa de capacitación no finalizado")
+          
 
          if len(asignaciones) > 0:
             promedio = suma_curso / len(asignaciones)
@@ -263,7 +273,10 @@ class DiplomaPdfView(View):
                 ruta_diploma = str(settings.STATICFILES_DIRS[0] ) + str("/css/diploma/CertificadoNaat22.png")
               elif int(tipo_curso) == 3 and grupo_naat == 3:
                 ruta_diploma = str(settings.STATICFILES_DIRS[0] ) + str("/css/diploma/CertificadoNaat18.png")
+              elif int(tipo_curso) == 1 and centro_comunitario is True:
+                 ruta_diploma = str(settings.STATICFILES_DIRS[0] ) + str("/css/diploma/CertificadoCCT2023.jpg")
               else:
+                print("aca2")
                 #ruta_diploma = str(settings.STATICFILES_DIRS[0] ) + str("/css/diploma/CertificadoTB.png")
                 ruta_diploma = str(settings.STATICFILES_DIRS[0] ) + str("/css/diploma/CertificadoTNI2023.jpg")
 
@@ -272,6 +285,9 @@ class DiplomaPdfView(View):
               registerFont(TTFont('MyriadPro_BoldIt',ruta_ttf))
               ruta_ttf = str(settings.STATICFILES_DIRS[0] ) + str("/css/diploma/MyriadPro_Regular.ttf")
               registerFont(TTFont('MyriadPro_Regular',ruta_ttf))
+              #obtener nuevas fuentes
+              ruta_ttf = str(settings.STATICFILES_DIRS[0] ) + str("/css/diploma/EdwardianScriptITC.ttf")
+              registerFont(TTFont('Edwardian',ruta_ttf))
               response = HttpResponse(content_type='application/pdf')
               if int(tipo_curso) == 2 and grupo_naat == 2:
                 response['Content-Disposition'] = 'filename="DiplomaFunsepaNaat22-{}.pdf"'.format(str(self.request.GET['dpi']))
@@ -294,10 +310,12 @@ class DiplomaPdfView(View):
 
               #creacion  de la imagen que se colocora de fondo
               c.drawImage(ruta_diploma, 0,0,width=792,height=612,anchor='sw',anchorAtXY=True,showBoundary=False)
-              c.drawImage(ruta_qr,35,45,width=50,height=50,anchor='sw',anchorAtXY=True,showBoundary=False)
-              c.setFont("MyriadPro_Regular",30,leading=None)
+              c.drawImage(ruta_qr,35,45,width=75,height=75,anchor='sw',anchorAtXY=True,showBoundary=False)
+              c.setFont("Edwardian",60,leading=None)
+              #c.setFont("MyriadPro_Regular",30,leading=None)
               c.setFillColor((0,0,0))
-              c.drawCentredString(x+w*0.0,y+h*0.5, str(data[0]['nombre'].upper())+" "+str(data[0]['apellido'].upper()))
+              #c.drawCentredString(x+w*0.0,y+h*0.5, str(data[0]['nombre'].upper())+" "+str(data[0]['apellido'].upper()))
+              c.drawCentredString(x+w*0.0,y+h*0.5, str(data[0]['nombre'])+" "+str(data[0]['apellido']))
               c.setFont("MyriadPro_BoldIt",18,leading=None)
               c.drawCentredString(x+w*0.0,60+h*0.5, "Guatemala, " + datetime.datetime.now().strftime("%d de %B del %Y"))
               
@@ -418,8 +436,8 @@ class ConstanciaPdfView(View):
 
               #creacion  de la imagen que se colocora de fondo
               c.drawImage(ruta_diploma, 0,0,width=792,height=612,anchor='sw',anchorAtXY=True,showBoundary=False)
-              c.drawImage(ruta_qr,35,45,width=50,height=50,anchor='sw',anchorAtXY=True,showBoundary=False)
-              c.setFont("Edwardian",40,leading=None)
+              c.drawImage(ruta_qr,35,45,width=75,height=75,anchor='sw',anchorAtXY=True,showBoundary=False)
+              c.setFont("Edwardian",50,leading=None)
               c.setFillColor((0,0,0))
               c.drawCentredString(x+w*0.0,y+h*0.5, str(data[0]['nombre'])+" "+str(data[0]['apellido']))
               c.setFont("Times-Bold",15,leading=None)

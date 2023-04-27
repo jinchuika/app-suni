@@ -112,13 +112,27 @@
                                                                 {% endif %}
                                                             </td>
                                                             <td colspan="2">
-                                                                {% if beneficiada == 1 %}                                                                                                                               
-                                                                    {% if sede.year_cert is True %}                                                                    
-                                                                        {% if sede.combo_completo is True %}                                                                        
-                                                                            {% if sede.promedio|to_number >=  75 %}                                                                            
-                                                                             {% if sede.gano_tni|to_number == 1  %}                                                                             
+                                                                {% if beneficiada == 1 %}
+                                                                                                                                                                                              
+                                                                    {% if sede.year_cert is True %}
+                                                                                                                                       
+                                                                        {% if sede.combo_completo is True or sede.centro_comunitario is True or sede.solo_ka_lite is True %}
+                                                                                                                                       
+                                                                            {% if sede.promedio|to_number >=  75 %}                                                                                                                      
+                                                                            {% if sede.solo_ka_lite is True %}                                                                            
+                                                                             {% for asignacion in sede.asignaciones  %}
+                                                                             {% if asignacion.constancia and asignacion.year_const is True and sede.combo_completo is False%}                                                                        
+                                                                             <a class="btn btn-warning"  href="{% url 'constanciapdf'%}?dpi={{dpi}}&asignacion={{asignacion.numero_asignacion}}" target="_blank"><i class="fa fa-print"></i> Constancia</a>
+                                                                             {% endif %}
+                                                                             {% endfor %}
+
+                                                                           
+                                                                            {% else %}
+                                                                            {% if sede.gano_tni|to_number == 1  or sede.centro_comunitario is True%}  
                                                                              <a class="btn btn-warning"  href="{% url 'diplomapdf'%}?dpi={{dpi}}&sede={{sede.id}}&curso={{sede.grupo}}"><i class="fa fa-print"></i> Certificado</a> 
-                                                                             {% endif %}                                                                              
+                                                                             {% endif %}      
+                                                                            {% endif %}                               
+                                                                                                                                                     
                                                                             {% else %}
                                                                                 <span class='label label-danger' style="font-size: 90% !important">Reprobado</span>
                                                                             {% endif %}
