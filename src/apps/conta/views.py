@@ -67,7 +67,7 @@ def get_existencia(tipo_dispositivo, fecha, periodo):
             periodo__in=periodos_anteriores).aggregate(Sum('precio'))        
     else:
 
-    precio_tipo_compras = conta_m.PrecioDispositivo.objects.filter(
+    if precio_tipo_compras = conta_m.PrecioDispositivo.objects.filter(
         dispositivo__in=compras,
         activo=True).aggregate(Sum('precio'))
 
