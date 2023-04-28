@@ -77,8 +77,11 @@
                 <h3 class="box-title"><b>Actualizar datos de desecho</b></h3>
               </div>
               <div class="col-md-6">
-               <a target='_blank' href="{% url 'desechoempresa_update' pk=object.empresa.id%}" class="btn btn-success">Editar Empresa</a>
-               <input id="btn-terminar" type="submit" class="btn btn-danger" value="Finalizar" disabled />
+               <a target='_blank' href="{% url 'desechoempresa_update' pk=object.empresa.id%}" class="btn btn-success">Editar Empresa</a>               
+                {% if object.revision_sub_jefe == True and object.revision_jefe == True and request.user|has_group:"inv_monitoreo" %}
+                <input id="btn-terminar" type="submit" class="btn btn-danger" value="Finalizar"/>
+                {% endif %}
+              
               </div>
             </div>
           </div>

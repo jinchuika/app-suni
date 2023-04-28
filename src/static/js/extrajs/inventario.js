@@ -1235,9 +1235,10 @@ class EntradaDetalleDetail {
                           aprobado:true
                         },
                         success: function (response) {
+                            //document.getElementById('btn-terminar').disabled = false;
                              bootbox.alert({message: "<h2>"+response.mensaje+"</h2>", className:"modal modal-success fade in"});
                              //window.location= urlredireccion;
-                             document.getElementById('btn-terminar').disabled = false;
+                            
                         },
                         error: function (response) {
                           var mensaje = JSON.parse(response.responseText)
