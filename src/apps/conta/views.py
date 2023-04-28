@@ -35,7 +35,7 @@ def get_existencia(tipo_dispositivo, fecha, periodo):
     bajas = conta_m.MovimientoDispositivo.objects.filter(
         tipo_movimiento=-1,
         dispositivo__tipo=tipo_dispositivo,
-        fecha__lte=fecha).values('dispositivo')    
+        fecha__lte=fecha).values('dispositivo')
     compras = conta_m.MovimientoDispositivo.objects.filter(
         tipo_movimiento=1,
         dispositivo__tipo=tipo_dispositivo,
@@ -61,13 +61,20 @@ def get_existencia(tipo_dispositivo, fecha, periodo):
         precio = precio_lote['precio__sum']        
         
     # Obtener Precio Total
-    if periodo.fecha_fin.year <= 2018:        
+    if periodo.fecha_fin.year <= 2018:
         precio_tipo_dispositivo = conta_m.PrecioDispositivo.objects.filter(
             dispositivo__in=utiles,
             periodo__in=periodos_anteriores).aggregate(Sum('precio'))        
     else:
-
-    if precio_tipo_compras = conta_m.PrecioDispositivo.objects.filter(
+        if periodo.fecha_fin.year <2023:            
+            precio_tipo_dispositivo = conta_m.PrecioDispositivo.objects.filter(
+            dispositivo__in=utiles,
+            periodo=periodo).aggregate(Sum('precio'))
+        else:           
+            precio_tipo_dispositivo = conta_m.PrecioDispositivo.objects.filter(
+            dispositivo__in=utiles,
+            activo=True).aggregate(Sum('precio'))    
+    precio_tipo_compras = conta_m.PrecioDispositivo.objects.filter(
         dispositivo__in=compras,
         activo=True).aggregate(Sum('precio'))
 
@@ -84,7 +91,8 @@ def get_existencia(tipo_dispositivo, fecha, periodo):
     if precio_tipo_compras['precio__sum'] is not None:
         precio_tipo_compras = precio_tipo_compras['precio__sum']
     else:
-
+        precio_tipo_compras = 0        
+    precio_total = precio_tipo_dispositivo + precio_tipo_compras
     existencia = len(utiles) + len(compras)
     result['saldo_total'] = precio_total
     result['existencia'] = existencia
@@ -108,7 +116,13 @@ def get_existencia_beqt(tipo_dispositivo, fecha):
         tipo_movimiento=1,
         dispositivo__tipo=tipo_dispositivo,
         fecha__lte=fecha).exclude(
-        dispositivo__in=bajas).exclude(dispositivo__in=altas).values('dispositivo')
+        dispositivo__in=bajas).exclude(dispositivo__in=altas).values('dispositivo')  
+
+    # Obtener Precio Total
+    #print("utiles: ",utiles)
+    #print("bajas:",bajas)
+    #print("altas:", altas)
+
     #precio_total = precio_tipo_dispositivo + precio_tipo_compras
     existencia = len(utiles) + len(altas)
     precio_total = existencia * 1
@@ -467,9 +481,10 @@ class InformeEntradaJson(views.APIView):
                 dispositivo = {}
 
                 # Validar Precio de Compra y Donación
-                
+                print(entrada.tipo)
                 if (not precio or precio == 0) and not entrada.tipo.contable:
                     # Obtener Precio Estandar
+                    print("Ingreso aca 1")
                     precio = conta_m.PrecioEstandar.objects.get(
                     tipo_dispositivo=tipo_dispositivo,
                     periodo=periodo,
@@ -516,7 +531,8 @@ class InformeEntradaDispositivoJson(views.APIView):
         tipo_dispositivo_nombre = inv_m.DispositivoTipo.objects.get(pk=tipo_dispositivo)
 
         # Validar que el rango de fechas pertenezcan a un solo período fiscal
-        validar_fecha = conta_m.PeriodoFiscal.objects.filter(fecha_inicio__lte=fecha_inicio, fecha_fin__gte=fecha_fin)        
+        validar_fecha = conta_m.PeriodoFiscal.objects.filter(fecha_inicio__lte=fecha_inicio, fecha_fin__gte=fecha_fin)
+        print(validar_fecha)
         if validar_fecha.count() == 1:
 
             # Obtener datos de Periodo Fiscal
@@ -536,7 +552,9 @@ class InformeEntradaDispositivoJson(views.APIView):
                         Q(entrada_detalle__fecha_dispositivo__gte=fecha_inicio),
                         Q(entrada_detalle__fecha_dispositivo__lte=fecha_fin),
                         reduce(AND,q)
-                        ).exclude(entrada_detalle__entrada__tipo__nombre='Especial')           
+                        ).exclude(entrada_detalle__entrada__tipo__nombre='Especial')
+
+            print(entrada_detalle)
 
             # Obtener Existencia Inicial y Saldo Inicial
             fecha_inicial = datetime.strptime(fecha_inicio, '%Y-%m-%d') - timedelta(days=1)
@@ -612,6 +630,7 @@ class InformeSalidaJson(views.APIView):
             # Obtener datos de Periodo Fiscal
             periodo = validar_fecha[0]
             salida_especial = inv_m.SalidaTipo.objects.get(especial=True)
+            #print(inv_m.EntradaTipo.objects.filter(contable=True).last())
             tipo_compra =  inv_m.EntradaTipo.objects.filter(contable=True).first()
             lista_dispositivos = {}
             lista = []
@@ -754,26 +773,18 @@ class InformeDesechoJson(views.APIView):
             total_actual = get_existencia(tipo_dispositivo,fecha_fin,periodo)
             precio_actual = total_actual['precio_estandar']
             precio_total = total_actual['saldo_total']
-            existencia_actual = total_actual['existencia']           
+            existencia_actual = total_actual['existencia']
+
             for datos_desecho in salida_detalle:
                 salida = inv_m.DesechoSalida.objects.get(pk=datos_desecho['desecho'])
                 cantidad = datos_desecho['dispositivo__count']
                 dispositivo = {}
-                dispositivos_buscar = inv_m.DesechoDispositivo.objects.filter(desecho=datos_desecho['desecho']).values('dispositivo')                
-                # Obtener Precio Estandar               
-                if validar_fecha[0].fecha_inicio.year < 2023:                    
-                    periodo_2022 =conta_m.PeriodoFiscal.objects.get(fecha_fin__year=2022)                    
-                    precio = conta_m.PrecioEstandar.objects.get(
-                        tipo_dispositivo=tipo_dispositivo,
-                        periodo=periodo_2022.id,
-                        #periodo=periodo,
-                        inventario="dispositivo").precio
-                else:                  
-                    precio_lote = conta_m.PrecioDispositivo.objects.filter(
-                     dispositivo__in=dispositivos_buscar,
-                     activo=True
-                     ).aggregate(Sum('precio'))   
-                    precio= precio_lote['precio__sum'] / cantidad
+
+                # Obtener Precio Estandar
+                precio = conta_m.PrecioEstandar.objects.get(
+                    tipo_dispositivo=tipo_dispositivo,
+                    periodo=periodo,
+                    inventario="dispositivo").precio
 
                 dispositivo['fecha'] = salida.fecha
                 dispositivo['id'] = salida.id
@@ -868,8 +879,8 @@ class InformeResumenJson(views.APIView):
                         Q(desecho__fecha__gte=fecha_inicio),
                         Q(desecho__fecha__lte=fecha_fin),
                         Q(dispositivo__tipo=tipo),
-                        Q(desecho__en_creacion=False)))               
-                
+                        Q(desecho__en_creacion=False)))
+
                 salidas += desecho
 
                 dispositivo['tipo'] = tipo.tipo
@@ -918,6 +929,7 @@ class InformeEntradaBeqtJson(views.APIView):
     en caso contrario desde el precio_unitario del detalle de entrada
     """
     def get(self, request):
+        print("Conta BEQT")
         try:
             donante = self.request.GET['donante']
         except MultiValueDictKeyError as e:
@@ -978,6 +990,7 @@ class InformeEntradaBeqtJson(views.APIView):
             if (not precio or precio == 0) and not entrada.tipo.contable:
                 # Obtener Precio Estandar
                 pass 
+                
             else:
                 #precio = 0                    
                 print("Ingreso aca 2")
@@ -1121,6 +1134,7 @@ class InformeSalidaBeqtJson(views.APIView):
         # Obtener datos de Periodo Fiscal
        
         salida_especial = inv_m.SalidaTipo.objects.get(especial=True)
+        #print(inv_m.EntradaTipo.objects.filter(contable=True).last())
         tipo_compra =  inv_m.EntradaTipo.objects.filter(contable=True).first()
         lista_dispositivos = {}
         lista = []
@@ -1179,6 +1193,7 @@ class InformeSalidaBeqtJson(views.APIView):
         precio_total = total_actual['saldo_total']
         existencia_actual = total_actual['existencia']        
         for datos_salida in result:
+            #print(datos_salida)
             salida = beqt_m.SalidaInventario.objects.get(pk=datos_salida[0])
             cantidad = datos_salida[1]
             precio = 1
@@ -1242,6 +1257,7 @@ class InformeResumenBeqtJson(views.APIView):
             tipo_dispositivo = 0
 
         # Filtrar por tipos de dispositivos seleccionados
+        #print(self.request.user.tipos_dispositivos.tipos.filter())
         if tipo_dispositivo == 0 or not tipo_dispositivo:
             dispositivos = self.request.user.tipos_dispositivos_beqt.tipos.all()
         else:
