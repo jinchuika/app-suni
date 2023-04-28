@@ -68,7 +68,7 @@ urlpatterns = [
     conta_v.ContabilidadEntradaDispInformeListView.as_view(),
     name='contabilidad_entrada_dispositivo'
    ),
-  # Devolver Data de Informe de Dispositivos x Entrada
+ # Devolver Data de Informe de Dispositivos x Entrada
  url(
     r'^precioestandar/informentradadispositivoapi/$',
     conta_v.InformeEntradaDispositivoJson.as_view(),
