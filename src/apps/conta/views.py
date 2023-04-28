@@ -65,7 +65,6 @@ def get_existencia(tipo_dispositivo, fecha, periodo):
         precio_tipo_dispositivo = conta_m.PrecioDispositivo.objects.filter(
             dispositivo__in=utiles,
             periodo__in=periodos_anteriores).aggregate(Sum('precio'))        
-    else:
  
     if precio_tipo_dispositivo['precio__sum'] is not None:       
         precio_tipo_dispositivo = precio_tipo_dispositivo['precio__sum']        
