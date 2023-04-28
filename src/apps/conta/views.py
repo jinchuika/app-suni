@@ -67,7 +67,7 @@ def get_existencia(tipo_dispositivo, fecha, periodo):
             periodo__in=periodos_anteriores).aggregate(Sum('precio'))        
     else:
     if periodo.fecha_fin.year <2023:            
-            precio_tipo_dispositivo = conta_m.PrecioDispositivo.objects.filter(
+    precio_tipo_dispositivo = conta_m.PrecioDispositivo.objects.filter(
             dispositivo__in=utiles,
             periodo=periodo).aggregate(Sum('precio'))
         else:           
