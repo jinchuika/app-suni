@@ -28,7 +28,7 @@ from apps.escuela import models as escuela_m
     Función que devuelve la existencia y saldo monetario basado en el tipo de dispositivo,
     fecha y periodo a buscar.
 """
-def get_existencia(tipo_dispositivo, fecha, periodo):
+def get_existencia(tipo_dispositivo, fecha, periodo):  
     result = {}
     periodos_anteriores = conta_m.PeriodoFiscal.objects.filter(fecha_fin__lte=periodo.fecha_fin).values('id')
 
@@ -48,40 +48,53 @@ def get_existencia(tipo_dispositivo, fecha, periodo):
         dispositivo__in=bajas).exclude(dispositivo__in=compras).values('dispositivo')
 
     # Obtener Precio Estandar Actual y Anterior
-    try:
+       
+    if periodo.fecha_fin.year <2023:
         precio = conta_m.PrecioEstandar.objects.filter(
             tipo_dispositivo=tipo_dispositivo,
             periodo=periodo,
-            inventario='dispositivo').first().precio
-    except:
-        precio = 10
-    
-
+            inventario='dispositivo').first().precio       
+    else:      
+        precio_lote = conta_m.PrecioDispositivo.objects.filter(
+        dispositivo__in=utiles,
+        activo=True).aggregate(Sum('precio'))       
+        precio = precio_lote['precio__sum']        
+        
     # Obtener Precio Total
+    # Se valido para los precios de los lotes
     if periodo.fecha_fin.year <= 2018:        
         precio_tipo_dispositivo = conta_m.PrecioDispositivo.objects.filter(
             dispositivo__in=utiles,
-            periodo__in=periodos_anteriores).aggregate(Sum('precio'))
+            periodo__in=periodos_anteriores).aggregate(Sum('precio'))        
     else:
-
+        if periodo.fecha_fin.year <2023:          
+            precio_tipo_dispositivo = conta_m.PrecioDispositivo.objects.filter(
+            dispositivo__in=utiles,
+            periodo=periodo).aggregate(Sum('precio'))
+        else:          
+            precio_tipo_dispositivo = conta_m.PrecioDispositivo.objects.filter(
+            dispositivo__in=utiles,
+            activo=True).aggregate(Sum('precio'))    
     precio_tipo_compras = conta_m.PrecioDispositivo.objects.filter(
         dispositivo__in=compras,
         activo=True).aggregate(Sum('precio'))
 
-    if precio_tipo_dispositivo['precio__sum'] is not None:
-        precio_tipo_dispositivo = precio_tipo_dispositivo['precio__sum']
+    if precio_tipo_dispositivo['precio__sum'] is not None:       
+        precio_tipo_dispositivo = precio_tipo_dispositivo['precio__sum']        
     else:
         if precio is not None:
-            precio_tipo_dispositivo = len(utiles) * precio
+            if periodo.fecha_fin.year < 2023:
+                precio_tipo_dispositivo = len(utiles) * precio                
+            else:
+                precio_tipo_dispositivo = precio                
         else:
-            precio_tipo_dispositivo = 0
-
+            precio_tipo_dispositivo = 0  
     if precio_tipo_compras['precio__sum'] is not None:
         precio_tipo_compras = precio_tipo_compras['precio__sum']
     else:
-
+        precio_tipo_compras = 0        
+    precio_total = precio_tipo_dispositivo + precio_tipo_compras    
     existencia = len(utiles) + len(compras)
-
     result['saldo_total'] = precio_total
     result['existencia'] = existencia
     result['precio_estandar'] = precio
@@ -810,7 +823,7 @@ class InformeResumenJson(views.APIView):
             dispositivos = self.request.user.tipos_dispositivos.tipos.filter(conta=True)
         else:
             dispositivos = self.request.user.tipos_dispositivos.tipos.filter(id__in=tipo_dispositivo)
-
+        
         # Validar que el rango de fechas pertenezcan a un solo período fiscal
         validar_fecha = conta_m.PeriodoFiscal.objects.filter(fecha_inicio__lte=fecha_inicio, fecha_fin__gte=fecha_fin)
         acumulador = 0
@@ -819,22 +832,22 @@ class InformeResumenJson(views.APIView):
         acumulador_act_ex = 0
 
         if validar_fecha.count() == 1:
-            # Obtener datos de Periodo Fiscal
+            # Obtener datos de Periodo Fiscal            
             periodo = validar_fecha[0]
             lista_dispositivos = {}
             lista = []
-            for tipo in dispositivos:
+            for tipo in dispositivos:                
                 dispositivo = {}
                 # Obtener Saldo Anterior
                 fecha_inicial = datetime.strptime(fecha_inicio, '%Y-%m-%d') - timedelta(days=1)
-                totales_anterior = get_existencia(tipo,fecha_inicial,periodo)
+                totales_anterior = get_existencia(tipo,fecha_inicial,periodo)                
                 precio_total_anterior = totales_anterior['saldo_total']
                 existencia_anterior = totales_anterior['existencia']
                 acumulador_anterior += precio_total_anterior
                 acumulador_ant_ex += existencia_anterior
 
                 # Obtener Saldo Actual
-                total_actual = get_existencia(tipo,fecha_fin,periodo)
+                total_actual = get_existencia(tipo,fecha_fin,periodo)               
                 precio = total_actual['precio_estandar']
                 precio_total = total_actual['saldo_total']
                 existencia = total_actual['existencia']
@@ -847,7 +860,6 @@ class InformeResumenJson(views.APIView):
                         Q(fecha_dispositivo__lte=fecha_fin),
                         Q(tipo_dispositivo=tipo)
                         ).aggregate(Sum('util'))
-
                 if entradas['util__sum'] is not None:
                     entradas = entradas['util__sum']
                 else:
@@ -1318,4 +1330,3 @@ class InformeResumenBeqtJson(views.APIView):
             return Response(lista)
         else:
             print("No existe en el periodo fiscal")
-    
