@@ -61,12 +61,20 @@ def get_existencia(tipo_dispositivo, fecha, periodo):
         precio = precio_lote['precio__sum']        
         
     # Obtener Precio Total
+    # Se valido para los precios de los lotes
     if periodo.fecha_fin.year <= 2018:        
         precio_tipo_dispositivo = conta_m.PrecioDispositivo.objects.filter(
             dispositivo__in=utiles,
             periodo__in=periodos_anteriores).aggregate(Sum('precio'))        
     else:
-
+        if periodo.fecha_fin.year <2023:          
+            precio_tipo_dispositivo = conta_m.PrecioDispositivo.objects.filter(
+            dispositivo__in=utiles,
+            periodo=periodo).aggregate(Sum('precio'))
+        else:          
+            precio_tipo_dispositivo = conta_m.PrecioDispositivo.objects.filter(
+            dispositivo__in=utiles,
+            activo=True).aggregate(Sum('precio'))    
     precio_tipo_compras = conta_m.PrecioDispositivo.objects.filter(
         dispositivo__in=compras,
         activo=True).aggregate(Sum('precio'))
@@ -84,7 +92,8 @@ def get_existencia(tipo_dispositivo, fecha, periodo):
     if precio_tipo_compras['precio__sum'] is not None:
         precio_tipo_compras = precio_tipo_compras['precio__sum']
     else:
-
+        precio_tipo_compras = 0        
+    precio_total = precio_tipo_dispositivo + precio_tipo_compras    
     existencia = len(utiles) + len(compras)
     result['saldo_total'] = precio_total
     result['existencia'] = existencia
@@ -1321,3 +1330,4 @@ class InformeResumenBeqtJson(views.APIView):
             return Response(lista)
         else:
             print("No existe en el periodo fiscal")
+
