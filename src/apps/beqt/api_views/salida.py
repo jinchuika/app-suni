@@ -227,7 +227,7 @@ class SalidaInventarioViewSet(viewsets.ModelViewSet):
         estado = beqt_m.SalidaInventario.objects.get(id=id_salida)
         if(str(estado.estado) == "Listo"):
             if not tipo_salida.especial:
-                tipo_dis = self.request.user.tipos_dispositivos.tipos.all()
+                tipo_dis = self.request.user.tipos_dispositivos_beqt.tipos.all()
                 tipo_paquete = beqt_m.PaqueteTipoBeqt.objects.filter(
                     tipo_dispositivo__in=tipo_dis).exclude(tipo_dispositivo__usa_triage=False)
                 cantidad_paquetes = beqt_m.PaqueteBeqt.objects.filter(
