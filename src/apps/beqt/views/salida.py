@@ -402,7 +402,8 @@ class GarantiaPrintView(LoginRequiredMixin,  DetailView,GroupRequiredMixin):
             )        
         Total_Laptop = beqt_m.PaqueteBeqt.objects.filter(
             salida__id=self.object.id,
-            tipo_paquete=Laptop).aggregate(total_laptop=Sum('cantidad'))
+            tipo_paquete=Laptop).aggregate(total_laptop=Sum('cantidad'))        
+        validar_escuela_cc = int(self.object.escuela.codigo.split("-")[-1])
         Total_Tablet = beqt_m.PaqueteBeqt.objects.filter(
             salida__id=self.object.id,
             tipo_paquete=Tablet).aggregate(total_tablet=Sum('cantidad'))       
@@ -414,7 +415,8 @@ class GarantiaPrintView(LoginRequiredMixin,  DetailView,GroupRequiredMixin):
                     cpu_servidor = cpu_servidor + 1
                     context['laptop'] = True
             except Exception as e:
-                print(e)       
+                print(e)
+             
         if Total_Laptop['total_laptop'] is None:
             Total_Laptop['total_laptop'] = 0
         if Total_Tablet['total_tablet'] is None:
@@ -432,10 +434,11 @@ class GarantiaPrintView(LoginRequiredMixin,  DetailView,GroupRequiredMixin):
         else:
             context['fin_garantia'] = Fecha.fecha + relativedelta(months=12)
             context["tiempo"] = " 1 año"
-        #context['dispositivo_total'] = Total_Entregado
+        #context['dispositivo_total'] = Total_Entregado        
         context['total_tablet'] = Total_Tablet['total_tablet'] 
         context['total_laptop'] = Total_Laptop['total_laptop'] - cpu_servidor
         context['cpu_servidor'] = cpu_servidor
+        context['escuela_cc'] = validar_escuela_cc
         return context
 
 
