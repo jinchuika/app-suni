@@ -1330,3 +1330,4 @@ class InformeResumenBeqtJson(views.APIView):
             return Response(lista)
         else:
             print("No existe en el periodo fiscal")
+
