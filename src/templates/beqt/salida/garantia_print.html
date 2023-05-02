@@ -3,7 +3,7 @@
 <html>
 <head>
   <title>
-    Constacia de GARANTIA
+    Constacia de GARANTIA 
   </title>
 </head>
 <meta charset="utf-8"/>
@@ -15,7 +15,7 @@
     </div>
         <div style="font-size:22px">
       <h5>
-        GARANTIA FUNSEPA
+        GARANTIA FUNSEPA 
         <br>
         OFICIO No. TPE {{salidainventario}} 
     </div>
@@ -39,9 +39,19 @@
           {% endif %}
         </p>
       </li>
-      <li>
+      <li>                     
         <p>
+           {% if escuela_cc == 99  %}
            Las _________<u><b>{{total_tablet}}</b></u>__________  {% if cpu == 1 %}tablets  y  _________<u><b>{{total_laptop}}</b></u>__________ {% else %}computadoras{% endif %} Laptop con _________<u><b>{{cpu_servidor}}</b></u>__________  {% if laptop == True %}servidor tipo Laptop{% else %}servidor{% endif %} entregados por FUNSEPA a {{salidainventario.escuela.nombre}}
+            {% else %}
+                {% if total_laptop > 0 %}
+                Las _________<u><b>{{total_laptop}}</b></u>__________ computadoras Laptop con _________<u><b>{{cpu_servidor}}</b></u>__________  {% if laptop == True %}servidor tipo Laptop{% else %}servidor{% endif %} entregados por FUNSEPA a {{salidainventario.escuela.nombre}}
+                {% else %}
+                Las _________<u><b>{{total_tablet}}</b></u>__________  tablets , con _________<u><b>{{cpu_servidor}}</b></u>__________  {% if laptop == True %}servidor tipo Laptop{% else %}servidor{% endif %} entregados por FUNSEPA a {{salidainventario.escuela.nombre}}
+                {% endif %}
+         
+           {% endif %}
+           
            UDI {{salidainventario.escuela.codigo}} en calidad
            de préstamo se encuentran funcionando en su totalidad, de caso contrario informar al técnico
            encargado de la entrega para que haga las correcciones correspondientes. Solicitamos al
