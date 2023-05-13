@@ -103,7 +103,7 @@ class EntradaDetalleForm(forms.ModelForm):
             'proveedor_kardex': forms.Select(attrs={'class': 'form-control select2'}),
             'estado_kardex': forms.Select(attrs={'class': 'form-control select2'}),
             'tipo_entrada_kardex': forms.Select(attrs={'class': 'form-control select2'}),
-            'precio_unitario': forms.TextInput({'class': 'form-control', 'min': 1, 'type': 'number','step':"any"}),
+            'precio_unitario': forms.TextInput({'class': 'form-control', 'min':0.00001, 'type': 'number','step':"any"}),
         }
 
     def __init__(self, *args, **kwargs):
@@ -128,7 +128,7 @@ class EntradaDetalleForm(forms.ModelForm):
             self.fields['precio_unitario'].empty_label = None
             self.fields['precio_unitario'].label = ''
             self.fields['precio_unitario'].widget = forms.NumberInput(
-                attrs={'class': 'form-control', 'style': "visibility:hidden"})
+                attrs={'class': 'form-control', 'style': "visibility:hidden",'step':"any"})
             self.fields['precio_unitario'].initial = ""
 
 class EntradaDetalleUpdateForm(forms.ModelForm):
