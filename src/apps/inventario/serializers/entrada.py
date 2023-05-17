@@ -16,9 +16,9 @@ class EntradaDetalleSerializer(serializers.ModelSerializer):
     tipo_entrada = serializers.StringRelatedField(source='entrada.tipo')
     usa_triage = serializers.StringRelatedField(source='tipo_dispositivo.usa_triage')
     # Campos contabilidad
-    precio_unitario = serializers.DecimalField(max_digits=8, decimal_places=2, default=None)
-    precio_descontado = serializers.DecimalField(max_digits=8, decimal_places=2, default=None)
-    precio_total = serializers.DecimalField(max_digits=10, decimal_places=2, default=None)
+    precio_unitario = serializers.DecimalField(max_digits=8, decimal_places=5, default=None)
+    precio_descontado = serializers.DecimalField(max_digits=8, decimal_places=5, default=None)
+    precio_total = serializers.DecimalField(max_digits=10, decimal_places=5, default=None)
     # Registro
     creado_por = serializers.StringRelatedField(source='creado_por.get_full_name')
     update_url = serializers.SerializerMethodField(read_only=True)
