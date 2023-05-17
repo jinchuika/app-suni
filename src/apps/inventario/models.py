@@ -72,7 +72,7 @@ class Entrada(models.Model):
     recibida_por = models.ForeignKey(User, on_delete=models.PROTECT, related_name='entradas_recibidas')
     proveedor = models.ForeignKey(crm_m.Donante, on_delete=models.PROTECT, related_name='entradas')
     factura = models.PositiveIntegerField(default=0)
-    observaciones = models.TextField(null=True, blank=True)
+    observaciones = models.TextField(null=True, blank=True)  
 
     class Meta:
         verbose_name = "Entrada"
@@ -169,8 +169,8 @@ class EntradaDetalle(models.Model):
     fecha_dispositivo = models.DateField(blank=True, null=True)
     fecha_repuesto = models.DateField(blank=True, null=True)
     # Campos sobre contabilidad
-    precio_unitario = models.DecimalField(max_digits=8, decimal_places=2, blank=True, null=True)
-    precio_subtotal = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    precio_unitario = models.DecimalField(max_digits=8, decimal_places=5, blank=True, null=True)
+    precio_subtotal = models.DecimalField(max_digits=10, decimal_places=5, blank=True, null=True)
 
     precio_descontado = models.DecimalField(max_digits=8, decimal_places=2, blank=True, null=True)
     precio_total = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
