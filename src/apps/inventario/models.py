@@ -169,8 +169,8 @@ class EntradaDetalle(models.Model):
     fecha_dispositivo = models.DateField(blank=True, null=True)
     fecha_repuesto = models.DateField(blank=True, null=True)
     # Campos sobre contabilidad
-    precio_unitario = models.DecimalField(max_digits=8, decimal_places=5, blank=True, null=True)
-    precio_subtotal = models.DecimalField(max_digits=10, decimal_places=5, blank=True, null=True)
+    precio_unitario = models.DecimalField(max_digits=20, decimal_places=10, blank=True, null=True)
+    precio_subtotal = models.DecimalField(max_digits=20, decimal_places=10, blank=True, null=True)
 
     precio_descontado = models.DecimalField(max_digits=8, decimal_places=2, blank=True, null=True)
     precio_total = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
