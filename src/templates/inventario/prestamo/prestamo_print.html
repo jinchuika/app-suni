@@ -9,8 +9,14 @@
     <img src="{% static "image/Logo_Funsepa-01.png" %}" width="110" height="110" />
 <tr>
 <td>
+ 
 <fieldset>
-  <u>FORMULARIO</u>
+  {% if  prestamo.devuelto%}
+  <u>FORMULARIO DE DEVOLUCION</u>
+  {% else %}
+  <u>FORMULARIO DE SALIDA</u>
+  {% endif %}
+ 
 </fieldset>
 </td>
 </tr>
@@ -21,7 +27,7 @@
   <table style="width:100%">
     <tr>
       <th>
-        Movimiento
+        No. Movimiento
       </th>
       <td>
         <fieldset>
@@ -67,8 +73,14 @@
         Recibe de conformidad
       </th>
       <td>
+       
       <fieldset>
+        
+        {% if prestamo.tipo_prestamo|stringformat:"s" == 'Externo'   %}
+        {{prestamo.prestado_externo_a.nombre}}
+        {%else%}
         {{prestamo.prestado_a.get_full_name}}
+        {% endif %}
       </fieldset>
       </td>
     </tr>
@@ -131,7 +143,7 @@
   <form>
     <legend>Observaciones:</legend>
       <fieldset>
-        {{entrada.observaciones|default_if_none:""}}
+        {{prestamo.observaciones|default_if_none:""}}
       </fieldset>
   </form>
   <table style="width:100%">
@@ -161,7 +173,7 @@
         <br />
         ____________________________________
         <br />
-        Firma de quien entrega
+        Vo.Bo. Administrador de C.R
       </th>
       <th>
         <br />
@@ -186,10 +198,11 @@ body{
 .encabezado fieldset{
   color: darkblue;
   margin-top: -70px;
-  margin-left: 39%;
-  width: 10px;
+  margin-left: 28%;
+  //width: 0px;
   font-weight: bold;
   font-size: 24px;
+  width: 33%;
 }
 .encabezado img{
   margin-top: 50px;
@@ -316,6 +329,6 @@ hr{
 
 {% block extra_js %}
 <script>
-window.onload= function () { window.print();window.close();   }
+//window.onload= function () { window.print();window.close();   }
 </script>
 {% endblock extra_js %}
