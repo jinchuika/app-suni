@@ -456,7 +456,6 @@
                     <div class="">
                     	{% if sede.url %}
 	                    	<br>
-							{{sede.url}}
 	                    	{{ sede.url|embed_gdrive_folder|safe }}
                     	{% endif %}
                     </div>
@@ -477,7 +476,6 @@
                 </div>
                   <div class="tab-pane no-padding" id="linea"  data-url="{% url 'calendario_api_list' %}" data-sede="{{sede.id}}">
                     <div id="timeline" style="height:600px; width:100%"></div>
-					<iframe src="https://oc.funsepa.org/index.php/apps/files/?dir=/Photos&fileid=185452#/Photos/Paris.jpg" style="width:100%; height:600px; border:0;"></iframe>
                 </div>
 							</div>
 						</div>

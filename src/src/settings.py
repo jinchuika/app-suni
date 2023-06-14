@@ -123,31 +123,18 @@ WSGI_APPLICATION = 'src.wsgi.application'
 
 DATABASE_ROUTERS = ['apps.legacy.dbrouters.LegacyRouter', ]
 
+
 DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.mysql',
-            'NAME': 'suni_informes_fechas',
+            'NAME': 'suni_2702',
             'USER': 'root',
             'PASSWORD': '',
             'HOST': 'localhost',
             'PORT': '3306',
         }
     }
-#suni_informes_fechas
-#estaba en uso suni_prod
-#estba en uso el suni_dev3
-#suni2_dev_oct
 
-"""DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.mysql',
-            'NAME': 'suni',
-            'USER': 'suni',
-            'PASSWORD': 'SuN1.Funsep@2019!',
-            'HOST': 'suni.funsepa.org',
-            'PORT': '3306',
-        }
-    }"""
 
 """DATABASES = {
     'default': {

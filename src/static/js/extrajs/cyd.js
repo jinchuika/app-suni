@@ -43,8 +43,6 @@ function listar_grupos_sede(sede_selector, grupo_selector, null_option) {
     /*
     Al cambiar la sede, genera el listado de grupos
     */
-    curso_ca = [];
-    let hash = {}
     $(grupo_selector).html('');
     if ($(sede_selector).val()) {
         $.get($(sede_selector).data('url'),
@@ -53,27 +51,13 @@ function listar_grupos_sede(sede_selector, grupo_selector, null_option) {
         },
         function (respuesta) {
             var options = '';
-            var curso_options = '';
             if (null_option) {
                 options += '<option value="">------</option>';
             }
             $.each(respuesta, function (index, grupo) {
                 options += '<option value="'+grupo.id+'">'+grupo.numero+' - '+grupo.curso+'</option>';
-                curso_ca.push({id:parseInt(grupo.curso_id),curso:grupo.curso})
             });
             $(grupo_selector).html(options).trigger('change');
-            //console.log(curso_ca);
-            curso_ca = curso_ca.filter( o => hash[o.id]? false: hash[o.id] = true);
-            curso_ca.forEach(element => {
-                console.log(element);
-                curso_options += '<option value="'+element.id+'">'+element.curso+'</option>'
-            }
-                
-                )
-                //console.log(curso_options)
-            //console.log(JSON.stringify(curso_ca))
-            //console.log(curso_ca);
-                        
         });
     }
 }
@@ -478,13 +462,11 @@ $.ajax({
 
     var copiar_participantes = function () {
         var api_url = $('#copiar-form').prop('action');
-        var api_url_duplicidad = $('#copiar-form').data('url');
         var grupo_id = $('#copiar-form #id_grupo').val();
         var total = $('.check-participante:checkbox:checked').length;
         var completados = 0;
         $('.check-participante:checkbox:checked').each(function () {
             var participante_id = $(this).val();
-            //request para validar si esta asignado en otro grupo de la misma sede
             $.ajax({
                 beforeSend: function(xhr, settings) {
                     xhr.setRequestHeader("X-CSRFToken", $('input[name="csrfmiddlewaretoken"]').val());
@@ -494,53 +476,27 @@ $.ajax({
                     participante: participante_id
                 },
                 dataType: 'json',
-                error: function (respuesta) { 
-                    console.log(respuesta.responseText);                   
+                error: function (respuesta) {
+                    completados += 1;
                     new Noty({
-                        text: respuesta.responseText,
+                        text: 'Error al asignar a ' + $('#td-nombre-'+participante_id).text() + ' ' + $('#td-apellido-'+participante_id).text() +'.',
                         type: 'error',
-                        timeout: 3500,
-                    }).show();                    
+                        timeout: 2500,
+                    }).show();
+                    ocultar_copiar_form(total, completados);
                 },
-                url: api_url_duplicidad,
-                success: function (respuesta) {                    
-                    //funcion para asignar a la nueva sede
-                    $.ajax({
-                        beforeSend: function(xhr, settings) {
-                            xhr.setRequestHeader("X-CSRFToken", $('input[name="csrfmiddlewaretoken"]').val());
-                        },
-                        data: {
-                            grupo: grupo_id,
-                            participante: participante_id
-                        },
-                        dataType: 'json',
-                        error: function (respuesta) {
-                            completados += 1;
-                            new Noty({
-                                text: 'Error al asignar a ' + $('#td-nombre-'+participante_id).text() + ' ' + $('#td-apellido-'+participante_id).text() +'.',
-                                type: 'error',
-                                timeout: 2500,
-                            }).show();
-                            ocultar_copiar_form(total, completados);
-                        },
-                        url: api_url,
-                        success: function (respuesta) {
-                            completados += 1;
-                            new Noty({
-                                text: 'Copiado con éxito',
-                                type: 'success',
-                                timeout: 1700,
-                            }).show();
-                            ocultar_copiar_form(total, completados);
-                        },
-                        type: 'POST'
-                    });
-                    //fin del ajax de asignacion
-
+                url: api_url,
+                success: function (respuesta) {
+                    completados += 1;
+                    new Noty({
+                        text: 'Copiado con éxito',
+                        type: 'success',
+                        timeout: 1700,
+                    }).show();
+                    ocultar_copiar_form(total, completados);
                 },
                 type: 'POST'
             });
-			
         })
     }
 
@@ -578,14 +534,12 @@ $.ajax({
         $('.form-copiar').hide();
         $('#btn-select-all').click(function(){
             $('.check-participante').prop('checked',true);
-            
         });
         $('#btn-select-none').click(function(){
             $('.check-participante:checkbox:checked').removeAttr('checked');
         });
         $('#btn-form-copiar').on('click', function () {
             $('.form-copiar').toggle();
-            $('[id="perfil"]').toggle();
         });
         $('#copiar-form').on('submit', function (e) {
             e.preventDefault();
@@ -764,7 +718,6 @@ $.ajax({
                     var params = {};
                     params['sede__capacitador'] = $('#id_capacitador').val();
                     params['sede'] = $('#sede_form #id_sede').val();
-                    
                     return params;
                 },
                 editable: false
@@ -774,10 +727,8 @@ $.ajax({
                 type: 'GET',
                 cache: true,
                 data: function () {
-                    
                     var params = {};
                     params['capacitador'] = $('#cyd-calendario').data('codigo');
-                    console.log(params)
                     return params;
                 }
             }
@@ -876,7 +827,6 @@ var crear_cyd_calendario_asesorias = function () {
             editable: false
         }
         ],
-       
         firstDay: 0,
         header: {
             left: 'prev,next today,month,agendaDay',
@@ -1076,7 +1026,6 @@ CalendarioCyD.init = function () {
                     event.html('A'+calendario.cr_asistencia+' '+(calendario.fecha ? calendario.fecha : ''));
                     eventos.push(event);
                     ini_events(event);
-                    console.log(event);
                 });
                 $('#asistencia_list').html(eventos);
             });
@@ -1110,22 +1059,20 @@ CalendarioCyD.init = function () {
         Al cambiar la sede, genera el listado de grupos
         */
         $('#form_participante #id_sede').on('change', function () {
-           
             listar_grupos_sede('#form_participante #id_sede', '#form_participante #id_grupo');
         });
 
         /*
         Al cambiar el grupo, genera el listado de participantes
         */
-        $('#form_participante #id_grupo').on('change', function () {       
-            console.log("Todo Bien");   
-            $('#tbody-listado').html('');            
+        $('#form_participante #id_grupo').on('change', function () {
+            $('#tbody-listado').html('');
             $.get($(this).data('url'),
             {
                 asignaciones__grupo: $(this).val(),
-                fields: 'nombre,apellido,escuela,etnia,escolaridad,'
+                fields: 'nombre,apellido,escuela'
             },
-            function (respuesta) {               
+            function (respuesta) {
                 var filas = [];
                 $.each(respuesta, function (index, participante) {
                     var fila = $('<tr />');
@@ -1278,8 +1225,7 @@ CalendarioCyD.init = function () {
                         table.instance.setDataAtCell(table.row, 4, respuesta[0].rol_nombre)
                         table.instance.setDataAtCell(table.row, 5, respuesta[0].mail)
                         table.instance.setDataAtCell(table.row, 6, respuesta[0].tel_movil)
-                        table.instance.setDataAtCell(table.row, 7, respuesta[0].etnia)
-                        table.instance.setDataAtCell(table.row, 8, respuesta[0].escolaridad) 
+                        table.instance.setDataAtCell(table.row, 7, respuesta[0].escuela.codigo)
                         return callback(false);
                     } else {
                         return callback(true);
@@ -1291,13 +1237,11 @@ CalendarioCyD.init = function () {
     var guardar_tabla = function () {
         var udi = $('#id_udi').val();
         var grupo = $('#id_grupo').val();
-        console.log(udi);
         var progress = 0;
         if (udi && grupo) {
             $.each(tabla_importar.getData(), function (index, fila) {
                 if (fila[0] && fila[1] && fila[2] && fila[3] && fila[4]) {
-                    //udi_send = fila[7] ? fila[7] : udi
-                    udi_send =  udi
+                    udi_send = fila[7] ? fila[7] : udi
                     try{
                         $.ajax({
                             beforeSend: function(xhr, settings) {
@@ -1313,8 +1257,6 @@ CalendarioCyD.init = function () {
                                 rol: fila[4],
                                 mail: fila[5],
                                 tel_movil: fila[6],
-                                etnia:fila[7].id,
-                                escolaridad:fila[8].id
                             }),
                             error: function (xhr, status, errorThrown) {
                                 new Noty({
@@ -1388,8 +1330,7 @@ CalendarioCyD.init = function () {
             rowHeaders: true,
             manualColumnResize:true,
             minSpareRows: 1,
-            colWidths: [140, 192, 100, 140, 140, 140, 97, 100,100,100],
-            colHeaders: ["DPI", "Nombre", "Apellido", "Género", "Rol", "Correo electrónico", "Teléfono","Etnia","Escolaridad"],
+            colHeaders: ["DPI", "Nombre", "Apellido", "Género", "Rol", "Correo electrónico", "Teléfono", "UDI"],
             startRows: 1,
             beforeChange: function (changes) {
                 var cambios = $.map(changes, function(value, index) {
@@ -1433,7 +1374,6 @@ CalendarioCyD.init = function () {
                 handsontable: {
                     autoColumnSize: true,
                     data: rol_list,
-                   
                     getValue: function () {
                         var selection = this.getSelected();
                         return this.getSourceDataAtRow(selection[0]).rol;
@@ -1442,28 +1382,7 @@ CalendarioCyD.init = function () {
             },
             {data: 'email', validator: email_validator, allowInvalid: true},
             {data: 'tel_movil'},
-            {type: 'handsontable',
-            strict: true,
-            handsontable: {
-                autoColumnSize: true,
-                data: etnia_list,
-               
-                getValue: function () {
-                    var selection = this.getSelected();
-                    return this.getSourceDataAtRow(selection[0]).etnia;
-                }
-            }},
-            {type: 'handsontable',
-            strict: true,
-            handsontable: {
-                autoColumnSize: true,
-                data: escolaridad_list,
-               
-                getValue: function () {
-                    var selection = this.getSelected();
-                    return this.getSourceDataAtRow(selection[0]).escolaridad;
-                }
-            }},
+            {data: 'udi', validator: udi_validator, allowInvalid: true},
             ]
         });
 
@@ -1475,7 +1394,7 @@ CalendarioCyD.init = function () {
             $.get($(this).data('url'),
             {
                 asignaciones__grupo: $(this).val(),
-                fields: 'dpi,nombre,apellido,escuela,url,rol_nombre,escolaridad,etnia'
+                fields: 'dpi,nombre,apellido,escuela,url,rol_nombre'
             },
             function (respuesta) {
                 var filas = [];
@@ -1485,15 +1404,8 @@ CalendarioCyD.init = function () {
                     fila.append('<td>'+i+'</td>');
                     fila.append('<td><a href="'+participante.url+'">'+participante.nombre+' '+participante.apellido+'</a></td>');
                     fila.append('<td>'+participante.dpi+'</td>');
-                    if (participante.rol_nombre =='Director'){
-                        fila.append('<td><b>'+participante.rol_nombre+'</b></td>');
-                    }else{
-                        fila.append('<td>'+participante.rol_nombre+'</td>');
-                    }
-                    
+                    fila.append('<td>'+participante.rol_nombre+'</td>');
                     fila.append('<td><a href="'+participante.escuela.url+'">'+participante.escuela.nombre+'<br>'+participante.escuela.codigo+'</a></td>');
-                    fila.append('<td>'+participante.etnia+'</td>');
-                    fila.append('<td>'+participante.escolaridad+'</td>');
                     filas.push(fila);
                     i = i+1;
                 });
@@ -1581,25 +1493,23 @@ CalendarioCyD.init = function () {
                 activo:2
             },
             function(data){
-                var td_participante = '';
+
                  $.each(data, function(i, item){
-                    //console.log(item.nombre)
-                    
-                    td_participante += '<tr><td><a href="'+item.url+'" class="btn btn-block">'+item.nombre+' '+item.apellido+'</a></td>';
+                    var td_participante = '';
+                    td_participante += '<td><a href="'+item.url+'" class="btn btn-block">'+item.nombre+' '+item.apellido+'</a></td>';
                     td_participante += '<td>'+item.asignaciones.map(function (asignacion) {
                         return '<small class="badge bg-aqua">'+asignacion.grupo+'</small>';
                     }).join('<br />')+ '</td>';
                     td_participante += '<td><a href="'+item.escuela.url+'">'+item.escuela.nombre+'<br>'+item.escuela.codigo+'</a></td>';
 
                     if (permite_asignar) {
-                        td_participante += '<td><button class="btn-asignar btn btn-success" data-pk="'+item.id+'">Asignar</button></td>';
+                        td_participante += '<td><button class="btn-asignar" data-pk="'+item.id+'">Asignar</button></td>';
                     }
-                    td_participante += '<td> <a id="participante_id" data-id="'+item.id +'" class= "btn btn-danger btn-borrar" >Borrar participante</a> </td></tr>';
-                    //console.log(td_participante)
-                    //$("#resultado-tbody").html(td_participante);
+                    td_participante += '<td> <a id="participante_id" data-id="'+item.id +'" class= "btn btn-danger btn-borrar" >Borrar participante</a> </td>';
+                    $("#resultado-tbody").html(td_participante);
                  });
-                 $("#resultado-tbody").html(td_participante);
-                console.log(td_participante);
+
+                //console.log(td_participante);
 
             });
     }
@@ -2108,51 +2018,52 @@ class AgregarCurso{
         });
 
         $("input").focusout(function(){
-            AgregarCurso.suma_asistencia();
-            AgregarCurso.suma_proyectos_ejercicios();
-            //  console.log(nuevo1);
-              //console.log(nuevo2);
-    
-    
-                var total_asistencia = $('#nota_curso').text();
-                var total_proyectos = $('#tareas_curso').text();
-                var tota_punteo= (Number(total_asistencia) + Number(total_proyectos));
-                $("#total_curso").text((Number(total_asistencia) + Number(total_proyectos)));
-                if(tota_punteo>100){
-                  bootbox.alert("La nota total no puede ser mayor a 100 pts, revise las notas");
+        AgregarCurso.suma_asistencia();
+        AgregarCurso.suma_proyectos_ejercicios();
+        //  console.log(nuevo1);
+          //console.log(nuevo2);
+
+
+            var total_asistencia = $('#nota_curso').text();
+            var total_proyectos = $('#tareas_curso').text();
+            var tota_punteo= (Number(total_asistencia) + Number(total_proyectos));
+            $("#total_curso").text((Number(total_asistencia) + Number(total_proyectos)));
+            if(tota_punteo>100){
+              bootbox.alert("La nota total no puede ser mayor a 100 pts, revise las notas");
+              $("#guardar_curso").prop( "disabled", true );
+              $("#mostrar_campo" ).prop( "disabled", true );
+              $("#mostrar_campo_hito" ).prop( "disabled", true );
+            }else{
+              $("#mostrar_campo" ).prop( "disabled", false );
+              $("#mostrar_campo_hito" ).prop( "disabled", false );
+              $("#guardar_curso").prop( "disabled", false );
+            }
+            /*if(total_asistencia>100){
+                bootbox.alert("La nota total no puede ser mayor a 100 pts, revise las notas");
+                $("#guardar_curso").prop( "disabled", true );
+                $("#mostrar_campo" ).prop( "disabled", true );
+                $("#mostrar_campo_hito" ).prop( "disabled", true );
+            }else{
+                $("#mostrar_campo" ).prop( "disabled", false );
+                $("#mostrar_campo_hito" ).prop( "disabled", false );
+                $("#guardar_curso").prop( "disabled", false );
+            };
+            if(total_proyectos>100){
+                bootbox.alert("La nota total no puede ser mayor a 100 pts, revise las notas");
+                $("#guardar_curso").prop( "disabled", true );
+                $("#mostrar_campo_hito" ).prop( "disabled", true );
                   $("#guardar_curso").prop( "disabled", true );
-                  $("#mostrar_campo" ).prop( "disabled", true );
-                  $("#mostrar_campo_hito" ).prop( "disabled", true );
-                }else{
-                  $("#mostrar_campo" ).prop( "disabled", false );
-                  $("#mostrar_campo_hito" ).prop( "disabled", false );
-                  $("#guardar_curso").prop( "disabled", false );
-                }
-                /*if(total_asistencia>100){
-                    bootbox.alert("La nota total no puede ser mayor a 100 pts, revise las notas");
-                    $("#guardar_curso").prop( "disabled", true );
-                    $("#mostrar_campo" ).prop( "disabled", true );
-                    $("#mostrar_campo_hito" ).prop( "disabled", true );
-                }else{
-                    $("#mostrar_campo" ).prop( "disabled", false );
-                    $("#mostrar_campo_hito" ).prop( "disabled", false );
-                    $("#guardar_curso").prop( "disabled", false );
-                };
-                if(total_proyectos>100){
-                    bootbox.alert("La nota total no puede ser mayor a 100 pts, revise las notas");
-                    $("#guardar_curso").prop( "disabled", true );
-                    $("#mostrar_campo_hito" ).prop( "disabled", true );
-                      $("#guardar_curso").prop( "disabled", true );
-                }else{
-                  $("#mostrar_campo" ).prop( "disabled", false );
-                  $("#mostrar_campo_hito" ).prop( "disabled", false );
-                  $("#guardar_curso").prop( "disabled", false );
-                };*/
-            });
+            }else{
+              $("#mostrar_campo" ).prop( "disabled", false );
+              $("#mostrar_campo_hito" ).prop( "disabled", false );
+              $("#guardar_curso").prop( "disabled", false );
+            };*/
+        });
+
         $("#id_nombre").keyup(function(){
                 $("#nombre_curso").text($(this).val());
         });
-        $("#mostrar_campo").click(function(){
+          $("#mostrar_campo").click(function(){
 
             nuevo1=AgregarCurso.suma_asistencia();
             contador_asistencia++;
@@ -2173,6 +2084,7 @@ class AgregarCurso{
             $("#nota_curso").text(Number(nuevo2+nuevo1));
             //console.log($("#id_asistencias-"+Number(contador_asistencia-1)+"-punteo_max").val());
             /*  contador_asistencia++;
+
               if(contador_asistencia > (cantidad-1)){
                   bootbox.alert("Ya no puede ingresar más asistencias");
                   $("#mostrar_campo" ).prop( "disabled", true );
@@ -2227,7 +2139,6 @@ class AgregarCurso{
 
         var cantidad_asistencia = $('#id_asistencias-TOTAL_FORMS').val();
       //  var cantidad_asistencia = contador_asistencia;
-      console.log(cantidad_asistencia)
         var acumulador_asistencia =0;
         for(var a=0;a<cantidad_asistencia;a++){
             acumulador_asistencia= acumulador_asistencia + Number($("#id_asistencias-"+a+"-punteo_max").val());
@@ -2300,12 +2211,10 @@ class CursoList{
 }
 class ControlAcademicoGrupos{
     constructor(){
-        //var encabezado =['Asignacion','Curso','Grupo','Sede','Nombre','Apellido','Genero'];
-        var encabezado =['Asignacion','Nombre','Apellido','Genero'];
-        var hot;    
+        var encabezado =['Asignacion','Curso','Grupo','Sede','Nombre','Apellido','Genero'];
+        var hot;
         $('#control-academico-list-form').on('submit', function (e) {
             e.preventDefault();
-                        
             $("#guardar_tabla").show();
             $.ajax({
                 type: 'POST',
@@ -2317,14 +2226,12 @@ class ControlAcademicoGrupos{
                 data:$(this).serialize(),
                 success: function (response) {
                   $('#guardar_tabla').show();
-                  bootbox.alert({message: "<h2>"+"Listado generado correctamente"+"</h2>", className:"modal modal-success fade in"});
+                  bootbox.alert({message: "<h2>"+"Exito"+"</h2>", className:"modal modal-success fade in"});
                   for(var k=0;k<=response[0].asistencia.length-1;k++){
-                      //encabezado.push("Asistencia "+Number(k+1));
-                      encabezado.push("A "+Number(k+1));
+                      encabezado.push("Asistencia "+Number(k+1));
                   };
                   for(var j=0;j<=response[0].trabajos.length-1;j++){
-                      //encabezado.push(response[0].trabajos[j].cr_hito__nombre);
-                      encabezado.push("Hito"+(Number(j+1)));
+                      encabezado.push(response[0].trabajos[j].cr_hito__nombre);
                 };
                 encabezado.push("Final");
                 var matris = [];
@@ -2334,9 +2241,9 @@ class ControlAcademicoGrupos{
                 var resultado_final=0;
                 for (var l=0; l<=response.length-1;l++){
                      matris.push(response[l].asignacion);
-                     //matris.push(response[l].curso);
-                     //matris.push(response[l].grupo);
-                     //matris.push(response[l].sede);
+                     matris.push(response[l].curso);
+                     matris.push(response[l].grupo);
+                     matris.push(response[l].sede);
                      matris.push(response[l].nombre);
                      matris.push(response[l].apellido);
                      matris.push(response[l].genero);
@@ -2348,9 +2255,8 @@ class ControlAcademicoGrupos{
                         matris.push(response[l].trabajos[work].nota);
                         nota_trabajos=nota_trabajos + response[l].trabajos[work].nota;
                      }
-                     //Formula para calcular la nota Final   
-                     //resultado_final = (nota_asitencia + nota_trabajos)/(Number(response[l].asistencia.length + response[l].trabajos.length));
-                     resultado_final = (nota_asitencia + nota_trabajos);
+
+                     resultado_final = (nota_asitencia + nota_trabajos)/(Number(response[l].asistencia.length + response[l].trabajos.length));
                      matris.push(resultado_final);
                      matris2.push(matris);
                      matris=[]
@@ -2370,12 +2276,10 @@ class ControlAcademicoGrupos{
             startCols: encabezado.length,
             removeRowPlugin: true,
             persistentState: true,
-            fixedRowsTop: 3,
-            fixedColumnsLeft: 3,
             afterSelection: afterSelection,
             cells: function (row, col, prop) {
                 var cellProperties = {};
-                if (col < 3) {5
+                if (col < 6) {
                     cellProperties.readOnly = true;
                 }
                 if(col == encabezado.length-1){
@@ -2386,14 +2290,11 @@ class ControlAcademicoGrupos{
           });
           hot.getPlugin('columnSorting').sort({column:0, sortOrder:'asc'});
           function afterSelection(rowId,colId, rowEndId, colEndId){
-            var nuevaNota = 0;
+             var nuevaNota=0;
             var actualizarNotas= hot.getSourceDataAtRow(rowId);
-            console.log(actualizarNotas[3]);
-            //console.log(actualizarNotas.length);
-            for(var k =4; k<=actualizarNotas.length-2;k++ ){                
-                nuevaNota = nuevaNota + Number(actualizarNotas[k]);                
+            for(var k =3; k<=actualizarNotas.length-2;k++ ){
+                nuevaNota = nuevaNota + Number(actualizarNotas[k])
             };
-            
             hot.setDataAtCell(rowId,actualizarNotas.length-1,nuevaNota);
           };
 
@@ -2404,8 +2305,7 @@ class ControlAcademicoGrupos{
                   bootbox.alert({message: "<h3><i class='fa fa-frown-o' style='font-size: 45px;'></i>&nbsp;&nbsp;&nbsp;HA OCURRIDO UN ERROR!!</h3></br>" + jsonResponse["mensaje"], className:"modal modal-danger fade"});
                 }
               });
-              //encabezado =['Asignacion','Curso','Grupo','Sede','Nombre','Apellido','Genero'];
-              encabezado =['Asignacion','Nombre','Apellido','Genero'];
+              encabezado =['Asignacion','Curso','Grupo','Sede','Nombre','Apellido','Genero'];
               hot.destroy();
         });
 
@@ -2413,14 +2313,14 @@ class ControlAcademicoGrupos{
         /** */
         $("#guardar_tabla").click(function() {
             var  jsonObj = [];
-            for(var k=0; k<=hot.getData().length-1;k++){                
+            for(var k=0; k<=hot.getData.length-1;k++){
                 var  prueba = {};
                 for(var l=0;l<=hot.getData()[k].length-1;l++){
                     prueba[encabezado[l]] = hot.getData()[k][l];
                 }
                 jsonObj.push(prueba);
             };
-            var data_send=JSON.stringify(jsonObj);           
+            var data_send=JSON.stringify(jsonObj);
             $.ajax({
                 type: 'POST',
                 url: $('#datosCurso').data('url'),
@@ -2431,7 +2331,7 @@ class ControlAcademicoGrupos{
                 data:{datos:data_send},
                 success: function (response) {
 
-                  bootbox.alert({message: "<h2>"+"Datos Actualizados correctamente"+"</h2>", className:"modal modal-success fade in"});
+                  bootbox.alert({message: "<h2>"+"Exito"+"</h2>", className:"modal modal-success fade in"});
                 },
                 error: function (response) {
                   var jsonResponse = JSON.parse(response.responseText);
@@ -2442,10 +2342,6 @@ class ControlAcademicoGrupos{
 
          });
         /** */
-        $('#control-academico-list-form #id_sede').on('change', function () {
-            listar_grupos_sede('#control-academico-list-form #id_sede', '#control-academico-list-form #id_grupo');
-            
-        });
 
 
     };
@@ -2691,7 +2587,7 @@ class informeFinal{
 
     $('#informefinal-list-form').submit(function (e) {
         e.preventDefault();
-         var tablaDispositivos = $('#informefinal-table-search').DataTable({
+         tablaDispositivos = $('#informefinal-table-search').DataTable({
             dom: 'lfrtipB',
             destroy:true,
             buttons: ['excel', 'pdf'],
@@ -2734,7 +2630,7 @@ class informeCapacitadores{
     var total_participantes=0;
     $('#informecapacitadores-list-form').submit(function (e) {
         e.preventDefault();
-         var tablaDispositivos = $('#informecapacitadores-table-search').DataTable({
+         tablaDispositivos = $('#informecapacitadores-table-search').DataTable({
             dom: 'lfrtipB',
             destroy:true,
             buttons: ['excel', 'pdf'],

@@ -55,8 +55,6 @@ asignacion_api_add = api_views.AsignacionViewSet.as_view({
     'post': 'create'})
 asignacion_desactivar = api_views.AsignacionViewSet.as_view({
     'post':'desactivar_asignacion'})
-asignacion_validar = api_views.AsignacionViewSet.as_view({
-    'post':'verificar_duplicidad'})
 asignacion_api_detail = api_views.AsignacionViewSet.as_view({
     'get': 'retrieve',
     'put': 'update',
@@ -102,7 +100,6 @@ urlpatterns = [
     url(r'^api/asignacion/add/$', asignacion_api_add, name='asignacion_api_add'),
     url(r'^api/asignacion/(?P<pk>\d+)/$', asignacion_api_detail, name='asignacion_api_detail'),
     url(r'^api/asignacion/desactivar/$', asignacion_desactivar, name='asignacion_desactivar'),
-    url(r'^api/asignacion/verificar_duplicidad/$', asignacion_validar, name='asignacion_verificar_duplicidad'),
 
     url(r'^api/participante/list/$', participante_api_list, name='participante_api_list'),
     url(r'^api/participante/(?P<pk>\w+)/$', participante_api_detail, name='participante_api_detail'),

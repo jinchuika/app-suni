@@ -66,7 +66,7 @@ class GrupoSerializer(serializers.ModelSerializer):
     curso = serializers.StringRelatedField()
     curso_id = serializers.StringRelatedField(source="curso.id")
     asistencias = serializers.IntegerField(source="asignados.count", read_only=True)
-    capacitador = serializers.StringRelatedField(source="cyd_grupo_creado_por.get_full_name")
+    capacitador = serializers.StringRelatedField(source="sede.capacitador.get_full_name")
     urlgrupo = serializers.StringRelatedField(source ="get_absolute_url")
     urlsede = serializers.StringRelatedField(source ="sede.get_absolute_url")
     fecha_creacion = serializers.DateTimeField(source= "sede.fecha_creacion", format='%Y')
@@ -95,7 +95,7 @@ class SedeSerializer(serializers.ModelSerializer):
 class AsesoriaSerializer(serializers.ModelSerializer):
     """Para crear y listar periodos de :model:`cyd.Asesoria`."""
     url = serializers.HyperlinkedIdentityField(view_name='asesoria_api_detail', lookup_field='pk')
-    #cyd_asesoria_creado_por = serializers.HiddenField(default=serializers.CurrentUserDefault())
+    cyd_asesoria_creado_por = serializers.HiddenField(default=serializers.CurrentUserDefault())
     class Meta:
         model = Asesoria
         fields = '__all__'
@@ -113,9 +113,7 @@ class AsesoriaCalendarSerializer(DynamicFieldsModelSerializer, serializers.Model
     title = serializers.CharField(source='sede.capacitador.get_full_name')
     tip_title = serializers.SerializerMethodField()
     tip_text = serializers.SerializerMethodField()
-    color = serializers.SerializerMethodField()
-    #color = serializers.CharField(source='sede.capacitador.perfil.color')
-    #color_asesoria = serializers.SerializerMethodField()
+    color = serializers.CharField(source='sede.capacitador.perfil.color')
 
     class Meta:
         model = Asesoria
@@ -132,9 +130,6 @@ class AsesoriaCalendarSerializer(DynamicFieldsModelSerializer, serializers.Model
 
     def get_tip_text(self, object):
         return str(object.sede.municipio)
-    
-    def get_color(self, object):
-        return "#FFA500"
 
 
 class AsignacionResumenSerializer(DynamicFieldsModelSerializer, serializers.ModelSerializer):
@@ -149,10 +144,8 @@ class ParticipanteSerializer(DynamicFieldsModelSerializer, serializers.ModelSeri
     url = serializers.URLField(source='get_absolute_url')
     escuela = EscuelaSerializer(read_only=True, fields='codigo,nombre,url')
     asignaciones = AsignacionResumenSerializer(read_only=True, many=True)
-    genero_nombre =serializers.StringRelatedField(source='genero.genero') 
-    etnia=serializers.StringRelatedField(source='etnia.nombre')
-    escolaridad = serializers.StringRelatedField(source ='escolaridad.nombre') 
-    rol_nombre = serializers.StringRelatedField(source='rol.nombre')    
+    genero_nombre =serializers.StringRelatedField(source='genero.genero')
+    rol_nombre = serializers.StringRelatedField(source='rol.nombre')
 
     class Meta:
         model = Participante

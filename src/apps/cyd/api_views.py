@@ -38,7 +38,7 @@ def crear_calendario(grupo):
 class GrupoViewSet(CsrfExemptMixin, viewsets.ModelViewSet):
     serializer_class = GrupoSerializer
     queryset = Grupo.objects.all()
-    filter_fields = ('sede', 'curso', 'activo','numero', 'cyd_grupo_creado_por')
+    filter_fields = ('sede', 'curso', 'activo','numero', 'sede__capacitador',)
 
     def get_queryset(self):
         queryset = Grupo.objects.all()
@@ -221,7 +221,6 @@ class AsignacionViewSet(CsrfExemptMixin, viewsets.ModelViewSet):
     serializer_class = AsignacionSerializer
     queryset = Asignacion.objects.all()
     filter_fields = ('grupo__curso',)
-    #filter_fields = ('grupo',)
 
     @action(methods=['post'], detail=False)
     def desactivar_asignacion(self, request, pk=None):
@@ -234,30 +233,6 @@ class AsignacionViewSet(CsrfExemptMixin, viewsets.ModelViewSet):
             {'mensaje': 'Cambio Aceptado'},
             status=status.HTTP_200_OK
         )
-    
-    @action(methods=['post'], detail=False)
-    def verificar_duplicidad(self, request,pk=None):
-        """ Metodo para ver si el participante esta asignado en otro grupo 
-        """        
-        participante_id = request.data['participante']
-        grupo_id = request.data['grupo']        
-        grupos = Grupo.objects.get(id=grupo_id)            
-        buscar_grupos = Grupo.objects.filter(curso=grupos.curso).last()              
-        buscar_asignacion = Asignacion.objects.filter(grupo__curso=buscar_grupos.curso,participante__id=participante_id,grupo__sede=buscar_grupos.sede)
-        #print(buscar_grupos.sede)
-        #print(buscar_asignacion[0].grupo)
-        if buscar_asignacion.count() >0:
-            return Response(
-                {'Ya esta asignado en los grupos de: '+ str(buscar_asignacion[0].grupo)},
-                status=status.HTTP_406_NOT_ACCEPTABLE
-            )
-        else:
-            return Response(
-                {'mensaje': 'Libre'},
-                status=status.HTTP_200_OK
-            )
-
-        
 
 class ParticipanteViewSet(CsrfExemptMixin, viewsets.ModelViewSet):
     """Consulta de participantes usando el DPI como primary key.
@@ -272,7 +247,7 @@ class ParticipanteViewSet(CsrfExemptMixin, viewsets.ModelViewSet):
             fields = [
                 'dpi', 'escuela', 'asignaciones__grupo', 'asignaciones__grupo__sede',
                 'asignaciones__grupo__sede__capacitador', 'escuela__codigo',
-                'escuela__municipio', 'escuela__municipio__departamento','activo','etnia','escolaridad']
+                'escuela__municipio', 'escuela__municipio__departamento','activo']
     serializer_class = ParticipanteSerializer
     queryset = Participante.objects.all()
     filter_class = ParticipanteFilter

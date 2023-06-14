@@ -504,14 +504,6 @@ class RevisionSalidaViewSet(viewsets.ModelViewSet):
             paquete__salida=id_salida,
             dispositivo__etapa=etapa_listo,
             dispositivo__estado=estado_bueno).count()
-        print(dispositivos_paquetes,"->",dispositivos_aprobados)
-        nuevo = beqt_m.DispositivoPaquete.objects.filter(paquete__salida=id_salida)
-        #print(nuevo.query)
-        nuevo2 = beqt_m.DispositivoPaquete.objects.filter(
-            paquete__salida=id_salida,
-            dispositivo__etapa=etapa_listo,
-            dispositivo__estado=estado_bueno)
-        print(nuevo2.query)
         if(paquetes_aprobados < dispositivos_paquetes):
             return Response({
                 'mensaje': 'No se ha podido finalizar la revisión, ya que existen paquetes que aún están pendientes de revisar en Control de Calidad'
