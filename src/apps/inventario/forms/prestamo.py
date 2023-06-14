@@ -8,21 +8,23 @@ class PrestamoForm(forms.ModelForm):
     """ Formulario para  la creacion de prestamos.
     """
     dispositivo = forms.ModelMultipleChoiceField(
-        queryset=inv_m.Dispositivo.objects.none(),
+        queryset=inv_m.Dispositivo.objects.filter(etapa=1,estado=1),
         widget=forms.SelectMultiple(attrs={'class': 'form-control select2'}))
 
-    tipo_dispositivo = forms.ModelChoiceField(
-        queryset=inv_m.DispositivoTipo.objects.all().exclude(usa_triage=False),
+    tipo_dispositivo_prestamo = forms.ModelChoiceField(
+        queryset=inv_m.DispositivoTipo.objects.all(),
         label='Tipo Dispositivo',
         required=True,
         widget=forms.Select(attrs={'class': 'form-control select2 '}))
 
     class Meta:
         model = inv_m.Prestamo
-        fields = ('tipo_prestamo', 'prestado_a', 'tipo_dispositivo', 'dispositivo')
+        fields = ('tipo_prestamo', 'prestado_a', 'prestado_externo_a','tipo_dispositivo_prestamo', 'dispositivo','observaciones')
         widgets = {
             'tipo_prestamo': forms.Select(attrs={'class': 'form-control select2 '}),
-            'prestado_a': forms.Select(attrs={'class': 'form-control select2'}),
+            'prestado_a': forms.Select(attrs={'class': 'form-control select2','style': 'visibility:hidden'}),
+            'prestado_externo_a': forms.Select(attrs={'class': 'form-control select2','style': 'visibility:hidden'}),
+            'observaciones': forms.Textarea(attrs={'class': 'form-control'})
         }
         exclude = {'creada_por', }
 
