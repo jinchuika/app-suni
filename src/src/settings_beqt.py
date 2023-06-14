@@ -126,44 +126,15 @@ DATABASE_ROUTERS = ['apps.legacy.dbrouters.LegacyRouter', ]
 DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.mysql',
-            'NAME': 'suni_informes_fechas',
+            'NAME': 'suni_beqt_marzo',
             'USER': 'root',
             'PASSWORD': '',
             'HOST': 'localhost',
             'PORT': '3306',
         }
     }
-#suni_informes_fechas
-#estaba en uso suni_prod
-#estba en uso el suni_dev3
-#suni2_dev_oct
+#'NAME': 'suni_informes_fechas',
 
-"""DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.mysql',
-            'NAME': 'suni',
-            'USER': 'suni',
-            'PASSWORD': 'SuN1.Funsep@2019!',
-            'HOST': 'suni.funsepa.org',
-            'PORT': '3306',
-        }
-    }"""
-
-"""DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'suni_dev',
-        'USER': 'suni',
-        'PASSWORD': 'SuN1.Funsep@2019!',
-        'HOST': 'localhost',
-        'PORT': '3306',
-    },
-
-    'legacy': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'legacy.sqlite3'),
-    },
-}"""
 # Password validation
 # https://docs.djangoproject.com/en/1.10/ref/settings/#auth-password-validators
 

@@ -199,7 +199,7 @@ class ParticipanteBuscarForm(ParticipanteForm, forms.ModelForm):
         required=False,
         widget=forms.TextInput(attrs={'class': 'form-control', 'maxlength': '13', 'placeholder': '0000000000000'}))
     nombre = forms.CharField(required=False)
-    capacitador = forms.ModelChoiceField(queryset=User.objects.filter(groups__name='cyd_capacitador'))
+    capacitador = forms.ModelChoiceField(required=False,queryset=User.objects.filter(groups__name='cyd_capacitador'))
 
     class Meta:
         model = Participante
@@ -214,8 +214,8 @@ class ParticipanteAsignarForm(ParticipanteFormList):
     # class ParticipanteAsignarForm(ParticipanteBaseForm):
     def __init__(self, *args, **kwargs):
         super(ParticipanteAsignarForm, self).__init__(*args, **kwargs)
-        if request.user.groups.filter(name="cyd_capacitador").exists():
-            self.fields.pop('capacitador')
+        """if request.user.groups.filter(name="cyd_capacitador").exists():
+            self.fields.pop('capacitador')"""
 
 
 class AsesoriaForm(forms.ModelForm):
@@ -259,23 +259,53 @@ class GrupoFilterFormInforme(forms.Form):
         self.fields['capacitador'].label_from_instance = lambda obj: "%s" % obj.get_full_name()
 
 class ControlAcademicoGrupoForm(forms.Form):
-    curso = forms.ModelChoiceField(
-        queryset=Curso.objects.all(),
-        required=False,
-        widget=forms.Select(attrs={'class': 'select2 form-control', 'data-url': reverse_lazy('asignacion_api_list')}))
+
     sede = forms.ModelChoiceField(
         label='Sede',
         queryset=Sede.objects.all(),
         required=False,
         widget=forms.Select(attrs={'class': 'select2 form-control', 'data-url': reverse_lazy('grupo_api_list')}))
+    
+    curso = forms.ModelChoiceField(
+        queryset=Curso.objects.all(),
+        required=False,
+        widget=forms.Select(attrs={'class': 'select2 form-control', 'data-url': reverse_lazy('asignacion_api_list')}))
+    
     grupo = forms.ModelChoiceField(
         queryset=Grupo.objects.all(),
         required=False,
-        widget=forms.Select(attrs={'class': 'select2', 'data-url': reverse_lazy('participante_api_list')}))
-    escuela = forms.ModelChoiceField(
+        widget = forms.Select(attrs={'class': 'select2 form-control', 'data-url': reverse_lazy('participante_api_list')})
+       )
+    ESTADO_CHOICES = (
+        (0, '----------'),
+        (1, 'Simple'),
+        (2, 'Completo'),)  
+    """escuela = forms.ModelChoiceField(
          queryset=Escuela.objects.all(),
+    
          required=False,
          widget=forms.Select(attrs={'class': 'select2', 'data-url': reverse_lazy('participante_api_list')}))
+    """
+    udi = forms.CharField(
+        help_text="udi_help",
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-control', 'maxlength': '13',  'placeholder': '00-00-0000-00', 'data-url': reverse_lazy('escuela_api_list')}))
+
+    
+    def __init__(self, *args, **kwargs):   
+        #print(kwargs)             
+        usuario = kwargs.pop('user')   
+        super(ControlAcademicoGrupoForm, self).__init__(*args, **kwargs)     
+        self.fields['grupo'] = forms.ModelChoiceField(
+            #queryset=Grupo.objects.filter(cyd_grupo_creado_por = usuario),
+            queryset=Grupo.objects.all(),
+            required=False,
+            widget = forms.Select(attrs={'class': 'select2 form-control', 'data-url': reverse_lazy('participante_api_list')})
+            )
+        
+        
+        
+
 class InformeAsistenciaForm(forms.Form):
     #aca toca ahorita la base
     sede = forms.ModelChoiceField(

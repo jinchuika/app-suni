@@ -1,6 +1,6 @@
 import os
 import json
-
+import math
 from django.conf import settings
 from django.db import models
 from django.utils import timezone
@@ -44,6 +44,25 @@ class Coordenada(models.Model):
         else:
             return self.lat + ", " + self.lng
 
+
+    def calcular_distancia(self):
+        #lat_destino = float(self.lat)
+        #lng_destino = float(self.lng)
+        lat_destino = 14.69121
+        lng_destino = -91.11679
+        #lat_funsepa = 14.65402
+        #lng_funsepa = -90.53823
+        
+        lat_funsepa = 6.28331696378
+        lng_funsepa = -75.5689742567
+        rad = math.pi / 180
+        dlat = float(lat_destino) - lat_funsepa
+        dlon = float(lng_destino) - lng_funsepa
+        R = 6372.795477598
+        a=(math.sin(rad*dlat/2))**2 + math.cos(rad*lat_destino)*math.cos(rad*lat_funsepa)*(math.sin(rad*dlon/2))**2
+          
+        distancia=2*R*math.asin(math.sqrt(a))
+        return distancia
 
 class ArchivoGenerado(models.Model):
     nombre = models.CharField(max_length=128)

@@ -107,7 +107,7 @@ class DispositivoViewSet(viewsets.ModelViewSet):
                 return inv_m.Dispositivo.objects.filter(triage=triage)
             else:
                 return"Dispositivo no aceptado"      
-        else:             
+        else:                    
             if tipo is None:
                 tipo_dis = self.request.user.tipos_dispositivos.tipos.all()            
             else:            

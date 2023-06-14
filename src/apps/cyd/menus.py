@@ -51,6 +51,70 @@ cyd_calendario_children = (
         weight=10,
         icon="fa-calendar"),)
 
+cyd_informes_children = (
+    ViewMenuItem(
+        "Control academico",
+        reverse_lazy("informe_control_academico"),
+        weight=12,
+        icon="fa-list-ol"),
+        
+     ViewMenuItem(
+        "Asistencia",
+        reverse_lazy("informe_control_academico"),
+        weight=12,
+        icon="fa-file-pdf-o"),
+    
+    ViewMenuItem(
+        "Finalizacion proyecto",
+        reverse_lazy("informe_control_academico"),
+        weight=12,
+        icon="fa-check-circle"),
+    
+    ViewMenuItem(
+        "Capacitador",
+        reverse_lazy("informe_control_academico"),
+        weight=12,
+        icon="fa-file-pdf-o"),
+    
+    ViewMenuItem(
+        "Escuela",
+        reverse_lazy("informe_control_academico"),
+        weight=12,
+        icon="fa-file-pdf-o"),
+    
+    ViewMenuItem(
+        "Listado escuela",
+        reverse_lazy("informe_control_academico"),
+        weight=12,
+        icon="fa-file-pdf-o"),
+    
+    ViewMenuItem(
+        "Grupo",
+        reverse_lazy("informe_control_academico"),
+        weight=12,
+        icon="fa-file-pdf-o"),
+    
+    ViewMenuItem(
+        "Asistencia periodo",
+        reverse_lazy("informe_control_academico"),
+        weight=12,
+        icon="fa-file-pdf-o"),
+    
+    ViewMenuItem(
+        "Escuela sede",
+        reverse_lazy("informe_control_academico"),
+        weight=12,
+        icon="fa-file-pdf-o"),
+    
+    ViewMenuItem(
+        "Escuela capacitada",
+        reverse_lazy("informe_control_academico"),
+        weight=12,
+        icon="fa-file-pdf-o"),
+        
+        
+        )
+
 Menu.add_item(
     "user",
     ViewMenuItem(
@@ -90,3 +154,13 @@ Menu.add_item(
         icon="fa-calendar",
         group="cyd",
         children=cyd_calendario_children),)
+
+Menu.add_item(
+    "user",
+    ViewMenuItem(
+        "Informes",
+        '#',
+        weight=10,
+        icon="fa-file-pdf-o",
+        group="cyd",
+        children=cyd_informes_children),)

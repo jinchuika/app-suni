@@ -147,7 +147,7 @@ class DesechoDispositivoViewSet(viewsets.ModelViewSet):
                     if dispositivos_aprobados == dispositivos:
                         periodo_actual = conta_m.PeriodoFiscal.objects.get(actual=True)
                         for aprobar in aprobar_dispositivos:
-                            precio = conta_m.PrecioDispositivo.objects.get(dispositivo = aprobar.dispositivo, activo= True)
+                            precio = conta_m.PrecioDispositivo.objects.get(dispositivo = aprobar.dispositivo, activo= True)                            
                             aprobar.dispositivo.etapa = inv_m.DispositivoEtapa.objects.get(id=inv_m.DispositivoEtapa.DS)
                             aprobar.dispositivo.valido = False
                             aprobar.dispositivo.creada_por = self.request.user

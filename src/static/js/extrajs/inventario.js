@@ -4089,7 +4089,7 @@ class Prestamo {
         }
       });
 
-        /*Scanner*/
+        /*Aca comienza el Scanner para los prestamos */
         var inputStart, inputStop, firstKey, lastKey, timing, userFinishedEntering;
         var minChars = 3;
 

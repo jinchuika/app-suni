@@ -144,7 +144,7 @@ urlpatterns = [
       r'^recaudacion/',
       include('apps.recaudacionFondos.urls')),
 
-  # Contiene las direcciones de recaudacion de fondos
+  # Contiene las direcciones de recaudacion de BEQT
   url(
       r'^beqt/',
       include('apps.beqt.urls')),

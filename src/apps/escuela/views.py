@@ -353,7 +353,7 @@ class EscuelaBuscar(InformeMixin):
         return queryset
 
     def create_response(self, queryset):
-        print(queryset)
+        #print(queryset)
         """Summary
 
         Args:
