@@ -1852,8 +1852,7 @@ class Prestamo(models.Model):
     fecha_fin = models.DateField(null=True, blank=True)
     fecha_estimada = models.DateField(null=True, blank=True)
     creado_por = models.ForeignKey(User, on_delete=models.CASCADE, related_name='prestamos_creados')
-    prestado_a = models.ForeignKey(User, on_delete=models.CASCADE, related_name='prestamos',null=True, blank=True)
-    prestado_externo_a = models.ForeignKey(crm_m.Donante, on_delete=models.CASCADE, related_name='prestado',null=True, blank=True)
+    prestado_a = models.ForeignKey(User, on_delete=models.CASCADE, related_name='prestamos')
     devuelto = models.BooleanField(default=False, blank=True)
     observaciones = models.TextField(null=True, blank=True)
 
@@ -1877,9 +1876,6 @@ class AccionBitacora(models.Model):
     DR = 3
     SAK = 4
     SRK = 5
-    IQR = 6
-    IRQ = 7
-
     estado = models.CharField(max_length=100)
 
     class Meta:
@@ -1906,7 +1902,6 @@ class SolicitudBitacora(models.Model):
         related_name='bitacora_accion'
     )
     usuario = models.ForeignKey(User, on_delete=models.CASCADE, related_name='bitacora_usuario')
-    observaciones = models.TextField(null=True, blank=True)
 
     class Meta:
         verbose_name = 'Bitacora'
@@ -1914,8 +1909,3 @@ class SolicitudBitacora(models.Model):
 
     def __str__(self):
         return '{} - {} - {}'.format(self.accion,self.fecha_movimiento.date(),self.usuario)
-
-
-
-
-

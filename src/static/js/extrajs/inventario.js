@@ -1712,7 +1712,7 @@ class SolicitudMovimientoUpdate {
                            processResults: function (data){
                              return {
                                results : data.map(lista_triage =>{
-                                 return {id: lista_triage["id"], text:lista_triage["triage"]};
+                                 return {id: lista_triage["value"], text:lista_triage["triage"]};
                                })
                              };
                            },
@@ -1721,7 +1721,7 @@ class SolicitudMovimientoUpdate {
                       for(var i = 0; i<(lista_triage.length);i++){
                           seleccion[i] = lista_triage[i].id;
                      }
-                       $('#id_dispositivo').val(seleccion).trigger('change');
+                       $('#id_dispositivos').val(seleccion).trigger('change');
                        /**/
 
                      }else{
@@ -4015,7 +4015,7 @@ class DispositivosTarimaList {
 class Prestamo {
   constructor() {
       /**/
-      var lista_triage = [];
+
       document.getElementById("id_fecha_inicio").disabled = true;
       var fecha = new Date();
       var dia = fecha.getDate();
@@ -4029,240 +4029,6 @@ class Prestamo {
       }
       var fecha = year+'-'+mes+'-'+dia;
       $('#id_fecha_inicio').text(fecha);
-      /**prueba de  dipositivos de prestamo* */
-      
-      $('#id_tipo_prestamo').change(function() {
-        if($('#id_tipo_prestamo').val()==""){
-        }if($('#id_tipo_prestamo').val()=="2"){
-          console.log("externo")
-          $("[for='id_prestado_a']").css({"visibility":"hidden"});
-          $('#id_prestado_a').next(".select2-container").hide();
-          $("[for='id_prestado_externo_a']").css({"visibility":"visible"});
-          $('#id_prestado_externo_a').next(".select2-container").show();
-        }if($('#id_tipo_prestamo').val()=="1"){
-          console.log("externo")
-          $("[for='id_prestado_externo_a']").css({"visibility":"hidden"});
-          $("[for='id_prestado_a']").css({"visibility":"visible"});
-          $('#id_prestado_a').next(".select2-container").show();
-          $('#id_prestado_externo_a').next(".select2-container").hide();
-        }
-        else{
-          console.log($('#id_tipo_prestamo').val());
-        }
-      });
-
-      $('#id_tipo_dispositivo_prestamo').change(function() {
-        if($('#id_tipo_dispositivo_prestamo').val()==""){
-        }else{
-          var urlTipoDispositivo = $('#prestamoDispositivo').data("url");
-          console.log(urlTipoDispositivo);
-          var tipo_dipositivo = $(this).val();
-          console.log(tipo_dipositivo);
-          var data_result_prestamo = []
-          //
-          $.ajax({
-            url:urlTipoDispositivo,
-            dataType:'json',
-            data:{
-              tipo:tipo_dipositivo,
-              etapa:1,
-              estado:1
-             
-            },
-            error:function(){
-              console.log("Error");
-            },
-            success:function(data){
-              data_result_prestamo.push('<optgroup class="def-cursor" label="Dispositivos" data-tipo="Tipo" data-cantidad="Existencia">')
-              data_result_prestamo.push('<option value="" data-tipo="-------" data-cantidad="-------">-------</option>');
-             for (var i in data){
-              console.log(data[i].id);
-              console.log(data[i].triage);
-              data_result_prestamo.push('<option value='+data[i].id + ' data-tipo="'+data[i].tipo+'">'+data[i].triage+'</option>');
-             }
-             data_result_prestamo.push('</optgroup>')
-             $('#id_dispositivo').append(data_result_prestamo); 
-            },
-            type: 'GET'
-          }
-        );
-        }
-      });
-
-        /*Scanner*/
-        var inputStart, inputStop, firstKey, lastKey, timing, userFinishedEntering;
-        var minChars = 3;
-
-        // handle a key value being entered by either keyboard or scanner
-        $("#area_scanner").keypress(function (e) {
-            // restart the timer
-            if (timing) {
-                clearTimeout(timing);
-            }
-
-            // handle the key event
-            if (e.which == 13) {
-                // Enter key was entered
-
-                // don't submit the form
-                e.preventDefault();
-
-                // has the user finished entering manually?
-                if ($("#area_scanner").val().length >= minChars){
-                    userFinishedEntering = true; // incase the user pressed the enter key
-                    inputComplete();
-                }
-            }
-            else {
-                // some other key value was entered
-
-                // could be the last character
-                inputStop = performance.now();
-                lastKey = e.which;
-                // don't assume it's finished just yet
-                userFinishedEntering = false;
-
-                // is this the first character?
-                if (!inputStart) {
-                    firstKey = e.which;
-                    inputStart = inputStop;
-
-                    // watch for a loss of focus
-                    $("body").on("blur", "#area_scanner", inputBlur);
-                }
-
-                // start the timer again
-                timing = setTimeout(inputTimeoutHandler, 500);
-            }
-        });
-
-        // Assume that a loss of focus means the value has finished being entered
-        function inputBlur(){
-            clearTimeout(timing);
-            if ($("#area_scanner").val().length >= minChars){
-                userFinishedEntering = true;
-                inputComplete();
-            }
-        };
-
-
-        // reset the page
-        $("#reset").click(function (e) {
-            e.preventDefault();
-            resetValues();
-        });
-
-        function resetValues() {
-            // clear the variables
-            inputStart = null;
-            inputStop = null;
-            firstKey = null;
-            lastKey = null;
-            // clear the results
-            inputComplete();
-        }
-
-        // Assume that it is from the scanner if it was entered really fast
-        function isScannerInput() {
-            return (((inputStop - inputStart) / $("#area_scanner").val().length) < 15);
-        }
-
-        // Determine if the user is just typing slowly
-        function isUserFinishedEntering(){
-            return !isScannerInput() && userFinishedEntering;
-        }
-
-        function inputTimeoutHandler(){
-            // stop listening for a timer event
-            clearTimeout(timing);
-            // if the value is being entered manually and hasn't finished being entered
-            if (!isUserFinishedEntering() || $("#area_scanner").val().length < 3) {
-                // keep waiting for input
-                return;
-            }
-            else{
-                reportValues();
-            }
-        }
-
-        // here we decide what to do now that we know a value has been completely entered
-        function inputComplete(){
-            // stop listening for the input to lose focus
-            $("body").off("blur", "#area_scanner", inputBlur);
-            // report the results
-            reportValues();
-        }
-
-        function reportValues() {
-            var inputMethod = isScannerInput() ? "Scanner" : "Keyboard";
-            if(inputMethod == "Scanner"){
-              var datos = {};
-              var seleccion = new Array();
-                var triage = $("#area_scanner").val();
-                var mensaje = JSON.parse(triage);
-                datos['text'] = mensaje.triage;
-                datos['id'] = mensaje.id;
-                 /*Api*/
-                $.ajax({
-                  type: "GET",
-                  url: $('#prestamoDispositivo').data("url"),
-                  data:{
-                    csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
-                    triage:mensaje.triage,
-                    etapa:1,
-                    estado:1,
-                    solicitud:true
-                  },
-                  success: function (data){                   
-                    if(data.length >0){
-                      /*asignar datos*/
-                      lista_triage.push(datos);
-                      $("#area_scanner").val("");
-                      inputStart = null;
-                      inputStop = null;
-                      firstKey = null;
-                      lastKey = null;
-                      $('#id_dispositivos').select2({
-                          maximumSelectionLength : 0,
-                          debug: true,
-                          placeholder: "Ingrese los triage",
-                          data:lista_triage,
-                          processResults: function (data){
-                            return {
-                              results : data.map(lista_triage =>{
-                                return {id: lista_triage["value"], text:lista_triage["triage"]};
-                              })
-                            };
-                          },
-                          width : '100%'
-                      });
-                     for(var i = 0; i<(lista_triage.length);i++){
-                         seleccion[i] = lista_triage[i].id;
-                    }
-                      $('#id_dispositivo').val(seleccion).trigger('change');
-                      $('#id_total_dispositivos').text(Number($('#id_dispositivo').select2('data').length));
-                      $('#id_total_dispositivos').css("color","red");
-                      /**/
-
-                    }else{
-                     bootbox.alert({message: "<h3>Este dispositivo no esta disponible</h3>", className:"modal modal-danger fade in"});
-                     $("#area_scanner").val("");
-                    }
-                  },
-                  error: function (response) {
-                      var jsonResponse = JSON.parse(response.responseText);
-                      bootbox.alert(jsonResponse["mensaje"]);
-                  }
-                });
-                 /**/
-            }
-          //console.log($('#id_dispositivo').select2('data').length);
-          
-          $("#area_scanner").val("");
-          $("#area_scanner").focus();
-        }
-
-        /*Fin scanner*/
 
   }
 }
@@ -4313,13 +4079,7 @@ class PrestamoList {
           return "<span class='label label-danger'>Pendiende</span>"
          }
        }},
-       {data:"prestado_a",className:"nowrap",
-       render:function(data, type, full, meta){
-       if (full.tipo_prestamo="Externo"){
-        return full.prestado_externo_a
-       }
-      }
-      },
+       {data:"prestado_a",className:"nowrap"},
        {data:"cantidad",className:"nowrap"},
        {data:"", className:"nowrap", render:function(data, type, full, meta){
            return "<a target='_blank' id='dispositivo' href="+full.url_detail+" data-devolucion="+full.id+"  class='btn btn-primary'>Dispositivos</a>";

@@ -9,7 +9,7 @@ from braces.views import (
 from apps.inventario import models as inv_m
 from apps.inventario import forms as inv_f
 import calendar
-from datetime import datetime
+
 
 class EntradaCreateView(LoginRequiredMixin, GroupRequiredMixin, CreateView):
     """Vista   para obtener los datos de Entrada mediante una :class:`entrada`
@@ -183,14 +183,7 @@ class ImprimirQr(LoginRequiredMixin, GroupRequiredMixin, DetailView):
         for dispositivo in imprimir_qr:
             dispositivo.impreso = True
             dispositivo.save()
-        context['dispositivo_qr'] = imprimir_qr        
-        nueva_bitacora = inv_m.SolicitudBitacora(
-            fecha_movimiento=datetime.now(),
-            accion=inv_m.AccionBitacora.objects.get(id=6),
-            usuario=self.request.user,
-            observaciones= "Entrada No: "+str(self.object.id)+", Detalle de Entrada No:"+str(self.kwargs['detalle'])
-            )
-        nueva_bitacora.save()
+        context['dispositivo_qr'] = imprimir_qr
         return context
 
 
