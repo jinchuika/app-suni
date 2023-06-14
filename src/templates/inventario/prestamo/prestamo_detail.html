@@ -63,11 +63,19 @@
                 </td>
               </tr>
               <tr>
+				
                 <th>Prestado A:</th>
-                <td>
-                  {{prestamo.prestado_a.get_full_name}}
-                  <br>
-                </td>
+				<td>
+					{% if prestamo.tipo_prestamo|stringformat:"s" == "Externo"%}
+					{{prestamo.prestado_externo_a.nombre}}
+					{% else %}
+					{{prestamo.prestado_a.get_full_name}}
+					{% endif %}
+					
+					<br>
+				  </td>
+			
+                
               </tr>
 							<tr>
 								<th>Dispositivos</th>

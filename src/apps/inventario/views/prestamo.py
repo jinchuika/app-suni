@@ -22,16 +22,17 @@ class PrestamoCreateView(LoginRequiredMixin, CreateView, GroupRequiredMixin):
     def get_success_url(self):
         return reverse_lazy('prestamo_list')
 
-    def form_valid(self, form):
+    def form_valid(self, form):      
         tipo_prestamo = form.cleaned_data['tipo_prestamo']
         if(str(tipo_prestamo) == "Prestamo"):
             fecha_estimada = datetime.now() + timedelta(days=15)
-            form.instance.fecha_estimada = fecha_estimada
+            form.instance.fecha_estimada = fecha_estimada           
         form.instance.fecha_inicio = timezone.now()
         form.instance.creado_por = self.request.user
         estado_entregado = inv_m.DispositivoEstado.objects.get(id=inv_m.DispositivoEstado.EN)
         etapa_entregado = inv_m.DispositivoEtapa.objects.get(id=inv_m.DispositivoEtapa.EN)
-        dispositivos = inv_m.Dispositivo.objects.filter(triage=form.cleaned_data['dispositivo'])
+        #dispositivos = inv_m.Dispositivo.objects.filter(triage=form.cleaned_data['dispositivo'])
+        dispositivos = form.cleaned_data['dispositivo']     
         for asignacion in dispositivos:
             asignacion.etapa = etapa_entregado
             asignacion.estado = estado_entregado
@@ -62,4 +63,11 @@ class PrestamoPrintView(LoginRequiredMixin, DetailView, GroupRequiredMixin):
     """
     model = inv_m.Prestamo
     template_name = 'inventario/prestamo/prestamo_print.html'
+    group_required = [u"inv_bodega", u"inv_admin"]
+
+class PrestamoPrintDevueltoView(LoginRequiredMixin, DetailView, GroupRequiredMixin):
+    """Vista encargada para imprimir las :class:`Prestamo`
+    """
+    model = inv_m.Prestamo
+    template_name = 'inventario/prestamo/prestamo_devuelto_print.html'
     group_required = [u"inv_bodega", u"inv_admin"]
