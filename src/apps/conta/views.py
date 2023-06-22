@@ -462,8 +462,7 @@ class InformeEntradaJson(views.APIView):
                         Q(fecha_dispositivo__lte=fecha_fin),
                         reduce(AND,q)
                         ).exclude(entrada__tipo__nombre='Especial').annotate(Sum('util'),Sum('precio_unitario'))
-
-
+            
             # Obtener Existencia Inicial y Saldo Inicial
             fecha_inicial = datetime.strptime(fecha_inicio, '%Y-%m-%d') - timedelta(days=1)
             totales_anterior = get_existencia(tipo_dispositivo,fecha_inicial,periodo)
@@ -478,7 +477,8 @@ class InformeEntradaJson(views.APIView):
             existencia_actual = total_actual['existencia']
             for datos_entrada in entrada_detalle:
                 entrada = inv_m.Entrada.objects.get(pk=datos_entrada['entrada'])
-                precio = datos_entrada['precio_unitario__sum']
+                #precio = datos_entrada['precio_unitario__sum']
+                precio = datos_entrada['precio_unitario']
                 cantidad = datos_entrada['util__sum']
                 dispositivo = {}
 
