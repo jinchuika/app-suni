@@ -15,7 +15,7 @@ from apps.inventario import forms as inv_f
 from apps.tpe import models as tpe_m
 from django import forms
 from dateutil.relativedelta import relativedelta
-
+from apps.conta import models as cont_m
 
 class SalidaInventarioCreateView(LoginRequiredMixin, GroupRequiredMixin, CreateView):
     """Vista   para obtener los datos de Salida mediante una :class:`SalidaInventario`
@@ -121,6 +121,36 @@ class SalidaInventarioDetailView(LoginRequiredMixin, GroupRequiredMixin, DetailV
             paquete__tipo_paquete=Laptop)
         context['Laptops'] = Total_Laptop.count()
         context['Tablets'] = Total_Tablet.count()
+        
+        
+        salida = self.object.id
+        precio_total = 0
+        total_dispo = 0
+
+        lista_paquete = inv_m.Paquete.objects.filter(salida = salida, aprobado_kardex = False)
+
+        for paquete in lista_paquete: 
+            #print(paquete.tipo_paquete, "=>" ,paquete.cantidad)
+            print("Pertenece al paquete --->", paquete.id)
+
+            dispositivos = inv_m.DispositivoPaquete.objects.filter(paquete = paquete.id)
+
+            for dispositivo in dispositivos:
+                print(dispositivo.dispositivo)
+                precios = cont_m.MovimientoDispositivo.objects.filter(dispositivo = dispositivo.dispositivo, tipo_movimiento = -1)
+
+                total_dispo += 1
+
+                for precio in precios:
+                    print("Objeto precio -->", precio.precio)
+                    precio_total += precio.precio
+            
+        print(precio_total)
+        print(total_dispo)
+
+        context['total_precio'] = precio_total
+        context['total_dispositivos'] = total_dispo
+
         return context
 
 class SalidaInventarioListView(LoginRequiredMixin,  FormView):
