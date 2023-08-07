@@ -76,10 +76,14 @@
 	<td  width="55"></td>
 	<td>TELEFONO(S)</td>
 	<td style="border:solid; border-width: 1px;border-color:gray" width="750" height="28">&nbsp;&nbsp;
-
-			{% if  Telefono|stringformat:"s" == 'None' %} {{salidainventario.escuela.telefono}}{% else %} NO APLICA{% endif %}
+			{% if  Telefonos|stringformat:"s" == 'None' %}  NO APLICA 
+			{% else %} 
+				{% for telefono in Telefonos %}
+					{{telefono}}
+				{% endfor %}
+			{% endif %}
 	</td>
-	{% endif %}
+	{% endif %} 
 	<td  width="500"> </td>
 </table>
 </table>

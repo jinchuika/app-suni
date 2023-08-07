@@ -116,14 +116,18 @@ class EquipamientoFullSerializer(EquipamientoSerializer):
     maestras = serializers.IntegerField(source='poblacion.maestra', default=None)
     maestros = serializers.IntegerField(source='poblacion.maestro', default=None)
     total_maestros = serializers.IntegerField(source='poblacion.total_maestro', default=None)
-
+    longitud =  serializers.StringRelatedField(source='escuela.mapa.lng')
+    latitud = serializers.StringRelatedField(source='escuela.mapa.lat')
+    nivel = serializers.StringRelatedField(source='escuela.nivel.nivel')
+    sector = serializers.StringRelatedField(source='escuela.sector.sector')
+    
     class Meta:
         model = tpe_models.Equipamiento
         fields = (
             'entrega', 'entrega_url', 'escuela', 'escuela_url', 'escuela_codigo', 'fecha',
             'renovacion', 'khan', 'cantidad', 'tipo_red', 'cooperante', 'proyecto',
             'municipio', 'departamento', 'direccion', 'alumnas', 'alumnos', 'total_alumnos',
-            'maestras', 'maestros', 'total_maestros')
+            'maestras', 'maestros', 'total_maestros', 'longitud', 'latitud','nivel', 'sector' )
 
 
 class EquipamientoCalendarSerializer(main_s.CalendarSerializer):
