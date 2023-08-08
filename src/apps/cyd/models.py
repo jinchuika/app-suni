@@ -93,7 +93,7 @@ class Sede(models.Model):
     mapa = models.ForeignKey(Coordenada, null=True, blank=True, on_delete=models.CASCADE)
     activa = models.BooleanField(default=True, blank=True, verbose_name='Activa')
     escuela_beneficiada = models.ForeignKey(Escuela, on_delete=models.PROTECT, related_name='escuela_beneficiada', blank=True, null=True)
-    tipo_sede = models.CharField(max_length=2, verbose_name='Tipo de Sede' , choices=TIPO_SEDES, default='B')
+    #tipo_sede = models.CharField(max_length=2, verbose_name='Tipo de Sede' , choices=TIPO_SEDES, default='B')
     fecha_creacion = models.DateField(null=True, blank=True)
     url = models.TextField(null=True, blank=True,verbose_name='Carpeta Fotos')
     url_archivos = models.TextField(null=True, blank=True,verbose_name='Carpeta Archivos')
@@ -111,6 +111,7 @@ class Sede(models.Model):
         return reverse_lazy('sede_detail', kwargs={'pk': self.id})
 
     def get_escuelas(self):
+        print("aca escuela")
         participantes = Participante.objects.filter(asignaciones__grupo__sede__id=self.id)
         return Escuela.objects.filter(
             participantes__in=participantes).annotate(cantidad_participantes=Count('participantes')).distinct()
@@ -150,6 +151,15 @@ class Sede(models.Model):
         aprobado = sum(1 for nota in resultado['listado'] if nota['nota'] >= 75)
         nivelar = sum(1 for nota in resultado['listado'] if 70 <= nota['nota'] < 75)
         reprobado = sum(1 for nota in resultado['listado'] if nota['nota'] < 70)
+        sum_monitoreo = aprobado + nivelar +reprobado        
+        if sum_monitoreo !=0:
+            if nivelar !=0:
+                monitoreo=False
+            else:
+                monitoreo=True
+        else:
+            monitoreo = False
+        resultado['resumen']['monitoreo'] = monitoreo    
         resultado['resumen']['estado']['aprobado'] = {
             'cantidad': aprobado,
             'porcentaje': (aprobado * 100 // len(resultado['listado'])) if len(resultado['listado']) > 0 else 0}
@@ -202,6 +212,7 @@ class Grupo(models.Model):
         return reverse_lazy('grupo_detail', kwargs={'pk': self.id})
 
     def get_hombres(self):
+        #print("ACCAA")
         return self.asignados.filter(participante__genero__id=1).count()
 
     def get_mujeres(self):
@@ -307,6 +318,28 @@ class ParGenero(models.Model):
 
     def __str__(self):
         return self.genero
+    
+class Profesion(models.Model):
+    nombre = models.CharField(max_length=20)
+
+
+    class Meta:
+        verbose_name = "Profesion"
+        verbose_name_plural = "Profesiones"
+
+    def __str__(self):
+        return self.nombre
+    
+class Grado(models.Model):
+    grado_asignado =  models.CharField(max_length=20)
+    
+    class Meta:
+        verbose_name = "Grado"
+        verbose_name_plural = "Grados"
+
+    def __str__(self):
+        return self.grado_asignado
+
 
 
 class Participante(models.Model):
@@ -328,10 +361,13 @@ class Participante(models.Model):
         blank=True,
         editable=True,)
     etnia = models.ForeignKey(ParEtnia, null=True, blank=True, on_delete=models.CASCADE)
-    escolaridad = models.ForeignKey(ParEscolaridad, null=True, blank=True, on_delete=models.CASCADE)
-
+    escolaridad = models.ForeignKey(ParEscolaridad, null=True, blank=True, on_delete=models.CASCADE)    
     slug = models.SlugField(max_length=20, null=True, blank=True)
     activo = models.BooleanField(default=True, blank=True, verbose_name='Activo')
+    profesion = models.ForeignKey(Profesion, null=True, blank=True, on_delete=models.CASCADE)
+    grado_impartido = models.ForeignKey(Grado, null=True, blank=True, on_delete=models.CASCADE)
+    chicos = models.IntegerField(default=0,verbose_name='niños')
+    chicas = models.IntegerField(default=0,verbose_name='niñas')
     cyd_participante_creado_por =models.ForeignKey(User, on_delete=models.CASCADE,default=User.objects.get(username="Admin").pk)
     
 
@@ -418,6 +454,7 @@ class Asignacion(models.Model):
     def get_nota_final(self):
         notas_asistencias = self.notas_asistencias.all()
         notas_hitos = self.notas_hitos.all()
+        #print("Aca en el modelo:", sum(nota.nota for nota in notas_asistencias) + sum(nota.nota for nota in notas_hitos))
         return sum(nota.nota for nota in notas_asistencias) + sum(nota.nota for nota in notas_hitos)
     nota_final = property(get_nota_final)
 
@@ -435,7 +472,7 @@ class Asignacion(models.Model):
             promediada = True
         else:
             cantidad_asignaciones = Asignacion.objects.filter(
-                grupo__sede=self.grupo.sede, participante=self.participante).count()
+                grupo__sede=self.grupo.sede, participante=self.participante).count()           
             nota = self.get_nota_final() / cantidad_asignaciones
             promediada = False
         return {'nota': nota, 'promediada': promediada}

@@ -30,7 +30,7 @@
 					</div>
 				</form>
 				<div class="box-footer">
-					<button class="btn btn-success" id="btn-crear" disabled="true"><i class="fa fa-check" aria-hidden="true"></i> Crear</button> 
+					<button class="btn btn-success" id="btn-crear"><i class="fa fa-check" aria-hidden="true"></i> Crear</button> 
 					<button class="btn btn-primary" id="btn-clear"><i class="fa fa-times" aria-hidden="true"></i> Reiniciar</button>
 				</div>
 			</div>
@@ -49,6 +49,8 @@
 								<th>DPI</th>
 								<th>Rol</th>
 								<th>Escuela</th>
+								<th>Etnia</th>
+								<th>Escolaridad</th>
 							</tr>
 						</thead>
 						<tbody id="tbody-listado"></tbody>
@@ -125,6 +127,7 @@
 	var participante_api_list_url = "{% url 'participante_api_list' %}";
 	var escuela_api_list_url = "{% url 'escuela_api_list' %}";
 	var participante_add_ajax_url = "{% url 'participante_add_ajax' %}";
+	console.log(participante_add_ajax_url);
 	var rol_list = [
 	{% for rol in rol_list %}
 		{rol: '{{ rol.nombre }}'},
@@ -135,6 +138,29 @@
 	{% for genero in genero_list %}
 		{genero: '{{ genero.genero }}'},
 	{% endfor %}
+	];
+	var etnia_list = [
+		{%for etnia in etnia_list%}
+				
+			{etnia: '{{etnia.nombre}}'},
+		{%endfor%}
+	];
+	var escolaridad_list = [
+	{%for escolaridad in escolaridad_list%}
+	 
+	{escolaridad: '{{escolaridad.nombre}}'},
+	{%endfor%}
+	];
+	
+	var profesion_list = [
+	{%for profesion in profesion_list%}
+	{profesion: '{{profesion.nombre}}'},
+	{%endfor%}
+	];
+	var grado_impartido_list = [
+	{%for grado in grado_list%}
+	{grado: '{{grado.grado_asignado}}'},
+	{%endfor%}
 	];
 
 	ParticipanteImportar.init();
