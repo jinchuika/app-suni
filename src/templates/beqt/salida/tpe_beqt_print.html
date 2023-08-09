@@ -131,77 +131,16 @@
 					<td style="border:solid; border-width: 1px;border-color:gray" >{{ups.voltaje | default_if_none:"Generico"}}</td>
 				</tr>
 				{% endfor %}
-				<td style="border:solid; border-width: 1px;border-color:gray" colspan="5">TOTAL DISPOSITIVOS</td>
-				<td style="border:solid; border-width: 1px;border-color:gray" >{{TotalSumaUPS}}</td>
+				<td style="border:solid; border-width: 1px;border-color:gray" colspan="5"><b>TOTAL DISPOSITIVOS</b></td>
+				<td style="border:solid; border-width: 1px;border-color:gray" ><b>{{TotalSumaUPS}}</b></td>
 			</tbody>
 		</table>
 	</div>
-    
 
-	<divc class="col-md-3">
-		<table class="datos" style="text-align:center;" FRAME="border" RULES="none" >
-			<caption style="text-align:center; font-size:25px" >REGLETAS</caption>
-			<thead>
-				<tr>
-					<!--REGLETA -->
-					<th style="border:solid; border-width: 1px;border-color:gray" bgcolor="skyblue" width="60"  ><center>Triage</center></th>						
-					<th style="border:solid; border-width: 1px;border-color:gray" bgcolor="skyblue" width="60"  ><center>Marca</center></th>
-					<th style="border:solid; border-width: 1px;border-color:gray" bgcolor="skyblue" width="90"  ><center>Modelo</center></th>	
-					<th style="border:solid; border-width: 1px;border-color:gray" bgcolor="skyblue" width="60"  ><center>Serie/RTI</center></th>						
-					<th style="border:solid; border-width: 1px;border-color:gray" bgcolor="skyblue" width="90"  ><center>Conexiones</center></th>
-					<th style="border:solid; border-width: 1px;border-color:gray" bgcolor="skyblue" width="60"  ><center>Voltaje</center></th>
-				</tr>
-			</thead>
-			<tbody>
-				<center>
-					{% for regleta in Regletas  %}
-						<tr>
-							<td style="border:solid; border-width: 1px;border-color:gray" height="29">{{regleta | default_if_none:"Generico"}}</td>		
-							<td style="border:solid; border-width: 1px;border-color:gray" >{{regleta.marca | default_if_none:"Generico"}}</td>
-							<td style="border:solid; border-width: 1px;border-color:gray" >{{regleta.modelo | default_if_none:"Generico"}}</td>	
-							<td style="border:solid; border-width: 1px;border-color:gray" >{{regleta.serie | default_if_none:"N/A"}}</td>		
-							<td style="border:solid; border-width: 1px;border-color:gray" >{{regleta.conexiones | default_if_none:"Generico"}}</td>
-							<td style="border:solid; border-width: 1px;border-color:gray" >{{regleta.voltaje | default_if_none:"Generico"}}</td>
-							
-						</tr>
-						{% endfor %}
-						<td style="border:solid; border-width: 1px;border-color:gray" colspan="5">TOTAL DISPOSITIVOS</td>
-						<td style="border:solid; border-width: 1px;border-color:gray"> {{TotalSumaRegleta}} </td>
-				</center>
-			</tbody>
-		</table>
-	</div>
-	<div class="col-md-3" >
-		<table class="datos" style="text-align:center; "FRAME="border" RULES="none">
-			<caption style="text-align:center; font-size:25px" >ADAPTADORES</caption>
-			<thead>
-				<tr> 
-					<!--ADAPTADOR-->
-					<th style="border:solid; border-width: 1px;border-color:gray" bgcolor="skyblue"  width="95"><center>Triage</center></th>
-					<th style="border:solid; border-width: 1px;border-color:gray" bgcolor="skyblue"  width="95"><center>Marca</center></th>
-					<th style="border:solid; border-width: 1px;border-color:gray" bgcolor="skyblue"  width="95"><center>Modelo</center></th>
-					<th style="border:solid; border-width: 1px;border-color:gray" bgcolor="skyblue"  width="90"><center>Serie/RTI</center></th>	
-					<th style="border:solid; border-width: 1px;border-color:gray" bgcolor="skyblue"  width="90"><center>Puertos</center></th>	
-					<th style="border:solid; border-width: 1px;border-color:gray" bgcolor="skyblue"  width="90"><center>Puerto</center></th>						
-				</tr>
-			</thead>
-			<tbody>
-				{% for adaptador in Adaptadores  %}
-					<tr>
-					<td style="border:solid; border-width: 1px;border-color:gray" height="29">{{adaptador | default_if_none:"Generico"}}</td>
-					<td style="border:solid; border-width: 1px;border-color:gray" >{{adaptador.marca | default_if_none:"Generico"}}</td>
-					<td style="border:solid; border-width: 1px;border-color:gray" >{{adaptador.modelo | default_if_none:"Generico"}}</td>
-					<td style="border:solid; border-width: 1px;border-color:gray" >{{adaptador.serie | default_if_none:"Generico"}}</td>
-					<td style="border:solid; border-width: 1px;border-color:gray" >{{adaptador.cantidad_puertos | default_if_none:"Generico"}} </td>
-					<td style="border:solid; border-width: 1px;border-color:gray" >{{adaptador.puerto | default_if_none:"Generico"}}</td>
-					</tr>
-					{% endfor %}
-					<td style="border:solid; border-width: 1px;border-color:gray" colspan="5">TOTAL DISPOSITIVOS</td>
-					<td style="border:solid; border-width: 1px;border-color:gray" > {{TotalSumaAdaptador}} </td>
-			</tbody>
-		</table>
-	</div>
-	<div class"col-md-3">
+
+
+
+    <div class"col-md-3">
 		<table class="datos" style="text-align:center; margin-left: 0px" FRAME="border" RULES="none">
 			<caption style="text-align:center; font-size:25px" >ACCESS POINT</caption>
 			<thead>
@@ -232,26 +171,107 @@
 					
 				</tr>
 				{% endfor %}
-				<td style="border:solid; border-width: 1px;border-color:gray" colspan="7">TOTAL DISPOSITIVOS</td>
-				<td style="border:solid; border-width: 1px;border-color:gray"> {{TotalSumaAccess}}</td>
+				<td style="border:solid; border-width: 1px;border-color:gray" colspan="7"><b>TOTAL DISPOSITIVOS</b></td>
+				<td style="border:solid; border-width: 1px;border-color:gray"> <b>{{TotalSumaAccess}}</b></td>
 			</tbody>
 		</table>
 	</div>
+
+	</br>
+
+	{% if TotalSumaAdaptador >= 1 %}
+	<div class="col-md-3" >
+		<table class="datos" style="text-align:center; "FRAME="border" RULES="none">
+			<caption style="text-align:center; font-size:25px" >ADAPTADORES</caption>
+			<thead>
+				<tr> 
+					<!--ADAPTADOR-->
+					<th style="border:solid; border-width: 1px;border-color:gray" bgcolor="skyblue"  width="95"><center>Triage</center></th>
+					<th style="border:solid; border-width: 1px;border-color:gray" bgcolor="skyblue"  width="95"><center>Marca</center></th>
+					<th style="border:solid; border-width: 1px;border-color:gray" bgcolor="skyblue"  width="95"><center>Modelo</center></th>
+					<th style="border:solid; border-width: 1px;border-color:gray" bgcolor="skyblue"  width="90"><center>Serie/RTI</center></th>	
+					<th style="border:solid; border-width: 1px;border-color:gray" bgcolor="skyblue"  width="90"><center>Puertos</center></th>	
+					<th style="border:solid; border-width: 1px;border-color:gray" bgcolor="skyblue"  width="90"><center>Puerto</center></th>						
+				</tr>
+			</thead>
+			<tbody>
+				{% for adaptador in Adaptadores  %}
+					<tr>
+					<td style="border:solid; border-width: 1px;border-color:gray" height="29">{{adaptador | default_if_none:"Generico"}}</td>
+					<td style="border:solid; border-width: 1px;border-color:gray" >{{adaptador.marca | default_if_none:"Generico"}}</td>
+					<td style="border:solid; border-width: 1px;border-color:gray" >{{adaptador.modelo | default_if_none:"Generico"}}</td>
+					<td style="border:solid; border-width: 1px;border-color:gray" >{{adaptador.serie | default_if_none:"Generico"}}</td>
+					<td style="border:solid; border-width: 1px;border-color:gray" >{{adaptador.cantidad_puertos | default_if_none:"Generico"}} </td>
+					<td style="border:solid; border-width: 1px;border-color:gray" >{{adaptador.puerto | default_if_none:"Generico"}}</td>
+					</tr>
+					{% endfor %}
+					<td style="border:solid; border-width: 1px;border-color:gray" colspan="5"><b>TOTAL DISPOSITIVOS</b></td>
+					<td style="border:solid; border-width: 1px;border-color:gray"> <b>{{TotalSumaAdaptador}} </b></td>
+			</tbody>
+		</table>
+	</div>
+	{%endif %}
+
+	</br>
+
+	{% if TotalSumaRegleta >= 1 %}
+	<divc class="col-md-3">
+		<table class="datos" style="text-align:center;" FRAME="border" RULES="none" >
+			<caption style="text-align:center; font-size:25px" >REGLETAS</caption>
+			<thead>
+				<tr>
+					<!--REGLETA -->
+					<th style="border:solid; border-width: 1px;border-color:gray" bgcolor="skyblue" width="60"  ><center>Triage</center></th>						
+					<th style="border:solid; border-width: 1px;border-color:gray" bgcolor="skyblue" width="60"  ><center>Marca</center></th>
+					<th style="border:solid; border-width: 1px;border-color:gray" bgcolor="skyblue" width="90"  ><center>Modelo</center></th>	
+					<th style="border:solid; border-width: 1px;border-color:gray" bgcolor="skyblue" width="60"  ><center>Serie/RTI</center></th>						
+					<th style="border:solid; border-width: 1px;border-color:gray" bgcolor="skyblue" width="90"  ><center>Conexiones</center></th>
+					<th style="border:solid; border-width: 1px;border-color:gray" bgcolor="skyblue" width="60"  ><center>Voltaje</center></th>
+				</tr>
+			</thead>
+			<tbody>
+				<center>
+					{% for regleta in Regletas  %}
+						<tr>
+							<td style="border:solid; border-width: 1px;border-color:gray" height="29">{{regleta | default_if_none:"Generico"}}</td>		
+							<td style="border:solid; border-width: 1px;border-color:gray" >{{regleta.marca | default_if_none:"Generico"}}</td>
+							<td style="border:solid; border-width: 1px;border-color:gray" >{{regleta.modelo | default_if_none:"Generico"}}</td>	
+							<td style="border:solid; border-width: 1px;border-color:gray" >{{regleta.serie | default_if_none:"N/A"}}</td>		
+							<td style="border:solid; border-width: 1px;border-color:gray" >{{regleta.conexiones | default_if_none:"Generico"}}</td>
+							<td style="border:solid; border-width: 1px;border-color:gray" >{{regleta.voltaje | default_if_none:"Generico"}}</td>
+							
+						</tr>
+						{% endfor %}
+						<td style="border:solid; border-width: 1px;border-color:gray" colspan="5"><b>TOTAL DISPOSITIVOS</b></td>
+						<td style="border:solid; border-width: 1px;border-color:gray"><b> {{TotalSumaRegleta}} </b></td>
+				</center>
+			</tbody>
+		</table>
+	</div>
+	{%endif %}
+
 </div>
 </center>
 <!--FIN DE LA TABLA DE LOS DISPOSITIVOS-->
+
+{%if TotalSumaUPS <= 11 %}
+</br> </br> </br> </br> </br>
+{%endif %}
+
+{% if TotalSumaAdaptador <= 0  %}
+</br> </br> </br> </br> </br> </br> </br> </br> </br> 
+{%endif %}
+
+{% if TotalSumaRegleta <= 0  %}
+</br> </br> </br> </br> </br> </br> </br> </br>
+{%endif %}
+
 <br>
 <br>
 <br>
 <br>
 <br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
+
 <center>
 	<table style="font-size: 20px;">
 		<td>
