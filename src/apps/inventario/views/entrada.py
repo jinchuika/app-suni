@@ -10,6 +10,8 @@ from apps.inventario import models as inv_m
 from apps.inventario import forms as inv_f
 import calendar
 from datetime import datetime
+from apps.conta import models as cont_m
+
 
 class EntradaCreateView(LoginRequiredMixin, GroupRequiredMixin, CreateView):
     """Vista   para obtener los datos de Entrada mediante una :class:`entrada`
@@ -39,6 +41,39 @@ class EntradaDetailView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
     model = inv_m.Entrada
     template_name = 'inventario/entrada/entrada_detail.html'
     group_required = [u"inv_bodega", u"inv_tecnico", u"inv_admin", u"inv_cc", u"inv_conta"]
+
+    
+    def get_context_data(self, **kwargs):
+        context = super(EntradaDetailView, self).get_context_data(**kwargs)
+        context['listado'] = inv_m.Entrada.objects.filter(en_creacion='True')
+
+        fecha = self.object.fecha.year
+        entrada = self.object.id
+
+        if fecha <= 2022: 
+            filtro_Entrada = inv_m.EntradaDetalle.objects.filter(entrada_id__in=[entrada])
+            precio = cont_m.PrecioEstandar.objects.filter(periodo__id=8, inventario = "dispositivo")
+            total_dispo_util = 0
+            total_precio_utiles = 0
+            for datos in filtro_Entrada:
+                for precios in precio:
+                    if datos.tipo_dispositivo == precios.tipo_dispositivo:
+                        total_precio_utiles = total_precio_utiles + (precios.precio * datos.util)
+                        total_dispo_util = total_dispo_util + datos.util
+
+            context["total_utiles"] = total_dispo_util
+            context["total_precio"] = total_precio_utiles
+        else:
+            total_dispo_util = inv_m.EntradaDetalle.objects.filter(entrada_id__exact = entrada).aggregate(total=Sum('util'))
+            total_precio_utiles = inv_m.EntradaDetalle.objects.filter(entrada_id__exact = entrada).aggregate(total=Sum('precio_total'))
+            context["total_utiles"] = total_dispo_util["total"]
+
+            if total_precio_utiles["total"] == None:
+                context["total_precio"] =  0
+            else: 
+                context["total_precio"] = total_precio_utiles["total"]
+           
+        return context
 
 
 class EntradaListView(LoginRequiredMixin, GroupRequiredMixin, FormView):

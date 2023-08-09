@@ -472,12 +472,17 @@ class LaptopPrintView(LoginRequiredMixin,  DetailView,GroupRequiredMixin):
         try:
             encargado = escuela_m.EscContacto.objects.get(escuela=escuela.escuela, rol=5)
             context['Encargado'] = str(encargado.nombre)+" "+str(encargado.apellido)
+            telefono = escuela_m.EscContactoTelefono.objects.filter(contacto = encargado) 
+            print(telefono)
+            context['Telefonos'] = telefono                      
+
         except ObjectDoesNotExist as e:
             print(e)
             context['Encargado'] = "No Tiene Encargado"
         context['Laptos'] =  sorted(nuevas_laptops,key=lambda s: int(re.search(r'\d+',s.triage).group()))
         context['Total'] = cantidad_total
         context['Servidor'] = cpu_servidor
+
         return context
 
 

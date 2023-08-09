@@ -1,6 +1,7 @@
 {% extends "base/base.html" %}
 {% load staticfiles %}
 {% block page_title %}
+{% load inventario_extras %}
 <title>informacion de salidas</title>
 {% endblock page_title %} {% block content %}
 <section class="content">
@@ -124,6 +125,23 @@
               </thead>
               <tbody>
               </tbody>
+              {% if request.user|has_group:"inv_conta" %}
+              <tfoot>
+                <tr>
+                  <th colspan="2"></th>
+                  <th>*Total de dispositivos</th>
+                  <th>{{total_dispositivos}}</th>
+                  <th>*Precio total</th>
+                  <th>Q. {{total_precio}}</th>
+                </tr>
+							</tfoot>
+              <th>
+            </table>
+            <p>
+                <p> *Los totales aplican solamente a dispositivos con triage</p>
+            </p>
+            {%endif%}
+
             </table>
             <!--	</div> -->
           </div>
