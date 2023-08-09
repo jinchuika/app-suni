@@ -93,6 +93,16 @@
                                 {{form.instance.observaciones}}
                               </td>
                             </tr>
+                            <tr>
+                                <th>
+                                  Proyecto
+                                </th>
+                                <td>
+                                  {% for data in form.instance.proyecto.all  %}
+                                    {{data}},<br>
+                                  {% endfor %}
+                                </td>
+                              </tr>
                         </table>
                     </div>
                 </div>
@@ -172,6 +182,7 @@
                                 <th>Precio Descontado</th>
                                 <th>Precio Total</th>
                                 <th>Tecnico</th>
+                                <th>Proyecto</th>
                                 <th>Estado</th>
                                 <th></th>
                                 <th></th>

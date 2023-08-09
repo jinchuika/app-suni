@@ -111,7 +111,6 @@ class Sede(models.Model):
         return reverse_lazy('sede_detail', kwargs={'pk': self.id})
 
     def get_escuelas(self):
-        print("aca escuela")
         participantes = Participante.objects.filter(asignaciones__grupo__sede__id=self.id)
         return Escuela.objects.filter(
             participantes__in=participantes).annotate(cantidad_participantes=Count('participantes')).distinct()
@@ -212,7 +211,6 @@ class Grupo(models.Model):
         return reverse_lazy('grupo_detail', kwargs={'pk': self.id})
 
     def get_hombres(self):
-        #print("ACCAA")
         return self.asignados.filter(participante__genero__id=1).count()
 
     def get_mujeres(self):
@@ -447,8 +445,7 @@ class Asignacion(models.Model):
         """
         for calendario in self.grupo.asistencias.all():
             self.notas_asistencias.create(gr_calendario=calendario)
-        for hito in self.grupo.curso.hitos.all():
-            print(hito)
+        for hito in self.grupo.curso.hitos.all():            
             self.notas_hitos.create(cr_hito=hito)
 
     def get_nota_final(self):
