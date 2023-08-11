@@ -43,6 +43,8 @@ function listar_grupos_sede(sede_selector, grupo_selector, null_option) {
     /*
     Al cambiar la sede, genera el listado de grupos
     */
+    curso_ca = [];
+    let hash = {}
     $(grupo_selector).html('');
     if ($(sede_selector).val()) {
         $.get($(sede_selector).data('url'),
@@ -51,13 +53,27 @@ function listar_grupos_sede(sede_selector, grupo_selector, null_option) {
         },
         function (respuesta) {
             var options = '';
+            var curso_options = '';
             if (null_option) {
                 options += '<option value="">------</option>';
             }
             $.each(respuesta, function (index, grupo) {
                 options += '<option value="'+grupo.id+'">'+grupo.numero+' - '+grupo.curso+'</option>';
+                curso_ca.push({id:parseInt(grupo.curso_id),curso:grupo.curso})
             });
             $(grupo_selector).html(options).trigger('change');
+            //console.log(curso_ca);
+            curso_ca = curso_ca.filter( o => hash[o.id]? false: hash[o.id] = true);
+            curso_ca.forEach(element => {
+                console.log(element);
+                curso_options += '<option value="'+element.id+'">'+element.curso+'</option>'
+            }
+                
+                )
+                //console.log(curso_options)
+            //console.log(JSON.stringify(curso_ca))
+            //console.log(curso_ca);
+                        
         });
     }
 }
@@ -462,11 +478,13 @@ $.ajax({
 
     var copiar_participantes = function () {
         var api_url = $('#copiar-form').prop('action');
+        var api_url_duplicidad = $('#copiar-form').data('url');
         var grupo_id = $('#copiar-form #id_grupo').val();
         var total = $('.check-participante:checkbox:checked').length;
         var completados = 0;
         $('.check-participante:checkbox:checked').each(function () {
             var participante_id = $(this).val();
+            //request para validar si esta asignado en otro grupo de la misma sede
             $.ajax({
                 beforeSend: function(xhr, settings) {
                     xhr.setRequestHeader("X-CSRFToken", $('input[name="csrfmiddlewaretoken"]').val());
@@ -476,27 +494,53 @@ $.ajax({
                     participante: participante_id
                 },
                 dataType: 'json',
-                error: function (respuesta) {
-                    completados += 1;
+                error: function (respuesta) { 
+                    console.log(respuesta.responseText);                   
                     new Noty({
-                        text: 'Error al asignar a ' + $('#td-nombre-'+participante_id).text() + ' ' + $('#td-apellido-'+participante_id).text() +'.',
+                        text: respuesta.responseText,
                         type: 'error',
-                        timeout: 2500,
-                    }).show();
-                    ocultar_copiar_form(total, completados);
+                        timeout: 3500,
+                    }).show();                    
                 },
-                url: api_url,
-                success: function (respuesta) {
-                    completados += 1;
-                    new Noty({
-                        text: 'Copiado con éxito',
-                        type: 'success',
-                        timeout: 1700,
-                    }).show();
-                    ocultar_copiar_form(total, completados);
+                url: api_url_duplicidad,
+                success: function (respuesta) {                    
+                    //funcion para asignar a la nueva sede
+                    $.ajax({
+                        beforeSend: function(xhr, settings) {
+                            xhr.setRequestHeader("X-CSRFToken", $('input[name="csrfmiddlewaretoken"]').val());
+                        },
+                        data: {
+                            grupo: grupo_id,
+                            participante: participante_id
+                        },
+                        dataType: 'json',
+                        error: function (respuesta) {
+                            completados += 1;
+                            new Noty({
+                                text: 'Error al asignar a ' + $('#td-nombre-'+participante_id).text() + ' ' + $('#td-apellido-'+participante_id).text() +'.',
+                                type: 'error',
+                                timeout: 2500,
+                            }).show();
+                            ocultar_copiar_form(total, completados);
+                        },
+                        url: api_url,
+                        success: function (respuesta) {
+                            completados += 1;
+                            new Noty({
+                                text: 'Copiado con éxito',
+                                type: 'success',
+                                timeout: 1700,
+                            }).show();
+                            ocultar_copiar_form(total, completados);
+                        },
+                        type: 'POST'
+                    });
+                    //fin del ajax de asignacion
+
                 },
                 type: 'POST'
             });
+			
         })
     }
 
@@ -534,12 +578,14 @@ $.ajax({
         $('.form-copiar').hide();
         $('#btn-select-all').click(function(){
             $('.check-participante').prop('checked',true);
+            
         });
         $('#btn-select-none').click(function(){
             $('.check-participante:checkbox:checked').removeAttr('checked');
         });
         $('#btn-form-copiar').on('click', function () {
             $('.form-copiar').toggle();
+            $('[id="perfil"]').toggle();
         });
         $('#copiar-form').on('submit', function (e) {
             e.preventDefault();
@@ -639,7 +685,7 @@ $.ajax({
               /**/
             },
             editable: true,
-            eventClick: function (calEvent, jsEvent, view) {
+            eventClick: function (calEvent, jsEvent, view) {                
                 if (calEvent.tipo == 'c') {
                     var form = $('<form></form>');
                     form.append('<div class="form-group"><label for="hora_inicio_m">Hora de inicio</label><input type="text" class="form-control" id="hora_inicio_m" value="'+calEvent.start.hour()+':'+calEvent.start.minute()+'"></div>');
@@ -670,14 +716,29 @@ $.ajax({
                   console.log("otro codigo");
                 }
             },
-            eventDrop: function(event, delta, revertFunc, jsEvent, ui, view) {
+            eventDrop: function(event, delta, revertFunc, jsEvent, ui, view) {                
+                var cambiar_url;
+                var cambiar_hora;
+                if(event.tipo=="c"){
+                    cambiar_url = event._url;
+                    if(event.evento=="r"){
+                        cambiar_hora='23:59'
+                    }else{
+                        cambiar_hora = event.end.hour()+':'+event.end.minute()
+                    }
+                }else{                    
+                    cambiar_url =  "/cyd/api/asesoria/"+event._id+"/";
+                }
+            
+
                 update_event({
-                    url: event._url,
+                    url: cambiar_url,
                     id: event._id,
                     fecha: event.start.year()+'-'+(event.start.month()+1)+'-'+event.start.date(),
                     hora_inicio: event.start.hour()+':'+event.start.minute(),
-                    hora_fin: event.end.hour()+':'+event.end.minute(),
+                    hora_fin: cambiar_hora,
                 });
+                
             },
             eventDurationEditable: true,
             eventRender: function (event, element) {
@@ -718,17 +779,19 @@ $.ajax({
                     var params = {};
                     params['sede__capacitador'] = $('#id_capacitador').val();
                     params['sede'] = $('#sede_form #id_sede').val();
+                    
                     return params;
                 },
-                editable: false
+                editable: true //Esto controla el eventro dropabble de las asesorias
             },
             {
                 url:  $('#cyd-calendario').data('url-listarecordatorio'),
                 type: 'GET',
                 cache: true,
                 data: function () {
+                    
                     var params = {};
-                    params['capacitador'] = $('#cyd-calendario').data('codigo');
+                    params['capacitador'] = $('#cyd-calendario').data('codigo');                    
                     return params;
                 }
             }
@@ -747,7 +810,7 @@ var crear_cyd_calendario_asesorias = function () {
     $('#cyd-calendario').fullCalendar({
         displayEventEnd: true,
         droppable: true,
-        drop: function (date, jsEvent, ui, resourceId) {
+        drop: function (date, jsEvent, ui, resourceId) {           
             update_event({
                 url: $(this).data('url'),
                 id: $(this).data('id'),
@@ -757,7 +820,7 @@ var crear_cyd_calendario_asesorias = function () {
             });
         },
         editable: true,
-        eventClick: function (calEvent, jsEvent, view) {
+        eventClick: function (calEvent, jsEvent, view) {            
             if (calEvent.tipo == 'c') {
                 var form = $('<form></form>');
                 form.append('<div class="form-group"><label for="hora_inicio_m">Hora de inicio</label><input type="text" class="form-control" id="hora_inicio_m" value="'+calEvent.start.hour()+':'+calEvent.start.minute()+'"></div>');
@@ -786,9 +849,9 @@ var crear_cyd_calendario_asesorias = function () {
                 });
             }
         },
-        eventDrop: function(event, delta, revertFunc, jsEvent, ui, view) {
+        eventDrop: function(event, delta, revertFunc, jsEvent, ui, view) {           
             update_event({
-                url: event._url,
+                url: "/cyd/api/asesoria/"+event._id+"/",//event._url  "/cyd/api/asesoria/"
                 id: event._id,
                 fecha: event.start.year()+'-'+(event.start.month()+1)+'-'+event.start.date(),
                 hora_inicio: event.start.hour()+':'+event.start.minute(),
@@ -824,9 +887,10 @@ var crear_cyd_calendario_asesorias = function () {
                 params['sede'] = $('#sede_form #id_sede').val();
                 return params;
             },
-            editable: false
+            editable: true
         }
         ],
+       
         firstDay: 0,
         header: {
             left: 'prev,next today,month,agendaDay',
@@ -842,7 +906,6 @@ var crear_cyd_calendario_asesorias = function () {
 /** */
 var crear_cyd_calendario_asistencia = function () {
     $('#cyd-calendario').fullCalendar({
-
         displayEventEnd: true,
         droppable: true,
         drop: function (date, jsEvent, ui, resourceId) {
@@ -856,7 +919,7 @@ var crear_cyd_calendario_asistencia = function () {
         },
         editable: true,
         eventClick: function (calEvent, jsEvent, view) {
-
+            
             if (calEvent.tipo == 'c') {
                 var form = $('<form></form>');
                 form.append('<div class="form-group"><label for="hora_inicio_m">Hora de inicio</label><input type="text" class="form-control" id="hora_inicio_m" value="'+calEvent.start.hour()+':'+calEvent.start.minute()+'"></div>');
@@ -937,7 +1000,7 @@ var crear_cyd_calendario_asistencia = function () {
     });
 }
 /** */
-function update_event(params) {
+function update_event(params) {   
     $.ajax({
         beforeSend: function(xhr, settings) {
             xhr.setRequestHeader("X-CSRFToken", $("[name=csrfmiddlewaretoken]").val());
@@ -1026,6 +1089,7 @@ CalendarioCyD.init = function () {
                     event.html('A'+calendario.cr_asistencia+' '+(calendario.fecha ? calendario.fecha : ''));
                     eventos.push(event);
                     ini_events(event);
+                    //console.log(event);
                 });
                 $('#asistencia_list').html(eventos);
             });
@@ -1059,20 +1123,22 @@ CalendarioCyD.init = function () {
         Al cambiar la sede, genera el listado de grupos
         */
         $('#form_participante #id_sede').on('change', function () {
+           
             listar_grupos_sede('#form_participante #id_sede', '#form_participante #id_grupo');
         });
 
         /*
         Al cambiar el grupo, genera el listado de participantes
         */
-        $('#form_participante #id_grupo').on('change', function () {
-            $('#tbody-listado').html('');
+        $('#form_participante #id_grupo').on('change', function () {       
+            console.log("Todo Bien");   
+            $('#tbody-listado').html('');            
             $.get($(this).data('url'),
             {
                 asignaciones__grupo: $(this).val(),
-                fields: 'nombre,apellido,escuela'
+                fields: 'nombre,apellido,escuela,etnia,escolaridad,'
             },
-            function (respuesta) {
+            function (respuesta) {               
                 var filas = [];
                 $.each(respuesta, function (index, participante) {
                     var fila = $('<tr />');
@@ -1089,7 +1155,7 @@ CalendarioCyD.init = function () {
         Valida que el UDI ingresado sea real
         */
         $('#form_participante #id_udi').on('input', function () {
-            $('#btn-crear').prop('disabled', true);
+            //$('#btn-crear').prop('disabled', true);
             $("#udi_help").html('')
             validar_udi_api({
                 url: $(this).data('url'),
@@ -1112,7 +1178,7 @@ CalendarioCyD.init = function () {
         Valida que el DPI ingresado no exista
         */
         $('#form_participante #id_dpi').on('input', function () {
-            $('#btn-crear').prop('disabled', true);
+            //$('#btn-crear').prop('disabled', true);
             validar_dpi_api({
                 url: $(this).data('url'),
                 dpi: $(this).val(),
@@ -1225,7 +1291,8 @@ CalendarioCyD.init = function () {
                         table.instance.setDataAtCell(table.row, 4, respuesta[0].rol_nombre)
                         table.instance.setDataAtCell(table.row, 5, respuesta[0].mail)
                         table.instance.setDataAtCell(table.row, 6, respuesta[0].tel_movil)
-                        table.instance.setDataAtCell(table.row, 7, respuesta[0].escuela.codigo)
+                        table.instance.setDataAtCell(table.row, 7, respuesta[0].etnia)
+                        table.instance.setDataAtCell(table.row, 8, respuesta[0].escolaridad) 
                         return callback(false);
                     } else {
                         return callback(true);
@@ -1237,11 +1304,14 @@ CalendarioCyD.init = function () {
     var guardar_tabla = function () {
         var udi = $('#id_udi').val();
         var grupo = $('#id_grupo').val();
+        //console.log(udi);
         var progress = 0;
         if (udi && grupo) {
             $.each(tabla_importar.getData(), function (index, fila) {
-                if (fila[0] && fila[1] && fila[2] && fila[3] && fila[4]) {
-                    udi_send = fila[7] ? fila[7] : udi
+                //console.log(fila);
+               if (fila[0] && fila[1] && fila[2] && fila[3] && fila[4]) {
+                    //udi_send = fila[7] ? fila[7] : udi
+                    udi_send =  udi
                     try{
                         $.ajax({
                             beforeSend: function(xhr, settings) {
@@ -1257,6 +1327,12 @@ CalendarioCyD.init = function () {
                                 rol: fila[4],
                                 mail: fila[5],
                                 tel_movil: fila[6],
+                                etnia:fila[7].id,
+                                escolaridad:fila[8],
+                                profesion:fila[9],
+                                grado_impartido:fila[10],
+                                chicos:Number(fila[11]),
+                                chicas:Number(fila[12])
                             }),
                             error: function (xhr, status, errorThrown) {
                                 new Noty({
@@ -1330,7 +1406,8 @@ CalendarioCyD.init = function () {
             rowHeaders: true,
             manualColumnResize:true,
             minSpareRows: 1,
-            colHeaders: ["DPI", "Nombre", "Apellido", "Género", "Rol", "Correo electrónico", "Teléfono", "UDI"],
+            colWidths: [140, 192, 100, 140, 140, 140, 97, 100,100,100,100,100,100],
+            colHeaders: ["DPI", "Nombre", "Apellido", "Género", "Rol", "Correo electrónico", "Teléfono","Etnia","Escolaridad","Profesion","Grado impartido","Niños","Niñas",],
             startRows: 1,
             beforeChange: function (changes) {
                 var cambios = $.map(changes, function(value, index) {
@@ -1374,6 +1451,7 @@ CalendarioCyD.init = function () {
                 handsontable: {
                     autoColumnSize: true,
                     data: rol_list,
+                   
                     getValue: function () {
                         var selection = this.getSelected();
                         return this.getSourceDataAtRow(selection[0]).rol;
@@ -1382,7 +1460,52 @@ CalendarioCyD.init = function () {
             },
             {data: 'email', validator: email_validator, allowInvalid: true},
             {data: 'tel_movil'},
-            {data: 'udi', validator: udi_validator, allowInvalid: true},
+            {type: 'handsontable',
+            strict: true,
+            handsontable: {
+                autoColumnSize: true,
+                data: etnia_list,
+               
+                getValue: function () {
+                    var selection = this.getSelected();
+                    return this.getSourceDataAtRow(selection[0]).etnia;
+                }
+            }},
+            {type: 'handsontable',
+            strict: true,
+            handsontable: {
+                autoColumnSize: true,
+                data: escolaridad_list,
+               
+                getValue: function () {
+                    var selection = this.getSelected();
+                    return this.getSourceDataAtRow(selection[0]).escolaridad;
+                }
+            }},
+            {type: 'handsontable',
+            strict: true,
+            handsontable: {
+                autoColumnSize: true,
+                data: profesion_list,
+               
+                getValue: function () {
+                    var selection = this.getSelected();
+                    return this.getSourceDataAtRow(selection[0]).profesion;
+                }
+            }},
+            {type: 'handsontable',
+            strict: true,
+            handsontable: {
+                autoColumnSize: true,
+                data: grado_impartido_list,
+               
+                getValue: function () {
+                    var selection = this.getSelected();
+                    return this.getSourceDataAtRow(selection[0]).grado;
+                }
+            }},
+            {data: 'chicos'},
+            {data: 'chicas'},
             ]
         });
 
@@ -1394,7 +1517,7 @@ CalendarioCyD.init = function () {
             $.get($(this).data('url'),
             {
                 asignaciones__grupo: $(this).val(),
-                fields: 'dpi,nombre,apellido,escuela,url,rol_nombre'
+                fields: 'dpi,nombre,apellido,escuela,url,rol_nombre,escolaridad,etnia'
             },
             function (respuesta) {
                 var filas = [];
@@ -1404,8 +1527,15 @@ CalendarioCyD.init = function () {
                     fila.append('<td>'+i+'</td>');
                     fila.append('<td><a href="'+participante.url+'">'+participante.nombre+' '+participante.apellido+'</a></td>');
                     fila.append('<td>'+participante.dpi+'</td>');
-                    fila.append('<td>'+participante.rol_nombre+'</td>');
+                    if (participante.rol_nombre =='Director'){
+                        fila.append('<td><b>'+participante.rol_nombre+'</b></td>');
+                    }else{
+                        fila.append('<td>'+participante.rol_nombre+'</td>');
+                    }
+                    
                     fila.append('<td><a href="'+participante.escuela.url+'">'+participante.escuela.nombre+'<br>'+participante.escuela.codigo+'</a></td>');
+                    fila.append('<td>'+participante.etnia+'</td>');
+                    fila.append('<td>'+participante.escolaridad+'</td>');
                     filas.push(fila);
                     i = i+1;
                 });
@@ -1493,23 +1623,25 @@ CalendarioCyD.init = function () {
                 activo:2
             },
             function(data){
-
+                var td_participante = '';
                  $.each(data, function(i, item){
-                    var td_participante = '';
-                    td_participante += '<td><a href="'+item.url+'" class="btn btn-block">'+item.nombre+' '+item.apellido+'</a></td>';
+                    //console.log(item.nombre)
+                    
+                    td_participante += '<tr><td><a href="'+item.url+'" class="btn btn-block">'+item.nombre+' '+item.apellido+'</a></td>';
                     td_participante += '<td>'+item.asignaciones.map(function (asignacion) {
                         return '<small class="badge bg-aqua">'+asignacion.grupo+'</small>';
                     }).join('<br />')+ '</td>';
                     td_participante += '<td><a href="'+item.escuela.url+'">'+item.escuela.nombre+'<br>'+item.escuela.codigo+'</a></td>';
 
                     if (permite_asignar) {
-                        td_participante += '<td><button class="btn-asignar" data-pk="'+item.id+'">Asignar</button></td>';
+                        td_participante += '<td><button class="btn-asignar btn btn-success" data-pk="'+item.id+'">Asignar</button></td>';
                     }
-                    td_participante += '<td> <a id="participante_id" data-id="'+item.id +'" class= "btn btn-danger btn-borrar" >Borrar participante</a> </td>';
-                    $("#resultado-tbody").html(td_participante);
+                    td_participante += '<td> <a id="participante_id" data-id="'+item.id +'" class= "btn btn-danger btn-borrar" >Borrar participante</a> </td></tr>';
+                    //console.log(td_participante)
+                    //$("#resultado-tbody").html(td_participante);
                  });
-
-                //console.log(td_participante);
+                 $("#resultado-tbody").html(td_participante);
+                console.log(td_participante);
 
             });
     }
@@ -2018,52 +2150,51 @@ class AgregarCurso{
         });
 
         $("input").focusout(function(){
-        AgregarCurso.suma_asistencia();
-        AgregarCurso.suma_proyectos_ejercicios();
-        //  console.log(nuevo1);
-          //console.log(nuevo2);
-
-
-            var total_asistencia = $('#nota_curso').text();
-            var total_proyectos = $('#tareas_curso').text();
-            var tota_punteo= (Number(total_asistencia) + Number(total_proyectos));
-            $("#total_curso").text((Number(total_asistencia) + Number(total_proyectos)));
-            if(tota_punteo>100){
-              bootbox.alert("La nota total no puede ser mayor a 100 pts, revise las notas");
-              $("#guardar_curso").prop( "disabled", true );
-              $("#mostrar_campo" ).prop( "disabled", true );
-              $("#mostrar_campo_hito" ).prop( "disabled", true );
-            }else{
-              $("#mostrar_campo" ).prop( "disabled", false );
-              $("#mostrar_campo_hito" ).prop( "disabled", false );
-              $("#guardar_curso").prop( "disabled", false );
-            }
-            /*if(total_asistencia>100){
-                bootbox.alert("La nota total no puede ser mayor a 100 pts, revise las notas");
-                $("#guardar_curso").prop( "disabled", true );
-                $("#mostrar_campo" ).prop( "disabled", true );
-                $("#mostrar_campo_hito" ).prop( "disabled", true );
-            }else{
-                $("#mostrar_campo" ).prop( "disabled", false );
-                $("#mostrar_campo_hito" ).prop( "disabled", false );
-                $("#guardar_curso").prop( "disabled", false );
-            };
-            if(total_proyectos>100){
-                bootbox.alert("La nota total no puede ser mayor a 100 pts, revise las notas");
-                $("#guardar_curso").prop( "disabled", true );
-                $("#mostrar_campo_hito" ).prop( "disabled", true );
+            AgregarCurso.suma_asistencia();
+            AgregarCurso.suma_proyectos_ejercicios();
+            //  console.log(nuevo1);
+              //console.log(nuevo2);
+    
+    
+                var total_asistencia = $('#nota_curso').text();
+                var total_proyectos = $('#tareas_curso').text();
+                var tota_punteo= (Number(total_asistencia) + Number(total_proyectos));
+                $("#total_curso").text((Number(total_asistencia) + Number(total_proyectos)));
+                if(tota_punteo>100){
+                  bootbox.alert("La nota total no puede ser mayor a 100 pts, revise las notas");
                   $("#guardar_curso").prop( "disabled", true );
-            }else{
-              $("#mostrar_campo" ).prop( "disabled", false );
-              $("#mostrar_campo_hito" ).prop( "disabled", false );
-              $("#guardar_curso").prop( "disabled", false );
-            };*/
-        });
-
+                  $("#mostrar_campo" ).prop( "disabled", true );
+                  $("#mostrar_campo_hito" ).prop( "disabled", true );
+                }else{
+                  $("#mostrar_campo" ).prop( "disabled", false );
+                  $("#mostrar_campo_hito" ).prop( "disabled", false );
+                  $("#guardar_curso").prop( "disabled", false );
+                }
+                /*if(total_asistencia>100){
+                    bootbox.alert("La nota total no puede ser mayor a 100 pts, revise las notas");
+                    $("#guardar_curso").prop( "disabled", true );
+                    $("#mostrar_campo" ).prop( "disabled", true );
+                    $("#mostrar_campo_hito" ).prop( "disabled", true );
+                }else{
+                    $("#mostrar_campo" ).prop( "disabled", false );
+                    $("#mostrar_campo_hito" ).prop( "disabled", false );
+                    $("#guardar_curso").prop( "disabled", false );
+                };
+                if(total_proyectos>100){
+                    bootbox.alert("La nota total no puede ser mayor a 100 pts, revise las notas");
+                    $("#guardar_curso").prop( "disabled", true );
+                    $("#mostrar_campo_hito" ).prop( "disabled", true );
+                      $("#guardar_curso").prop( "disabled", true );
+                }else{
+                  $("#mostrar_campo" ).prop( "disabled", false );
+                  $("#mostrar_campo_hito" ).prop( "disabled", false );
+                  $("#guardar_curso").prop( "disabled", false );
+                };*/
+            });
         $("#id_nombre").keyup(function(){
                 $("#nombre_curso").text($(this).val());
         });
-          $("#mostrar_campo").click(function(){
+        $("#mostrar_campo").click(function(){
 
             nuevo1=AgregarCurso.suma_asistencia();
             contador_asistencia++;
@@ -2084,7 +2215,6 @@ class AgregarCurso{
             $("#nota_curso").text(Number(nuevo2+nuevo1));
             //console.log($("#id_asistencias-"+Number(contador_asistencia-1)+"-punteo_max").val());
             /*  contador_asistencia++;
-
               if(contador_asistencia > (cantidad-1)){
                   bootbox.alert("Ya no puede ingresar más asistencias");
                   $("#mostrar_campo" ).prop( "disabled", true );
@@ -2139,6 +2269,7 @@ class AgregarCurso{
 
         var cantidad_asistencia = $('#id_asistencias-TOTAL_FORMS').val();
       //  var cantidad_asistencia = contador_asistencia;
+      console.log(cantidad_asistencia)
         var acumulador_asistencia =0;
         for(var a=0;a<cantidad_asistencia;a++){
             acumulador_asistencia= acumulador_asistencia + Number($("#id_asistencias-"+a+"-punteo_max").val());
@@ -2211,10 +2342,12 @@ class CursoList{
 }
 class ControlAcademicoGrupos{
     constructor(){
-        var encabezado =['Asignacion','Curso','Grupo','Sede','Nombre','Apellido','Genero'];
-        var hot;
+        //var encabezado =['Asignacion','Curso','Grupo','Sede','Nombre','Apellido','Genero'];
+        var encabezado =['<span title="Asignacion">Asignacion </span>','Nombre','Apellido','Genero'];
+        var hot;    
         $('#control-academico-list-form').on('submit', function (e) {
             e.preventDefault();
+                        
             $("#guardar_tabla").show();
             $.ajax({
                 type: 'POST',
@@ -2226,12 +2359,14 @@ class ControlAcademicoGrupos{
                 data:$(this).serialize(),
                 success: function (response) {
                   $('#guardar_tabla').show();
-                  bootbox.alert({message: "<h2>"+"Exito"+"</h2>", className:"modal modal-success fade in"});
+                  bootbox.alert({message: "<h2>"+"Listado generado correctamente"+"</h2>", className:"modal modal-success fade in"});
                   for(var k=0;k<=response[0].asistencia.length-1;k++){
-                      encabezado.push("Asistencia "+Number(k+1));
+                      //encabezado.push("Asistencia "+Number(k+1));
+                      encabezado.push("A "+Number(k+1));
                   };
                   for(var j=0;j<=response[0].trabajos.length-1;j++){
-                      encabezado.push(response[0].trabajos[j].cr_hito__nombre);
+                      //encabezado.push(response[0].trabajos[j].cr_hito__nombre);
+                      encabezado.push("Hito"+(Number(j+1)));
                 };
                 encabezado.push("Final");
                 var matris = [];
@@ -2241,9 +2376,9 @@ class ControlAcademicoGrupos{
                 var resultado_final=0;
                 for (var l=0; l<=response.length-1;l++){
                      matris.push(response[l].asignacion);
-                     matris.push(response[l].curso);
-                     matris.push(response[l].grupo);
-                     matris.push(response[l].sede);
+                     //matris.push(response[l].curso);
+                     //matris.push(response[l].grupo);
+                     //matris.push(response[l].sede);
                      matris.push(response[l].nombre);
                      matris.push(response[l].apellido);
                      matris.push(response[l].genero);
@@ -2255,8 +2390,9 @@ class ControlAcademicoGrupos{
                         matris.push(response[l].trabajos[work].nota);
                         nota_trabajos=nota_trabajos + response[l].trabajos[work].nota;
                      }
-
-                     resultado_final = (nota_asitencia + nota_trabajos)/(Number(response[l].asistencia.length + response[l].trabajos.length));
+                     //Formula para calcular la nota Final   
+                     //resultado_final = (nota_asitencia + nota_trabajos)/(Number(response[l].asistencia.length + response[l].trabajos.length));
+                     resultado_final = (nota_asitencia + nota_trabajos);
                      matris.push(resultado_final);
                      matris2.push(matris);
                      matris=[]
@@ -2276,10 +2412,12 @@ class ControlAcademicoGrupos{
             startCols: encabezado.length,
             removeRowPlugin: true,
             persistentState: true,
+            fixedRowsTop: 3,
+            fixedColumnsLeft: 3,
             afterSelection: afterSelection,
             cells: function (row, col, prop) {
                 var cellProperties = {};
-                if (col < 6) {
+                if (col < 3) {5
                     cellProperties.readOnly = true;
                 }
                 if(col == encabezado.length-1){
@@ -2290,11 +2428,14 @@ class ControlAcademicoGrupos{
           });
           hot.getPlugin('columnSorting').sort({column:0, sortOrder:'asc'});
           function afterSelection(rowId,colId, rowEndId, colEndId){
-             var nuevaNota=0;
+            var nuevaNota = 0;
             var actualizarNotas= hot.getSourceDataAtRow(rowId);
-            for(var k =3; k<=actualizarNotas.length-2;k++ ){
-                nuevaNota = nuevaNota + Number(actualizarNotas[k])
+            console.log(actualizarNotas[3]);
+            //console.log(actualizarNotas.length);
+            for(var k =4; k<=actualizarNotas.length-2;k++ ){                
+                nuevaNota = nuevaNota + Number(actualizarNotas[k]);                
             };
+            
             hot.setDataAtCell(rowId,actualizarNotas.length-1,nuevaNota);
           };
 
@@ -2305,7 +2446,8 @@ class ControlAcademicoGrupos{
                   bootbox.alert({message: "<h3><i class='fa fa-frown-o' style='font-size: 45px;'></i>&nbsp;&nbsp;&nbsp;HA OCURRIDO UN ERROR!!</h3></br>" + jsonResponse["mensaje"], className:"modal modal-danger fade"});
                 }
               });
-              encabezado =['Asignacion','Curso','Grupo','Sede','Nombre','Apellido','Genero'];
+              //encabezado =['Asignacion','Curso','Grupo','Sede','Nombre','Apellido','Genero'];
+              encabezado =['Asignacion','Nombre','Apellido','Genero'];
               hot.destroy();
         });
 
@@ -2313,14 +2455,14 @@ class ControlAcademicoGrupos{
         /** */
         $("#guardar_tabla").click(function() {
             var  jsonObj = [];
-            for(var k=0; k<=hot.getData.length-1;k++){
+            for(var k=0; k<=hot.getData().length-1;k++){                
                 var  prueba = {};
                 for(var l=0;l<=hot.getData()[k].length-1;l++){
                     prueba[encabezado[l]] = hot.getData()[k][l];
                 }
                 jsonObj.push(prueba);
             };
-            var data_send=JSON.stringify(jsonObj);
+            var data_send=JSON.stringify(jsonObj);           
             $.ajax({
                 type: 'POST',
                 url: $('#datosCurso').data('url'),
@@ -2331,7 +2473,7 @@ class ControlAcademicoGrupos{
                 data:{datos:data_send},
                 success: function (response) {
 
-                  bootbox.alert({message: "<h2>"+"Exito"+"</h2>", className:"modal modal-success fade in"});
+                  bootbox.alert({message: "<h2>"+"Datos Actualizados correctamente"+"</h2>", className:"modal modal-success fade in"});
                 },
                 error: function (response) {
                   var jsonResponse = JSON.parse(response.responseText);
@@ -2342,6 +2484,10 @@ class ControlAcademicoGrupos{
 
          });
         /** */
+        $('#control-academico-list-form #id_sede').on('change', function () {
+            listar_grupos_sede('#control-academico-list-form #id_sede', '#control-academico-list-form #id_grupo');
+            
+        });
 
 
     };
@@ -2500,7 +2646,7 @@ class informeAsistencia{
                       $("#asistencia-table-search>tfoot>tr").append("<th>Total:</th>");
                       asistencia ={data:"asistencia"+a,render: function(data, type, full, meta,row){
                           var nuevo = "full.fecha_asistencia"+meta.col;
-                        return "<span class='label label-info'>Asistencia  </span>"+ data +"<br> <span class='label label-primary'>Fecha</span> "+eval("full.fecha_asistencia"+meta.col)+" "+"<br> <span class='label label-success'>Hora de inicio</span> "+eval("full.hora_inicio_asistencia"+meta.col)+" "+"<br> <span class='label label-warning'>Hora de Finalizacion</span> "+eval("full.hora_fin_asistencia"+meta.col);
+                        return "<span><b>Asistencia:</b></span>"+ data +"<br> <span><b>Fecha:</b></span> "+eval("full.fecha_asistencia"+meta.col)+" "+"<br> <span><b>Hora de inicio:</b></span> "+eval("full.hora_inicio_asistencia"+meta.col)+" "+"<br> <span><b>Hora de Finalizacion:</b></span> "+eval("full.hora_fin_asistencia"+meta.col);
                     }  };
                       columnas.push(asistencia);
                   };
@@ -2587,7 +2733,7 @@ class informeFinal{
 
     $('#informefinal-list-form').submit(function (e) {
         e.preventDefault();
-         tablaDispositivos = $('#informefinal-table-search').DataTable({
+         var tablaDispositivos = $('#informefinal-table-search').DataTable({
             dom: 'lfrtipB',
             destroy:true,
             buttons: ['excel', 'pdf'],
@@ -2630,7 +2776,7 @@ class informeCapacitadores{
     var total_participantes=0;
     $('#informecapacitadores-list-form').submit(function (e) {
         e.preventDefault();
-         tablaDispositivos = $('#informecapacitadores-table-search').DataTable({
+         var tablaDispositivos = $('#informecapacitadores-table-search').DataTable({
             dom: 'lfrtipB',
             destroy:true,
             buttons: ['excel', 'pdf'],
@@ -2681,6 +2827,8 @@ class informeEscuela{
     var contador =0;
     var cantidad_hombres=0;
     var cantidad_mujeres=0;
+    var cantidad_chicas=0;
+    var cantidad_chicos=0;
     $('#informescuela-list-form').submit(function (e) {
         e.preventDefault();
          var tablaDispositivos = $('#informescuela-table-search').DataTable({
@@ -2707,6 +2855,7 @@ class informeEscuela{
                 }},
                 {data: "nombre"},
                 {data: "apellido"},
+                {data: "dpi"},
                 {data: "genero",render: function(data, type , full, meta){
                     if(full.genero==1){
 
@@ -2716,11 +2865,30 @@ class informeEscuela{
                       return "Femenino";
                     }
                 }},
+                
+                {data: "mail"},
+                {data: "tel_casa",render: function(data, type,full, meta){
+                    if(full.tel_casa==null){
+                        return full.tel_movil
+                    }else{
+                        return full.tel_casa
+                    }
+                }},
+                {data: "escolaridad"},
+                {data: "etnia"},
+                {data: "profesion"},
+                {data: "grado_impartido"},
+                {data: "chicos"},
+                {data: "chicas"},
+
             ],
             headerCallback:function (thead, data, start, end, display ){
               for(var i in data){
                 console.log(data[i].escuela.nombre);
                 $("#titulo_escuela").html(data[i].escuela.nombre);
+                cantidad_chicos = cantidad_chicos + data[i].chicos
+                cantidad_chicas = cantidad_chicas + data[i].chicas
+
                 if(data[i].genero==1){
                     cantidad_hombres=cantidad_hombres+1;
                 }else{
@@ -2729,6 +2897,8 @@ class informeEscuela{
                 $(thead).find('th').eq(0).html("CANTIDAD TOTAL :"+ (cantidad_hombres+cantidad_mujeres));
                 $(thead).find('th').eq(1).html("HOMBRES :" + cantidad_hombres);
                 $(thead).find('th').eq(2).html("MUJERES : " +cantidad_mujeres);
+                $(thead).find('th').eq(3).html("NIÑOS : " +cantidad_chicos);
+                $(thead).find('th').eq(4).html("NIÑAS : " +cantidad_chicas);
 
               };
 
@@ -2898,17 +3068,17 @@ class informeListadoEscuela{
     var total_hombres=0;
     var total_mujeres=0;
     var total_participantes=0;
-    $('#informelistadoescuela-list-form #id_sede').on('change', function () {
-         listar_grupos_sede('#informelistadoescuela-list-form #id_sede', '#informelistadoescuela-list-form #id_grupo');
-         //console.log("ingreso");
+    $('#informescuelalistado-list-form #id_departamento').on('change', function () {
+        listar_municipio_departamento('#informescuelalistado-list-form #id_departamento', '#informescuelalistado-list-form #id_municipio');
+        console.log("ingreso");
      });
-     $('#informelistadoescuela-list-form #id_grupo').on('change', function () {
-          listar_asistencias('#informelistadoescuela-list-form #id_sede','#informelistadoescuela-list-form #id_grupo', '#informelistadoescuela-list-form #id_asistencia');
+    /* $('#informescuelalistado-list-form #id_grupo').on('change', function () {
+          listar_asistencias('#informescuelalistado-list-form #id_sede','#informescuelalistado-list-form #id_grupo', '#informelistadoescuela-list-form #id_asistencia');
 
-      });
-      $('#informelistadoescuela-list-form').submit(function (e) {
+      });*/
+      $('#informescuelalistado-list-form').submit(function (e) {
               e.preventDefault();
-           var tablaDispositivos = $('#informealistadoescuela-table-search').DataTable({
+           var tablaDispositivos = $('#informescuelalistado-table-search').DataTable({
                 dom: 'lfrtipB',
                 destroy:true,
                 buttons: ['excel', 'pdf'],
@@ -2916,28 +3086,36 @@ class informeListadoEscuela{
                 deferLoading: [0],
                 ajax: {
                     type: 'POST',
-                    url: $('#informelistadoescuela-list-form').attr('action'),
+                    url: $('#informescuelalistado-list-form').attr('action'),
                     deferRender: true,
                     dataSrc: '',
                     cache: true,
                     data: function () {
-                        return $('#informelistadoescuela-list-form').serializeObject();
+                        return $('#informescuelalistado-list-form').serializeObject();
                     }
 
                 },
                 columns:[
-                    {data: "Numero",render: function(data, type , full, meta){
+                    {data: "Numero"},
+                    {data: "escuela",render: function(data, type , full, meta){
+                        return "<a target='_blank' href="+full.escuela_url+">"+data+"</a>";
+                    }},
+                    {data: "maestros"},
+                    {data: "hombres"},
+                    {data: "mujeres"},
+                    {data: "aprobados"},
+                    {data: "reprobados"},
+                    {data: "capacitador"},
+                    {data: "sede",render: function(data, type , full, meta){
                         return "<a target='_blank' href="+full.Url+">"+data+"</a>";
                     }},
-                    {data: "Escuela"},
-                    {data: "Nombre"},
-                    {data: "Apellido"},
+                    {data: "fecha"}
 
                 ]
 
               });
-
-            });
+              tablaDispositivos.clear().draw();
+            }); 
       //  $('#informescuelalistado-list-form').submit(function (e) {
   /*  $('#informelistadoescuela-list-form').submit(function (e) {
           e.preventDefault();
@@ -3151,3 +3329,52 @@ $('#guardar_tabla').show();
 });
   }
 }
+class NuevoinformeListadoEscuela{
+    constructor(){
+        var total_hombres=0;
+    var total_mujeres=0;
+    var total_participantes=0;
+    $('#informelistadoescuela-list-form #id_sede').on('change', function () {
+         listar_grupos_sede('#informelistadoescuela-list-form #id_sede', '#informelistadoescuela-list-form #id_grupo');
+         //console.log("ingreso");
+     });
+     $('#informelistadoescuela-list-form #id_grupo').on('change', function () {
+          listar_asistencias('#informelistadoescuela-list-form #id_sede','#informelistadoescuela-list-form #id_grupo', '#informelistadoescuela-list-form #id_asistencia');
+
+      });
+      $('#informelistadoescuela-list-form').submit(function (e) {
+              e.preventDefault();
+           var tablaDispositivos = $('#informealistadoescuela-table-search').DataTable({
+                dom: 'lfrtipB',
+                destroy:true,
+                buttons: ['excel', 'pdf'],
+                processing: true,
+                deferLoading: [0],
+                ajax: {
+                    type: 'POST',
+                    url: $('#informelistadoescuela-list-form').attr('action'),
+                    deferRender: true,
+                    dataSrc: '',
+                    cache: true,
+                    data: function () {
+                        return $('#informelistadoescuela-list-form').serializeObject();
+                    }
+
+                },
+                columns:[
+                    {data: "Numero",render: function(data, type , full, meta){
+                        return "<a target='_blank' href="+full.url+">"+data+"</a>";
+                    }},                    
+                    {data: "Nombre"},
+                    {data: "Apellido"},
+                    {data: "Escuela"},
+
+                ]
+
+              });
+              tablaDispositivos.clear().draw();
+
+            }); 
+    }
+  }
+  

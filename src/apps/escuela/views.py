@@ -27,6 +27,7 @@ from apps.escuela.models import (
 from apps.main.mixins import InformeMixin
 from apps.controlNotas import models as control_m
 from django.db.models import Avg, Count, Min, Sum
+from apps.cyd import models as cyd_m
 
 
 class EscuelaCrear(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
@@ -63,8 +64,7 @@ class EscuelaDetail(LoginRequiredMixin, DetailView):
         Returns:
             list: Variables de contexto para el template
         """
-        context = super(EscuelaDetail, self).get_context_data(**kwargs)
-
+        context = super(EscuelaDetail, self).get_context_data(**kwargs)        
         # Para no adjuntar nada al contexto si el usuario es un cooperante
         if self.request.user.cooperantes.count() > 0:
             return context
@@ -105,6 +105,8 @@ class EscuelaDetail(LoginRequiredMixin, DetailView):
             if equipamiento in self.object.equipamiento.all():
                 context['equipamiento_form'] = EquipamientoForm(instance=equipamiento)
                 context['equipamiento_id'] = self.kwargs['id_equipamiento']
+        sede = cyd_m.Sede.objects.get(escuela_beneficiada__id = self.kwargs['pk'])        
+        context['monitoreo'] = sede.get_participantes()['resumen']['monitoreo']
 
         # Obtener gráficas de KA Lite
         kalite_list = []
@@ -353,7 +355,7 @@ class EscuelaBuscar(InformeMixin):
         return queryset
 
     def create_response(self, queryset):
-        print(queryset)
+       #print(queryset)
         """Summary
 
         Args:

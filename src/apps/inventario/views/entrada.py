@@ -101,7 +101,7 @@ class EntradaUpdateView(LoginRequiredMixin, GroupRequiredMixin, UpdateView):
             return reverse('entrada_detail', kwargs={'pk': self.object.id})
 
     def get_context_data(self, **kwargs):
-        context = super(EntradaUpdateView, self).get_context_data(**kwargs)
+        context = super(EntradaUpdateView, self).get_context_data(**kwargs)       
         context['EntradaDetalleForm'] = inv_f.EntradaDetalleForm(initial={'entrada': self.object})
         return context
 

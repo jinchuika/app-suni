@@ -7,6 +7,9 @@ from django.core.exceptions import ValidationError
 from apps.inventario import models as inv_m
 from apps.crm import models as crm_m
 from apps.kardex import models as kax_m
+from apps.mye import models as mye_m
+
+
 
 class EntradaForm(forms.ModelForm):
     """Formulario para la :`class`:`EntradaCreateView` que es la encargada de crear los datos
@@ -15,6 +18,13 @@ class EntradaForm(forms.ModelForm):
     fecha = forms.DateField(
         initial=date.today(),
         widget=forms.TextInput({'class': 'form-control datepicker', 'tabindex': '2'}))
+    
+    proyecto = forms.ModelMultipleChoiceField(
+        label='Proyectos',
+        queryset=mye_m.Cooperante.objects.all(),
+        required=True,
+        widget=forms.SelectMultiple(attrs={'class': 'form-control select2', 'tabindex': '6'}
+        ))    
 
     class Meta:
         model = inv_m.Entrada
@@ -25,6 +35,7 @@ class EntradaForm(forms.ModelForm):
             'proveedor': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '3'}),
             'factura': forms.NumberInput({'class': 'form-control', 'tabindex': '4'}),
             'observaciones': forms.Textarea({'class': 'form-control', 'tabindex': '5'}),
+            
         }
 
     def clean(self):
@@ -48,7 +59,7 @@ class EntradaUpdateForm(forms.ModelForm):
     class Meta:
         model = inv_m.Entrada
         fields = '__all__'
-        exclude = ['factura', 'fecha_cierre']
+        exclude = ['factura', 'fecha_cierre','proyecto']
         labels = {
                 'en_creacion': _('En Desarrollo'),
         }
@@ -71,6 +82,13 @@ class EntradaDetalleForm(forms.ModelForm):
     """ Formulario para la :`class`:`EntradaDetalleView` que es la encargada de crear  los datos
     de los detalles de entrada
     """
+
+    proyecto = forms.ModelMultipleChoiceField(
+        label='Proyectos',
+        queryset=mye_m.Cooperante.objects.all(),
+        required=True,
+        widget=forms.SelectMultiple(attrs={'class': 'form-control select2'}
+        ))    
     class Meta:
         model = inv_m.EntradaDetalle
         fields = '__all__'
@@ -92,7 +110,7 @@ class EntradaDetalleForm(forms.ModelForm):
             'enviar_kardex',
             'ingresado_kardex', 
             'pendiente_autorizar',
-            'autorizado'           
+            'autorizado',  
             ]
         widgets = {
             'entrada': forms.HiddenInput(),
@@ -104,6 +122,7 @@ class EntradaDetalleForm(forms.ModelForm):
             'estado_kardex': forms.Select(attrs={'class': 'form-control select2'}),
             'tipo_entrada_kardex': forms.Select(attrs={'class': 'form-control select2'}),
             'precio_unitario': forms.TextInput({'class': 'form-control', 'min':0.00001, 'type': 'number','step':"any"}),
+            
         }
 
     def __init__(self, *args, **kwargs):
@@ -119,7 +138,7 @@ class EntradaDetalleForm(forms.ModelForm):
             self.fields['precio_subtotal'].empty_label = None
             self.fields['precio_subtotal'].label = ''
             self.fields['precio_subtotal'].widget = forms.NumberInput(
-                attrs={'class': 'form-control', 'style': "visibility:hidden",'tabindex': '4'})
+                attrs={'class': 'form-control', 'style': "visibility:hidden",'tabindex': '2'})
             self.fields['precio_subtotal'].initial = ""
         else:            
             self.fields['precio_subtotal'].widget = forms.NumberInput(
@@ -157,7 +176,8 @@ class EntradaDetalleUpdateForm(forms.ModelForm):
                     'tipo_entrada_kardex',
                     'estado_kardex',
                     'pendiente_autorizar',
-                    'autorizado' 
+                    'autorizado',
+                    'proyecto', 
                     ]
         widgets = {
             'util': forms.NumberInput({'class': 'form-control'}),

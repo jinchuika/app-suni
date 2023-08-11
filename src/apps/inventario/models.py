@@ -72,7 +72,8 @@ class Entrada(models.Model):
     recibida_por = models.ForeignKey(User, on_delete=models.PROTECT, related_name='entradas_recibidas')
     proveedor = models.ForeignKey(crm_m.Donante, on_delete=models.PROTECT, related_name='entradas')
     factura = models.PositiveIntegerField(default=0)
-    observaciones = models.TextField(null=True, blank=True)  
+    observaciones = models.TextField(null=True, blank=True)
+    proyecto = models.ManyToManyField('mye.Cooperante', blank=True,null=True ,related_name='proyecto_inventario')  
 
     class Meta:
         verbose_name = "Entrada"
@@ -198,6 +199,7 @@ class EntradaDetalle(models.Model):
         blank=True,
         null=True,
         related_name='tipo_entrada_kardex')
+    proyecto = models.ManyToManyField('mye.Cooperante', blank=True,null=True ,related_name='proyecto_inventario_detalle')
 
     class Meta:
         verbose_name = "Detalle de entrada"
@@ -1378,6 +1380,8 @@ class SalidaInventario(models.Model):
     url = models.TextField(null=True, blank=True)
     capacitada = models.BooleanField(default=False, verbose_name='Capacitada')
     meses_garantia = models.BooleanField(default=False, verbose_name='6 meses de Garantia')
+
+    
 
     class Meta:
         verbose_name = "Salida"
