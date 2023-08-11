@@ -91,7 +91,7 @@ class ListadoMaestroView(TemplateView):
                 centro_comunitario = False
                 solo_ka_lite = False
                 # Obtener Promedio de Cursos por Sede
-                for valor_data in data:                 
+                for valor_data in data:               
                   if sede == valor_data['sede']:                    
                     validar_palabra = str(valor_data['descripcion'])                     
                     if validar_palabra.find("beneficiada") is not -1 or validar_palabra.find("BEQT") is not -1:                                                         
@@ -113,9 +113,9 @@ class ListadoMaestroView(TemplateView):
 
                     # Validar si recibió NAAT en la sede (18 o 22 semanas) o bien si recibió KaLite (Grupo 4)                   
                     if grupo_naat == 1 or grupo_naat == 2 and naat == False:                      
-                      grupo = int(valor_data['grupo'])      
+                      grupo = int(valor_data['grupo'])                          
                       if grupo == 1:
-                        grupo_combos += 1 
+                        grupo_combos += 1
                       elif grupo == 2:
                         grupo_naat = 2
                       elif grupo == 3:
@@ -154,7 +154,7 @@ class ListadoMaestroView(TemplateView):
                    solo_ka_lite =  True
                   
                 # Crear Objeto Asignacion por sede                           
-                values = {"id": id_sede,"sede": sede, "asignaciones": asignaciones, "promedio": promedio, "grupo":grupo_naat, "year_cert":year_cert, "combo_completo":combo_completo,"gano_tni":gano_tni,"centro_comunitario":centro_comunitario,"solo_ka_lite":solo_ka_lite}
+                values = {"id": id_sede,"sede": sede, "asignaciones": asignaciones, "promedio": promedio, "grupo":grupo_naat, "year_cert":year_cert, "combo_completo":combo_completo,"gano_tni":gano_tni,"centro_comunitario":centro_comunitario,"solo_ka_lite":solo_ka_lite,"naat":naat}
                 sede_asignacion.append(dict(values))                             
                context['sedes'] = sede_asignacion
                context['validacion'] = 1
@@ -169,7 +169,7 @@ class DiplomaPdfView(View):
    """
    def get( self, request, *args, **kwargs):
       # Obtener Parametros
-      tipo_curso = self.request.GET['curso']
+      tipo_curso = self.request.GET['curso']     
       id_sede = self.request.GET['sede']      
       # Inicializar Variables
       curso_asignado = 0
@@ -224,14 +224,11 @@ class DiplomaPdfView(View):
                   ka_lite = True
                 elif grupo == 5:
                    centro_comunitario = True
-                   print("Es centro comunitario1")
-
               asignaciones.append(nuevo)
 
          # Validar si la capacitación fué durante el año actual y si no ha expirado el periodo de tiempo}
          #fecha_valida_cert = fecha_final + datetime.timedelta(days=30)
          fecha_valida_cert = fecha_final + datetime.timedelta(days=1095)
-         print("-->",fecha_valida_cert)
          if fecha_final.year <= datetime.date.today().year:
             if datetime.date.today() <= fecha_valida_cert:
               if fecha_final.year >= 2021:
@@ -275,8 +272,7 @@ class DiplomaPdfView(View):
                 ruta_diploma = str(settings.STATICFILES_DIRS[0] ) + str("/css/diploma/CertificadoNaat18.png")
               elif int(tipo_curso) == 1 and centro_comunitario is True:
                  ruta_diploma = str(settings.STATICFILES_DIRS[0] ) + str("/css/diploma/CertificadoCCT2023.jpg")
-              else:
-                print("aca2")
+              else:                
                 #ruta_diploma = str(settings.STATICFILES_DIRS[0] ) + str("/css/diploma/CertificadoTB.png")
                 ruta_diploma = str(settings.STATICFILES_DIRS[0] ) + str("/css/diploma/CertificadoTNI2023.jpg")
 
