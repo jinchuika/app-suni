@@ -704,7 +704,7 @@ class DispositivoList {
            });
           /**/
 
-        tablaDispositivos.sort('triage', 'asc');
+        
          tablaDispositivos.clear().draw();
          /***/
          new BuscadorTabla();

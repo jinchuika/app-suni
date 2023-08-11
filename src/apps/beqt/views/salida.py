@@ -473,7 +473,6 @@ class LaptopPrintView(LoginRequiredMixin,  DetailView,GroupRequiredMixin):
             encargado = escuela_m.EscContacto.objects.get(escuela=escuela.escuela, rol=5)
             context['Encargado'] = str(encargado.nombre)+" "+str(encargado.apellido)
             telefono = escuela_m.EscContactoTelefono.objects.filter(contacto = encargado) 
-            print(telefono)
             context['Telefonos'] = telefono                      
 
         except ObjectDoesNotExist as e:
@@ -484,7 +483,6 @@ class LaptopPrintView(LoginRequiredMixin,  DetailView,GroupRequiredMixin):
         context['Servidor'] = cpu_servidor
 
         return context
-
 
 class TabletPrintView(LoginRequiredMixin, DetailView,GroupRequiredMixin):
     """Vista encargada para imprimir las :class:`Tablets` de las salidas correspondiente
