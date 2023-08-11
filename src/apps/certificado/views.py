@@ -269,7 +269,8 @@ class DiplomaPdfView(View):
               if int(tipo_curso) == 2 and grupo_naat == 2:
                 ruta_diploma = str(settings.STATICFILES_DIRS[0] ) + str("/css/diploma/CertificadoNaat22.png")
               elif int(tipo_curso) == 3 and grupo_naat == 3:
-                ruta_diploma = str(settings.STATICFILES_DIRS[0] ) + str("/css/diploma/CertificadoNaat18.png")
+                #ruta_diploma = str(settings.STATICFILES_DIRS[0] ) + str("/css/diploma/CertificadoNaat18.png")
+                ruta_diploma = str(settings.STATICFILES_DIRS[0] ) + str("/css/diploma/CertificadoNaat2023.jpg")
               elif int(tipo_curso) == 1 and centro_comunitario is True:
                  ruta_diploma = str(settings.STATICFILES_DIRS[0] ) + str("/css/diploma/CertificadoCCT2023.jpg")
               else:                
