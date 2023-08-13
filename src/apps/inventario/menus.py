@@ -123,18 +123,21 @@ desecho_children = (
         "Empresa de Desecho",
         reverse_lazy('desechoempresa_list'),
         weight=12,
+        group="inv_conta,inv_admin,inv_bodega",
         icon="fa-recycle",
     ),
     ViewMenuItem(
         "Salidas de Desecho",
         reverse_lazy('desechosalida_list'),
         weight=12,
+        group="inv_conta,inv_admin,inv_bodega,inv_sub_jefe",
         icon="fa-trash",
     ),
     ViewMenuItem(
         "Agregar Salida",
         reverse_lazy('desechosalida_add'),
         weight=12,
+        group="inv_conta,inv_admin,inv_bodega",
         icon="fa-pencil-square-o",
     ),
 
@@ -284,7 +287,7 @@ Menu.add_item(
         reverse_lazy('entrada_list'),
         weight=10,
         icon="fa-trash-o",
-        group="inv_bodega,inv_monitoreo",
+        group="inv_bodega,inv_monitoreo,inv_sub_jefe",
         children=desecho_children
     )
 )

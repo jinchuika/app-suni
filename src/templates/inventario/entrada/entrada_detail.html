@@ -103,6 +103,23 @@
 
 							</tr>
 							</thead>
+							{% if request.user|has_group:"inv_conta" %}
+							<tfoot>
+								<th>Total dispositivos</th>
+								<th>{{total_utiles}}</th>
+								<th></th>
+								<th></th>
+								<th></th>
+								<th></th>
+								<th></th>
+								<th>Precio total</th>
+								<th>Q. {{total_precio}}</th>
+							<tfoot>
+					</table>
+					<p>
+						*Los totales aplican solamente a dispositivos utiles
+					</p>
+					{%endif%}
 					</table>
 			</div>
 	</div>

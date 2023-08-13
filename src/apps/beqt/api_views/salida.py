@@ -264,13 +264,13 @@ class SalidaInventarioViewSet(viewsets.ModelViewSet):
                         estado_entregado = inv_m.SalidaEstado.objects.get(nombre="Entregado")
                         estado.en_creacion = False
                         estado.estado = estado_entregado
-                        estado.save()
+                        estado.save()                                                                                                                   
         else:
             if tipo_salida.especial:
                 estado_entregado = inv_m.SalidaEstado.objects.get(nombre="Entregado")
                 estado.en_creacion = False
                 estado.estado = estado_entregado
-                estado.save()
+                estado.save()                                   
             else:
                 return Response(
                     {
@@ -293,7 +293,7 @@ class SalidaInventarioViewSet(viewsets.ModelViewSet):
         id_salida = request.data['id_salida']
         data = request.data['data']
         es_beneficiario = request.data['beneficiario']
-        nueva_reasignar = inv_m.SalidaInventario.objects.get(id=id_salida)
+        nueva_reasignar = beqt_m.SalidaInventario.objects.get(id=id_salida)
         if(es_beneficiario == 'true'):
             try:
                 nuevo_beneficiario = crm_m.Donante.objects.get(id=data)
@@ -361,17 +361,20 @@ class RevisionSalidaViewSet(viewsets.ModelViewSet):
         paquetes = beqt_m.PaqueteBeqt.objects.filter(salida=id_salida,
                                                 aprobado=True).exclude(tipo_paquete__tipo_dispositivo__usa_triage=False)
 
+
+
         for paquete in paquetes:
             dispositivosPaquetes = beqt_m.DispositivoPaquete.objects.filter(paquete=paquete.id,
                                                                            aprobado=True)
-
-            for dispositivos in dispositivosPaquetes:         
+            
+            
+            for dispositivos in dispositivosPaquetes:
 
                 dispositivos.dispositivo.etapa = inv_m.DispositivoEtapa.objects.get(id=inv_m.DispositivoEtapa.EN)
                 dispositivos.dispositivo.valido = False
                 dispositivos.dispositivo.save()
-                try:
-                    cambios_etapa = inv_m.CambioEtapa.objects.filter(dispositivo__triage=dispositivos.dispositivo).order_by('-id')[0]
+                try:                
+                    cambios_etapa = beqt_m.CambioEtapaBeqt.objects.filter(dispositivo__triage=dispositivos.dispositivo).order_by("-id")[0]
                     cambios_etapa.etapa_final = inv_m.DispositivoEtapa.objects.get(id=inv_m.DispositivoEtapa.EN)
                     cambios_etapa.creado_por = request.user
                     cambios_etapa.save()
@@ -383,7 +386,7 @@ class RevisionSalidaViewSet(viewsets.ModelViewSet):
                 triage = dispositivos.dispositivo                
                 movimiento_dispositivo = conta_m.MovimientoDispositivoBeqt.objects.filter(dispositivo__triage = triage, tipo_movimiento = conta_m.MovimientoDispositivo.BAJA)
                 if len(movimiento_dispositivo) == 0:
-                    movimiento = conta_m.MovimientoDispositivo(
+                    movimiento = conta_m.MovimientoDispositivoBeqt(
                         dispositivo=dispositivos.dispositivo,                        
                         tipo_movimiento=conta_m.MovimientoDispositivo.BAJA,
                         referencia='Salida {}'.format(salida),                       

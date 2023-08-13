@@ -664,6 +664,7 @@ class DispositivoList {
   constructor() {
       $('#dispositivo-list-form').submit(function (e) {
           e.preventDefault();
+          
           /**/
           var tablaDispositivos = $('#dispositivo-table-search').DataTable({
              dom: 'lfrtipB',
@@ -671,6 +672,7 @@ class DispositivoList {
              buttons: ['excel', 'pdf'],
              processing: true,
              deferLoading: [0],
+             order:[[1,"asc"]],
              ajax: {
                  url: $('#dispositivo-list-form').attr('action'),
                  deferRender: true,
@@ -696,10 +698,13 @@ class DispositivoList {
                  {data: "tarima", className: "nowrap"},
                  {data: "estado", className: "nowrap"},
                  {data: "etapa", className: "nowrap"},
-                 {data: "procesador", className: "nowrap"}
+                 {data: "procesador", className: "nowrap"},
+                 
              ]
            });
           /**/
+
+        
          tablaDispositivos.clear().draw();
          /***/
          new BuscadorTabla();

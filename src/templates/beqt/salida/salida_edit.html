@@ -131,7 +131,7 @@
 					</div>
 					<div class="box-body  table-responsive">
 						<!--	<div class="col-md-12 table-responsive"> -->
-						<table  id="salidas-paquete-table" class="table table-striped table-hover table-bordered table-condensed dataTable" data-url="{%url 'beqt_api:api_paquete-list'%}" data-pk="{{salidainventario.id}}" data-beneficiario="{{salidainventario.beneficiario.id}}" data-tipo="{{salidainventario.tipo_salida.id}}" data-cuadrar="{%url 'beqt_api:api_inventariosalidas_beqt-cuadrar-salida'%}" data-urlfin="{%url 'beqt_api:api_revisionsalidas_beqt-aprobado' pk=salidainventario%}" data-urldetail="{%url 'salidainventario_detail' pk=salidainventario.id%}" data-garantia="{{salidainventario.tipo_salida}}" data-urlpaquetes="{%url 'beqt_api:api_inventariosalidas_beqt-stock-paquete' pk=object.id%}">
+						<table  id="salidas-paquete-table" class="table table-striped table-hover table-bordered table-condensed dataTable" data-url="{%url 'beqt_api:api_paquete-list'%}" data-pk="{{salidainventario.id}}" data-beneficiario="{{salidainventario.beneficiario.id}}" data-tipo="{{salidainventario.tipo_salida.id}}" data-cuadrar="{%url 'beqt_api:api_inventariosalidas_beqt-cuadrar-salida'%}" data-urlfin="{%url 'beqt_api:api_revisionsalidas_beqt-aprobado' pk=salidainventario%}" data-urldetail="{%url 'salidainventario_beqt_detail' pk=salidainventario.id%}" data-garantia="{{salidainventario.tipo_salida}}" data-urlpaquetes="{%url 'beqt_api:api_inventariosalidas_beqt-stock-paquete' pk=object.id%}">
 							<thead>
 								<tr>
 									<th>Paquete</th>

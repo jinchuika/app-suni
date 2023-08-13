@@ -56,6 +56,7 @@
 
 class EntradaCreate {
   constructor() {
+    var sel_dispositivos_create = $('#id_proyecto');
     $("[for='id_factura']").css({"visibility":"hidden"});
     $("#id_factura").css({"visibility":"hidden"});
 
@@ -69,6 +70,7 @@ class EntradaCreate {
         $("#id_factura").css({"visibility":"hidden"});
       }
     });
+      //sel_dispositivos_create.select2();
   }
 }
 
@@ -119,6 +121,7 @@ class EntradaUpdate {
                 {data: "precio_descontado"},
                 {data: "precio_total"},
                 {data: "creado_por"},
+                {data: "info_proyecto"},
                 {data: "",render: function(data, type, full, meta){
                   if(full.pendiente_autorizar == false){
                      return "	<span class='label label-danger'>Pendiente</span>";
@@ -423,6 +426,7 @@ class EntradaUpdate {
                 data: detalle_form.serialize(),
                 success: function (response) {
                     tabla_temp.tabla.ajax.reload();
+                    document.getElementById("detalleForm").reset();
                 },
                 error: function(response) {
                   var mensaje = JSON.parse(response.responseText)
@@ -604,6 +608,10 @@ class EntradaDetail {
                 {data: "precio_total"},
                 {data:"descripcion"},
                 {data: "creado_por"},
+                {data: "proyecto",render: function(data, type, full, meta){
+                  console.log("proyecto")
+                  return "";
+                }},
                 {data:" ",render: function(data, type, full, meta){
                   if(full.tipo_entrada != "Especial"){
                     if(full.ingresado_kardex == true){
@@ -4288,6 +4296,7 @@ class PrestamoList {
      columns: [
        {data:"id", class:"nowrap"},
        {data:"tipo_prestamo",className:"nowrap"},
+       {data:"tipo_dispositivo",className:"nowrap"},
        {data:"fecha_inicio",className:"nowrap"},
        {data:"fecha_estimada",className:"nowrap",
        render:function(data, type, full, meta){
