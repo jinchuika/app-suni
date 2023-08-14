@@ -608,10 +608,7 @@ class EntradaDetail {
                 {data: "precio_total"},
                 {data:"descripcion"},
                 {data: "creado_por"},
-                {data: "proyecto",render: function(data, type, full, meta){
-                  console.log("proyecto")
-                  return "";
-                }},
+                {data: "info_proyecto"},
                 {data:" ",render: function(data, type, full, meta){
                   if(full.tipo_entrada != "Especial"){
                     if(full.ingresado_kardex == true){
