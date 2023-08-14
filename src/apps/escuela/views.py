@@ -105,8 +105,12 @@ class EscuelaDetail(LoginRequiredMixin, DetailView):
             if equipamiento in self.object.equipamiento.all():
                 context['equipamiento_form'] = EquipamientoForm(instance=equipamiento)
                 context['equipamiento_id'] = self.kwargs['id_equipamiento']
-        sede = cyd_m.Sede.objects.get(escuela_beneficiada__id = self.kwargs['pk'])        
-        context['monitoreo'] = sede.get_participantes()['resumen']['monitoreo']
+        try:
+            sede = cyd_m.Sede.objects.get(escuela_beneficiada__id = self.kwargs['pk'])        
+            context['monitoreo'] = sede.get_participantes()['resumen']['monitoreo']
+        except:
+            context['monitoreo'] = False
+
 
         # Obtener gráficas de KA Lite
         kalite_list = []
