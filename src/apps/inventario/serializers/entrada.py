@@ -33,6 +33,7 @@ class EntradaDetalleSerializer(serializers.ModelSerializer):
     existencia_desecho = serializers.IntegerField(read_only=True)
     fecha_desecho = serializers.SerializerMethodField(read_only=True)
     grupos = serializers.SerializerMethodField(read_only=True)
+    info_proyecto = serializers.StringRelatedField(source='proyecto',many=True)
 
 
     class Meta:
@@ -74,7 +75,9 @@ class EntradaDetalleSerializer(serializers.ModelSerializer):
             'fecha_desecho',
             'autorizado',
             'pendiente_autorizar',
-            'grupos'
+            'grupos',
+            'info_proyecto',
+            'proyecto'
             )
 
     def get_tdispositivo(self, object):

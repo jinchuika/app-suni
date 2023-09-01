@@ -11,15 +11,15 @@ class PrestamoForm(forms.ModelForm):
         queryset=inv_m.Dispositivo.objects.filter(etapa=1,estado=1),
         widget=forms.SelectMultiple(attrs={'class': 'form-control select2'}))
 
-    tipo_dispositivo_prestamo = forms.ModelChoiceField(
+    tipo_dispositivo = forms.ModelChoiceField(
         queryset=inv_m.DispositivoTipo.objects.all(),
         label='Tipo Dispositivo',
         required=True,
-        widget=forms.Select(attrs={'class': 'form-control select2 '}))
+        widget=forms.Select(attrs={'id': 'tipo_dispositivo_prestamo','class': 'form-control select2 '}))
 
     class Meta:
         model = inv_m.Prestamo
-        fields = ('tipo_prestamo', 'prestado_a', 'prestado_externo_a','tipo_dispositivo_prestamo', 'dispositivo','observaciones')
+        fields = ('tipo_prestamo', 'prestado_a', 'prestado_externo_a','tipo_dispositivo', 'dispositivo','observaciones')
         widgets = {
             'tipo_prestamo': forms.Select(attrs={'class': 'form-control select2 '}),
             'prestado_a': forms.Select(attrs={'class': 'form-control select2','style': 'visibility:hidden'}),
