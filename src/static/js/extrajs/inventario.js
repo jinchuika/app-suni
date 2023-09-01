@@ -1995,6 +1995,7 @@ class Salidas {
     var url_finalizar = $("#salidas-paquete-table").data("urlfin");
     var url_detail = $("#salidas-paquete-table").data("urldetail");
     var url_paquetes = $("#salidas-paquete-table").data("urlpaquetes");
+    
     var fecha = new Date();
     var dia = fecha.getDate();
     var mes = fecha.getMonth()+1;
@@ -2165,7 +2166,7 @@ class Salidas {
                 }
 
               }
-            }else{
+            }else{ //ver aqui 
               return "<a target='_blank' rel='noopener noreferrer' href="+full.url_detail+" class='btn btn-success'>Ver Dispositivos</a>";
             }
 
@@ -2505,6 +2506,9 @@ class Salidas {
         /**/
         $("[for='id_cooperante']").css({"visibility":"hidden"});
         $('#id_cooperante').next(".select2-container").hide();
+
+        $("[for='id_caja_repuesto']").css({"visibility":"hidden"});
+        $('#id_caja_repuesto').next(".select2-container").hide();
       }else if(tipoSalida == 4 || tipoSalidaText =='A terceros') {
         $("[for='id_entrega']").css({"visibility":"hidden"});
         $("#id_entrega").css({"visibility":"hidden"});
@@ -2523,6 +2527,8 @@ class Salidas {
         $('#id_cooperante').next(".select2-container").hide();
         /**/
         $("#id_udi").val("");
+        $("[for='id_caja_repuesto']").css({"visibility":"hidden"});
+        $('#id_caja_repuesto').next(".select2-container").hide();
       }else if(tipoSalida == 7 || tipoSalidaText =='Garantia') {
         $("[for='id_entrega']").css({"visibility":"hidden"});
         $("#id_entrega").css({"visibility":"hidden"});
@@ -2541,6 +2547,29 @@ class Salidas {
          $('#id_cooperante').next(".select2-container").hide();
          /* */
          $("#id_beneficiario").val(" ");
+         $("[for='id_caja_repuesto']").css({"visibility":"hidden"});
+         $('#id_caja_repuesto').next(".select2-container").hide();
+      }else if(tipoSalida == 6 || tipoSalidaText =='Caja de repuestos') {
+        $("[for='id_entrega']").css({"visibility":"hidden"});
+        $("#id_entrega").css({"visibility":"hidden"});
+        $("#id_entrega").prop('checked',false);
+        $("[for='id_garantia']").css({"visibility":"visible"});
+        $('#id_garantia').next(".select2-container").show();
+        /**/
+        $("#id_udi").attr('type','hidden');
+        $("[for='id_udi']").css({"visibility":"hidden"});
+        $("[for='id_beneficiario']").css({"visibility":"hidden"});
+        $("#id_beneficiario").css({"visibility":"hidden"});
+        $("#id_udi").val(" ");
+        $('#id_beneficiario').next(".select2-container").hide();
+         /**/
+         $("[for='id_cooperante']").css({"visibility":"hidden"});
+         $('#id_cooperante').next(".select2-container").hide();
+         /* */
+         $("#id_beneficiario").val(" ");
+
+         $("[for='id_caja_repuesto']").css({"visibility":"hidden"});
+         $('#id_caja_repuesto').next(".select2-container").hide();
       } else {
         $("[for='id_entrega']").css({"visibility":"hidden"});
         $("#id_entrega").css({"visibility":"hidden"});
@@ -2559,6 +2588,9 @@ class Salidas {
         /**/
         $("[for='id_cooperante']").css({"visibility":"visible"});
         $('#id_cooperante').next(".select2-container").show();
+
+        $("[for='id_caja_repuesto']").css({"visibility":"visible"});
+        $('#id_caja_repuesto').next(".select2-container").show();
       }
     });
     /**Reasignar**/
@@ -4494,6 +4526,7 @@ class Desecho {
       dom: 'Bfrtip',
       destroy:true,
       buttons: ['excel', 'pdf', 'copy'],
+      order:[[1,"desc"]],
       ajax:{
         url:$('#desecho-list-form').attr('action'),
         dataSrc:'',

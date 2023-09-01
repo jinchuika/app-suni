@@ -221,6 +221,7 @@ class SalidaInventarioViewSet(viewsets.ModelViewSet):
     def cuadrar_salida(self, request, pk=None):
         """Metodo para cuadrar las salidas
         """
+
         id_salida = request.data['primary_key']
         tipo = request.data['tipo']
         tipo_salida = inv_m.SalidaTipo.objects.get(id=tipo)
@@ -264,13 +265,13 @@ class SalidaInventarioViewSet(viewsets.ModelViewSet):
                         estado_entregado = inv_m.SalidaEstado.objects.get(nombre="Entregado")
                         estado.en_creacion = False
                         estado.estado = estado_entregado
-                        estado.save()
+                        #estado.save()
         else:
             if tipo_salida.especial:
                 estado_entregado = inv_m.SalidaEstado.objects.get(nombre="Entregado")
                 estado.en_creacion = False
                 estado.estado = estado_entregado
-                estado.save()
+                #estado.save()
             else:
                 return Response(
                     {
@@ -360,6 +361,7 @@ class RevisionSalidaViewSet(viewsets.ModelViewSet):
         salida = inv_m.RevisionSalida.objects.get(salida=id_salida)
         paquetes = inv_m.Paquete.objects.filter(salida=id_salida,
                                                 aprobado=True).exclude(tipo_paquete__tipo_dispositivo__usa_triage=False)
+                                                
 
         for paquete in paquetes:
             dispositivosPaquetes = inv_m.DispositivoPaquete.objects.filter(paquete=paquete.id,
@@ -373,7 +375,7 @@ class RevisionSalidaViewSet(viewsets.ModelViewSet):
                         dd.disco_duro.estado = inv_m.DispositivoEstado.objects.get(id=inv_m.DispositivoEstado.EN)
                         dd.disco_duro.etapa = inv_m.DispositivoEtapa.objects.get(id=inv_m.DispositivoEtapa.EN)
 
-                        dd.disco_duro.save()
+                        #dd.disco_duro.save()
                         periodo_actual = conta_m.PeriodoFiscal.objects.get(actual=True)
                         precio_dispositivo = conta_m.PrecioDispositivo.objects.get(dispositivo__triage=dd.disco_duro, activo=True)
                         movimiento_dispositivo = conta_m.MovimientoDispositivo.objects.filter(dispositivo__triage = dd.disco_duro, tipo_movimiento = conta_m.MovimientoDispositivo.BAJA)
@@ -387,7 +389,7 @@ class RevisionSalidaViewSet(viewsets.ModelViewSet):
                                 fecha = finalizar_salida.fecha,
                                 creado_por=self.request.user
                                 )
-                            movimiento.save()
+                            #movimiento.save()
                     else:
                         return Response(
                             {
@@ -398,12 +400,12 @@ class RevisionSalidaViewSet(viewsets.ModelViewSet):
 
                 dispositivos.dispositivo.etapa = inv_m.DispositivoEtapa.objects.get(id=inv_m.DispositivoEtapa.EN)
                 dispositivos.dispositivo.valido = False
-                dispositivos.dispositivo.save()
+                #dispositivos.dispositivo.save()
                 try:
                     cambios_etapa = inv_m.CambioEtapa.objects.filter(dispositivo__triage=dispositivos.dispositivo).order_by('-id')[0]
                     cambios_etapa.etapa_final = inv_m.DispositivoEtapa.objects.get(id=inv_m.DispositivoEtapa.EN)
                     cambios_etapa.creado_por = request.user
-                    cambios_etapa.save()
+                    #cambios_etapa.save()
                 except ObjectDoesNotExist as e:
                     print("EL DISPOSITIVO NO EXISTE")
                 """ Metodo para movimiento de dispositivos
@@ -413,8 +415,24 @@ class RevisionSalidaViewSet(viewsets.ModelViewSet):
                 triage = dispositivos.dispositivo
                 precio_dispositivo = conta_m.PrecioDispositivo.objects.get(dispositivo__triage=triage, activo=True)
                 movimiento_dispositivo = conta_m.MovimientoDispositivo.objects.filter(dispositivo__triage = triage, tipo_movimiento = conta_m.MovimientoDispositivo.BAJA)
-                if len(movimiento_dispositivo) == 0:
-                    movimiento = conta_m.MovimientoDispositivo(
+                
+                print(finalizar_salida.tipo_salida.nombre)
+                if finalizar_salida.tipo_salida.nombre == "Caja de repuestos":
+                    print("Hola caja de repuesto ---> Alta")
+                    if len(movimiento_dispositivo) == 0:
+                        movimiento = conta_m.MovimientoDispositivo(
+                        dispositivo=dispositivos.dispositivo,
+                        periodo_fiscal=periodo_actual,
+                        referencia='Salida {}'.format(salida),
+                        precio=precio_dispositivo.precio,
+                        fecha = finalizar_salida.fecha,
+                        creado_por=self.request.user)
+                    #movimiento.save()
+
+                else: 
+                    print("No caja de repuesto ---> BAJA")
+                    if len(movimiento_dispositivo) == 0:
+                        movimiento = conta_m.MovimientoDispositivo(
                         dispositivo=dispositivos.dispositivo,
                         periodo_fiscal=periodo_actual,
                         tipo_movimiento=conta_m.MovimientoDispositivo.BAJA,
@@ -422,12 +440,13 @@ class RevisionSalidaViewSet(viewsets.ModelViewSet):
                         precio=precio_dispositivo.precio,
                         fecha = finalizar_salida.fecha,
                         creado_por=self.request.user)
-                    movimiento.save()
+                    #movimiento.save()
+
         salida.aprobada = True
-        salida.save()
+        #salida.save()
         finalizar_salida.en_creacion = False
         finalizar_salida.necesita_revision = False
-        finalizar_salida.save()
+        #finalizar_salida.save()
         return Response(
             {
                 'mensaje': 'El estatus a sido Aprobado'

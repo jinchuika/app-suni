@@ -1379,6 +1379,8 @@ class SalidaInventario(models.Model):
     capacitada = models.BooleanField(default=False, verbose_name='Capacitada')
     meses_garantia = models.BooleanField(default=False, verbose_name='6 meses de Garantia')
 
+    caja_repuesto = models.ForeignKey('self', null=True, blank=True, on_delete=models.CASCADE, related_name='salidas_respuestos')
+
     class Meta:
         verbose_name = "Salida"
         verbose_name_plural = "Salidas"
