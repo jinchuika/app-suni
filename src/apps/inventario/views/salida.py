@@ -158,6 +158,8 @@ class SalidaInventarioListView(LoginRequiredMixin,  FormView):
         context = super(SalidaInventarioListView, self).get_context_data(**kwargs)
         context['lista'] = 1
         return context
+    def get_success_url(self):
+        return reverse_lazy('salidainventario_list')
 
 
 class SalidaPaqueteUpdateView(LoginRequiredMixin, GroupRequiredMixin, UpdateView):

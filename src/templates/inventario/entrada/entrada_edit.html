@@ -189,6 +189,28 @@
                                 <th></th>
                             </tr>
                             </thead>
+                            {% if request.user|has_group:"inv_conta" or request.user|has_group:"inv_bodega" %}
+							<tfoot>
+								<th>Total dispositivos</th>
+								<th>{{total_utiles}}</th>
+								<th></th>
+								<th></th>
+								<th></th>
+								<th></th>
+								<th></th>
+								<th>Precio total</th>
+								<th>Q. {{total_precio}}</th>
+							<tfoot>
+					</table>
+					<p>
+                        {% if form.instance.tipo|stringformat:"s" == "Compra" %}
+                        *Los totales aplican solamente para compararlos con la factura No. {{form.instance.factura}}
+                        {% else %}
+                        *Los totales aplican solamente para compararlos con el recibo de donacion
+                        {% endif %}
+						
+					</p>
+					{%endif%}
                         </table>
                     </div>
                 </div>

@@ -22,6 +22,8 @@ from apps.crm import models as crm_m
 from apps.tpe import models as tpe_m
 from apps.escuela import models as escuela_m
 from apps.mye import models as mye
+from apps.conta import models as conta_m
+from apps.kardex import models as kardex_m
 
 
 class EntradaTipo(models.Model):
@@ -92,7 +94,10 @@ class Entrada(models.Model):
 
     @property
     def total(self):
-        return sum(d.precio_total for d in self.detalles.all())
+        try:            
+            return sum(d.precio_total for d in self.detalles.all())
+        except:
+            return 0
 
     def get_absolute_url(self):
         if self.en_creacion:
@@ -1532,6 +1537,18 @@ class Paquete(models.Model):
                     asignar.save()
                 else:
                     raise OperationalError('El paquete ya fue aprobado')
+                
+    def valor_paquete(self):
+        valor_total_paquete = 0 
+        dispositivos_paquetes = DispositivoPaquete.objects.filter(paquete=self)
+        if dispositivos_paquetes.count() >0:
+            for dispositivos in dispositivos_paquetes:
+                precio_dispositivo = conta_m.MovimientoDispositivo.objects.filter(dispositivo=dispositivos.dispositivo, tipo_movimiento=1).first()                
+                valor_total_paquete = valor_total_paquete + precio_dispositivo.precio
+            return valor_total_paquete
+        else:     
+            return 0
+        
 
 
 class DispositivoPaquete(models.Model):

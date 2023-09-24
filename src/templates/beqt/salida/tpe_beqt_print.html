@@ -1,4 +1,5 @@
 {% load staticfiles%}
+{% load inventario_extras %}
 <!DOCTYPE html>
 <html>
 <head>
@@ -271,7 +272,24 @@
 <br>
 <br>
 <br>
+{% if request.user|has_group:"inv_monitoreo" or request.user|has_group:"inv_conta" %}
+<center>
+	<table style="font-size: 20px;">
+		<td>
+			<hr width="450" style="border-color:black; border-width: 1px;">
+			<center> Andrea Hernandez <br> Coordinadora administrativa</center>
+		</td>
+		<td width="600" valign="center" ><center>SELLO</center>
+		</td>
+		<td >
+			<hr width="430" style="border-color:black; border-width: 1px;">
+			<center>Marlene Rosales <br> Contadora general</center>
+		</td>
 
+	</table>
+
+	</center> 
+{% else %}
 <center>
 	<table style="font-size: 20px;">
 		<td>
@@ -287,13 +305,34 @@
 
 	</table>
 
-	</center>
+	</center> 
+{% endif %}
+
+
 <!--TERMINAR TABLAS DE FIRMA Y SELLO-->
 </body>
 
 <footer>
-<!--PIE DE PAGINA-->
-	<table style="margin-left: 20px; float: left; line-height: 18px;">
+	{% if request.user|has_group:"inv_monitoreo" or request.user|has_group:"inv_conta" %}
+	<!--PIE DE PAGINA-->
+
+	<center>
+		<table style="margin-left: 20px; float: left; line-height: 18px;">
+			<td width="1100">
+				<h4>
+					14 Avenida 19-50 Zona 4 de Mixco, Condado el Naranjo. OfiBodegas San Sebastian, Bodega 36 Guatemala
+				</br>
+				 +502 24352739 / 24319639
+				</h4>
+			</td>
+		</table>
+		<br>
+	</center>
+		
+	
+	<!--FIN DE PIE DE PAGINA-->
+	{% else %}
+		<table style="margin-left: 20px; float: left; line-height: 18px;">
 		<td width="1100">
 			<h4>
 				POR CUALQUIER FALLA EN EL EQUIPO COMUNÍCATE A NUESTROS NÚMEROS  DE<br> TELÉFONO 2435-2739 / 24319639  </b>
@@ -310,9 +349,9 @@
 		<td style="font-size: 12px">Longitud</td>
 		<td width="1%"></td>
 		<td style="border:solid; border-width: 1px;border-color:gray" width="100" height="7">{{salidainventario.escuela.mapa.lng}}</td>
-	</table>
+	</table> 
+	{% endif %}
 
-<!--FIN DE PIE DE PAGINA-->
 </footer>
 
 <!--CSS-->

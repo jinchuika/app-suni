@@ -1,4 +1,5 @@
 {% load staticfiles%}
+{% load inventario_extras %}
 <!DOCTYPE html>
 <html>
 <head>
@@ -11,8 +12,8 @@
 	    <img src="{% static "image/LogosConsorcio_BEQT.png" %}" width="90%">
 		</center>	
     </div>
-
-    <div class="encabezado">
+	{% if request.user|has_group:"inv_monitoreo" or request.user|has_group:"inv_conta" %}{% else %}
+	<div class="encabezado">
 		<center>
         <h3 style = "color: #154458; margin-top: -20px">
 			<b>
@@ -22,6 +23,8 @@
 		</h3>
 		<h4 class="encabezado2" style="margin-top: -10px"><b>ENTREGA DE EQUIPO</b></h4>
     </div> 
+	{% endif %}
+   
 
 	<div>
 		<center>
@@ -176,6 +179,24 @@
 <br>
 <br>
 <br>
+{% if request.user|has_group:"inv_monitoreo" or request.user|has_group:"inv_conta" %}
+<center>
+	<table style="font-size: 20px;">
+		<td>
+			<hr width="450" style="border-color:black; border-width: 1px;">
+			<center> Andrea Hernandez <br> Coordinadora administrativa</center>
+		</td>
+		<td width="600" valign="center" ><center>SELLO</center>
+		</td>
+		<td >
+			<hr width="430" style="border-color:black; border-width: 1px;">
+			<center>Marlene Rosales <br> Contadora general</center>
+		</td>
+
+	</table>
+
+	</center> 
+{% else %}
 <center>
 	<table style="font-size: 20px;">
 
@@ -197,10 +218,13 @@
 	</table>
 
 	</center>
+{% endif %}
+
 <!--TERMINAR TABLAS DE FIRMA Y SELLO-->
 </body>
 
 <!--PIE DE PAGINA-->
+{% if request.user|has_group:"inv_monitoreo" or request.user|has_group:"inv_conta" %}{% else %}
 <footer>
 	<table style="margin-left: 0px;">
 		<td width="950">Nota: Todas las tabletas cuentan con su respectivo cargador.</td>
@@ -213,6 +237,8 @@
 		<td  width="70"></td>
 	</table>
 </footer>
+{% endif %}
+
 
 <!--TERMINA PIE DE PAGINA-->
 

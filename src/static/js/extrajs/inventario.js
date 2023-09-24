@@ -743,6 +743,15 @@ class EntradaDetail {
             {data: "creada_por", className: "nowrap"},
             {data: "recibida_por", className: "nowrap"},
             {data: "proveedor", className: "nowrap"},
+            {data: "info_proyecto", className: "nowrap"},
+            {data: "precio_total", render:function(data, type,full,meta){
+              if(full.grupo !=4){
+                return data;
+              }else{
+                return "";
+              } 
+            }},
+            
         ]
     }).on('xhr.dt', function (e, settings, json, xhr) {
       /* Ocultar objeto de carga */
@@ -2059,6 +2068,13 @@ class Salidas {
 
         }},
         {data:"beneficiario"},
+        {data:"precio_total", render:function(data, type, full, meta){
+          if(full.grupos != 4){
+            return data;
+          }else{
+            return "";
+          }
+        }},
       ]
 
     }
@@ -2111,6 +2127,13 @@ class Salidas {
 
             }},
             {data:"beneficiario"},
+            {data:"precio_total", render:function(data, type, full, meta){
+              if(full.grupos != 4){
+                return data;
+              }else{
+                return "";
+              }
+            }},
           ]
         });
     });
@@ -4674,7 +4697,7 @@ class EntradaDetalle_Dispositivo {
 }(window.MovimientoList = window.MovimientoList || {}, jQuery));
 
 class BuscadorTabla{
-  constructor(){
+  constructor(){ 
     $('.dataTable tfoot th').each( function () {
       var title = $(this).text();
       $(this).html( '<input style="width:100%;box-sizing:border-box;" type="text" class="form-control input-sm" placeholder="Search '+title+'" />' );

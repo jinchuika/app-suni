@@ -1,4 +1,5 @@
 {% load staticfiles%}
+{% load inventario_extras %}
 <!DOCTYPE html>
 <html>
 <head>
@@ -11,8 +12,8 @@
 	    <img src="{% static "image/LogosConsorcio_BEQT.png" %}" width="90%">
 		</center>	
     </div>
-
-    <div class="encabezado">
+	{% if   request.user|has_group:"inv_monitoreo" or request.user|has_group:"inv_conta"%}{% else %}
+	<div class="encabezado">
 		<center>
         <h3 style = "color: #154458; margin-top: -20px">
 			<b>
@@ -22,6 +23,8 @@
 		</h3>
 		<h4 class="encabezado2" style="margin-top: -10px"><b>ENTREGA DE EQUIPO</b></h4>
     </div> 
+	{% endif %}
+    
 
 	<div>
 		<center>
@@ -177,6 +180,35 @@
 <br>
 <br>
 <br>
+{% if  request.user|has_group:"inv_monitoreo" or request.user|has_group:"inv_conta"%}
+<center>
+	<table style="font-size: 20px;">
+
+		<td  >
+			<hr width="430" style="border-color:black; border-width: 1px;">
+			<center>Andrea Hernandez
+			<p><center>Coordinadora Administrativa</center></p></center>
+		</td>
+
+		<td width="200" valign="center" ><center>SELLO</center>
+		</td>
+
+		<td >
+			<hr width="430" style="border-color:black; border-width: 1px;">
+
+			<center>Marlene Rosales
+			<p><center>Contadora General</center></p></center>
+		</td>
+	</table>
+
+	</center>
+	<!--PIE DE PAGINA-->
+<footer>
+	14 Avenida 19-50 Zona 4 de Mixco, Condado el Naranjo. OfiBodegas San Sebastian, Bodega 36 Guatemala
+</br>
+	+502 24352739 / 24319639
+</footer> 
+{% else %}
 <center>
 	<table style="font-size: 20px;">
 
@@ -198,9 +230,7 @@
 	</table>
 
 	</center>
-<!--TERMINAR TABLAS DE FIRMA Y SELLO-->
-</body>
-
+<!--TERMINAR TABLAS DE FIRMA Y SELLO -->
 <!--PIE DE PAGINA-->
 <footer>
 	<table style="margin-left: 0px;">
@@ -213,7 +243,17 @@
 		<td style="border:solid; border-width: 1px;border-color:gray" width="130" height="14">{{salidainventario.escuela.mapa.lng}}</td>
 		<td  width="70"></td>
 	</table>
-</footer>
+</footer> 
+{% endif %}
+
+
+
+
+
+
+</body>
+
+
 
 
 <!--TERMINA PIE DE PAGINA-->

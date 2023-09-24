@@ -1,6 +1,7 @@
 {% extends "base/base.html" %}
 {% load staticfiles widget_tweaks %}
 {% block page_title %}
+{% load inventario_extras %}
 <title>LISTADO DE ENTRADAS</title>
 {% endblock page_title %} {% block content %}
 <section class="content-header">
@@ -49,6 +50,13 @@
 									<th>Responsable</th>
 									<th>Recibida por</th>
 									<th>Proveedor</th>
+									<th>Proyecto</th>
+									{% if request.user|has_group:"inv_conta" or request.user|has_group:"inv_bodega" or request.user|has_group:"inv_admin" %}
+									<th>Costo</th>
+									{%else%}
+									<th></th>
+									{% endif %}
+
 								</tr>
 							</thead>
 							<tbody id="entrada2-table-body">
@@ -61,6 +69,12 @@
 							<th>Responsable</th>
 							<th>Recibida por</th>
 							<th>Proveedor</th>
+							<th>Proyecto</th>
+							{% if request.user|has_group:"inv_conta" or request.user|has_group:"inv_bodega" or request.user|has_group:"inv_admin" %}
+							<th>Costo</th>
+							{%else%}
+							<th></th>
+							{% endif %}
 							</tfoot>
 						</table>
 						<!--	</div> -->
