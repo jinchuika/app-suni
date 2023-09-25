@@ -34,13 +34,14 @@
 									<th>Tecnico</th>
 									<th>Dispositivo</th>
                   					<th>Fecha Aprobacion</th>
+									<th>Asignación</th>
 								</tr>
 							</thead>
 							<tbody id="dispositivosalida-table-body">
 									{%for dispositivo in dispositivo_list%}
 									<tr>
 									<td>
-											{{forloop.counter}}
+										{{forloop.counter}}
 									</td>
 									<td>
 										{{dispositivo.dispositivo.tipo}}
@@ -56,6 +57,9 @@
 									</td>
 									<td>
 										{{dispositivo.fecha_aprobacion|default_if_none:""}}
+									</td>
+									<td>
+										<a target='_blank' class='btn btn-primary btn-asignar-salida' data-urlreasignar="{%url 'salidainventario_edit' pk=object.id%}" >Asignar</a>      <!-- Validar que sea CR  -->
 									</td>
 									</tr>
 									{%endfor%}
@@ -91,5 +95,46 @@ $(document).ready(function (){
 	    destroy:true,
 	});
 });
+</script>	
+
+
+<script>
+var url_reasignar = "{%url 'salidainventario_edit' pk=object.id%}"; 
+console.log(url_reasignar);		
+$(document).ready(function() {
+  $(".btn-asignar-salida").click(function() { 			
+    var row = $(this).closest("tr");
+    var dispositivo = row.find("td:nth-child(5)").text();				//Obtiene y asigna el dispositivo al que se le hizo click 
+
+	bootbox.prompt({
+		title: "Ingrese el triage del dispositivo dañado:",
+		inputType: 'text',
+		callback: function (result) {
+			console.log("Dispositivo Dañado -> " + result);
+			console.log("Dispositivo en caja de herramientas" + dispositivo);
+
+		if(result==true){
+			$.ajax({
+			  type: "POST",
+			  url: url_reasignar,
+				data:{
+					dispositivo_dañado : result,
+              		dispositivo_para_cambio : dispositivo
+				},
+				success: function (response){
+					var jsonResponse = JSON.parse(response.responseText);
+					bootbox.alert(jsonResponse.mensaje);
+				  },
+				  error: function (response) {
+					var jsonResponse = JSON.parse(response.responseText);
+					bootbox.alert(jsonResponse.mensaje);
+				  }
+				});
+			  }
+		}
+		});
+  });
+});
 </script>
+
 {% endblock extra_js %}
