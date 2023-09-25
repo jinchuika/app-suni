@@ -135,6 +135,29 @@
         { "data": "maestras"},
         { "data": "maestros"},
         { "data": "total_maestros"},
+        { data: "longitud",
+            render: function (data, type, full, meta) {
+
+            if (!full.longitud){
+                return 0;
+            }else{
+                return full.longitud;
+            }
+        }        
+
+        },
+        {
+            data: "latitud",
+            render: function (data, type, full, meta) {
+                if (!full.latitud){
+                    return 0;
+                }else{
+                    return full.latitud;
+                }
+            }
+        },
+        { "data": "nivel"},
+        { "data": "sector"},
         ]
     }).on('xhr.dt', function (e, settings, json, xhr) {
         $('#spinner').hide();
