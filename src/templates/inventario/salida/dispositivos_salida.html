@@ -15,6 +15,7 @@
 						<div class="row">
 							<div class="col-md-9">
 									<h3 class="box-title">Dispositivos Asignados</h3>
+									{%csrf_token%}
 							</div>
 							<div class="col-md-3">
 								<a class="btn btn-success" target="_blank" href="{% url 'paquetes_grid' pk=object.id%}">
@@ -24,8 +25,8 @@
 						</div>
 					</div>
 					<div id="dispositivosalida" class="box-body" >
-						<!--	<div class="col-md-12 table-responsive"> -->
-						<table id="dispositivosalida-table" class="table table-striped table-hover table-bordered table-condensed display dataTable">
+						<!--	<div class="col-md-12 table-responsive">    table id=dispositivosalida-table-->
+						<table id="dispositivosalida-table" class="table table-striped table-hover table-bordered table-condensed display dataTable" data-caja="{%url 'inventario_api:api_inventariosalidas-asignar-caja-repuesto'%}">
 							<thead>
 								<tr>
 									<th>No</th>
@@ -35,34 +36,44 @@
 									<th>Dispositivo</th>
                   					<th>Fecha Aprobacion</th>
 									<th>Asignación</th>
+									
 								</tr>
 							</thead>
 							<tbody id="dispositivosalida-table-body">
-									{%for dispositivo in dispositivo_list%}
-									<tr>
-									<td>
-										{{forloop.counter}}
-									</td>
-									<td>
-										{{dispositivo.dispositivo.tipo}}
-									</td>
-									<td>
-										{{dispositivo.fecha_creacion}}
-									</td>
-									<td>
-										{{dispositivo.asignado_por.get_full_name}}
-									</td>
-									<td>
-										{{dispositivo.dispositivo.triage}}
-									</td>
-									<td>
-										{{dispositivo.fecha_aprobacion|default_if_none:""}}
-									</td>
-									<td>
-										<a target='_blank' class='btn btn-primary btn-asignar-salida' data-urlreasignar="{%url 'salidainventario_edit' pk=object.id%}" >Asignar</a>      <!-- Validar que sea CR  -->
-									</td>
-									</tr>
-									{%endfor%}
+								{%for dispositivo in dispositivo_list%}									
+								<tr>
+								<td>
+									{{forloop.counter}}
+								</td>
+								<td>
+									{{dispositivo.dispositivo.tipo}}
+								</td>
+								<td>
+									{{dispositivo.fecha_creacion}}
+								</td>
+								<td>
+									{{dispositivo.asignado_por.get_full_name}}
+								</td>
+								<td>
+									{{dispositivo.dispositivo.triage}}
+								</td>
+								<td>
+									{{dispositivo.fecha_aprobacion|default_if_none:""}}
+								</td>
+								<td>	
+									 {% if dispositivo.paquete.salida.tipo_salida|stringformat:"s" == 'Caja de repuestos' or  dispositivo.paquete.salida.tipo_salida.id == 6%}
+									
+									 {% if dispositivo.asignado == 0 %}
+									 <a target='_blank' class='btn btn-primary btn-asignar' data-urlreasignar="{%url 'salidainventario_edit' pk=object.id%}" >Asignar</a>      <!-- Validar que sea CR  -->
+									 {% endif %}
+									 								 
+									 {%else%}
+									 {{dispositivo.paquete.salida.tipo_salida}}
+									 {%endif%}	
+								</td>									
+								</tr>
+								{%endfor%}
+									
 							</tbody>
 							<tfoot>
 								    <th>No</th>
@@ -71,6 +82,7 @@
 									<th>Tecnico</th>
 									<th>Dispositivo</th>
                   					<th>Fecha Aprobacion</th>
+									<th>Asignación</th>
 							</tfoot>
 						</table>
 						<!--	</div> -->
@@ -87,6 +99,8 @@
 <script src="{% static "js/i18n/es.js" %}"></script>
 <script>
 $(document).ready(function (){	
+	
+	let caja = new CajaRepuestos();	
 	let buscador = new BuscadorTabla();
 	$("#dispositivosalida-table").DataTable({
 		dom: 'Bfrtip',
@@ -94,46 +108,7 @@ $(document).ready(function (){
       	paging:false,
 	    destroy:true,
 	});
-});
-</script>	
-
-
-<script>
-var url_reasignar = "{%url 'salidainventario_edit' pk=object.id%}"; 
-console.log(url_reasignar);		
-$(document).ready(function() {
-  $(".btn-asignar-salida").click(function() { 			
-    var row = $(this).closest("tr");
-    var dispositivo = row.find("td:nth-child(5)").text();				//Obtiene y asigna el dispositivo al que se le hizo click 
-
-	bootbox.prompt({
-		title: "Ingrese el triage del dispositivo dañado:",
-		inputType: 'text',
-		callback: function (result) {
-			console.log("Dispositivo Dañado -> " + result);
-			console.log("Dispositivo en caja de herramientas" + dispositivo);
-
-		if(result==true){
-			$.ajax({
-			  type: "POST",
-			  url: url_reasignar,
-				data:{
-					dispositivo_dañado : result,
-              		dispositivo_para_cambio : dispositivo
-				},
-				success: function (response){
-					var jsonResponse = JSON.parse(response.responseText);
-					bootbox.alert(jsonResponse.mensaje);
-				  },
-				  error: function (response) {
-					var jsonResponse = JSON.parse(response.responseText);
-					bootbox.alert(jsonResponse.mensaje);
-				  }
-				});
-			  }
-		}
-		});
-  });
+	
 });
 </script>
 

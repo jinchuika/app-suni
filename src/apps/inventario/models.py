@@ -74,7 +74,8 @@ class Entrada(models.Model):
     recibida_por = models.ForeignKey(User, on_delete=models.PROTECT, related_name='entradas_recibidas')
     proveedor = models.ForeignKey(crm_m.Donante, on_delete=models.PROTECT, related_name='entradas')
     factura = models.PositiveIntegerField(default=0)
-    observaciones = models.TextField(null=True, blank=True)  
+    observaciones = models.TextField(null=True, blank=True)
+    proyecto = models.ManyToManyField('mye.Cooperante', blank=True,null=True ,related_name='proyecto_inventario')  
 
     class Meta:
         verbose_name = "Entrada"
@@ -203,6 +204,7 @@ class EntradaDetalle(models.Model):
         blank=True,
         null=True,
         related_name='tipo_entrada_kardex')
+    proyecto = models.ManyToManyField('mye.Cooperante', blank=True,null=True ,related_name='proyecto_inventario_detalle')
 
     class Meta:
         verbose_name = "Detalle de entrada"
@@ -1383,9 +1385,7 @@ class SalidaInventario(models.Model):
     url = models.TextField(null=True, blank=True)
     capacitada = models.BooleanField(default=False, verbose_name='Capacitada')
     meses_garantia = models.BooleanField(default=False, verbose_name='6 meses de Garantia')
-
-    caja_repuesto = models.ForeignKey('self', null=True, blank=True, on_delete=models.CASCADE, related_name='salidas_respuestos')
-
+    caja_repuesto = models.ManyToManyField('self', null=True, blank=True, related_name='salidas_respuestos')
     class Meta:
         verbose_name = "Salida"
         verbose_name_plural = "Salidas"
@@ -1933,7 +1933,25 @@ class SolicitudBitacora(models.Model):
 
     def __str__(self):
         return '{} - {} - {}'.format(self.accion,self.fecha_movimiento.date(),self.usuario)
+   
 
+class CajaRepuestos(models.Model):
+    dispositivo_malo = models.ForeignKey(DispositivoPaquete, on_delete=models.CASCADE, related_name='dispo_bueno',null=True,blank=True)
+    salida_asignada =  models.ForeignKey(SalidaInventario, on_delete=models.CASCADE, related_name='salida_asig', null=True,blank=True)
+    dispositivo_bueno = models.ForeignKey(DispositivoPaquete, on_delete=models.CASCADE, related_name='dispo_malo',null=True,blank=True)
+    salida_caja =  models.ForeignKey(SalidaInventario, on_delete=models.CASCADE, related_name='salida_caja', null=True)    
+    tecnico_asignado=models.ForeignKey(User, on_delete=models.CASCADE,default=User.objects.get(username="Admin").pk)    
+    fecha=models.DateTimeField(default=timezone.now)
+    descripcion_equipo=models.TextField(null=True, blank=True)
+    observaciones=models.TextField(null=True, blank=True)
+
+    class Meta:
+        verbose_name = "Caja de repuesto"
+        verbose_name_plural = "Caja de repuestos"
+
+    def __str__(self):
+        return str(self.id)
+        
 
 
 

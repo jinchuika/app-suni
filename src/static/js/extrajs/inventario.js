@@ -2041,11 +2041,23 @@ class Salidas {
 
       },
       columns:[
-        {data: "no_salida", render: function(data, type, full, meta){
+        {data: "no_salida", render: function(data, type, full, meta){          
           if(full.estado == 'Entregado'){
-            return "<a target='_blank' rel='noopener noreferrer' href="+full.detail_url+" class='btn btn-success'>"+data+"</a>";
+            if(full.tipo_salida=="Caja de repuestos"){
+              return "<a target='_blank' rel='noopener noreferrer' href="+full.detail_url+" class='btn btn-warning'>"+data+"</a>";
+            }
+            else{
+              return "<a target='_blank' rel='noopener noreferrer' href="+full.detail_url+" class='btn btn-success'>"+data+"</a>";
+            }
+           
           }else{
-            return "<a target='_blank' rel='noopener noreferrer' href="+full.url+" class='btn btn-success'>"+data+"</a>";
+            if(full.tipo_salida=="Caja de repuestos"){
+              return "<a target='_blank' rel='noopener noreferrer' href="+full.url+" class='btn btn-warning'>"+data+"</a>";
+            }
+            else{
+              return "<a target='_blank' rel='noopener noreferrer' href="+full.url+" class='btn btn-success'>"+data+"</a>";
+            }
+            
           }
         }},
         {data:"id"},
@@ -2557,7 +2569,7 @@ class Salidas {
         $("#id_udi").val("");
         $("[for='id_caja_repuesto']").css({"visibility":"hidden"});
         $('#id_caja_repuesto').next(".select2-container").hide();
-      }else if(tipoSalida == 7 || tipoSalidaText =='Garantia') {
+      }else if(tipoSalida == 5 || tipoSalidaText =='Garantia') {
         $("[for='id_entrega']").css({"visibility":"hidden"});
         $("#id_entrega").css({"visibility":"hidden"});
         $("#id_entrega").prop('checked',false);
@@ -2598,6 +2610,8 @@ class Salidas {
 
          $("[for='id_caja_repuesto']").css({"visibility":"hidden"});
          $('#id_caja_repuesto').next(".select2-container").hide();
+         $("[for='id_garantia']").css({"visibility":"hidden"});
+        $('#id_garantia').next(".select2-container").hide();
       } else {
         $("[for='id_entrega']").css({"visibility":"hidden"});
         $("#id_entrega").css({"visibility":"hidden"});
@@ -4745,6 +4759,69 @@ class BuscadorTabla{
   });
   }
 }
+class ClasePrueba{
+  constructor(){
+
+  }
+}
+/*Caja repuestos */
+class CajaRepuestos{
+  constructor(){
+   /* let tablabody = $('#dispositivosalida tbody');  
+    let tabla_temp=this;
+    tablabody.on('click', '.btn-asignar-salida', function () {
+        let data_fila = this.tabla.row($(this).parents('tr')).data();
+        console.log(data_fila);
+    });*/
+    var form_enviar = $("<center><h4>Ingrese la informacion</h4></center> <form id='infos' action=''>\
+    Dispositivo malo:<input type='text' name='dispo_bad' class='form-control' /><br/>\
+    Descripcion:<input type='text' name='des' class='form-control' /><br/>\
+    Observacion:<input type='text' name='obs' class='form-control'  />\
+    </form>");
+    var url_caja =  $('#dispositivosalida-table').data("caja");
+    $('#dispositivosalida-table').on('click', '.btn-asignar', function () {
+      var currentRow= $(this).closest("tr");
+      var data = $.trim(currentRow.find("td").eq(4).text());
+      //console.log(data)
+   
+      /* */
+      bootbox.confirm(form_enviar, function(result) {
+          //console.log(form_enviar.find('input[name=dispo_bad]').val())
+          //console.log(form_enviar.find('input[name=obs]').val())
+          if(result){
+            $.ajax({
+              type: 'POST',
+              url: url_caja,
+              data:{
+                csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
+                dispositivo_malo: form_enviar.find('input[name=dispo_bad]').val(),
+                dispositivo_bueno :data,
+                observaciones : form_enviar.find('input[name=obs]').val(),
+                descripcion : form_enviar.find('input[name=des]').val()
+                
+              },
+              success: function (response){
+                var jsonResponse = JSON.parse(response.responseText);
+                bootbox.alert(response);
+                console.log("Aca1")
+                },
+                error: function (response) {
+                var jsonResponse = JSON.parse(response.responseText);
+                bootbox.alert(response);
+                console.log("Aca2")
+                }
+              });
+          }
+          
+              //$('#infos').submit();
+  });
+      /* */
+  });
+
+  }
+}
+//
+
 /*Informe de entrada*/
 class ResumenBodega{
   constructor(){

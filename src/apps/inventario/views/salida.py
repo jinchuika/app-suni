@@ -265,6 +265,7 @@ class SalidaPaqueteDetailView(LoginRequiredMixin, GroupRequiredMixin, UpdateView
         context['dispositivos_paquetes'] = inv_m.DispositivoPaquete.objects.filter(paquete__id=self.object.id)
         context['dispositivos_no'] = inv_m.DispositivoPaquete.objects.filter(paquete__id=self.object.id).count()
         context['comentarios'] = inv_m.SalidaComentario.objects.filter(salida=nuevo_id.salida)
+        
         return context
 
 
@@ -411,7 +412,52 @@ class DispositivoAsignados(LoginRequiredMixin, GroupRequiredMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super(DispositivoAsignados, self).get_context_data(**kwargs)
-        context['dispositivo_list'] = inv_m.DispositivoPaquete.objects.filter(paquete__id=self.object.id)
+        dispositivo_paquetes = inv_m.DispositivoPaquete.objects.filter(paquete__id=self.object.id)
+        #print(dispositivo_paquetes.values())
+        #print("***************************")
+        
+       #print(movimiento_dispositivo)
+        dispositivos_enviar=[]
+          
+        for data in dispositivo_paquetes:
+            data_dipositivos ={}      
+            data_dipositivos['dispositivo']=data.dispositivo
+            data_dipositivos['paquete']=data.paquete
+            data_dipositivos['fecha_creacion']=data.fecha_creacion
+            data_dipositivos['asignado_por']=data.asignado_por
+            data_dipositivos['fecha_aprobacion']=data.fecha_aprobacion
+            data_dipositivos['aprobado']= data.aprobado
+            data_dipositivos['tipo']= data.dispositivo.tipo
+            data_dipositivos['tipo_salida']=data.paquete.salida.tipo_salida
+            data_dipositivos['tipo_salida.id']=data.paquete.salida.tipo_salida.id           
+            #print(data.dispositivo.id)            
+            #print(data.paquete)
+            #print(data.fecha_creacion)
+            #print(data.asignado_por.get_full_name())
+            #print(data.fecha_aprobacion)
+            #print(data.aprobado)
+            #print(data.dispositivo.tipo)
+            #print(data.paquete.salida.tipo_salida)
+            #print(data.paquete.salida.tipo_salida.id)
+            movimiento_dispositivo = cont_m.MovimientoDispositivo.objects.filter(dispositivo=data.dispositivo,tipo_movimiento=-1)
+            #print(movimiento_dispositivo.count())
+            if movimiento_dispositivo.count() == 1:
+                #print("asignado: 1")
+                data_dipositivos['asignado']= 1
+                #dispositivos_enviar.append(data_dipositivos)
+            else:
+                #print("asignado: 2")
+                data_dipositivos['asignado']= 0
+                #dispositivos_enviar.append(data_dipositivos)            
+            dispositivos_enviar.append(data_dipositivos)
+        #print(dispositivos_enviar)
+        #context['dispositivo_list'] = dispositivo_paquetes
+        context['dispositivo_list'] = dispositivos_enviar
+        #context['movimiento_list'] = movimiento_dispositivo
+        
+        #context['dispo_validar'] = validar_dispositivo
+        #print(validar_dispositivo)
+        #print("aca si esta el dispositivos")
         return context
 
 
@@ -853,3 +899,32 @@ class PaquetesDetalleGrid(LoginRequiredMixin, GroupRequiredMixin, DetailView):
     model = inv_m.DispositivoPaquete
     template_name = 'inventario/salida/dispositivos_grid_paquetes.html'
     group_required = [u"inv_bodega", u"inv_tecnico", u"inv_admin"]
+
+
+class CajaRepuestosEntradaView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
+    """Vista encargada para imprimir la entrada de caja de repuesto
+    """
+    model = inv_m.SalidaInventario
+    template_name = 'inventario/salida/entrada_caja_repuestos.html'
+    group_required = [u"inv_tecnico", u"inv_admin", u"inv_cc"]
+
+    def get_context_data(self, **kwargs):
+        context = super(CajaRepuestosEntradaView, self).get_context_data(**kwargs)       
+        caja = inv_m.CajaRepuestos.objects.filter(salida_asignada__id=self.object.id)  
+        context['dispositivos'] = caja
+        context['salidas_asignadas'] = self.object.caja_repuesto.all()
+        return context
+    
+class CajaRepuestosSalidaView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
+    """Vista encargada para imprimir la entrada de caja de repuesto
+    """
+    model = inv_m.SalidaInventario
+    template_name = 'inventario/salida/salida_caja_repuestos.html'
+    group_required = [u"inv_tecnico", u"inv_admin", u"inv_cc"]
+
+    def get_context_data(self, **kwargs):
+        context = super(CajaRepuestosSalidaView, self).get_context_data(**kwargs)
+        caja = inv_m.CajaRepuestos.objects.filter(salida_asignada__id=self.object.id)
+        context['dispositivos'] = caja
+        context['salidas_asignadas'] = self.object.caja_repuesto.all()       
+        return context

@@ -15,7 +15,13 @@ class SalidaInventarioForm(forms.ModelForm):
         label='UDI',
         required=False,
         widget=forms.TextInput(attrs={'class': 'form-control'}))
-
+    
+    caja_repuesto = forms.ModelMultipleChoiceField(
+        label='Caja de repuesto',
+        queryset=inv_m.SalidaInventario.objects.filter(tipo_salida__nombre = "Caja de repuestos",  estado = "1" ),
+        required=False,
+        widget=forms.SelectMultiple(attrs={'class': 'form-control select2', 'tabindex': '6'}
+        ))  
     class Meta:
         model = inv_m.SalidaInventario
         fields = '__all__'
@@ -35,16 +41,14 @@ class SalidaInventarioForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(SalidaInventarioForm, self).__init__(*args, **kwargs)
-        self.fields['garantia'].label="Ticket"
-        print("*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-")
-        
-
+        self.fields['garantia'].label="Ticket"       
         if self.instance.en_creacion:
             self.fields['beneficiario'].widget = forms.Select(
                 attrs={'style': "visibility:hidden", 'class': 'form-control select2', 'tabindex': '6'})
             self.fields['beneficiario'].queryset = crm_m.Donante.objects.all()
 
-            self.fields['caja_repuesto'].queryset = inv_m.SalidaInventario.objects.filter(tipo_salida__nombre = "Caja de repuestos",  estado = "1" )
+
+            #self.fields['caja_repuesto'].queryset = inv_m.SalidaInventario.objects.filter(tipo_salida__nombre = "Caja de repuestos",  estado = "1" )
         else:
             self.fields['udi'].widget = forms.HiddenInput()
 
@@ -52,9 +56,15 @@ class SalidaInventarioForm(forms.ModelForm):
 class SalidaInventarioUpdateForm(forms.ModelForm):
     """ Formulario para  la actualizacion de las salidas de inventario.
     """
+    caja_repuesto = forms.ModelMultipleChoiceField(
+        label='Caja de repuesto',
+        queryset=inv_m.SalidaInventario.objects.filter(tipo_salida__nombre = "Caja de repuestos",  estado = "1" ),
+        required=False,
+        widget=forms.SelectMultiple(attrs={'class': 'form-control select2', 'tabindex': '6'}
+        ))
     class Meta:
         model = inv_m.SalidaInventario
-        fields = ('cooperante', 'fecha', 'en_creacion', 'observaciones','url','capacitada','meses_garantia')
+        fields = ('cooperante', 'fecha', 'en_creacion', 'observaciones','url','capacitada','meses_garantia','caja_repuesto')
         labels = {
                 'en_creacion': _('En Desarrollo'),
         }
