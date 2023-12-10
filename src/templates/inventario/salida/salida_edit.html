@@ -110,7 +110,10 @@
 									<h3 class="box-title">Listado de Paquetes</h3>
 							</div>
 							<div class="col-md-9">
-									<a target='_blank' href="{% url 'tpe_print' pk=object.id%}" class="btn btn-info">Entrega TPE</a>
+								{% if salidainventario.tipo_salida|stringformat:"s" == "Caja de repuestos" %}
+								
+								{%else%}
+								<a target='_blank' href="{% url 'tpe_print' pk=object.id%}" class="btn btn-info">Entrega TPE</a>
 								{% if salidainventario.tipo_salida|stringformat:"s" == "Entrega" %}
 									<a target='_blank' href="{% url 'garantia_print' pk=object.id%}" class="btn btn-success">Constacia de Garantia</a>
 									<a target='_blank' href="{% url 'prestamo_carta_print' pk=object.id%}" class="btn btn-primary">Carta de Prestamo</a>
@@ -126,6 +129,7 @@
 									<a target='_blank' href="{% url 'mineduc_print' pk=object.id%}" class="btn btn-success">Entrega MINEDUC</a>
 								{% endif %}
 								{% endif %}
+								{%endif%}
 
 
 							</div>

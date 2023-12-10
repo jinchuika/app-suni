@@ -16,9 +16,10 @@ class EntradaDetalleSerializer(serializers.ModelSerializer):
     tipo_entrada = serializers.StringRelatedField(source='entrada.tipo')
     usa_triage = serializers.StringRelatedField(source='tipo_dispositivo.usa_triage')
     # Campos contabilidad
-    precio_unitario = serializers.DecimalField(max_digits=8, decimal_places=5, default=None)
-    precio_descontado = serializers.DecimalField(max_digits=8, decimal_places=5, default=None)
-    precio_total = serializers.DecimalField(max_digits=10, decimal_places=5, default=None)
+    precio_unitario = serializers.DecimalField(max_digits=20, decimal_places=10)
+    precio_descontado = serializers.DecimalField(max_digits=20, decimal_places=10)
+    precio_total = serializers.DecimalField(max_digits=10, decimal_places=5)
+    #precio_unitario =0 
     # Registro
     creado_por = serializers.StringRelatedField(source='creado_por.get_full_name')
     update_url = serializers.SerializerMethodField(read_only=True)
@@ -134,17 +135,9 @@ class EntradaDetalleSerializer(serializers.ModelSerializer):
                 contador = data['id']
             elif data['name'] == "inv_sub_jefe":                
                 contador = data['id']
-        return contador
-              
+        return contador       
                
         
-        
-
-        
-        
-        
-
-
 
 class EntradaSerializer(serializers.ModelSerializer):
     """ Serializer para generar el infome de la `class`:`Entrada`
@@ -157,6 +150,9 @@ class EntradaSerializer(serializers.ModelSerializer):
     tipo = serializers.StringRelatedField()
     urlSi = serializers.StringRelatedField(source='get_absolute_url')
     urlNo = serializers.SerializerMethodField()
+    info_proyecto = serializers.StringRelatedField(source='proyecto',many=True)
+    precio_total =serializers.SerializerMethodField()
+    grupo = serializers.SerializerMethodField()
 
     class Meta:
         model = inv_m.Entrada
@@ -171,13 +167,41 @@ class EntradaSerializer(serializers.ModelSerializer):
             'boton',
             'urlSi',
             'urlNo',
+            'info_proyecto',
+            'precio_total',
+            'grupo'
         )
 
-    def get_en_creacion(sel, object):
+    def get_en_creacion(sel, object):        
         if object.en_creacion:
             return "Si"
         else:
+            
             return "No"
 
     def get_urlNo(self, object):
         return reverse_lazy('entrada_detail', kwargs={'pk': object.id})
+    
+    def get_precio_total(self, object):
+        #print("Precio:", object.total)        
+        return object.total
+
+    def get_grupo(self, object):
+        """ Este  metodo sirver para obtener el usuario que se va a enviar al javascript para mostrar
+            los botones de autorizado y revisado en el detalle de entrada
+            si es admin enviara el numero 20 de regreso
+            si es Bodega enviara el numero 21
+            si es contabilidad enviara el numero 24
+            si es otro usuario envirara el numero 4 
+        """
+        contador = 4
+        usuario = self.context.get('request',None).user
+        grupos  = User.objects.get(username=usuario)        
+        for data in grupos.groups.all().values():
+            if data['name'] == "inv_admin":                
+                contador = data['id']
+            elif data['name'] == "inv_bodega":                
+                contador = data['id']
+            elif data['name'] == "inv_conta":                
+                contador = data['id']
+        return contador
