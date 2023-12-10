@@ -54,7 +54,7 @@ class CrAsistencia(models.Model):
 
 
     class Meta:
-        unique_together = ('curso', 'modulo_num',)  # Un curso no puede tener dos veces el mismo módulo
+        #unique_together = ('curso', 'modulo_num',)  # Un curso no puede tener dos veces el mismo módulo
         verbose_name = "Asistencia de curso"
         verbose_name_plural = "Asistencias de curso"
 
@@ -93,8 +93,8 @@ class Sede(models.Model):
     mapa = models.ForeignKey(Coordenada, null=True, blank=True, on_delete=models.CASCADE)
     activa = models.BooleanField(default=True, blank=True, verbose_name='Activa')
     escuela_beneficiada = models.ForeignKey(Escuela, on_delete=models.PROTECT, related_name='escuela_beneficiada', blank=True, null=True)
-    #tipo_sede = models.CharField(max_length=2, verbose_name='Tipo de Sede' , choices=TIPO_SEDES, default='B')
-    fecha_creacion = models.DateField(null=True, blank=True)
+    tipo_sede = models.CharField(max_length=2, verbose_name='Tipo de Sede' , choices=TIPO_SEDES, default='B')
+    #fecha_creacion = models.DateField(null=True, blank=True)
     url = models.TextField(null=True, blank=True,verbose_name='Carpeta Fotos')
     url_archivos = models.TextField(null=True, blank=True,verbose_name='Carpeta Archivos')
     fecha_creacion = models.DateTimeField(default=timezone.now)
@@ -148,7 +148,7 @@ class Sede(models.Model):
         resultado['resumen']['genero'] = participantes.annotate(
             nombre_genero=F('genero__genero')).values('nombre_genero').annotate(cantidad=Count('id', distinct=True))
         aprobado = sum(1 for nota in resultado['listado'] if nota['nota'] >= 75)
-        nivelar = sum(1 for nota in resultado['listado'] if 70 <= nota['nota'] < 75)
+        nivelar = sum(1 for nota in resultado['listado'] if 70 >= nota['nota'] < 75) #70 <= nota['nota'] < 75)
         reprobado = sum(1 for nota in resultado['listado'] if nota['nota'] < 70)
         sum_monitoreo = aprobado + nivelar +reprobado        
         if sum_monitoreo !=0:
@@ -202,7 +202,7 @@ class Grupo(models.Model):
     class Meta:
         verbose_name = "Grupo de capacitación"
         verbose_name_plural = "Grupos de capacitación"
-        unique_together = ("sede", "numero", "curso")
+        #unique_together = ("sede", "numero", "curso")
 
     def __str__(self):
         return '{} - {}'.format(self.numero, self.curso)
@@ -270,7 +270,8 @@ class Calendario(models.Model):
 
 class ParRol(models.Model):
     """Rol del participante."""
-    nombre = models.CharField(max_length=20)
+    nombre = models.CharField(max_length=50)
+    #observaciones = models.CharField(max_length=100)
     cyd_rol_creado_por =models.ForeignKey(User, on_delete=models.CASCADE,default=User.objects.get(username="Admin").pk)
 
     class Meta:
@@ -342,7 +343,7 @@ class Grado(models.Model):
 
 class Participante(models.Model):
     """Participante de la capacitación por Funsepa."""
-    dpi = models.CharField(max_length=13, unique=True, null=True, blank=True, db_index=True, error_messages={'Unico':"El dpi ya existe"})
+    dpi = models.CharField(max_length=15, unique=False, null=True, blank=True, db_index=True, error_messages={'Unico':"El dpi ya existe"})
     nombre = models.CharField(max_length=100)
     apellido = models.CharField(max_length=100)
     genero = models.ForeignKey(ParGenero, null=True, on_delete=models.CASCADE)
@@ -411,7 +412,7 @@ class Asignacion(models.Model):
     class Meta:
         verbose_name = "Asignación"
         verbose_name_plural = "Asignaciones"
-        unique_together = ('participante', 'grupo',)
+        #unique_together = ('participante', 'grupo',)
 
     def __str__(self):
         return '{} - {}'.format(self.grupo, self.participante)
@@ -486,7 +487,7 @@ class NotaAsistencia(models.Model):
         """No pueden existir dos registros de notas para el mismo período de capacitación."""
         verbose_name = "Nota de Asistencia"
         verbose_name_plural = "Notas de Asistencia"
-        unique_together = ('asignacion', 'gr_calendario',)
+        #unique_together = ('asignacion', 'gr_calendario',)
 
     def __str__(self):
         return '{} - {}'.format(self.nota, self.gr_calendario)
@@ -511,7 +512,7 @@ class NotaHito(models.Model):
         """No pueden existir dos registros de notas para el mismo hito."""
         verbose_name = "Nota de Hito"
         verbose_name_plural = "Notas de Hito"
-        unique_together = ('asignacion', 'cr_hito',)
+        #unique_together = ('asignacion', 'cr_hito',)
 
     def __str__(self):
         return '{} - {}'.format(self.nota, self.cr_hito)

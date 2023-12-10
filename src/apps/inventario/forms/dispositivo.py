@@ -397,7 +397,7 @@ class AsignacionTecnicoForm(forms.ModelForm):
         exclude = ('creada_por', )
 
     def __init__(self, *args, **kwargs):
-        super(AsignacionTecnicoForm, self).__init__(*args, **kwargs)
+        super(AsignacionTecnicoForm, self).__init__(*args, **kwargs) 
         self.fields['usuario'].queryset = User.objects.filter(groups__name="inventario")
         self.fields['usuario'].label_from_instance = lambda usuario: usuario.get_full_name()
 

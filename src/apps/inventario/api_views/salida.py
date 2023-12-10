@@ -225,9 +225,11 @@ class SalidaInventarioViewSet(viewsets.ModelViewSet):
         id_salida = request.data['primary_key']
         tipo = request.data['tipo']
         tipo_salida = inv_m.SalidaTipo.objects.get(id=tipo)
-        estado = inv_m.SalidaInventario.objects.get(id=id_salida)
+        estado = inv_m.SalidaInventario.objects.get(id=id_salida)         
+        estado_dispositivo = inv_m.DispositivoEstado.objects.get(id=inv_m.DispositivoEstado.PD)
+        etapa_dispositivo  = inv_m.DispositivoEtapa.objects.get(id=inv_m.DispositivoEtapa.AB)        
         if(str(estado.estado) == "Listo"):
-            if not tipo_salida.especial:
+            if not tipo_salida.especial:                
                 tipo_dis = self.request.user.tipos_dispositivos.tipos.all()
                 tipo_paquete = inv_m.PaqueteTipo.objects.filter(
                     tipo_dispositivo__in=tipo_dis).exclude(tipo_dispositivo__usa_triage=False)
@@ -242,7 +244,7 @@ class SalidaInventarioViewSet(viewsets.ModelViewSet):
                 cantidad_dispositivos_aprovados = inv_m.DispositivoPaquete.objects.filter(
                     paquete__salida=id_salida,
                     paquete__tipo_paquete__in=tipo_paquete,
-                    aprobado=True).count()
+                    aprobado=True)
                 if cantidad_paquetes['total_cantidad'] != cantidad_dispositivos:
                     return Response(
                         {
@@ -253,7 +255,7 @@ class SalidaInventarioViewSet(viewsets.ModelViewSet):
 
                     )
                 else:
-                    if(cantidad_dispositivos_aprovados < cantidad_dispositivos):
+                    if(cantidad_dispositivos_aprovados.count() < cantidad_dispositivos):
                         return Response(
                             {
                                 'mensaje': 'Faltan dispositivos por aprobar'
@@ -262,16 +264,26 @@ class SalidaInventarioViewSet(viewsets.ModelViewSet):
                             status=status.HTTP_400_BAD_REQUEST
                             )
                     else:
+                        if(tipo_salida.id == 6 or tipo_salida.nombre=="Caja de repuesto"):                                                        
+                            for data in cantidad_dispositivos_aprovados:                                
+                                dispositivo_baja = conta_m.MovimientoDispositivo.objects.filter(dispositivo=data.dispositivo,tipo_movimiento=-1).count()
+                                if dispositivo_baja == 0:
+                                    dispositivo_caja = inv_m.Dispositivo.objects.get(triage=data.dispositivo)
+                                    dispositivo_caja.estado = estado_dispositivo
+                                    dispositivo_caja.etapa = etapa_dispositivo
+                                    dispositivo_caja.save()
+                        else:
+                            pass                            
                         estado_entregado = inv_m.SalidaEstado.objects.get(nombre="Entregado")
                         estado.en_creacion = False
-                        estado.estado = estado_entregado
-                        #estado.save()
+                        estado.estado = estado_entregado                        
+                    estado.save()
         else:
             if tipo_salida.especial:
                 estado_entregado = inv_m.SalidaEstado.objects.get(nombre="Entregado")
                 estado.en_creacion = False
                 estado.estado = estado_entregado
-                #estado.save()
+                estado.save()
             else:
                 return Response(
                     {
@@ -328,6 +340,81 @@ class SalidaInventarioViewSet(viewsets.ModelViewSet):
             },
             status=status.HTTP_200_OK
         )
+    @action(methods=['post'], detail=False)
+    def asignar_caja_repuesto(self, request, pk=None):
+        """Metodo para asignar el dipositivo a la  salida  desde la caja de repuestos
+        """
+        dispositivo_bueno = request.data["dispositivo_bueno"]
+        dispositivo_malo = request.data["dispositivo_malo"]
+        observaciones = request.data["observaciones"]
+        descripcion = request.data["descripcion"]       
+        obtener_dispositivo_bueno = inv_m.Dispositivo.objects.get(triage=dispositivo_bueno)
+        obtener_dispositivo_malo = inv_m.Dispositivo.objects.get(triage=dispositivo_malo)
+        if(obtener_dispositivo_malo.etapa.id != 6 and obtener_dispositivo_malo.estado.id !=2):            
+            return Response(
+                    {
+                        'mensaje': 'El dispositivo no es apto para sustituirlo'
+
+                    },
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        else:
+            if (obtener_dispositivo_bueno.etapa.id == 3 and obtener_dispositivo_bueno.estado.id ==2):                
+                movimiento_dispositivo_bueno= conta_m.MovimientoDispositivo.objects.filter(dispositivo=obtener_dispositivo_bueno)
+                movimiento_dispositivo_malo = conta_m.MovimientoDispositivo.objects.filter(dispositivo=obtener_dispositivo_malo)
+                if (movimiento_dispositivo_bueno.count() ==1):
+                    if(movimiento_dispositivo_malo.count() ==2):                       
+                        paquete_dispositivo_malo = inv_m.DispositivoPaquete.objects.get(dispositivo=obtener_dispositivo_malo)
+                        paquete_dispositivo_bueno = inv_m.DispositivoPaquete.objects.get(dispositivo=obtener_dispositivo_bueno)                        
+                        #creacion del movimiento de dispositivo
+                        periodo_actual = conta_m.PeriodoFiscal.objects.get(actual=True)
+                        movimiento = conta_m.MovimientoDispositivo(
+                                    dispositivo=obtener_dispositivo_bueno,
+                                    periodo_fiscal=periodo_actual,
+                                    tipo_movimiento=conta_m.MovimientoDispositivo.BAJA,
+                                    referencia='Salida {}'.format(paquete_dispositivo_bueno.paquete.salida),
+                                    precio=movimiento_dispositivo_bueno.first().precio,
+                                    fecha = paquete_dispositivo_bueno.paquete.salida.fecha,
+                                    creado_por=self.request.user
+                                    )                        
+                        movimiento.save()
+                        registro_caja = inv_m.CajaRepuestos(
+                            dispositivo_bueno = paquete_dispositivo_bueno,
+                            dispositivo_malo = paquete_dispositivo_malo,
+                            salida_asignada =paquete_dispositivo_bueno.paquete.salida,
+                            salida_caja = paquete_dispositivo_malo.paquete.salida,
+                            tecnico_asignado = self.request.user,
+                            descripcion_equipo = descripcion,
+                            observaciones = observaciones
+
+                        )
+                        registro_caja.save()
+                    else:                        
+                        return Response(
+                    {
+                        'mensaje': 'El dispositivo malo que esta intentado asignaro tiene un error pongase en contacto con IT'
+
+                    },
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                else:                    
+                    return Response(
+                    {
+                        'mensaje': 'este dispositivo no es compatible este dispositivo ya se dio de baja'
+
+                    },
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR)  
+            else:
+                return Response(
+                    {
+                        'mensaje': 'Dispositivo no aplica para ser reemplazado'
+
+                    },
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR) 
+        return Response({
+            'mensaje': 'Dispositivo asignado correctamente',
+            'usuario':  "usuario"
+        },
+            status=status.HTTP_200_OK
+        )
 
 
 class RevisionSalidaFilter(filters.FilterSet):
@@ -357,96 +444,111 @@ class RevisionSalidaViewSet(viewsets.ModelViewSet):
         """
 
         id_salida = request.data["salida"]
-        finalizar_salida = inv_m.SalidaInventario.objects.get(id=id_salida)
+        finalizar_salida = inv_m.SalidaInventario.objects.get(id=id_salida)  
         salida = inv_m.RevisionSalida.objects.get(salida=id_salida)
         paquetes = inv_m.Paquete.objects.filter(salida=id_salida,
                                                 aprobado=True).exclude(tipo_paquete__tipo_dispositivo__usa_triage=False)
-                                                
+        if finalizar_salida.tipo_salid.id != 6 or finalizar_salida.tipo_salida == "Caja de repuesto":           
+            for paquete in paquetes:
+                dispositivosPaquetes = inv_m.DispositivoPaquete.objects.filter(paquete=paquete.id,
+                                                                            aprobado=True)
 
-        for paquete in paquetes:
-            dispositivosPaquetes = inv_m.DispositivoPaquete.objects.filter(paquete=paquete.id,
-                                                                           aprobado=True)
+                for dispositivos in dispositivosPaquetes:
 
-            for dispositivos in dispositivosPaquetes:
+                    if dispositivos.dispositivo.tipo == inv_m.DispositivoTipo.objects.get(tipo="CPU"):
+                        dd = inv_m.CPU.objects.get(triage = dispositivos.dispositivo.triage)                    
+                        if not dd.disco_duro is None:
+                            dd.disco_duro.estado = inv_m.DispositivoEstado.objects.get(id=inv_m.DispositivoEstado.EN)
+                            dd.disco_duro.etapa = inv_m.DispositivoEtapa.objects.get(id=inv_m.DispositivoEtapa.EN)
 
-                if dispositivos.dispositivo.tipo == inv_m.DispositivoTipo.objects.get(tipo="CPU"):
-                    dd = inv_m.CPU.objects.get(triage = dispositivos.dispositivo.triage)                    
-                    if not dd.disco_duro is None:
-                        dd.disco_duro.estado = inv_m.DispositivoEstado.objects.get(id=inv_m.DispositivoEstado.EN)
-                        dd.disco_duro.etapa = inv_m.DispositivoEtapa.objects.get(id=inv_m.DispositivoEtapa.EN)
+                            dd.disco_duro.save()
+                            periodo_actual = conta_m.PeriodoFiscal.objects.get(actual=True)
+                            precio_dispositivo = conta_m.PrecioDispositivo.objects.get(dispositivo__triage=dd.disco_duro, activo=True)
+                            movimiento_dispositivo = conta_m.MovimientoDispositivo.objects.filter(dispositivo__triage = dd.disco_duro, tipo_movimiento = conta_m.MovimientoDispositivo.BAJA)
+                            if len(movimiento_dispositivo) == 0:
+                                movimiento = conta_m.MovimientoDispositivo(
+                                    dispositivo=dd.disco_duro,
+                                    periodo_fiscal=periodo_actual,
+                                    tipo_movimiento=conta_m.MovimientoDispositivo.BAJA,
+                                    referencia='Salida {}'.format(finalizar_salida),
+                                    precio=precio_dispositivo.precio,
+                                    fecha = finalizar_salida.fecha,
+                                    creado_por=self.request.user
+                                    )
+                                movimiento.save()
+                        else:
+                            return Response(
+                                {
+                                    'mensaje': 'No hay discos duros asignados '
+                                },
+                                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                            )
 
-                        #dd.disco_duro.save()
-                        periodo_actual = conta_m.PeriodoFiscal.objects.get(actual=True)
-                        precio_dispositivo = conta_m.PrecioDispositivo.objects.get(dispositivo__triage=dd.disco_duro, activo=True)
-                        movimiento_dispositivo = conta_m.MovimientoDispositivo.objects.filter(dispositivo__triage = dd.disco_duro, tipo_movimiento = conta_m.MovimientoDispositivo.BAJA)
-                        if len(movimiento_dispositivo) == 0:
-                            movimiento = conta_m.MovimientoDispositivo(
-                                dispositivo=dd.disco_duro,
-                                periodo_fiscal=periodo_actual,
-                                tipo_movimiento=conta_m.MovimientoDispositivo.BAJA,
-                                referencia='Salida {}'.format(finalizar_salida),
-                                precio=precio_dispositivo.precio,
-                                fecha = finalizar_salida.fecha,
-                                creado_por=self.request.user
-                                )
-                            #movimiento.save()
-                    else:
-                        return Response(
-                            {
-                                'mensaje': 'No hay discos duros asignados '
-                            },
-                            status=status.HTTP_500_INTERNAL_SERVER_ERROR
-                        )
-
-                dispositivos.dispositivo.etapa = inv_m.DispositivoEtapa.objects.get(id=inv_m.DispositivoEtapa.EN)
-                dispositivos.dispositivo.valido = False
-                #dispositivos.dispositivo.save()
-                try:
-                    cambios_etapa = inv_m.CambioEtapa.objects.filter(dispositivo__triage=dispositivos.dispositivo).order_by('-id')[0]
-                    cambios_etapa.etapa_final = inv_m.DispositivoEtapa.objects.get(id=inv_m.DispositivoEtapa.EN)
-                    cambios_etapa.creado_por = request.user
-                    #cambios_etapa.save()
-                except ObjectDoesNotExist as e:
-                    print("EL DISPOSITIVO NO EXISTE")
-                """ Metodo para movimiento de dispositivos
-                """
-                periodo_actual = conta_m.PeriodoFiscal.objects.get(actual=True)
-                salida = dispositivos.paquete.salida
-                triage = dispositivos.dispositivo
-                precio_dispositivo = conta_m.PrecioDispositivo.objects.get(dispositivo__triage=triage, activo=True)
-                movimiento_dispositivo = conta_m.MovimientoDispositivo.objects.filter(dispositivo__triage = triage, tipo_movimiento = conta_m.MovimientoDispositivo.BAJA)
-                
-                print(finalizar_salida.tipo_salida.nombre)
-                if finalizar_salida.tipo_salida.nombre == "Caja de repuestos":
-                    print("Hola caja de repuesto ---> Alta")
+                    dispositivos.dispositivo.etapa = inv_m.DispositivoEtapa.objects.get(id=inv_m.DispositivoEtapa.EN)
+                    dispositivos.dispositivo.valido = False
+                    dispositivos.dispositivo.save()
+                    try:
+                        cambios_etapa = inv_m.CambioEtapa.objects.filter(dispositivo__triage=dispositivos.dispositivo).order_by('-id')[0]
+                        cambios_etapa.etapa_final = inv_m.DispositivoEtapa.objects.get(id=inv_m.DispositivoEtapa.EN)
+                        cambios_etapa.creado_por = request.user
+                        cambios_etapa.save()
+                    except ObjectDoesNotExist as e:
+                        print("EL DISPOSITIVO NO EXISTE")
+                    """ Metodo para movimiento de dispositivos
+                    """
+                    periodo_actual = conta_m.PeriodoFiscal.objects.get(actual=True)
+                    salida = dispositivos.paquete.salida
+                    triage = dispositivos.dispositivo
+                    precio_dispositivo = conta_m.PrecioDispositivo.objects.get(dispositivo__triage=triage, activo=True)
+                    movimiento_dispositivo = conta_m.MovimientoDispositivo.objects.filter(dispositivo__triage = triage, tipo_movimiento = conta_m.MovimientoDispositivo.BAJA)
                     if len(movimiento_dispositivo) == 0:
                         movimiento = conta_m.MovimientoDispositivo(
-                        dispositivo=dispositivos.dispositivo,
-                        periodo_fiscal=periodo_actual,
-                        referencia='Salida {}'.format(salida),
-                        precio=precio_dispositivo.precio,
-                        fecha = finalizar_salida.fecha,
-                        creado_por=self.request.user)
-                    #movimiento.save()
+                            dispositivo=dispositivos.dispositivo,
+                            periodo_fiscal=periodo_actual,
+                            tipo_movimiento=conta_m.MovimientoDispositivo.BAJA,
+                            referencia='Salida {}'.format(salida),
+                            precio=precio_dispositivo.precio,
+                            fecha = finalizar_salida.fecha,
+                            creado_por=self.request.user)
+                        movimiento.save()
+        else:
+            print("SI SI es caja de herramientas")
+            for paquete in paquetes:
+                dispositivosPaquetes = inv_m.DispositivoPaquete.objects.filter(paquete=paquete.id,
+                                                                            aprobado=True)
 
-                else: 
-                    print("No caja de repuesto ---> BAJA")
-                    if len(movimiento_dispositivo) == 0:
-                        movimiento = conta_m.MovimientoDispositivo(
-                        dispositivo=dispositivos.dispositivo,
-                        periodo_fiscal=periodo_actual,
-                        tipo_movimiento=conta_m.MovimientoDispositivo.BAJA,
-                        referencia='Salida {}'.format(salida),
-                        precio=precio_dispositivo.precio,
-                        fecha = finalizar_salida.fecha,
-                        creado_por=self.request.user)
-                    #movimiento.save()
+                for dispositivos in dispositivosPaquetes:
+
+                    if dispositivos.dispositivo.tipo == inv_m.DispositivoTipo.objects.get(tipo="CPU"):
+                        dd = inv_m.CPU.objects.get(triage = dispositivos.dispositivo.triage)                    
+                        if not dd.disco_duro is None:
+                            dd.disco_duro.estado = inv_m.DispositivoEstado.objects.get(id=inv_m.DispositivoEstado.EN)
+                            dd.disco_duro.etapa = inv_m.DispositivoEtapa.objects.get(id=inv_m.DispositivoEtapa.EN)
+                            dd.disco_duro.save()                            
+                        else:
+                            return Response(
+                                {
+                                    'mensaje': 'No hay discos duros asignados '
+                                },
+                                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                            )
+
+                    dispositivos.dispositivo.etapa = inv_m.DispositivoEtapa.objects.get(id=inv_m.DispositivoEtapa.EN)
+                    dispositivos.dispositivo.valido = False
+                    dispositivos.dispositivo.save()
+                    try:
+                        cambios_etapa = inv_m.CambioEtapa.objects.filter(dispositivo__triage=dispositivos.dispositivo).order_by('-id')[0]
+                        cambios_etapa.etapa_final = inv_m.DispositivoEtapa.objects.get(id=inv_m.DispositivoEtapa.EN)
+                        cambios_etapa.creado_por = request.user
+                        cambios_etapa.save()
+                    except ObjectDoesNotExist as e:
+                        print("EL DISPOSITIVO NO EXISTE")                   
 
         salida.aprobada = True
-        #salida.save()
+        salida.save()
         finalizar_salida.en_creacion = False
         finalizar_salida.necesita_revision = False
-        #finalizar_salida.save()
+        finalizar_salida.save()
         return Response(
             {
                 'mensaje': 'El estatus a sido Aprobado'
@@ -601,5 +703,6 @@ class RevisionSalidaViewSet(viewsets.ModelViewSet):
         },
             status=status.HTTP_200_OK
         )
-
+    
+    
    

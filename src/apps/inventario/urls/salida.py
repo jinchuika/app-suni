@@ -129,6 +129,18 @@ urlpatterns = [
         inv_v.PaquetesDetalleGrid.as_view(),
         name='paquetes_grid'
     ),
+    # Imprimir formulario entrada
+    url(
+        r'^salida/caja/entrada/(?P<pk>\d+)/$',
+        inv_v.CajaRepuestosEntradaView.as_view(),
+        name='formulario_entrada_caja'
+    ),
+    # Imprimir formulario salida
+    url(
+        r'^salida/caja/salida/(?P<pk>\d+)/$',
+        inv_v.CajaRepuestosSalidaView.as_view(),
+        name='formulario_salida_caja'
+    ),
 
 
 ]

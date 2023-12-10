@@ -1,0 +1,150 @@
+{% load staticfiles%}
+<!DOCTYPE html>
+<html>
+<head>
+	<title>FORMULARIO DE SALIDA {{object.id}}</title>
+	<link rel="stylesheet" type="text/css" href="{% static "css/bootstrap.min.css" %}">
+	
+</head>
+<!--ENCABEZADO DE DATOS E IMAGENES -->
+<header>
+	<div class="logo_izquierdo">
+		<img  width= "125" height="100" style="float:left; margin:10px;"src="{% static "image/Logo_Funsepa-01.png" %}">
+	</div>
+	<br>
+	<br>
+	<br>
+	<br>
+	<a class="encabezado2" ><b>FORMULARIO DE SALIDA</b></a>
+	<br>
+	<br>
+	<br>
+	<div class="row">
+		<div class="col-md-6">
+			Nombre:
+		</div>		
+
+	</div>
+	<br>
+	<div class="row">
+		<div class="col-md-6">
+			Fecha:
+		</div>
+		<div class="col-md-6">
+			Tipo:	SALIDA
+		</div>
+
+	</div>
+</header>
+<br>
+	<br>
+	<br>
+	<br>
+
+<!--FIN DE DATOS E IMAGENES-->
+<body>	
+	<table style="text-align:center;">
+		<thead>
+			<tr>
+				<th style="border:solid; border-width: 1px;border-color:gray" width="15%"><center>Triage</center></th>
+				<th style="border:solid; border-width: 1px;border-color:gray" width="15%"><center>Tipo</center></th>
+				<th style="border:solid; border-width: 1px;border-color:gray" width="15%"><center>Descripcion</center></th>
+				<th style="border:solid; border-width: 1px;border-color:gray" width="15%"><center>Observaciones</center></th>
+			  </tr>
+		</thead>
+		<tbody>
+			{% for data in dispositivos  %}
+				<tr>
+					<td style="border:solid; border-width: 1px;border-color:gray">{{data.dispositivo_bueno.dispositivo}}</td>
+					<td style="border:solid; border-width: 1px;border-color:gray">{{data.dispositivo_bueno.dispositivo.tipo}}</td>
+					<td style="border:solid; border-width: 1px;border-color:gray">{{data.descripcion_equipo}}</td>
+					<td style="border:solid; border-width: 1px;border-color:gray">{{data.observaciones}}</td>
+				</tr>
+		{% endfor %}
+		</tbody>
+				
+	  </table>
+	  <br>
+	  <br>
+	  <br>
+	  <br>
+  
+	Caja de herramientas asignadas a las entregas : 
+	{% for salidas  in  salidas_asignadas %}
+	{{salidas}},
+	{% endfor %}
+	<br>
+	<br>
+	<br>
+	<br>
+
+
+</body>
+<footer>
+	<table with="100">
+	  <div class="row">
+		<div class="col-md-6">
+			<br />
+			<br />
+			________________________________
+            <br />
+			&nbsp;&nbsp;&nbsp;&nbsp;Nombre y firma de quien recibe
+		</div>
+		<div class="col-md-6">
+			<br />
+			<br />
+			________________________________
+            <br />
+		    &nbsp;&nbsp;&nbsp;&nbsp;Nombre y firma de quien entrega
+		</div>
+
+		<div class="row">
+			<div class="col-md-3">
+			</div>
+			<div class="col-md-3">
+				<br />
+				<br />
+				________________________________
+				<br />
+				&nbsp;&nbsp;&nbsp;&nbsp;Nombre y firma de autorizacion
+			</div>
+			<div class="col-md-3">
+			</div>
+
+	</div>
+
+</footer>
+
+
+
+<!--TERMINAR TABLAS DE FIRMA Y SELLO-->
+
+<!--CSS-->
+<style type="text/css">
+	@page{
+	margin-top: 0mm;
+	margin-right: 0mm;
+	margin-left: 0mm;
+	margin-bottom: 0mm;
+}
+body{
+	font-family: arial;
+	 background-image: none;
+	-webkit-print-color-adjust: exact; /*economy | exact*/
+    color-adjust: exact;
+}
+.encabezado2{
+	font-size:12px;
+	text-align: center;
+}
+
+</style>
+
+<!--TERMINA PIE DE PAGINA-->
+
+{% block extra_js %}
+<script>
+//window.onload= function () { window.print();window.close();   }
+</script>
+{% endblock extra_js %}
+</html>

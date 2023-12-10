@@ -1,5 +1,6 @@
 {% extends "base/base.html" %}
 {%load widget_tweaks staticfiles %}
+{% load inventario_extras %}
 {% block page_title %}
 {% if not lista  ==  1 %}
 <title>SALIDAS</title>
@@ -87,6 +88,12 @@
                   <th>Estado</th>
                   <th>UDI</th>
                   <th>Beneficiario</th>
+                  {% if request.user|has_group:"inv_conta" %}
+                  <th>Costo</th>
+                  {%else%}
+                  <th></th>
+                  {% endif %}
+                 
                 </thead>
                 <tbody id="salidas-table-body">
                 </tbody>
@@ -97,7 +104,12 @@
                       <th>Fecha</th>
                       <th>Estado</th>
                       <th>UDI</th>
-                      <th>Beneficiario</th>                  
+                      <th>Beneficiario</th>
+                      {% if request.user|has_group:"inv_conta" %}
+                  <th>Costo</th>
+                  {%else%}
+                  <th></th>
+                  {% endif %}           
                 </tfoot>
               </table>
             </div>
