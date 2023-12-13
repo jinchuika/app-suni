@@ -16,7 +16,10 @@ from apps.main.models import Municipio
 
 # Create your views here.
 from rest_framework import views, status
-from rest_framework.response import Response  
+from rest_framework.response import Response
+
+import os.path as path
+
 
 class SubirTodo(views.APIView): 
     """  Clase encargada de Subir todos los datos de los archivos json a las tablas del modulo de cyd del SUNI
@@ -57,7 +60,7 @@ class SubirTodo(views.APIView):
             data_file_sede = json.load(file_sede)#15
             data_file_curso = json.load(file_curso)#16
             #data_ = json.load(f)
-            for data_escuela in data_file_escuela:
+            """for data_escuela in data_file_escuela:
                  print("escuela:",str(data_escuela['id']))
                  try:
                       escuela= Escuela.objects.get(codigo=data_escuela["codigo"])
@@ -149,8 +152,8 @@ class SubirTodo(views.APIView):
                         )
                       sede.save()
             file_sede.close()
-            print("-- FIN SEDE----") 
-            for data_curso  in data_file_curso:
+            print("-- FIN SEDE----") """
+            """for data_curso  in data_file_curso:
                  print("curso",data_curso["id"])
                  try:
                       curso = cyd_m.Curso.objects.get(id=data_curso["id"])
@@ -183,9 +186,9 @@ class SubirTodo(views.APIView):
                       grupo.save()
                     
             file_grupo.close()
-            print("---FIN GRUPO---")
+            print("---FIN GRUPO---")"""
                  
-            for data_asignacion  in data_file_asignacion:
+            """for data_asignacion  in data_file_asignacion:
                  print("asignacion",data_asignacion["id"])
                  try:
                       cyd_m.Asignacion.objects.get(id=data_asignacion["id"])
@@ -198,7 +201,8 @@ class SubirTodo(views.APIView):
                     )
                     asignacion.save()
             file_asignacion.close()
-            print("---FIN ASIGNACION---") 
+            print("---FIN ASIGNACION---") """
+            ### COMENTAR DESPUES DE SUBIR LAS NOTAS ####
             for data_crasistencia  in data_file_crasistencia:
                  print("crasitencia:",data_crasistencia["id"])
                  try:
@@ -252,8 +256,11 @@ class SubirTodo(views.APIView):
                       calendario.save()
                       
             file_calendario.close()
-            print("---FIN CALENDARIO---")  
-            for data_notaasistencia  in data_file_notaasistencia:
+            print("---FIN CALENDARIO---")
+
+            ##### HASTA ACA ####
+
+            """for data_notaasistencia  in data_file_notaasistencia:
                  print("nota asistencia:",data_notaasistencia["id"])
                  try:
                      asistencia=  cyd_m.NotaAsistencia.objects.get(id=data_notaasistencia ["id"])                     
@@ -269,8 +276,8 @@ class SubirTodo(views.APIView):
                     notas_asistencias.save()
                          
             file_notaasistencia.close()
-            print("---FIN NOTA ASISTENCIA---")      
-            for data_notahito  in data_file_notahito:
+            print("---FIN NOTA ASISTENCIA---")   """   
+            """for data_notahito  in data_file_notahito:
                  print("notahito",data_notahito["id"])
                  
                  try:
@@ -286,11 +293,11 @@ class SubirTodo(views.APIView):
                         )
                         nota_hito.save()
             file_notahito.close()
-            print("---FIN HITO---")
-
+            print("---FIN HITO---")"""
+          ### DESCOMENTAR ESTO CARLITOS DESPUES DE TERMINAR DE SUBIR LAS NOTAS 
             
 
-            for data_asesoria  in data_file_asesoria:
+            """for data_asesoria  in data_file_asesoria:
                  print("asesoria:",data_asesoria["id"])
                  try:
                       aseso = cyd_m.Asesoria.objects.get(id=data_asesoria["id"])
@@ -307,9 +314,9 @@ class SubirTodo(views.APIView):
                     )
                     asesorias.save()
             file_asesoria.close()
-            print("---FIN ASESORIA---") 
+            print("---FIN ASESORIA---") """
 
-                
+            #####HASTA  ACA ################################    
                 
                 
                        
@@ -348,9 +355,132 @@ class RevionErrores(views.APIView):
             return Response(
                             lineas,
                             status=status.HTTP_200_OK
-                        ) 
+                        )
 
+class SubirAsignacionesJson(views.APIView):
+        """ Importar registros de un json de `cyd_Asignaciones`del suni de pruebas  para la tabla `cyd_m.Asignaciones` del SUNI de produccion
+        """
+        def get(self, request): 
+            ruta = "C:/Users/Edgar/Documents/TablasMigrarSuni/json/Asignaciones/"
+            nombre_archivo = str("cyd_asignaciones") +str(self.request.GET['archivo'])+".json"
+            ruta_archivo = ruta + nombre_archivo            
+            if path.exists(ruta_archivo):
+                 file = open(ruta_archivo,encoding="utf-8")
+                 data = json.load(file)
+                 for data_asignacion  in data:
+                    #print("asignacion",data_asignacion["id"])
+                    try:
+                         asignacion = cyd_m.Asignacion.objects.get(id=data_asignacion["id"])
+                         if asignacion:
+                              mensaje = "El archivo: {} YA FUE CARGADO CON EXITO por favor ingrese otro numero de archivo".format(nombre_archivo)
+                              return Response(
+                                        mensaje,
+                                        status=status.HTTP_404_NOT_FOUND
+                                   )
+                    except Exception as g:
+                         asignacion=cyd_m.Asignacion(
+                         id = data_asignacion["id"],
+                         participante = cyd_m.Participante.objects.get(id=data_asignacion["participante_id"]),
+                         grupo =cyd_m.Grupo.objects.get(id=data_asignacion["grupo_id"]),
+                         abandono = data_asignacion["abandono"]                  
+                         )
+                         asignacion.save()
+                 
+                 mensaje = "Datos del arcnivo: {} ingresados Correctamente pase al siguiente archivo si existe".format(nombre_archivo)
+                 return Response(
+                            mensaje,
+                            status=status.HTTP_200_OK
+                        )
+            else:
+                 mensaje = "El archivo: {} no existe por favor ingrese otro numero de archivo".format(nombre_archivo)
+                 return Response(
+                            mensaje,
+                            status=status.HTTP_404_NOT_FOUND
+                        )
+            
+class SubirNotasAsistenciaJson(views.APIView):
+        """ Importar registros de un json de `cyd_NotaAsistencia`del suni de pruebas  para la tabla `cyd_m.NotaAsistencia` del SUNI de produccion
+        """
+        def get(self, request): 
+            ruta = "C:/Users/Edgar/Documents/TablasMigrarSuni/json/NotasAsistencia/"
+            nombre_archivo = str("cyd_notaasistencia") +str(self.request.GET['archivo'])+".json"
+            ruta_archivo = ruta + nombre_archivo           
+            if path.exists(ruta_archivo):                
+                 file = open(ruta_archivo,encoding="utf-8")
+                 data_file = json.load(file)
+                 for data_notaasistencia  in data_file:
+                    #print("nota asistencia:",data_notaasistencia["id"])
+                    try:
+                         asistencia=  cyd_m.NotaAsistencia.objects.get(id=data_notaasistencia ["id"])
+                         if asistencia:
+                              mensaje = "El archivo: {} YA FUE CARGADO CON EXITO por favor ingrese otro numero de archivo".format(nombre_archivo)
+                              return Response(
+                                        mensaje,
+                                        status=status.HTTP_404_NOT_FOUND
+                                   )                     
+                    except Exception as k:
+                         notas_asistencias=cyd_m.NotaAsistencia(
+                              id = data_notaasistencia ["id"],
+                              asignacion=cyd_m.Asignacion.objects.get(id=data_notaasistencia ["asignacion_id"]),
+                              gr_calendario=cyd_m.Calendario.objects.get(id=data_notaasistencia ["gr_calendario_id"]),
+                              nota=data_notaasistencia ["nota"]
 
+                              )
+                         notas_asistencias.save()
+                 
+                 mensaje = "Datos del arcnivo: {} ingresados Correctamente pase al siguiente archivo si existe".format(nombre_archivo)
+                 return Response(
+                            mensaje,
+                            status=status.HTTP_200_OK
+                        )
+            else:
+                 mensaje = "El archivo: {} no existe por favor ingrese otro numero de archivo".format(nombre_archivo)
+                 return Response(
+                            mensaje,
+                            status=status.HTTP_404_NOT_FOUND
+                        )
+            
+
+class SubirNotasHitosJson(views.APIView):
+        """ Importar registros de un json de `cyd_m.NotasHito`del suni de pruebas  para la tabla `cyd_m.NotasHitos` al SUNI de produccion
+        """
+        def get(self, request): 
+            ruta = "C:/Users/Edgar/Documents/TablasMigrarSuni/json/NotasHitos/"
+            nombre_archivo = str("cyd_notahito") +str(self.request.GET['archivo'])+".json"
+            ruta_archivo = ruta + nombre_archivo           
+            if path.exists(ruta_archivo):                
+                 file = open(ruta_archivo,encoding="utf-8")
+                 data_file = json.load(file)
+                 for data_notahito  in data_file:
+                    #print("notahito",data_notahito["id"])                    
+                    try:
+                         nota = cyd_m.NotaHito.objects.get(id=data_notahito["id"])
+                         if nota:
+                              mensaje = "El archivo: {} YA FUE CARGADO CON EXITO por favor ingrese otro numero de archivo".format(nombre_archivo)
+                              return Response(
+                                        mensaje,
+                                        status=status.HTTP_404_NOT_FOUND
+                                   )                       
+                    except Exception as l:
+                         nota_hito=cyd_m.NotaHito(
+                              id = data_notahito["id"],
+                              asignacion=cyd_m.Asignacion.objects.get(id=data_notahito["asignacion_id"]),
+                              cr_hito = cyd_m.CrHito.objects.get(id=data_notahito["cr_hito_id"]),
+                              nota=data_notahito["nota"]
+
+                         )
+                         nota_hito.save()
+                 mensaje = "Datos del arcnivo: {} ingresados Correctamente pase al siguiente archivo si existe".format(nombre_archivo)
+                 return Response(
+                            mensaje,
+                            status=status.HTTP_200_OK
+                        )
+            else:
+                 mensaje = "El archivo: {} no existe por favor ingrese otro numero de archivo".format(nombre_archivo)
+                 return Response(
+                            mensaje,
+                            status=status.HTTP_404_NOT_FOUND
+                        )
 
 
 

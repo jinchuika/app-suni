@@ -2002,12 +2002,12 @@ CalendarioCyD.init = function () {
     var url_informe_sede = $("#sede-list").data("url");
 
     var tablaSede = $('#sede-list').DataTable({
-        dom: 'Bfrtip',
+        dom: 'lBfrtip',
         destroy:true,
         buttons: ['excel', 'pdf', 'copy'],
         processing:true,
         searching:true,
-        paging:false,
+        paging:true,
         ordering:true,
         deferLoading: [0],
         ajax:{
