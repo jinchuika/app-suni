@@ -12,6 +12,21 @@ urlpatterns = [
     r'^informe/$',
     varias_v.RevionErrores.as_view(),
     name='revisar_errores'
+ ),
+  url(
+    r'^subir/asignaciones/$',
+    varias_v.SubirAsignacionesJson.as_view(),
+    name='subir_asignaciones'
+ ),
+ url(
+    r'^subir/notaasistencia/$',
+    varias_v.SubirNotasAsistenciaJson.as_view(),
+    name='subir_nota_asistencia'
+ ),
+ url(
+    r'^subir/notahito/$',
+    varias_v.SubirNotasHitosJson.as_view(),
+    name='subir_nota_hito'
  )
 ]
 
