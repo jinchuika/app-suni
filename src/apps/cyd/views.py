@@ -102,7 +102,8 @@ class SedeCreateView(LoginRequiredMixin, GroupRequiredMixin, CreateView):
         if udi != "":
             try:
                 escuela = Escuela.objects.get(codigo=udi)
-                form.instance.nombre = str(municipio.departamento.nombre) + str(", ") + str(municipio.nombre) + str("("+ udi +")") + str("("+ str(form.instance.tipo_sede) + ")")
+                #form.instance.nombre = str(municipio.departamento.nombre) + str(", ") + str(municipio.nombre) + str("("+ udi +")") + str("("+ str(form.instance.tipo_sede) + ")")
+                form.instance.nombre = str(municipio.departamento.nombre) + str(", ") + str(municipio.nombre) + str("("+ udi +")") + str("("+")")
                 form.instance.escuela_beneficiada = escuela
             except ObjectDoesNotExist:
                 form.add_error('udi', 'El UDI no es válido o no existe.')

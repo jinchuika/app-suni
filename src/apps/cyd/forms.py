@@ -307,13 +307,15 @@ class ControlAcademicoGrupoForm(forms.Form):
             widget = forms.Select(attrs={'class': 'select2 form-control', 'data-url': reverse_lazy('participante_api_list')})
             )
         self.fields['sede'] = forms.ModelChoiceField(
-            queryset=Sede.objects.filter(capacitador = usuario),            
+            queryset=Sede.objects.filter(capacitador = usuario),
+            #queryset=Sede.objects.all(),             
             required=False,
              widget=forms.Select(attrs={'class': 'select2 form-control', 'data-url': reverse_lazy('grupo_api_list')})
              )
         
         self.fields['curso'] = forms.ModelChoiceField(
             queryset=Grupo.objects.filter(cyd_grupo_creado_por = usuario),            
+            #queryset=Grupo.objects.all(),   
             required=False,
             widget=forms.Select(attrs={'class': 'select2 form-control', 'data-url': reverse_lazy('asignacion_api_list')}))
              
