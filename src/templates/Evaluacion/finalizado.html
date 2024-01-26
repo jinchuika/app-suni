@@ -1,0 +1,66 @@
+
+{% extends "Evaluacion/base_evaluacion.html" %}
+{% load staticfiles widget_tweaks %}
+{% block page_title %}
+<title>Evaluacion Integral</title>
+{% endblock page_title %} 
+
+
+<head>
+  <link rel="stylesheet" type="text/css" href="{% static "css/evaluacion.css" %}">
+  <link rel="stylesheet" type="text/css" href="{% static "css/hoverme.css" %}">
+  <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+</head>
+
+{% block content %}
+
+<h1> Gracias por su respuesta </h1> 
+
+
+<script src="{% static 'js/confetti.browser.min.js' %}"></script>
+
+<script>
+
+  function fire(ratio, opt) {
+    confetti(Object.assign({}, opt, {
+      origin: { y: 1, x: 0.5},
+      particleCount: Math.floor(400 * ratio)
+    }));
+  }
+
+  function launchConfetti() {
+    for (let i = 0; i < 3; i++) {
+      setTimeout(() => {
+        fire(0.5, {
+          spread: 230,
+          startVelocity: 100
+        });
+        fire(0.2, { spread: 80 });
+        fire(0.35, {
+          spread: 100,
+          decay: 0.9,
+          scalar: 1
+        });
+        fire(0.1, {
+          spread: 100,
+          startVelocity: 30,
+          decay: 1,
+          scalar: 1.2
+        });
+        fire(0.2, {
+          spread: 10,
+          startVelocity: 45
+        });
+      }, i * 1200); // Se ejecutará cada 2000 milisegundos (2 segundos)
+    }
+  }
+
+  // Ejecutar cuando la página se carga
+  document.addEventListener('DOMContentLoaded', launchConfetti);
+</script>
+
+
+
+
+{% endblock content %}
+

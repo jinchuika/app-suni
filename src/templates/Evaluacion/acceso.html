@@ -1,0 +1,30 @@
+{% extends "Evaluacion/base_evaluacion.html" %}
+
+{% block content %}
+<form method="Post">
+    {% csrf_token %}
+    <section name="IngresoDPI" action="{% url 'acceso'%}">
+        <h1> Bienvenido al área de evaluación de FUNSEPA</h1>
+        <h4> Para poder empezar la evaluación ingrese su número de DPI</h4>
+        <div>
+            <label class="form-label">
+                <input type="tel" name="dpi" id="dpiInput" class="form-control" placeholder="Ingrese su DPI sin guion" required>
+            </label>
+                        
+        </div>
+    </section> 
+    <button type="submit" class="btn btn-success" class="form-control">Empezar evaluación</button>
+
+    <script>
+        //Formatear el DPI automáticamente
+        document.getElementById('dpiInput').addEventListener('input', function (e) {
+            let inputValue = e.target.value.replace(/\D/g, '');
+            if (inputValue.length > 4 && inputValue.length <= 9) {
+                e.target.value = inputValue.slice(0, 4) + '-' + inputValue.slice(4);
+            } else if (inputValue.length > 9) {
+                e.target.value = inputValue.slice(0, 4) + '-' + inputValue.slice(4, 9) + '-' + inputValue.slice(9);
+            }
+        });
+    </script>
+</form>
+{% endblock content %}

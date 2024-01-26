@@ -1,0 +1,62 @@
+{% extends "base/base.html" %}
+{% load has_group %}
+
+{% load staticfiles widget_tweaks %}
+
+{% block page_title %}
+<title>Lisado de Formulario</title>
+{% endblock page_title %} 
+
+
+{% block content %}
+{% if request.user|has_group:"eva_admin" or request.user|has_group:"eva_tpe"  or request.user|has_group:"eva_capacitacion" %}
+
+<section class="content">
+    {% csrf_token %}
+       <div class="container-fluid">
+           <div class="row">
+               <div class="col-md-3">
+               {% if perms.evaluacion.formulario_add %}  
+                   <a href="{% url 'formulario_add' %}" class="btn btn-primary">Crear nuevo</a>
+               {% endif %}
+
+               </div>
+               <div class="col-md-6">
+                   <table class="table table-striped box box-primary">
+
+                    <tr>
+                        <td>Sede</td>
+                        <td>Inicio</td>
+                        <td>Fin</td>
+                        <td>Editar</td> 
+                    </tr> 
+
+                       {% for formulario in formularios %}
+                            
+                            <tr>
+                               <td>
+                                   <a href="{{formulario.escuela.get_absolute_url}}">{{ formulario.escuela }}</a>
+                               </td>           
+                                    
+                               <td>
+                                    {{ formulario.fecha_inicio_formulario }}
+                               </td>
+                               <td>
+                                    {{ formulario.fecha_fin_formulario }}
+                                    
+                               </td>
+                               <td>
+                                    <a href="{% url 'formulario_edit' pk=formulario.id %}" class="btn btn-warning"> Editar </a>
+                                </td>
+                           </tr>																	
+                       {% endfor %}
+                   </table>
+               </div>
+           </div>
+       </div>
+       
+   </section>
+
+   
+{% endif %}
+{% endblock content %}

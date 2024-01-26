@@ -148,6 +148,14 @@ urlpatterns = [
   url(
       r'^beqt/',
       include('apps.beqt.urls')),
+
+
+  # Contiene las direcciones de Evaluaciones
+  url(
+      r'^evaluacion/',
+      include('apps.Evaluacion.urls')),      
+
+
 ]
 
 if settings.DEBUG and settings.DEBUG_TOOLBAR:
