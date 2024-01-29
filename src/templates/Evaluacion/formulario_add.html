@@ -1,0 +1,118 @@
+{% extends "base/base.html" %}
+{% load has_group %}
+ 
+{% load staticfiles widget_tweaks %}
+
+{% block page_title %}
+<title>Crear Formulario</title>
+{% endblock page_title %} 
+
+{% block content %}
+{% if request.user|has_group:"eva_admin" or request.user|has_group:"eva_tpe"  or request.user|has_group:"eva_capacitacion" %}
+
+<section class="content-header">
+	<h1>Formulario</h1>
+</section>
+
+<section class="content">
+	<div class="container-fluid">
+		<div class="row-fluid">
+			<div class="col-md-4">
+                <div class="box box-primary">
+					<div class="box-body">
+                        <form action="{{action}}" method="post">
+                            <table class="table table-striped box box-primary">
+                                {% csrf_token %}
+                                {% for field in form %}
+                                    <tr>
+                                        <td>{{ field.label_tag }}</td>
+                                        <td>{{ field|add_class:"form-control" }}</td>
+                                    </tr>
+                                {% endfor %}
+                                <tr>
+                                    <td colspan="2" align="center">
+                                        <input type="submit" value="Guardar" class="btn btn-primary" tabindex="6">
+                                    </td>
+                                </tr>
+                            </table>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <!--
+            <div class="col-md-8">
+				<div class="box box-primary">
+					<div class="box-header">
+						<h3 class="box-title">Grupos en esta sede</h3>
+					</div>
+					<div class="box-body table-responsive">
+						<table class="table table-hover" id="grupo-list2" data-url="{% url 'grupo_api_list' %}">
+							<thead>
+								<th></th>
+								<th>Participantes</th>
+								<th>Capacitador</th>
+								<th>Año</th>
+							</thead>
+						</table>
+					</div>
+				</div>
+			</div> -->
+        </div>
+	</div>
+</section>
+ 
+{% block extra_js %}
+<script>
+  $(document).ready(function(){
+    $('[data-toggle="tooltip"]').tooltip();   
+  });
+  (function($, undefined) {
+    "use strict";
+    // When ready.
+    $(function() {
+        var $form = $( "form" );
+        var $input = $form.find( "#id_udi" );
+        $input.on( "keyup", function( event ) {
+            // When user select text in the document, also abort.
+            var selection = window.getSelection().toString();
+            if ( selection !== '' ) {
+                return;
+            }
+            // When the arrow keys are pressed, abort.
+            if ( $.inArray( event.keyCode, [38,40,37,39] ) !== -1 ) {
+                return;
+            }
+            var $this = $(this);
+            var input = $this.val();
+            var input = input.replace(/[\D\s\._\-]+/g, "");
+            var split = 4;
+            var chunk = [];
+
+                for (var i = 0, len = input.length; i < len; i += split) {
+                    split = ( i >= 4 && i <= 8 ) ? 4 : 2;
+                    chunk.push( input.substr( i, split ) );
+                }
+
+                $this.val(function() {
+                    return chunk.join("-").toUpperCase();
+                });
+        
+        } );     
+    });
+})(jQuery);
+
+  $(document).on('focus', '.select2', function (e) {
+    if (e.originalEvent) {
+        var s2element = $(this).siblings('select');
+        s2element.select2('open');
+        // Set focus back to select2 element on closing.
+        s2element.on('select2:closing', function (e) {
+            s2element.select2('focus');
+       });
+    }
+});
+</script>
+{% endblock extra_js %}
+{% endif %}
+{% endblock content %}

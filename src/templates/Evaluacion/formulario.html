@@ -1,0 +1,93 @@
+{% extends "Evaluacion/base_evaluacion.html" %}
+{% load staticfiles widget_tweaks %}
+{% block page_title %}
+<title>Evaluacion AB</title>
+{% endblock page_title %} 
+
+<head>
+  <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+</head>
+
+{% block content %}
+<div class="progress" role="progressbar" aria-label="Animated striped example" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+  <div id="progress-bar" class="progress-bar progress-bar-striped progress-bar-animated" style="width: 20%"></div>
+</div>
+
+<form class="formulario" method="post" action="{% url 'respuestas_add' %}">
+  {% csrf_token %}
+
+  <div id="principal">
+    <div class="swiper">
+      <div class="swiper-wrapper">
+
+
+        {% for seccion, instrucciones, preguntas in preguntas %}
+        <div align="center" class="swiper-slide">
+          <section name="{{ seccion }}" id="{{ seccion }}">  
+            <div  style="width:75%;" > 
+              <h2>Sección {{ seccion }}</h2>
+              <h5>Instrucciones: {{ instrucciones }} </h5>
+            </div>
+            
+              {% for pregunta in preguntas %}
+
+                {% if pregunta.tipo_respuesta|stringformat:"s" == "Booleana" %}     
+                  <h6> {{ pregunta.pregunta }} <br> </h6>  
+
+                  <div  class="radio"  class="conjunto_respuesta">
+                    {% for respuesta in respuesta_booleana %}
+                      <input type="radio" name="{{ pregunta.pregunta }}" id="Pregunta_{{ pregunta.pregunta }}_respuestaBool_{{ respuesta.respuesta }}_{{ forloop.counter }}"  value="{{ respuesta.respuesta }}" required="">
+                      <label for="Pregunta_{{ pregunta.pregunta }}_respuestaBool_{{ respuesta.respuesta }}_{{ forloop.counter }}" class="respuesta">{{ respuesta.respuesta }}</label>
+                    {% endfor %}
+                  </div>
+                  <br>
+                                      
+                  {% elif pregunta.tipo_respuesta|stringformat:"s" == "Opinion" %}
+                    <h6> {{ pregunta.pregunta }} <br> </h6> 
+
+                    <div  class="radio"  class="conjunto_respuesta">
+                      {% for respuesta in respuesta_opinion %}
+                        <input type="radio" name="{{ pregunta.pregunta }}" id="Pregunta_{{ pregunta.pregunta }}_respuestaBool_{{ respuesta.respuesta }}_{{ forloop.counter }}"  value="{{ respuesta.respuesta }}" required="">
+                        <label for="Pregunta_{{ pregunta.pregunta }}_respuestaBool_{{ respuesta.respuesta }}_{{ forloop.counter }}" class="respuesta">{{ respuesta.respuesta }}</label>
+                      {% endfor %}
+                    </div>
+                    <br>
+                              
+
+                  {% elif pregunta.tipo_respuesta|stringformat:"s" == "Texto" %}
+                    <h6> {{ pregunta.pregunta }} <br> </h6> 
+                    <div class="conjunto_respuesta">
+                      <input type="text" name="{{ pregunta.pregunta }}" value="{{respuesta.respuesta}}" placeholder="" required>
+                    </div>
+                    <br>
+                                        
+                  {% elif pregunta.tipo_respuesta|stringformat:"s" == "Calidad" %}
+                    <h6> {{ pregunta.pregunta }} <br> </h6>
+
+                    <div  class="radio"  class="conjunto_respuesta">
+                      {% for respuesta in respuesta_calidad %}
+                        <input type="radio" name="{{ pregunta.pregunta }}" id="Pregunta_{{ pregunta.pregunta }}_respuestaBool_{{ respuesta.respuesta }}_{{ forloop.counter }}"  value="{{ respuesta.respuesta }}" required="">
+                        <label for="Pregunta_{{ pregunta.pregunta }}_respuestaBool_{{ respuesta.respuesta }}_{{ forloop.counter }}" class="respuesta">{{ respuesta.respuesta }}</label>
+                      {% endfor %}
+                    </div>
+                    <br>
+                    
+                {% endif %}
+              {% endfor %}
+            </section> 
+          </div>
+        {% endfor %}
+    </div>
+
+    <div class="swiper-pagination"></div>
+  </div>
+
+  <input type="hidden" name="formulario_id" value="{{ formulario_id }}">
+  <input type="hidden" name="dpi_participante" value="{{ participante }}">
+
+  <button type="button" class="prevButton btnSlider">Anterior</button>
+  <button type="button" class="nextButton btnSlider">Siguiente</button>
+  <button type="submit" id="submitButton" class="hvr-pulse-grow btnEnviar">Enviar</button>
+
+</form>
+{% endblock content %}
