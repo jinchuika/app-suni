@@ -1,0 +1,227 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+
+body {
+  background-color: #ecf0f5;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  margin: 0; 
+}
+
+
+footer {
+  position: relative;
+
+}
+
+.encabezado{
+  background-color: #4390b9;
+  padding: 0.5rem;
+  text-align: center; 
+}
+.formulario .radio label,
+  .formulario .checkbox label {
+    display: inline-block;
+    cursor: pointer;
+    color: #4390b9;
+    position: relative;
+    padding: 5px 15px 5px 51px;
+    font-size: 1em;
+    border-radius: 5px;
+    -webkit-transition: all 0.3s ease;
+    -o-transition: all 0.3s ease;
+    transition: all 0.3s ease; }
+    .formulario .radio label:hover,
+    .formulario .checkbox label:hover {
+      background: rgba(67, 144, 185, 0.2); }
+    .formulario .radio label:before,
+    .formulario .checkbox label:before {
+      content: "";
+      display: inline-block;
+      width: 17px;
+      height: 17px;
+      position: absolute;
+      left: 15px;
+      border-radius: 50%;
+      background: none;
+      border: 3px solid #4390b9; }
+  .formulario input[type="radio"] {
+    display: none; }
+    .formulario input[type="radio"]:checked + label:before {
+      display: none; }
+    .formulario input[type="radio"]:checked + label {
+      padding: 5px 15px;
+      background: #4390b9;
+      border-radius: 2px;
+      color: #fff; }
+  .formulario .checkbox label:before {
+    border-radius: 3px; }
+  .formulario .checkbox input[type="checkbox"] {
+    display: none; }
+    .formulario .checkbox input[type="checkbox"]:checked + label:before {
+      display: none; }
+    .formulario .checkbox input[type="checkbox"]:checked + label {
+      background: #4390b9;
+      color: #fff;
+      padding: 5px 15px; }
+
+
+
+
+
+
+
+
+.Boton_envio{
+  position: absolute;
+  top: 60%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.respuesta{
+  position: relative;
+  text-align: center;
+}
+
+.conjunto_respuesta{
+  text-align: center;
+}
+
+footer{
+  text-align: center;
+}
+
+
+.content-wrapper {
+  flex: 1; 
+}
+
+.main-footer {
+  margin-top: auto; 
+}
+
+
+
+.btnSlider {
+  appearance: button;
+  background-color: #1899D6;
+  border: solid transparent;
+  border-radius: 16px;
+  border-width: 0 0 4px;
+  box-sizing: border-box;
+  color: #FFFFFF;
+  cursor: pointer;
+  display: inline-block;
+  font-family: din-round,sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .8px;
+  line-height: 20px;
+  margin: 0;
+  outline: none;
+  overflow: visible;
+  padding: 13px 16px;
+  text-align: center;
+  text-transform: uppercase;
+  touch-action: manipulation;
+  transform: translateZ(0);
+  transition: filter .2s;
+  user-select: none;
+  -webkit-user-select: none;
+  vertical-align: middle;
+  white-space: nowrap;
+  width: 25%;
+}
+
+.btnSlider:after {
+  background-clip: padding-box;
+  background-color: #1CB0F6;
+  border: solid transparent;
+  border-radius: 16px;
+  border-width: 0 0 4px;
+  bottom: -4px;
+  content: "";
+  left: 0;
+  position: absolute;
+  right: 0;
+  top: 0;
+  z-index: -1;
+}
+
+.btnSlider:main,
+.btnSlider:focus {
+  user-select: auto;
+}
+
+.btnSlider:hover:not(:disabled) {
+  filter: brightness(1.1);
+  -webkit-filter: brightness(1.1);
+}
+
+.btnSlider:disabled {
+  cursor: auto;
+}
+
+.btnSlider:active {
+  border-width: 4px 0 0;
+  background: none;
+}
+
+
+
+.btnEnviar {
+  appearance: button;
+  background-color: #029300;
+  border: solid transparent;
+  border-radius: 16px;
+  border-width: 0 0 4px;
+  box-sizing: border-box;
+  color: #FFFFFF;
+  cursor: pointer;
+  display: inline-block;
+  font-family: din-round,sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .8px;
+  line-height: 20px;
+  margin: 0;
+  outline: none;
+  overflow: visible;
+  padding: 13px 16px;
+  text-align: center;
+  text-transform: uppercase;
+  touch-action: manipulation;
+  transform: translateZ(0);
+  transition: filter .2s;
+  user-select: none;
+  -webkit-user-select: none;
+  vertical-align: middle;
+  white-space: nowrap;
+  width: 25%;
+}
+
+.btnEnviar:after {
+  background-clip: padding-box;
+  background-color: #03b300;
+  border: solid transparent;
+  border-radius: 16px;
+  border-width: 0 0 4px;
+  bottom: -4px;
+  content: "";
+  left: 0;
+  position: absolute;
+  right: 0;
+  top: 0;
+  z-index: -1;
+}
+
+
+
+
+
