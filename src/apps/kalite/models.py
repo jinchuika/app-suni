@@ -66,7 +66,11 @@ class Visita(models.Model):
     capacitador = models.ForeignKey(User, related_name='visitas_kalite', on_delete=models.CASCADE)
     numero = models.PositiveIntegerField(default=1)
     observaciones = models.TextField(null=True, blank=True)
-    visita_creada_por =models.ForeignKey(User, on_delete=models.CASCADE,default=User.objects.get(username="Admin").pk)
+    visita_creada_por =models.ForeignKey(User, on_delete=models.CASCADE,default=User.objects.get(username="Admin").pk)   
+    maestros = models.PositiveIntegerField(verbose_name='Maestros capacitados', default=0)
+    maestras = models.PositiveIntegerField(verbose_name='Maestras capacitadas', default=0)
+    alumnos = models.PositiveIntegerField(verbose_name='Alumnos capacitados', default=0)
+    alumnas = models.PositiveIntegerField(verbose_name='Alumnas capacitadas', default=0)
 
     class Meta:
         verbose_name = "Visita de KA Lite"

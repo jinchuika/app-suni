@@ -31,7 +31,8 @@ class DispositivoSerializer(serializers.ModelSerializer):
             'clase',
             'tarima',
             'url',
-            'procesador']    
+            'procesador',
+            'codigo_rti']    
 
     def get_procesador(self, obj): 
         if obj.tipo.id == 2:

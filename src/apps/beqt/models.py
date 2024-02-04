@@ -200,11 +200,12 @@ class DispositivoBeqt(models.Model):
     marca = models.ForeignKey(inv_m.DispositivoMarca, on_delete=models.CASCADE, null=True, blank=True)
     modelo = models.CharField(max_length=80, null=True, blank=True)
     serie = models.CharField(max_length=80, null=True, blank=True)
+    codigo_rti = models.CharField(max_length=80, null=True, blank=True, verbose_name='codigo rti')
     codigo_qr = et_fields.ThumbnailerImageField(upload_to='qr_dispositivo_beqt', blank=True, null=True)
     tarima = models.ForeignKey(inv_m.Tarima, on_delete=models.PROTECT, blank=True, null=True, related_name='dispositivos_beqt')
     valido = models.BooleanField(default=True, blank=True, verbose_name='Válido')
     descripcion = models.TextField(null=True, blank=True)
-    creada_por = models.ForeignKey(User, on_delete=models.PROTECT,default=User.objects.get(username="Admin").pk)
+    creada_por = models.ForeignKey(User, on_delete=models.PROTECT,default=User.objects.get(username="Admin").pk)    
 
 
     class Meta:
