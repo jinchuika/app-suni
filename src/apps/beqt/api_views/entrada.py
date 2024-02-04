@@ -210,6 +210,7 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
     def nuevo_grid(self, request, pk=None):
         """ Este se conecta con el grid para editar la informacion de los dipositivos y guardarlos
         """
+        print("estamos aca")
         entrada_detalle = request.data['entrada_detalle']
         entrada = request.data['entrada']
         tipo = beqt_m.EntradaDetalleBeqt.objects.get(id=entrada_detalle).tipo_dispositivo
@@ -245,8 +246,10 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
                 'pulgadas',
                 'clase',
                 'cargador__triage',
-                'estuche__triage'
+                'estuche__triage',
+                'codigo_rti'
                 )
+            print(data)
             return JsonResponse({
                 'data': list(data),
                 'marcas': list(tipos),
@@ -278,8 +281,10 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
                 'pulgadas',
                 'clase',
                 'servidor',
-                'cargador__triage'
+                'cargador__triage',
+                'codigo_rti'
                 )
+            print(data)
             return JsonResponse({
                 'data': list(data),
                 'marcas': list(tipos),
@@ -302,7 +307,8 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
                 'puerto',
                 'capacidad',
                 'medida',
-                'clase'
+                'clase',
+                'codigo_rti'
                 )
             return JsonResponse({
                 'data': list(data),
@@ -324,7 +330,8 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
                 'cantidad_puertos',
                 'velocidad',
                 'velocidad_medida',
-                'clase'
+                'clase',
+                'codigo_rti'
                 )
             return JsonResponse({
                 'data': list(data),
@@ -347,7 +354,8 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
                 'cantidad_puertos',
                 'velocidad',
                 'velocidad_medida',
-                'clase'
+                'clase',
+                'codigo_rti'
                 )
             return JsonResponse({
                 'data': list(data),
@@ -369,7 +377,8 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
                 'puerto',
                 'cantidad_puertos',
                 'velocidad',
-                'clase'
+                'clase',
+                'codigo_rti'
                 )
             return JsonResponse({
                 'data': list(data),
@@ -389,7 +398,8 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
                 'tarima',
                 'alimentacion',
                 'salida',
-                'clase'
+                'clase',
+                'codigo_rti'
                 )
             return JsonResponse({
                 'data': list(data),
@@ -408,7 +418,8 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
                 'serie',
                 'tarima',
                 'voltaje',
-                'clase'
+                'clase',
+                'codigo_rti'
 
                 )
             return JsonResponse({
@@ -433,7 +444,8 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
                 'estilo',
                 'material',
                 'dimensiones',
-                'clase'
+                'clase',
+                'codigo_rti'
                 )
             return JsonResponse({
                 'data': list(data),
@@ -453,7 +465,8 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
                 'tarima',
                 'conexiones',
                 'voltaje',
-                'clase'
+                'clase',
+                'codigo_rti'
                 )
             return JsonResponse({
                 'data': list(data),
@@ -474,7 +487,8 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
                 'tarima',
                 'conexiones',
                 'voltaje',
-                'clase'
+                'clase',
+                'codigo_rti'
                 )
             return JsonResponse({
                 'data': list(data),

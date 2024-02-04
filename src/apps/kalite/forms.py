@@ -35,7 +35,7 @@ class IndicadorForm(forms.ModelForm):
 class VisitaForm(forms.ModelForm):
     class Meta:
         model = kalite_models.Visita
-        fields = ('numero', 'tipo_visita', 'escuela', 'fecha', 'hora_inicio', 'hora_fin')
+        fields = ('numero', 'tipo_visita', 'escuela', 'fecha', 'hora_inicio', 'hora_fin','maestros','maestras','alumnos','alumnas')
         widgets = {
             'escuela': forms.HiddenInput(),
             'fecha': forms.TextInput(attrs={'class': 'datepicker'})

@@ -112,8 +112,9 @@
 					<!--UPS-->
 					<th bgcolor="skyblue" width="60"><center>Triage</center></th>
 					<th style="border:solid; border-width: 1px;border-color:gray" bgcolor="skyblue" width="60" ><center>Marca</center></th>
-					<th style="border:solid; border-width: 1px;border-color:gray" bgcolor="skyblue" width="60"><center>Modelo</center></th>
-					<th style="border:solid; border-width: 1px;border-color:gray" bgcolor="skyblue" width="80"><center>Serie/RTI</center></th>
+					<th style="border:solid; border-width: 1px;border-color:gray" bgcolor="skyblue" width="80"><center>Serie</center></th>
+					<th style="border:solid; border-width: 1px;border-color:gray" bgcolor="skyblue" width="80"><center>RTI</center></th>
+					<th style="border:solid; border-width: 1px;border-color:gray" bgcolor="skyblue" width="60"><center>Modelo</center></th>					
 					<th style="border:solid; border-width: 1px;border-color:gray" bgcolor="skyblue" width="90"><center>Conexiones</center></th>
 					<th style="border:solid; border-width: 1px;border-color:gray" bgcolor="skyblue" width="60"><center>Voltaje</center></th>		
 					
@@ -126,8 +127,9 @@
 				<tr>
 					<td style="border:solid; border-width: 1px;border-color:gray" height="30">{{ups | default_if_none:"Generico"}}</td>
 					<td style="border:solid; border-width: 1px;border-color:gray" >{{ups.marca | default_if_none:"Generico"}}</td>
-					<td style="border:solid; border-width: 1px;border-color:gray" >{{ups.modelo | default_if_none:"Generico"}}</td>
-					<td style="border:solid; border-width: 1px;border-color:gray" >{{ups.serie | default_if_none:"Generico"}}</td>							
+					<td style="border:solid; border-width: 1px;border-color:gray" >{{ups.serie | default_if_none:"Generico"}}</td>	
+					<td style="border:solid; border-width: 1px;border-color:gray" >{{ups.codigo_rti | default_if_none:"No tiene"}}</td>	
+					<td style="border:solid; border-width: 1px;border-color:gray" >{{ups.modelo | default_if_none:"Generico"}}</td>											
 					<td style="border:solid; border-width: 1px;border-color:gray" >{{ups.conexiones | default_if_none:"Generico"}}</td>
 					<td style="border:solid; border-width: 1px;border-color:gray" >{{ups.voltaje | default_if_none:"Generico"}}</td>
 				</tr>
@@ -149,8 +151,9 @@
 					<!--ACCESS POINT -->
 					<th style="border:solid; border-width: 1px;border-color:gray" bgcolor="skyblue" width="60"><center>Triage</center></th>
 					<th style="border:solid; border-width: 1px;border-color:gray" bgcolor="skyblue" width="65"><center>Marca</center></th>
-					<th style="border:solid; border-width: 1px;border-color:gray" bgcolor="skyblue" width="120"><center>Modelo</center></th>
-					<th style="border:solid; border-width: 1px;border-color:gray" bgcolor="skyblue" width="70"><center>Serie/RTI</center></th>
+					<th style="border:solid; border-width: 1px;border-color:gray" bgcolor="skyblue" width="70"><center>Serie</center></th>
+					<th style="border:solid; border-width: 1px;border-color:gray" bgcolor="skyblue" width="70"><center>RTI</center></th>
+					<th style="border:solid; border-width: 1px;border-color:gray" bgcolor="skyblue" width="120"><center>Modelo</center></th>					
 					<th style="border:solid; border-width: 1px;border-color:gray" bgcolor="skyblue" width="60"><center>Puertos</center></th>
 					<th style="border:solid; border-width: 1px;border-color:gray" bgcolor="skyblue" width="90"><center>Puerto</center></th>
 					<th style="border:solid; border-width: 1px;border-color:gray" bgcolor="skyblue" width="90"><center>Velocidad</center></th>
@@ -163,8 +166,9 @@
 				<tr>
 					<td style="border:solid; border-width: 1px;border-color:gray" height="29">{{access | default_if_none:"Generico"}}</td>
 					<td style="border:solid; border-width: 1px;border-color:gray">{{access.marca | default_if_none:"Generico"}}</td>
-					<td style="border:solid; border-width: 1px;border-color:gray">{{access.modelo | default_if_none:"Generico"}}</td>
 					<td style="border:solid; border-width: 1px;border-color:gray" >{{access.serie | default_if_none:""}}</td>
+					<td style="border:solid; border-width: 1px;border-color:gray" >{{access.codigo_rti | default_if_none:""}}</td>
+					<td style="border:solid; border-width: 1px;border-color:gray">{{access.modelo | default_if_none:"Generico"}}</td>					
 					<td style="border:solid; border-width: 1px;border-color:gray" >{{access.cantidad_puertos | default_if_none:"Generico"}}</td>
 					<td style="border:solid; border-width: 1px;border-color:gray" >{{access.puerto | default_if_none:"Generico"}}</td>
 					<td style="border:solid; border-width: 1px;border-color:gray" >{{access.velocidad | default_if_none:""}}</td>
@@ -189,8 +193,9 @@
 					<!--ADAPTADOR-->
 					<th style="border:solid; border-width: 1px;border-color:gray" bgcolor="skyblue"  width="95"><center>Triage</center></th>
 					<th style="border:solid; border-width: 1px;border-color:gray" bgcolor="skyblue"  width="95"><center>Marca</center></th>
-					<th style="border:solid; border-width: 1px;border-color:gray" bgcolor="skyblue"  width="95"><center>Modelo</center></th>
-					<th style="border:solid; border-width: 1px;border-color:gray" bgcolor="skyblue"  width="90"><center>Serie/RTI</center></th>	
+					<th style="border:solid; border-width: 1px;border-color:gray" bgcolor="skyblue"  width="90"><center>Serie</center></th>	
+					<th style="border:solid; border-width: 1px;border-color:gray" bgcolor="skyblue"  width="90"><center>RTI</center></th>	
+					<th style="border:solid; border-width: 1px;border-color:gray" bgcolor="skyblue"  width="95"><center>Modelo</center></th>					
 					<th style="border:solid; border-width: 1px;border-color:gray" bgcolor="skyblue"  width="90"><center>Puertos</center></th>	
 					<th style="border:solid; border-width: 1px;border-color:gray" bgcolor="skyblue"  width="90"><center>Puerto</center></th>						
 				</tr>
@@ -200,8 +205,9 @@
 					<tr>
 					<td style="border:solid; border-width: 1px;border-color:gray" height="29">{{adaptador | default_if_none:"Generico"}}</td>
 					<td style="border:solid; border-width: 1px;border-color:gray" >{{adaptador.marca | default_if_none:"Generico"}}</td>
-					<td style="border:solid; border-width: 1px;border-color:gray" >{{adaptador.modelo | default_if_none:"Generico"}}</td>
 					<td style="border:solid; border-width: 1px;border-color:gray" >{{adaptador.serie | default_if_none:"Generico"}}</td>
+					<td style="border:solid; border-width: 1px;border-color:gray" >{{adaptador.codigo_rti | default_if_none:"Generico"}}</td>
+					<td style="border:solid; border-width: 1px;border-color:gray" >{{adaptador.modelo | default_if_none:"Generico"}}</td>					
 					<td style="border:solid; border-width: 1px;border-color:gray" >{{adaptador.cantidad_puertos | default_if_none:"Generico"}} </td>
 					<td style="border:solid; border-width: 1px;border-color:gray" >{{adaptador.puerto | default_if_none:"Generico"}}</td>
 					</tr>
@@ -224,8 +230,9 @@
 					<!--REGLETA -->
 					<th style="border:solid; border-width: 1px;border-color:gray" bgcolor="skyblue" width="60"  ><center>Triage</center></th>						
 					<th style="border:solid; border-width: 1px;border-color:gray" bgcolor="skyblue" width="60"  ><center>Marca</center></th>
-					<th style="border:solid; border-width: 1px;border-color:gray" bgcolor="skyblue" width="90"  ><center>Modelo</center></th>	
-					<th style="border:solid; border-width: 1px;border-color:gray" bgcolor="skyblue" width="60"  ><center>Serie/RTI</center></th>						
+					<th style="border:solid; border-width: 1px;border-color:gray" bgcolor="skyblue" width="60"  ><center>Serie</center></th>
+					<th style="border:solid; border-width: 1px;border-color:gray" bgcolor="skyblue" width="60"  ><center>RTI</center></th>		
+					<th style="border:solid; border-width: 1px;border-color:gray" bgcolor="skyblue" width="90"  ><center>Modelo</center></th>											
 					<th style="border:solid; border-width: 1px;border-color:gray" bgcolor="skyblue" width="90"  ><center>Conexiones</center></th>
 					<th style="border:solid; border-width: 1px;border-color:gray" bgcolor="skyblue" width="60"  ><center>Voltaje</center></th>
 				</tr>
@@ -236,8 +243,9 @@
 						<tr>
 							<td style="border:solid; border-width: 1px;border-color:gray" height="29">{{regleta | default_if_none:"Generico"}}</td>		
 							<td style="border:solid; border-width: 1px;border-color:gray" >{{regleta.marca | default_if_none:"Generico"}}</td>
-							<td style="border:solid; border-width: 1px;border-color:gray" >{{regleta.modelo | default_if_none:"Generico"}}</td>	
-							<td style="border:solid; border-width: 1px;border-color:gray" >{{regleta.serie | default_if_none:"N/A"}}</td>		
+							<td style="border:solid; border-width: 1px;border-color:gray" >{{regleta.serie | default_if_none:"N/A"}}</td>	
+							<td style="border:solid; border-width: 1px;border-color:gray" >{{regleta.codigo_rti | default_if_none:"N/A"}}</td>	
+							<td style="border:solid; border-width: 1px;border-color:gray" >{{regleta.modelo | default_if_none:"Generico"}}</td>								
 							<td style="border:solid; border-width: 1px;border-color:gray" >{{regleta.conexiones | default_if_none:"Generico"}}</td>
 							<td style="border:solid; border-width: 1px;border-color:gray" >{{regleta.voltaje | default_if_none:"Generico"}}</td>
 							

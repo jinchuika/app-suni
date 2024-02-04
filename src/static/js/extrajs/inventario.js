@@ -97,7 +97,7 @@ class EntradaUpdate {
         });
 
         this.tabla = entrada_table.DataTable({
-            dom: 'Bfrtip',
+            dom: 'lBfrtip',
             buttons: ['excel', 'pdf', 'copy'],
             paging: false,
             searching:true,

@@ -645,9 +645,10 @@ class DispositivosPaquetesViewSet(viewsets.ModelViewSet):
         """ Metodo para actualizar nuevos dispositivos mediante el grid
         """
         dispositivos = json.loads(request.data["datos_actualizar"])       
-        tipo = request.data["dispositivo"]
+        tipo = request.data["dispositivo"]        
         if tipo == "LAPTOP":
             for datos in dispositivos:
+                print(datos["codigo_rti"])
                 new_dispositivo = beqt_m.LaptopBeqt.objects.get(triage=datos['triage'])
                 try:
                     new_dispositivo.marca = inv_m.DispositivoMarca.objects.get(id=datos['marca'])
@@ -712,7 +713,11 @@ class DispositivosPaquetesViewSet(viewsets.ModelViewSet):
                     else:
                          new_dispositivo.servidor = False
                 except ObjectDoesNotExist as e:
-                    print("Servidor no necesita actualizacion")                
+                    print("Servidor no necesita actualizacion")
+                try:
+                    new_dispositivo.codigo_rti =  datos["codigo_rti"]
+                except ObjectDoesNotExist as e:
+                    print("No necesita codigo RTI")                 
                 new_dispositivo.save()
             
         elif tipo == "HDD":
@@ -750,11 +755,15 @@ class DispositivosPaquetesViewSet(viewsets.ModelViewSet):
                     new_dispositivo.clase = inv_m.DispositivoClase.objects.get(id=datos['clase'])
                 except ObjectDoesNotExist as e:
                     print("Clase no necesita actualizacion")
+                try:
+                    new_dispositivo.codigo_rti =  datos["codigo_rti"]
+                except ObjectDoesNotExist as e:
+                    print("No necesita codigo RTI") 
                 new_dispositivo.save()
        
         elif tipo == "TABLET":
             for datos in dispositivos:
-                new_dispositivo = beqt_m.TabletBeqt.objects.get(triage=datos['triage'])
+                new_dispositivo = beqt_m.TabletBeqt.objects.get(triage=datos['triage'])     
                 try:
                     new_dispositivo.marca = inv_m.DispositivoMarca.objects.get(id=datos['marca'])
                 except ObjectDoesNotExist as e:
@@ -825,6 +834,10 @@ class DispositivosPaquetesViewSet(viewsets.ModelViewSet):
                     new_dispositivo.estuche = beqt_m.CaseTabletBeqt.objects.get(triage=datos['estuche__triage'])
                 except ObjectDoesNotExist as e:
                     print("El cargador no necesita actualizacion")
+                try:
+                    new_dispositivo.codigo_rti =  datos["codigo_rti"]
+                except ObjectDoesNotExist as e:
+                    print("No necesita codigo RTI") 
                 new_dispositivo.save()      
         elif tipo == "ACCESS POINT":
             for datos in dispositivos:
@@ -865,6 +878,10 @@ class DispositivosPaquetesViewSet(viewsets.ModelViewSet):
                     new_dispositivo.clase = inv_m.DispositivoClase.objects.get(id=datos['clase'])
                 except ObjectDoesNotExist as e:
                     print("Clase no necesita actualizacion")
+                try:
+                    new_dispositivo.codigo_rti =  datos["codigo_rti"]
+                except ObjectDoesNotExist as e:
+                    print("No necesita codigo RTI") 
                 new_dispositivo.save()
         elif tipo == "SWITCH":
             for datos in dispositivos:
@@ -901,6 +918,10 @@ class DispositivosPaquetesViewSet(viewsets.ModelViewSet):
                     new_dispositivo.clase = inv_m.DispositivoClase.objects.get(id=datos['clase'])
                 except ObjectDoesNotExist as e:
                     print("Clase no necesita actualizacion")
+                try:
+                    new_dispositivo.codigo_rti =  datos["codigo_rti"]
+                except ObjectDoesNotExist as e:
+                    print("No necesita codigo RTI") 
                 new_dispositivo.save()
         elif tipo == "ADAPTADOR RED":
             for datos in dispositivos:
@@ -937,6 +958,10 @@ class DispositivosPaquetesViewSet(viewsets.ModelViewSet):
                     new_dispositivo.clase = inv_m.DispositivoClase.objects.get(id=datos['clase'])
                 except ObjectDoesNotExist as e:
                     print("Clase no necesita actualizacion")
+                try:
+                    new_dispositivo.codigo_rti =  datos["codigo_rti"]
+                except ObjectDoesNotExist as e:
+                    print("No necesita codigo RTI") 
                 new_dispositivo.save()
 
         elif tipo == "CARGADOR TABLET":
@@ -970,6 +995,10 @@ class DispositivosPaquetesViewSet(viewsets.ModelViewSet):
                     new_dispositivo.clase = inv_m.DispositivoClase.objects.get(id=datos['clase'])
                 except ObjectDoesNotExist as e:
                     print("Clase no necesita actualizacion")
+                try:
+                    new_dispositivo.codigo_rti =  datos["codigo_rti"]
+                except ObjectDoesNotExist as e:
+                    print("No necesita codigo RTI") 
                 new_dispositivo.save()
         elif tipo == "CARGADOR LAPTOP":
             for datos in dispositivos:
@@ -998,6 +1027,10 @@ class DispositivosPaquetesViewSet(viewsets.ModelViewSet):
                     new_dispositivo.clase = inv_m.DispositivoClase.objects.get(id=datos['clase'])
                 except ObjectDoesNotExist as e:
                     print("Clase no necesita actualizacion")
+                try:
+                    new_dispositivo.codigo_rti =  datos["codigo_rti"]
+                except ObjectDoesNotExist as e:
+                    print("No necesita codigo RTI") 
                 new_dispositivo.save()
         elif tipo == "ESTUCHE TABLET":
             for datos in dispositivos:
@@ -1045,6 +1078,10 @@ class DispositivosPaquetesViewSet(viewsets.ModelViewSet):
                     new_dispositivo.clase = inv_m.DispositivoClase.objects.get(id=datos['clase'])
                 except ObjectDoesNotExist as e:
                     print("Clase no necesita actualizacion")
+                try:
+                    new_dispositivo.codigo_rti =  datos["codigo_rti"]
+                except ObjectDoesNotExist as e:
+                    print("No necesita codigo RTI") 
                 new_dispositivo.save()
 
         elif tipo == "REGLETA":
@@ -1078,6 +1115,10 @@ class DispositivosPaquetesViewSet(viewsets.ModelViewSet):
                     new_dispositivo.clase = inv_m.DispositivoClase.objects.get(id=datos['clase'])
                 except ObjectDoesNotExist as e:
                     print("Clase no necesita actualizacion")
+                try:
+                    new_dispositivo.codigo_rti =  datos["codigo_rti"]
+                except ObjectDoesNotExist as e:
+                    print("No necesita codigo RTI") 
                 new_dispositivo.save()
 
         elif tipo == "UPS":
@@ -1111,12 +1152,18 @@ class DispositivosPaquetesViewSet(viewsets.ModelViewSet):
                     new_dispositivo.clase = inv_m.DispositivoClase.objects.get(id=datos['clase'])
                 except ObjectDoesNotExist as e:
                     print("Clase no necesita actualizacion")
+                try:
+                    new_dispositivo.codigo_rti =  datos["codigo_rti"]
+                except ObjectDoesNotExist as e:
+                    print("No necesita codigo RTI") 
                 new_dispositivo.save()
         else:
             for datos in dispositivos:
                 new_dispositivo = beqt_m.DispositivoBeqt.objects.get(triage=datos['triage'])
                 new_dispositivo.serie = datos['serie']
+                new_dispositivo.codigo_rti = datos['codigo_rti']
                 new_dispositivo.save()
+
 
         return Response({
             'mensaje': 'Actualizados'

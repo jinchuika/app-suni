@@ -110,6 +110,8 @@
 	<table class="datos">
 	<tr> <center>
 		<th bgcolor="#b3c4dd"width="90" height="25"><center>TRIAGE</center></th>
+		<th bgcolor="#b3c4dd"width="120"><center>CODIGO RTI</center></th>
+		<th bgcolor="#b3c4dd"width="120"><center>SERIE</center></th>
 		<th bgcolor="#b3c4dd"width="100"><center>MARCA</center></th>
 		<th bgcolor="#b3c4dd"width="150"><center>MODELO</center></th>		
 		<th bgcolor="#b3c4dd"width="100"><center>ALMACENAMIENTO</center></th>
@@ -117,13 +119,19 @@
 		<th bgcolor="#b3c4dd"width="60"><center>RAM</center></th>
 		<th bgcolor="#b3c4dd"width="200"><center>SISTEMA OPERATIVO</center></th>
 		<th bgcolor="#b3c4dd"width="110"><center>CARGADOR</center></th>
-		<th bgcolor="#b3c4dd"width="120"><center>CODIGO RTI</center></th>
+		
 	    </center> 
 	</tr>
 	{% for laptop in Laptos %}
 	<tr> 
 		<td> <center>
 			{{laptop|default_if_none:""}}  </center>
+		</td>
+		<td> <center>
+			{{laptop.codigo_rti|default_if_none:""}} </center>         <!--Revisar el # de serie y agregar el rti-->
+		</td>
+		<td> <center>
+			{{laptop.serie|default_if_none:""}} </center>         <!--Revisar el # de serie y agregar el rti-->
 		</td>
 		<td> <center>
 			{{laptop.marca |default_if_none:"" }} </center>
@@ -146,9 +154,7 @@
 		<td> <center>
 			{{laptop.cargador|default_if_none:""}} </center>
 		</td>
-		<td> <center>
-			{{laptop.serie|default_if_none:""}} </center>         <!--Revisar el # de serie y agregar el rti-->
-		</td>
+		
 	</tr>
 	{% endfor %}
 <!--FIN DE TITULOS DE LA TABLA-->

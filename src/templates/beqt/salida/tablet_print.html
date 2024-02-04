@@ -102,7 +102,9 @@
 </table>
 	<table class="datos">
 	<tr> <center>
-		<th bgcolor="#b3c4dd" width="75" height="25"><center>Triage</center></th>
+		<th bgcolor="#b3c4dd" width="75" height="25"><center>Triage</center></th>		
+		<th bgcolor="#b3c4dd"width="110"><center>CODIGO RTI</center></th>
+		<th bgcolor="#b3c4dd"width="100"><center>SERIE</center></th>
 		<th bgcolor="#b3c4dd"width="100"><center>Marca</center></th>
 		<th bgcolor="#b3c4dd"width="110"><center>Modelo</center></th>
 		<th bgcolor="#b3c4dd"width="90"><center>Capacidad</center></th>
@@ -110,14 +112,19 @@
 		<th bgcolor="#b3c4dd"width="135"><center>Sistema</center></th>
 		<th bgcolor="#b3c4dd"width="75"><center>Cargador</center></th>
 		<th bgcolor="#b3c4dd"width="75"><center>Estuche</center></th>
-		<th bgcolor="#b3c4dd"width="100"><center>SERIE</center></th>
-		<th bgcolor="#b3c4dd"width="110"><center>CODIGO RTI</center></th>
+		
 	    </center>
 	</tr>
 	{% for tablet in Tablets %}
 	<tr>
 		<td><center>
 			{{tablet|default_if_none:""}} </center>
+		</td>
+		<td><center>
+			{{tablet.codigo_rti|default_if_none:""}}</center>   <!--Revisar el # de serie y agregar el rti-->
+		</td>
+		<td><center>
+			{{tablet.serie|default_if_none:""}}</center>   <!--Revisar el # de serie y agregar el rti-->
 		</td>
 		<td>
 			{{tablet.marca |default_if_none:"" }}</center>
@@ -140,12 +147,7 @@
 		<td><center>
 			{{tablet.estuche|default_if_none:""}}</center>
 		</td>
-		<td><center>
-			{{tablet.serie|default_if_none:""}}</center>   <!--Revisar el # de serie y agregar el rti-->
-		</td>
-		<td><center>
-			{{tablet.estuche|default_if_none:""}}</center>
-		</td>
+		
 	</tr>
 	{% endfor %}
 <!--FIN DE TITULOS DE LA TABLA-->

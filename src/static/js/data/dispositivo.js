@@ -96,6 +96,9 @@ var urldispositivo = $("#grid_id").data("url");
                     if (name =="Estuche__triage"){                      
                       name ="Estuche";
                     }
+                    if (name =="Codigo_rti"){                      
+                      name ="Codigo rti";
+                    }
                     //Creacion de los encabezados y obtenecion de la linea que se modifico en el grid
                    if(name=="Triage"){
                      encabezado.push({title:name,name:token_sin,

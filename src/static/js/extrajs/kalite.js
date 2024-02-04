@@ -402,7 +402,7 @@
         {data: "promedio"},
         {data: "alcance"},
         {data: "fecha", "class": 'nowrap'},
-        {data: "poblacion"},
+        {data: "poblacion"}
         ]
     })
     .on('xhr.dt', function (e, settings, json, xhr) {
@@ -458,6 +458,10 @@
         {data: "fecha", class: 'nowrap'},
         {data: "poblacion"},
         {data: "estudiantes"},
+        {data: "maestros"},
+        {data: "maestras"},
+        {data: "alumnos"},
+        {data: "alumnas"},
         ]
     })
     .on('xhr.dt', function (e, settings, json, xhr) {
