@@ -264,7 +264,7 @@ class SalidaInventarioViewSet(viewsets.ModelViewSet):
                             status=status.HTTP_400_BAD_REQUEST
                             )
                     else:
-                        if(tipo_salida.id == 6 or tipo_salida.nombre=="Caja de repuesto"):                                                        
+                        if(tipo_salida.id == 6 or tipo_salida.nombre=="Caja de repuestos"):                                                        
                             for data in cantidad_dispositivos_aprovados:                                
                                 dispositivo_baja = conta_m.MovimientoDispositivo.objects.filter(dispositivo=data.dispositivo,tipo_movimiento=-1).count()
                                 if dispositivo_baja == 0:
@@ -448,7 +448,7 @@ class RevisionSalidaViewSet(viewsets.ModelViewSet):
         salida = inv_m.RevisionSalida.objects.get(salida=id_salida)
         paquetes = inv_m.Paquete.objects.filter(salida=id_salida,
                                                 aprobado=True).exclude(tipo_paquete__tipo_dispositivo__usa_triage=False)
-        if finalizar_salida.tipo_salid.id != 6 or finalizar_salida.tipo_salida == "Caja de repuesto":           
+        if finalizar_salida.tipo_salida.id != 6 or finalizar_salida.tipo_salida == "Caja de repuestos":           
             for paquete in paquetes:
                 dispositivosPaquetes = inv_m.DispositivoPaquete.objects.filter(paquete=paquete.id,
                                                                             aprobado=True)

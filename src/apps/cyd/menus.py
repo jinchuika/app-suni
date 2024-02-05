@@ -60,55 +60,55 @@ cyd_informes_children = (
         
      ViewMenuItem(
         "Asistencia",
-        reverse_lazy("informe_control_academico"),
+        reverse_lazy("informe_asistencia"),
         weight=12,
         icon="fa-file-pdf-o"),
     
     ViewMenuItem(
         "Finalizacion proyecto",
-        reverse_lazy("informe_control_academico"),
+        reverse_lazy("informe_finalizacion_proyecto"),
         weight=12,
         icon="fa-check-circle"),
     
     ViewMenuItem(
         "Capacitador",
-        reverse_lazy("informe_control_academico"),
+        reverse_lazy("informe_capacitador"),
         weight=12,
         icon="fa-file-pdf-o"),
     
     ViewMenuItem(
         "Escuela",
-        reverse_lazy("informe_control_academico"),
+        reverse_lazy("informe_escuela"),
         weight=12,
         icon="fa-file-pdf-o"),
     
     ViewMenuItem(
         "Listado escuela",
-        reverse_lazy("informe_control_academico"),
+        reverse_lazy("informe_escuela_lista"),
         weight=12,
         icon="fa-file-pdf-o"),
     
     ViewMenuItem(
         "Grupo",
-        reverse_lazy("informe_control_academico"),
+        reverse_lazy("informe_grupo"),
         weight=12,
         icon="fa-file-pdf-o"),
     
     ViewMenuItem(
         "Asistencia periodo",
-        reverse_lazy("informe_control_academico"),
+        reverse_lazy("informe_asistencia_periodos"),
         weight=12,
         icon="fa-file-pdf-o"),
     
     ViewMenuItem(
         "Escuela sede",
-        reverse_lazy("informe_control_academico"),
+        reverse_lazy("informe_escuela_sede"),
         weight=12,
         icon="fa-file-pdf-o"),
     
     ViewMenuItem(
         "Escuela capacitada",
-        reverse_lazy("informe_control_academico"),
+        reverse_lazy("informe_escuela_capacitadas"),
         weight=12,
         icon="fa-file-pdf-o"),
         
