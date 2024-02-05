@@ -19,7 +19,7 @@ class FormularioAdd(forms.ModelForm):
         widget=forms.TextInput(attrs={'class': 'form-control', 'maxlength': '13', 'required': 'true', 'placeholder': '00-00-0000-00', 'tabindex': '4'}))
 
     class Meta:
-        model = eva_models.formulario
+        model = eva_models.Formulario
         fields = ('usuario', 'escuela', 'evaluacion','fecha_inicio_formulario', 'fecha_fin_formulario')
         exclude = ('escuela',)
         widgets = {
@@ -40,7 +40,7 @@ class FormularioForm(forms.ModelForm):
     """
 
     class Meta:
-        model = eva_models.formulario
+        model = eva_models.Formulario
         fields = ('usuario', 'escuela', 'evaluacion','fecha_inicio_formulario', 'fecha_fin_formulario')
         widgets = {
                 'usuario': forms.Select(attrs={'class': 'select2 form-control'}),

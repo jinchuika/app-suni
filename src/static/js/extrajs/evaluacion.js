@@ -1,5 +1,3 @@
-console.log("Hola de nuevo");
-
 // Archivo: swiper-scripts.js
 
 document.addEventListener('DOMContentLoaded', function () {
