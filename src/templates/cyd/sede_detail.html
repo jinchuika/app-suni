@@ -195,8 +195,10 @@
 												{% endif %}
 												<td>
                           {% if not grupo.asignados.count %}
+						  {% if perms.cyd.delete_curso %}
                           <button class="eliminar-grupo btn btn-danger"  data-asignacion="{{grupo.asignados.count}}" data-grupo="{{grupo.id}}" data-ulr="{%url 'grupo_desactivar'%}"><i class='fa fa-trash'></i> Eliminar</button>
                           {% endif %}
+						  {% endif %}
 
 												</td>
 											</tr>
