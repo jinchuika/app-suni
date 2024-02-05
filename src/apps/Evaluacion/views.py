@@ -28,6 +28,7 @@ from django_user_agents.utils import get_user_agent
 
 class FormularioAdd(LoginRequiredMixin, GroupRequiredMixin, CreateView):
     model = eva_models.Formulario
+
     template_name = 'Evaluacion/formulario_add.html'
     form_class = eva_forms.FormularioAdd
     group_required = [u"eva_admin", u"eva_tpe", u"eva_capacitacion"]
@@ -44,11 +45,13 @@ class FormularioAdd(LoginRequiredMixin, GroupRequiredMixin, CreateView):
 
                 user_groups = [group.name for group in self.request.user.groups.all()]
                 if any("cyd" in group for group in user_groups):
+
                     form.instance.area_evaluada = eva_models.AreaEvaluada.objects.get(area_evaluada = "Capacitacion")
                 elif any("tpe" in group for group in user_groups):
                     form.instance.area_evaluada = eva_models.AreaEvaluada.objects.get(area_evaluada = "TPE")
                 else: 
                     form.instance.area_evaluada = eva_models.AreaEvaluada.objects.get(area_evaluada = "Administracion")
+
 
                 self.object = form.save()
 
@@ -64,7 +67,9 @@ class FormularioAdd(LoginRequiredMixin, GroupRequiredMixin, CreateView):
 
 class FormularioListView(ListView):
     """Listado de formularios"""
+
     model = eva_models.Formulario
+
     template_name = 'Evaluacion/formulario_list.html' 
     context_object_name = 'formularios' 
 
@@ -75,6 +80,7 @@ class FormularioListView(ListView):
 
 class FormularioUpdateView(UpdateView):
     model = eva_models.Formulario
+
     template_name = 'Evaluacion/formulario_edit.html'
     form_class = eva_forms.FormularioForm
 
@@ -102,6 +108,7 @@ class ingresoDPIView(TemplateView):
                         try:
                             formulario = eva_models.Formulario.objects.filter(escuela = sede.grupo.sede.escuela_beneficiada, usuario = sede.grupo.sede.capacitador).last()
 
+
                             fecha_actual = timezone.localtime(timezone.now())
                             fechaActualUTC = fecha_actual.astimezone(timezone.utc)
 
@@ -115,7 +122,7 @@ class ingresoDPIView(TemplateView):
                             
                                     if not asignacion.exists():  
                                         AsignacionPregunta = eva_models.AsignacionPregunta(
-                                        formulario = formulario,
+                            formulario = formulario,
                                         evaluado = participante,
                                         pregunta = pregunta
                                         )
@@ -124,6 +131,7 @@ class ingresoDPIView(TemplateView):
                                         if asignacion.last().respondido:
                                             return redirect("acceso")
                                         fechaUpdate = eva_models.AsignacionPregunta.objects.filter(formulario = formulario, evaluado = participante, pregunta = pregunta).last()
+
                                         fechaUpdate.fecha_incio_evaluacion = timezone.now()
                                         fechaUpdate.save()
 
@@ -160,6 +168,7 @@ class asignacionPreguntaView(TemplateView):
     model = eva_models.AsignacionPregunta
 
 
+
     def get_context_data(self, **kwargs):
         context = super(asignacionPreguntaView, self).get_context_data(**kwargs)
 
@@ -167,6 +176,7 @@ class asignacionPreguntaView(TemplateView):
         formulario_id = self.kwargs.get('formulario_id', None)
         dpi = self.request.session.get('dpi', None)
         formulario = eva_models.Formulario.objects.get( id = formulario_id)
+
 
 
         # Añadir formulario_id al contexto
@@ -180,6 +190,7 @@ class asignacionPreguntaView(TemplateView):
 
 
         secciones = eva_models.SeccionPregunta.objects.filter(area_evaluada__area_evaluada=formulario.area_evaluada, activo=True).order_by('id')
+
         preguntas = []
 
         for seccion in secciones:
@@ -236,7 +247,9 @@ class guardarPreguntas(APIView):
                     tipoSO = user_agent.os.family if user_agent.os.family else "Desconocido"
 
 
+
                     dispositivo_info = eva_models.DispositivoParticipantes.objects.create(
+
                         dispositivo=tipoDispositivo,
                         os=tipoSO,
                         participante_info=participante
@@ -245,7 +258,9 @@ class guardarPreguntas(APIView):
                     
                 else: 
                     return HttpResponse("Formulario ya contestado, gracias")
+
         except eva_models.Formulario.DoesNotExist:
+
             return HttpResponse("No existe el formulario")
         
         return redirect('finalizado')
@@ -259,4 +274,6 @@ class FinalizadoView(TemplateView):
 class baseView(TemplateView):
     """Vista para mostrar las preguntas del :class: Preguntas """
     template_name = 'Evaluacion/base_evaluacion.html'
+
     model = eva_models.AsignacionPregunta
+

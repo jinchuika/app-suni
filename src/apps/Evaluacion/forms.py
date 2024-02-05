@@ -20,6 +20,7 @@ class FormularioAdd(forms.ModelForm):
 
     class Meta:
         model = eva_models.Formulario
+
         fields = ('usuario', 'escuela', 'evaluacion','fecha_inicio_formulario', 'fecha_fin_formulario')
         exclude = ('escuela',)
         widgets = {
@@ -41,6 +42,7 @@ class FormularioForm(forms.ModelForm):
 
     class Meta:
         model = eva_models.Formulario
+
         fields = ('usuario', 'escuela', 'evaluacion','fecha_inicio_formulario', 'fecha_fin_formulario')
         widgets = {
                 'usuario': forms.Select(attrs={'class': 'select2 form-control'}),
