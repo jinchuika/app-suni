@@ -910,9 +910,29 @@ class CajaRepuestosEntradaView(LoginRequiredMixin, GroupRequiredMixin, DetailVie
 
     def get_context_data(self, **kwargs):
         context = super(CajaRepuestosEntradaView, self).get_context_data(**kwargs)       
-        caja = inv_m.CajaRepuestos.objects.filter(salida_asignada__id=self.object.id)  
-        context['dispositivos'] = caja
+        caja = inv_m.SalidaInventario.objects.get(id = self.object.id) 
+        paquetes = inv_m.Paquete.objects.filter(salida = caja)
+
+        context['tecnico'] = caja.creada_por.get_full_name
         context['salidas_asignadas'] = self.object.caja_repuesto.all()
+        context['fecha'] = caja.fecha
+        context['paquetes'] = paquetes
+
+        dispositivos = []
+        for paquete in paquetes:
+            dispo_paquete = inv_m.DispositivoPaquete.objects.filter(paquete=paquete)
+            for dispositivo in dispo_paquete:
+                dispositivos.append(dispositivo.dispositivo)
+        context['dispositivos'] = dispositivos
+        
+        context['salida'] = caja
+        dispo_salidos = inv_m.CajaRepuestos.objects.filter(salida_asignada = caja)
+        
+        dispo_malos = []
+        for malos in dispo_salidos:
+            dispo_malos.append(malos)
+        context['dispo_malos'] = dispo_malos
+
         return context
     
 class CajaRepuestosSalidaView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
@@ -924,7 +944,21 @@ class CajaRepuestosSalidaView(LoginRequiredMixin, GroupRequiredMixin, DetailView
 
     def get_context_data(self, **kwargs):
         context = super(CajaRepuestosSalidaView, self).get_context_data(**kwargs)
-        caja = inv_m.CajaRepuestos.objects.filter(salida_asignada__id=self.object.id)
-        context['dispositivos'] = caja
-        context['salidas_asignadas'] = self.object.caja_repuesto.all()       
+        caja = inv_m.SalidaInventario.objects.get(id = self.object.id) 
+        paquetes = inv_m.Paquete.objects.filter(salida = caja)
+
+        context['tecnico'] = caja.creada_por.get_full_name
+        context['salidas_asignadas'] = self.object.caja_repuesto.all()
+        context['fecha'] = caja.fecha
+        context['paquetes'] = paquetes
+
+        dispositivos = []
+        for paquete in paquetes:
+            dispo_paquete = inv_m.DispositivoPaquete.objects.filter(paquete=paquete)
+            for dispositivo in dispo_paquete:
+                dispositivos.append(dispositivo.dispositivo)
+
+        context['dispositivos'] = dispositivos
+        context['salida'] = caja
+
         return context
