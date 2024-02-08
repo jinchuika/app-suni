@@ -290,11 +290,13 @@ class SalidaInventarioViewSet(viewsets.ModelViewSet):
     def reasignar_salida(self, request, pk=None):
         """Metodo para reasignar salida a un nuevo beneficiario
         """
+        print("ingresar a reasignar salida  beqt")
         id_salida = request.data['id_salida']
         data = request.data['data']
         es_beneficiario = request.data['beneficiario']
         nueva_reasignar = beqt_m.SalidaInventario.objects.get(id=id_salida)
         if(es_beneficiario == 'true'):
+            print("ingresar a reasignar salida  beqt1")
             try:
                 nuevo_beneficiario = crm_m.Donante.objects.get(id=data)
                 nueva_reasignar.beneficiario = nuevo_beneficiario
@@ -308,6 +310,7 @@ class SalidaInventarioViewSet(viewsets.ModelViewSet):
                         status=status.HTTP_500_INTERNAL_SERVER_ERROR
                     )
         else:
+            print("ingresar a reasignar salida  beqt2")
             try:
                 asignacion = escuela_m.Escuela.objects.get(codigo=data)
                 nueva_reasignar.escuela = asignacion
