@@ -75,7 +75,7 @@ class DispositivoViewSet(viewsets.ModelViewSet):
         etapa = self.request.query_params.get('etapa', None)
         estado = self.request.query_params.get('estado', None)
         salida = self.request.query_params.get('id_salida', None)
-        solicitud = self.request.query_params.get('solicitud', None)               
+        solicitud = self.request.query_params.get('solicitud', None)     
         lista_dispositivos = []      
         if bool(solicitud):           
             if estado == "1"  and etapa == "1":                
@@ -644,7 +644,7 @@ class DispositivosPaquetesViewSet(viewsets.ModelViewSet):
     def actualizar_dispositivos(self, request, pk=None):
         """ Metodo para actualizar nuevos dispositivos mediante el grid
         """
-        dispositivos = json.loads(request.data["datos_actualizar"])       
+        dispositivos = json.loads(request.data["datos_actualizar"])   
         tipo = request.data["dispositivo"]        
         if tipo == "LAPTOP":
             for datos in dispositivos:
@@ -1118,7 +1118,14 @@ class DispositivosPaquetesViewSet(viewsets.ModelViewSet):
                 try:
                     new_dispositivo.codigo_rti =  datos["codigo_rti"]
                 except ObjectDoesNotExist as e:
-                    print("No necesita codigo RTI") 
+                    print("No necesita codigo RTI")
+                try:
+                    if datos['regulador']:
+                        new_dispositivo.regulador = True
+                    else:
+                         new_dispositivo.regulador = False
+                except ObjectDoesNotExist as e:
+                    print("No actualizar regulador") 
                 new_dispositivo.save()
 
         elif tipo == "UPS":
