@@ -20,4 +20,8 @@
         <th>Voltaje</th>
         <td>{{ object.voltaje |default_if_none:""  }}</td>
     </tr>
+    <tr>
+      <th>Con regulador</th>
+      <td><input type="checkbox" name="regulador" class="icheckbox_square-red" disabled  {% if object.regulador %} checked {% endif %} /></td>
+  </tr>
 {% endblock info_dispositivo %}

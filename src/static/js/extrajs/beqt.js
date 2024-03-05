@@ -700,7 +700,7 @@ class DispositivoList {
                  {data: "estado", className: "nowrap"},
                  {data: "etapa", className: "nowrap"},
                  {data: "procesador", className: "nowrap"},
-                 
+                 {data: "regulador", className: "nowrap"},
              ]
            });
           /**/

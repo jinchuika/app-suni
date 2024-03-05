@@ -210,7 +210,6 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
     def nuevo_grid(self, request, pk=None):
         """ Este se conecta con el grid para editar la informacion de los dipositivos y guardarlos
         """
-        print("estamos aca")
         entrada_detalle = request.data['entrada_detalle']
         entrada = request.data['entrada']
         tipo = beqt_m.EntradaDetalleBeqt.objects.get(id=entrada_detalle).tipo_dispositivo
@@ -466,7 +465,8 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
                 'conexiones',
                 'voltaje',
                 'clase',
-                'codigo_rti'
+                'codigo_rti',
+                'regulador',
                 )
             return JsonResponse({
                 'data': list(data),
