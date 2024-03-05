@@ -99,6 +99,9 @@ var urldispositivo = $("#grid_id").data("url");
                     if (name =="Codigo_rti"){                      
                       name ="Codigo rti";
                     }
+                    if (name =="Regulador"){                      
+                      name ="Con regulador";
+                    }
                     //Creacion de los encabezados y obtenecion de la linea que se modifico en el grid
                    if(name=="Triage"){
                      encabezado.push({title:name,name:token_sin,
@@ -289,6 +292,20 @@ var urldispositivo = $("#grid_id").data("url");
                                                useViewMode: false
                                              }});
                                        }else{
+                                        if(name=="Con regulador"){
+                                          encabezado.push({title:name,name:token_sin,
+                                                 onBeforeChange: function(ev){
+                                                      console.log('Before change:' + ev);
+                                                  },
+                                                  onAfterChange: function(ev){
+                                                    console.log('After change:' + ev);
+                                                    linea.push(ev.rowKey);
+                                                  }, editOptions: {
+                                                type: 'checkbox',
+                                                listItems:[{text:"Si",value:'true'}],
+                                                useViewMode: false
+                                              }});
+                                       }else{
                                          if(name=="Clase"){
                                            encabezado.push({title:name,name:token_sin,
                                                   onBeforeChange: function(ev){
@@ -343,6 +360,7 @@ var urldispositivo = $("#grid_id").data("url");
                                                       component :{
                                                         name:'select2'
                                                       }});
+                                                      
                                                   }else{
                                                     if(name!=""){
                                                       encabezado.push({title:name,name:token_sin,
@@ -365,7 +383,7 @@ var urldispositivo = $("#grid_id").data("url");
                                             }                                  
                                            
 
-                                      
+                                                  }
                                                 }
                                              }
                                          }
