@@ -357,7 +357,7 @@ class ParticipanteJsonCreateView(LoginRequiredMixin, JsonRequestResponseMixin, C
     model = cyd_m.Participante
     form_class = cyd_f.ParticipanteForm
 
-    def post(self, request, *args, **kwargs):              
+    def post(self, request, *args, **kwargs):           
         try:
             if self.request_json['genero'].isdigit():
                 genero = cyd_m.ParGenero.objects.get(id=self.request_json['genero'])
@@ -370,11 +370,23 @@ class ParticipanteJsonCreateView(LoginRequiredMixin, JsonRequestResponseMixin, C
                 rol = cyd_m.ParRol.objects.get(nombre=self.request_json['rol'])            
             escuela = Escuela.objects.get(codigo=self.request_json['udi'])
             grupo = cyd_m.Grupo.objects.get(id=self.request_json['grupo'])
-            etnia = cyd_m.ParEtnia.objects.get(nombre=self.request_json['etnia'] if 'etnia' in self.request_json else "Ladino")
-            #etnia = cyd_m.ParEtnia.objects.get(id=self.request_json['etnia'] if 'etnia' in self.request_json else 1)
-            escolaridad = cyd_m.ParEscolaridad.objects.get(nombre=self.request_json['escolaridad'] if 'escolaridad' in self.request_json else "Basico")
-            profesion = cyd_m.Profesion.objects.get(nombre=self.request_json['profesion'] if 'profesion' in self.request_json else "Otros")
-            grado_imparte =cyd_m.Grado.objects.get(grado_asignado =self.request_json['grado_impartido'] if 'grado_impartido' in self.request_json else "Preprimaria")
+            try:
+                etnia = cyd_m.ParEtnia.objects.get(nombre=self.request_json['etnia'] if 'etnia' in self.request_json else "Ladino")
+            except Exception as e:
+                etnia = cyd_m.ParEtnia.objects.get(id=int(self.request_json['etnia']) if 'etnia' in self.request_json else 1)
+            try:
+                escolaridad = cyd_m.ParEscolaridad.objects.get(nombre=self.request_json['escolaridad'] if 'escolaridad' in self.request_json else "Basico")
+            except Exception as e:
+                escolaridad = cyd_m.ParEscolaridad.objects.get(id=self.request_json['escolaridad'] if 'escolaridad' in self.request_json else 1)
+            try:
+                profesion = cyd_m.Profesion.objects.get(nombre=self.request_json['profesion'] if 'profesion' in self.request_json else "Otros")
+            except:
+                profesion = cyd_m.Profesion.objects.get(id=self.request_json['profesion'] if 'profesion' in self.request_json else 1)
+            try:
+                grado_imparte =cyd_m.Grado.objects.get(grado_asignado =self.request_json['grado_impartido'] if 'grado_impartido' in self.request_json else "Preprimaria")
+            except:
+                 grado_imparte =cyd_m.Grado.objects.get(id=self.request_json['grado_impartido'] if 'grado_impartido' in self.request_json else 1)
+
             participante = cyd_m.Participante.objects.create(
                 dpi=self.request_json['dpi'],
                 nombre=self.request_json['nombre'],
