@@ -28,6 +28,7 @@ class Curso(models.Model):
     porcentaje = models.IntegerField(null=True, blank=True)
     activo = models.BooleanField(default=True, blank=True, verbose_name='Activo')
     #grupo_certificado = models.IntegerField(choices=GRUPO_CERTIFICADOS, default=1)
+    #grupos_certificado = models.IntegerField(choices=GRUPO_CERTIFICADOS, default=1)
     cyd_curso_creado_por =models.ForeignKey(User, on_delete=models.CASCADE,default=User.objects.get(username="Admin").pk)
 
     def __str__(self):
@@ -94,12 +95,11 @@ class Sede(models.Model):
     activa = models.BooleanField(default=True, blank=True, verbose_name='Activa')
     escuela_beneficiada = models.ForeignKey(Escuela, on_delete=models.PROTECT, related_name='escuela_beneficiada', blank=True, null=True)
     tipo_sede = models.CharField(max_length=2, verbose_name='Tipo de Sede' , choices=TIPO_SEDES, default='B')
-    #fecha_creacion = models.DateField(null=True, blank=True)
+    fecha_finalizacion = models.DateTimeField(null=True, blank=True)
     url = models.TextField(null=True, blank=True,verbose_name='Carpeta Fotos')
     url_archivos = models.TextField(null=True, blank=True,verbose_name='Carpeta Archivos')
     fecha_creacion = models.DateTimeField(default=timezone.now)
-
-
+    
     class Meta:
         verbose_name = "Sede"
         verbose_name_plural = "Sedes"
@@ -109,6 +109,10 @@ class Sede(models.Model):
 
     def get_absolute_url(self):
         return reverse_lazy('sede_detail', kwargs={'pk': self.id})
+    
+    def get_grupos(self):
+        grupos = Grupo.objects.filter(sede=self).count()        
+        return 0
 
     def get_escuelas(self):
         participantes = Participante.objects.filter(asignaciones__grupo__sede__id=self.id)
@@ -133,12 +137,23 @@ class Sede(models.Model):
         super(Sede, self).save(*args, **kwargs)
 
     def get_participantes(self):
+        invitada = False
         resultado = {'listado': [], 'resumen': {'roles': {}, 'genero': {}, 'estado': {}}}
+        resultados_sede_invitada = {'listado':[]}
         participantes = Participante.objects.filter(
             asignaciones__grupo__sede__id=self.id, activo=True).annotate(
-            cursos_sede=Count('asignaciones'))
+            cursos_sede=Count('asignaciones'))        
         for participante in participantes:
             asignaciones = participante.asignaciones.filter(grupo__sede=self)
+            new_asignaciones = participante.asignaciones.filter(grupo__sede=self, grupo__curso__nombre__icontains='Tecnologia', grupo__numero=2)            
+            if new_asignaciones.count() !=0:
+                invitada = True                    
+                nota_new =sum(b.get_nota_promediada()['nota'] for b in asignaciones)
+                resultados_sede_invitada['listado'].append({
+                    'participante':participante,
+                    'nota':nota_new,
+                    'grupo':new_asignaciones.first().grupo.numero
+                })
             resultado['listado'].append({
                 'participante': participante,
                 'nota': sum(a.get_nota_promediada()['nota'] for a in asignaciones),
@@ -148,14 +163,17 @@ class Sede(models.Model):
         resultado['resumen']['genero'] = participantes.annotate(
             nombre_genero=F('genero__genero')).values('nombre_genero').annotate(cantidad=Count('id', distinct=True))
         aprobado = sum(1 for nota in resultado['listado'] if nota['nota'] >= 75)
-        nivelar = sum(1 for nota in resultado['listado'] if 70 >= nota['nota'] < 75) #70 <= nota['nota'] < 75)
+        nivelar = sum(1 for nota in resultado['listado'] if 70 <= nota['nota'] < 75) #70 <= nota['nota'] < 75)
         reprobado = sum(1 for nota in resultado['listado'] if nota['nota'] < 70)
+        reprobados_invitada =  sum(1 for nota in resultados_sede_invitada['listado'] if nota['nota'] < 70)
+        aprobados_invitada =  sum(1 for nota in resultados_sede_invitada['listado'] if nota['nota'] >= 70)       
         sum_monitoreo = aprobado + nivelar +reprobado        
         if sum_monitoreo !=0:
             if nivelar !=0:
                 monitoreo=False
             else:
                 monitoreo=True
+                #self.fecha_finalizacion = datetime.now() 
         else:
             monitoreo = False
         resultado['resumen']['monitoreo'] = monitoreo    
@@ -168,6 +186,12 @@ class Sede(models.Model):
         resultado['resumen']['estado']['reprobado'] = {
             'cantidad': reprobado,
             'porcentaje': (reprobado * 100 // len(resultado['listado'])) if len(resultado['listado']) > 0 else 0}
+        resultado['resumen']['estado']['invitada_reprobado'] ={
+            'cantidad': reprobados_invitada,
+            'porcentaje':(reprobados_invitada * 100 // len(resultados_sede_invitada['listado'])) if len(resultados_sede_invitada['listado']) > 0 else 0 }
+        resultado['resumen']['estado']['invitada_aprobado'] ={
+            'cantidad': aprobados_invitada,
+            'porcentaje':(aprobados_invitada * 100 // len(resultados_sede_invitada['listado'])) if len(resultados_sede_invitada['listado']) > 0 else 0 }  
         return resultado
 
 
@@ -217,8 +241,12 @@ class Grupo(models.Model):
         return self.asignados.filter(participante__genero__id=2).count()
 
     def count_aprobados(self):
-        cuenta = sum(1 for asignacion in self.asignados.all() if asignacion.aprobado)
+        cuenta = sum(1 for asignacion in self.asignados.all() if asignacion.aprobado)        
         return cuenta
+    
+    def count_reprobados(self):
+        cuenta = sum(1 for asignacion in self.asignados.all() if asignacion.reprobado)        
+        return cuenta         
 
     def get_porcentaje_aprobados(self):
         asignados = self.asignados.all().count()
@@ -460,6 +488,11 @@ class Asignacion(models.Model):
         """Indica si la asignación actual alcanza la nota mínima establecida por el :class:`cyd.Curso`."""
         return self.get_nota_final() >= self.grupo.curso.nota_aprobacion  # type: boolean
     aprobado = property(get_aprobado)
+
+    def get_reprobado(self):
+        """Indica si la asignación actual alcanza la nota mínima establecida por el :class:`cyd.Curso`."""
+        return self.get_nota_final() < self.grupo.curso.nota_aprobacion  # type: boolean
+    reprobado = property(get_reprobado)
 
     def get_nota_promediada(self):
         """Devuelve la nota final promediada respecto al porcentaje del :class:`cyd.Curso` relacionado.
