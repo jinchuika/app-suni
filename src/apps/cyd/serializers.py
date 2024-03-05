@@ -48,16 +48,12 @@ class EscuelaCalendarioSerializer(DynamicFieldsModelSerializer, serializers.Mode
     def get_asistentes(self, calendario):
         return calendario.count_asistentes()
 
-    def get_participantes(self, obj, pk=None):
-        print(obj.grupo)
-        asignacion= Asignacion.objects.filter(grupo=obj.grupo)
-        print(asignacion)
+    def get_participantes(self, obj, pk=None):        
+        asignacion= Asignacion.objects.filter(grupo=obj.grupo)        
         return asignacion.values('participante').count()
 
     def get_escuela(self, obj, pk=None):
-        print(obj.grupo)
         asignacion= Asignacion.objects.filter(grupo=obj.grupo)
-        print(asignacion)
         return asignacion.values('participante','participante__genero__id','participante__escuela__nombre','grupo__sede__capacitador')
 
 
@@ -153,7 +149,8 @@ class ParticipanteSerializer(DynamicFieldsModelSerializer, serializers.ModelSeri
     etnia=serializers.StringRelatedField(source='etnia.nombre')
     escolaridad = serializers.StringRelatedField(source ='escolaridad.nombre') 
     rol_nombre = serializers.StringRelatedField(source='rol.nombre')    
-    profesion_nombre = serializers.StringRelatedField(source='profesion.nombre')    
+    profesion_nombre = serializers.StringRelatedField(source='profesion.nombre')  
+    grado_impartido_nombre = serializers.StringRelatedField(source='grado_impartido.grado_asignado')       
 
 
     class Meta:
@@ -202,8 +199,8 @@ class NotaHitoSerializer(serializers.ModelSerializer):
 
 class AsignacionSerializer(DynamicFieldsModelSerializer, serializers.ModelSerializer):
     """Serializer de uso general para :model:`cyd.Asignacion`."""
-    notas_asistencias = NotaAsistenciaSerializer(many=True, read_only=True)
-    notas_hitos = NotaHitoSerializer(many=True, read_only=True)
+    #notas_asistencias = NotaAsistenciaSerializer(many=True, read_only=True)
+    #notas_hitos = NotaHitoSerializer(many=True, read_only=True)
     curso=serializers.StringRelatedField(source='grupo.curso')
     sede=serializers.StringRelatedField(source='grupo.sede')
     sede_id=serializers.StringRelatedField(source='grupo.sede.id')
