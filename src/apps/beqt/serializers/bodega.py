@@ -15,6 +15,7 @@ class DispositivoSerializer(serializers.ModelSerializer):
     clase = serializers.StringRelatedField()
     url = serializers.StringRelatedField(source='get_absolute_url')
     procesador = serializers.SerializerMethodField()
+    regulador = serializers.SerializerMethodField()
 
     class Meta:
         model = beqt_m.DispositivoBeqt
@@ -32,7 +33,10 @@ class DispositivoSerializer(serializers.ModelSerializer):
             'tarima',
             'url',
             'procesador',
-            'codigo_rti']    
+            'codigo_rti',
+            'regulador',
+            ]    
+                
 
     def get_procesador(self, obj): 
         if obj.tipo.id == 2:
@@ -43,6 +47,16 @@ class DispositivoSerializer(serializers.ModelSerializer):
             return str(laptop_procesador.procesador) 
         else:
             return ""
+        
+    def get_regulador(self, obj): 
+        if obj.tipo.id == 7:
+            if obj.regulador:
+                return "Si"
+            else:
+                return "No"
+             
+        return ""
+
 
 
 class TarimaSerializer(serializers.ModelSerializer):

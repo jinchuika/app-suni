@@ -73,6 +73,7 @@
 						<table class="table table-striped">
 							{% for hito in curso.hitos.all %}
 								<tr>
+									<td>{{ forloop.counter }}</td>
 									<td>{{ hito.nombre }}</td>
 									<td>{{ hito.punteo_max }}</td>
 								</tr>

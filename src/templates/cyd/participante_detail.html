@@ -158,6 +158,7 @@
 												{% for nota in asignacion.notas_hitos.all %}
 													<tr>
 														<td align="center">{{ forloop.counter }}</td>
+														<!--<td align="center">{{ nota.cr_hito.id }}</td> -->
 														<td align="center">{{ nota.cr_hito.nombre }}</td>
 														<td align="center">
 															<a href="#" class="editable badge bg-blue" data-name="nota" data-type="text" data-pk="{{ nota.id }}" data-url="{% url 'nota_hito_api_update' pk=nota.id %}">

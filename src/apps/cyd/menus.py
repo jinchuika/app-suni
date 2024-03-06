@@ -65,20 +65,31 @@ cyd_informes_children = (
         icon="fa-file-pdf-o"),
     
     ViewMenuItem(
-        "Finalizacion proyecto",
+        "Finalizacion de proceso",
         reverse_lazy("informe_finalizacion_proyecto"),
         weight=12,
         icon="fa-check-circle"),
     
     ViewMenuItem(
-        "Capacitador",
+        "Capacitadores",
         reverse_lazy("informe_capacitador"),
         weight=12,
         icon="fa-file-pdf-o"),
     
     ViewMenuItem(
-        "Escuela",
+        "Por Escuela",
         reverse_lazy("informe_escuela"),
+        weight=12,
+        icon="fa-file-pdf-o"),
+    
+    ViewMenuItem(
+        "Grupo completo",
+        reverse_lazy("informe_grupo"),
+        weight=12,
+        icon="fa-file-pdf-o"),
+    ViewMenuItem(
+        "Asistencia por periodo",
+        reverse_lazy("informe_asistencia_periodos"),
         weight=12,
         icon="fa-file-pdf-o"),
     
@@ -86,31 +97,18 @@ cyd_informes_children = (
         "Listado escuela",
         reverse_lazy("informe_escuela_lista"),
         weight=12,
-        icon="fa-file-pdf-o"),
-    
-    ViewMenuItem(
-        "Grupo",
-        reverse_lazy("informe_grupo"),
-        weight=12,
-        icon="fa-file-pdf-o"),
-    
-    ViewMenuItem(
-        "Asistencia periodo",
-        reverse_lazy("informe_asistencia_periodos"),
-        weight=12,
-        icon="fa-file-pdf-o"),
-    
+        icon="fa-file-pdf-o"),     
     ViewMenuItem(
         "Escuela sede",
         reverse_lazy("informe_escuela_sede"),
         weight=12,
         icon="fa-file-pdf-o"),
     
-    ViewMenuItem(
-        "Escuela capacitada",
-        reverse_lazy("informe_escuela_capacitadas"),
-        weight=12,
-        icon="fa-file-pdf-o"),
+    #ViewMenuItem(
+    #    "Escuela capacitada",
+    #    reverse_lazy("informe_escuela_capacitadas"),
+    #    weight=12,
+    #    icon="fa-file-pdf-o"),
         
         
         )
@@ -162,5 +160,5 @@ Menu.add_item(
         '#',
         weight=10,
         icon="fa-file-pdf-o",
-        group="cyd",
+        group="cyd_admin",
         children=cyd_informes_children),)

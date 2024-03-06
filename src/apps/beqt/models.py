@@ -531,7 +531,6 @@ class AccessPointBeqt(DispositivoBeqt):
         return reverse_lazy('ap_beqt_detail', kwargs={'triage': self.triage})
 
 #Nuevos dispositivos
-
 class UpsBeqt(DispositivoBeqt):
     SLUG_TIPO = 'UPS'
     indice = models.PositiveIntegerField(editable=False, unique=True)   
@@ -557,6 +556,8 @@ class RegletaBeqt(DispositivoBeqt):
     indice = models.PositiveIntegerField(editable=False, unique=True)   
     conexiones = models.PositiveIntegerField(null=True, blank=True)
     voltaje =  models.CharField(max_length=80, null=True, blank=True,  verbose_name='Voltaje')
+    regulador = models.BooleanField(default=False, blank=True, verbose_name='Con regulador')
+
     class Meta:
         verbose_name = "Regleta"
         verbose_name_plural = "Regletas"
@@ -570,6 +571,7 @@ class RegletaBeqt(DispositivoBeqt):
 
     def get_absolute_url(self):
         return reverse_lazy('regleta_beqt_detail', kwargs={'triage': self.triage})
+
 
 class SalidaTipoBeqt(models.Model):
     nombre = models.CharField(max_length=30)

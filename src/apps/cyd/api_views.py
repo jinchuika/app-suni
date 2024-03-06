@@ -50,8 +50,7 @@ class GrupoViewSet(CsrfExemptMixin, viewsets.ModelViewSet):
     def desactivar_grupo(self,request, pk=None):
         """ Metodo  que cambia la disponibilidad del grupo
         """
-        id_grupo= request.data['primary_key']
-        print(id_grupo)
+        id_grupo= request.data['primary_key']        
         try:
             eliminar_grupo= request.data['eliminar']
         except Exception:
@@ -168,40 +167,52 @@ class SedeViewSet(CsrfExemptMixin, viewsets.ModelViewSet):
         """ Metodo  que cambia la disponibilidad del participante
         """
         contado = 0
-        dato =  json.loads(request.data['datos'])
+        contado_hitos  = 0
+        dato =  json.loads(request.data['datos'])      
         for numero in dato:
-            asignacion = Asignacion.objects.get(id=numero['Asignacion'])
-            if asignacion.participante.genero.genero != numero['Genero']:
-                if ParGenero.objects.filter(genero=numero['Genero']):
-                    asignacion.participante.genero.genero=genero=numero['Genero']
-                    asignacion.participante.genero.save()
-            notas_hitos = NotaHito.objects.filter(asignacion=asignacion)
-            notas_asistencia = NotaAsistencia.objects.filter(asignacion=asignacion)
-            for hitos in notas_hitos:
-                if(int(numero[hitos.cr_hito.nombre]) > hitos.cr_hito.punteo_max):
-                    return Response(
-                            {'mensaje': 'La nota del'+ str(hitos.cr_hito.nombre)+"No es permitda"},
-                            status=status.HTTP_406_NOT_ACCEPTABLE
-                             )
-                else:
-                    hitos.nota=numero[hitos.cr_hito.nombre]
-                    hitos.save()
-            for notas in notas_asistencia:
-                contado = contado +1
-                if(int(numero[str("Asistencia "+str(contado))]) > notas.gr_calendario.cr_asistencia.punteo_max ):
-                    return Response(
-                            {'mensaje': 'La nota de la '+ str("Asistencia "+str(contado))+"No es permitda"},
-                            status=status.HTTP_406_NOT_ACCEPTABLE
-                             )
-                else:
-                    notas.nota = numero[str("Asistencia "+str(contado))]
-                    notas.save()
-                    if(contado==notas_asistencia.count()):
-                        contado=0
+            try:
+                asignacion = Asignacion.objects.get(id=numero['Asignacion'])
+                if asignacion.participante.genero.genero != numero['Genero']:
+                    if ParGenero.objects.filter(genero=numero['Genero']):
+                        asignacion.participante.genero.genero=genero=numero['Genero']
+                        asignacion.participante.genero.save()
+                notas_hitos = NotaHito.objects.filter(asignacion=asignacion)                
+                notas_asistencia = NotaAsistencia.objects.filter(asignacion=asignacion)            
+                for hitos in notas_hitos:
+                    contado_hitos = contado_hitos +1
+                    #if(int(numero[hitos.cr_hito.nombre]) > hitos.cr_hito.punteo_max):
+                    if(int(numero[str("Hito"+str(contado_hitos))]) > hitos.cr_hito.punteo_max):
+                        return Response(
+                                {'mensaje': 'La nota del'+ str(hitos.cr_hito.nombre)+"No es permitida"},
+                                status=status.HTTP_406_NOT_ACCEPTABLE
+                                )
+                    else:
+                        #hitos.nota=numero[hitos.cr_hito.nombre]
+                        hitos.nota = numero[str("Hito"+str(contado_hitos))]
+                        hitos.save()
+                        if (contado_hitos==notas_hitos.count()):
+                            contado_hitos=0
+                for notas in notas_asistencia:
+                    contado = contado +1
+                    #if(int(numero[str("Asistencia "+str(contado))]) > notas.gr_calendario.cr_asistencia.punteo_max ):
+                    if(int(numero[str("A "+str(contado))]) > notas.gr_calendario.cr_asistencia.punteo_max ):
+                        return Response(
+                                {'mensaje': 'La nota de la '+ str("Asistencia "+str(contado))+" No es permitida"},
+                                status=status.HTTP_406_NOT_ACCEPTABLE
+                                )
+                    else:                    
+                        notas.nota = numero[str("A "+str(contado))]
+                        #notas.nota = numero[str("Asistencia "+str(contado))]
+                        notas.save()
+                        if(contado==notas_asistencia.count()):
+                            contado=0                
+            except Exception as e:
+                print(e)
         return Response(
-            {'mensaje': 'Cambio Aceptado'},
-            status=status.HTTP_200_OK
-        )
+                            {'mensaje': 'Cambio Aceptado'},
+                            status=status.HTTP_200_OK
+                        )
+            
 
 
 
@@ -220,7 +231,7 @@ class SedeViewSetInforme(CsrfExemptMixin, viewsets.ModelViewSet):
 class AsignacionViewSet(CsrfExemptMixin, viewsets.ModelViewSet):
     serializer_class = AsignacionSerializer
     queryset = Asignacion.objects.all()
-    filter_fields = ('grupo__curso',)
+    filter_fields = ('grupo__curso','grupo__sede')
     #filter_fields = ('grupo',)
 
     @action(methods=['post'], detail=False)
@@ -243,9 +254,7 @@ class AsignacionViewSet(CsrfExemptMixin, viewsets.ModelViewSet):
         grupo_id = request.data['grupo']        
         grupos = Grupo.objects.get(id=grupo_id)            
         buscar_grupos = Grupo.objects.filter(curso=grupos.curso).last()              
-        buscar_asignacion = Asignacion.objects.filter(grupo__curso=buscar_grupos.curso,participante__id=participante_id,grupo__sede=buscar_grupos.sede)
-        #print(buscar_grupos.sede)
-        #print(buscar_asignacion[0].grupo)
+        buscar_asignacion = Asignacion.objects.filter(grupo__curso=buscar_grupos.curso,participante__id=participante_id,grupo__sede=buscar_grupos.sede)        
         if buscar_asignacion.count() >0:
             return Response(
                 {'Ya esta asignado en los grupos de: '+ str(buscar_asignacion[0].grupo)},
@@ -277,7 +286,7 @@ class ParticipanteViewSet(CsrfExemptMixin, viewsets.ModelViewSet):
     queryset = Participante.objects.all()
     filter_class = ParticipanteFilter
     filter_backends = (SearchFilter, filters.DjangoFilterBackend)
-    search_fields = ('nombre', 'apellido')
+    search_fields = ('nombre', 'apellido','dpi')
     lookup_field = 'pk'
 
 

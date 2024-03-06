@@ -1,38 +1,215 @@
-{% load staticfiles%}
+{%load staticfiles%}
 <!DOCTYPE html>
 <html>
 <head>
-	<title>FORMULARIO DE ENTRADA {{object.id}}</title>
-	<link rel="stylesheet" type="text/css" href="{% static "css/bootstrap.min.css" %}">
-	
+  <title>
+    Constancia de préstamo
+  </title>
 </head>
-<!--ENCABEZADO DE DATOS E IMAGENES -->
-<header>
-	<div class="logo_izquierdo">
-		<img  width= "125" height="100" style="float:left; margin:10px;"src="{% static "image/Logo_Funsepa-01.png" %}">
-	</div>
-	<br>
-	<br>
-	<br>
-	<br>
-	<a class="encabezado2" ><b>FORMULARIO DE ENTRADA</b></a>
-	<br>
-	<br>
-	<br>
-	<div class="row">
-		<div class="col-md-6">
-			Nombre:
-		</div>		
+<meta charset="utf-8"/>
+<body>
+  
+  <div>
+    <div  align="left" class="encabezado">
+      <br>
+      <br> 
+      <br>
+      <img src="{% static "image/Logo_Funsepa-01.png" %}" width="25%" height="25%"/>
+    </div>
+  </div>
 
-	</div>
-	<br>
-	<div class="row">
-		<div class="col-md-6">
-			Fecha:
-		</div>
-		<div class="col-md-6">
-			Tipo:	ENTRADA
-		</div>
+
+  <div class="cuerpo">
+    <div align="center"> 
+      <div align="center" style="width: 50%; height: 5%;">
+        <h2 style="border: thin solid black;">
+          <b>CAJA DE REPUESTO <b>
+        </h2>
+      </div>
+    </div> 
+
+    <div align="center"> 
+      <table style="width:85%">
+        <tr> 
+          <td style="width: 10%;">  NOMBRE: </td>
+          <td style="width: 35%"  class="borde-inferior">  {{  tecnico }}  </td>
+          <td style="width: 5%" > </td>  
+          <td style="width: 15%">
+			{% if salidas_asignadas|length > 1 %}
+				ENTREGAS:
+			{% else %}
+				EMTREGA:
+			{% endif %} 
+		   </td>
+          <td colrow="" style="border: solid; text-align: center;" >
+			{% for salida in salidas_asignadas %}
+			{{ salida }}
+			{% if not forloop.last %}
+				,
+			{% endif %}
+		{% endfor %}
+		
+		  </td>
+        </tr>
+        <br>
+
+        
+        <tr>
+          <td >  FECHA: </td>
+          <td  class="borde-inferior" >  {{fecha}} </td>
+          <td style="width: 5%" > </td> 
+          <td >  TIPO: </td>
+          <td class="borde-inferior"> Salida - {{ salida }} </td>
+        </tr>
+      </table>
+  </div> 
+
+  <br> 
+
+  <div align="center"> 
+    <table style="width:95%; border-collapse: collapse; border: 2px solid black;">
+        <tr> 
+            <td style="border: 2px solid black; text-align:center;" >  CANTIDAD </td>
+            <td style="border: 2px solid black; text-align:center;">  DISPOSITIVO </td>
+            <td style="border: 2px solid black; text-align:center;">  DESCRIPCIÓN/QR </td>
+        </tr>
+
+        {% for paquete in paquetes %}
+        <tr style="border: 1px solid black;">
+            <td width="20%" style="border: 1px solid black; text-align:center;">  {{ paquete.cantidad }} </td>
+            <td width="20%" style="border: 1px solid black; text-align:center;">  {{ paquete.tipo_paquete.tipo_dispositivo.tipo }} </td>
+            <td width="60%" style="border: 1px solid black; text-align:center;">
+
+
+
+              {% for dispositivo in dispositivos %}
+                {% if dispositivo.tipo.tipo in paquete.tipo_paquete.tipo_dispositivo.tipo %}
+                  {{ dispositivo.triage }}
+                    {% if not forloop.last %}
+                    ,
+                    {% endif %}
+                {% endif %}
+              {% endfor %}
+
+            </td>
+        </tr>
+        
+        {% endfor %}
+    </table>
+
+</div>
+
+<br> 
+
+<div align="center"> 
+  <table style="width:95%; border-collapse: collapse; border: 2px solid black;">
+      <tr> 
+          <td style="text-align:center;" >  KARDEX  </td>
+      </tr>
+      <tr style="border: 1px solid black;">
+          <td style="border: 1px solid black; text-align:center;"> {{salida.observaciones }}  </td>
+      </tr>
+  </table>
+</div>
+
+<br> 
+
+<div align="center"> 
+  <table style="width:95%; border-collapse: collapse; border: 2px solid black;">
+      <tr> 
+          <td style="text-align:center;" >  OBSERVACIONES  </td>
+      </tr>
+      <tr style="border: 1px solid black;">
+          <td style="border: 1px solid black; text-align:center;">
+            {% if dispo_malos|length == 0 %}
+              No fueron utilizados dispositivos
+              {% else%}
+              {% for dispositivo in dispo_malos %}
+              {% if dispositivo.dispositivo_malo.dispositivo.tipo.tipo == "ACCESS POINT" %}
+                  El <b> {{ dispositivo.dispositivo_malo.dispositivo.triage }} </b> es remplazdo por el <b> {{ dispositivo.dispositivo_bueno.dispositivo.triage }} </b> que pertenece a la entrega <b> {{ dispositivo.dispositivo_malo.paquete.salida }}</b> <br>
+              
+              {% elif dispositivo.dispositivo_malo.dispositivo.tipo.tipo == "SWITCH" %}
+                El switch <b> {{ dispositivo.dispositivo_malo.dispositivo.triage }} </b> es remplazdo por el switch <b> {{ dispositivo.dispositivo_bueno.dispositivo.triage }} </b> que pertenece a la entrega <b> {{ dispositivo.dispositivo_malo.paquete.salida }}</b> <br>
+              
+              {% elif dispositivo.dispositivo_malo.dispositivo.tipo.tipo == "LAPTOP" %}
+                La laptop <b> {{ dispositivo.dispositivo_malo.dispositivo.triage }} </b> es remplazada por la laptop <b> {{ dispositivo.dispositivo_bueno.dispositivo.triage }} </b> que pertenece a la entrega <b> {{ dispositivo.dispositivo_malo.paquete.salida }}</b> <br>
+                
+              {% elif dispositivo.dispositivo_malo.dispositivo.tipo.tipo == "CPU" %}
+                El <b> {{ dispositivo.dispositivo_malo.dispositivo.triage }} </b> es remplazdo por el <b> {{ dispositivo.dispositivo_bueno.dispositivo.triage }} </b> que pertenece a la entrega <b> {{ dispositivo.dispositivo_malo.paquete.salida }}</b> <br>
+
+              {% elif dispositivo.dispositivo_malo.dispositivo.tipo.tipo == "MONITOR" %}
+                El monitor <b>{{ dispositivo.dispositivo_malo.dispositivo.triage }} </b> es remplazdo por el monitor <b> {{ dispositivo.dispositivo_bueno.dispositivo.triage }} </b> que pertenece a la entrega <b> {{ dispositivo.dispositivo_malo.paquete.salida }}</b> <br>
+                
+              {% elif dispositivo.dispositivo_malo.dispositivo.tipo.tipo == "TABLET" %}
+                La tablet <b> {{ dispositivo.dispositivo_malo.dispositivo.triage }} </b> es remplazada por la tablet <b> {{ dispositivo.dispositivo_bueno.dispositivo.triage }} </b> que pertenece a la entrega <b> {{ dispositivo.dispositivo_malo.paquete.salida }}</b> <br>
+
+              {% elif dispositivo.dispositivo_malo.dispositivo.tipo.tipo == "HDD" %}
+                El HHD <b> {{ dispositivo.dispositivo_malo.dispositivo.triage }} </b> es remplazdo por el HHD <b> {{ dispositivo.dispositivo_bueno.dispositivo.triage }} </b> que pertenece a la entrega <b> {{ dispositivo.dispositivo_malo.paquete.salida }}</b> <br>
+
+              {% elif dispositivo.dispositivo_malo.dispositivo.tipo.tipo == "MOUSE" %}
+                El mouse <b> {{ dispositivo.dispositivo_malo.dispositivo.triage }} </b> es remplazdo por el mouse <b> {{ dispositivo.dispositivo_bueno.dispositivo.triage }} </b> que pertenece a la entrega <b> {{ dispositivo.dispositivo_malo.paquete.salida }}</b> <br>
+                
+              {% elif dispositivo.dispositivo_malo.dispositivo.tipo.tipo == "TECLADO" %}
+                El tecladp <b>{{ dispositivo.dispositivo_malo.dispositivo.triage }} </b> es remplazdo por el teclado <b> {{ dispositivo.dispositivo_bueno.dispositivo.triage }} </b> que pertenece a la entrega <b> {{ dispositivo.dispositivo_malo.paquete.salida }}</b> <br>
+
+
+              {% else %}
+                  No fueron utilizados dispositivos
+              {% endif %}
+          {% endfor %}
+          
+            {% endif %} 
+          </td>
+      </tr>
+  </table>
+</div>
+
+<br>
+
+<div align="center"> 
+  <table style="width:95% ; border-collapse: collapse; border: 2px solid black;">
+      <tr> 
+          <td style="text-align:center;" >  INSUMOS UTILIZADOS </td>
+      </tr>
+      <tr style="border: 1px solid black;">
+        <td style="border: 1px solid black; text-align: center; height: 50px;">  </td>
+      </tr>
+  </table>
+</div>
+
+<br> <br><br> <br>
+
+<div>
+  <table style="width:100%">
+      <tr>
+          <th>
+              _____________________________________ 
+              <br>
+              <br>
+              Nombre y firma de quien recibe
+          </th>
+          <th>
+              _____________________________________ 
+              <br>
+              <br>
+              Nombre y firma de quien entrega
+          </th>
+      </tr>
+
+      <tr>
+          <th colspan="2">
+              <br>
+              <br>
+              <br>
+              <br>
+              _____________________________________ 
+              <br>
+              <br>
+              Nombre y firma autoriza
+          </th>
+      </tr>
+  </table>
+</div>
 
 	</div>
 </header>
@@ -46,10 +223,10 @@
 	<table style="text-align:center;">
 		<thead>
 			<tr>
-				<th style="border:solid; border-width: 1px;border-color:gray" width="15%"><center>Triage</center></th>
+				<th style="border:solid; border-width: 1px;border-color:gray" width="15%"><center>Cantidad</center></th>
 				<th style="border:solid; border-width: 1px;border-color:gray" width="15%"><center>Tipo</center></th>
 				<th style="border:solid; border-width: 1px;border-color:gray" width="15%"><center>Descripcion</center></th>
-				<th style="border:solid; border-width: 1px;border-color:gray" width="15%"><center>Observaciones</center></th>
+				
 			  </tr>
 		</thead>
 		<tbody>
@@ -57,8 +234,7 @@
 				<tr>
 					<td style="border:solid; border-width: 1px;border-color:gray">{{data.dispositivo_bueno.dispositivo}}</td>
 					<td style="border:solid; border-width: 1px;border-color:gray">{{data.dispositivo_bueno.dispositivo.tipo}}</td>
-					<td style="border:solid; border-width: 1px;border-color:gray">{{data.descripcion_equipo}}</td>
-					<td style="border:solid; border-width: 1px;border-color:gray">{{data.observaciones}}</td>
+					
 				</tr>
 		{% endfor %}
 		</tbody>
@@ -78,73 +254,46 @@
 	<br>
 	<br>
 
-
+    
 </body>
-<footer>
-	<table with="100">
-	  <div class="row">
-		<div class="col-md-6">
-			<br />
-			<br />
-			________________________________
-            <br />
-			&nbsp;&nbsp;&nbsp;&nbsp;Nombre y firma de quien recibe
-		</div>
-		<div class="col-md-6">
-			<br />
-			<br />
-			________________________________
-            <br />
-		    &nbsp;&nbsp;&nbsp;&nbsp;Nombre y firma de quien entrega
-		</div>
-
-		<div class="row">
-			<div class="col-md-3">
-			</div>
-			<div class="col-md-3">
-				<br />
-				<br />
-				________________________________
-				<br />
-				&nbsp;&nbsp;&nbsp;&nbsp;Nombre y firma de autorizacion
-			</div>
-			<div class="col-md-3">
-			</div>
-
-	</div>
-
-</footer>
-
-
-
-<!--TERMINAR TABLAS DE FIRMA Y SELLO-->
-
-<!--CSS-->
 <style type="text/css">
-	@page{
-	margin-top: 0mm;
-	margin-right: 0mm;
-	margin-left: 0mm;
-	margin-bottom: 0mm;
-}
 body{
-	font-family: arial;
-	 background-image: none;
-	-webkit-print-color-adjust: exact; /*economy | exact*/
-    color-adjust: exact;
+  position: absolute;
+  margin-top: 30px;
+  font-size: 16.5px;
+  z-index: 1;
 }
-.encabezado2{
-	font-size:12px;
+@page{
+  margin-top: 0mm;
+  margin-bottom: 0mm;
+  margin-left: 10mm;
+  margin-right: 10mm;
+}
+.encabezado{
+position: relative;
+margin-top: -30px;
+z-index: 0;
+}
+.cuerpo{
+  position: relative;
+}
+h6{
+  font-weight: normal;
+  font-style: normal;
+  font-size: 16px; 
+}
+td{
+  font-weight: normal;
+  font-style: normal;
+  font-size: 12px; 
+}
+.borde-inferior {
+	border-bottom: 2px solid black; 
 	text-align: center;
 }
 
 </style>
-
-<!--TERMINA PIE DE PAGINA-->
-
-{% block extra_js %}
-<script>
-//window.onload= function () { window.print();window.close();   }
-</script>
-{% endblock extra_js %}
 </html>
+{% block extra_js %}
+
+{% endblock extra_js %}
