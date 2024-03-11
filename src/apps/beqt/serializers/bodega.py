@@ -20,7 +20,7 @@ class DispositivoSerializer(serializers.ModelSerializer):
     class Meta:
         model = beqt_m.DispositivoBeqt
         fields = [
-            'id',
+            'id', 
             'triage',
             'tipo',
             'entrada',
@@ -48,14 +48,15 @@ class DispositivoSerializer(serializers.ModelSerializer):
         else:
             return ""
         
-    def get_regulador(self, obj): 
-        if obj.tipo.id == 7:
-            if obj.regulador:
+    def get_regulador(self, obj):
+        try: 
+            regleta = beqt_m.RegletaBeqt.objects.get(id = obj.id)
+            if regleta.regulador:
                 return "Si"
             else:
                 return "No"
-             
-        return ""
+        except:
+            return ""
 
 
 
