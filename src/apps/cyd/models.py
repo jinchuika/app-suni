@@ -436,7 +436,7 @@ class Asignacion(models.Model):
     participante = models.ForeignKey(Participante, related_name='asignaciones', on_delete=models.CASCADE)
     grupo = models.ForeignKey(Grupo, related_name='asignados', on_delete=models.CASCADE)
     abandono=models.BooleanField(default=False, blank=True, verbose_name='Abandono')
-    
+    #cyd_asignacion_creado_por =models.ForeignKey(User, on_delete=models.CASCADE,default=User.objects.get(username="Admin").pk)
     class Meta:
         verbose_name = "Asignación"
         verbose_name_plural = "Asignaciones"
@@ -514,6 +514,7 @@ class NotaAsistencia(models.Model):
     asignacion = models.ForeignKey(Asignacion, related_name='notas_asistencias', on_delete=models.CASCADE)
     gr_calendario = models.ForeignKey(Calendario, related_name='notas_asociadas', on_delete=models.CASCADE)
     nota = models.IntegerField(default=0)
+    #cyd_nota_asistencia_creado_por =models.ForeignKey(User, on_delete=models.CASCADE,default=User.objects.get(username="Admin").pk)
    
 
     class Meta:
@@ -539,6 +540,7 @@ class NotaHito(models.Model):
     asignacion = models.ForeignKey(Asignacion, related_name='notas_hitos', on_delete=models.CASCADE)
     cr_hito = models.ForeignKey(CrHito, on_delete=models.CASCADE)
     nota = models.IntegerField(default=0)
+    #cyd_nota_hito_creado_por =models.ForeignKey(User, on_delete=models.CASCADE,default=User.objects.get(username="Admin").pk)
     
 
     class Meta:
