@@ -1291,9 +1291,12 @@ CalendarioCyD.init = function () {
                         table.instance.setDataAtCell(table.row, 9, respuesta[0].profesion_nombre) 
                         table.instance.setDataAtCell(table.row, 10, respuesta[0].grado_impartido_nombre) 
                         table.instance.setDataAtCell(table.row, 11, respuesta[0].chicos) 
-                        table.instance.setDataAtCell(table.row, 12, respuesta[0].chicas)  
+                        table.instance.setDataAtCell(table.row, 12, respuesta[0].chicas)
+                        
+                        $("#btn-crear").prop("disabled",true);  
                         return callback(false);
                     } else {
+                        $("#btn-crear").prop("disabled",false);  
                         return callback(true);
                     }
                 });
@@ -2046,6 +2049,8 @@ CalendarioCyD.init = function () {
         searching:true,
         paging:true,
         ordering:true,
+        //order:[[7,"desc"]],
+        //pageLength: 50,
         deferLoading: [0],
         ajax:{
             url:url_informe_sede,
@@ -2081,9 +2086,9 @@ CalendarioCyD.init = function () {
             }},
             {data: "capacitador"},
             {data: "fecha_creacion"},
-            {data:"", render: function(data, type, full, meta){
+           /* {data:"", render: function(data, type, full, meta){
                 return  ""//"<a id='borrar_sede' data-sede='"+ full.id+"' class='btn btn-danger btn-block btn-borrar'><i class='fa fa-trash'></i> Eliminar</a>";
-            }}
+            }}*/
         ]
     }).on('xhr.dt', function(e, settings, json, xhr) {
         $('#spinner').hide();
