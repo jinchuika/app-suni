@@ -1,13 +1,16 @@
 <div class="box box-success box-solid">
 	<div class="box-header with-border">
-		<h3 class="box-title">Entrega {{ equipamiento_form.instance.id }} - {{ equipamiento_form.instance.fecha }}</h3>
+		<h3 class="box-title">Entrega {% if equipamiento_form.no_referencia == 0 %} {{ equipamiento_form.instance.id }} {% else %} {{ equipamiento_form.instance.no_referencia}} {% endif %} - {{ equipamiento_form.instance.fecha }}</h3>
 		<div class="box-tools pull-right">
+			Aqui uno -- {{ equipamiento_form.instance.escuela.id}}
 			<a href="{% url "escuela_detail" pk=equipamiento_form.instance.escuela.id %}" class="btn btn-box-tool">
 				<i class="fa fa-times"></i>
 			</a>
 		</div>
 	</div>
 	<div class="box-body">
+		<script> console.log("Hola") </script> 
+		 AQUi ta -- {{ equipamiento_form.instance.id }}
 		<form action="{% url "equipamiento_update" pk=equipamiento_form.instance.id %}" method="post" role="form">
 			{% csrf_token %}
 			<table class="table table-hover table-striped">
