@@ -22,10 +22,17 @@ class EquipamientoCrearView(PermissionRequiredMixin, CreateView):
     redirect_unauthenticated_users = True
     raise_exception = True
 
+    def form_valid(self, form):
+        ultimo_id = tpe_m.Equipamiento.objects.latest('id').id
+        form.instance.id = ultimo_id + 1
+
+        return super().form_valid(form)
+        
     def get_success_url(self):
         return reverse(
             'escuela_equipamiento_update',
             kwargs={'pk': self.object.escuela.id, 'id_equipamiento': self.object.id})
+
 
 
 class EquipamientoUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
@@ -40,7 +47,7 @@ class EquipamientoUpdateView(LoginRequiredMixin, PermissionRequiredMixin, Update
     permission_required = 'tpe.change_equipamiento'
     redirect_unauthenticated_users = False
     raise_exception = True
-
+    
     def form_valid(self, form):
         form.instance.creado_por = self.request.user
         return super(EquipamientoUpdateView, self).form_valid(form)

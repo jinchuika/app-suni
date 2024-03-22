@@ -3,7 +3,24 @@
 <div class="box box-success box-solid
 	{% if equipamiento_detail != equipamiento.id|stringformat:"s" %}collapsed-box{% endif %}">
 	<div class="box-header with-border">
-		<h3 class="box-title">Entrega {{ equipamiento.id }} • {{ equipamiento.fecha|date:"d/M/Y" }}</h3>
+		<h3 class="box-title"> Entrega 
+			{% if equipamiento.no_referencia == 0 %}
+				{{ equipamiento.id }}
+			{% else %}
+				{{ equipamiento.no_referencia}}
+			{% endif %}
+			 
+			• {{ equipamiento.fecha|date:"d/M/Y" }}  
+			
+			{% for cop in equipamiento.cooperante.all %}
+				{% if cop|upper  == "BEQT" %}
+					•  BEQT
+				{% endif %}	
+			{% endfor %}
+
+		</h3>
+			
+
 		<div class="box-tools pull-right">
 			{% if perms.tpe.change_equipamiento %}
 				<a href="{% url "escuela_equipamiento_update" pk=equipamiento.escuela.id id_equipamiento=equipamiento.id %}" class="btn btn-box-tool"><i class="fa fa-pencil"></i> Editar</a>
@@ -16,7 +33,7 @@
 		<table class="table table-hover table-striped">
 			<tr>
 				<th>Número de entrega</th>
-				<td>{{ equipamiento.id }}</td>
+				<td> {% if equipamiento.no_referencia == 0 %} {{ equipamiento.id }} {% else %} {{ equipamiento.no_referencia}} {% endif %}</td>
 			</tr>
 			<tr>
 				<th>Estado</th>
@@ -82,7 +99,7 @@
 			</tr>
 			<tr>
 				<th>Observaciones</th>
-				<td>{{ equipamiento.observacion }}</td>
+				<td>  {% if equipamiento.observacion is None %} --- {% else %} {{ equipamiento.observacion }} {% endif%} </td>
 			</tr>
 			<tr>
 				<th>Cooperantes</th>

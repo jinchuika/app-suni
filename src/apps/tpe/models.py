@@ -37,6 +37,7 @@ class EquipamientoOs(models.Model):
 
 class Equipamiento(models.Model):
     id = models.IntegerField(primary_key=True)
+    no_referencia = models.IntegerField(default=0, verbose_name='Numero de referencia de entrega')
     estado = models.ForeignKey(
         EquipamientoEstado,
         default=1,

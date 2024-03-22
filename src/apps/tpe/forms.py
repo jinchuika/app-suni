@@ -15,19 +15,21 @@ from apps.escuela.forms import EscuelaBuscarForm
 class EquipamientoNuevoForm(forms.ModelForm):
     class Meta:
         model = tpe_m.Equipamiento
-        fields = ('id', 'escuela')
+        fields = ('no_referencia', 'escuela')
         labels = {
-            'id': 'Número de entrega'}
+            'no_referencia': 'Número de entrega'}
         widgets = {
-            'id': forms.NumberInput(attrs={'min': 1, 'class': 'form-control'}),
-            'escuela': forms.HiddenInput()}
+            #'id': forms.NumberInput(attrs={'min': 1, 'class': 'form-control'}),
+            'no_referencia': forms.NumberInput(attrs={'min': 1, 'class': 'form-control'}),   
+            'escuela': forms.HiddenInput()
+            }
 
 
 class EquipamientoForm(ModelForm):
     class Meta:
         model = tpe_m.Equipamiento
         fields = '__all__'
-        exclude = ('id','creado_por', )
+        exclude = ('id','creado_por', 'no_referencia',)
         widgets = {
             'escuela': forms.HiddenInput(),
             'estado': forms.Select(attrs={'class': 'form-control'}),
@@ -213,6 +215,7 @@ class EquipamientoListForm(EscuelaBuscarForm):
         label='Renovación',
         required=False,
         choices=ESTADO_CHOICES)
+    
 
     def __init__(self, *args, **kwargs):
         super(EquipamientoListForm, self).__init__(*args, **kwargs)
