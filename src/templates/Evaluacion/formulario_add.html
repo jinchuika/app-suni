@@ -25,13 +25,15 @@
                                 {% csrf_token %}
                                 {% for field in form %}
                                     <tr>
-                                        {% if field.label_tag == "Usuario:" %}
-                                            Capacitador:
+                                        {% if field.name|upper == "USUARIO" %}
+                                            <td> <b> Capacitador: </b> </td>
+                                        {% else %}
+                                            <td>{{ field.label_tag }}</td>
                                         {% endif %}
-                                        <td>{{ field.label_tag}} </td>
                                         <td>{{ field|add_class:"form-control" }}</td>
                                     </tr>
                                 {% endfor %}
+                                
                                 <tr>
                                     <td colspan="2" align="center">
                                         <input type="submit" value="Guardar" class="btn btn-primary" tabindex="6">
