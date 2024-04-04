@@ -70,7 +70,7 @@ class EquipamientoFilter(filters.FilterSet):
     departamento = django_filters.NumberFilter(name='escuela__municipio__departamento')
     nivel = django_filters.NumberFilter(name='escuela__nivel')
     renovacion = django_filters.BooleanFilter(name='renovacion')
-    equipamiento_id = django_filters.NumberFilter(name='id')
+    equipamiento_id = django_filters.NumberFilter(name='no_referencia')
     cooperante = django_filters.ModelMultipleChoiceFilter(queryset=mye_m.Cooperante.objects.all())
     proyecto = django_filters.ModelMultipleChoiceFilter(queryset=mye_m.Proyecto.objects.all())
     nombre = django_filters.CharFilter(name='escuela__nombre', lookup_expr='icontains')

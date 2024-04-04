@@ -66,7 +66,8 @@ class EvaluacionMonitoreoFullSerializer(EvaluacionMonitoreoSerializer):
 
 class EquipamientoSerializer(main_s.DynamicFieldsModelSerializer, serializers.ModelSerializer):
     entrega_url = serializers.URLField(source='get_absolute_url')
-    entrega = serializers.IntegerField(source='id')
+    entrega = serializers.IntegerField(source='no_referencia')
+    entrega_id = serializers.IntegerField(source='id')
     escuela = serializers.StringRelatedField()
     escuela_url = serializers.URLField(source='escuela.get_absolute_url')
     escuela_codigo = serializers.StringRelatedField(source='escuela.codigo')
@@ -81,7 +82,7 @@ class EquipamientoSerializer(main_s.DynamicFieldsModelSerializer, serializers.Mo
     class Meta:
         model = tpe_models.Equipamiento
         fields = (
-            'entrega', 'entrega_url', 'escuela', 'escuela_url',
+            'entrega_id', 'entrega', 'entrega_url', 'escuela', 'escuela_url',
             'escuela_codigo', 'fecha', 'renovacion', 'khan',
             'cantidad', 'tipo_red', 'cooperante', 'proyecto')
 
