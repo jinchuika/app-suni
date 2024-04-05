@@ -63,4 +63,9 @@ urlpatterns = [
       varias_v.HitosApi.as_view(),
       name='asignacion_notahito_2'
  ),
+ url(
+    r'^capacitacion/nota/$',
+    varias_v.CapacitacionNotas.as_view(),
+    name='capacitacion_notas'
+ )
 ]
