@@ -1,6 +1,9 @@
 from django.shortcuts import render
 from apps.inventario import models as inv_m
 from apps.cyd import models as cyd_m
+from apps.main import models as main_m 
+from apps.escuela import models as esc_m 
+from apps.tpe import models as tpe_m 
 import qrcode
 import json
 from io import BytesIO
@@ -13,14 +16,15 @@ from django.contrib.auth.models import User
 from apps.escuela.models import *
 import json
 from apps.main.models import Municipio
-
-# Create your views here.
 from rest_framework import views, status
 from rest_framework.response import Response
-
 import os.path as path
+import os
+from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
+from openpyxl import load_workbook
+from apps.mye.models  import Cooperante
 
-
+# Create your views here.
 class SubirTodo(views.APIView): 
     """  Clase encargada de Subir todos los datos de los archivos json a las tablas del modulo de cyd del SUNI
     """
@@ -98,7 +102,7 @@ class SubirTodo(views.APIView):
                            id = data_parrol["id"],
 		                 nombre = data_parrol["nombre"]
                            
-                      )
+ZeroDivisionErrorError = models import                    )
                       rol.save()
             file_parrol.close()
             print("---FIN ROL---") 
@@ -483,4 +487,401 @@ class SubirNotasHitosJson(views.APIView):
                         )
 
 
+#Fin primera migración 
 
+#Inicio de segunda migración 
+class escuelasApi(views.APIView):
+    """Comentario de Api de prueba para la Apis de django"""
+    def get(self, request): 
+     archivo_excel_path = "C:/Migracion2/Escuelas_MIG_2.xlsx"         #Aquí va la dirección
+     archivo_excel = load_workbook(filename=archivo_excel_path)
+     hoja_excel = archivo_excel.active
+     max_row = hoja_excel.max_row
+
+     existentes = 0
+     agregadas = 0 
+     ruta_archivo_txt = os.path.splitext(archivo_excel_path)[0] + "_log.txt"
+
+     with open(ruta_archivo_txt, "w") as archivo_log:
+          for i in range(2, max_row + 1):
+               try:
+                    escuela = cyd_m.Escuela.objects.get(codigo=hoja_excel.cell(row=i, column=2).value)
+                    existentes += 1
+                    print(str(i) + " -> " + str(escuela))
+
+               except cyd_m.Escuela.DoesNotExist:
+                    nueva_escuela = cyd_m.Escuela(
+                        codigo=hoja_excel.cell(row=i, column=2).value,
+                        distrito=hoja_excel.cell(row=i, column=3).value,
+                        municipio=esc_m.Municipio.objects.get(id=hoja_excel.cell(row=i, column=10).value), 
+                        nombre=hoja_excel.cell(row=i, column=4).value,
+                        direccion=hoja_excel.cell(row=i, column=5).value,
+                        telefono=hoja_excel.cell(row=i, column=6).value,
+                        nivel=esc_m.EscNivel.objects.get(id=hoja_excel.cell(row=i, column=11).value),
+                        sector=esc_m.EscSector.objects.get(id=hoja_excel.cell(row=i, column=13).value),
+                        area=esc_m.EscArea.objects.get(id=hoja_excel.cell(row=i, column=7).value),
+                        status=esc_m.EscStatus.objects.get(id=hoja_excel.cell(row=i, column=14).value),
+                        modalidad=esc_m.EscModalidad.objects.get(id=hoja_excel.cell(row=i, column=9).value),
+                        jornada=esc_m.EscJornada.objects.get(id=hoja_excel.cell(row=i, column=8).value),
+                        plan=esc_m.EscPlan.objects.get(id=hoja_excel.cell(row=i, column=12).value),
+                        esc_creado_por=User.objects.get(id=hoja_excel.cell(row=i, column=16).value)
+                    )
+                    nueva_escuela.save()
+                    agregadas += 1
+                    mensaje = "{} Escuela creada: {}".format(i, hoja_excel.cell(row=i, column=4).value)
+                    print(mensaje)
+                    archivo_log.write(mensaje + "\n")
+
+          resumen = "Total creadas: {}, Ya existentes: {}".format(agregadas, existentes)
+          print(resumen)
+          archivo_log.write(resumen + "\n")
+          print("---FIN ESCUELAS---")
+
+        
+          return Response(
+               "Datos ingresados con exito", 
+               status=status.HTTP_200_OK
+          )
+    
+
+
+class equipamientoApi(views.APIView):
+    """Comentario de Api de prueba para la Apis de django"""
+    def get(self, request): 
+          archivo_excel_path = "C:/Migracion2/Equipamientos_MIG_2.xlsx"
+          archivo_excel = load_workbook(filename=archivo_excel_path)
+          hoja_excel = archivo_excel.active
+          max_row = hoja_excel.max_row
+          min_row = hoja_excel.min_row
+
+          equipadas = 0
+          no_equipadas = 0
+          no_existe = 0 
+          ruta_archivo_txt = os.path.splitext(archivo_excel_path)[0] + "_log.txt"
+
+          with open(ruta_archivo_txt, "w") as archivo_log:
+               for i in range(2, max_row + 1):
+                    try:
+                         escuela = cyd_m.Escuela.objects.get(codigo = hoja_excel.cell(row = i, column = 2).value)
+
+                         if escuela.equipada:
+                              equipadas += 1
+
+                         else:
+                              ultimo_id = tpe_m.Equipamiento.objects.latest('id').id
+                              nuevo_equipamiento = tpe_m.Equipamiento.objects.create(
+                                   id = ultimo_id + 1,
+                                   estado = tpe_m.EquipamientoEstado.objects.get(id = "1"), 
+                                   escuela = cyd_m.Escuela.objects.get(codigo = hoja_excel.cell(row = i, column = 2).value), 
+                                   fecha = "2010-01-01", 
+                                   observacion = "Historico de equipamientos de 2010", 
+                                   renovacion = False, 
+                                   servidor_khan = False,
+                                   creado_por = User.objects.get(id = hoja_excel.cell(row = i, column = 4).value),
+                                   cooperante = Cooperante.objects.get(nombre = "FUNSEPA")
+                              )
+     
+                              registro = "{} Escuela equipada: {}".format(i, hoja_excel.cell(row=i, column=3).value)
+                              archivo_log.write(registro + "\n")
+                              #nuevo_equipamiento.save()
+                              no_equipadas += 1
+                              print(str(i) + " Creada: " +  hoja_excel.cell(row = i, column = 2).value)
+
+                    except Exception as c:
+                         no_existe += 1
+
+               resumen = "Total existentes: {}, total creadas: {}, no econtradas {}".format(equipadas, no_equipadas, no_existe)
+               archivo_log.write(resumen + "\n")
+               print(resumen)
+               print("---FIN EQUIPAMIENTOS---")
+        
+          return Response(
+               "Datos ingresados con exito", 
+               status=status.HTTP_200_OK
+          )
+
+
+class participantesApi(views.APIView):
+    """Comentario de Api de prueba para la Apis de django class:`Participante`"""
+
+    def get(self, request): 
+          archivo_excel_path = filename="C:/Migracion2/Participantes_MIG_2A_FinalC.xlsx" #Aquí va la dirección y sus variantes
+          archivo_excel = load_workbook(filename=archivo_excel_path)
+          hoja_excel = archivo_excel.active
+          max_row = hoja_excel.max_row
+          min_row = hoja_excel.min_row
+
+          existentes = 0
+          agregados = 0 
+          ruta_archivo_txt = os.path.splitext(archivo_excel_path)[0] + "_log.txt"
+
+          with open(ruta_archivo_txt, "w") as archivo_log:
+               for i in range(2, max_row + 1):
+                    try:
+                         if cyd_m.Participante.objects.get(nombre = hoja_excel.cell(row = i, column = 4).value, apellido = hoja_excel.cell(row = i, column = 5).value) : 
+                              participante = cyd_m.Participante.objects.get(nombre = hoja_excel.cell(row = i, column = 4).value, apellido = hoja_excel.cell(row = i, column = 5).value)
+                              registro = "{} Existe -> {} {}".format(i, hoja_excel.cell(row=i, column=4).value, hoja_excel.cell(row=i, column=5).value)
+                              archivo_log.write(registro + "\n")
+                              existentes +=1
+                    except Exception as c:
+                         registro_participantes = cyd_m.Participante(
+                         dpi = hoja_excel.cell(row = i, column = 3).value,                          
+                         nombre = hoja_excel.cell(row = i, column = 4).value,                            
+                         apellido= hoja_excel.cell(row = i, column = 5).value,                          
+                         genero = cyd_m.ParGenero.objects.get(id= hoja_excel.cell(row = i, column = 7).value), 
+                         rol = cyd_m.ParRol.objects.get(id = hoja_excel.cell(row = i, column = 6).value), 
+                         escuela = Escuela.objects.get(codigo = hoja_excel.cell(row = i, column = 2).value),  
+                         direccion = hoja_excel.cell(row = i, column = 8).value,  
+                         mail = hoja_excel.cell(row = i, column = 9).value,
+                         tel_casa = hoja_excel.cell(row = i, column = 10).value,  
+                         tel_movil = hoja_excel.cell(row = i, column = 11).value,                          
+                         fecha_nac = hoja_excel.cell(row = i, column = 12).value,
+                         )
+                         registro_participantes.save()
+                         agregados +=1
+                         print("Participante creado: " + str(i) + " " + hoja_excel.cell(row = i, column = 4).value)
+                         
+               resumen = "Total existentes: {}, total creadas: {}".format(existentes, agregados)
+               print(resumen)
+               archivo_log.write(resumen + "\n")
+          
+          return Response(
+               "Datos ingresados con exito", 
+               status=status.HTTP_200_OK
+          )
+    
+class SedeApi(views.APIView): 
+    """Comentario de Api de prueba para la Apis de django"""
+
+    def get(self, request): 
+          archivo_excel_path = filename="Migracion2/Sedes_MIG_2.xlsx"   #Aquí va la dirección 
+          archivo_excel = load_workbook(filename=archivo_excel_path)
+          hoja_excel = archivo_excel.active
+          max_row = hoja_excel.max_row
+
+          existentes = 0
+          agregados = 0 
+          ruta_archivo_txt = os.path.splitext(archivo_excel_path)[0] + "_log.txt"
+
+          with open(ruta_archivo_txt, "w") as archivo_log:
+               for i in range(2, max_row + 1):
+                    try:
+                         if cyd_m.Sede.objects.get(escuela_beneficiada__codigo = hoja_excel.cell(row = i, column = 8).value):
+                              sede = cyd_m.Sede.objects.get(escuela_beneficiada__codigo = hoja_excel.cell(row = i, column = 8).value)
+                              existentes +=1
+
+                    except ObjectDoesNotExist:
+                         try:
+                              escuela = esc_m.Escuela.objects.get(codigo=hoja_excel.cell(row=i, column=8).value)
+
+                              registro_sede = cyd_m.Sede(
+                                   nombre=escuela.nombre,
+                                   capacitador=User.objects.get(id=hoja_excel.cell(row=i, column=2).value),
+                                   municipio=escuela.municipio,
+                                   direccion=escuela.direccion,
+                                   observacion=hoja_excel.cell(row=i, column=5).value,
+                                   mapa=escuela.mapa,
+                                   escuela_beneficiada=escuela,
+                                   tipo_sede=hoja_excel.cell(row=i, column=9).value,
+                                   fecha_creacion=hoja_excel.cell(row=i, column=10).value,
+
+                              )
+                              registro_sede.save()
+                              agregados += 1
+                              print("Sede creada: " + str(i) + " " + hoja_excel.cell(row=i, column=8).value)
+                              registro = "{} Sede creada: {}".format(i, hoja_excel.cell(row=i, column=8).value)
+                              archivo_log.write(registro + "\n")
+                         except Exception as e:
+                              print("No se pudo crear la sede para la escuela con el código :" +  hoja_excel.cell(row=i, column=8).value)
+
+               resumen = "Total existentes: {}, total creadas: {}".format(existentes, agregados)
+               print(resumen)
+               archivo_log.write(resumen + "\n")
+
+          return Response(
+               "Datos ingresados con exito", 
+               status=status.HTTP_200_OK
+          )
+    
+
+class GrupoApi(views.APIView): 
+    """Comentario de Api de prueba para la Apis de django"""
+
+    def get(self, request): 
+          archivo_excel_path = filename="Migracion2/Grupo_MIG_2.xlsx" #Aquí va la dirección 
+          archivo_excel = load_workbook(filename=archivo_excel_path)
+          hoja_excel = archivo_excel.active
+          max_row = hoja_excel.max_row
+
+          existentes = 0
+          agregados = 0 
+          ruta_archivo_txt = os.path.splitext(archivo_excel_path)[0] + "_log.txt"
+
+          with open(ruta_archivo_txt, "w") as archivo_log:
+               for i in range(2, max_row + 1):
+                    try:
+                         grupo = cyd_m.Grupo.objects.get(sede__escuela_beneficiada__codigo = hoja_excel.cell(row = i, column = 1).value, curso__nombre = hoja_excel.cell(row = i, column = 3).value)
+                         existentes +=1
+
+                    except ObjectDoesNotExist:
+                         try: 
+                              sede_mas_antigua = cyd_m.Sede.objects.filter(escuela_beneficiada__codigo=hoja_excel.cell(row=i, column=1).value).order_by('fecha_creacion').first()
+                              registro_grupo = cyd_m.Grupo(
+                                   sede = sede_mas_antigua,
+                                   numero = hoja_excel.cell(row = i, column = 2).value,
+                                   curso = cyd_m.Curso.objects.get(nombre = hoja_excel.cell(row = i, column = 3).value),
+                                   comentario = "Grupo creado para el historico de SUNI 2010",
+                                   activo = True
+                              )
+                              registro_grupo.save()
+                              agregados +=1
+                              print(str(i) + " Grupo creado: " + hoja_excel.cell(row = i, column = 1).value)
+                              registro = "{} Sede creada: {}".format(i, hoja_excel.cell(row=i, column=1).value)
+                              archivo_log.write(registro + "\n")
+
+                         except Exception as c:
+                              print("No se pudo crear el grupo: " +  str(c))
+
+               resumen = "Total existentes: {}, total creadas: {}".format(existentes, agregados)
+               archivo_log.write(resumen + "\n")
+               print(resumen)
+        
+          return Response(
+               "Datos ingresados con exito", 
+               status=status.HTTP_200_OK
+          )
+    
+
+class AsignacionesApi(views.APIView): 
+    """Comentario de Api de prueba para la Apis de django class ´Asignacion´"""
+    def get(self, request): 
+          archivo_excel_path = filename="/Migracion2/Asignacion_MIG_2A_FinalC.xlsx" #Aquí va la dirección y sus variantes
+          archivo_excel = load_workbook(filename=archivo_excel_path)
+          hoja_excel = archivo_excel.active
+          max_row = hoja_excel.max_row
+
+          existentes = 0
+          agregados = 0 
+          ruta_archivo_txt = os.path.splitext(archivo_excel_path)[0] + "_log.txt"
+
+          with open(ruta_archivo_txt, "w") as archivo_log:
+               for i in range(2, max_row + 1):
+                    try:
+                         escuela_par = cyd_m.Escuela.objects.get(codigo = hoja_excel.cell(row = i, column = 2).value)
+
+                         try:
+                              asignado = cyd_m.Participante.objects.get(nombre =  hoja_excel.cell(row = i, column = 4).value, apellido = hoja_excel.cell(row = i, column = 5).value, escuela = escuela_par)
+
+                         except ObjectDoesNotExist: 
+                              asignado = cyd_m.Participante.objects.get(nombre = hoja_excel.cell(row = i, column = 4).value, apellido = hoja_excel.cell(row = i, column = 5).value)
+
+                         except MultipleObjectsReturned: 
+                              asignado = cyd_m.Participante.objects.filter(nombre =  hoja_excel.cell(row = i, column = 4).value, apellido = hoja_excel.cell(row = i, column = 5).value, escuela = escuela_par).last()
+
+                         cyd_m.Asignacion.objects.get(participante = asignado , grupo__curso__nombre = hoja_excel.cell(row = i, column = 26).value, )
+                         existentes +=1
+
+                    except MultipleObjectsReturned: 
+                         print(str(i) + "Participante " + str(asignado) + " asignado antes")
+                         existentes +=1
+
+                    except Exception as c:
+                         escuela_par = cyd_m.Escuela.objects.get(codigo = hoja_excel.cell(row = i, column = 2).value)
+
+                         try:
+                              par_asignado = cyd_m.Participante.objects.get(nombre =  hoja_excel.cell(row = i, column = 4).value, apellido = hoja_excel.cell(row = i, column = 5).value, escuela = escuela_par)
+                         except ObjectDoesNotExist: 
+                              par_asignado = cyd_m.Participante.objects.get(nombre = hoja_excel.cell(row = i, column = 4).value, apellido = hoja_excel.cell(row = i, column = 5).value)
+                         except MultipleObjectsReturned: 
+                              par_asignado = cyd_m.Participante.objects.filter(nombre =  hoja_excel.cell(row = i, column = 4).value, apellido = hoja_excel.cell(row = i, column = 5).value, escuela = escuela_par).last()
+                         
+                         sede_mas_antigua = cyd_m.Sede.objects.filter(escuela_beneficiada__codigo=hoja_excel.cell(row=i, column=27).value).order_by('fecha_creacion').first()
+                         registro_asigna = cyd_m.Asignacion(
+                              participante = par_asignado,
+                              grupo = cyd_m.Grupo.objects.get(curso__nombre = hoja_excel.cell(row = i, column = 26).value , sede = sede_mas_antigua ),
+                              abandono = False,  
+                         )
+                         registro_asigna.save()
+                         agregados +=1
+                         print("Asiganción creada: " + str(i) + " " + hoja_excel.cell(row = i, column = 2).value)
+                         registro = "{} Sede creada: {}".format(i, hoja_excel.cell(row=i, column=2).value)
+                         archivo_log.write(registro + "\n")
+
+               resumen = "Total existentes: {}, total creadas: {}".format(existentes, agregados)
+               archivo_log.write(resumen + "\n")
+               print(resumen)
+        
+          return Response(
+               "Datos ingresados con exito", 
+               status=status.HTTP_200_OK
+          )
+    
+class HitosApi(views.APIView): 
+    """Comentario de Api de prueba para la Apis de django :class:`NotaHito`"""
+
+    def get(self, request): 
+          archivo_excel_path = filename="Migracion2/Notas_MIG_2A_FinalC.xlsx" #Aquí va la dirección
+          archivo_excel = load_workbook(filename=archivo_excel_path)
+          hoja_excel = archivo_excel.active
+          max_row = hoja_excel.max_row
+
+          existentes = 0
+          agregados = 0 
+          problematicos = 0
+          ruta_archivo_txt = os.path.splitext(archivo_excel_path)[0] + "_log.txt"
+
+          with open(ruta_archivo_txt, "w") as archivo_log:
+               for i in range(2, max_row + 1):
+                    try:
+                         
+                         escuela_par = cyd_m.Escuela.objects.get(codigo = hoja_excel.cell(row = i, column = 2).value)
+                         try:
+                              asignado = cyd_m.Participante.objects.get(nombre =  hoja_excel.cell(row = i, column = 4).value, apellido = hoja_excel.cell(row = i, column = 5).value, escuela = escuela_par)
+                         except ObjectDoesNotExist: 
+                              asignado = cyd_m.Participante.objects.get(nombre = hoja_excel.cell(row = i, column = 4).value, apellido = hoja_excel.cell(row = i, column = 5).value)
+                         except MultipleObjectsReturned: 
+                              asignado = cyd_m.Participante.objects.filter(nombre =  hoja_excel.cell(row = i, column = 4).value, apellido = hoja_excel.cell(row = i, column = 5).value, escuela = escuela_par).last()
+                         
+                         sede_mas_antigua = cyd_m.Sede.objects.filter(escuela_beneficiada__codigo=hoja_excel.cell(row=i, column=27).value).order_by('fecha_creacion').first()
+                         grupo = cyd_m.Grupo.objects.get(curso__nombre = hoja_excel.cell(row = i, column = 26).value, sede = sede_mas_antigua)
+
+                         asignacion = cyd_m.Asignacion.objects.get(participante = asignado , grupo = grupo)
+
+                         nota = cyd_m.NotaHito.objects.get(asignacion = asignacion)
+
+                         nota.nota = hoja_excel.cell(row = i, column = 23).value
+                         nota.save()
+                         print(i)
+                         agregados +=1
+
+                    except Exception as c:
+                         print(c)
+                         problematicos += 1
+
+
+               resumen = "Total existentes: {}, total creadas: {}".format(existentes, agregados)
+               archivo_log.write(resumen + "\n")
+               print(resumen)
+
+          return Response(
+               "Datos ingresados con exito", 
+               status=status.HTTP_200_OK
+          )
+###############################################
+class CapacitacionNotas(views.APIView):
+        """ Importar registros de excel con DjangoRestFramework para Capacitacion
+        """
+        
+        def get(self, request):          
+            wb_obj = load_workbook(filename = "CSV_SUNI_OLD/notas_notas.xlsx")            
+            sheet_obj = wb_obj.active
+            m_row = sheet_obj.max_row
+            m_col= sheet_obj.max_column
+            for i in range(2, m_row+1):
+                id=sheet_obj.cell(row=i, column=1).value
+                nota = sheet_obj.cell(row=i, column=6).value
+                print(id,"->",nota)                            
+            return Response(
+                "Datos ingresados Correctamente",
+                status=status.HTTP_200_OK
+            )

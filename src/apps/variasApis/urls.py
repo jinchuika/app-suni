@@ -27,6 +27,45 @@ urlpatterns = [
     r'^subir/notahito/$',
     varias_v.SubirNotasHitosJson.as_view(),
     name='subir_nota_hito'
+ ),
+ url(
+    r'^subir/participantes/2/$',
+    varias_v.participantesApi.as_view(),
+    name='subir_participantes_2'
+ ), 
+   url(
+      r'^subir/escuelas/2/$',
+      varias_v.escuelasApi.as_view(),
+      name='subir_escuelas_2'
+ ), 
+    url(
+      r'^subir/equipamiento/2/$',
+      varias_v.equipamientoApi.as_view(),
+      name='subir_equipamiento_2'
+ ), 
+     url(
+      r'^subir/sede/2/$',
+      varias_v.SedeApi.as_view(),
+      name='subir_sede_2'
+ ),
+   url(
+      r'^subir/grupo/2/$',
+      varias_v.GrupoApi.as_view(),
+      name='subir_grupo_2'
+ ), 
+    url(
+      r'^subir/asignacion/2/$',
+      varias_v.AsignacionesApi.as_view(),
+      name='asignacion_grupo_2'
+ ), 
+   url(
+      r'^subir/notahito/2/$',
+      varias_v.HitosApi.as_view(),
+      name='asignacion_notahito_2'
+ ),
+ url(
+    r'^capacitacion/nota/$',
+    varias_v.CapacitacionNotas.as_view(),
+    name='capacitacion_notas'
  )
 ]
-
