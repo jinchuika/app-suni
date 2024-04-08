@@ -218,6 +218,24 @@ class ResumenInformeForm(forms.Form):
         label='Dispositivo',
         required=False,
         widget=forms.SelectMultiple(attrs={'class': 'form-control select2'}))
+    
+class ExistenciaDispositivosInformeForm(forms.Form):
+    """Este Formulario se encarga de enviar los filtros para  su respectivo informe de Resumen
+    """
+    fecha_min = forms.CharField(
+        label='Fecha (min)',
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-control datepicker'}))
+    fecha_max = forms.CharField(
+        label='Fecha (max)',
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-control datepicker'}))
+
+    tipo_dispositivo = forms.ModelChoiceField(
+        queryset=inv_m.DispositivoTipo.objects.filter(usa_triage=True),
+        label='Dispositivo',
+        required=False,
+        widget=forms.Select(attrs={'class': 'form-control select2'}))
 
 
 ##Formularios de BEQT

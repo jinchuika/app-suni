@@ -23,7 +23,7 @@ from operator import __and__ as AND
 from django.db import connection
 import re
 from apps.escuela import models as escuela_m
-
+from apps.conta import creacion_filtros_informe as crear_dict
 """
     Función que devuelve la existencia y saldo monetario basado en el tipo de dispositivo,
     fecha y periodo a buscar.
@@ -46,19 +46,19 @@ def get_existencia(tipo_dispositivo, fecha, periodo):
         dispositivo__tipo=tipo_dispositivo,
         fecha__lte=fecha).exclude(
         dispositivo__in=bajas).exclude(dispositivo__in=compras).values('dispositivo')
-
+        
     # Obtener Precio Estandar Actual y Anterior
        
-    if periodo.fecha_fin.year <2023:
+    if periodo.fecha_fin.year <2023:        
         precio = conta_m.PrecioEstandar.objects.filter(
             tipo_dispositivo=tipo_dispositivo,
             periodo=periodo,
             inventario='dispositivo').first().precio       
-    else:      
+    else: 
         precio_lote = conta_m.PrecioDispositivo.objects.filter(
         dispositivo__in=utiles,
-        activo=True).aggregate(Sum('precio'))       
-        precio = precio_lote['precio__sum']        
+        activo=True).aggregate(Sum('precio')) 
+        precio = precio_lote['precio__sum']     
         
     # Obtener Precio Total
     # Se valido para los precios de los lotes
@@ -67,14 +67,14 @@ def get_existencia(tipo_dispositivo, fecha, periodo):
             dispositivo__in=utiles,
             periodo__in=periodos_anteriores).aggregate(Sum('precio'))        
     else:
-        if periodo.fecha_fin.year <2023:          
+        if periodo.fecha_fin.year <2023:       
             precio_tipo_dispositivo = conta_m.PrecioDispositivo.objects.filter(
             dispositivo__in=utiles,
             periodo=periodo).aggregate(Sum('precio'))
-        else: 
+        else:
             precio_tipo_dispositivo = conta_m.PrecioDispositivo.objects.filter(
             dispositivo__in=utiles,
-            activo=True).aggregate(Sum('precio'))    
+            activo=True).aggregate(Sum('precio'))              
     precio_tipo_compras = conta_m.PrecioDispositivo.objects.filter(
         dispositivo__in=compras,
         activo=True).aggregate(Sum('precio'))
@@ -84,7 +84,7 @@ def get_existencia(tipo_dispositivo, fecha, periodo):
     else:
         if precio is not None:
             if periodo.fecha_fin.year < 2023:
-                precio_tipo_dispositivo = len(utiles) * precio                
+                precio_tipo_dispositivo = len(utiles) * precio              
             else:
                 precio_tipo_dispositivo = precio                
         else:
@@ -92,7 +92,7 @@ def get_existencia(tipo_dispositivo, fecha, periodo):
     if precio_tipo_compras['precio__sum'] is not None:
         precio_tipo_compras = precio_tipo_compras['precio__sum']
     else:
-        precio_tipo_compras = 0  
+        precio_tipo_compras = 0
     precio_total = precio_tipo_dispositivo + precio_tipo_compras    
 
     existencia = len(utiles) + len(compras)
@@ -483,10 +483,10 @@ class InformeEntradaJson(views.APIView):
                 dispositivo = {}
 
                 # Validar Precio de Compra y Donación
-                print(entrada.tipo)
+                #print(entrada.tipo)
                 if (not precio or precio == 0) and not entrada.tipo.contable:
                     # Obtener Precio Estandar
-                    print("Ingreso aca 1")
+                    #print("Ingreso aca 1")
                     precio = conta_m.PrecioEstandar.objects.get(
                     tipo_dispositivo=tipo_dispositivo,
                     periodo=periodo,
@@ -495,16 +495,16 @@ class InformeEntradaJson(views.APIView):
                   
                 else:
                     #precio = 0                    
-                    print("Ingreso aca 2")
+                    print("Ingreso aca 22")
                 dispositivo['fecha'] = entrada.fecha
                 dispositivo['id'] = entrada.id
                 dispositivo['url'] = entrada.get_absolute_url()
                 dispositivo['util'] = cantidad
-                dispositivo['precio'] = precio
+                dispositivo['precio'] = round(precio,2)
                 dispositivo['tipo'] = entrada.tipo.nombre
                 dispositivo['proveedor'] = entrada.proveedor.nombre
                 try:
-                    dispositivo['total'] = cantidad * precio
+                    dispositivo['total'] = round(cantidad * precio,2)                    
                 except:
                     print(entrada.id)
                 dispositivo['total_costo'] = precio_total_anterior
@@ -840,7 +840,7 @@ class InformeResumenJson(views.APIView):
             periodo = validar_fecha[0]
             lista_dispositivos = {}
             lista = []
-            for tipo in dispositivos:                
+            for tipo in dispositivos:             
                 dispositivo = {}
                 # Obtener Saldo Anterior
                 fecha_inicial = datetime.strptime(fecha_inicio, '%Y-%m-%d') - timedelta(days=1)
@@ -851,19 +851,19 @@ class InformeResumenJson(views.APIView):
                 acumulador_ant_ex += existencia_anterior
 
                 # Obtener Saldo Actual
-                total_actual = get_existencia(tipo,fecha_fin,periodo)               
+                total_actual = get_existencia(tipo,fecha_fin,periodo)                            
                 precio = total_actual['precio_estandar']
                 precio_total = total_actual['saldo_total']
                 existencia = total_actual['existencia']
                 acumulador += precio_total
                 acumulador_act_ex += existencia
-                # print("Tipo >{} , Precio > {}",tipo,precio)
+                #print("Tipo >{} , Precio > {}",tipo,precio)
                 # Obtener Total de Entradas
                 entradas = inv_m.EntradaDetalle.objects.filter(
                         Q(fecha_dispositivo__gte=fecha_inicio),
                         Q(fecha_dispositivo__lte=fecha_fin),
                         Q(tipo_dispositivo=tipo)
-                        ).aggregate(Sum('util'))
+                        ).aggregate(Sum('util'))               
                 if entradas['util__sum'] is not None:
                     entradas = entradas['util__sum']
                 else:
@@ -903,6 +903,80 @@ class InformeResumenJson(views.APIView):
             print("No existe en el periodo fiscal")
 
 
+class InformeExistencias(views.APIView):
+    """ Lista todas los dispositivios que estan existencia por media de la `class:``Movimiento dispositivo`.
+    """
+    def get(self, request):        
+        try:
+            fecha_inicio = self.request.GET['fecha_min']
+        except MultiValueDictKeyError:
+            fecha_inicio=0
+        
+        try:
+            fecha_fin = self.request.GET['fecha_max']
+        except MultiValueDictKeyError:
+            fecha_fin=0
+
+        try:
+            tipo_dispositivo = self.request.GET['tipo_dispositivo']
+        except MultiValueDictKeyError:
+            tipo_dispositivo=0
+        fecha_vacia = fecha_inicio + fecha_fin        
+        if fecha_inicio == 0 :
+            rango_fecha = "AL "+str(fecha_fin)
+        elif fecha_fin == 0:
+            rango_fecha = "DEL "+str(fecha_inicio)        
+        else:
+            rango_fecha = "Del "+str(fecha_inicio) + "AL "+str(fecha_fin) 
+        if  fecha_vacia == 0:
+            rango_fecha = "AL "+str(datetime.now().date())  
+        saldo_total = 0
+        datos_existencia = {}
+        sort_params ={}
+        sort_params_bajas = {}
+        crear_dict.crear_dict(sort_params,'dispositivo__tipo_id',tipo_dispositivo)
+        crear_dict.crear_dict(sort_params,'fecha__gte',fecha_inicio)
+        crear_dict.crear_dict(sort_params,'fecha__lte',fecha_fin)
+        crear_dict.crear_dict(sort_params,'tipo_movimiento',1)
+        crear_dict.crear_dict(sort_params,'dispositivo__valido',True)
+        crear_dict.crear_dict(sort_params_bajas,'dispositivo__tipo_id',tipo_dispositivo)
+        crear_dict.crear_dict(sort_params_bajas,'fecha__gte',fecha_inicio)
+        crear_dict.crear_dict(sort_params_bajas,'fecha__lte',fecha_fin)
+        crear_dict.crear_dict(sort_params_bajas,'tipo_movimiento',-1)
+        dispositivos_baja  = conta_m.MovimientoDispositivo.objects.filter(**sort_params_bajas)
+        dispositivos_alta  = conta_m.MovimientoDispositivo.objects.filter(**sort_params)        
+        
+        dispositivos =[]
+        existencias_total = 0
+        for data in dispositivos_alta:
+            existencias = {}
+            existencias["triage"] =data.dispositivo.triage
+            existencias["tipo"] = data.dispositivo.tipo.tipo
+            existencias["fecha_ingreso"] = data.dispositivo.entrada.fecha
+            existencias["tipo_ingreso"] = data.dispositivo.entrada.tipo.nombre
+            existencias["precio"] = data.precio
+            existencias["fecha_precio"] = data.fecha
+            saldo_total = saldo_total + data.precio
+            existencias["rango_fecha"] = rango_fecha
+            existencias["fecha"]= rango_fecha
+            existencias_total = existencias_total + 1
+            existencias["existencias_total"]= existencias_total
+            existencias["saldo_total"]= saldo_total
+            dispositivos.append(existencias)  
+        return Response(dispositivos)
+    
+class ExistenciaDispositivosInformeView(LoginRequiredMixin, GroupRequiredMixin, FormView):
+    """ Vista para obtener la informacion de los dispositivos para crear el informe de existencia mediante un
+    api mediante el metodo GET  y lo muestra en el tempalte
+    """
+    group_required = [u"inv_conta", ]
+    redirect_unauthenticated_users = True
+    raise_exception = True
+    template_name = "conta/informe_existencia_dispositivos.html"
+    form_class = conta_f.ExistenciaDispositivosInformeForm
+       
+        
+        
 """
  Vista para la contabilidad del modulo de BEQT
 """
@@ -931,7 +1005,6 @@ class InformeEntradaBeqtJson(views.APIView):
     en caso contrario desde el precio_unitario del detalle de entrada
     """
     def get(self, request):
-        print("Conta BEQT")
         try:
             donante = self.request.GET['donante']
         except MultiValueDictKeyError as e:
@@ -1004,7 +1077,7 @@ class InformeEntradaBeqtJson(views.APIView):
             dispositivo['tipo'] = entrada.tipo.nombre
             dispositivo['proveedor'] = entrada.proveedor.nombre
             try:
-                dispositivo['total'] = cantidad * precio
+                dispositivo['total'] = cantidad * precio                
             except:
                 print(entrada.id)
             dispositivo['total_costo'] = precio_total_anterior
