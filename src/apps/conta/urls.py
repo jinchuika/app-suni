@@ -112,6 +112,18 @@ urlpatterns = [
     conta_v.InformeResumenJson.as_view(),
     name='contabilidad_api_resumen'
     ),
+ # Informe de existencia
+ url(
+    r'^informe/dispositivo/existencias/$',
+    conta_v.ExistenciaDispositivosInformeView.as_view(),
+    name='informe_existencias_dispositivo'
+   ),
+          # api para la existencia de dipositivos
+ url(
+    r'^informe/existencias/$',
+    conta_v.InformeExistencias.as_view(),
+    name='informe_existencias'
+   ),
  # Urls para el modulo de BEQT 
 
   # Informe de Entradas

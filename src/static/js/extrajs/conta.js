@@ -100,7 +100,7 @@ class PrecioEstandarInforme {
     e.preventDefault();
     var tablaPrecio = $('#precioestandar-table').DataTable({
       searching:false,
-      paging:true,
+      paging:false,
       ordering:true,
       processing:true,
       destroy:true,
@@ -477,6 +477,56 @@ class ResumenInforme {
       ]
     });
     tablaPrecio.clear().draw();
+    //tablaPrecio.ajax.reload();
+  });
+  }
+}
+
+class ExistenciaDispositivosInforme {
+  constructor() {
+  let precioestandar_informe = $("#existencia-list-form");
+  var urlPrecio= $('#existencia-list-form').attr('action');
+  precioestandar_informe.submit(function (e){
+    e.preventDefault();
+    var tablaPrecio = $('#existencia-table').DataTable({
+      headerCallback: function(thead, data, start, end, display){        
+        if((end-1)>0){
+          $(thead).find('th').eq(0).html( "FECHA: "+data[end-1].rango_fecha );
+        }
+      },
+      footerCallback: function( tfoot, data, start, end, display){        
+        if((end-1)>0){
+          $(tfoot).find('th').eq(0).html("EXISTENCIA: " +data[end-1].existencias_total);
+         $(tfoot).find('th').eq(1).html("SALDO: "+data[end-1].saldo_total);
+        }
+        
+      },
+      dom: 'lBfrtip',
+      buttons: ['excel', 'pdf', 'copy'],
+      searching:true,
+      paging:false,
+      ordering:true,
+      processing:true,
+      destroy:true,
+      ajax:{
+        url:urlPrecio,
+        dataSrc:'',
+        cache:false,
+        processing:true,
+        data: function () {
+          return $('#existencia-list-form').serializeObject(true);
+        }
+      },
+      columns: [
+        {data: "triage"},
+        {data: "tipo"},
+        {data: "precio"},
+        {data: "tipo_ingreso"},
+        {data: "fecha_ingreso"},
+        {data: "fecha_precio"},
+      ]
+    });
+    //tablaPrecio.clear().draw();
     //tablaPrecio.ajax.reload();
   });
   }

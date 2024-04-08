@@ -165,6 +165,13 @@ contabilidad_children = (
         group="inv_conta",
         icon="fa-file-pdf-o",
     ),
+    ViewMenuItem(
+        "Informe Existencia Dispositivos",
+        reverse_lazy('informe_existencias_dispositivo'),
+        weight=12,
+        group="inv_conta",
+        icon="fa-desktop",
+    ),
 )
 
 # Inventario Interno
