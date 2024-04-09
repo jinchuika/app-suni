@@ -906,7 +906,7 @@ class InformeResumenJson(views.APIView):
 class InformeExistencias(views.APIView):
     """ Lista todas los dispositivios que estan existencia por media de la `class:``Movimiento dispositivo`.
     """
-    def get(self, request):        
+    def get(self, request):      
         try:
             fecha_inicio = self.request.GET['fecha_min']
         except MultiValueDictKeyError:
@@ -918,34 +918,35 @@ class InformeExistencias(views.APIView):
             fecha_fin=0
 
         try:
-            tipo_dispositivo = self.request.GET['tipo_dispositivo']
+            tipo_dispositivo = [int(x) for x in self.request.GET.getlist('tipo_dispositivo[]')]
+            if len(tipo_dispositivo) ==0:
+                tipo_dispositivo = self.request.GET['tipo_dispositivo']            
         except MultiValueDictKeyError:
             tipo_dispositivo=0
-        fecha_vacia = fecha_inicio + fecha_fin        
+        fecha_vacia = str(fecha_inicio) + str(fecha_fin)        
         if fecha_inicio == 0 :
             rango_fecha = "AL "+str(fecha_fin)
         elif fecha_fin == 0:
             rango_fecha = "DEL "+str(fecha_inicio)        
         else:
-            rango_fecha = "Del "+str(fecha_inicio) + "AL "+str(fecha_fin) 
+            rango_fecha = "Del "+str(fecha_inicio) + "AL "+str(fecha_fin)        
         if  fecha_vacia == 0:
             rango_fecha = "AL "+str(datetime.now().date())  
         saldo_total = 0
         datos_existencia = {}
         sort_params ={}
         sort_params_bajas = {}
-        crear_dict.crear_dict(sort_params,'dispositivo__tipo_id',tipo_dispositivo)
+        crear_dict.crear_dict(sort_params,'dispositivo__tipo_id__in',tipo_dispositivo)
         crear_dict.crear_dict(sort_params,'fecha__gte',fecha_inicio)
         crear_dict.crear_dict(sort_params,'fecha__lte',fecha_fin)
         crear_dict.crear_dict(sort_params,'tipo_movimiento',1)
         crear_dict.crear_dict(sort_params,'dispositivo__valido',True)
-        crear_dict.crear_dict(sort_params_bajas,'dispositivo__tipo_id',tipo_dispositivo)
+        crear_dict.crear_dict(sort_params_bajas,'dispositivo__tipo_id__in',tipo_dispositivo)
         crear_dict.crear_dict(sort_params_bajas,'fecha__gte',fecha_inicio)
         crear_dict.crear_dict(sort_params_bajas,'fecha__lte',fecha_fin)
         crear_dict.crear_dict(sort_params_bajas,'tipo_movimiento',-1)
         dispositivos_baja  = conta_m.MovimientoDispositivo.objects.filter(**sort_params_bajas)
-        dispositivos_alta  = conta_m.MovimientoDispositivo.objects.filter(**sort_params)        
-        
+        dispositivos_alta  = conta_m.MovimientoDispositivo.objects.filter(**sort_params) 
         dispositivos =[]
         existencias_total = 0
         for data in dispositivos_alta:
