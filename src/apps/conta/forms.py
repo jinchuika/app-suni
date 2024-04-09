@@ -230,12 +230,18 @@ class ExistenciaDispositivosInformeForm(forms.Form):
         label='Fecha (max)',
         required=False,
         widget=forms.TextInput(attrs={'class': 'form-control datepicker'}))
-
-    tipo_dispositivo = forms.ModelChoiceField(
+    
+    tipo_dispositivo = forms.ModelMultipleChoiceField(
         queryset=inv_m.DispositivoTipo.objects.filter(usa_triage=True),
         label='Dispositivo',
         required=False,
-        widget=forms.Select(attrs={'class': 'form-control select2'}))
+        widget=forms.SelectMultiple(attrs={'class': 'form-control select2'}))
+
+    """tipo_dispositivo = forms.ModelChoiceField(
+        queryset=inv_m.DispositivoTipo.objects.filter(usa_triage=True),
+        label='Dispositivo',
+        required=False,
+        widget=forms.Select(attrs={'class': 'form-control select2'}))"""
 
 
 ##Formularios de BEQT
