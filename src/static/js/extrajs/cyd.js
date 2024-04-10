@@ -1427,6 +1427,11 @@ CalendarioCyD.init = function () {
                     table = this
                     dpi_validator(value,callback,table)
                 } else {
+                    if(value.length <= 12){
+                        bootbox.alert({message: "<h3><i class='fa fa-frown-o' style='font-size: 45px;'></i>&nbsp;&nbsp;&nbsp;HA OCURRIDO UN ERROR!!</h3></br>El DPI ingresado le hace falta digitos para los 13 digitos validos.", className:"modal modal-danger fade"});
+                    }else{
+                        bootbox.alert({message: "<h3><i class='fa fa-frown-o' style='font-size: 45px;'></i>&nbsp;&nbsp;&nbsp;HA OCURRIDO UN ERROR!!</h3></br>El DPI ingresado excede el rango de 13 digitos validos.", className:"modal modal-danger fade"});
+                    }
                     callback(false);
                 }
             }, 
@@ -2068,6 +2073,7 @@ CalendarioCyD.init = function () {
             {data: "escuela", render: function(data, type , full, meta){
                 return "<a target=_blank href="+full.urlescuela+">"+full.escuela+'</a>'
             }},
+            {data: "nombre"},
             {data: "departamento"},
             {data: "municipio"},
             {data: "tipo_sede", render: function(data, type , full, meta){
@@ -3191,6 +3197,7 @@ class informeListadoEscuela{
                     {data: "escuela",render: function(data, type , full, meta){
                         return "<a target='_blank' href="+full.escuela_url+">"+data+"</a>";
                     }},
+                    {data: "udi"},
                     {data: "maestros"},
                     {data: "hombres"},
                     {data: "mujeres"},
@@ -3201,6 +3208,8 @@ class informeListadoEscuela{
                     {data: "sede",render: function(data, type , full, meta){
                         return "<a target='_blank' href="+full.Url+">"+data+"</a>";
                     }},
+                    {data: "departamento"},
+                    {data: "municipio"},
                     {data: "fecha"}
 
                 ]

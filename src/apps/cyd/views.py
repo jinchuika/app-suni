@@ -104,6 +104,7 @@ class SedeCreateView(LoginRequiredMixin, GroupRequiredMixin, CreateView):
                 escuela = Escuela.objects.get(codigo=udi)
                 #form.instance.nombre = str(municipio.departamento.nombre) + str(", ") + str(municipio.nombre) + str("("+ udi +")") + str("("+ str(form.instance.tipo_sede) + ")")
                 form.instance.nombre = str(municipio.departamento.nombre) + str(", ") + str(municipio.nombre) + str("("+ udi +")") + str("("+")")
+                #form.instance.nombre = str(municipio.departamento.nombre) + str(", ") + str(municipio.nombre) + str("("+ udi +")") + str("("+escuela.nombre+")")
                 form.instance.escuela_beneficiada = escuela
             except ObjectDoesNotExist:
                 form.add_error('udi', 'El UDI no es válido o no existe.')
@@ -604,7 +605,7 @@ class InformeAsistencia(views.APIView):
         except MultiValueDictKeyError:
             escuela =None       
         try:
-            sede = cyd_m.Sede.objects.filter(id=self.request.POST['sede'])
+            sede = cyd_m.Sede.objects.filter(id=self.request.POST['sede'],activa=True)
             curso = cyd_m.Curso.objects.filter(id=self.request.POST['curso'])
             grupos = cyd_m.Grupo.objects.filter(sede=sede, curso=curso)
             asistencia = cyd_m.CrAsistencia.objects.filter(curso=curso)
@@ -679,7 +680,7 @@ class InformeFinal(views.APIView):
             curso = cyd_m.Curso.objects.get(id=self.request.POST['curso'])
             #print("Aca esta  para la nueva funcion de escuela")
         else:
-            sede = cyd_m.Sede.objects.get(id=self.request.POST['sede'])
+            sede = cyd_m.Sede.objects.get(id=self.request.POST['sede'],activa=True)
             curso = cyd_m.Curso.objects.get(id=self.request.POST['curso'])
         grupos = cyd_m.Grupo.objects.filter(sede=sede, curso=curso)
         asistencia = cyd_m.CrAsistencia.objects.filter(curso=curso)        
@@ -730,7 +731,7 @@ class InformeCapacitadores(views.APIView):
         capacitador = User.objects.get(id=self.request.POST['capacitador'])
         si_es_naat =False       
         try:
-            sedes = cyd_m.Sede.objects.filter(capacitador=capacitador,fecha_creacion__gte=self.request.POST['fecha_min'],fecha_creacion__lte=self.request.POST['fecha_max'])
+            sedes = cyd_m.Sede.objects.filter(capacitador=capacitador,fecha_creacion__gte=self.request.POST['fecha_min'],fecha_creacion__lte=self.request.POST['fecha_max'],activa=True)
             asignacion_capacitador= cyd_m.Asignacion.objects.filter(grupo__sede__capacitador=capacitador)
             for sede in sedes:
                 total_participantes = sede.get_participantes()["resumen"]['genero'].aggregate(Sum('cantidad'))
@@ -777,7 +778,7 @@ class InformeCapacitadores(views.APIView):
                 listado_datos['curso']=contador_curso
                 listado_sede.append(listado_datos)
         except MultiValueDictKeyError as e:           
-            sedes = cyd_m.Sede.objects.filter(capacitador=capacitador)
+            sedes = cyd_m.Sede.objects.filter(capacitador=capacitador,activa=True)
             asignacion_capacitador= cyd_m.Asignacion.objects.filter(grupo__sede__capacitador=capacitador)           
             for sede in sedes:
                 total_participantes = sede.get_participantes()["resumen"]['genero'].aggregate(Sum('cantidad'))
@@ -838,7 +839,9 @@ class CapacitacionListHomeView(CsrfExemptMixin, JsonRequestResponseMixin, View):
             else:
                 sedes_list = cyd_m.Sede.objects.filter(
                     grupos__asistencias__fecha__year=today.year,
-                    grupos__asistencias__fecha__month=i)
+                    grupos__asistencias__fecha__month=i,
+                    activa=True
+                    )
 
             capacitacion_list['sedes'].append(sedes_list.count())
             capacitacion_list['escuelas'].append(sum(e.get_escuelas().count() for e in sedes_list))
@@ -858,7 +861,7 @@ class InformeGrupo(views.APIView):
     def post(self, request):
         listado_grupo=[]
         correlativo=0
-        sede = cyd_m.Sede.objects.get(id=self.request.POST['sede'])
+        sede = cyd_m.Sede.objects.get(id=self.request.POST['sede'],activa=True)
         curso = cyd_m.Curso.objects.get(id=self.request.POST['curso'])
         grupos = cyd_m.Grupo.objects.get(id=self.request.POST['grupo'])        
         #asignaciones=cyd_m.Asignacion.objects.filter(grupo=grupos,grupo__sede=sede,grupo__curso=curso)
@@ -905,7 +908,7 @@ class InformeAsistenciaPeriodo(views.APIView):
         correlativo=0
         
         try:
-            sede = cyd_m.Sede.objects.get(id=self.request.POST['sede'])
+            sede = cyd_m.Sede.objects.get(id=self.request.POST['sede'],activa=True)
             grupos = cyd_m.Grupo.objects.get(id=self.request.POST['grupo'])
             calendario=cyd_m.Calendario.objects.get(id=self.request.POST['asistencia'],grupo=grupos,grupo__sede=sede)
            
@@ -951,7 +954,7 @@ class InformeEscuelaSede(views.APIView):
         correlativo=0
         numero_hombres=0
         numero_mujeres=0
-        sede = cyd_m.Sede.objects.get(id=self.request.POST['sede'])
+        sede = cyd_m.Sede.objects.get(id=self.request.POST['sede'],activa=True)
         udi_beneficiada =  sede.escuela_beneficiada.codigo
         grupo= cyd_m.Grupo.objects.filter(sede=sede).first()
         asignaciones=cyd_m.Asignacion.objects.filter(grupo__sede=sede)
@@ -1034,6 +1037,7 @@ class InformeListadoEscuela2(views.APIView):
         crear_dic(sort_params,'capacitador',capacitador)
         crear_dic(sort_params,'fecha_creacion__gte',fecha_min)
         crear_dic(sort_params,'fecha_creacion__lte',fecha_max)
+        crear_dic(sort_params,'activa',True)
         sedes_encontradas = cyd_m.Sede.objects.filter(**sort_params)      
         for data_participantes in sedes_encontradas:
                 contador_sedes = contador_sedes +1                                                
@@ -1060,6 +1064,9 @@ class InformeListadoEscuela2(views.APIView):
                 datos_escuela["capacitador"]=data_participantes.capacitador.get_full_name()
                 datos_escuela["sede"]=data_participantes.nombre
                 datos_escuela["fecha"]=data_participantes.fecha_creacion.date()
+                datos_escuela["departamento"]=data_participantes.municipio.departamento.nombre
+                datos_escuela["municipio"]=data_participantes.municipio.nombre
+                datos_escuela["udi"]=data_participantes.escuela_beneficiada.codigo
                 listado_escuelas.append(datos_escuela)
                 contador_maestras = 0
                 contador_maestros = 0   
@@ -1076,7 +1083,7 @@ class InformeListadoEscuela(views.APIView):
         listado_grupo=[]
         correlativo=0
         try:
-            sede = cyd_m.Sede.objects.filter(id=self.request.POST['sede'])
+            sede = cyd_m.Sede.objects.filter(id=self.request.POST['sede'],activa=True)
             curso = cyd_m.Curso.objects.filter(id=self.request.POST['curso'])
             grupos = cyd_m.Grupo.objects.filter(id=self.request.POST['grupo'])
             asistencia = cyd_m.Calendario.objects.get(id=self.request.POST['asistencia'],grupo=grupos,grupo__sede=sede,grupo__curso=curso)
