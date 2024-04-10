@@ -160,5 +160,5 @@ Menu.add_item(
         '#',
         weight=10,
         icon="fa-file-pdf-o",
-        group="cyd_admin",
+        group="cyd_admin,cyd_informes",
         children=cyd_informes_children),)
