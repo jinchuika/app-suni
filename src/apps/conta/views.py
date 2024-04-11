@@ -933,23 +933,28 @@ class InformeExistencias(views.APIView):
         if  fecha_vacia == 0:
             rango_fecha = "AL "+str(datetime.now().date())  
         saldo_total = 0
-        datos_existencia = {}
+        datos_existencia = []
         sort_params ={}
         sort_params_bajas = {}
         crear_dict.crear_dict(sort_params,'dispositivo__tipo_id__in',tipo_dispositivo)
         crear_dict.crear_dict(sort_params,'fecha__gte',fecha_inicio)
         crear_dict.crear_dict(sort_params,'fecha__lte',fecha_fin)
         crear_dict.crear_dict(sort_params,'tipo_movimiento',1)
-        crear_dict.crear_dict(sort_params,'dispositivo__valido',True)
+        #crear_dict.crear_dict(sort_params,'dispositivo__valido',True)
+        crear_dict.crear_dict(sort_params,'dispositivo__valido',False)
         crear_dict.crear_dict(sort_params_bajas,'dispositivo__tipo_id__in',tipo_dispositivo)
         crear_dict.crear_dict(sort_params_bajas,'fecha__gte',fecha_inicio)
         crear_dict.crear_dict(sort_params_bajas,'fecha__lte',fecha_fin)
         crear_dict.crear_dict(sort_params_bajas,'tipo_movimiento',-1)
+        crear_dict.crear_dict(sort_params_bajas,'dispositivo__valido',False)
         dispositivos_baja  = conta_m.MovimientoDispositivo.objects.filter(**sort_params_bajas)
-        dispositivos_alta  = conta_m.MovimientoDispositivo.objects.filter(**sort_params) 
+        dispositivos_alta  = conta_m.MovimientoDispositivo.objects.filter(**sort_params)         
+        for data in dispositivos_alta:
+            if dispositivos_baja.filter(dispositivo=data.dispositivo).count() ==0:
+                datos_existencia.append(data)            
         dispositivos =[]
         existencias_total = 0
-        for data in dispositivos_alta:
+        for data in datos_existencia:
             existencias = {}
             existencias["triage"] =data.dispositivo.triage
             existencias["tipo"] = data.dispositivo.tipo.tipo
