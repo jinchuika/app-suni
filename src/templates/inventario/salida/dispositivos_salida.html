@@ -1,6 +1,7 @@
 {% extends "base/base.html" %}
 {% load staticfiles widget_tweaks %}
 {% block page_title %}
+{% load inventario_extras %}
 <title>Dispositivos Asignados</title>
 {% endblock page_title %} {% block content %}
 <section class="content-header">
@@ -34,6 +35,9 @@
 									<th>Fecha Asignacion</th>
 									<th>Tecnico</th>
 									<th>Dispositivo</th>
+									{% if request.user|has_group:"inv_conta" %}
+									<th>Precio Unitario</th>									
+									{% endif %}
                   					<th>Fecha Aprobacion</th>
 									<th>Asignación</th>
 									
@@ -57,6 +61,12 @@
 								<td>
 									{{dispositivo.dispositivo.triage}}
 								</td>
+								{% if request.user|has_group:"inv_conta" %}
+									<td>
+										{{dispositivo.precio}}
+									</td>									
+									{% endif %}
+								
 								<td>
 									{{dispositivo.fecha_aprobacion|default_if_none:""}}
 								</td>
