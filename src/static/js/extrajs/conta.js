@@ -496,8 +496,8 @@ class ExistenciaDispositivosInforme {
       },
       footerCallback: function( tfoot, data, start, end, display){        
         if((end-1)>0){
-          $(tfoot).find('th').eq(0).html("EXISTENCIA: " +data[end-1].existencias_total);
-         $(tfoot).find('th').eq(1).html("SALDO: "+data[end-1].saldo_total);
+          $(tfoot).find('th').eq(0).html("EXISTENCIA: " +data[end-1].existencias_total.toLocaleString());
+         $(tfoot).find('th').eq(1).html("SALDO: "+data[end-1].saldo_total.toLocaleString());
         }
         
       },
