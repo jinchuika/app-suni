@@ -470,7 +470,7 @@ class LaptopPrintView(LoginRequiredMixin,  DetailView,GroupRequiredMixin):
                 print(e)
         escuela = beqt_m.SalidaInventario.objects.get(id=self.object.id)
         try:
-            encargado = escuela_m.EscContacto.objects.get(escuela=escuela.escuela, rol=5)
+            encargado = escuela_m.EscContacto.objects.filter(escuela=escuela.escuela, rol=5).last()
             context['Encargado'] = str(encargado.nombre)+" "+str(encargado.apellido)
             telefono = escuela_m.EscContactoTelefono.objects.filter(contacto = encargado) 
             context['Telefonos'] = telefono                      
