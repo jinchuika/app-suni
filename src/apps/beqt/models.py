@@ -972,3 +972,4 @@ class CambioEstadoBeqt(models.Model):
         self.dispositivo.estado = self.estado
         self.dispositivo.save()
 
+#Inventario interno de BEQT
