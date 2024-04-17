@@ -45,7 +45,7 @@ def get_existencia(tipo_dispositivo, fecha, periodo):
         tipo_movimiento=1,
         dispositivo__tipo=tipo_dispositivo,
         fecha__lte=fecha).exclude(
-        dispositivo__in=bajas).exclude(dispositivo__in=compras).values('dispositivo')
+        dispositivo__in=bajas).exclude(dispositivo__in=compras).values('dispositivo')    
         
     # Obtener Precio Estandar Actual y Anterior
        
@@ -58,7 +58,7 @@ def get_existencia(tipo_dispositivo, fecha, periodo):
         precio_lote = conta_m.PrecioDispositivo.objects.filter(
         dispositivo__in=utiles,
         activo=True).aggregate(Sum('precio')) 
-        precio = precio_lote['precio__sum']     
+        precio = precio_lote['precio__sum']   
         
     # Obtener Precio Total
     # Se valido para los precios de los lotes
@@ -67,14 +67,16 @@ def get_existencia(tipo_dispositivo, fecha, periodo):
             dispositivo__in=utiles,
             periodo__in=periodos_anteriores).aggregate(Sum('precio'))        
     else:
-        if periodo.fecha_fin.year <2023:       
+        if periodo.fecha_fin.year <2023:
+            #control el precio de los dispositivos de 2023 para bajo       
             precio_tipo_dispositivo = conta_m.PrecioDispositivo.objects.filter(
             dispositivo__in=utiles,
             periodo=periodo).aggregate(Sum('precio'))
         else:
+            #controla el precio de los dispositivos arriba del anio 2023
             precio_tipo_dispositivo = conta_m.PrecioDispositivo.objects.filter(
             dispositivo__in=utiles,
-            activo=True).aggregate(Sum('precio'))              
+            activo=True).aggregate(Sum('precio'))                        
     precio_tipo_compras = conta_m.PrecioDispositivo.objects.filter(
         dispositivo__in=compras,
         activo=True).aggregate(Sum('precio'))
@@ -950,19 +952,22 @@ class InformeExistencias(views.APIView):
         dispositivos_baja  = conta_m.MovimientoDispositivo.objects.filter(**sort_params_bajas)
         dispositivos_alta  = conta_m.MovimientoDispositivo.objects.filter(**sort_params)         
         for data in dispositivos_alta:
-            if dispositivos_baja.filter(dispositivo=data.dispositivo).count() ==0:
+            if dispositivos_baja.filter(dispositivo=data.dispositivo).count() ==0:                
                 datos_existencia.append(data)            
         dispositivos =[]
         existencias_total = 0
+        
         for data in datos_existencia:
+            precio_dipositivo = conta_m.PrecioDispositivo.objects.get(dispositivo=data.dispositivo,activo=True)           
             existencias = {}
             existencias["triage"] =data.dispositivo.triage
             existencias["tipo"] = data.dispositivo.tipo.tipo
             existencias["fecha_ingreso"] = data.dispositivo.entrada.fecha
             existencias["tipo_ingreso"] = data.dispositivo.entrada.tipo.nombre
-            existencias["precio"] = data.precio
-            existencias["fecha_precio"] = data.fecha
-            saldo_total = saldo_total + data.precio
+            #existencias["precio"] = data.precio
+            existencias["precio"] = precio_dipositivo.precio
+            existencias["fecha_precio"] = precio_dipositivo.fecha_creacion
+            saldo_total = saldo_total + precio_dipositivo.precio
             existencias["rango_fecha"] = rango_fecha
             existencias["fecha"]= rango_fecha
             existencias_total = existencias_total + 1
