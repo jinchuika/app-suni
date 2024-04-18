@@ -412,9 +412,8 @@ class DispositivoAsignados(LoginRequiredMixin, GroupRequiredMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super(DispositivoAsignados, self).get_context_data(**kwargs)
-        dispositivo_paquetes = inv_m.DispositivoPaquete.objects.filter(paquete__id=self.object.id) 
+        dispositivo_paquetes = inv_m.DispositivoPaquete.objects.filter(paquete__id=self.object.id)
         dispositivos_enviar=[]
-          
         for data in dispositivo_paquetes:
             data_dipositivos ={}      
             data_dipositivos['dispositivo']=data.dispositivo
@@ -427,12 +426,13 @@ class DispositivoAsignados(LoginRequiredMixin, GroupRequiredMixin, DetailView):
             data_dipositivos['tipo_salida']=data.paquete.salida.tipo_salida
             data_dipositivos['tipo_salida.id']=data.paquete.salida.tipo_salida.id
             data_dipositivos['precio']=data.paquete.salida.tipo_salida.id 
-            movimiento_dispositivo = cont_m.MovimientoDispositivo.objects.filter(dispositivo=data.dispositivo,tipo_movimiento=-1)            
-            data_dipositivos['precio']=movimiento_dispositivo[0].precio   
+            movimiento_dispositivo = cont_m.MovimientoDispositivo.objects.filter(dispositivo=data.dispositivo,tipo_movimiento=-1)  
             if movimiento_dispositivo.count() == 1:                
-                data_dipositivos['asignado']= 1               
+                data_dipositivos['asignado']= 1
+                data_dipositivos['precio']=movimiento_dispositivo[0].precio                  
             else:                
-                data_dipositivos['asignado']= 0                            
+                data_dipositivos['asignado']= 0
+                data_dipositivos['precio']=0                             
             dispositivos_enviar.append(data_dipositivos)        
         context['dispositivo_list'] = dispositivos_enviar          
         return context
