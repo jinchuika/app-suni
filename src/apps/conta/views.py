@@ -985,9 +985,222 @@ class ExistenciaDispositivosInformeView(LoginRequiredMixin, GroupRequiredMixin, 
     raise_exception = True
     template_name = "conta/informe_existencia_dispositivos.html"
     form_class = conta_f.ExistenciaDispositivosInformeForm
-       
+
+
+class InformeRastreoDesecho(views.APIView):
+    """ Lista todas los dispositivios que estan en desecho por medio de la `class:`Desecho` de inventario.
+    """
+    def get(self, request):      
+        try:
+            fecha_inicio = self.request.GET['fecha_min']
+        except MultiValueDictKeyError:
+            fecha_inicio=0
+        
+        try:
+            fecha_fin = self.request.GET['fecha_max']
+        except MultiValueDictKeyError:
+            fecha_fin=0
+        
+        try:
+            fecha_inicio_entrada = self.request.GET['fecha_min_entrada']
+        except MultiValueDictKeyError:
+            fecha_inicio_entrada=0
+        
+        try:
+            fecha_fin_entrada = self.request.GET['fecha_max_entrada']
+        except MultiValueDictKeyError:
+            fecha_fin_entrada=0
+
+        try:
+            tipo_dispositivo = [int(x) for x in self.request.GET.getlist('tipo_dispositivo[]')]
+            if len(tipo_dispositivo) ==0:
+                tipo_dispositivo = self.request.GET['tipo_dispositivo']            
+        except MultiValueDictKeyError:
+            tipo_dispositivo=0
+
+        try:
+            tipo_entrada = [int(x) for x in self.request.GET.getlist('tipo_entrada[]')]
+            if len(tipo_entrada) ==0:
+                tipo_entrada = self.request.GET['tipo_entrada']            
+        except MultiValueDictKeyError:
+            tipo_entrada=0
+        try:
+            entradas = [int(x) for x in self.request.GET.getlist('entrada_inventario[]')]
+            list_entrada = [] 
+            if len(entradas) ==0:
+                entradas = self.request.GET['entrada_inventario'] 
+                list_entrada.append(entradas)                          
+        except MultiValueDictKeyError:
+            entradas=0
+
+        try:
+            desecho = [int(x) for x in self.request.GET.getlist('entrada[]')]
+            if len(desecho) ==0:
+                desecho = self.request.GET['entrada']            
+        except MultiValueDictKeyError:
+            desecho=0   
+        sort_params ={}        
+        crear_dict.crear_dict(sort_params,'tipo_dispositivo__id__in',tipo_dispositivo)
+        crear_dict.crear_dict(sort_params,'desecho__fecha__gte',fecha_inicio)
+        crear_dict.crear_dict(sort_params,'desecho__fecha__lte',fecha_fin)
+        crear_dict.crear_dict(sort_params,'entrada_detalle__entrada__tipo__id__in',tipo_entrada)
+        if len(list_entrada)==1:
+            crear_dict.crear_dict(sort_params,'entrada_detalle__entrada__id__in',list_entrada)
+        else:
+            crear_dict.crear_dict(sort_params,'entrada_detalle__entrada__id__in',entradas)
+        crear_dict.crear_dict(sort_params,'entrada_detalle__entrada__fecha__gte',fecha_inicio_entrada)
+        crear_dict.crear_dict(sort_params,'entrada_detalle__entrada__fecha__lte',fecha_fin_entrada)
+        crear_dict.crear_dict(sort_params,'id__in',desecho)    
+        desecho_detalle = inv_m.DesechoDetalle.objects.filter(**sort_params)        
+        datos_desecho =[]
+        cantidad_total = 0   
+        for data in desecho_detalle:
+            desecho = {}
+            desecho["desecho_id"] =data.desecho.id
+            desecho["desecho_url"] =data.desecho.get_absolute_url_detail()
+            desecho["desecho_fecha"] = str(data.desecho.fecha)
+            desecho["desecho_precio_total"] = data.desecho.precio_total
+            desecho["desecho_peso"] = data.desecho.peso
+            desecho["desecho_tecnico"] = data.desecho.creado_por.get_full_name()
+            desecho["desecho_empresa"] = data.desecho.empresa.nombre           
+            desecho["desecho_cantidad"] = data.cantidad
+            desecho["desecho_tipo_dispositivo"]= data.tipo_dispositivo.tipo
+            desecho["desecho_observaciones"]= data.desecho.observaciones
+            desecho["entrada_detalle"]= data.entrada_detalle.id
+            desecho["entrada_detalle_util"]= data.entrada_detalle.util
+            desecho["entrada_detalle_repuesto"]= data.entrada_detalle.repuesto
+            desecho["entrada_detalle_desecho"]= data.entrada_detalle.desecho
+            desecho["entrada_detalle_precio_unitario"]= data.entrada_detalle.precio_unitario
+            desecho["entrada_detalle_precio_total"]= data.entrada_detalle.precio_total
+            desecho["entrada_detalle_tecnico"]= data.entrada_detalle.creado_por.get_full_name()
+            desecho["entrada_detalle_entrada_id"]= data.entrada_detalle.entrada.id
+            desecho["entrada_detalle_descripcion"]= data.entrada_detalle.descripcion
+            desecho["entrada_detalle_fecha"]= str(data.entrada_detalle.entrada.fecha)
+            desecho["entrada_detalle_total"]= data.entrada_detalle.total            
+            desecho["entrada_proveedor"]= data.entrada_detalle.entrada.proveedor.nombre
+            desecho["entrada_tecnico"]= data.entrada_detalle.entrada.creada_por.get_full_name()
+            desecho["entrada_factura"]= data.entrada_detalle.entrada.factura
+            desecho["entrada_fecha_cierre"]= str(data.entrada_detalle.entrada.fecha_cierre)
+            desecho["entrada_tipo"]= data.entrada_detalle.entrada.tipo.nombre 
+            desecho["entrada_url"] =data.entrada_detalle.entrada.get_absolute_url()
+            desecho["proveedor_url"] =data.desecho.empresa.get_absolute_url_detail()
+            cantidad_total = cantidad_total +  data.cantidad
+            desecho["cantidad_total"] =cantidad_total
+            datos_desecho.append(desecho)   
+        return Response(datos_desecho)
+    
+class DesechoRastreoInformeView(LoginRequiredMixin, GroupRequiredMixin, FormView):
+    """ Vista para obtener la informacion de los dispositivos para crear el informe de existencia mediante un
+    api mediante el metodo GET  y lo muestra en el tempalte
+    """
+    group_required = [u"inv_conta", ]
+    redirect_unauthenticated_users = True
+    raise_exception = True
+    template_name = "conta/informe_rastreo_desecho.html"
+    form_class = conta_f.RastreoDesechoInformeForm    
+
+class InformeRastreoRepuesto(views.APIView):
+    """ Lista todas los dispositivios que estan en desecho por medio de la `class:`Desecho` de inventario.
+    """
+    def get(self, request):      
+        try:
+            fecha_inicio = self.request.GET['fecha_min']
+        except MultiValueDictKeyError:
+            fecha_inicio=0
+        
+        try:
+            fecha_fin = self.request.GET['fecha_max']
+        except MultiValueDictKeyError:
+            fecha_fin=0
+        
+        try:
+            fecha_inicio_entrada = self.request.GET['fecha_min_entrada']
+        except MultiValueDictKeyError:
+            fecha_inicio_entrada=0
+        
+        try:
+            fecha_fin_entrada = self.request.GET['fecha_max_entrada']
+        except MultiValueDictKeyError:
+            fecha_fin_entrada=0
+
+        try:
+            tipo_dispositivo = [int(x) for x in self.request.GET.getlist('tipo_dispositivo[]')]
+            if len(tipo_dispositivo) ==0:
+                tipo_dispositivo = self.request.GET['tipo_dispositivo']            
+        except MultiValueDictKeyError:
+            tipo_dispositivo=0
+
+        try:
+            tipo_entrada = [int(x) for x in self.request.GET.getlist('tipo_entrada[]')]
+            if len(tipo_entrada) ==0:
+                tipo_entrada = self.request.GET['tipo_entrada']            
+        except MultiValueDictKeyError:
+            tipo_entrada=0
+        try:
+            entradas = [int(x) for x in self.request.GET.getlist('entrada_inventario[]')]
+            list_entrada = [] 
+            if len(entradas) ==0:
+                entradas = self.request.GET['entrada_inventario'] 
+                list_entrada.append(entradas)                          
+        except MultiValueDictKeyError:
+            entradas=0
+
+        try:
+            desecho = [int(x) for x in self.request.GET.getlist('entrada[]')]
+            if len(desecho) ==0:
+                desecho = self.request.GET['entrada']            
+        except MultiValueDictKeyError:
+            desecho=0   
+        sort_params ={}        
+        crear_dict.crear_dict(sort_params,'tipo_dispositivo__id__in',tipo_dispositivo)
+        crear_dict.crear_dict(sort_params,'desecho__fecha__gte',fecha_inicio)
+        crear_dict.crear_dict(sort_params,'desecho__fecha__lte',fecha_fin)
+        crear_dict.crear_dict(sort_params,'entrada_detalle__entrada__tipo__id__in',tipo_entrada)
+        if len(list_entrada)==1:
+            crear_dict.crear_dict(sort_params,'entrada_detalle__entrada__id__in',list_entrada)
+        else:
+            crear_dict.crear_dict(sort_params,'entrada_detalle__entrada__id__in',entradas)
+        crear_dict.crear_dict(sort_params,'entrada_detalle__entrada__fecha__gte',fecha_inicio_entrada)
+        crear_dict.crear_dict(sort_params,'entrada_detalle__entrada__fecha__lte',fecha_fin_entrada)
+        crear_dict.crear_dict(sort_params,'id__in',desecho)
+        #repuesto_detalle = inv_m.DispositivoRepuesto.objects.filter(repuesto__entrada__id=2514)  
+        repuesto_detalle = inv_m.Repuesto.objects.filter(entrada__id__in=[3141,3170,3214,3287,3289,2514])
+        print(repuesto_detalle[:10])       
+        #desecho_detalle = inv_m.DesechoDetalle.objects.filter(**sort_params)        
+        datos_desecho =[]
+        cantidad_total = 0   
+        for data in repuesto_detalle:
+            print(inv_m.DispositivoRepuesto.objects.filter(repuesto=data.id))
+            print(inv_m.RepuestoComentario.objects.filter(repuesto=data.id))
+            repuesto = {}
+            repuesto["repuesto_id"] =data.id
+            repuesto["repuesto_url"] =data.get_absolute_url()
+            repuesto["repuesto_impreso"] =data.impreso
+            repuesto["repuesto_tipo"] =data.tipo.tipo
+            repuesto["repuesto_estado"] =data.estado.nombre
+            repuesto["repuesto_descripcion"] =data.descripcion
+            repuesto["repuesto_tarima"] =data.tarima.id
+            repuesto["repuesto_valido"] =data.valido
+            repuesto["repuesto_marca"] =data.marca.marca
+            repuesto["repuesto_modelo"] =data.modelo
+            repuesto["repuesto_creado"] =data.creada_por.get_full_name()
+            repuesto["repuesto_entrada"] =data.entrada.id
+            repuesto["repuesto_entrada_url"] =data.entrada.get_absolute_url()
+            repuesto["repuesto_entrada_fecha"] = str(data.entrada.fecha)
+            datos_desecho.append(repuesto)  
+        #print(datos_desecho)
+      
         
         
+        
+        """return Response(
+            {'mensaje': 'Funcionando'},
+            status=status.HTTP_200_OK
+        )"""   
+        return Response(datos_desecho)
+
+
+
 """
  Vista para la contabilidad del modulo de BEQT
 """
