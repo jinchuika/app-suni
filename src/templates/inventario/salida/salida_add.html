@@ -79,7 +79,7 @@
                 <h3><b>Listado de Salidas</b></h3>
             </div>
             <div class="box-body">
-              <table  id="salidas-table" class="table display" data-url="{%url 'inventario_api:api_inventariosalidas-list' %} ">
+              <table  id="salidas-table" class="table display" data-url="{%url 'inventario_api:api_inventariosalidas-list'%}">
                 <thead>
                   <th>No. Salida </th>
                   <th>No. Referencia </th>
@@ -124,7 +124,7 @@
 {% include "base/dataTables.html" %}
     <script src="{% static "js/extrajs/inventario.js" %}"></script>
     <script>
-    $(document).ready(function(){
+    $(document).ready(function(){         
           let Estados = new Salidas();
           let Buscador = new BuscadorTabla();
       });
