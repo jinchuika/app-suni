@@ -531,3 +531,69 @@ class ExistenciaDispositivosInforme {
   });
   }
 }
+
+class RastreoDesechoInforme{
+  constructor() {
+  let rastreo_informe = $("#rastreo-desecho-list-form");
+  var urlRastreo= $('#rastreo-desecho-list-form').attr('action');
+  rastreo_informe.submit(function (e){
+    e.preventDefault();
+    var tablaPrecio = $('#rastreo-table').DataTable({      
+      footerCallback: function( tfoot, data, start, end, display){        
+        if((end-1)>0){
+          $(tfoot).find('th').eq(0).html("CANTIDAD DE DISPOSITIVOS: " +data[end-1].cantidad_total.toLocaleString());
+        }
+        
+      },
+      dom: 'lBfrtip',
+      buttons: ['excel', 'pdf', 'copy'],
+      searching:true,
+      paging:false,
+      ordering:true,
+      processing:true,
+      destroy:true,
+      ajax:{
+        url:urlRastreo,
+        dataSrc:'',
+        cache:false,
+        processing:true,
+        data: function () {
+          return $('#rastreo-desecho-list-form').serializeObject(true);
+        }
+      },
+      columns: [
+        {data: "desecho_id",render: function(data, type, full, meta){
+          return "<a href="+full.desecho_url+">"+full.desecho_id+"</a>";
+        }},
+        {data: "desecho_fecha"},
+        {data: "desecho_precio_total"},
+        {data: "desecho_tecnico"},
+        {data: "desecho_empresa",render: function(data, type, full, meta){
+          return "<a href="+full.proveedor_url+">"+full.desecho_empresa+"</a>";
+          
+        }},
+        {data: "desecho_cantidad",render: function(data, type, full, meta){
+          return "<strong>"+full.desecho_cantidad+"</strong>";
+          
+        }},
+        {data: "desecho_tipo_dispositivo"},        
+        {data: "entrada_detalle_descripcion"},      
+        {data: "entrada_detalle_tecnico"},
+        {data: "entrada_detalle_entrada_id",render: function(data, type, full, meta){
+          return "<a href="+full.entrada_url+">"+full.entrada_detalle_entrada_id+"</a>";
+        }},
+        {data: "entrada_tipo"},
+        {data: "entrada_detalle_fecha"},
+        {data: "entrada_proveedor"},
+        {data: "entrada_tecnico"},
+        {data: "entrada_factura"},
+        {data: "entrada_fecha_cierre"},
+        {data: "desecho_observaciones"},
+        
+      ]
+    });
+    //tablaPrecio.clear().draw();
+    //tablaPrecio.ajax.reload();
+  });
+  }
+}
