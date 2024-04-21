@@ -2009,7 +2009,6 @@ class Salidas {
     var url_finalizar = $("#salidas-paquete-table").data("urlfin");
     var url_detail = $("#salidas-paquete-table").data("urldetail");
     var url_paquetes = $("#salidas-paquete-table").data("urlpaquetes");
-    
     var fecha = new Date();
     var dia = fecha.getDate();
     var mes = fecha.getMonth()+1;
@@ -2038,7 +2037,9 @@ class Salidas {
         url:url_salida,
         dataSrc:'',
         cache:true,
-
+        data:function(d){
+          d.en_creacion = true
+        }
       },
       columns:[
         {data: "no_salida", render: function(data, type, full, meta){          
