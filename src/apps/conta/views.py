@@ -1093,7 +1093,7 @@ class DesechoRastreoInformeView(LoginRequiredMixin, GroupRequiredMixin, FormView
     """ Vista para obtener la informacion de los dispositivos para crear el informe de existencia mediante un
     api mediante el metodo GET  y lo muestra en el tempalte
     """
-    group_required = [u"inv_conta", ]
+    group_required = [u"inv_conta",u"inv_admin",  ]
     redirect_unauthenticated_users = True
     raise_exception = True
     template_name = "conta/informe_rastreo_desecho.html"
@@ -1111,18 +1111,7 @@ class InformeRastreoRepuesto(views.APIView):
         try:
             fecha_fin = self.request.GET['fecha_max']
         except MultiValueDictKeyError:
-            fecha_fin=0
-        
-        try:
-            fecha_inicio_entrada = self.request.GET['fecha_min_entrada']
-        except MultiValueDictKeyError:
-            fecha_inicio_entrada=0
-        
-        try:
-            fecha_fin_entrada = self.request.GET['fecha_max_entrada']
-        except MultiValueDictKeyError:
-            fecha_fin_entrada=0
-
+            fecha_fin=0   
         try:
             tipo_dispositivo = [int(x) for x in self.request.GET.getlist('tipo_dispositivo[]')]
             if len(tipo_dispositivo) ==0:
@@ -1146,59 +1135,78 @@ class InformeRastreoRepuesto(views.APIView):
             entradas=0
 
         try:
-            desecho = [int(x) for x in self.request.GET.getlist('entrada[]')]
-            if len(desecho) ==0:
-                desecho = self.request.GET['entrada']            
+            repuesto = [int(x) for x in self.request.GET.getlist('repuesto[]')]
+            if len(repuesto) ==0:
+                repuesto = self.request.GET['repuesto']            
         except MultiValueDictKeyError:
-            desecho=0   
+            repuesto=0
+
+        try:
+            estado_repuesto = [int(x) for x in self.request.GET.getlist('estado_repuesto[]')]
+            if len(estado_repuesto) ==0:
+                estado_repuesto = self.request.GET['estado_repuesto']            
+        except MultiValueDictKeyError:
+            estado_repuesto=0    
         sort_params ={}        
-        crear_dict.crear_dict(sort_params,'tipo_dispositivo__id__in',tipo_dispositivo)
-        crear_dict.crear_dict(sort_params,'desecho__fecha__gte',fecha_inicio)
-        crear_dict.crear_dict(sort_params,'desecho__fecha__lte',fecha_fin)
-        crear_dict.crear_dict(sort_params,'entrada_detalle__entrada__tipo__id__in',tipo_entrada)
+        crear_dict.crear_dict(sort_params,'tipo__id__in',tipo_dispositivo)
+        crear_dict.crear_dict(sort_params,'entrada__fecha__gte',fecha_inicio)
+        crear_dict.crear_dict(sort_params,'entrada__fecha__lte',fecha_fin)
+        crear_dict.crear_dict(sort_params,'entrada__tipo__id__in',tipo_entrada)
         if len(list_entrada)==1:
-            crear_dict.crear_dict(sort_params,'entrada_detalle__entrada__id__in',list_entrada)
+            crear_dict.crear_dict(sort_params,'entrada__id__in',list_entrada)
         else:
-            crear_dict.crear_dict(sort_params,'entrada_detalle__entrada__id__in',entradas)
-        crear_dict.crear_dict(sort_params,'entrada_detalle__entrada__fecha__gte',fecha_inicio_entrada)
-        crear_dict.crear_dict(sort_params,'entrada_detalle__entrada__fecha__lte',fecha_fin_entrada)
-        crear_dict.crear_dict(sort_params,'id__in',desecho)
-        #repuesto_detalle = inv_m.DispositivoRepuesto.objects.filter(repuesto__entrada__id=2514)  
-        repuesto_detalle = inv_m.Repuesto.objects.filter(entrada__id__in=[3141,3170,3214,3287,3289,2514])
-        print(repuesto_detalle[:10])       
-        #desecho_detalle = inv_m.DesechoDetalle.objects.filter(**sort_params)        
+            crear_dict.crear_dict(sort_params,'entrada__id__in',entradas)
+        
+        crear_dict.crear_dict(sort_params,'id__in',repuesto)
+        crear_dict.crear_dict(sort_params,'estado__in',estado_repuesto) 
+        repuesto_detalle = inv_m.Repuesto.objects.filter(**sort_params)
         datos_desecho =[]
         cantidad_total = 0   
         for data in repuesto_detalle:
-            print(inv_m.DispositivoRepuesto.objects.filter(repuesto=data.id))
-            print(inv_m.RepuestoComentario.objects.filter(repuesto=data.id))
+            try:
+                data_comentario = inv_m.RepuestoComentario.objects.filter(repuesto=data.id).last()
+                comentario = data_comentario.comentario
+
+            except:
+                comentario = 0
             repuesto = {}
             repuesto["repuesto_id"] =data.id
+            repuesto["repuesto_triage"] ="R-"+str(data.id)
             repuesto["repuesto_url"] =data.get_absolute_url()
             repuesto["repuesto_impreso"] =data.impreso
             repuesto["repuesto_tipo"] =data.tipo.tipo
             repuesto["repuesto_estado"] =data.estado.nombre
             repuesto["repuesto_descripcion"] =data.descripcion
-            repuesto["repuesto_tarima"] =data.tarima.id
+            try:
+                repuesto["repuesto_tarima"] =data.tarima.id
+            except:
+                repuesto["repuesto_tarima"]= 0
             repuesto["repuesto_valido"] =data.valido
-            repuesto["repuesto_marca"] =data.marca.marca
+            try:
+                repuesto["repuesto_marca"] =data.marca.marca
+            except:
+                repuesto["repuesto_marca"] =0
             repuesto["repuesto_modelo"] =data.modelo
             repuesto["repuesto_creado"] =data.creada_por.get_full_name()
             repuesto["repuesto_entrada"] =data.entrada.id
+            repuesto["repuesto_entrada_tipo"] =data.entrada.tipo.nombre
             repuesto["repuesto_entrada_url"] =data.entrada.get_absolute_url()
             repuesto["repuesto_entrada_fecha"] = str(data.entrada.fecha)
-            datos_desecho.append(repuesto)  
-        #print(datos_desecho)
-      
-        
-        
-        
-        """return Response(
-            {'mensaje': 'Funcionando'},
-            status=status.HTTP_200_OK
-        )"""   
+            repuesto["repuesto_desmembrado"] = inv_m.DispositivoRepuesto.objects.filter(repuesto=data.id).count()
+            repuesto["repuesto_comentario"] = comentario
+            repuesto["repuesto_total"] = repuesto_detalle.count() 
+            datos_desecho.append(repuesto) 
         return Response(datos_desecho)
-
+    
+class RepuestoRastreoInformeView(LoginRequiredMixin, GroupRequiredMixin, FormView):
+    """ Vista para obtener la informacion de los dispositivos para crear el informe de existencia mediante un
+    api mediante el metodo GET  y lo muestra en el tempalte
+    """
+    group_required = [u"inv_conta",u"inv_admin", ]
+    redirect_unauthenticated_users = True
+    raise_exception = True
+    template_name = "conta/informe_rastreo_repuesto.html"
+    form_class = conta_f.RastreoRepuestoInformeForm   
 
 
 """
