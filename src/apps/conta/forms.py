@@ -286,6 +286,46 @@ class RastreoDesechoInformeForm(forms.Form):
         required=False,
         widget=forms.TextInput(attrs={'class': 'form-control datepicker'}))
     
+class RastreoRepuestoInformeForm(forms.Form):
+    """Este Formulario se encarga de enviar los filtros para  su respectivo informe de Resumen
+    """
+    repuesto = forms.ModelMultipleChoiceField(
+        queryset=inv_m.Repuesto.objects.all(),
+        label='Triage Repuesto',
+        required=False,
+        widget=forms.SelectMultiple(attrs={'class': 'form-control select2'}))
+    estado_repuesto = forms.ModelMultipleChoiceField(
+        queryset=inv_m.RepuestoEstado.objects.all(),
+        label='Estado',
+        required=False,
+        widget=forms.SelectMultiple(attrs={'class': 'form-control select2'}))
+    entrada_inventario = forms.ModelMultipleChoiceField(
+        queryset=inv_m.Entrada.objects.all(),
+        label='No. Entrada Inventario',
+        required=False,
+        widget=forms.SelectMultiple(attrs={'class': 'form-control select2'}))
+
+    tipo_entrada = forms.ModelMultipleChoiceField(
+        queryset=inv_m.EntradaTipo.objects.all().exclude(id=5),
+        label='Tipo Entrada',
+        required=False,
+        widget=forms.SelectMultiple(attrs={'class': 'form-control select2'}))
+    
+    tipo_dispositivo = forms.ModelMultipleChoiceField(
+        queryset=inv_m.DispositivoTipo.objects.all(),
+        label='Dispositivo',
+        required=False,
+        widget=forms.SelectMultiple(attrs={'class': 'form-control select2'}))
+    
+    fecha_min = forms.CharField(
+        label='Fecha  (min)',
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-control datepicker'}))
+    fecha_max = forms.CharField(
+        label='Fecha  (max)',
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-control datepicker'}))
+   
     
 
 

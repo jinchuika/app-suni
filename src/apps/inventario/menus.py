@@ -176,9 +176,17 @@ contabilidad_children = (
         "Informe Ubicacion Desecho",
         reverse_lazy('informe_rastreo'),
         weight=12,
-        group="inv_conta",
+        group="inv_conta,inv_admin",
         icon="fa-trash",
     ),
+    ViewMenuItem(
+        "Informe Ubicacion Repuesto",
+        reverse_lazy('informe_repuesto'),
+        weight=12,
+        group="inv_conta,inv_admin",
+        icon="fa-cogs",
+    ),
+    
 )
 
 # Inventario Interno
