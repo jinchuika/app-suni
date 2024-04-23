@@ -136,10 +136,16 @@ urlpatterns = [
     conta_v.DesechoRastreoInformeView.as_view(),
     name='informe_rastreo'
    ),
+# api para el rastreo de dispositivos
+ url(
+    r'^informe/repuesto/rastreo/$',
+    conta_v.InformeRastreoRepuesto.as_view(),
+    name='informe_rastreo_repuesto'
+   ),
 # Informe de rastreo de repuestos
  url(
     r'^informe/rastreo/repuesto/$',
-    conta_v.InformeRastreoRepuesto.as_view(),
+    conta_v.RepuestoRastreoInformeView.as_view(),
     name='informe_repuesto'
    ),
  # Urls para el modulo de BEQT 
