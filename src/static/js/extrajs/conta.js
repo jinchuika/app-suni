@@ -546,7 +546,8 @@ class RastreoDesechoInforme{
         
       },
       dom: 'lBfrtip',
-      buttons: ['excel', {extend:'pdf', orientation:'landscape'}, 'copy'],
+      //buttons: ['excel', {extend:'pdf', orientation:'landscape',exportOptions:{columns:[1,2,3,4,5,6,7,8,9,10,11,12]}}, 'copy'],
+      buttons: ['excel', {extend:'pdf',orientation:'landscape',pageSize:'TABLOID'}, 'copy'],
       searching:true,
       paging:false,
       ordering:true,
@@ -613,7 +614,7 @@ class RastreoRepuestoInforme{
         
       },
       dom: 'lBfrtip',
-      buttons: ['excel', {extend:'pdf', orientation:'landscape',pageSize:'A6'}, 'copy'],
+      buttons: ['excel', {extend:'pdf', orientation:'landscape'}, 'copy'],
       searching:true,
       paging:false,
       ordering:true,
