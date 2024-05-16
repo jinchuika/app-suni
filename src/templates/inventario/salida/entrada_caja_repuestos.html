@@ -211,6 +211,48 @@
   </table>
 </div>
 
+	</div>
+</header>
+<br>
+	<br>
+	<br>
+	<br>
+
+<!--FIN DE DATOS E IMAGENES-->
+<body>	
+	<table style="text-align:center;">
+		<thead>
+			<tr>
+				<th style="border:solid; border-width: 1px;border-color:gray" width="15%"><center>Cantidad</center></th>
+				<th style="border:solid; border-width: 1px;border-color:gray" width="15%"><center>Tipo</center></th>
+				<th style="border:solid; border-width: 1px;border-color:gray" width="15%"><center>Descripcion</center></th>
+				
+			  </tr>
+		</thead>
+		<tbody>
+			{% for data in dispositivos  %}
+				<tr>
+					<td style="border:solid; border-width: 1px;border-color:gray">{{data.dispositivo_bueno.dispositivo}}</td>
+					<td style="border:solid; border-width: 1px;border-color:gray">{{data.dispositivo_bueno.dispositivo.tipo}}</td>
+					
+				</tr>
+		{% endfor %}
+		</tbody>
+				
+	  </table>
+	  <br>
+	  <br>
+	  <br>
+	  <br>
+  
+	Caja de herramientas asignadas a las entregas : 
+	{% for salidas  in  salidas_asignadas %}
+	{{salidas}},
+	{% endfor %}
+	<br>
+	<br>
+	<br>
+	<br>
 
     
 </body>

@@ -31,7 +31,7 @@ class SalidaInventarioFilter(filters.FilterSet):
 
     class Meta:
         model = inv_m.SalidaInventario
-        fields = ['id', 'tipo_salida', 'estado', 'fecha_min', 'fecha_max']
+        fields = ['id', 'tipo_salida', 'estado', 'fecha_min', 'fecha_max','en_creacion']
 
     def filter_fecha(self, queryset, name, value):
         if value and name == 'fecha_min':

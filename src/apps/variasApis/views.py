@@ -493,7 +493,7 @@ class SubirNotasHitosJson(views.APIView):
 class escuelasApi(views.APIView):
     """Comentario de Api de prueba para la Apis de django"""
     def get(self, request): 
-     archivo_excel_path = "C:/Users/PC/Desktop/Migracion2/Escuelas_MIG_2.xlsx"         #Aquí va la dirección
+     archivo_excel_path = "C:/Migracion2/Escuelas_MIG_2.xlsx"         #Aquí va la dirección
      archivo_excel = load_workbook(filename=archivo_excel_path)
      hoja_excel = archivo_excel.active
      max_row = hoja_excel.max_row
@@ -548,7 +548,7 @@ class escuelasApi(views.APIView):
 class equipamientoApi(views.APIView):
     """Comentario de Api de prueba para la Apis de django"""
     def get(self, request): 
-          archivo_excel_path = "C:/Users/PC/Desktop/Migracion2/Equipamientos_MIG_2.xlsx"
+          archivo_excel_path = "C:/Migracion2/Equipamientos_MIG_2.xlsx"
           archivo_excel = load_workbook(filename=archivo_excel_path)
           hoja_excel = archivo_excel.active
           max_row = hoja_excel.max_row
@@ -612,7 +612,7 @@ class participantesApi(views.APIView):
     """Comentario de Api de prueba para la Apis de django class:`Participante`"""
 
     def get(self, request): 
-          archivo_excel_path = filename="C:/Users/PC/Desktop/Migracion2/Participantes_MIG_2A_FinalC.xlsx" #Aquí va la dirección y sus variantes
+          archivo_excel_path = filename="C:/Migracion2/Participantes_MIG_2A_FinalC.xlsx" #Aquí va la dirección y sus variantes
           archivo_excel = load_workbook(filename=archivo_excel_path)
           hoja_excel = archivo_excel.active
           max_row = hoja_excel.max_row
@@ -661,7 +661,7 @@ class SedeApi(views.APIView):
     """Comentario de Api de prueba para la Apis de django"""
 
     def get(self, request): 
-          archivo_excel_path = filename="C:/Users/dguty/Desktop/Migracion2/Sedes_MIG_2.xlsx"   #Aquí va la dirección 
+          archivo_excel_path = filename="Migracion2/Sedes_MIG_2.xlsx"   #Aquí va la dirección 
           archivo_excel = load_workbook(filename=archivo_excel_path)
           hoja_excel = archivo_excel.active
           max_row = hoja_excel.max_row
@@ -715,7 +715,7 @@ class GrupoApi(views.APIView):
     """Comentario de Api de prueba para la Apis de django"""
 
     def get(self, request): 
-          archivo_excel_path = filename="C:/Users/dguty/Desktop/Migracion2/Grupo_MIG_2.xlsx" #Aquí va la dirección 
+          archivo_excel_path = filename="Migracion2/Grupo_MIG_2.xlsx" #Aquí va la dirección 
           archivo_excel = load_workbook(filename=archivo_excel_path)
           hoja_excel = archivo_excel.active
           max_row = hoja_excel.max_row
@@ -762,7 +762,7 @@ class GrupoApi(views.APIView):
 class AsignacionesApi(views.APIView): 
     """Comentario de Api de prueba para la Apis de django class ´Asignacion´"""
     def get(self, request): 
-          archivo_excel_path = filename="C:/Users/dguty/Desktop/Migracion2/Asignacion_MIG_2A_FinalC.xlsx" #Aquí va la dirección y sus variantes
+          archivo_excel_path = filename="/Migracion2/Asignacion_MIG_2A_FinalC.xlsx" #Aquí va la dirección y sus variantes
           archivo_excel = load_workbook(filename=archivo_excel_path)
           hoja_excel = archivo_excel.active
           max_row = hoja_excel.max_row
@@ -827,7 +827,7 @@ class HitosApi(views.APIView):
     """Comentario de Api de prueba para la Apis de django :class:`NotaHito`"""
 
     def get(self, request): 
-          archivo_excel_path = filename="C:/Users/dguty/Desktop/Migracion2/Notas_MIG_2A_FinalC.xlsx" #Aquí va la dirección
+          archivo_excel_path = filename="Migracion2/Notas_MIG_2A_FinalC.xlsx" #Aquí va la dirección
           archivo_excel = load_workbook(filename=archivo_excel_path)
           hoja_excel = archivo_excel.active
           max_row = hoja_excel.max_row
@@ -875,3 +875,21 @@ class HitosApi(views.APIView):
                status=status.HTTP_200_OK
           )
 
+###############################################
+class CapacitacionNotas(views.APIView):
+        """ Importar registros de excel con DjangoRestFramework para Capacitacion
+        """
+        
+        def get(self, request):          
+            wb_obj = load_workbook(filename = "CSV_SUNI_OLD/notas_notas.xlsx")            
+            sheet_obj = wb_obj.active
+            m_row = sheet_obj.max_row
+            m_col= sheet_obj.max_column
+            for i in range(2, m_row+1):
+                id=sheet_obj.cell(row=i, column=1).value
+                nota = sheet_obj.cell(row=i, column=6).value
+                print(id,"->",nota)                            
+            return Response(
+                "Datos ingresados Correctamente",
+                status=status.HTTP_200_OK
+            )

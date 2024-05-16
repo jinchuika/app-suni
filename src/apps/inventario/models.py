@@ -1197,6 +1197,9 @@ class DesechoEmpresa(models.Model):
     def get_absolute_url(self):
         return reverse_lazy('desechoempresa_update', kwargs={'pk': self.id})
 
+    def get_absolute_url_detail(self):
+        return reverse_lazy('desechoempresa_detail', kwargs={'pk': self.id})
+
 
 class DesechoSalida(models.Model):
     fecha = models.DateField(default=timezone.now)
@@ -1221,6 +1224,9 @@ class DesechoSalida(models.Model):
 
     def get_absolute_url(self):
         return reverse_lazy('desechosalida_update', kwargs={'pk': self.id})
+    
+    def get_absolute_url_detail(self):
+        return reverse_lazy('desechosalida_detail', kwargs={'pk': self.id})
 
     def save(self, *args, **kwargs):
         super(DesechoSalida, self).save(*args, **kwargs)

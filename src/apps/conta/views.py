@@ -23,7 +23,7 @@ from operator import __and__ as AND
 from django.db import connection
 import re
 from apps.escuela import models as escuela_m
-
+from apps.conta import creacion_filtros_informe as crear_dict
 """
     Función que devuelve la existencia y saldo monetario basado en el tipo de dispositivo,
     fecha y periodo a buscar.
@@ -45,20 +45,20 @@ def get_existencia(tipo_dispositivo, fecha, periodo):
         tipo_movimiento=1,
         dispositivo__tipo=tipo_dispositivo,
         fecha__lte=fecha).exclude(
-        dispositivo__in=bajas).exclude(dispositivo__in=compras).values('dispositivo')
-
+        dispositivo__in=bajas).exclude(dispositivo__in=compras).values('dispositivo')    
+        
     # Obtener Precio Estandar Actual y Anterior
        
-    if periodo.fecha_fin.year <2023:
+    if periodo.fecha_fin.year <2023:        
         precio = conta_m.PrecioEstandar.objects.filter(
             tipo_dispositivo=tipo_dispositivo,
             periodo=periodo,
             inventario='dispositivo').first().precio       
-    else:      
+    else: 
         precio_lote = conta_m.PrecioDispositivo.objects.filter(
         dispositivo__in=utiles,
-        activo=True).aggregate(Sum('precio'))       
-        precio = precio_lote['precio__sum']        
+        activo=True).aggregate(Sum('precio')) 
+        precio = precio_lote['precio__sum']   
         
     # Obtener Precio Total
     # Se valido para los precios de los lotes
@@ -67,14 +67,16 @@ def get_existencia(tipo_dispositivo, fecha, periodo):
             dispositivo__in=utiles,
             periodo__in=periodos_anteriores).aggregate(Sum('precio'))        
     else:
-        if periodo.fecha_fin.year <2023:          
+        if periodo.fecha_fin.year <2023:
+            #control el precio de los dispositivos de 2023 para bajo       
             precio_tipo_dispositivo = conta_m.PrecioDispositivo.objects.filter(
             dispositivo__in=utiles,
             periodo=periodo).aggregate(Sum('precio'))
-        else: 
+        else:
+            #controla el precio de los dispositivos arriba del anio 2023
             precio_tipo_dispositivo = conta_m.PrecioDispositivo.objects.filter(
             dispositivo__in=utiles,
-            activo=True).aggregate(Sum('precio'))    
+            activo=True).aggregate(Sum('precio'))                        
     precio_tipo_compras = conta_m.PrecioDispositivo.objects.filter(
         dispositivo__in=compras,
         activo=True).aggregate(Sum('precio'))
@@ -84,7 +86,7 @@ def get_existencia(tipo_dispositivo, fecha, periodo):
     else:
         if precio is not None:
             if periodo.fecha_fin.year < 2023:
-                precio_tipo_dispositivo = len(utiles) * precio                
+                precio_tipo_dispositivo = len(utiles) * precio              
             else:
                 precio_tipo_dispositivo = precio                
         else:
@@ -92,7 +94,7 @@ def get_existencia(tipo_dispositivo, fecha, periodo):
     if precio_tipo_compras['precio__sum'] is not None:
         precio_tipo_compras = precio_tipo_compras['precio__sum']
     else:
-        precio_tipo_compras = 0  
+        precio_tipo_compras = 0
     precio_total = precio_tipo_dispositivo + precio_tipo_compras    
 
     existencia = len(utiles) + len(compras)
@@ -483,10 +485,10 @@ class InformeEntradaJson(views.APIView):
                 dispositivo = {}
 
                 # Validar Precio de Compra y Donación
-                print(entrada.tipo)
+                #print(entrada.tipo)
                 if (not precio or precio == 0) and not entrada.tipo.contable:
                     # Obtener Precio Estandar
-                    print("Ingreso aca 1")
+                    #print("Ingreso aca 1")
                     precio = conta_m.PrecioEstandar.objects.get(
                     tipo_dispositivo=tipo_dispositivo,
                     periodo=periodo,
@@ -495,16 +497,16 @@ class InformeEntradaJson(views.APIView):
                   
                 else:
                     #precio = 0                    
-                    print("Ingreso aca 2")
+                    print("Ingreso aca 22")
                 dispositivo['fecha'] = entrada.fecha
                 dispositivo['id'] = entrada.id
                 dispositivo['url'] = entrada.get_absolute_url()
                 dispositivo['util'] = cantidad
-                dispositivo['precio'] = precio
+                dispositivo['precio'] = round(precio,2)
                 dispositivo['tipo'] = entrada.tipo.nombre
                 dispositivo['proveedor'] = entrada.proveedor.nombre
                 try:
-                    dispositivo['total'] = cantidad * precio
+                    dispositivo['total'] = round(cantidad * precio,2)                    
                 except:
                     print(entrada.id)
                 dispositivo['total_costo'] = precio_total_anterior
@@ -840,7 +842,7 @@ class InformeResumenJson(views.APIView):
             periodo = validar_fecha[0]
             lista_dispositivos = {}
             lista = []
-            for tipo in dispositivos:                
+            for tipo in dispositivos:             
                 dispositivo = {}
                 # Obtener Saldo Anterior
                 fecha_inicial = datetime.strptime(fecha_inicio, '%Y-%m-%d') - timedelta(days=1)
@@ -851,19 +853,19 @@ class InformeResumenJson(views.APIView):
                 acumulador_ant_ex += existencia_anterior
 
                 # Obtener Saldo Actual
-                total_actual = get_existencia(tipo,fecha_fin,periodo)               
+                total_actual = get_existencia(tipo,fecha_fin,periodo)                            
                 precio = total_actual['precio_estandar']
                 precio_total = total_actual['saldo_total']
                 existencia = total_actual['existencia']
                 acumulador += precio_total
                 acumulador_act_ex += existencia
-                # print("Tipo >{} , Precio > {}",tipo,precio)
+                #print("Tipo >{} , Precio > {}",tipo,precio)
                 # Obtener Total de Entradas
                 entradas = inv_m.EntradaDetalle.objects.filter(
                         Q(fecha_dispositivo__gte=fecha_inicio),
                         Q(fecha_dispositivo__lte=fecha_fin),
                         Q(tipo_dispositivo=tipo)
-                        ).aggregate(Sum('util'))
+                        ).aggregate(Sum('util'))               
                 if entradas['util__sum'] is not None:
                     entradas = entradas['util__sum']
                 else:
@@ -903,6 +905,310 @@ class InformeResumenJson(views.APIView):
             print("No existe en el periodo fiscal")
 
 
+class InformeExistencias(views.APIView):
+    """ Lista todas los dispositivios que estan existencia por media de la `class:``Movimiento dispositivo`.
+    """
+    def get(self, request):      
+        try:
+            fecha_inicio = self.request.GET['fecha_min']
+        except MultiValueDictKeyError:
+            fecha_inicio=0
+        
+        try:
+            fecha_fin = self.request.GET['fecha_max']
+        except MultiValueDictKeyError:
+            fecha_fin=0
+
+        try:
+            tipo_dispositivo = [int(x) for x in self.request.GET.getlist('tipo_dispositivo[]')]
+            if len(tipo_dispositivo) ==0:
+                tipo_dispositivo = self.request.GET['tipo_dispositivo']            
+        except MultiValueDictKeyError:
+            tipo_dispositivo=0
+        fecha_vacia = str(fecha_inicio) + str(fecha_fin)        
+        if fecha_inicio == 0 :
+            rango_fecha = "AL "+str(fecha_fin)
+        elif fecha_fin == 0:
+            rango_fecha = "DEL "+str(fecha_inicio)        
+        else:
+            rango_fecha = "Del "+str(fecha_inicio) + "AL "+str(fecha_fin)        
+        if  fecha_vacia == 0:
+            rango_fecha = "AL "+str(datetime.now().date())  
+        saldo_total = 0
+        datos_existencia = []
+        sort_params ={}
+        sort_params_bajas = {}
+        crear_dict.crear_dict(sort_params,'dispositivo__tipo_id__in',tipo_dispositivo)
+        crear_dict.crear_dict(sort_params,'fecha__gte',fecha_inicio)
+        crear_dict.crear_dict(sort_params,'fecha__lte',fecha_fin)
+        crear_dict.crear_dict(sort_params,'tipo_movimiento',1)
+        #crear_dict.crear_dict(sort_params,'dispositivo__valido',True)
+        crear_dict.crear_dict(sort_params,'dispositivo__valido',False)
+        crear_dict.crear_dict(sort_params_bajas,'dispositivo__tipo_id__in',tipo_dispositivo)
+        crear_dict.crear_dict(sort_params_bajas,'fecha__gte',fecha_inicio)
+        crear_dict.crear_dict(sort_params_bajas,'fecha__lte',fecha_fin)
+        crear_dict.crear_dict(sort_params_bajas,'tipo_movimiento',-1)
+        crear_dict.crear_dict(sort_params_bajas,'dispositivo__valido',False)
+        dispositivos_baja  = conta_m.MovimientoDispositivo.objects.filter(**sort_params_bajas)
+        dispositivos_alta  = conta_m.MovimientoDispositivo.objects.filter(**sort_params)         
+        for data in dispositivos_alta:
+            if dispositivos_baja.filter(dispositivo=data.dispositivo).count() ==0:                
+                datos_existencia.append(data)            
+        dispositivos =[]
+        existencias_total = 0
+        
+        for data in datos_existencia:
+            precio_dipositivo = conta_m.PrecioDispositivo.objects.get(dispositivo=data.dispositivo,activo=True)           
+            existencias = {}
+            existencias["triage"] =data.dispositivo.triage
+            existencias["tipo"] = data.dispositivo.tipo.tipo
+            existencias["fecha_ingreso"] = data.dispositivo.entrada.fecha
+            existencias["tipo_ingreso"] = data.dispositivo.entrada.tipo.nombre
+            #existencias["precio"] = data.precio
+            existencias["precio"] = precio_dipositivo.precio
+            existencias["fecha_precio"] = precio_dipositivo.fecha_creacion
+            saldo_total = saldo_total + precio_dipositivo.precio
+            existencias["rango_fecha"] = rango_fecha
+            existencias["fecha"]= rango_fecha
+            existencias_total = existencias_total + 1
+            existencias["existencias_total"]= existencias_total
+            existencias["saldo_total"]= saldo_total
+            dispositivos.append(existencias)  
+        return Response(dispositivos)
+    
+class ExistenciaDispositivosInformeView(LoginRequiredMixin, GroupRequiredMixin, FormView):
+    """ Vista para obtener la informacion de los dispositivos para crear el informe de existencia mediante un
+    api mediante el metodo GET  y lo muestra en el tempalte
+    """
+    group_required = [u"inv_conta", ]
+    redirect_unauthenticated_users = True
+    raise_exception = True
+    template_name = "conta/informe_existencia_dispositivos.html"
+    form_class = conta_f.ExistenciaDispositivosInformeForm
+
+
+class InformeRastreoDesecho(views.APIView):
+    """ Lista todas los dispositivios que estan en desecho por medio de la `class:`Desecho` de inventario.
+    """
+    def get(self, request):      
+        try:
+            fecha_inicio = self.request.GET['fecha_min']
+        except MultiValueDictKeyError:
+            fecha_inicio=0
+        
+        try:
+            fecha_fin = self.request.GET['fecha_max']
+        except MultiValueDictKeyError:
+            fecha_fin=0
+        
+        try:
+            fecha_inicio_entrada = self.request.GET['fecha_min_entrada']
+        except MultiValueDictKeyError:
+            fecha_inicio_entrada=0
+        
+        try:
+            fecha_fin_entrada = self.request.GET['fecha_max_entrada']
+        except MultiValueDictKeyError:
+            fecha_fin_entrada=0
+
+        try:
+            tipo_dispositivo = [int(x) for x in self.request.GET.getlist('tipo_dispositivo[]')]
+            if len(tipo_dispositivo) ==0:
+                tipo_dispositivo = self.request.GET['tipo_dispositivo']            
+        except MultiValueDictKeyError:
+            tipo_dispositivo=0
+
+        try:
+            tipo_entrada = [int(x) for x in self.request.GET.getlist('tipo_entrada[]')]
+            if len(tipo_entrada) ==0:
+                tipo_entrada = self.request.GET['tipo_entrada']            
+        except MultiValueDictKeyError:
+            tipo_entrada=0
+        try:
+            entradas = [int(x) for x in self.request.GET.getlist('entrada_inventario[]')]
+            list_entrada = [] 
+            if len(entradas) ==0:
+                entradas = self.request.GET['entrada_inventario'] 
+                list_entrada.append(entradas)                          
+        except MultiValueDictKeyError:
+            entradas=0
+
+        try:
+            desecho = [int(x) for x in self.request.GET.getlist('entrada[]')]
+            if len(desecho) ==0:
+                desecho = self.request.GET['entrada']            
+        except MultiValueDictKeyError:
+            desecho=0   
+        sort_params ={}        
+        crear_dict.crear_dict(sort_params,'tipo_dispositivo__id__in',tipo_dispositivo)
+        crear_dict.crear_dict(sort_params,'desecho__fecha__gte',fecha_inicio)
+        crear_dict.crear_dict(sort_params,'desecho__fecha__lte',fecha_fin)
+        crear_dict.crear_dict(sort_params,'entrada_detalle__entrada__tipo__id__in',tipo_entrada)
+        if len(list_entrada)==1:
+            crear_dict.crear_dict(sort_params,'entrada_detalle__entrada__id__in',list_entrada)
+        else:
+            crear_dict.crear_dict(sort_params,'entrada_detalle__entrada__id__in',entradas)
+        crear_dict.crear_dict(sort_params,'entrada_detalle__entrada__fecha__gte',fecha_inicio_entrada)
+        crear_dict.crear_dict(sort_params,'entrada_detalle__entrada__fecha__lte',fecha_fin_entrada)
+        crear_dict.crear_dict(sort_params,'id__in',desecho)    
+        desecho_detalle = inv_m.DesechoDetalle.objects.filter(**sort_params)        
+        datos_desecho =[]
+        cantidad_total = 0   
+        for data in desecho_detalle:
+            desecho = {}
+            desecho["desecho_id"] =data.desecho.id
+            desecho["desecho_url"] =data.desecho.get_absolute_url_detail()
+            desecho["desecho_fecha"] = str(data.desecho.fecha)
+            desecho["desecho_precio_total"] = data.desecho.precio_total
+            desecho["desecho_peso"] = data.desecho.peso
+            desecho["desecho_tecnico"] = data.desecho.creado_por.get_full_name()
+            desecho["desecho_empresa"] = data.desecho.empresa.nombre           
+            desecho["desecho_cantidad"] = data.cantidad
+            desecho["desecho_tipo_dispositivo"]= data.tipo_dispositivo.tipo
+            desecho["desecho_observaciones"]= data.desecho.observaciones
+            desecho["entrada_detalle"]= data.entrada_detalle.id
+            desecho["entrada_detalle_util"]= data.entrada_detalle.util
+            desecho["entrada_detalle_repuesto"]= data.entrada_detalle.repuesto
+            desecho["entrada_detalle_desecho"]= data.entrada_detalle.desecho
+            desecho["entrada_detalle_precio_unitario"]= data.entrada_detalle.precio_unitario
+            desecho["entrada_detalle_precio_total"]= data.entrada_detalle.precio_total
+            desecho["entrada_detalle_tecnico"]= data.entrada_detalle.creado_por.get_full_name()
+            desecho["entrada_detalle_entrada_id"]= data.entrada_detalle.entrada.id
+            desecho["entrada_detalle_descripcion"]= data.entrada_detalle.descripcion
+            desecho["entrada_detalle_fecha"]= str(data.entrada_detalle.entrada.fecha)
+            desecho["entrada_detalle_total"]= data.entrada_detalle.total            
+            desecho["entrada_proveedor"]= data.entrada_detalle.entrada.proveedor.nombre
+            desecho["entrada_tecnico"]= data.entrada_detalle.entrada.creada_por.get_full_name()
+            desecho["entrada_factura"]= data.entrada_detalle.entrada.factura
+            desecho["entrada_fecha_cierre"]= str(data.entrada_detalle.entrada.fecha_cierre)
+            desecho["entrada_tipo"]= data.entrada_detalle.entrada.tipo.nombre 
+            desecho["entrada_url"] =data.entrada_detalle.entrada.get_absolute_url()
+            desecho["proveedor_url"] =data.desecho.empresa.get_absolute_url_detail()
+            cantidad_total = cantidad_total +  data.cantidad
+            desecho["cantidad_total"] =cantidad_total
+            datos_desecho.append(desecho)   
+        return Response(datos_desecho)
+    
+class DesechoRastreoInformeView(LoginRequiredMixin, GroupRequiredMixin, FormView):
+    """ Vista para obtener la informacion de los dispositivos para crear el informe de existencia mediante un
+    api mediante el metodo GET  y lo muestra en el tempalte
+    """
+    group_required = [u"inv_conta",u"inv_admin",  ]
+    redirect_unauthenticated_users = True
+    raise_exception = True
+    template_name = "conta/informe_rastreo_desecho.html"
+    form_class = conta_f.RastreoDesechoInformeForm    
+
+class InformeRastreoRepuesto(views.APIView):
+    """ Lista todas los dispositivios que estan en desecho por medio de la `class:`Desecho` de inventario.
+    """
+    def get(self, request):      
+        try:
+            fecha_inicio = self.request.GET['fecha_min']
+        except MultiValueDictKeyError:
+            fecha_inicio=0
+        
+        try:
+            fecha_fin = self.request.GET['fecha_max']
+        except MultiValueDictKeyError:
+            fecha_fin=0   
+        try:
+            tipo_dispositivo = [int(x) for x in self.request.GET.getlist('tipo_dispositivo[]')]
+            if len(tipo_dispositivo) ==0:
+                tipo_dispositivo = self.request.GET['tipo_dispositivo']            
+        except MultiValueDictKeyError:
+            tipo_dispositivo=0
+
+        try:
+            tipo_entrada = [int(x) for x in self.request.GET.getlist('tipo_entrada[]')]
+            if len(tipo_entrada) ==0:
+                tipo_entrada = self.request.GET['tipo_entrada']            
+        except MultiValueDictKeyError:
+            tipo_entrada=0
+        try:
+            entradas = [int(x) for x in self.request.GET.getlist('entrada_inventario[]')]
+            list_entrada = [] 
+            if len(entradas) ==0:
+                entradas = self.request.GET['entrada_inventario'] 
+                list_entrada.append(entradas)                          
+        except MultiValueDictKeyError:
+            entradas=0
+
+        try:
+            repuesto = [int(x) for x in self.request.GET.getlist('repuesto[]')]
+            if len(repuesto) ==0:
+                repuesto = self.request.GET['repuesto']            
+        except MultiValueDictKeyError:
+            repuesto=0
+
+        try:
+            estado_repuesto = [int(x) for x in self.request.GET.getlist('estado_repuesto[]')]
+            if len(estado_repuesto) ==0:
+                estado_repuesto = self.request.GET['estado_repuesto']            
+        except MultiValueDictKeyError:
+            estado_repuesto=0    
+        sort_params ={}        
+        crear_dict.crear_dict(sort_params,'tipo__id__in',tipo_dispositivo)
+        crear_dict.crear_dict(sort_params,'entrada__fecha__gte',fecha_inicio)
+        crear_dict.crear_dict(sort_params,'entrada__fecha__lte',fecha_fin)
+        crear_dict.crear_dict(sort_params,'entrada__tipo__id__in',tipo_entrada)
+        if len(list_entrada)==1:
+            crear_dict.crear_dict(sort_params,'entrada__id__in',list_entrada)
+        else:
+            crear_dict.crear_dict(sort_params,'entrada__id__in',entradas)
+        
+        crear_dict.crear_dict(sort_params,'id__in',repuesto)
+        crear_dict.crear_dict(sort_params,'estado__in',estado_repuesto) 
+        repuesto_detalle = inv_m.Repuesto.objects.filter(**sort_params)
+        datos_desecho =[]
+        cantidad_total = 0   
+        for data in repuesto_detalle:
+            try:
+                data_comentario = inv_m.RepuestoComentario.objects.filter(repuesto=data.id).last()
+                comentario = data_comentario.comentario
+
+            except:
+                comentario = 0
+            repuesto = {}
+            repuesto["repuesto_id"] =data.id
+            repuesto["repuesto_triage"] ="R-"+str(data.id)
+            repuesto["repuesto_url"] =data.get_absolute_url()
+            repuesto["repuesto_impreso"] =data.impreso
+            repuesto["repuesto_tipo"] =data.tipo.tipo
+            repuesto["repuesto_estado"] =data.estado.nombre
+            repuesto["repuesto_descripcion"] =data.descripcion
+            try:
+                repuesto["repuesto_tarima"] =data.tarima.id
+            except:
+                repuesto["repuesto_tarima"]= 0
+            repuesto["repuesto_valido"] =data.valido
+            try:
+                repuesto["repuesto_marca"] =data.marca.marca
+            except:
+                repuesto["repuesto_marca"] =0
+            repuesto["repuesto_modelo"] =data.modelo
+            repuesto["repuesto_creado"] =data.creada_por.get_full_name()
+            repuesto["repuesto_entrada"] =data.entrada.id
+            repuesto["repuesto_entrada_tipo"] =data.entrada.tipo.nombre
+            repuesto["repuesto_entrada_url"] =data.entrada.get_absolute_url()
+            repuesto["repuesto_entrada_fecha"] = str(data.entrada.fecha)
+            repuesto["repuesto_desmembrado"] = inv_m.DispositivoRepuesto.objects.filter(repuesto=data.id).count()
+            repuesto["repuesto_comentario"] = comentario
+            repuesto["repuesto_total"] = repuesto_detalle.count() 
+            datos_desecho.append(repuesto) 
+        return Response(datos_desecho)
+    
+class RepuestoRastreoInformeView(LoginRequiredMixin, GroupRequiredMixin, FormView):
+    """ Vista para obtener la informacion de los dispositivos para crear el informe de existencia mediante un
+    api mediante el metodo GET  y lo muestra en el tempalte
+    """
+    group_required = [u"inv_conta",u"inv_admin", ]
+    redirect_unauthenticated_users = True
+    raise_exception = True
+    template_name = "conta/informe_rastreo_repuesto.html"
+    form_class = conta_f.RastreoRepuestoInformeForm   
+
+
 """
  Vista para la contabilidad del modulo de BEQT
 """
@@ -931,7 +1237,6 @@ class InformeEntradaBeqtJson(views.APIView):
     en caso contrario desde el precio_unitario del detalle de entrada
     """
     def get(self, request):
-        print("Conta BEQT")
         try:
             donante = self.request.GET['donante']
         except MultiValueDictKeyError as e:
@@ -1004,7 +1309,7 @@ class InformeEntradaBeqtJson(views.APIView):
             dispositivo['tipo'] = entrada.tipo.nombre
             dispositivo['proveedor'] = entrada.proveedor.nombre
             try:
-                dispositivo['total'] = cantidad * precio
+                dispositivo['total'] = cantidad * precio                
             except:
                 print(entrada.id)
             dispositivo['total_costo'] = precio_total_anterior

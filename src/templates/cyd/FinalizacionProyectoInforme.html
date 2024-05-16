@@ -1,10 +1,10 @@
 {% extends "base/base.html" %}
 {% load staticfiles widget_tweaks %}
 {% block page_title %}
-<title>Informe Final por curso</title>
+<title>Informe finalizacion de proyecto</title>
 {% endblock page_title %} {% block content %}
 <section class="content-header">
-	<h1>Informe Final por curso</h1>
+	<h1>Informe finalizacion de proyecto</h1>
 </section>
 <section class="content">
 	<div class="container-fluid">
@@ -13,12 +13,13 @@
 			<div class="col-md-3 col-sm-3">
 				<div class="box">
 					<form action="{% url 'informe_final'%}" id="informefinal-list-form">
+						{%csrf_token%}
 						<div class="box-header">
 							<input type="submit" class="btn btn-primary col-md-12" value="Generar Informe" /><br /><br />
 							<h3 class="box-title">Filtros</h3>
 						</div>
 						<div class="box-body">
-							{% csrf_token %} {% for field in form %}
+							 {% for field in form %}
 							<div class="form-group">
 								{{field.label_tag}} {{field}}
 							</div>

@@ -100,7 +100,7 @@ class PrecioEstandarInforme {
     e.preventDefault();
     var tablaPrecio = $('#precioestandar-table').DataTable({
       searching:false,
-      paging:true,
+      paging:false,
       ordering:true,
       processing:true,
       destroy:true,
@@ -477,6 +477,210 @@ class ResumenInforme {
       ]
     });
     tablaPrecio.clear().draw();
+    //tablaPrecio.ajax.reload();
+  });
+  }
+}
+
+class ExistenciaDispositivosInforme {
+  constructor() {
+  let precioestandar_informe = $("#existencia-list-form");
+  var urlPrecio= $('#existencia-list-form').attr('action');
+  precioestandar_informe.submit(function (e){
+    e.preventDefault();
+    var tablaPrecio = $('#existencia-table').DataTable({
+      headerCallback: function(thead, data, start, end, display){        
+        if((end-1)>0){
+          $(thead).find('th').eq(0).html( "FECHA: "+data[end-1].rango_fecha );
+        }
+      },
+      footerCallback: function( tfoot, data, start, end, display){        
+        if((end-1)>0){
+          $(tfoot).find('th').eq(0).html("EXISTENCIA: " +data[end-1].existencias_total.toLocaleString());
+         $(tfoot).find('th').eq(1).html("SALDO: "+data[end-1].saldo_total.toLocaleString());
+        }
+        
+      },
+      dom: 'lBfrtip',
+      buttons: ['excel', 'pdf', 'copy'],
+      searching:true,
+      paging:false,
+      ordering:true,
+      processing:true,
+      destroy:true,
+      ajax:{
+        url:urlPrecio,
+        dataSrc:'',
+        cache:false,
+        processing:true,
+        data: function () {
+          return $('#existencia-list-form').serializeObject(true);
+        }
+      },
+      columns: [
+        {data: "triage"},
+        {data: "tipo"},
+        {data: "precio"},
+        {data: "tipo_ingreso"},
+        {data: "fecha_ingreso"},
+        {data: "fecha_precio"},
+      ]
+    });
+    //tablaPrecio.clear().draw();
+    //tablaPrecio.ajax.reload();
+  });
+  }
+}
+
+class RastreoDesechoInforme{
+  constructor() {
+  let rastreo_informe = $("#rastreo-desecho-list-form");
+  var urlRastreo= $('#rastreo-desecho-list-form').attr('action');
+  rastreo_informe.submit(function (e){
+    e.preventDefault();
+    var tablaPrecio = $('#rastreo-table').DataTable({      
+      footerCallback: function( tfoot, data, start, end, display){        
+        if((end-1)>0){
+          $(tfoot).find('th').eq(0).html("CANTIDAD DE DISPOSITIVOS: " +data[end-1].cantidad_total.toLocaleString());
+        }
+        
+      },
+      dom: 'lBfrtip',
+      //buttons: ['excel', {extend:'pdf', orientation:'landscape',exportOptions:{columns:[1,2,3,4,5,6,7,8,9,10,11,12]}}, 'copy'],
+      buttons: ['excel', {extend:'pdf',orientation:'landscape',pageSize:'TABLOID'}, 'copy'],
+      searching:true,
+      paging:false,
+      ordering:true,
+      processing:true,
+      destroy:true,
+      ajax:{
+        url:urlRastreo,
+        dataSrc:'',
+        cache:false,
+        processing:true,
+        data: function () {
+          return $('#rastreo-desecho-list-form').serializeObject(true);
+        }
+      },
+      columns: [
+        {data: "desecho_id",render: function(data, type, full, meta){
+          return "<a href="+full.desecho_url+">"+full.desecho_id+"</a>";
+        }},
+        {data: "desecho_fecha"},
+        {data: "desecho_precio_total"},
+        {data: "desecho_tecnico"},
+        {data: "desecho_empresa",render: function(data, type, full, meta){
+          return "<a href="+full.proveedor_url+">"+full.desecho_empresa+"</a>";
+          
+        }},
+        {data: "desecho_cantidad",render: function(data, type, full, meta){
+          return "<strong>"+full.desecho_cantidad+"</strong>";
+          
+        }},
+        {data: "desecho_tipo_dispositivo"},        
+        {data: "entrada_detalle_descripcion"},      
+        {data: "entrada_detalle_tecnico"},
+        {data: "entrada_detalle_entrada_id",render: function(data, type, full, meta){
+          return "<a href="+full.entrada_url+">"+full.entrada_detalle_entrada_id+"</a>";
+        }},
+        {data: "entrada_tipo"},
+        {data: "entrada_detalle_fecha"},
+        {data: "entrada_proveedor"},
+        {data: "entrada_tecnico"},
+        {data: "entrada_factura"},
+        {data: "entrada_fecha_cierre"},
+        {data: "desecho_observaciones"},
+        
+      ]
+    });
+    //tablaPrecio.clear().draw();
+    //tablaPrecio.ajax.reload();
+  });
+  }
+}
+
+
+class RastreoRepuestoInforme{
+  constructor() {
+  let rastreo_informe = $("#rastreo-repuesto-list-form");
+  var urlRastreo= $('#rastreo-repuesto-list-form').attr('action');
+  rastreo_informe.submit(function (e){
+    e.preventDefault();
+    var tablaPrecio = $('#rastreo-repuestos-table').DataTable({      
+      footerCallback: function( tfoot, data, start, end, display){        
+        if((end-1)>0){
+          $(tfoot).find('th').eq(0).html("CANTIDAD DE DISPOSITIVOS: " +data[end-1].repuesto_total.toLocaleString());
+        }
+        
+      },
+      dom: 'lBfrtip',
+      buttons: ['excel', {extend:'pdf', orientation:'landscape'}, 'copy'],
+      searching:true,
+      paging:false,
+      ordering:true,
+      processing:true,
+      destroy:true,
+      ajax:{
+        url:urlRastreo,
+        dataSrc:'',
+        cache:false,
+        processing:true,
+        data: function () {
+          return $('#rastreo-repuesto-list-form').serializeObject(true);
+        }
+      },
+      columns: [
+        {data: "repuesto_triage",render: function(data, type, full, meta){
+          return "<a href="+full.repuesto_url+">"+full.repuesto_triage+"</a>";
+        }},
+        {data: "repuesto_tipo"},
+        {data: "repuesto_modelo",render:function(data, type, full, meta){
+          if(full.repuesto_modelo==""){
+            return "<strong>"+"No tiene modelo"+"</strong>"
+          }else{
+            return full.repuesto_marca
+          }
+        }},
+        {data: "repuesto_marca",render:function(data, type, full, meta){
+          if(full.repuesto_marca==0){
+            return "<strong>"+"No tiene marca"+"</strong>"
+          }else{
+            return full.repuesto_marca
+          }
+        }},
+        {data: "repuesto_descripcion",render:function(data, type, full, meta){
+          if(full.repuesto_descripcion=="" || full.repuesto_descripcion==" "){
+            return "<strong>"+"No tiene descripcion"+"</strong>"
+          }else{
+            return full.repuesto_descripcion
+          }
+        }},
+        {data: "repuesto_estado"},
+        {data: "repuesto_desmembrado"},
+        {data: "repuesto_entrada_fecha"},        
+        {data: "repuesto_comentario",render:function(data, type, full, meta){
+          if(full.repuesto_comentario==0){
+            return "<strong>"+"No tiene comentario"+"</strong>"
+          }else{
+            return full.repuesto_comentario
+          }
+        }},      
+        {data: "repuesto_creado"},
+        {data: "repuesto_tarima",render: function(data, type, full, meta){
+          if(full.repuesto_tarima==0){
+            return "<strong>"+"No tiene tarima"+"</strong>"
+          }else{
+            return full.repuesto_tarima
+          }
+        }},
+        {data: "repuesto_entrada",render: function(data, type, full, meta){
+          return "<a href="+full.repuesto_entrada_url+">"+full.repuesto_entrada+"</a>";
+        }},
+        {data: "repuesto_entrada_tipo"}
+        
+      ]
+    });
+    //tablaPrecio.clear().draw();
     //tablaPrecio.ajax.reload();
   });
   }

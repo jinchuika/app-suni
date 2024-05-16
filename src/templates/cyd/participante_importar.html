@@ -127,7 +127,6 @@
 	var participante_api_list_url = "{% url 'participante_api_list' %}";
 	var escuela_api_list_url = "{% url 'escuela_api_list' %}";
 	var participante_add_ajax_url = "{% url 'participante_add_ajax' %}";
-	console.log(participante_add_ajax_url);
 	var rol_list = [
 	{% for rol in rol_list %}
 		{rol: '{{ rol.nombre }}'},
@@ -140,26 +139,24 @@
 	{% endfor %}
 	];
 	var etnia_list = [
-		{%for etnia in etnia_list%}
-				
+		{%for etnia in etnia_list%}				
 			{etnia: '{{etnia.nombre}}'},
 		{%endfor%}
 	];
 	var escolaridad_list = [
-	{%for escolaridad in escolaridad_list%}
-	 
-	{escolaridad: '{{escolaridad.nombre}}'},
+	{%for escolaridad in escolaridad_list%}	 
+		{escolaridad: '{{escolaridad.nombre}}'},
 	{%endfor%}
 	];
 	
 	var profesion_list = [
 	{%for profesion in profesion_list%}
-	{profesion: '{{profesion.nombre}}'},
+		{profesion: '{{profesion.nombre}}'},
 	{%endfor%}
 	];
 	var grado_impartido_list = [
 	{%for grado in grado_list%}
-	{grado: '{{grado.grado_asignado}}'},
+		{grado: '{{grado.grado_asignado}}'},
 	{%endfor%}
 	];
 
