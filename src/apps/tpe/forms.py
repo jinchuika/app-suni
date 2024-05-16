@@ -46,23 +46,31 @@ class EquipamientoForm(ModelForm):
 
 
 class GarantiaForm(forms.ModelForm):
-    class Meta:
-        model = tpe_m.Garantia
-        fields = '__all__'
-        exclude = ('id','creado_por' )
-        widgets = {
-            'equipamiento': forms.Select(attrs={'class': 'form-control select2'}),
-            'fecha_vencimiento': forms.TextInput(attrs={'class': 'form-control datepicker'})
-        }
-
     def __init__(self, *args, **kwargs):
-        """
-        Filtra el campo de `equipamiento` para que mostrar solo los que no tienen una :class:`Garantia`
-        """
         super(GarantiaForm, self).__init__(*args, **kwargs)
         qs = self.fields['equipamiento'].queryset
         qs = qs.annotate(num_garantias=Count('garantias')).filter(num_garantias__lt=1)
         self.fields['equipamiento'].queryset = qs
+
+        # Modificar el widget para mostrar el campo `no_referencia` en lugar del número de equipamiento
+        self.fields['equipamiento'].widget.choices = [(equipamiento.id, self.format_equipamiento(equipamiento)) for equipamiento in qs]
+
+    def format_equipamiento(self, equipamiento):
+        referencia = str(equipamiento.no_referencia)
+        if equipamiento.cooperante.filter(id=172).exists() or equipamiento.cooperante.filter(nombre="BEQT").exists():
+            referencia += " - BEQT"
+        return referencia
+
+    class Meta:
+        model = tpe_m.Garantia
+        fields = '__all__'
+        exclude = ('id', 'creado_por')
+        widgets = {
+            'fecha_vencimiento': forms.TextInput(attrs={'class': 'form-control datepicker'}),
+            'equipamiento': forms.Select(attrs={'class': 'form-control'})
+        }
+
+
 
 
 class TicketSoporteForm(forms.ModelForm):

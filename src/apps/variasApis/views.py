@@ -493,7 +493,7 @@ class SubirNotasHitosJson(views.APIView):
 class escuelasApi(views.APIView):
     """Comentario de Api de prueba para la Apis de django"""
     def get(self, request): 
-     archivo_excel_path = "C:/Users/dguty/Desktop/Migracion2/Escuelas_MIG_2.xlsx"         #Aquí va la dirección
+     archivo_excel_path = "C:/Users/PC/Desktop/Migracion2/Escuelas_MIG_2.xlsx"         #Aquí va la dirección
      archivo_excel = load_workbook(filename=archivo_excel_path)
      hoja_excel = archivo_excel.active
      max_row = hoja_excel.max_row
@@ -558,19 +558,24 @@ class equipamientoApi(views.APIView):
           no_equipadas = 0
           no_existe = 0 
           ruta_archivo_txt = os.path.splitext(archivo_excel_path)[0] + "_log.txt"
+          j = 1 
 
           with open(ruta_archivo_txt, "w") as archivo_log:
                for i in range(2, max_row + 1):
                     try:
                          escuela = cyd_m.Escuela.objects.get(codigo = hoja_excel.cell(row = i, column = 2).value)
+                         
 
                          if escuela.equipada:
                               equipadas += 1
 
                          else:
                               ultimo_id = tpe_m.Equipamiento.objects.latest('id').id
+                              ultimo_referencia = tpe_m.Equipamiento.objects.filter( cooperante = 172).last()  #Cooperante BEQT
+                                  
                               nuevo_equipamiento = tpe_m.Equipamiento.objects.create(
                                    id = ultimo_id + 1,
+                                   no_referencia = int(ultimo_referencia.no_referencia) + j, 
                                    estado = tpe_m.EquipamientoEstado.objects.get(id = "1"), 
                                    escuela = cyd_m.Escuela.objects.get(codigo = hoja_excel.cell(row = i, column = 2).value), 
                                    fecha = "2010-01-01", 
@@ -578,16 +583,18 @@ class equipamientoApi(views.APIView):
                                    renovacion = False, 
                                    servidor_khan = False,
                                    creado_por = User.objects.get(id = hoja_excel.cell(row = i, column = 4).value),
-                                   cooperante = Cooperante.objects.get(nombre = "FUNSEPA")
+                                   #cooperante = Cooperante.objects.get(nombre = "FUNSEPA")
                               )
      
                               registro = "{} Escuela equipada: {}".format(i, hoja_excel.cell(row=i, column=3).value)
                               archivo_log.write(registro + "\n")
-                              #nuevo_equipamiento.save()
+                              nuevo_equipamiento.save()
                               no_equipadas += 1
                               print(str(i) + " Creada: " +  hoja_excel.cell(row = i, column = 2).value)
+                              j += 1
 
                     except Exception as c:
+                         print(c)
                          no_existe += 1
 
                resumen = "Total existentes: {}, total creadas: {}, no econtradas {}".format(equipadas, no_equipadas, no_existe)
@@ -605,7 +612,7 @@ class participantesApi(views.APIView):
     """Comentario de Api de prueba para la Apis de django class:`Participante`"""
 
     def get(self, request): 
-          archivo_excel_path = filename="C:/Users/dguty/Desktop/Migracion2/Participantes_MIG_2A_FinalC.xlsx" #Aquí va la dirección y sus variantes
+          archivo_excel_path = filename="C:/Users/PC/Desktop/Migracion2/Participantes_MIG_2A_FinalC.xlsx" #Aquí va la dirección y sus variantes
           archivo_excel = load_workbook(filename=archivo_excel_path)
           hoja_excel = archivo_excel.active
           max_row = hoja_excel.max_row
@@ -867,3 +874,4 @@ class HitosApi(views.APIView):
                "Datos ingresados con exito", 
                status=status.HTTP_200_OK
           )
+
