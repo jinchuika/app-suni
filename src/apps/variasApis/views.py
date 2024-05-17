@@ -874,6 +874,8 @@ class HitosApi(views.APIView):
                "Datos ingresados con exito", 
                status=status.HTTP_200_OK
           )
+    
+#Fin apis de segunda parte migración Historico 2010
 
 ###############################################
 class CapacitacionNotas(views.APIView):
@@ -893,3 +895,4 @@ class CapacitacionNotas(views.APIView):
                 "Datos ingresados Correctamente",
                 status=status.HTTP_200_OK
             )
+
