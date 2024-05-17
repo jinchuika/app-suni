@@ -22,12 +22,14 @@ class IndexView(LoginRequiredMixin, TemplateView):
             today = datetime.now()
             departamentos = []
             if self.request.user.groups.filter(Q(name='cyd_capacitador')).exists():
-                sedes_list = self.request.user.sedes.filter(grupos__asistencias__fecha__year=today.year)
+                #sedes_list = self.request.user.sedes.filter(grupos__asistencias__fecha__year=today.year,activa=True)
+                sedes_list = self.request.user.sedes.filter(fecha_creacion__year=today.year,activa=True)                                
             else:
-                sedes_list = Sede.objects.filter(grupos__asistencias__fecha__year=today.year)
-
-            (departamentos.append(e.municipio.departamento.nombre) for e in sedes_list)
-
+                #sedes_list = Sede.objects.filter(grupos__asistencias__fecha__year=today.year,activa=True).distinct()
+                sedes_list = Sede.objects.filter(fecha_creacion__year=today.year,activa=True)                
+            #(departamentos.append(e.municipio.departamento.nombre) for e in sedes_list)            
+            for data in sedes_list:                
+                departamentos.append(data.municipio.departamento.nombre)
             widgets.append({
                 'queryset': '',
                 'template_name': 'widgets/cyd_capacitacion_chart.html',
@@ -59,7 +61,7 @@ class IndexView(LoginRequiredMixin, TemplateView):
                     'js/distributed/jquery.qtip.min.js'
                 ],
                 'extra': {
-                    'url_capacitacion': reverse_lazy('tpe_api:equipamiento-calendar-list'),
+                    'url_capacitacion': reverse_lazy('cyd_calendario_list'),
                 }
             })
 

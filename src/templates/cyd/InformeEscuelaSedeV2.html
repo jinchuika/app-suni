@@ -1,10 +1,10 @@
 {% extends "base/base.html" %}
 {% load staticfiles widget_tweaks %}
 {% block page_title %}
-<title>Informe Capacitadores</title>
+<title>Listado de escuelas en sedes</title>
 {% endblock page_title %} {% block content %}
 <section class="content-header">
-	<h1>Informe Capacitadores</h1>
+	<h1>Listado de escuelas en sedes</h1>
 </section>
 <section class="content">
 	<div class="container-fluid">
@@ -12,7 +12,7 @@
 			<!-- Comienza el formulario -->
 			<div class="col-md-3 col-sm-3">
 				<div class="box">
-					<form action="{% url 'informe_api_capacitador'%}" id="informecapacitadores-list-form">
+					<form action="{% url 'informe_api_sede_escuela'%}" id="informesedescuelalistado-list-form">
 						<div class="box-header">
 							<input type="submit" class="btn btn-primary col-md-12" value="Generar Informe" /><br /><br />
 							<h3 class="box-title">Filtros</h3>
@@ -33,45 +33,37 @@
 					<div class="box-header">
 						<div class="row">
 							<div class="col-md-9">
-									<h3 class="box-title">Listado</h3>
+									<h3 class="box-title">Listado de Escuelas en sedes</h3>
 							</div>
 						</div>
 					</div>
 					<div class="box-body  table-responsive">
 						<!--	<div class="col-md-12 table-responsive"> -->
-						<table id="informecapacitadores-table-search" class="table table-striped table-hover table-bordered table-condensed">
+						<table id="informescuelalistadosede-table-search" class="table table-striped table-hover table-bordered table-condensed">
 							<thead>
-								<tr>
-									<th>No.</th>
-									<th>Sede</th>
-									<th>Numero de Grupos</th>
-									<th>Numero de cursos impartidos</th>
-									<th>Numero de asignaciones</th>
-									<th>Numero de participante asignados</th>
-									<th>Escuelas invitadas</th>
-									<th>Año</th>
-								</tr>
+                <tr>
+                <th>No.</th>
+				<th>Departamento</th>
+				<th>Municipio</th>
+				<th>Codigo</th>
+                <th>Establecimiento</th>				
+                <th>Maestros Capacitados</th>
+                <th>Hombres</th>
+                <th>Mujeres</th>
+                <th>Certificados</th>
+                <th>No certificados</th>
+				<th>Nivelar</th>
+				<th>Niños</th>
+				<th>Niñas</th>
+
+                <th>Capacitador</th>
+                <th>Sede</th>
+				<th>Tipo</th>				
+                <th>Fecha</th>
+                </tr>
 							</thead>
-							<tbody id="informecapacitadores-table-search-body">
+							<tbody id="informescuelalistadosede-table-search-body">
 							</tbody>
-							<tfoot>
-								<tr>
-									<th>
-									</th>
-									<th>
-									</th>
-									<th>
-									</th>
-									<th>
-									</th>
-									<th>
-									</th>
-									<th>
-									</th>
-									<th>
-									</th>
-								</tr>
-							</tfoot>
 						</table>
 						<!--	</div> -->
 					</div>
@@ -79,12 +71,15 @@
 			</div>
 		</div>
 	</div>
+
 </section>
 {% endblock content %}
 {% block extra_js %}
 {% include "base/dataTables.html" %}
 <script src="{% static "js/extrajs/cyd.js" %}"></script>
 <script>
-	var  nuevo = new informeCapacitadores();
+		 /**/
+var  nuevo = new informeListadoEscuelaSede();
+		 /**/
 </script>
 {% endblock extra_js %}

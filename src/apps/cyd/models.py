@@ -108,17 +108,34 @@ class Sede(models.Model):
         return self.nombre
 
     def get_absolute_url(self):
-        return reverse_lazy('sede_detail', kwargs={'pk': self.id})
-    
+        return reverse_lazy('sede_detail', kwargs={'pk': self.id})  
+        
     def get_grupos(self):
         grupos = Grupo.objects.filter(sede=self).count()        
-        return 0
+        return grupos
+
+    def get_es_naat(self):
+        grupos = Grupo.objects.filter(curso__nombre__icontains="NAAT",sede=self).count()
+        if grupos >=1:
+            return True
+        else:
+            return False        
+
 
     def get_escuelas(self):
-        participantes = Participante.objects.filter(asignaciones__grupo__sede__id=self.id)
+        participantes = Participante.objects.filter(asignaciones__grupo__sede__id=self.id)        
         return Escuela.objects.filter(
             participantes__in=participantes).annotate(cantidad_participantes=Count('participantes')).distinct()
-
+    
+    def get_escuelas_invitadas(self):      
+        grupos = Grupo.objects.filter(sede=self.id,numero=2, curso__nombre__icontains="Tecnologia").count()
+        if grupos >=1:
+            participantes = Participante.objects.filter(asignaciones__grupo__sede__id=self.id)
+            return Escuela.objects.filter(
+            participantes__in=participantes).annotate(cantidad_participantes=Count('participantes')).distinct().count()
+        else:
+            return 0
+               
     def save(self, *args, **kwargs):
         if self.url_archivos:
             string_url = str(self.url_archivos)
@@ -144,7 +161,9 @@ class Sede(models.Model):
             asignaciones__grupo__sede__id=self.id, activo=True).annotate(
             cursos_sede=Count('asignaciones'))        
         for participante in participantes:
-            asignaciones = participante.asignaciones.filter(grupo__sede=self)
+            
+            asignaciones = participante.asignaciones.filter(grupo__sede=self)            
+            #print(asignaciones.first().grupo.sede.fecha_creacion.year)
             new_asignaciones = participante.asignaciones.filter(grupo__sede=self, grupo__curso__nombre__icontains='Tecnologia', grupo__numero=2)            
             if new_asignaciones.count() !=0:
                 invitada = True                    
@@ -152,19 +171,51 @@ class Sede(models.Model):
                 resultados_sede_invitada['listado'].append({
                     'participante':participante,
                     'nota':nota_new,
-                    'grupo':new_asignaciones.first().grupo.numero
+                    'grupo':new_asignaciones.first().grupo.numero,
+                    'year': new_asignaciones.first().grupo.sede.fecha_creacion.year,
+                    'curso':asignaciones.first().grupo.curso.nombre
                 })
             resultado['listado'].append({
                 'participante': participante,
                 'nota': sum(a.get_nota_promediada()['nota'] for a in asignaciones),
-                'grupo': asignaciones.first().grupo.numero})
+                'grupo': asignaciones.first().grupo.numero,
+                'year':asignaciones.first().grupo.sede.fecha_creacion.year,
+                'curso':asignaciones.first().grupo.curso.nombre
+                
+                })
+        
         resultado['resumen']['roles'] = participantes.annotate(
             nombre_rol=F('rol__nombre')).values('nombre_rol').annotate(cantidad=Count('id', distinct=True))
         resultado['resumen']['genero'] = participantes.annotate(
             nombre_genero=F('genero__genero')).values('nombre_genero').annotate(cantidad=Count('id', distinct=True))
-        aprobado = sum(1 for nota in resultado['listado'] if nota['nota'] >= 75)
-        nivelar = sum(1 for nota in resultado['listado'] if 70 <= nota['nota'] < 75) #70 <= nota['nota'] < 75)
-        reprobado = sum(1 for nota in resultado['listado'] if nota['nota'] < 70)
+        aprobado = 0
+        reprobado = 0
+        nivelar = 0
+        for data_listado in resultado['listado']:
+            if data_listado['year']>=2024:
+                if "NAAT" in data_listado['curso']:
+                    if data_listado['nota'] >=61:
+                        aprobado= aprobado +1
+                    else:
+                        reprobado = reprobado +1
+                else:
+                    if data_listado['nota'] >=70:
+                        aprobado= aprobado +1
+                    else:
+                        reprobado = reprobado +1
+                    
+            else:
+                 if data_listado['nota'] >=75:
+                     aprobado = aprobado +1
+                 elif data_listado['nota']<70:
+                     reprobado = reprobado +1
+                 elif  70 <= data_listado['nota'] <75:
+                     nivelar= nivelar +1  
+
+                
+        aprobados = sum(1 for nota in resultado['listado'] if nota['nota'] >= 75)
+        nivelars = sum(1 for nota in resultado['listado'] if 70 <= nota['nota'] < 75) #70 <= nota['nota'] < 75)
+        reprobados = sum(1 for nota in resultado['listado'] if nota['nota'] < 70)
         reprobados_invitada =  sum(1 for nota in resultados_sede_invitada['listado'] if nota['nota'] < 70)
         aprobados_invitada =  sum(1 for nota in resultados_sede_invitada['listado'] if nota['nota'] >= 70)       
         sum_monitoreo = aprobado + nivelar +reprobado        
@@ -477,7 +528,7 @@ class Asignacion(models.Model):
         for hito in self.grupo.curso.hitos.all():            
             self.notas_hitos.create(cr_hito=hito)
 
-    def get_nota_final(self):
+    def get_nota_final(self):       
         notas_asistencias = self.notas_asistencias.all()
         notas_hitos = self.notas_hitos.all()
         #print("Aca en el modelo:", sum(nota.nota for nota in notas_asistencias) + sum(nota.nota for nota in notas_hitos))
@@ -497,15 +548,15 @@ class Asignacion(models.Model):
     def get_nota_promediada(self):
         """Devuelve la nota final promediada respecto al porcentaje del :class:`cyd.Curso` relacionado.
         En caso de que el curso no tenga un porcentaje, devuelve la nota final real.
-        """
-        if self.grupo.curso.porcentaje:
+        """    
+        if self.grupo.curso.porcentaje:                   
             nota = self.get_nota_final() * (self.grupo.curso.porcentaje / 100)
-            promediada = True
-        else:
+            promediada = True            
+        else:            
             cantidad_asignaciones = Asignacion.objects.filter(
                 grupo__sede=self.grupo.sede, participante=self.participante).count()           
             nota = self.get_nota_final() / cantidad_asignaciones
-            promediada = False
+            promediada = False       
         return {'nota': nota, 'promediada': promediada}
 
 

@@ -89,6 +89,12 @@ salidas_children = (
         icon="fa-list-ul",
     ),
     ViewMenuItem(
+        "Listado de salidas",
+        reverse_lazy('salidainventario_list'),
+        weight=12,
+        icon="fa-list-alt",
+    ),
+    ViewMenuItem(
         "Agregar Salida",
         reverse_lazy('salidainventario_add'),
         weight=12,
