@@ -638,7 +638,7 @@ class RastreoRepuestoInforme{
           if(full.repuesto_modelo==""){
             return "<strong>"+"No tiene modelo"+"</strong>"
           }else{
-            return full.repuesto_marca
+            return full.repuesto_modelo
           }
         }},
         {data: "repuesto_marca",render:function(data, type, full, meta){

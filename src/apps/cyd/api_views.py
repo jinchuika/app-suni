@@ -348,6 +348,12 @@ class AsesoriaCalendarViewSet(viewsets.ModelViewSet):
     serializer_class = AsesoriaCalendarSerializer
     filter_class = CalendarioFilter
 
+    def get_queryset(self):
+        queryset = Asesoria.objects.all()
+        if "cyd_capacitador" in self.request.user.groups.values_list('name', flat=True):
+            queryset = Asesoria.objects.filter(sede__capacitador=self.request.user)
+        return queryset
+
 class CalendarioFilter2(filters.FilterSet):
     start = django_filters.DateFilter(name='fecha', lookup_expr='gte')
     end = django_filters.DateFilter(name='fecha', lookup_expr='lte')

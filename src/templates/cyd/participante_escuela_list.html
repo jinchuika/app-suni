@@ -12,12 +12,13 @@
 			</thead>
 			<tbody>
 				{% for participante in participante_list.participantes %}
-					{% for item in participante.listado|load_json %}
+					{% for item in participante.listado|load_json %}					
 					<tr>
 						<td>{{ forloop.counter }}</td>
 						<td>{{ item.fields.nombre }}</td>
 						<td>{{ item.fields.apellido }}</td>
-						<td><a href="{{ field.get_absolute_url }}" target="_blank" class='btn btn-block btn-success'><i class='fa fa-eye'></i> Detalle</a></td>
+						<td>{{ item.fields.get_absolute_url}}</td>
+						<td><a href="{%url 'participante_detail' pk=item.pk %}" target="_blank" class='btn btn-block btn-success'><i class='fa fa-eye'></i> Detalle</a></td>
 					</tr>					
 					{% endfor %}
 				{% endfor %}
