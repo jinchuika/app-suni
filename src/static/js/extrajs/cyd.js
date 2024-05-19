@@ -443,6 +443,67 @@ $.ajax({
 
 
 (function( GrupoDetail, $, undefined ) {
+    var porcentaje_genero =[]
+    var porcentaje_resultado =[]
+    var crear_grafico_genero = function (){
+        var url_genero = $("#capacitacion_aprobados_chart").data('url');
+        var grupo_id = $("#grafico-asistencias").data('grupo_id');
+       
+        //
+        $.get(url_genero, {grupo: grupo_id}, function (respuesta) {
+            porcentaje_genero.push("Hombres: "+respuesta.porcentaje_genero[0]+"%")
+            porcentaje_genero.push("Mujeres: "+respuesta.porcentaje_genero[1]+"%")
+            /***/
+            var asistencias_chart = new Chart(document.getElementById("capacitacion_genero_chart"), {
+                type: 'pie',
+                data: {                    
+                    labels:porcentaje_genero,
+                    datasets:[{
+                        backgroundColor:["#01afbf","#c40ece"],
+                        data:respuesta.genero
+                    }]
+                },
+                options: {
+                    title:{
+                        display:true,
+                        text: "Grafica hombres y mujeres"
+                    }
+                }
+            });
+
+
+            /** */
+
+            /** */
+            porcentaje_resultado.push("Aprobados: "+respuesta.porcentaje_resultado[0]+"%")
+            porcentaje_resultado.push("Reprobados: "+respuesta.porcentaje_resultado[1]+"%")
+            /***/
+            var asistencias_chart = new Chart(document.getElementById("capacitacion_aprobados_chart"), {
+                type: 'pie',
+                data: {
+                    labels: porcentaje_resultado,
+                    datasets:[{
+                        backgroundColor:["#01bf41","#eb5252"],
+                        data:respuesta.resultado
+                    }]
+                },
+                options: {
+                    title:{
+                        display:true,
+                        text: "Grafica de aprobados y reprobados"
+                    }
+                }
+            });
+
+
+            /** */
+           
+
+            /** */
+           
+        })
+    }
+
     var crear_grafico = function (contenedor) {
         var url = $(contenedor).data('url');
         var grupo_id = $(contenedor).data('grupo_id');
@@ -571,6 +632,8 @@ $.ajax({
                 return JSON.stringify(obj);
             }
         });
+        crear_grafico_genero();
+        //crear_grafico_aprobados();
         crear_grafico($("#grafico-asistencias"));
         $('.form-copiar').hide();
         $('#btn-select-all').click(function(){
@@ -756,7 +819,7 @@ $.ajax({
             },
             eventSources: [
 
-            {
+           {
                 url: $('#cyd-calendario').data('url-cyd'),
                 type: 'GET',
                 cache: true,
@@ -767,15 +830,14 @@ $.ajax({
                     return params;
                 }
             },
-            {
+           {
                 url: $('#cyd-calendario').data('url-asesoria'),
                 type: 'GET',
                 cache: true,
                 data: function () {
                     var params = {};
                     params['sede__capacitador'] = $('#id_capacitador').val();
-                    params['sede'] = $('#sede_form #id_sede').val();
-                    
+                    params['sede'] = $('#sede_form #id_sede').val();                    
                     return params;
                 },
                 editable: true //Esto controla el eventro dropabble de las asesorias
@@ -787,7 +849,7 @@ $.ajax({
                 data: function () {
                     
                     var params = {};
-                    params['capacitador'] = $('#cyd-calendario').data('codigo');                    
+                    params['capacitador'] = $('#cyd-calendario').data('codigo');                  
                     return params;
                 }
             }
@@ -2393,148 +2455,167 @@ class ControlAcademicoGrupos{
         //var encabezado =['Asignacion','Curso','Grupo','Sede','Nombre','Apellido','Genero'];
         var encabezado =['<span title="Asignacion">Asignacion </span>','Nombre','Apellido','Genero'];
         var hot;    
-        $('#control-academico-list-form').on('submit', function (e) {
-            e.preventDefault();
-                        
-            $("#guardar_tabla").show();
-            $.ajax({
-                type: 'POST',
-                url: $(this).attr('action'),
-                dataType: 'json',
-                beforeSend: function(xhr, settings) {
-                    xhr.setRequestHeader("X-CSRFToken", $('input[name="csrfmiddlewaretoken"]').val());
-                },
-                data:$(this).serialize(),
-                success: function (response) {
-                  $('#guardar_tabla').show();
-                  bootbox.alert({message: "<h2>"+"Listado generado correctamente"+"</h2>", className:"modal modal-success fade in"});
-                  for(var k=0;k<=response[0].asistencia.length-1;k++){
-                      //encabezado.push("Asistencia "+Number(k+1));
-                      encabezado.push("A "+Number(k+1));
-                  };
-                  for(var j=0;j<=response[0].trabajos.length-1;j++){
-                      //encabezado.push(response[0].trabajos[j].cr_hito__nombre);
-                      encabezado.push("Hito"+(Number(j+1)));
-                };
-                encabezado.push("Final");
-                var matris = [];
-                var matris2 =[];
-                var nota_asitencia =0;
-                var nota_trabajos =0;
-                var resultado_final=0;
-                for (var l=0; l<=response.length-1;l++){
-                     matris.push(response[l].asignacion);
-                     //matris.push(response[l].curso);
-                     //matris.push(response[l].grupo);
-                     //matris.push(response[l].sede);
-                     matris.push(response[l].nombre);
-                     matris.push(response[l].apellido);
-                     matris.push(response[l].genero);
-                     for(var asi = 0; asi<=response[l].asistencia.length-1;asi++){
-                        matris.push(response[l].asistencia[asi].nota);
-                        nota_asitencia=nota_asitencia + response[l].asistencia[asi].nota;
-                     }
-                     for (var work = 0; work<response[l].trabajos.length;work++){
-                        matris.push(response[l].trabajos[work].nota);
-                        nota_trabajos=nota_trabajos + response[l].trabajos[work].nota;
-                     }
-                     //Formula para calcular la nota Final   
-                     //resultado_final = (nota_asitencia + nota_trabajos)/(Number(response[l].asistencia.length + response[l].trabajos.length));
-                     resultado_final = (nota_asitencia + nota_trabajos);
-                     matris.push(resultado_final);
-                     matris2.push(matris);
-                     matris=[]
-                     nota_asitencia=0;
-                     nota_trabajos=0;
+        $('#control-academico-list-form').on
+		(
+			  'submit', function (e) {
+              e.preventDefault();                        
+              $("#guardar_tabla").show();
+              $.ajax(
+					{
+						type: 'POST',
+						url: $(this).attr('action'),
+						dataType: 'json',
+						beforeSend: function(xhr, settings) {
+							xhr.setRequestHeader("X-CSRFToken", $('input[name="csrfmiddlewaretoken"]').val());
+						},
+						data:$(this).serialize(),
+						success: function (response) {
+							$('#guardar_tabla').show();
+							bootbox.alert({message: "<h2>"+"Listado generado correctamente"+"</h2>", className:"modal modal-success fade in"});
+							for(var k=0;k<=response[0].asistencia.length-1;k++){
+								//encabezado.push("Asistencia "+Number(k+1));
+								encabezado.push("A "+Number(k+1));
+							};
+							for(var j=0;j<=response[0].trabajos.length-1;j++){
+								//encabezado.push(response[0].trabajos[j].cr_hito__nombre);
+								encabezado.push("Hito"+(Number(j+1)));
+							};
+							encabezado.push("Final");
+							var matris = [];
+							var matris2 =[];
+							var nota_asitencia =0;
+							var nota_trabajos =0;
+							var resultado_final=0;
+							for (var l=0; l<=response.length-1;l++){
+								matris.push(response[l].asignacion);
+								//matris.push(response[l].curso);
+								//matris.push(response[l].grupo);
+								//matris.push(response[l].sede);
+								matris.push(response[l].nombre);
+								matris.push(response[l].apellido);
+								matris.push(response[l].genero);
+								for(var asi = 0; asi<=response[l].asistencia.length-1;asi++){
+									matris.push(response[l].asistencia[asi].nota);
+									nota_asitencia=nota_asitencia + response[l].asistencia[asi].nota;
+								}
+								for (var work = 0; work<response[l].trabajos.length;work++){
+									matris.push(response[l].trabajos[work].nota);
+									nota_trabajos=nota_trabajos + response[l].trabajos[work].nota;
+								}
+								//Formula para calcular la nota Final   
+								//resultado_final = (nota_asitencia + nota_trabajos)/(Number(response[l].asistencia.length + response[l].trabajos.length));
+								resultado_final = (nota_asitencia + nota_trabajos);
+								matris.push(resultado_final);
+								matris2.push(matris);
+								matris=[]
+								nota_asitencia=0;
+								nota_trabajos=0;
+							}
+							/** */
+							var container = document.getElementById('datosCurso');
+							hot = new Handsontable(
+								container, {
+									data: matris2,
+									columnSorting: true,
+									rowHeaders: true,
+									colHeaders: encabezado,
+									filters: true,
+									dropdownMenu: false,
+									startCols: encabezado.length,
+									removeRowPlugin: true,
+									persistentState: true,
+									fixedRowsTop: 3,
+									fixedColumnsLeft: 3,
+									afterSelection: afterSelection,
+									cells: function (row, col, prop) {
+										var cellProperties = {};
+										if (col < 3) {5
+											cellProperties.readOnly = true;
+										}
+										if(col == encabezado.length-1){
+											cellProperties.readOnly = true;
+										}
+										return cellProperties;
+									}
+								}
+							);
+							 hot.getPlugin('columnSorting').sort({column:0, sortOrder:'asc'});
+							function afterSelection(rowId,colId, rowEndId, colEndId){
+									var nuevaNota = 0;
+									var actualizarNotas= hot.getSourceDataAtRow(rowId);           
+									//console.log(actualizarNotas.length);
+									for(var k =4; k<=actualizarNotas.length-2;k++ ){                
+										nuevaNota = nuevaNota + Number(actualizarNotas[k]);                
+									};            
+									hot.setDataAtCell(rowId,actualizarNotas.length-1,nuevaNota);
+								};
+                                
+                                    
 
-                }
-                   /** */
-          var container = document.getElementById('datosCurso');
-            hot = new Handsontable(container, {
-            data: matris2,
-            columnSorting: true,
-            rowHeaders: true,
-            colHeaders: encabezado,
-            filters: true,
-            dropdownMenu: true,
-            startCols: encabezado.length,
-            removeRowPlugin: true,
-            persistentState: true,
-            fixedRowsTop: 3,
-            fixedColumnsLeft: 3,
-            afterSelection: afterSelection,
-            cells: function (row, col, prop) {
-                var cellProperties = {};
-                if (col < 3) {5
-                    cellProperties.readOnly = true;
-                }
-                if(col == encabezado.length-1){
-                    cellProperties.readOnly = true;
-                }
-                return cellProperties;
-            }
-          });
-          hot.getPlugin('columnSorting').sort({column:0, sortOrder:'asc'});
-          function afterSelection(rowId,colId, rowEndId, colEndId){
-            var nuevaNota = 0;
-            var actualizarNotas= hot.getSourceDataAtRow(rowId);           
-            //console.log(actualizarNotas.length);
-            for(var k =4; k<=actualizarNotas.length-2;k++ ){                
-                nuevaNota = nuevaNota + Number(actualizarNotas[k]);                
-            };
-            
-            hot.setDataAtCell(rowId,actualizarNotas.length-1,nuevaNota);
-          };
-
-        /** */
-                },
-                error: function (response) {
-                  var jsonResponse = JSON.parse(response.responseText);
-                  bootbox.alert({message: "<h3><i class='fa fa-frown-o' style='font-size: 45px;'></i>&nbsp;&nbsp;&nbsp;HA OCURRIDO UN ERROR!!</h3></br>" + jsonResponse["mensaje"], className:"modal modal-danger fade"});
-                }
-              });
+									  /** */
+							},
+							error: function (response) {
+							var jsonResponse = JSON.parse(response.responseText);
+							bootbox.alert({message: "<h3><i class='fa fa-frown-o' style='font-size: 45px;'></i>&nbsp;&nbsp;&nbsp;HA OCURRIDO UN ERROR!!</h3></br>" + jsonResponse["mensaje"], className:"modal modal-danger fade"});
+							}
+                            
+					}
+                    
+             );
+             //hot.destroy();
               //encabezado =['Asignacion','Curso','Grupo','Sede','Nombre','Apellido','Genero'];
               encabezado =['Asignacion','Nombre','Apellido','Genero'];
-              hot.destroy();
-        });
+          
+			}
+		);
 
 
-        /** */
-        $("#guardar_tabla").click(function() {
-            var  jsonObj = [];
-            for(var k=0; k<=hot.getData().length-1;k++){                
-                var  prueba = {};
-                for(var l=0;l<=hot.getData()[k].length-1;l++){
-                    prueba[encabezado[l]] = hot.getData()[k][l];
-                }
-                jsonObj.push(prueba);
-            };
-            var data_send=JSON.stringify(jsonObj);           
-            $.ajax({
-                type: 'POST',
-                url: $('#datosCurso').data('url'),
-                dataType: 'json',
-                beforeSend: function(xhr, settings) {
-                    xhr.setRequestHeader("X-CSRFToken", $('input[name="csrfmiddlewaretoken"]').val());
-                },
-                data:{datos:data_send},
-                success: function (response) {
+          /** */
+            $("#guardar_tabla").click(
+			function() 
+			  {
+                var  jsonObj = [];
+                for(var k=0; k<=hot.getData().length-1;k++){                
+                    var  prueba = {};
+                    for(var l=0;l<=hot.getData()[k].length-1;l++){
+                        prueba[encabezado[l]] = hot.getData()[k][l];
+                    }
+                    jsonObj.push(prueba);
+                };
+                var data_send=JSON.stringify(jsonObj);           
+                $.ajax
+				(
+				 {type: 'POST',
+                    url: $('#datosCurso').data('url'),
+                    dataType: 'json',
+                    beforeSend: function(xhr, settings) {
+                        xhr.setRequestHeader("X-CSRFToken", $('input[name="csrfmiddlewaretoken"]').val());
+                    },
+                    data:{datos:data_send},
+                    success: function (response) {
 
-                  bootbox.alert({message: "<h2>"+"Datos Actualizados correctamente"+"</h2>", className:"modal modal-success fade in"});
-                },
-                error: function (response) {
-                  var jsonResponse = JSON.parse(response.responseText);
-                  bootbox.alert({message: "<h3><i class='fa fa-frown-o' style='font-size: 45px;'></i>&nbsp;&nbsp;&nbsp;HA OCURRIDO UN ERROR!!</h3></br>" + jsonResponse["mensaje"], className:"modal modal-danger fade"});
-                }
-              });
+						bootbox.alert({message: "<h2>"+"Datos Actualizados correctamente"+"</h2>", className:"modal modal-success fade in"});
+                    },
+                    error: function (response) {
+						var jsonResponse = JSON.parse(response.responseText);
+						bootbox.alert({message: "<h3><i class='fa fa-frown-o' style='font-size: 45px;'></i>&nbsp;&nbsp;&nbsp;HA OCURRIDO UN ERROR!!</h3></br>" + jsonResponse["mensaje"], className:"modal modal-danger fade"});
+                    }
+                 }
+			    );
 
 
-         });
-        /** */
-        $('#control-academico-list-form #id_sede').on('change', function () {
-            listar_grupos_sede('#control-academico-list-form #id_sede', '#control-academico-list-form #id_grupo');
+              }
+			  );
+              /** */
+				$('#control-academico-list-form #id_sede').on
+				( 
+				 'change', function () 
+					{
+						listar_grupos_sede('#control-academico-list-form #id_sede', '#control-academico-list-form #id_grupo');
+					
+					}
+				);
             
-        });
 
 
     };
@@ -2797,13 +2878,14 @@ class informeAsistencia{
 }
 class informeFinal{
   constructor(){
+    var tablaDispositivos;
     $('#informefinal-list-form #id_sede').on('change', function () {
         listar_curso_sede('#informefinal-list-form #id_sede', '#informefinal-list-form #id_curso');
     });
 
     $('#informefinal-list-form').submit(function (e) {
         e.preventDefault();
-         var tablaDispositivos = $('#informefinal-table-search').DataTable({
+            tablaDispositivos = $('#informefinal-table-search').DataTable({
             dom: 'lfrtipB',
             destroy:true,
             buttons: ['excel', 'pdf'],
@@ -2836,7 +2918,7 @@ class informeFinal{
                 {data: "maestros_desertores"},
             ],
           });
-
+          tablaDispositivos.clear().draw()
           });
 
   }
@@ -2848,6 +2930,7 @@ class informeCapacitadores{
     var total_cursos=0;
     var total_asignaciones=0;
     var total_participantes=0;
+    var total_invitadas = 0
     $('#informecapacitadores-list-form').submit(function (e) {
         e.preventDefault();
         
@@ -2880,6 +2963,7 @@ class informeCapacitadores{
                 {data: "asignaciones"},
                 {data: "participantes"},
                 {data: "invitada"},
+                {data: "fecha"},
             ],
             footerCallback: function( tfoot, data, start, end, display){
                 for (var i in data){
@@ -2887,12 +2971,14 @@ class informeCapacitadores{
                   total_cursos=total_cursos+data[i].curso
                   total_asignaciones=total_asignaciones+data[i].asignaciones
                   total_participantes=total_participantes+data[i].participantes
+                  total_invitadas=total_invitadas+data[i].invitada
                   $(tfoot).find('th').eq(0).html( "TOTAL ");
                   $(tfoot).find('th').eq(1).html( "---");
                   $(tfoot).find('th').eq(2).html(total_grupos);
                   $(tfoot).find('th').eq(3).html(total_cursos);
                   $(tfoot).find('th').eq(4).html(total_asignaciones);
                   $(tfoot).find('th').eq(5).html(total_participantes);
+                  $(tfoot).find('th').eq(6).html(total_invitadas);
                 };
               }
           });
@@ -2900,6 +2986,7 @@ class informeCapacitadores{
           total_cursos=0;
           total_asignaciones=0;
           total_participantes=0;
+          total_invitadas=0
           tablaDispositivos.clear().draw();
 
           });
@@ -3477,4 +3564,128 @@ class NuevoinformeListadoEscuela{
             }); 
     }
   }
+/************************************************ */
+class NaatInforme{
+    constructor(){
+      $('#informe-naat-table').submit(function (e) {
+              e.preventDefault();
+           var tablaDispositivos = $('#informe-naat-table').DataTable({
+                dom: 'lfrtipB',
+                destroy:true,
+                buttons: ['excel', 'pdf'],
+                processing: true,
+                deferLoading: [0],
+                ajax: {
+                    type: 'GET',
+                    url: $('#informe-naat-table').data('url'),
+                    deferRender: true,
+                    dataSrc: '',
+                    cache: true,
+
+                },
+                columns:[
+                    {data: "Numero",render: function(data, type , full, meta){
+                        return "<a target='_blank' href="+full.url+">"+data+"</a>";
+                    }},                    
+                    {data: "Nombre"},
+                    {data: "Apellido"},
+                    {data: "Escuela"},
+
+                ]
+
+              });
+              tablaDispositivos.clear().draw();
+
+            }); 
+    }
+  }
+
+
+  class informeListadoEscuelaSede{
+    constructor(){
+      var total_hombres=0;
+      var total_mujeres=0;
+      var total_participantes=0;
+     /* $('#informesedescuelalistado-list-form #id_departamento').on('change', function () {
+          listar_municipio_departamento('#informesedescuelalistado-list-form #id_departamento', '#informesedescuelalistado-list-form #id_municipio');       
+       });*/
+      /* $('#informescuelalistado-list-form #id_grupo').on('change', function () {
+            listar_asistencias('#informescuelalistado-list-form #id_sede','#informescuelalistado-list-form #id_grupo', '#informelistadoescuela-list-form #id_asistencia');
   
+        });*/
+        $('#informesedescuelalistado-list-form').submit(function (e) {
+                e.preventDefault();
+                var tablaDispositivos = $('#informescuelalistadosede-table-search').DataTable({
+                  dom: 'lfrtipB',
+                  buttons: ['excel', {extend:'pdf', orientation:'landscape',pageSize:'TABLOID'}],
+                  searching:true,
+                  paging:false,
+                  ordering:true,
+                  destroy:true,
+                  processing: true,
+                  //deferLoading: [0],
+                  pageLength:150,
+                  ajax: {
+                      type: 'POST',
+                      url: $('#informesedescuelalistado-list-form').attr('action'),
+                      //deferRender: true,
+                      dataSrc: '',
+                      cache: false,
+                      processing:true,
+                      data: function () {
+                          return $('#informesedescuelalistado-list-form').serializeObject();
+                      }
+  
+                  },
+                  columns:[
+                      {data: "numero"},
+                      {data: "departamento"},
+                      {data: "municipio"},
+                      {data: "codigo"},
+                      {data: "escuela",render: function(data, type , full, meta){
+                          return "<a target='_blank' href="+full.escuela_url+">"+data+"</a>";
+                      }},
+                      
+                      {data: "cantidad_participantes"},
+                      {data: "",render: function(data, type , full, meta){                    
+                        return full.control_academico.hombres
+                    }},
+                      {data: "mujeres", render: function(data, type , full, meta){
+                        
+                        return full.control_academico.mujeres
+                    }},
+                      {data: "aprobados",render: function(data, type , full, meta){
+                        
+                        return full.control_academico.aprobados
+                    }},
+                      {data: "reprobados",render: function(data, type , full, meta){
+                        
+                        return full.control_academico.reprobados
+                    }},
+                      {data: "nivelar",render: function(data, type , full, meta){
+                       
+                        return full.control_academico.nivelar
+                    }},
+                    {data: "chicos",render: function(data, type , full, meta){
+                       
+                        return full.control_academico.chicos
+                    }},
+                    {data: "chicas",render: function(data, type , full, meta){
+                       
+                        return full.control_academico.chicas
+                    }},
+                      {data: "capacitador"},                   
+                      {data: "sede",render: function(data, type , full, meta){
+                          return "<a target='_blank' href="+full.url_sede+">"+data+"</a>";
+                      }},
+                      {data: "beneficiada"},
+                      {data: "fecha"},
+  
+                  ],
+  
+                });
+                //tablaDispositivos.clear().draw();
+              });      
+  
+    }
+  } 
