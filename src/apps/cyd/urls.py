@@ -19,6 +19,7 @@ urlpatterns = [
     url(r'^grupo/list/$', GrupoListView.as_view(), name='grupo_list'),
     url(r'^grupo/(?P<pk>\d+)/$', GrupoDetailView.as_view(), name='grupo_detail'),
     url(r'^grupo/asignacion/$', AsignacionWebView.as_view(), name='asignacion_web'),
+    url(r'^grupo/grafica/pastel/$', GraficaPastelAprobadosReprobadosHombresMujeres.as_view(), name='grafica_pastel_grupo'),
 
     url(r'^calendario/$', CalendarioView.as_view(), name='cyd_calendario'),
     url(r'^calendario/list/$', CalendarioListView.as_view(), name='cyd_calendario_list'),
@@ -31,7 +32,7 @@ urlpatterns = [
     url(r'^participante/(?P<pk>\d+)/escuelaupdate/$', ParticipanteEscuelaUpdateView.as_view(), name='participante_escuela_update'),
     url(r'^participante/buscar/$', ParticipanteBuscarView.as_view(), name='participante_buscar'),
     url(r'^participante/importar/$', ParticipanteCreateListView.as_view(), name='participante_importar'),
-
+    url(r'^participante/api/naat/$',InformeParticipantesNaat.as_view(), name='informe_participantes_naat'),
     url(r'^controlacademico/grupo/$', CotrolAcademicoGruposFormView.as_view(), name='control_academico_grupo'),
     url(r'^controlacademico/api/grupo/$', InformeControlAcademicoGrupos.as_view(), name='control_academico_grupo_informe'),
     url(r'^controlacademico/api/asistencia/$', InformeAsistencia.as_view(), name='control_academico_asistencia_informe'),
@@ -42,6 +43,7 @@ urlpatterns = [
     url(r'^controlacademico/api/escuela/sede/$',InformeEscuelaSede.as_view(), name='informe_api_escuela_sede'),
     url(r'^controlacademico/api/escuela/lista/$',InformeListadoEscuela2.as_view(), name='informe_api_escuela_lista'),
     url(r'^controlacademico/api/asistencia/agregar/$',InformeListadoEscuela.as_view(), name='asistencia_api_agregar'),
+    url(r'^controlacademico/api/sede/escuela/$',InformeListadoSedeEscuela.as_view(), name='informe_api_sede_escuela'),
 
     url(r'^informe/controlacademico/$', ControlAcademicoInformeListView.as_view() , name='informe_control_academico'),
     url(r'^informe/asistencia/$', AsistenciaInformeListView.as_view(), name='informe_asistencia'),
@@ -53,6 +55,9 @@ urlpatterns = [
     url(r'^informe/asistencia/periodos/$',InformeAsistenciaPeriodosListView.as_view(), name='informe_asistencia_periodos'),
     url(r'^informe/escuela/sede/$',InformeEscuelaSedeView.as_view(), name='informe_escuela_sede'),
     url(r'^informe/escuela/capacitadas/$',InformeListadoEscuelasListView.as_view(), name='informe_escuela_capacitadas'),
+    url(r'^informe/participante/naat/$',NaatInformeView.as_view(), name='informe_naat'),
+    url(r'^informe/escuela/lista/sede/$',InformeEscuelasSedesView.as_view(), name='informe_escuela_sede_lista'), 
+    
     url(r'^asistencia/$',InformeAsistenciaWebView.as_view(), name='asistencia_web'),
     url(r'^asistencia/asignar/$',AsignarAsistencia.as_view(), name='asistencia_web_asignar'),
     url(r'^chamilo/$', ChamiloAddView.as_view(), name='chamilo_add'),

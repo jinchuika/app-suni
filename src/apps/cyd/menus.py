@@ -97,6 +97,11 @@ cyd_informes_children = (
         "Listado escuela",
         reverse_lazy("informe_escuela_lista"),
         weight=12,
+        icon="fa-file-pdf-o"), 
+    ViewMenuItem(
+        "Listado escuelas sede",
+        reverse_lazy("informe_escuela_sede_lista"),
+        weight=12,
         icon="fa-file-pdf-o"),     
     ViewMenuItem(
         "Escuela sede",
