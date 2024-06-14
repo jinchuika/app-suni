@@ -358,6 +358,13 @@ class DispositivoInformeForm(forms.Form):
         label='Modelo',
         required=False,
         widget=forms.TextInput(attrs={'class': 'form-control'}))
+    
+    puerto = forms.ModelChoiceField(
+        queryset=inv_m.DispositivoPuerto.objects.all(),
+        label='Puerto',
+        required=False,
+        widget=forms.Select(attrs={'class': 'form-control select2'}))
+
 
     tarima = forms.ModelChoiceField(
         queryset=inv_m.Tarima.objects.all(),
