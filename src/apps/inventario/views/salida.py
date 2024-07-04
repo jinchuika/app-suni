@@ -889,7 +889,7 @@ class CajaRepuestosEntradaView(LoginRequiredMixin, GroupRequiredMixin, DetailVie
         context = super(CajaRepuestosEntradaView, self).get_context_data(**kwargs)       
         caja = inv_m.SalidaInventario.objects.get(id = self.object.id) 
         paquetes = inv_m.Paquete.objects.filter(salida = caja)
-
+        
         context['tecnico'] = caja.creada_por.get_full_name
         context['salidas_asignadas'] = self.object.caja_repuesto.all()
         context['fecha'] = caja.fecha
@@ -903,11 +903,17 @@ class CajaRepuestosEntradaView(LoginRequiredMixin, GroupRequiredMixin, DetailVie
         context['dispositivos'] = dispositivos
         
         context['salida'] = caja
-        dispo_salidos = inv_m.CajaRepuestos.objects.filter(salida_asignada = caja)
-        
         dispo_malos = []
-        for malos in dispo_salidos:
-            dispo_malos.append(malos)
+        dispositivos_paquete = inv_m.DispositivoPaquete.objects.filter(paquete__salida__id=self.object.id)
+        for data in dispositivos_paquete:
+            data_dispo = {}
+            dispo_salidos = inv_m.CajaRepuestos.objects.filter(dispositivo_bueno = data.dispositivo)
+            if dispo_salidos:               
+                data_dispo["bueno"]=dispo_salidos[0].dispositivo_bueno
+                data_dispo["malo"] = dispo_salidos[0].dispositivo_malo
+                salida_dispo_malo =  inv_m.DispositivoPaquete.objects.filter(dispositivo=dispo_salidos[0].dispositivo_malo)
+                data_dispo["salida"] = salida_dispo_malo[0].paquete.salida                 
+                dispo_malos.append(data_dispo)              
         context['dispo_malos'] = dispo_malos
 
         return context

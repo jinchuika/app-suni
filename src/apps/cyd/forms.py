@@ -42,7 +42,7 @@ class SedeForm(forms.ModelForm):
     class Meta:
         model = Sede
         fields = '__all__'
-        exclude = ('nombre', 'capacitador', 'escuela_beneficiada', 'mapa', 'activa', 'fecha_creacion','fecha_finalizacion',)
+        exclude = ('nombre', 'capacitador', 'escuela_beneficiada', 'mapa', 'activa', 'fecha_creacion','fecha_finalizacion','finalizada')
         #exclude = ('nombre', 'capacitador', 'escuela_beneficiada', 'mapa', 'activa')
         widgets = {
             'municipio': forms.Select(attrs={'class': 'select2', 'required': 'true', 'tabindex': '1'}),
@@ -175,12 +175,12 @@ class ParticipanteFormList(ParticipanteBaseForm):
     Los campos tienen URL para que se consulte al API desde el template
     """
     sede = forms.ModelChoiceField(
-        queryset=Sede.objects.filter(activa=True),
+        queryset=Sede.objects.filter(activa=True,finalizada=False),
         widget=forms.Select(attrs={'class': 'select2', 'data-url': reverse_lazy('grupo_api_list')}),
         required=False
         )
     grupo = forms.ModelChoiceField(
-        queryset=Grupo.objects.all(),
+        queryset=Grupo.objects.filter(sede__activa=True,sede__finalizada=False),
         widget=forms.Select(attrs={'class': 'select2', 'data-url': reverse_lazy('participante_api_list')}),
         required=False
         )

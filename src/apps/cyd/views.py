@@ -286,7 +286,7 @@ class CalendarioListView(JsonRequestResponseMixin, View):
                 'end': '{} {}'.format(calendario.fecha, calendario.hora_fin),
                 'color': calendario.grupo.sede.capacitador.perfil.color,
                 'tipo': 'c',
-                'tip_title': '{}'.format(calendario.grupo.curso),
+                'tip_title': '{},{}'.format(calendario.grupo.curso,calendario.grupo.sede.capacitador.get_full_name()),
                 'tip_text': 'Grupo {}, asistencia {} en la sede {}'.format(
                     calendario.grupo.numero,
                     calendario.cr_asistencia.modulo_num,
@@ -362,7 +362,8 @@ class ParticipanteCreateListView(LoginRequiredMixin, GroupRequiredMixin, FormVie
     def get_form(self, form_class=None):
         form = super(ParticipanteCreateListView, self).get_form(form_class)
         if self.request.user.groups.filter(name="cyd_capacitador").exists():
-            form.fields['sede'].queryset = self.request.user.sedes.all()
+            #form.fields['sede'].queryset = self.request.user.sedes.all()
+            form.fields['sede'].queryset = self.request.user.sedes.filter(activa=True,finalizado=False)
         return form
 
 
@@ -492,9 +493,9 @@ class ParticipanteBuscarView(LoginRequiredMixin, JsonRequestResponseMixin, FormV
     def get_form(self, form_class=None, **kwargs):
         form = super(ParticipanteBuscarView, self).get_form(form_class)
         if self.request.user.groups.filter(name="cyd_capacitador").exists():
-            form.fields['sede'].queryset = self.request.user.sedes.filter(activa=True)            
+            form.fields['sede'].queryset = self.request.user.sedes.filter(activa=True,finalizada=False)            
         else:
-            form.fields['sede'].queryset = cyd_m.Sede.objects.filter(activa=True)           
+            form.fields['sede'].queryset = cyd_m.Sede.objects.filter(activa=True,finalizada=False)           
         return form
 
     def get_context_data(self, **kwargs):
@@ -555,6 +556,7 @@ class InformeControlAcademicoGrupos(views.APIView):
                         control_academico['apellido'] = asignacion.participante.apellido
                         control_academico['asistencia']= list(nota_asistencia.values('nota'))
                         control_academico['trabajos'] = list(nota_trabajos.values('cr_hito__nombre','nota'))
+                        control_academico['finalizada'] = asignacion.grupo.sede.finalizada
                         listado_participantes.append(control_academico)
             elif self.request.POST['escuela']:
                 print("si viene escuela")
@@ -1312,7 +1314,12 @@ class InformeListadoSedeEscuela(views.APIView):
                     escuela_sede["direccion"] = info_sede.direccion
                     escuela_sede["codigo"]= info_sede.codigo
                     escuela_sede["cantidad_participantes"]= info_sede.cantidad_participantes
-                    escuela_sede["sede"]= data_participantes.nombre
+                    escuela_sede["sede"]= data_participantes.nombre                    
+                    if data_participantes.fecha_creacion.year <=2023:
+                        escuela_sede["estado_sede"]= True
+                    else:
+                        escuela_sede["estado_sede"] =data_participantes.finalizada
+
                     escuela_sede["capacitador"]= data_participantes.capacitador.get_full_name()
                     escuela_sede["departamento"]= data_participantes.municipio.departamento.nombre
                     escuela_sede["municipio"]= data_participantes.municipio.nombre

@@ -43,6 +43,12 @@
 								<th>Fecha creacion</th>
 								<td><b>{{ sede.fecha_creacion }}</b></td>
 							</tr>
+							{% if sede.finalizada %}
+							<tr>
+								<th>Fecha finalizacion</th>
+								<td><b>{{ sede.fecha_finalizacion }}</b></td>
+							</tr>
+							{% else %}
 							{% if perms.cyd.change_sede %}
 							<tr>
 								<td colspan="2">
@@ -51,7 +57,17 @@
 									</a>
 								</td>
 							</tr>
+							<tr>
+								<td colspan="2">
+									<a id="finalizar-capacitacion" data-url="{% url 'sede_api_finalizar'  %}"  data-id={{sede.id}} class="btn btn-success btn-block">
+										<i class="fa fa-check-square-o" aria-hidden="true"></i> Finalizar capacitacion
+									</a>
+								</td>
+							</tr>
 							{% endif %}
+							{% endif %}
+							
+							
 						</table>
 					</div>
 				</div>
@@ -101,11 +117,15 @@
 							<div class="tab-content">
 								<div class="tab-pane active" id="participantes">
 									<div class="box-tools pull-right">
-										{% if perms.cyd.add_participante %}
-										<a href="{% url 'participante_importar' %}" class="btn btn-success">
-											<i class="fa fa-plus"></i> Agregar Participantes
-										</a>
+										{% if not sede.finalizada %}
+											{% if perms.cyd.add_participante %}
+											
+											<a href="{% url 'participante_importar' %}" class="btn btn-success">
+												<i class="fa fa-plus"></i> Agregar Participantes
+											</a>
+											{% endif %}
 										{% endif %}
+										
 									</div>
 								{% with sede.get_participantes as participantes %}
 									<ul class="list-unstyled">
@@ -153,7 +173,7 @@
 														<a href="{{ p.participante.get_absolute_url }}">{{ p.participante.nombre }}</a></td>
 													<td>{{ p.participante.apellido }}</td>
 													<td>{{ p.grupo }}</td>
-													<td>{{ p.nota}}</td>
+													<td>{{ p.nota|floatformat:0}}</td>
 													<td>{{ p.participante.cursos_sede }}</td>
 													<td>{{ p.participante.rol }}</td>
 													<td>{{ p.participante.escuela }}</td>
@@ -166,11 +186,14 @@
 
 								<div class="tab-pane no-padding" id="grupos">
 									<div class="box-tools pull-right">
-										{% if perms.cyd.add_grupo %}
-										<a href="{% url 'grupo_add' %}" class="btn btn-success">
-											<i class="fa fa-plus"></i> Agregar Grupos
-										</a>
+										{% if not sede.finalizada %}
+											{% if perms.cyd.add_grupo %}
+											<a href="{% url 'grupo_add' %}" class="btn btn-success">
+												<i class="fa fa-plus"></i> Agregar Grupos
+											</a>
+											{% endif %}
 										{% endif %}
+										
 									</div>
 									<br/><br/>
 									<table class="table table-striped">

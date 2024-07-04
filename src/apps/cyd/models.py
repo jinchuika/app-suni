@@ -99,6 +99,7 @@ class Sede(models.Model):
     url = models.TextField(null=True, blank=True,verbose_name='Carpeta Fotos')
     url_archivos = models.TextField(null=True, blank=True,verbose_name='Carpeta Archivos')
     fecha_creacion = models.DateTimeField(default=timezone.now)
+    finalizada = models.BooleanField(default=False, blank=True, verbose_name='Finalizada')
     
     class Meta:
         verbose_name = "Sede"
@@ -113,6 +114,10 @@ class Sede(models.Model):
     def get_grupos(self):
         grupos = Grupo.objects.filter(sede=self).count()        
         return grupos
+    
+    def get_cursos_grupos(self):
+        cursos_grupos = Grupo.objects.filter(sede=self)       
+        return cursos_grupos
 
     def get_es_naat(self):
         grupos = Grupo.objects.filter(curso__nombre__icontains="NAAT",sede=self).count()
@@ -549,9 +554,21 @@ class Asignacion(models.Model):
         """Devuelve la nota final promediada respecto al porcentaje del :class:`cyd.Curso` relacionado.
         En caso de que el curso no tenga un porcentaje, devuelve la nota final real.
         """    
-        if self.grupo.curso.porcentaje:                   
-            nota = self.get_nota_final() * (self.grupo.curso.porcentaje / 100)
-            promediada = True            
+        if self.grupo.curso.porcentaje:
+            if(self.grupo.sede.get_grupos()==2):
+                if(self.grupo.sede.get_cursos_grupos().filter(curso__id__in=[69,66]).exists()):
+                    if(self.grupo.curso.id==69):
+                        nota = self.get_nota_final() * (75 / 100)
+                        promediada = True
+                    else:
+                        nota = self.get_nota_final() * (self.grupo.curso.porcentaje / 100)
+                        promediada = True
+                else:
+                    nota = self.get_nota_final() * (self.grupo.curso.porcentaje / 100)
+                    promediada = True
+            else:
+                nota = self.get_nota_final() * (self.grupo.curso.porcentaje / 100)
+                promediada = True            
         else:            
             cantidad_asignaciones = Asignacion.objects.filter(
                 grupo__sede=self.grupo.sede, participante=self.participante).count()           

@@ -1,0 +1,44 @@
+{% extends "base/base.html" %}
+{%load staticfiles %}
+{% block page_title %}
+<title>Certificado</title>
+{% endblock page_title %}
+{% block content %}
+<section class="content">
+  <img src="{% static "image/Logo_Funsepa-01.png" %}"  height="150" style="display:block; margin-left:auto; margin-right:auto;" >
+  <div class="container-fluid">
+    <div class="row">
+    <div class="col-md-4">
+    </div>
+
+      <div class="col-md-4 ">
+        <div class="box">
+          <div class="box-header">
+            <div class="row">
+              <div class="col-md-9"><span class="info-box-text"> INGRESA TÚ NÚMERO DE DPI A CONTINUACIÓN: (SIN GUIONES)</span></div>
+              <div class="col-md-3"></div>
+            </div>
+          </div>
+          <div class="box-body" data-ulr="{%url 'new_certificado'%}">
+            <table class="table table-condensed">
+              <form action="{%url 'new_listado'%}" method="get">                
+                <table>
+                  {{ form.as_table }}
+                  <tr>
+                    <td>
+                      <input type="submit" class="btn btn-success" value="Consultar" />                      
+                    </td>
+                  </tr>
+                </table>
+              </form> 
+              
+            </table>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">       
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock content %}

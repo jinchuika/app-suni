@@ -33,7 +33,7 @@ $.ajax({
     datos=response.data;
     dispositivo = response.dispositivo
     sistema = response.sistemas
-    nueva_data =JSON.stringify(datos[0]).toString()    
+    nueva_data =JSON.stringify(datos[0]).toString()
     var separators = [':',',', '\\\{', '\\\}'];
     var tokens = nueva_data.split(new RegExp(separators.join('|'), 'g'));
     for(c=0;c<tokens.length; c++){
@@ -42,7 +42,7 @@ $.ajax({
          "tipo":"TECLADO" y solo obteniendo "tipo" y lo guardamos en una lista
         */
         var token_sin = tokens[c].replace(/['"]+/g,'');
-        var name = token_sin.charAt(0).toUpperCase() + token_sin.slice(1);
+        var name = token_sin.charAt(0).toUpperCase() + token_sin.slice(1);        
         ////
         if (name =="Marca__marca"){
                   name ="Marca";
@@ -222,7 +222,7 @@ $.ajax({
                                           useViewMode: true
                                       },
                                       copyOptions:{
-                                        useListItemText:true
+                                        useListItemText: true
                                       },
                                       component :{
                                         name:'select2'

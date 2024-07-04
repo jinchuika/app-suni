@@ -212,6 +212,20 @@ class SedeViewSet(CsrfExemptMixin, viewsets.ModelViewSet):
                             {'mensaje': 'Cambio Aceptado'},
                             status=status.HTTP_200_OK
                         )
+    @action(methods=['post'], detail=False)
+    def finalizar_capacitacion_sede(self, request,pk=None):
+        """ Metodo  que cambia la disponibilidad de la capacitacion de una sede dando por 
+        concluido la capacitacion
+        """
+        id_sede= request.data['sede']
+        sede = Sede.objects.get(id=id_sede,activa=True)
+        sede.fecha_finalizacion =datetime.now()
+        sede.finalizada = True
+        sede.save()
+        return Response(
+                            {'mensaje': 'Se ha terminado la capacitacion de la sede'},
+                            status=status.HTTP_200_OK
+                        )
             
 
 
@@ -220,7 +234,7 @@ class SedeViewSetInforme(CsrfExemptMixin, viewsets.ModelViewSet):
     serializer_class = SedeSerializer
     queryset = Sede.objects.filter(activa=True)
     filter_fields = ('capacitador','id','activa')
-    ordering = ('-id')
+    ordering = ('id')
 
     def get_queryset(self):
         queryset = Sede.objects.filter(activa=True)

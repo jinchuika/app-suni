@@ -391,7 +391,6 @@ $.ajax({
     console.log("Error");
   },
   success:function(data){
-
     for(k=0;k<data.length;k++){
       contador_curso++;
       try {
@@ -439,6 +438,56 @@ $.ajax({
 /*fin ajax*/
 
     }
+/***Final de la capacitacion */
+let date = new Date();
+let output = String(date.getDate()).padStart(2, '0') + '/' + String(date.getMonth() + 1).padStart(2, '0') + '/' + date.getFullYear()
+
+$('#finalizar-capacitacion').on('click', function () {
+    bootbox.confirm({
+        message: "<h3><i class='fa fa-info-circle' style='font-size: 45px;'></i>&nbsp;&nbsp;&nbsp;Esta Seguro que quiere Terminar la  capacitacion de la sede el dia de hoy: <b>\""+ output+"\".</b></h3></br> <h3>Recuerde que la informacion que ingresa es totalmente responsabilidad del capacitador</h3>",
+        className:"modal modal-warning fade",
+        buttons: {
+            confirm: {
+                label: '<i class="fa fa-check"></i> Confirmar',
+                className: 'btn-success'
+            },
+            cancel: {
+                label: '<i class="fa fa-times"></i> Rechazar',
+                className: 'btn-danger'
+            }
+        },
+        callback: function (result) {
+            if (result == true) {
+            /** */
+            $.ajax({
+                url:$('#finalizar-capacitacion').data("url"),
+                dataType:'json',
+                beforeSend: function(xhr, settings) {
+                    xhr.setRequestHeader("X-CSRFToken", $('input[name="csrfmiddlewaretoken"]').val());
+                },
+                data:{
+                  'sede':$('#finalizar-capacitacion').data("id"),
+                },
+                error:function(){
+                  console.log("Error");
+                },
+                success:function(data){
+                  //console.log(data);
+                  bootbox.alert({message: "<h2>Sede finalizada exitosamente.</h2>", className:"modal modal-success fade in"});
+                  location.reload();
+                
+                },
+                type: 'POST'
+              }
+              );
+            /** */
+          }
+
+        }
+    });
+  });
+
+
 }( window.SedeDetail = window.SedeDetail || {}, jQuery ));
 
 
@@ -2116,7 +2165,7 @@ CalendarioCyD.init = function () {
         searching:true,
         paging:true,
         ordering:true,
-        //order:[[7,"desc"]],
+        order:[[8,"desc"]],
         //pageLength: 50,
         deferLoading: [0],
         ajax:{
@@ -2459,7 +2508,7 @@ class ControlAcademicoGrupos{
 		(
 			  'submit', function (e) {
               e.preventDefault();                        
-              $("#guardar_tabla").show();
+              //$("#guardar_tabla").show();
               $.ajax(
 					{
 						type: 'POST',
@@ -2469,8 +2518,10 @@ class ControlAcademicoGrupos{
 							xhr.setRequestHeader("X-CSRFToken", $('input[name="csrfmiddlewaretoken"]').val());
 						},
 						data:$(this).serialize(),
-						success: function (response) {
+						success: function (response) {                            
+                            if(response[0].finalizada == false){                                                    
 							$('#guardar_tabla').show();
+                            }        
 							bootbox.alert({message: "<h2>"+"Listado generado correctamente"+"</h2>", className:"modal modal-success fade in"});
 							for(var k=0;k<=response[0].asistencia.length-1;k++){
 								//encabezado.push("Asistencia "+Number(k+1));
@@ -3680,6 +3731,13 @@ class NaatInforme{
                       }},
                       {data: "beneficiada"},
                       {data: "fecha"},
+                      {data: "estado_sede",render: function(data, type , full, meta){
+                       if(full.estado_sede){
+                        return "<h5 style='color:MediumSeaGreen;'>Finalizado</h5>"
+                       }else{
+                        return 'En proceso'
+                       }
+                    }},
   
                   ],
   

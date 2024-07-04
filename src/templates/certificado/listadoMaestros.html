@@ -86,7 +86,8 @@
                                                                 {% endif %}
                                                             </td>
                                                             <td>
-                                                                {% if beneficiada == 0  %}                                                                                                                            
+                                                                {% if beneficiada == 0  %}
+                                                                a                                                                                                                            
                                                                     {% if asignacion.nota|to_number >=  asignacion.nota_minima|to_number %}                                                                      
                                                                         {% if asignacion.constancia and asignacion.year_const is True and sede.combo_completo is False%}                                                                        
                                                                         <a class="btn btn-warning"  href="{% url 'constanciapdf'%}?dpi={{dpi}}&asignacion={{asignacion.numero_asignacion}}" target="_blank"><i class="fa fa-print"></i> Constancia</a>
@@ -113,24 +114,28 @@
                                                             </td>
                                                             <td colspan="2">
                                                                 {% if beneficiada == 1 %}
-                                                                                                                                                             
+                                                                        b                                                                                     
                                                                     {% if sede.year_cert is True %}
-                                                                                                                               
+                                                                            c                                                   
                                                                         {% if sede.combo_completo is True or sede.centro_comunitario is True or sede.solo_ka_lite is True or sede.naat is True %}
-                                                                                                                          
-                                                                            {% if sede.promedio|to_number >=  75 %}                                                                                                                      
-                                                                            {% if sede.solo_ka_lite is True %}                                                                            
-                                                                             {% for asignacion in sede.asignaciones  %}
-                                                                             {% if asignacion.constancia and asignacion.year_const is True and sede.combo_completo is False%}                                                                        
-                                                                             <a class="btn btn-warning"  href="{% url 'constanciapdf'%}?dpi={{dpi}}&asignacion={{asignacion.numero_asignacion}}" target="_blank"><i class="fa fa-print"></i> Constancia</a>
-                                                                             {% endif %}
-                                                                             {% endfor %}
+                                                                                            d                                    
+                                                                            {% if sede.promedio|to_number >=  75 %}
+                                                                            e                                                                                                                      
+                                                                            {% if sede.solo_ka_lite is True %} 
+                                                                            f                                                                           
+                                                                                {% for asignacion in sede.asignaciones  %}
+                                                                                    {% if asignacion.constancia and asignacion.year_const is True and sede.combo_completo is False%}                                                                        
+                                                                                        <a class="btn btn-warning"  href="{% url 'constanciapdf'%}?dpi={{dpi}}&asignacion={{asignacion.numero_asignacion}}" target="_blank"><i class="fa fa-print"></i> Constancia</a>
+                                                                                     {% endif %}
+                                                                                {% endfor %}
 
                                                                            
                                                                             {% else %}
-                                                                            {% if sede.gano_tni|to_number == 1  or sede.centro_comunitario is True or sede.naat is True%}  
-                                                                             <a class="btn btn-warning"  href="{% url 'diplomapdf'%}?dpi={{dpi}}&sede={{sede.id}}&curso={{sede.grupo}}"><i class="fa fa-print"></i> Certificado</a> 
-                                                                             {% endif %}      
+                                                                            g
+                                                                                {% if sede.gano_tni|to_number == 1  or sede.centro_comunitario is True or sede.naat is True%} 
+                                                                                    h
+                                                                                <a class="btn btn-warning"  href="{% url 'diplomapdf'%}?dpi={{dpi}}&sede={{sede.id}}&curso={{sede.grupo}}"><i class="fa fa-print"></i> Certificado</a> 
+                                                                                {% endif %}      
                                                                             {% endif %}                               
                                                                                                                                                      
                                                                             {% else %}
