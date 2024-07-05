@@ -533,13 +533,13 @@ class NewListadoMaestroView(TemplateView):
                          else:
                             data_sedes["certificado"]=False
                         
-                elif sum(id_cursos) ==135:                   
+                elif sum(id_cursos) ==135:                  
                     if data.grupo.curso.id in [69]:
                       if data.get_nota_final()>=70:                          
-                          data_sedes["tipo"]=signing.dumps("constancia_tni_kalite")
-                          data_sedes["constancia"]=True
+                          data_sedes["tipo"]=signing.dumps("certificado_tni_kalite")
+                          data_sedes["certificado"]=True
                       else:
-                         data_sedes["constancia"]=False
+                         data_sedes["certificado"]=False
                 elif(data.grupo.curso.id) in [48]:                   
                     if data.get_nota_final()>=70:
                        data_sedes["tipo"]=signing.dumps("certificado_cct")
@@ -601,7 +601,7 @@ class NuevoDiplomaPdfView(View):
       encuesta = eval_m.AsignacionPregunta.objects.filter(evaluado=participante).last()     
       asignacion = cyd_m.Asignacion.objects.filter(participante=participante).last() 
       fecha_finalizacion = asignacion.grupo.sede.fecha_finalizacion    
-      tipo_decifrada = signing.loads(tipo) 
+      tipo_decifrada = signing.loads(tipo)       
       #Creacion de codigos QR
       qr = qrcode.QRCode(
         version=1,
@@ -636,6 +636,10 @@ class NuevoDiplomaPdfView(View):
       elif tipo_decifrada == "certificado_cct":
          nombre_archivo = "certificado-cct-"+str(dpi)
          ruta_diploma = str(settings.STATICFILES_DIRS[0] ) + str("/css/diploma/2024/certificado-cct-24.jpg")
+      elif tipo_decifrada =="certificado_tni_kalite":
+         nombre_archivo = "certificado-tni-kalite-"+str(dpi)
+         ruta_diploma = str(settings.STATICFILES_DIRS[0] ) + str("/css/diploma/2024/certificado-Kolibri-Khan-Academy-TNI-24.jpg")
+
       
       #ruta_diploma = str(settings.STATICFILES_DIRS[0] ) + str("/css/diploma/TNIVirtual2024.jpg") 
       #obtener tipo de fuente que se le aplicara al nombre del diploma
@@ -672,7 +676,7 @@ class NuevoDiplomaPdfView(View):
       c.drawCentredString(x+w*0.0,y+h*0.5, str(participante.nombre)+" "+str(participante.apellido))
       c.setFont("MyriadPro_BoldIt",18,leading=None)
       #c.drawCentredString(x+w*0.0,60+h*0.5, "Guatemala, " + datetime.datetime.now().strftime("%d de %B del %Y"))    
-      c.drawCentredString(x+w*0.0,60+h*0.5, "Guatemala, " + fecha_finalizacion.date().strftime("%d de %B del %Y")) 
+      c.drawCentredString(x+w*0.0,60+h*0.3, "Guatemala, " + fecha_finalizacion.date().strftime("%d de %B del %Y")) 
       c.setTitle('Diploma Funsepa')
       c.showPage()
       c.save()
