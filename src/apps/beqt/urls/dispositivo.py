@@ -117,18 +117,6 @@ urlpatterns = [
         beqt_v.TabletEstucheUptadeView.as_view(),
         name='tablet_estuche_beqt_edit'
     ),
-    # Detalle de protector de tablet
-    url(
-        r'^tablet/protector/(?P<triage>[\w\d-]+)/$',
-        beqt_v.TabletProtectorDetailView.as_view(),
-        name='tablet_protector_beqt_detail'
-    ),
-    # Actualizacion de protector de tablet
-    url(
-        r'^tablet/protector/(?P<triage>[\w\d-]+)/edit/$',
-        beqt_v.TabletProtectorUptadeView.as_view(),
-        name='tablet_protector_beqt_edit'
-    ),
    
     # Actualizacion de cargador de laptop
     url(
