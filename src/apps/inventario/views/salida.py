@@ -454,7 +454,7 @@ class GarantiaPrintView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
         total_cpu = inv_m.DispositivoPaquete.objects.filter(
             paquete__salida__id=self.object.id,
             paquete__tipo_paquete=CPU,
-            ) 
+            )
         laptops_server = inv_m.DispositivoPaquete.objects.filter(
             paquete__salida__id=self.object.id,
             paquete__tipo_paquete=Laptop,
@@ -484,7 +484,6 @@ class GarantiaPrintView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
                     context['laptop'] = True
             except Exception as e:
                 print(e)
-        
         if Total_Cpu['total_cpu'] is None:
             Total_Cpu['total_cpu'] = 0
         if Total_Laptop['total_laptop'] is None:
@@ -506,14 +505,8 @@ class GarantiaPrintView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
             context["tiempo"] = " 1 año"
         context['dispositivo_total'] = Total_Entregado
         context['cpu_servidor'] = cpu_servidor
-
-
-        Total_Cpu_num = Total_Cpu
-        Total_Laptop_num = Total_Laptop
-        context['Total_Cpu'] = Total_Cpu_num['total_cpu']
-        context['Total_Laptop'] = Total_Laptop_num['total_laptop']
         return context
-        
+
 
 class LaptopPrintView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
     """Vista encargada para imprimir las :class:`Laptop` de las salidas correspondiente
@@ -558,112 +551,6 @@ class LaptopPrintView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
         context['Laptos'] = nuevas_laptops
         context['Total'] = cantidad_total
         context['Servidor'] = cpu_servidor
-
-        nuevos_mouse = []
-        total_inalambricas_mostrar = 0
-        
-        mouse = inv_m.PaqueteTipo.objects.get(nombre="MOUSE")
-
-        try:
-            cables_vga = inv_m.PaqueteTipo.objects.get(nombre="CABLE VGA")
-        except ObjectDoesNotExist as e:
-            cables_vga = 0
-        try:
-            cables_poder = inv_m.PaqueteTipo.objects.get(nombre="CABLE DE PODER")
-        except ObjectDoesNotExist as e:
-            cables_poder = 0
-        try:
-            access_point = inv_m.PaqueteTipo.objects.get(nombre="ACCESS POINT")
-        except ObjectDoesNotExist as e:
-            access_point = 0
-        try:
-            switch = inv_m.PaqueteTipo.objects.get(nombre="SWITCH")
-        except ObjectDoesNotExist as e:
-            switch = 0
-        try:
-            alambricas = inv_m.PaqueteTipo.objects.get(nombre="TARJETA DE RED ALAMBRICA")
-        except ObjectDoesNotExist as e:
-            alambricas = 0
-        try:
-            inalambricas = inv_m.PaqueteTipo.objects.get(nombre="TARJETA DE RED INALAMBRICA")
-        except ObjectDoesNotExist as e:
-            inalambricas = 0
-        try:
-            inalambricas_usb = inv_m.PaqueteTipo.objects.get(nombre="Adaptadores de WIFI USB")
-        except ObjectDoesNotExist as e:
-            inalambricas_usb = 0
-
-        total_inalambricas = inv_m.Paquete.objects.filter(
-            salida=self.object.id,
-            tipo_paquete=inalambricas,
-            desactivado=False
-            ).aggregate(total_inalambricas=Sum('cantidad'))
-        total_inalambricas_usb = inv_m.Paquete.objects.filter(
-            salida=self.object.id,
-            tipo_paquete=inalambricas_usb,
-            desactivado=False
-            ).aggregate(total_inalambricas_usb=Sum('cantidad'))
-        total_alambricas = inv_m.Paquete.objects.filter(
-            salida=self.object.id,
-            tipo_paquete=alambricas,
-            desactivado=False
-            ).aggregate(total_alambricas=Sum('cantidad'))
-        total_switch = inv_m.Paquete.objects.filter(
-            salida=self.object.id,
-            tipo_paquete=switch,
-            desactivado=False
-            ).aggregate(total_switch=Sum('cantidad'))
-        total_access_point = inv_m.Paquete.objects.filter(
-            salida=self.object.id,
-            tipo_paquete=access_point,
-            desactivado=False
-            ).aggregate(total_access_point=Sum('cantidad'))
-        total_cables_poder = inv_m.Paquete.objects.filter(
-            salida=self.object.id,
-            tipo_paquete=cables_poder,
-            desactivado=False
-            ).aggregate(total_cables_poder=Sum('cantidad'))
-        
-        total_mouse = inv_m.DispositivoPaquete.objects.filter(
-            paquete__salida__id=self.object.id,
-            paquete__tipo_paquete=mouse,
-            )
-        total_cables_vga = inv_m.Paquete.objects.filter(
-            salida=self.object.id,
-            tipo_paquete=cables_vga,
-            desactivado=False
-            ).aggregate(total_cables_vga=Sum('cantidad'))
-        
-        for triage_mouse in total_mouse:
-            nuevo_mouse = inv_m.Dispositivo.objects.get(triage=triage_mouse.dispositivo).cast()
-            nuevos_mouse.append(nuevo_mouse)
-        escuela = inv_m.SalidaInventario.objects.get(id=self.object.id)
-
-        context['Mouses'] = nuevos_mouse
-        context['total_mouse'] = total_mouse.count()
-        #context['total_mouse'] = 0
-
-        total_inalambricas_mostrar = int( total_inalambricas['total_inalambricas'] or 0) + int( total_inalambricas_usb['total_inalambricas_usb'] or 0)
-
-        try:
-            red = "Mixta"
-            if total_inalambricas['total_inalambricas'] > 0 and total_alambricas['total_alambricas'] == 0:
-                red = "Inalambrica"
-            elif total_inalambricas['total_inalambricas'] == 0 and total_alambricas['total_alambricas'] > 0:
-                red = "Alambrica"
-
-            context['Red'] = red
-        except TypeError as e:
-            context['Red'] = 0
-        
-        context['Wifi'] = total_inalambricas_mostrar
-        context['Ethernet'] = total_alambricas['total_alambricas']
-        context['Access'] = total_access_point['total_access_point']
-        context['Switch'] = total_switch['total_switch']        
-        context['CablesPoder'] = total_cables_poder['total_cables_poder']
-        context['CablesVga'] = total_cables_vga['total_cables_vga']
-
-
         return context
 
 
