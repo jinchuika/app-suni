@@ -31,7 +31,7 @@ class Migration(migrations.Migration):
             },
             bases=('beqt.dispositivobeqt',),
         ),
-        #Altera la tabla de dispositivo_protector_tablet_beqt, para que no se uft8mb4 y no tenga probelmas con llaves foranes
+        #Altera la tabla de dispositivo_protector_tablet_beqt, para que no se uft8mb4 y no tenga probelmas con llaves foranes, agreado manuelamente
         migrations.RunSQL(
             "ALTER TABLE dispositivo_protector_tablet_beqt CONVERT TO CHARACTER SET latin1 COLLATE latin1_swedish_ci;",
             reverse_sql="ALTER TABLE dispositivo_protector_tablet_beqt CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;"

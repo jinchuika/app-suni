@@ -3,7 +3,7 @@ from django.urls import reverse_lazy
 from apps.inventario import models as inv_m
 from .repuesto import RepuestoInventarioSerializer
 
-
+#Cambio para TPE
 class DispositivoSerializer(serializers.ModelSerializer):
     """Serializer para generar los datos que se consumiran en la app de la :class:`Dispositivo`
     """

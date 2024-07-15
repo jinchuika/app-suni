@@ -3984,7 +3984,7 @@ class DispositivoList {
                  {data: "tipo", className: "nowrap"},
                  {data: "marca", className: "nowrap"},
                  {data: "modelo", className: "nowrap"},
-                 {data: "puerto", className: "nowrap"},
+                 {data: "puerto", className: "nowrap"},       //Cambio para TPE
                  {data: "serie", className: "nowrap"},
                  {data: "clase", className: "nowrap"},
                  {data: "tarima", className: "nowrap"},

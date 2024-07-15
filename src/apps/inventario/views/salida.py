@@ -522,6 +522,7 @@ class LaptopPrintView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
     template_name = 'inventario/salida/laptop_print.html'
     group_required = [u"inv_tecnico", u"inv_admin", u"inv_cc"]
 
+    #Cambio para TPE
     def get_context_data(self, **kwargs):
         context = super(LaptopPrintView, self).get_context_data(**kwargs)
         nuevas_laptops = []
@@ -641,7 +642,6 @@ class LaptopPrintView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
 
         context['Mouses'] = nuevos_mouse
         context['total_mouse'] = total_mouse.count()
-        #context['total_mouse'] = 0
 
         total_inalambricas_mostrar = int( total_inalambricas['total_inalambricas'] or 0) + int( total_inalambricas_usb['total_inalambricas_usb'] or 0)
 
@@ -662,7 +662,6 @@ class LaptopPrintView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
         context['Switch'] = total_switch['total_switch']        
         context['CablesPoder'] = total_cables_poder['total_cables_poder']
         context['CablesVga'] = total_cables_vga['total_cables_vga']
-
 
         return context
 

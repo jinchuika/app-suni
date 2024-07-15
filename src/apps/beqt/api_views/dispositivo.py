@@ -412,7 +412,7 @@ class DispositivoViewSet(viewsets.ModelViewSet):
                 'medida': list(medida),
                 'dispositivo': str(tipo)
                 })
-        
+        #Cambio para PROTECTOR TABLETS
         elif str(tipo) == "PROTECTOR TABLET":
             data = beqt_m.ProtectorTabletBeqt.objects.filter(
                 triage__in=paquetes

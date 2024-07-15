@@ -430,6 +430,7 @@ class RevisionSalidaViewSet(viewsets.ModelViewSet):
     def aprobar_dispositivo(self, request, pk=None):
         """Metodo para aprobar dispositivos en area de control de calidad
         """
+        #Cambio para PROTECTOR TABLETS
         triage = request.data["triage"]
         paquete = request.data["paquete"]
         id_paquete = request.data["idpaquete"]

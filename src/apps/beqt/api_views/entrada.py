@@ -205,7 +205,7 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
             status=status.HTTP_200_OK
         )
 
-
+    #Cambio para PROTECTOR TABLETS
     @action(methods=['post'], detail=False)
     def nuevo_grid(self, request, pk=None):
         """ Este se conecta con el grid para editar la informacion de los dipositivos y guardarlos

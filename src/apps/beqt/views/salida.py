@@ -484,6 +484,7 @@ class LaptopPrintView(LoginRequiredMixin,  DetailView,GroupRequiredMixin):
 
         return context
 
+#Cambio para PROTECTOR TABLETS
 class TabletPrintView(LoginRequiredMixin, DetailView,GroupRequiredMixin):
     """Vista encargada para imprimir las :class:`Tablets` de las salidas correspondiente
     """

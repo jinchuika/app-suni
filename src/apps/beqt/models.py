@@ -393,6 +393,7 @@ class CaseTabletBeqt(DispositivoBeqt):
     def get_absolute_url(self):
         return reverse_lazy('tablet_estuche_beqt_detail', kwargs={'triage': self.triage})
 
+#Cambio para PROTECTOR TABLETS
 class ProtectorTabletBeqt(DispositivoBeqt):
     SLUG_TIPO = 'PTB'
     indice = models.PositiveIntegerField(editable=False, unique=True)

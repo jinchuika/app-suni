@@ -215,7 +215,7 @@ class CaseTabletForm(forms.ModelForm):
             'dimensiones': forms.TextInput(attrs={'class': 'form-control'}),
         }
 
-
+#Cambio para PROTECTOR TABLETS
 class ProtectorTabletForm(forms.ModelForm):
     """Formulario para la creación de :class:`Tablet`.
     Se utiliza desde la vistas de Tablet."""

@@ -17,7 +17,7 @@ var tipos_monitores =[];
 var os =[];
 var cargador=[];
 var estuche= [];
-var protector= [];
+var protector= [];      //Cambio para TPE
 
 var urldispositivo = $("#grid_id").data("url");
 $.ajax({
