@@ -215,6 +215,39 @@ class CaseTabletForm(forms.ModelForm):
             'dimensiones': forms.TextInput(attrs={'class': 'form-control'}),
         }
 
+
+class ProtectorTabletForm(forms.ModelForm):
+    """Formulario para la creación de :class:`Tablet`.
+    Se utiliza desde la vistas de Tablet."""
+    class Meta:
+        model = beqt_m.ProtectorTabletBeqt
+        fields = '__all__'
+        exclude = [
+            'indice',
+            'entrada',
+            'tipo',
+            'entrada_detalle',
+            'impreso',
+            'estado',
+            'etapa',
+            'valido',
+            'codigo_qr',
+            'creada_por'
+            ]
+        widgets = {
+            'marca': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '1'}),
+            'modelo': forms.TextInput(attrs={'class': 'form-control', 'tabindex': '2'}),
+            'serie': forms.TextInput({'class': 'form-control ', 'tabindex': '3'}),
+            'tarima': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '4'}),          
+            'descripcion': forms.Textarea(attrs={'cols': 30, 'rows': 3, 'class': 'form-control', 'tabindex': '5'}),
+            'clase': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '15'}),
+            'compatibilidad': forms.TextInput(attrs={'class': 'form-control'}),
+            'color': forms.TextInput(attrs={'class': 'form-control'}),
+            'estilo': forms.TextInput(attrs={'class': 'form-control'}),
+            'material': forms.TextInput(attrs={'class': 'form-control'}),
+            'dimensiones': forms.TextInput(attrs={'class': 'form-control'}),
+        }
+
 class RegletaForm(forms.ModelForm):
     """Formulario para la creación de :class:`Tablet`.
     Se utiliza desde la vistas de Tablet."""
