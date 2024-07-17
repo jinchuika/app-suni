@@ -454,7 +454,7 @@ class GarantiaPrintView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
         total_cpu = inv_m.DispositivoPaquete.objects.filter(
             paquete__salida__id=self.object.id,
             paquete__tipo_paquete=CPU,
-            ) 
+            )
         laptops_server = inv_m.DispositivoPaquete.objects.filter(
             paquete__salida__id=self.object.id,
             paquete__tipo_paquete=Laptop,
@@ -484,7 +484,6 @@ class GarantiaPrintView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
                     context['laptop'] = True
             except Exception as e:
                 print(e)
-        
         if Total_Cpu['total_cpu'] is None:
             Total_Cpu['total_cpu'] = 0
         if Total_Laptop['total_laptop'] is None:
@@ -506,14 +505,8 @@ class GarantiaPrintView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
             context["tiempo"] = " 1 año"
         context['dispositivo_total'] = Total_Entregado
         context['cpu_servidor'] = cpu_servidor
-
-
-        Total_Cpu_num = Total_Cpu
-        Total_Laptop_num = Total_Laptop
-        context['Total_Cpu'] = Total_Cpu_num['total_cpu']
-        context['Total_Laptop'] = Total_Laptop_num['total_laptop']
         return context
-        
+
 
 class LaptopPrintView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
     """Vista encargada para imprimir las :class:`Laptop` de las salidas correspondiente
@@ -642,6 +635,7 @@ class LaptopPrintView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
 
         context['Mouses'] = nuevos_mouse
         context['total_mouse'] = total_mouse.count()
+        #context['total_mouse'] = 0
 
         total_inalambricas_mostrar = int( total_inalambricas['total_inalambricas'] or 0) + int( total_inalambricas_usb['total_inalambricas_usb'] or 0)
 
@@ -662,6 +656,7 @@ class LaptopPrintView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
         context['Switch'] = total_switch['total_switch']        
         context['CablesPoder'] = total_cables_poder['total_cables_poder']
         context['CablesVga'] = total_cables_vga['total_cables_vga']
+
 
         return context
 

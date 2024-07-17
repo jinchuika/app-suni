@@ -19,11 +19,14 @@ from apps.cyd import forms as cyd_f
 from apps.cyd import models as cyd_m
 from apps.escuela.models import Escuela
 from apps.main.models import Coordenada
+from apps.main import creacion_filtros_informe as crear_dict
 from django.contrib.auth.models import User
 from django.core.files.storage import FileSystemStorage
 from django.conf import settings
 from django.db.models import Sum, Count
-
+from django.utils import timezone
+from django.db import connection
+from openpyxl import load_workbook
 class CursoCreateView(LoginRequiredMixin, GroupRequiredMixin, CreateView):
     """ Creacion de cursos desde una vista
     """
@@ -260,7 +263,7 @@ class CalendarioView(LoginRequiredMixin, GroupRequiredMixin, TemplateView):
 
 class CalendarioListView(JsonRequestResponseMixin, View):
     """Punto de acceso que regresa un Json para el calendario"""
-    def get(self, request, *args, **kwargs):
+    def get(self, request, *args, **kwargs):       
         response = []
         calendario_list = cyd_m.Calendario.objects.filter(
             fecha__gte=datetime.strptime(self.request.GET.get('start'), '%Y-%m-%d'),
@@ -268,6 +271,11 @@ class CalendarioListView(JsonRequestResponseMixin, View):
         capacitador = self.request.GET.get('capacitador', False)
         if capacitador:
             calendario_list = calendario_list.filter(grupo__sede__capacitador__id=capacitador)
+        else:
+            if "cyd_admin" in self.request.user.groups.values_list('name', flat=True):
+                 calendario_list = calendario_list
+            else:
+                calendario_list = calendario_list.filter(grupo__sede__capacitador__id=self.request.user.id) 
         sede = self.request.GET.get('sede', False)
         if sede:
             calendario_list = calendario_list.filter(grupo__sede__id=sede)
@@ -297,6 +305,11 @@ class RecordatorioCalendarioListView(JsonRequestResponseMixin, View):
         capacitador = self.request.GET.get('capacitador', False)
         if capacitador:
             calendario_list = calendario_list.filter(capacitador=capacitador)
+        else:
+            if "cyd_admin" in self.request.user.groups.values_list('name', flat=True):
+                 calendario_list = calendario_list
+            else:
+                calendario_list = calendario_list.filter(capacitador__id=self.request.user.id)
         for calendario in calendario_list:
             response.append({
                 'id':calendario.id,
@@ -522,7 +535,6 @@ class InformeControlAcademicoGrupos(views.APIView):
         listado_asistencia = []
         try:
             if self.request.POST['grupo']:
-                print("si viene grupo")
                 datos = cyd_m.Grupo.objects.filter(id=self.request.POST['grupo'])
                 for  data in datos:
                     asignaciones = cyd_m.Asignacion.objects.filter(grupo=data.id)
@@ -727,11 +739,30 @@ class InformeCapacitadores(views.APIView):
     def post(self, request):
         listado_sede=[]
         listado_curso=[]
-        contador_sede=0
-        capacitador = User.objects.get(id=self.request.POST['capacitador'])
-        si_es_naat =False       
+        contador_sede=0        
+        #capacitador = User.objects.get(id=self.request.POST['capacitador'])
+        si_es_naat =False
         try:
-            sedes = cyd_m.Sede.objects.filter(capacitador=capacitador,fecha_creacion__gte=self.request.POST['fecha_min'],fecha_creacion__lte=self.request.POST['fecha_max'],activa=True)
+            capacitador = self.request.POST['capacitador']
+        except MultiValueDictKeyError:
+            capacitador =0
+        try:
+            fecha_min = self.request.POST['fecha_min']
+        except MultiValueDictKeyError:
+            fecha_min =0
+        try:
+            fecha_max = self.request.POST['fecha_max']
+        except MultiValueDictKeyError:
+            fecha_max = 0
+        sort_params = {}
+        crear_dic(sort_params,'capacitador',capacitador)
+        crear_dic(sort_params,'fecha_creacion__gte',fecha_min)
+        crear_dic(sort_params,'fecha_creacion__lte',fecha_max)
+        crear_dic(sort_params,'activa',True)
+        try:
+            print("Sin errores")
+            #sedes = cyd_m.Sede.objects.filter(capacitador=capacitador,fecha_creacion__gte=self.request.POST['fecha_min'],fecha_creacion__lte=self.request.POST['fecha_max'],activa=True)
+            sedes = cyd_m.Sede.objects.filter(**sort_params)
             asignacion_capacitador= cyd_m.Asignacion.objects.filter(grupo__sede__capacitador=capacitador)
             for sede in sedes:
                 total_participantes = sede.get_participantes()["resumen"]['genero'].aggregate(Sum('cantidad'))
@@ -754,14 +785,15 @@ class InformeCapacitadores(views.APIView):
                         si_es_naat = True
                     else:
                         si_es_naat = False
-                numero_escuelas_invitadas=escuela_invitada.values("participante__escuela").distinct().count()               
-                if not si_es_naat:
-                    if numero_escuelas_invitadas == 0:
+                numero_escuelas_invitadas=escuela_invitada.values("participante__escuela").distinct().count()            
+                if not si_es_naat:                    
+                    listado_datos['invitada'] = sede.get_escuelas_invitadas()
+                    """if numero_escuelas_invitadas == 0:
                         listado_datos['invitada']=0
                     elif numero_escuelas_invitadas ==1:                                          
                             listado_datos['invitada']=1
                     else:
-                        listado_datos['invitada']=numero_escuelas_invitadas -1
+                        listado_datos['invitada']=numero_escuelas_invitadas -1"""
                 else:
                      listado_datos['invitada']=0
                 ##                
@@ -776,8 +808,10 @@ class InformeCapacitadores(views.APIView):
                 listado_datos['participantes'] = total_participantes['cantidad__sum']
                 listado_datos['asignaciones']=contado_asignacion
                 listado_datos['curso']=contador_curso
+                listado_datos['fecha'] = sede.fecha_creacion.year
                 listado_sede.append(listado_datos)
-        except MultiValueDictKeyError as e:           
+        except MultiValueDictKeyError as e:
+            print("Trae errores")           
             sedes = cyd_m.Sede.objects.filter(capacitador=capacitador,activa=True)
             asignacion_capacitador= cyd_m.Asignacion.objects.filter(grupo__sede__capacitador=capacitador)           
             for sede in sedes:
@@ -793,12 +827,14 @@ class InformeCapacitadores(views.APIView):
                         si_es_naat = False
                 numero_escuelas_invitadas=escuela_invitada.values("participante__escuela").distinct().count()
                 if not si_es_naat:
-                    if numero_escuelas_invitadas == 0:
+                    listado_datos['invitada'] = sede.get_escuelas_invitadas()
+                    contador_invitadas = contador_invitadas = sede.get_escuelas_invitadas()
+                    """if numero_escuelas_invitadas == 0:
                         listado_datos['invitada']=0
                     elif numero_escuelas_invitadas ==1:
                         listado_datos['invitada']=1
                     else:
-                        listado_datos['invitada']=numero_escuelas_invitadas -1
+                        listado_datos['invitada']=numero_escuelas_invitadas -1"""
                 else:
                      listado_datos['invitada']=0
                 contador_sede = contador_sede +1
@@ -830,22 +866,32 @@ class InformeCapacitadores(views.APIView):
 class CapacitacionListHomeView(CsrfExemptMixin, JsonRequestResponseMixin, View):
     def post(self, request, *args, **kwargs):
         today = datetime.now()
-        capacitacion_list = {'escuelas': [], 'sedes': []}
-        for i in range(1, 13):
+        capacitacion_list = {'escuelas': [], 'sedes': [],'invitadas': []}        
+        contador_sedes= 0
+        contador_escuelas = 0
+        contador_escuelas_invitadas=0
+        for i in range(1,(today.month)+1):
             if self.request.user.groups.filter(name="cyd_capacitador").exists():
-                sedes_list = self.request.user.sedes.filter(
-                    grupos__asistencias__fecha__year=today.year,
-                    grupos__asistencias__fecha__month=i)
+                 sedes_sql = "SELECT id FROM  cyd_sede WHERE(YEAR(fecha_creacion)={year} AND MONTH(fecha_creacion)={mes}) AND activa=1 AND capacitador_id={capacitador}".format(year=today.year,mes=i,capacitador=self.request.user.id)
             else:
-                sedes_list = cyd_m.Sede.objects.filter(
-                    grupos__asistencias__fecha__year=today.year,
-                    grupos__asistencias__fecha__month=i,
-                    activa=True
-                    )
-
-            capacitacion_list['sedes'].append(sedes_list.count())
-            capacitacion_list['escuelas'].append(sum(e.get_escuelas().count() for e in sedes_list))
-
+                sedes_sql = "SELECT id FROM  cyd_sede WHERE(YEAR(fecha_creacion)={year} AND MONTH(fecha_creacion)={mes}) AND activa=1".format(year=today.year,mes=i)
+            with connection.cursor() as cursor:
+                    cursor.execute(sedes_sql)
+                    result =cursor.fetchall()       
+            for data in result:
+                contador_sedes = contador_sedes + 1
+                sede_list = cyd_m.Sede.objects.get(id=data[0])
+                contador_escuelas = contador_escuelas + sede_list.get_escuelas().count()
+                try:
+                    contador_escuelas_invitadas = sede_list.get_escuelas_invitadas().count()
+                except AttributeError:
+                    contador_escuelas_invitadas = 0
+            capacitacion_list['sedes'].append(contador_sedes)
+            capacitacion_list['escuelas'].append(contador_escuelas)
+            capacitacion_list['invitadas'].append(contador_escuelas_invitadas)
+            contador_sedes = 0
+            contador_escuelas = 0
+            contador_escuelas_invitadas =0
         return self.render_json_response(capacitacion_list)
 
 class InformeEscuelaListView(LoginRequiredMixin, FormView):
@@ -973,10 +1019,8 @@ class InformeEscuelaSede(views.APIView):
             if grupo.sede.escuela_beneficiada.codigo == escuela['participante__escuela__codigo']:
                 numero_hombres = grupo.get_hombres()
                 numero_mujeres = grupo.get_mujeres()
-            else:         
-                #datos=cyd_m.Asignacion.objects.filter(grupo__sede=sede,participante__escuela__nombre=escuela['participante__escuela__nombre'])
+            else:  
                 datos=cyd_m.Asignacion.objects.filter(grupo__sede=sede,participante__escuela__codigo=escuela['participante__escuela__codigo'])
-                #datos=cyd_m.Asignacion.objects.filter(grupo__sede=sede).distinct() 
                 for dato in datos:
                     if dato.participante.genero.genero=="Hombre":
                         numero_hombres=numero_hombres+1
@@ -997,9 +1041,7 @@ def crear_dic(mapping, key, value):
         if value !=0:
             mapping[key] = value
 
-class InformeListadoEscuela2(views.APIView):
-
-   
+class InformeListadoEscuela2(views.APIView):   
     def post(self, request):
         acumulador_aprobados=0
         listado_escuelas=[]
@@ -1038,13 +1080,14 @@ class InformeListadoEscuela2(views.APIView):
         crear_dic(sort_params,'fecha_creacion__gte',fecha_min)
         crear_dic(sort_params,'fecha_creacion__lte',fecha_max)
         crear_dic(sort_params,'activa',True)
-        sedes_encontradas = cyd_m.Sede.objects.filter(**sort_params)      
+        sedes_encontradas = cyd_m.Sede.objects.filter(**sort_params).order_by('-fecha_creacion')     
         for data_participantes in sedes_encontradas:
                 contador_sedes = contador_sedes +1                                                
                 data = data_participantes.get_participantes()["resumen"]
                 total_maestros = data['genero'].aggregate(Sum('cantidad'))
                 total_hombre = data['genero'].filter(nombre_genero="Hombre")
                 total_mujeres = data['genero'].filter(nombre_genero="Mujer")
+
                 for total_maestros_hombres in total_hombre:
                     contador_maestros = total_maestros_hombres["cantidad"]                
 
@@ -1180,5 +1223,170 @@ class CreacionCursosApi(views.APIView):
 
         return Response(
                 "Curso creado exitosamente",
+            status=status.HTTP_200_OK
+            )
+class GraficaPastelAprobadosReprobadosHombresMujeres(views.APIView):
+
+    def get(self, request):
+        grupo = cyd_m.Grupo.objects.get(id=self.request.GET["grupo"])        
+        porcentaje = (grupo.get_porcentaje_aprobados())       
+        porcentaje_resultado_hombre = round((grupo.get_hombres() *100) / (grupo.get_hombres() + grupo.get_mujeres()))
+        porcentaje_resultado_mujer = round((grupo.get_mujeres() *100) / (grupo.get_hombres() + grupo.get_mujeres()))        
+        valores = {'genero': [],'resultado': [],'porcentaje_genero':[],'porcentaje_resultado':[]}        
+        valores["genero"].append(grupo.get_hombres())
+        valores["genero"].append(grupo.get_mujeres()) 
+        valores["resultado"].append(grupo.count_aprobados())      
+        valores["resultado"].append(grupo.count_reprobados())   
+        valores["porcentaje_resultado"].append(int(porcentaje))      
+        valores["porcentaje_resultado"].append(int(100-porcentaje))
+        valores["porcentaje_genero"].append(int(porcentaje_resultado_hombre))   
+        valores["porcentaje_genero"].append(int(porcentaje_resultado_mujer))  
+        return Response(
+            valores,
+            status=status.HTTP_200_OK
+            ) 
+
+class InformeListadoSedeEscuela(views.APIView):   
+    def post(self, request):
+        listado_escuelas=[]
+        numero =0
+        try:
+            departamento = [x for x in self.request.POST.getlist('departamento[]')]
+            list_departamento = [] 
+            if len(departamento) ==0:
+                departamento = self.request.POST['departamento'] 
+                list_departamento.append(departamento)  
+        except MultiValueDictKeyError:
+            departamento=0
+        try:
+            municipio = [int(x) for x in self.request.POST.getlist('municipio[]')]
+            list_municipio = [] 
+            if len(municipio) ==0:
+                municipio = self.request.POST['municipio'] 
+                list_municipio.append(municipio)  
+        except MultiValueDictKeyError:
+            municipio=0
+        try:
+            capacitador = [int(x) for x in self.request.POST.getlist('capacitador[]')]
+            list_capacitador = [] 
+            if len(capacitador) ==0:
+                capacitador = self.request.POST['capacitador'] 
+                list_capacitador.append(capacitador)  
+        except MultiValueDictKeyError:
+            capacitador=0
+        try:
+            fecha_min=self.request.POST['fecha_min']
+        except MultiValueDictKeyError:
+            fecha_min=0
+        try:
+            fecha_max=self.request.POST['fecha_max']
+        except MultiValueDictKeyError:
+            fecha_max=0
+
+        sort_params = {}
+        if len(list_departamento)==1:
+            crear_dic(sort_params,'municipio__departamento__id__in',list_departamento)
+        else:
+            crear_dic(sort_params,'municipio__departamento__id__in',departamento)
+        if len(list_municipio)==1:
+            crear_dic(sort_params,'municipio__id__in',list_municipio)
+        else:
+            crear_dic(sort_params,'municipio__id__in',municipio)
+        if len(list_capacitador)==1:
+            crear_dic(sort_params,'capacitador__id__in',list_capacitador)
+        else:
+            crear_dic(sort_params,'capacitador__id__in',capacitador)
+        crear_dic(sort_params,'fecha_creacion__gte',fecha_min)
+        crear_dic(sort_params,'fecha_creacion__lte',fecha_max)
+        crear_dic(sort_params,'activa',True)
+        sedes_encontradas = cyd_m.Sede.objects.filter(**sort_params).order_by('-fecha_creacion')                   
+        for data_participantes in sedes_encontradas:              
+                es_naat = data_participantes.get_es_naat()
+                for info_sede in data_participantes.get_escuelas():
+                    numero = numero +1
+                    escuela_sede = {}
+                    escuela_sede["escuela_url"] = info_sede.get_absolute_url() 
+                    escuela_sede["url_sede"] = data_participantes.get_absolute_url()  
+                    escuela_sede["numero"] = numero       
+                    escuela_sede["escuela"] =info_sede.nombre
+                    escuela_sede["direccion"] = info_sede.direccion
+                    escuela_sede["codigo"]= info_sede.codigo
+                    escuela_sede["cantidad_participantes"]= info_sede.cantidad_participantes
+                    escuela_sede["sede"]= data_participantes.nombre
+                    escuela_sede["capacitador"]= data_participantes.capacitador.get_full_name()
+                    escuela_sede["departamento"]= data_participantes.municipio.departamento.nombre
+                    escuela_sede["municipio"]= data_participantes.municipio.nombre
+                    escuela_sede["fecha"]= data_participantes.fecha_creacion.date()
+                    escuela_sede["control_academico"]= info_sede.get_escuelas_sedes(capacitador, info_sede.codigo,data_participantes.id)                    
+                    if data_participantes.escuela_beneficiada.codigo == info_sede.codigo:
+                        escuela_sede["beneficiada"] = "Beneficiada"
+                    else:
+                        if es_naat:
+                            escuela_sede["beneficiada"] = "Beneficiada"
+                        else:
+                            escuela_sede["beneficiada"] = "No beneficiada"
+                    listado_escuelas.append(escuela_sede)              
+        return Response(
+                listado_escuelas,
+            status=status.HTTP_200_OK
+            )
+    
+class InformeEscuelasSedesView(LoginRequiredMixin, FormView):
+    """ Vista para obtener la informacion de los dispositivos para crear el informe de existencia mediante un
+    api mediante el metodo GET  y lo muestra en el tempalte
+    """
+    template_name = 'cyd/InformeEscuelaSedeV2.html'
+    form_class = cyd_f.InformeEscuelaSedeslistadoForm
+
+class InformeParticipantesNaat(views.APIView):
+    def get(self, request):
+        #partipantes = cyd_m.Asignacion.objects.filter(grupo__curso__nombre__contains="NAAT").values(grupo__sede)[:10]
+        #print(partipantes)
+        listado_participante=[]
+        sedes = cyd_m.Grupo.objects.filter(curso__nombre__icontains="NAAT").values('sede_id').distinct()
+        grupo = cyd_m.Grupo.objects.filter(curso__nombre__icontains="NAAT").values('id').distinct()
+        sedes_buscar = cyd_m.Sede.objects.filter(id__in=sedes)
+        for data in sedes_buscar:
+            data_dict ={}
+            for data1 in data.get_participantes()['listado']:
+                data_dict["participante"] = str(data1["participante"])
+                listado_participante.append(data_dict)
+            
+            print("************")
+            
+        
+        return Response(
+            listado_participante,
+            status=status.HTTP_200_OK
+            )
+    
+class NaatInformeView(LoginRequiredMixin, TemplateView):
+    """ Vista para obtener la informacion de los dispositivos para crear el informe de existencia mediante un
+    api mediante el metodo GET  y lo muestra en el tempalte
+    """
+    redirect_unauthenticated_users = True
+    raise_exception = True
+    template_name = "cyd/informe_naat.html"
+    #form_class = conta_f.RastreoDesechoInformeForm 
+
+class SubirControlAcademicoExcel(views.APIView):
+    def get(self, request):
+        #partipantes = cyd_m.Asignacion.objects.filter(grupo__curso__nombre__contains="NAAT").values(grupo__sede)[:10]
+        #print(partipantes)
+        listado_participante=[]
+        sedes = cyd_m.Grupo.objects.filter(curso__nombre__icontains="NAAT").values('sede_id').distinct()
+        grupo = cyd_m.Grupo.objects.filter(curso__nombre__icontains="NAAT").values('id').distinct()
+        sedes_buscar = cyd_m.Sede.objects.filter(id__in=sedes)
+        for data in sedes_buscar:
+            data_dict ={}
+            for data1 in data.get_participantes()['listado']:
+                data_dict["participante"] = str(data1["participante"])
+                listado_participante.append(data_dict)
+            
+            print("************")
+            
+        
+        return Response(
+            "Ingresados exitosamente",
             status=status.HTTP_200_OK
             )

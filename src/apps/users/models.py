@@ -37,7 +37,21 @@ class Perfil(models.Model):
         ('#605ca8', 'morado'),
         ('#f012be', 'rosa'),
         ('#ff851b', 'gris'),
-        ('#777777', 'naranja'))
+        ('#777777', 'naranja'),
+        ('#DAF7A6 ','verde alberja'),
+        ('#BB17B4','purpura'),
+        ('#F239C8','rosado'),
+        ('#442A9C','violeta'),
+        ('#C12909','rojo indio'),
+        ('#268073','verde azulado'),
+        ('#9E18DD','morado cucurucho'),
+        ('#099FF0','azul cielo'),
+        ('#FA8072','salmon'),
+        ('#FFC300','amarillo beqt'),
+        ('#CB654F','aqua beqt'),
+        ('#48CB1F','verde beqt'),
+        ('#DD184F','fuscia'),
+        ('#BB4217','marron'))
     GENERO_CHOICES = (
         ('M', 'Masculino'),
         ('F', 'Femenino'),)

@@ -9,6 +9,7 @@
 		.table-wrapper {
 			display: inline-block;
 		}
+		
 		table {
 			display: inline-block;
 			margin: 0 10px;
@@ -29,6 +30,7 @@
 				TELÉFONO 2435-2739 / 24319639</b>
 			</h3>
 		<a class="encabezado2" ><b>ENTREGA DE EQUIPO</b></a>
+
 		<b>
 			<table class="encabezado3"  width="830" heigth="125">
 				<td>Fecha de entrega</td>
@@ -43,43 +45,45 @@
 				<td>No. Entrega:</td>
 				<td style="border:solid; border-width: 1px" width="100" height="18	"> <center> {{salidainventario}} </center> </td>
 
-				<table class="info" >
-					<b>
-						<br>
-						{% if salidainventario.tipo_salida|stringformat:"s" == 'A terceros' %}
-							<td width="	250" >NOMBRE DEL BENEFICIARIO</td>
-							<td style="border:solid; border-width: 1px;border-color:gray" width="675" height="28">{{salidainventario.beneficiario}}</td>
-							<td  width="20"></td>
-							<td>DIRECCIÓN</td>
-							<td style="border:solid; border-width: 1px;border-color:gray" width="675" height="28">
-								{% if  salidainventario.beneficiario.direccion %}{{salidainventario.beneficiario.direccion}} {% else %} NO APLICA{% endif %}
-							</td>
-						{% else %}
-							<td width="	250" >NOMBRE DE LA INSTITUCIÓN</td>
-							<td style="border:solid; border-width: 1px;border-color:gray" width="675" height="28">{{salidainventario.escuela}}</td>
-							<td  width="20"></td>
-							<td>DIRECCIÓN</td>
-							<td style="border:solid; border-width: 1px;border-color:gray" width="675" height="28">{{salidainventario.escuela.direccion}}</td>
-						{% endif %}
-					</b>
-				</table>
+<table class="info" >
+	<b>
+	<br>
+	{% if salidainventario.tipo_salida|stringformat:"s" == 'A terceros' %}
+<td width="	250" >NOMBRE DEL BENEFICIARIO</td>
+	<td style="border:solid; border-width: 1px;border-color:gray" width="675" height="28">{{salidainventario.beneficiario}}</td>
+	<td  width="20"></td>
+	<td>DIRECCIÓN</td>
+	<td style="border:solid; border-width: 1px;border-color:gray" width="675" height="28">
+			{% if  salidainventario.beneficiario.direccion %}{{salidainventario.beneficiario.direccion}} {% else %} NO APLICA{% endif %}
+	</td>
 
-				<table class="info2" >
-					{% if salidainventario.tipo_salida|stringformat:"s" == 'A terceros' %}
-					<td width="	250" >NOMBRE DEL ENCARGADO(A)</td>
-					<td style="border:solid; border-width: 1px;border-color:gray" width="700" height="28">&nbsp;&nbsp;NO APLICA</td>
-					<td  width="20"></td>
-					<td>TELEFONO(S)</td>
-					<td style="border:solid; border-width: 1px;border-color:gray" width="700" height="28">&nbsp;&nbsp;
+	{% else %}
+	<td width="	250" >NOMBRE DE LA INSTITUCIÓN</td>
+	<td style="border:solid; border-width: 1px;border-color:gray" width="675" height="28">{{salidainventario.escuela}}</td>
+	<td  width="20"></td>
+	<td>DIRECCIÓN</td>
+	<td style="border:solid; border-width: 1px;border-color:gray" width="675" height="28">{{salidainventario.escuela.direccion}}</td>
 
-							{% if  salidainventario.beneficiario.fax %}{{salidainventario.beneficiario.fax}} {% else %} NO APLICA{% endif %}
-					</td>
-					{% else %}
-					<td width="	250" >NOMBRE DEL ENCARGADO(A)</td>
-					<td style="border:solid; border-width: 1px;border-color:gray" width="700" height="28">&nbsp;&nbsp;{{Encargado}}</td>
-					<td  width="20"></td>
-					<td>TELEFONO(S)</td>
-					<td style="border:solid; border-width: 1px;border-color:gray" width="700" height="28">&nbsp;&nbsp;
+	{% endif %}
+	</b>
+</table>
+
+<table class="info2" >
+	{% if salidainventario.tipo_salida|stringformat:"s" == 'A terceros' %}
+	<td width="	250" >NOMBRE DEL ENCARGADO(A)</td>
+	<td style="border:solid; border-width: 1px;border-color:gray" width="700" height="28">&nbsp;&nbsp;NO APLICA</td>
+	<td  width="20"></td>
+	<td>TELEFONO(S)</td>
+	<td style="border:solid; border-width: 1px;border-color:gray" width="700" height="28">&nbsp;&nbsp;
+
+			{% if  salidainventario.beneficiario.fax %}{{salidainventario.beneficiario.fax}} {% else %} NO APLICA{% endif %}
+	</td>
+	{% else %}
+	<td width="	250" >NOMBRE DEL ENCARGADO(A)</td>
+	<td style="border:solid; border-width: 1px;border-color:gray" width="700" height="28">&nbsp;&nbsp;{{Encargado}}</td>
+	<td  width="20"></td>
+	<td>TELEFONO(S)</td>
+	<td style="border:solid; border-width: 1px;border-color:gray" width="700" height="28">&nbsp;&nbsp;
 
 							{% if  Telefono|stringformat:"s" == 'None' %} {{salidainventario.escuela.telefono}}{% else %} NO APLICA{% endif %}
 					</td>
@@ -90,6 +94,7 @@
 		</center>
 	</header>
 	<!--FIN DE DATOS E IMAGENES-->
+
 
 	<body>
 		<!--INICIO FINALIZADO-->
@@ -206,172 +211,124 @@
 			<td width="200"><center><input type="checkbox" >Servidor</center></td>
 			{% endif %}
 
-			<td>
-				Red
-			</td>
-			<td width="1%"></td>
-			<td style="border:solid; border-width: 1px;border-color:gray"><center>{{Red}}</center></td>
-			<td width="2%">
-			</td>
+	<td style="border:solid; border-width: 1px;border-color:gray" width="150" height="25">{{Servidor}}</td>
+	<td width="100"><center>Red</center></td>
+	<td style="border:solid; border-width: 1px;border-color:gray" width="150" height="25"></td>
 
+	{% if salidainventario.tipo_salida|stringformat:"s"  == "Renovaciones" %}
+ 	<td width="200"><center><input type="checkbox" checked>Renovación</center></td>
+	{% else %}
+	<td width="200"><center><input type="checkbox">Renovación</center></td>
+	{% endif %}
 
-			<td>
-				Adaptador Wifi
-			</td>
-
-			<td width="1%"></td>
-			<td style="border:solid; border-width: 1px;border-color:gray"><center>{{Wifi|default_if_none:"0"}}</center></td>
-			<td width="2%">
-			</td>
-
-			<td> Ethernet</td>
-			<td width="1%"></td>
-			<td style="border:solid; border-width: 1px;border-color:gray"><center>{{Ethernet|default_if_none:"0"}}</center></td>
-			<td width="2%">
-			</td>
-			<td>
-				Ap
-			</td>
-			<td width="1%"></td>
-			<td style="border:solid; border-width: 1px;border-color:gray"><center>{{Access|default_if_none:"0"}}</center></td>
-			<td width="2%">
-			</td>
-			<td>
-				Switch
-			</td>
-			<td width="1%"></td>
-			<td style="border:solid; border-width: 1px;border-color:gray"><center>{{Switch|default_if_none:"0"}}</center></td>
-			<td width="2%">
-			</td>
-			<td>
-				Cables de poder
-			</td>
-			<td width="1%"></td>
-			<td style="border:solid; border-width: 1px;border-color:gray"><center>{{CablesPoder|default_if_none:"0"}}</center></td>
-			<td width="2%">
-			</td>
-			<td>Cables VGA</td>
-			<td width="1%"></td>
-			<td style="border:solid; border-width: 1px;border-color:gray"><center>{{CablesVga|default_if_none:"0"}}</center></td>
-			<td width="2%"></td>
-
-
-			{% if salidainventario.tipo_salida|stringformat:"s"  == "Renovaciones" %}
-			<td width="200"><center><input type="checkbox" checked>Renovación</center></td>
-			{% else %}
-			<td width="200"><center><input type="checkbox">Renovación</center></td>
-			{% endif %}
-
-		</table>
-	</div>
-
-
-
-	<!--FIN DE CELDAS -->
-	<!--INICIO DE FIRMA Y SELLO -->
-	</body>
-	<footer>
-		<br>
-		<br>
+</table>
+<!--FIN DE CELDAS -->
+<!--INICIO DE FIRMA Y SELLO -->
+</body>
+<footer>
 	<br>
-		<br>
-		<br>
+	<br>
+<br>
+	<br>
+	<br>
 
-	<center>
-		<table>
+<center>
+	<table style="font-size: 20px;">
 
-			<td  >
-				<hr width="430" style="border-color:black; border-width: 1px;">
-				<center>REPRESENTANTE DE LA ESCUELA
-				<p><center>NOMBRE Y FIRMA</center></p></center>
-			</td>
+		<td  >
+			<hr width="430" style="border-color:black; border-width: 1px;">
+			<center>REPRESENTANTE DE LA ESCUELA
+			<p><center>NOMBRE Y FIRMA</center></p></center>
+		</td>
 
-			<td width="200" valign="center" ><center>SELLO</center>
-			</td>
+		<td width="200" valign="center" ><center>SELLO</center>
+		</td>
 
-			<td >
-				<hr width="430" style="border-color:black; border-width: 1px;">
+		<td >
+			<hr width="430" style="border-color:black; border-width: 1px;">
 
-				<center>REPRESENTANTE FUNSEPA
-				<p><center>NOMBRE Y FIRMA</center></p></center>
-			</td>
+			<center>REPRESENTANTE DE LA ESCUELA
+			<p><center>NOMBRE Y FIRMA</center></p></center>
+		</td>
 
-		</table>
+	</table>
+
 	</center>
-	<!--TERMINAR TABLAS DE FIRMA Y SELLO-->
+<!--TERMINAR TABLAS DE FIRMA Y SELLO-->
 
 
-	</body>
+</body>
 
-	<!--PIE DE PAGINA-->
-	<footer>
-
-
-		<br>
-		<br>
-		<br>
-
-		<table style="margin-left: 0px;">
-			<td width="1100">Nota: Todas las computadoras cuentan con sus respectivo cargador.</td>
-			<td style="font-size: 12px">Latitud</td>
-			<td style="border:solid; border-width: 1px;border-color:gray" width="200" height="14">{{salidainventario.escuela.mapa.lat}}</td>
-					<td  width="30"></td>
-
-			<td style="font-size: 12px">Longitud</td>
-			<td style="border:solid; border-width: 1px;border-color:gray" width="200" height="14">{{salidainventario.escuela.mapa.lng}}</td>
-		</table>
-	</footer>
+<!--PIE DE PAGINA-->
+<footer>
 
 
-	<!--TERMINA PIE DE PAGINA-->
+	<br>
+	<br>
+	<br>
+
+	<table style="margin-left: 0px;">
+		<td width="1100">Nota: Todas las computadoras cuentan con sus respectivo cargador.</td>
+		<td style="font-size: 12px">Latitud</td>
+		<td style="border:solid; border-width: 1px;border-color:gray" width="200" height="14">{{salidainventario.escuela.mapa.lat}}</td>
+				<td  width="30"></td>
+
+		<td style="font-size: 12px">Longitud</td>
+		<td style="border:solid; border-width: 1px;border-color:gray" width="200" height="14">{{salidainventario.escuela.mapa.lng}}</td>
+	</table>
+</footer>
 
 
-	<!--CSS -->
-	<style type="text/css">
-		@page{
-		margin-top: 0mm;
-		margin-bottom: 0mm;
-	}
-	body{
-		font-family: arial;
-		background-image: none;
-		-webkit-print-color-adjust: exact; /*economy | exact*/
-		color-adjust: exact;
-	}
-	.encabezado{
-		margin:10px;
-		margin-top:10mm;
-	}
-	.encabezado2{
-		font-size:12px;
-		text-align: center;
-	}
-	.encabezado3{
-		border-bottom:solid;
-		border-top:solid;
-		border-width: 1.5px;
-		margin-top:0mm;
-		font-size:14px;
-	}
-	.info{
-		width: 1750px
-	}
-	}
-	.datos tr:nth-child(odd){
-		background-color: #F2F2F2;
-	}
-	.datos tr:nth-child(even){
-		background-color: #e5e5e5;
-	}
-	.contador {
-		font-family: arial;
-		font-size: 18px
-	}
-	</style>
+<!--TERMINA PIE DE PAGINA-->
 
-	{% block extra_js %}
-	<script>
-	//window.onload= function () { window.print();window.close();   }
-	</script>
-	{% endblock extra_js %}
+
+<!--CSS -->
+<style type="text/css">
+	@page{
+	margin-top: 0mm;
+	margin-bottom: 0mm;
+}
+body{
+	font-family: arial;
+	 background-image: none;
+	-webkit-print-color-adjust: exact; /*economy | exact*/
+    color-adjust: exact;
+}
+.encabezado{
+	margin:10px;
+	margin-top:10mm;
+}
+.encabezado2{
+	font-size:12px;
+	text-align: center;
+}
+.encabezado3{
+	border-bottom:solid;
+	border-top:solid;
+	border-width: 1.5px;
+	margin-top:0mm;
+	font-size:14px;
+}
+.info{
+	width: 1750px
+}
+}
+.datos tr:nth-child(odd){
+	background-color: #F2F2F2;
+}
+.datos tr:nth-child(even){
+	background-color: #e5e5e5;
+}
+.contador {
+	margin-left:  370px;
+	font-family: arial;
+	font-size: 18px
+}
+</style>
+
+{% block extra_js %}
+<script>
+window.onload= function () { window.print();window.close();   }
+</script>
+{% endblock extra_js %}
 </html>

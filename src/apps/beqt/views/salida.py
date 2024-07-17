@@ -496,9 +496,7 @@ class TabletPrintView(LoginRequiredMixin, DetailView,GroupRequiredMixin):
         context = super(TabletPrintView, self).get_context_data(**kwargs)
         nuevas_tablets = []
         total_cargadores_mostrar = 0
-        total_protectores_mostrar = 0
         Tablet = beqt_m.PaqueteTipoBeqt.objects.get(nombre="Tablet")
-        Protector = beqt_m.PaqueteTipoBeqt.objects.get(nombre="Protector tablet")
         Cargador = beqt_m.PaqueteTipoBeqt.objects.get(nombre="Cargador tablet")
         Total_Tablet = beqt_m.DispositivoPaquete.objects.filter(
             paquete__salida__id=self.object.id,
@@ -506,9 +504,6 @@ class TabletPrintView(LoginRequiredMixin, DetailView,GroupRequiredMixin):
         Total_Cargador = beqt_m.PaqueteBeqt.objects.filter(
             salida__id=self.object.id,
             tipo_paquete=Cargador).aggregate(cargadores=Sum('cantidad'))       
-        Total_Protector = beqt_m.PaqueteBeqt.objects.filter(
-            salida__id=self.object.id,
-            tipo_paquete=Protector).aggregate(protectores=Sum('cantidad'))    
 
         for triage in Total_Tablet:
             nueva_tablet = beqt_m.DispositivoBeqt.objects.get(triage=triage.dispositivo).cast()
@@ -525,11 +520,8 @@ class TabletPrintView(LoginRequiredMixin, DetailView,GroupRequiredMixin):
         context['Tablets'] =  sorted(nuevas_tablets,key=lambda s: int(re.search(r'\d+',s.triage).group()))
         context['Total'] = Total_Tablet.count()
         if Total_Cargador['cargadores'] != None:
-            total_cargadores_mostrar += Total_Cargador['cargadores']
-        if Total_Protector['protectores'] != None:
-            total_protectores_mostrar += Total_Protector['protectores']             
+            total_cargadores_mostrar += Total_Cargador['cargadores']       
         context['Cargador'] = total_cargadores_mostrar
-        context['Protector'] = total_protectores_mostrar
         context['Descripcion'] = "Cargadores"
         return context
 

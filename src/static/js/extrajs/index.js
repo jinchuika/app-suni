@@ -13,11 +13,19 @@
 						borderWidth: 1
 					},
 					{
+						label: 'Escuelas Invitadas',
+						data: data.invitadas,
+						backgroundColor: 'rgba(239, 93, 14, 0.8)',
+						borderWidth: 1
+					},
+					{
 						label: 'Sedes',
 						data: data.sedes,
 						backgroundColor: 'rgba(0, 31, 63, 0.8)',
 						borderWidth: 1
-					}]
+					},
+					
+				]
 				},
 				options: {
 					hoverMode: 'index',
@@ -114,6 +122,35 @@
 			]
 		});
 	}
+	var crear_cyp_calendario = function () {
+		$('#capacitacion-calendario').fullCalendar({
+			firstDay: 0,
+			header: {
+				left: 'prev,next today',
+				center: '',
+				right: 'title'
+			},
+
+			navLinks: true,
+			eventRender: function (event, element) {
+                element.qtip({
+                    content: {
+                        title: event.tip_title,
+                        text: event.tip_text
+                    },
+                });
+            },
+			eventSources: [
+			{
+				url: $('#capacitacion-calendario').data('url-capacitacion'),
+				type: 'GET',
+				cache: true
+			}
+			]
+		});
+	}
+
+
 
 	var crear_evento_dh_calendario = function () {
 		$('#evento_dh-calendario').fullCalendar({
@@ -146,6 +183,9 @@
 		}
 		if ($('#evento_dh-calendario').length) {
 			crear_evento_dh_calendario();
+		}
+		if ($('#capacitacion-calendario').length) {
+			crear_cyp_calendario();
 		}
 	}
 }( window.HomePage = window.HomePage || {}, jQuery ));

@@ -128,6 +128,9 @@
 						<li>
 							<a href="#calendario" data-toggle="tab"><i class="fa fa-calendar" aria-hidden="true"></i> Calendario</a>
 						</li>
+						<li>
+							<a href="#graficas" data-toggle="tab"><i class="fa fa-pie-chart" aria-hidden="true"></i> Graficas</a>
+						</li>
 					</ul>
 					<div class="tab-content">
 						<!-- Panel de participantes -->
@@ -239,6 +242,19 @@
 							</table>
 						</div>
 						<!-- Fin panel de calendario -->
+						<!--Inico graficas-->
+						<div class="tab-pane" id="graficas">
+							<div class="row">
+								<div class="col-md-6 col-sm-6 col-xs-12">
+									<canvas id="capacitacion_aprobados_chart" style="height: 230px; width: 485px;" height="230" width="485" data-url="{% url 'grafica_pastel_grupo' %}"></canvas>
+								</div>
+								<div class="col-md-6 col-sm-6 col-xs-12">
+									<canvas id="capacitacion_genero_chart" style="height: 230px; width: 485px;" height="230" width="485" data-url="{% url 'capacitacion_list_home' %}"></canvas>
+								</div>
+							</div>
+					
+						</div>
+						<!--Fin graficas-->
 					</div>
 				</div>
 			</div>

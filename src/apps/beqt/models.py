@@ -393,7 +393,6 @@ class CaseTabletBeqt(DispositivoBeqt):
     def get_absolute_url(self):
         return reverse_lazy('tablet_estuche_beqt_detail', kwargs={'triage': self.triage})
 
-#Cambio para PROTECTOR TABLETS
 class ProtectorTabletBeqt(DispositivoBeqt):
     SLUG_TIPO = 'PTB'
     indice = models.PositiveIntegerField(editable=False, unique=True)
@@ -436,7 +435,8 @@ class TabletBeqt(DispositivoBeqt):
     almacenamiento_externo = models.BooleanField(default=False)
     cargador = models.ForeignKey(CargadorTabletBeqt, related_name='cargador_tablets_beqt', null=True, blank=True ,verbose_name='Cargador')
     estuche = models.ForeignKey(CaseTabletBeqt, related_name='case_tablets_beqt', null=True, blank=True, verbose_name='Case')
-    protector = models.ForeignKey(ProtectorTabletBeqt, related_name='protector_tablets_beqt', null=True, blank=True, verbose_name='Protector')
+
+
     class Meta:
         verbose_name = "Tablet"
         verbose_name_plural = "Tablets"
@@ -995,4 +995,4 @@ class CambioEstadoBeqt(models.Model):
         self.dispositivo.estado = self.estado
         self.dispositivo.save()
 
-
+#Inventario interno de BEQT

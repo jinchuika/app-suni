@@ -379,8 +379,7 @@ class TabletEstucheUptadeView(LoginRequiredMixin, UpdateView):
             return reverse_lazy('detalles_dispositivos_beqt', kwargs={'pk': self.object.entrada, 'detalle': self.object.entrada_detalle.id})
         else:
             return reverse_lazy('estuche_tablet_detail', kwargs={'triage': self.object.triage})
-        
-#Cambio para PROTECTOR TABLETS
+
 class TabletProtectorDetailView(LoginRequiredMixin, DispositivoDetailView):
     """Vista de detalle de dispositivos tipo :class:`Tablet`"""
     model = beqt_m.ProtectorTabletBeqt

@@ -124,8 +124,6 @@ class DispositivoViewSet(viewsets.ModelViewSet):
                     return beqt_m.CargadorTabletBeqt.objects.filter(valido=True)
                 elif(tipo == str(10)):
                     return beqt_m.CaseTabletBeqt.objects.filter(valido=True)
-                elif(tipo == str(11)):
-                    return beqt_m.ProtectorTabletBeqt.objects.filter(valido=True)
                 else:
                     return beqt_m.DispositivoBeqt.objects.filter(valido=True, tipo__in=tipo_dis)
             else:
@@ -189,7 +187,6 @@ class DispositivoViewSet(viewsets.ModelViewSet):
         procesador = inv_m.Procesador.objects.all().values()
         os = inv_m.Software.objects.all().values()
         estuche = beqt_m.CaseTabletBeqt.objects.all().values()
-        protector = beqt_m.ProtectorTabletBeqt.objects.all().values()
         cargador_tablet = beqt_m.CargadorTabletBeqt.objects.all().values()
         cargador_laptop = beqt_m.CargadorLaptopBeqt.objects.all().values()
         disco = beqt_m.HDDBeqt.objects.filter(
@@ -215,8 +212,7 @@ class DispositivoViewSet(viewsets.ModelViewSet):
                 'pulgadas',
                 'clase',
                 'cargador__triage',
-                'estuche__triage',
-                'protector__triage',
+                'estuche__triage'
                 ).order_by('triage')
             return JsonResponse({
                 'data': list(data),
@@ -228,8 +224,7 @@ class DispositivoViewSet(viewsets.ModelViewSet):
                 'hdd': list(disco),
                 'os': list(os),
                 'cargador':list(cargador_tablet),
-                'estuche': list(estuche),
-                'protector': list(protector)
+                'estuche': list(estuche)
                 })
         elif str(tipo) == "LAPTOP":
             data = beqt_m.LaptopBeqt.objects.filter(
@@ -412,7 +407,7 @@ class DispositivoViewSet(viewsets.ModelViewSet):
                 'medida': list(medida),
                 'dispositivo': str(tipo)
                 })
-        #Cambio para PROTECTOR TABLETS
+        
         elif str(tipo) == "PROTECTOR TABLET":
             data = beqt_m.ProtectorTabletBeqt.objects.filter(
                 triage__in=paquetes
@@ -627,8 +622,6 @@ class DispositivosPaquetesViewSet(viewsets.ModelViewSet):
                 cambio_estado = beqt_m.CargadorLaptopBeqt.objects.get(triage=triage)
             elif tipo == "ESTUCHE TABLET":
                 cambio_estado = beqt_m.CaseTabletBeqt.objects.get(triage=triage)
-            elif tipo == "PROTECTOR TABLET":
-                cambio_estado = beqt_m.ProtectorTabletBeqt.objects.get(triage=triage)
             elif tipo == "REGLETA":
                 cambio_estado = beqt_m.RegletaBeqt.objects.get(triage=triage)
             elif tipo == "UPS":
@@ -674,8 +667,8 @@ class DispositivosPaquetesViewSet(viewsets.ModelViewSet):
     def actualizar_dispositivos(self, request, pk=None):
         """ Metodo para actualizar nuevos dispositivos mediante el grid
         """
-        dispositivos = json.loads(request.data["datos_actualizar"])     
-        tipo = request.data["dispositivo"]     
+        dispositivos = json.loads(request.data["datos_actualizar"])   
+        tipo = request.data["dispositivo"]        
         if tipo == "LAPTOP":
             for datos in dispositivos:
                 print(datos["codigo_rti"])
@@ -792,7 +785,6 @@ class DispositivosPaquetesViewSet(viewsets.ModelViewSet):
                 new_dispositivo.save()
        
         elif tipo == "TABLET":
-
             for datos in dispositivos:
                 new_dispositivo = beqt_m.TabletBeqt.objects.get(triage=datos['triage'])     
                 try:
@@ -866,13 +858,9 @@ class DispositivosPaquetesViewSet(viewsets.ModelViewSet):
                 except ObjectDoesNotExist as e:
                     print("El cargador no necesita actualizacion")
                 try:
-                    new_dispositivo.protector = beqt_m.ProtectorTabletBeqt.objects.get(triage=datos['protector__triage'])
-                except ObjectDoesNotExist as e:
-                    print("El cargador no necesita actualizacion")
-                try:
                     new_dispositivo.codigo_rti =  datos["codigo_rti"]
                 except ObjectDoesNotExist as e:
-                    print("No necesita codigo RTI")
+                    print("No necesita codigo RTI") 
                 new_dispositivo.save()      
         elif tipo == "ACCESS POINT":
             for datos in dispositivos:
@@ -1100,55 +1088,6 @@ class DispositivosPaquetesViewSet(viewsets.ModelViewSet):
                 except ObjectDoesNotExist as e:
                     print("Estilo no necesita actualizacion") 
 
-                try:
-                    new_dispositivo.material = datos['material']
-                except ObjectDoesNotExist as e:
-                    print("Material no necesita actualizacion") 
-
-                try:
-                    new_dispositivo.dimensiones = datos['dimensiones']
-                except ObjectDoesNotExist as e:
-                    print("Dimensiones no necesita actualizacion")                              
-                try:
-                    new_dispositivo.clase = inv_m.DispositivoClase.objects.get(id=datos['clase'])
-                except ObjectDoesNotExist as e:
-                    print("Clase no necesita actualizacion")
-                try:
-                    new_dispositivo.codigo_rti =  datos["codigo_rti"]
-                except ObjectDoesNotExist as e:
-                    print("No necesita codigo RTI") 
-                new_dispositivo.save()
-
-
-        elif tipo == "PROTECTOR TABLET":
-            for datos in dispositivos:
-                new_dispositivo = beqt_m.ProtectorTabletBeqt.objects.get(triage=datos['triage'])
-                try:
-                    new_dispositivo.marca = inv_m.DispositivoMarca.objects.get(id=datos['marca'])
-                except ObjectDoesNotExist as e:
-                    print("Marca no necesita actualizar")
-                try:
-                    new_dispositivo.modelo = datos['modelo']
-                except ObjectDoesNotExist as e:
-                    print("Modelo no necesita actualizacion")
-                try:
-                    new_dispositivo.serie = datos['serie']
-                except ObjectDoesNotExist as e:
-                    print("Serie no necesita actualizacion")
-                try:
-                    new_dispositivo.tarima = inv_m.Tarima.objects.get(id=datos['tarima'])
-                except ObjectDoesNotExist as e:
-                    print("Tarima no necesita actualizacion")                
-                try:
-                    new_dispositivo.compatibilidad = datos['compatibilidad']
-                except ObjectDoesNotExist as e:
-                    print("Compatibilidad no necesita actualizacion") 
-
-                try:
-                    new_dispositivo.color = datos['color']
-                except ObjectDoesNotExist as e:
-                    print("Color no necesita actualizacion")
-            
                 try:
                     new_dispositivo.material = datos['material']
                 except ObjectDoesNotExist as e:

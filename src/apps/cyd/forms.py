@@ -79,7 +79,7 @@ class SedeFilterForm(forms.Form):
         queryset=User.objects.filter(groups__name='cyd_capacitador'),
         widget=forms.Select(attrs={'class': 'form-control select2', 'data-url': reverse_lazy('sede_api_list')}))
     sede = forms.ModelChoiceField(
-        queryset=Sede.objects.all(),
+        queryset=Sede.objects.filter(activa=True),
         widget=forms.Select(attrs={'class': 'form-control select2'}))
 
     def __init__(self, *args, **kwargs):
@@ -105,7 +105,7 @@ class SedeFilterFormInforme(forms.Form):
 
 class CalendarioFilterForm(forms.Form):
     sede = forms.ModelChoiceField(
-        queryset=Sede.objects.all(),
+        queryset=Sede.objects.filter(activa=True),
         widget=forms.Select(attrs={'class': 'form-control select2', 'data-url': reverse_lazy('grupo_api_list')}))
     grupo = forms.ChoiceField(
         widget=forms.Select(attrs={'class': 'form-control', 'data-url': reverse_lazy('calendario_api_list')}))
@@ -140,7 +140,7 @@ class ParticipanteForm(ParticipanteBaseForm):
     Los campos tienen URL para que se consulte al API desde el template
     """
     sede = forms.ModelChoiceField(
-        queryset=Sede.objects.all(),        
+        queryset=Sede.objects.filter(activa=True),        
         widget=forms.Select(attrs={'class': 'select2', 'data-url': reverse_lazy('grupo_api_list')}),required=False)
     grupo = forms.ModelChoiceField(
         queryset=Grupo.objects.all(),        
@@ -175,7 +175,7 @@ class ParticipanteFormList(ParticipanteBaseForm):
     Los campos tienen URL para que se consulte al API desde el template
     """
     sede = forms.ModelChoiceField(
-        queryset=Sede.objects.all(),
+        queryset=Sede.objects.filter(activa=True),
         widget=forms.Select(attrs={'class': 'select2', 'data-url': reverse_lazy('grupo_api_list')}),
         required=False
         )
@@ -269,7 +269,7 @@ class ControlAcademicoGrupoForm(forms.Form):
 
     sede = forms.ModelChoiceField(
         label='Sede',
-        queryset=Sede.objects.all(),
+        queryset=Sede.objects.filter(activa=True),
         required=False,
         widget=forms.Select(attrs={'class': 'select2 form-control', 'data-url': reverse_lazy('grupo_api_list')}))
     
@@ -293,10 +293,10 @@ class ControlAcademicoGrupoForm(forms.Form):
          required=False,
          widget=forms.Select(attrs={'class': 'select2', 'data-url': reverse_lazy('participante_api_list')}))
     """
-    udi = forms.CharField(
+    """udi = forms.CharField(
         help_text="udi_help",
         required=False,
-        widget=forms.TextInput(attrs={'class': 'form-control', 'maxlength': '13',  'placeholder': '00-00-0000-00', 'data-url': reverse_lazy('escuela_api_list')}))
+        widget=forms.TextInput(attrs={'class': 'form-control', 'maxlength': '13',  'placeholder': '00-00-0000-00', 'data-url': reverse_lazy('escuela_api_list')}))"""
 
     
     def __init__(self, *args, **kwargs):  
@@ -310,7 +310,7 @@ class ControlAcademicoGrupoForm(forms.Form):
                 widget = forms.Select(attrs={'class': 'select2 form-control', 'data-url': reverse_lazy('participante_api_list')})
                 )
             self.fields['sede'] = forms.ModelChoiceField(
-                queryset=Sede.objects.all(),             
+                queryset=Sede.objects.filter(activa=True),             
                 required=False,
                 widget=forms.Select(attrs={'class': 'select2 form-control', 'data-url': reverse_lazy('grupo_api_list')})
                 )
@@ -326,7 +326,7 @@ class ControlAcademicoGrupoForm(forms.Form):
             widget = forms.Select(attrs={'class': 'select2 form-control', 'data-url': reverse_lazy('participante_api_list')})
             )
             self.fields['sede'] = forms.ModelChoiceField(
-                queryset=Sede.objects.filter(capacitador = usuario),                             
+                queryset=Sede.objects.filter(capacitador = usuario, activa=True),                             
                 required=False,
                 widget=forms.Select(attrs={'class': 'select2 form-control', 'data-url': reverse_lazy('grupo_api_list')})
                 )
@@ -347,7 +347,7 @@ class InformeAsistenciaForm(forms.Form):
     #aca toca ahorita la base
     sede = forms.ModelChoiceField(
         label='Sede',
-        queryset=Sede.objects.all(),
+        queryset=Sede.objects.filter(activa=True),
         required=False,
         widget=forms.Select(attrs={'class': 'select2 form-control','data-url': reverse_lazy('grupo_api_list')}))
     curso = forms.ModelChoiceField(
@@ -366,7 +366,7 @@ class InformeAsistenciaForm(forms.Form):
 class InformeAsistenciaFinalForm(forms.Form):
     sede = forms.ModelChoiceField(
         label='Sede',
-        queryset=Sede.objects.all(),
+        queryset=Sede.objects.filter(activa=True),
         required=False,
         widget=forms.Select(attrs={'class': 'select2 form-control','data-url': reverse_lazy('grupo_api_list')}))
     curso = forms.ModelChoiceField(
@@ -385,8 +385,9 @@ class InformeAsistenciaFinalForm(forms.Form):
 class InformeCapacitadorForm(forms.Form):
     capacitador = forms.ModelChoiceField(
         queryset=User.objects.filter(groups__name='cyd_capacitador'),
-        widget=forms.Select(attrs={'class': 'select2 form-control'}
-        ))
+        widget=forms.Select(attrs={'class': 'select2 form-control'}),
+        required=False
+        )
     fecha_min = forms.CharField(
         label='Fecha mínima',
         widget=forms.TextInput(attrs={'class': 'form-control datepicker'}),
@@ -410,7 +411,7 @@ class InformeAsistenciaPeriodoForm(forms.Form):
 
     sede = forms.ModelChoiceField(
         label='Sede',
-        queryset=Sede.objects.all(),
+        queryset=Sede.objects.filter(activa=True),
         required=False,
         widget=forms.Select(attrs={'class': 'select2', 'data-url': reverse_lazy('grupo_api_list')}))
     grupo = forms.ModelChoiceField(
@@ -433,7 +434,7 @@ class InformeAsistenciaPeriodoForm(forms.Form):
 class InformeSedeForm(forms.Form):
     sede = forms.ModelChoiceField(
         label='Sede',
-        queryset=Sede.objects.all(),
+        queryset=Sede.objects.filter(activa=True),
         required=False,
         widget=forms.Select(attrs={'class': 'select2 form-control'}))
 
@@ -463,11 +464,39 @@ class InformeEscuelalistadoForm(forms.Form):
         super(InformeEscuelalistadoForm ,self).__init__(*args, **kwargs)
         self.fields['capacitador'].label_from_instance = lambda obj: "%s" % (obj.get_full_name())
 
+
+
+class InformeEscuelaSedeslistadoForm(forms.Form):
+    departamento = forms.ModelMultipleChoiceField(
+        queryset=Departamento.objects.all(),
+        widget=forms.SelectMultiple(attrs={'class': 'form-control select2', 'data-url': reverse_lazy('municipio_api_list')}),
+        required=False)
+    municipio = forms.ModelMultipleChoiceField(
+        queryset=Municipio.objects.all(),
+        widget=forms.SelectMultiple(attrs={'class': 'form-control select2'}),
+        required=False)
+    capacitador = forms.ModelMultipleChoiceField(
+        queryset=User.objects.filter(groups__name='cyd_capacitador'),
+        required=False,
+        widget=forms.SelectMultiple(attrs={'class': 'form-control select2'}))
+        
+    fecha_min = forms.CharField(
+        label='Fecha mínima',
+        widget=forms.TextInput(attrs={'class': 'form-control datepicker'}),
+        required=False)
+    fecha_max = forms.CharField(
+        label='Fecha máxima',
+        widget=forms.TextInput(attrs={'class': 'form-control datepicker'}),
+        required=False)
+    def __init__(self, *args, **kwargs):
+        super(InformeEscuelaSedeslistadoForm ,self).__init__(*args, **kwargs)
+        self.fields['capacitador'].label_from_instance = lambda obj: "%s" % (obj.get_full_name())
+
 class InformeAsistenciaWebForm(forms.Form):
     #aca toca modificar
     sede = forms.ModelChoiceField(
         label='Sede',
-        queryset=Sede.objects.all(),
+        queryset=Sede.objects.filter(activa=True),
         required=False,
         widget=forms.Select(attrs={'class': 'select2 form-control','data-url': reverse_lazy('grupo_api_list')}))
     curso = forms.ModelChoiceField(
@@ -489,7 +518,7 @@ class InformeAsistenciaWebForm(forms.Form):
 class AsignacionWebForm(forms.Form):
     sede = forms.ModelChoiceField(
         label='Sede',
-        queryset=Sede.objects.all(),
+        queryset=Sede.objects.filter(activa=True),
         required=False,
         widget=forms.Select(attrs={'class': 'select2 form-control', 'data-url': reverse_lazy('grupo_api_list')}))
     grupo = forms.ModelChoiceField(

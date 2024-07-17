@@ -9,7 +9,7 @@ from apps.main.utils import get_telefonica
 from apps.legacy import  models as legacy_m
 from django.core import serializers
 from django.contrib.auth.models import User
-
+from django.db.models import Count, F
 class EscArea(models.Model):
     area = models.CharField(max_length=20)
     esc_area_creado_por =models.ForeignKey(User, on_delete=models.CASCADE,default=User.objects.get(username="Admin").pk)
@@ -168,7 +168,56 @@ class Escuela(models.Model):
             resultado['listado'].append({'sede': sede})
 
         return resultado
+    
+    def get_escuelas_sedes(self, capa,escuela,sede):
+        from apps.cyd.models import Sede, Asignacion, Participante
+        notas = []
+        sexo = []
+        chicos_list =[]
+        chicas_list =[]
+        info_escuela ={}
+        participante=Participante.objects.filter(escuela__codigo=escuela)
+        sede_year = Sede.objects.get(id=sede)        
+        for data in participante:
+            asignaciones = Asignacion.objects.filter(participante=data,grupo__sede__id=sede)
+            if asignaciones.count() !=0:                
+                chicos_list.append(asignaciones.first().participante.chicos)
+                chicas_list.append(asignaciones.first().participante.chicos)
+                sexo.append(asignaciones.first().participante.genero.id) 
+                nota = round(sum(b.get_nota_promediada()['nota'] for b in asignaciones),2)
+                notas.append(nota)
+        if sede_year.fecha_creacion.year>=2024:
+            if sede_year.get_es_naat():
+                aprobados = sum(1 for resultado in notas if resultado>=61)
+                nivelar = 0
+                reprobados = sum(1 for resultado in notas if resultado<=60)
+                hombres = sum(1 for genero in sexo if genero==1)
+                mujeres = sum(1 for genero in sexo if genero==2)
+            else:
+                aprobados = sum(1 for resultado in notas if resultado>=70)
+                nivelar = 0
+                reprobados = sum(1 for resultado in notas if resultado<70)
+                hombres = sum(1 for genero in sexo if genero==1)
+                mujeres = sum(1 for genero in sexo if genero==2)
 
+        else:
+            aprobados = sum(1 for resultado in notas if resultado>=75)
+            nivelar = sum(1 for resultado in notas if 70<= resultado<75)
+            reprobados = sum(1 for resultado in notas if resultado<70)
+            hombres = sum(1 for genero in sexo if genero==1)
+            mujeres = sum(1 for genero in sexo if genero==2)  
+            
+         
+        chicas = sum(chicas_list)
+        chicos= sum(chicos_list)
+        info_escuela["aprobados"] = aprobados
+        info_escuela["nivelar"] = nivelar
+        info_escuela["reprobados"] = reprobados
+        info_escuela["hombres"] = hombres
+        info_escuela["mujeres"] = mujeres
+        info_escuela["chicos"] = chicos
+        info_escuela["chicas"] = chicas
+        return info_escuela    
     def get_ficha_escolar(self):
         return 'https://public.tableau.com/views/1-FichaEscolarDatosGenerales/DatosGenerales?CODUDI={}'.format(
             self.codigo)

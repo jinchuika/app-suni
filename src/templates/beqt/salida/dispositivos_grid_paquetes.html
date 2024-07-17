@@ -15,6 +15,7 @@
     <body>
       <div>
           <h3><b>Dispositivos del paquete {{object.paquete}}</b></h3>
+
       </div>
         <div id="grid_id" class="code-html contents"  data-url="{%url 'beqt_api:api_dispositivopaquete-actualizar-dispositivos'%}" data-dispo="{%url 'beqt_api:api_dispositivo-grid-paquetes'%}" data-id={{object.id}}  >
         {%csrf_token%}

@@ -23,7 +23,7 @@ from operator import __and__ as AND
 from django.db import connection
 import re
 from apps.escuela import models as escuela_m
-from apps.conta import creacion_filtros_informe as crear_dict
+from apps.main import creacion_filtros_informe as crear_dict
 """
     Función que devuelve la existencia y saldo monetario basado en el tipo de dispositivo,
     fecha y periodo a buscar.

@@ -365,6 +365,7 @@ class DispositivoInformeForm(forms.Form):
         required=False,
         widget=forms.Select(attrs={'class': 'form-control select2'}))
 
+
     tarima = forms.ModelChoiceField(
         queryset=inv_m.Tarima.objects.all(),
         label='Tarima',
