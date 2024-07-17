@@ -22,6 +22,8 @@ var tipos_monitores =[];
 var os =[];
 var cargador=[];
 var estuche= [];
+var protector= [];
+var grid;
 var grid;
 var urldispositivo = $("#grid_id").data("url");
 //Peticion   de los datos que se van a mostrar en el grid y asi poder actualizarlos
