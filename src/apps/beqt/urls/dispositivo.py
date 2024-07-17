@@ -111,7 +111,7 @@ urlpatterns = [
         beqt_v.TabletEstucheDetailView.as_view(),
         name='tablet_estuche_beqt_detail'
     ),
-    # Actualizacion de estuche de tablet
+    # Actualizacion de estuche para tablet
     url(
         r'^tablet/estuche/(?P<triage>[\w\d-]+)/edit/$',
         beqt_v.TabletEstucheUptadeView.as_view(),

@@ -17,6 +17,8 @@ var tipos_monitores =[];
 var os =[];
 var cargador=[];
 var estuche= [];
+var protector= [];
+
 var urldispositivo = $("#grid_id").data("url");
 $.ajax({
   type: 'POST',  
