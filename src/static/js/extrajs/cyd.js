@@ -3747,3 +3747,110 @@ class NaatInforme{
   
     }
   } 
+
+  class CursoInforme{
+    constructor(){
+
+       $('#curso-list-form #id_departamento').on('change', function () {
+            listar_municipio_departamento('#curso-list-form #id_departamento', '#curso-list-form #id_municipio');       
+         });
+      $('#curso-list-form').submit(function (e) {
+              e.preventDefault();
+           var tablaDispositivos = $('#informe-curso-table').DataTable({
+                dom: 'lfrtipB',
+                destroy:true,
+                buttons: ['excel',  {extend:'pdf', orientation:'landscape'}],
+                processing: true,
+                deferLoading: [0],
+                ajax: {
+                    type: 'POST',
+                    url: $('#curso-list-form').attr('action'),
+                    deferRender: true,
+                    dataSrc: '',
+                    cache: true,
+                    data: function () {
+                        return $('#curso-list-form').serializeObject();
+                    }
+                },
+                columns:[
+                    {data: "numero"},                    
+                    {data: "nombre"},
+                    {data: "total_participantes"},
+                    {data: "total_hombres"},
+                    {data: "total_mujeres"},
+                    {data: "total_aprobados"},
+                    {data: "total_reprobados"},
+                    {data: "total_sedes"},
+                    {data: "total_municipios"},
+                    {data: "total_departamentos"},
+
+                ]
+
+              });
+              tablaDispositivos.clear().draw();
+
+            }); 
+    }
+  }
+
+
+  class informeCapacitadorParticipantes{
+    constructor(){
+      var contador =0;
+      var cantidad_hombres=0;
+      var cantidad_mujeres=0;
+      var cantidad_chicas=0;
+      var cantidad_chicos=0;
+      $('#informe-capacitador-list-form').submit(function (e) {
+          e.preventDefault();
+           var tablaDispositivos = $('#informe-capacitador-table-search').DataTable({
+              dom: 'lfrtipB',
+              destroy:true,
+              buttons: ['excel', {extend:'pdf', orientation:'landscape'}],
+              processing: true,
+              deferLoading: [0],
+              pageLength: 100,
+              ajax: {
+                  type: 'POST',
+                  url: $('#informe-capacitador-list-form').attr('action'),
+                  deferRender: true,
+                  dataSrc: '',
+                  cache: true,
+                  data: function (data,params) {
+                            return $('#informe-capacitador-list-form').serializeObject(true);
+                  }
+  
+              },
+              columns:[
+                  {data: "numero",render: function(data, type , full, meta){
+                     
+                      return "<a href="+full.url+">"+full.numero+"</a>";
+                  }},
+                  {data: "nombre"},
+                  {data: "apellido"},
+                  {data: "dpi"},
+                  {data: "genero"},
+                  
+                  {data: "mail"},
+                  {data: "tel_casa",render: function(data, type,full, meta){
+                    if(full.tel_casa=="No tiene"){
+                        return full.tel_movil
+                    }else{
+                        return full.tel_casa
+                    }
+                }},
+                  {data: "escolaridad"},
+                  {data: "etnia"},
+                  {data: "profesion"},
+                  {data: "grado_impartido"},
+                  {data: "chicos"},
+                  {data: "chicas"},
+  
+              ],
+  
+            });
+  
+            });
+  
+    }
+  }
