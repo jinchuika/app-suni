@@ -407,6 +407,29 @@ class DispositivoViewSet(viewsets.ModelViewSet):
                 'medida': list(medida),
                 'dispositivo': str(tipo)
                 })
+        
+        elif str(tipo) == "PROTECTOR TABLET":
+            data = beqt_m.ProtectorTabletBeqt.objects.filter(
+                triage__in=paquetes
+            ).values(
+                'triage',
+                'marca',
+                'modelo',
+                'serie',
+                'tarima',
+                'compatibilidad',
+                'color',
+                'material',
+                'dimensiones',
+                'clase'
+                )
+            return JsonResponse({
+                'data': list(data),
+                'marcas': list(tipos),
+                'puertos': list(puertos),
+                'medida': list(medida),
+                'dispositivo': str(tipo)
+                })
         elif str(tipo) == "REGLETA":
             data = beqt_m.RegletaBeqt.objects.filter(
                 triage__in=paquetes
