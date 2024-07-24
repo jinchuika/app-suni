@@ -219,6 +219,7 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
         version_sis = inv_m.VersionSistema.objects.all().values()
         procesador = inv_m.Procesador.objects.all().values()
         estuche = beqt_m.CaseTabletBeqt.objects.all().values()
+        protector = beqt_m.ProtectorTabletBeqt.objects.all().values()
         cargador_tablet = beqt_m.CargadorTabletBeqt.objects.all().values()
         cargador_laptop = beqt_m.CargadorLaptopBeqt.objects.all().values()
         os = inv_m.Software.objects.all().values()
@@ -246,9 +247,9 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
                 'clase',
                 'cargador__triage',
                 'estuche__triage',
+                'protector__triage',
                 'codigo_rti'
                 )
-            print(data)
             return JsonResponse({
                 'data': list(data),
                 'marcas': list(tipos),
@@ -259,7 +260,8 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
                 'hdd': list(disco),
                 'os': list(os),
                 'cargador':list(cargador_tablet),
-                'estuche': list(estuche)
+                'estuche': list(estuche),
+                'protector': list(protector)
                 })
         elif str(tipo) == "LAPTOP":
             data = beqt_m.LaptopBeqt.objects.filter(
@@ -283,7 +285,6 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
                 'cargador__triage',
                 'codigo_rti'
                 )
-            print(data)
             return JsonResponse({
                 'data': list(data),
                 'marcas': list(tipos),
@@ -441,6 +442,30 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
                 'compatibilidad',
                 'color',
                 'estilo',
+                'material',
+                'dimensiones',
+                'clase',
+                'codigo_rti'
+                )
+            return JsonResponse({
+                'data': list(data),
+                'marcas': list(tipos),
+                'puertos': list(puertos),
+                'medida': list(medida),
+                'dispositivo': str(tipo)
+                })
+        
+        elif str(tipo) == "PROTECTOR TABLET":   
+            data = beqt_m.ProtectorTabletBeqt.objects.filter(
+                entrada_detalle=entrada_detalle
+            ).values(
+                'triage',
+                'marca',
+                'modelo',
+                'serie',
+                'tarima',
+                'compatibilidad',
+                'color',
                 'material',
                 'dimensiones',
                 'clase',
