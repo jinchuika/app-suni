@@ -454,7 +454,7 @@ class GarantiaPrintView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
         total_cpu = inv_m.DispositivoPaquete.objects.filter(
             paquete__salida__id=self.object.id,
             paquete__tipo_paquete=CPU,
-            )
+            ) 
         laptops_server = inv_m.DispositivoPaquete.objects.filter(
             paquete__salida__id=self.object.id,
             paquete__tipo_paquete=Laptop,
@@ -505,7 +505,14 @@ class GarantiaPrintView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
             context["tiempo"] = " 1 año"
         context['dispositivo_total'] = Total_Entregado
         context['cpu_servidor'] = cpu_servidor
+    
+        Total_Cpu_num = Total_Cpu
+        Total_Laptop_num = Total_Laptop
+        context['Total_Cpu'] = Total_Cpu_num['total_cpu']
+        context['Total_Laptop'] = Total_Laptop_num['total_laptop']
         return context
+
+
 
 
 class LaptopPrintView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
@@ -515,7 +522,6 @@ class LaptopPrintView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
     template_name = 'inventario/salida/laptop_print.html'
     group_required = [u"inv_tecnico", u"inv_admin", u"inv_cc"]
 
-    #Cambio para TPE
     def get_context_data(self, **kwargs):
         context = super(LaptopPrintView, self).get_context_data(**kwargs)
         nuevas_laptops = []

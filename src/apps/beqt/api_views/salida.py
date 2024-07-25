@@ -310,7 +310,6 @@ class SalidaInventarioViewSet(viewsets.ModelViewSet):
                         status=status.HTTP_500_INTERNAL_SERVER_ERROR
                     )
         else:
-            print("ingresar a reasignar salida  beqt2")
             try:
                 asignacion = escuela_m.Escuela.objects.get(codigo=data)
                 nueva_reasignar.escuela = asignacion
@@ -461,6 +460,8 @@ class RevisionSalidaViewSet(viewsets.ModelViewSet):
                     cambio_estado = beqt_m.CargadorLaptopBeqt.objects.get(triage=triage)
                 elif tipo == "ESTUCHE TABLET":
                     cambio_estado = beqt_m.CaseTabletBeqt.objects.get(triage=triage)
+                elif tipo == "PROTECTOR TABLET": 
+                    cambio_estado = beqt_m.ProtectorTabletBeqt.objects.get(triage=triage)
                 elif tipo == "REGLETA":
                     cambio_estado = beqt_m.RegletaBeqt.objects.get(triage=triage)
                 elif tipo == "UPS":
