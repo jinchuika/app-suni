@@ -195,11 +195,14 @@
 													<span class="badge bg-red">Reprobado</span>
 												{% endif %}
 											</td>
-											{% if request.user|has_group:"cyd_capacitador" %}
-											<td>
-												<button class="eliminar-asignacion btn btn-danger"  data-asignacion="{{asignacion.id}}" data-ulr="{%url 'asignacion_desactivar'%}"><i class='fa fa-trash'></i> Eliminar</button>
-											</td>
+											{% if  perms.cyd.delete_participante %}
+												{% if request.user|has_group:"cyd_capacitador" %}
+												<td>
+													<button class="eliminar-asignacion btn btn-danger"  data-asignacion="{{asignacion.id}}" data-ulr="{%url 'asignacion_desactivar'%}"><i class='fa fa-trash'></i> Eliminar</button>
+												</td>
+												{% endif %}
 											{% endif %}
+											
 										</tr>
 									{% endfor %}
 								</tbody>

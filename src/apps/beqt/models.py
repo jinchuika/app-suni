@@ -393,6 +393,29 @@ class CaseTabletBeqt(DispositivoBeqt):
     def get_absolute_url(self):
         return reverse_lazy('tablet_estuche_beqt_detail', kwargs={'triage': self.triage})
 
+class ProtectorTabletBeqt(DispositivoBeqt):
+    SLUG_TIPO = 'PTB'
+    indice = models.PositiveIntegerField(editable=False, unique=True)
+    compatibilidad = models.CharField(max_length=80, null=True, blank=True,  verbose_name='Compatibilidad')
+    color = models.CharField(max_length=80, null=True, blank=True,  verbose_name='Color')
+    material = models.CharField(max_length=80, null=True, blank=True, verbose_name='Material')
+    dimensiones = models.CharField(max_length=80, null=True, blank=True,  verbose_name='Dimensiones')
+   
+
+    class Meta:
+        verbose_name = "Protector Tablet"
+        verbose_name_plural = "Protectores Tablets"
+        ordering = ['indice']
+        indexes = [
+            models.Index(fields=['indice']),
+        ]
+        db_table = 'dispositivo_protector_tablet_beqt'
+
+    def __str__(self):
+        return self.triage
+
+    def get_absolute_url(self):
+        return reverse_lazy('tablet_protector_beqt_detail', kwargs={'triage': self.triage})
 
 class TabletBeqt(DispositivoBeqt):
     SLUG_TIPO = 'TB'
@@ -412,7 +435,7 @@ class TabletBeqt(DispositivoBeqt):
     almacenamiento_externo = models.BooleanField(default=False)
     cargador = models.ForeignKey(CargadorTabletBeqt, related_name='cargador_tablets_beqt', null=True, blank=True ,verbose_name='Cargador')
     estuche = models.ForeignKey(CaseTabletBeqt, related_name='case_tablets_beqt', null=True, blank=True, verbose_name='Case')
-
+    protector = models.ForeignKey(ProtectorTabletBeqt, related_name='protector_tablets_beqt', null=True, blank=True, verbose_name='Protector')
 
     class Meta:
         verbose_name = "Tablet"

@@ -10,6 +10,7 @@
 	<div class="container-fluid">
 		<div class="row">
 			<!-- Comienza el formulario -->
+
 			<div class="col-md-3 col-sm-3">
 				<div class="box">
 					<form action="{% url 'inventario_api:api_dispositivo-list'%}" id="dispositivo-list-form">
@@ -44,8 +45,9 @@
 								<tr>
 									<th>Triage</th>
 									<th>Tipo</th>
-									<th>Marca</th>
+									<th>Marca</th>									
 									<th>Modelo</th>
+									<th>Puerto</th>
 									<th>Serie</th>
 									<th>Clase</th>
 									<th>Tarima</th>
@@ -60,7 +62,8 @@
 									<th>Triage</th>
 									<th>Tipo</th>
 									<th>Marca</th>
-									<th>Modelo</th>
+									<th>Modelo</th>									
+									<th>Puerto</th>									
 									<th>Serie</th>
 									<th>Clase</th>
 									<th>Tarima</th>
@@ -80,10 +83,8 @@
 {% block extra_js %}
 {% include "base/dataTables.html" %}
 <script src="{% static "js/extrajs/inventario.js" %}"></script>
+
 <script>
 		 let dispositivos = new DispositivoList();
-		 /**/
-		 
-		 /**/
 </script>
 {% endblock extra_js %}

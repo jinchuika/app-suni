@@ -13,19 +13,18 @@
 		</center>	
     </div>
 	{% if request.user|has_group:"inv_monitoreo" or request.user|has_group:"inv_conta" %}{% else %}
-	<div class="encabezado">
-		<center>
-        <h3 style = "color: #154458; margin-top: -20px">
-			<b>
-				POR CUALQUIER FALLA EN EL EQUIPO COMUNÍCATE A NUESTROS NÚMEROS  DE <br>
-				TELÉFONO 2435-2739 / 24319639
-			</b>
-		</h3>
-		<h4 class="encabezado2" style="margin-top: -10px"><b>ENTREGA DE EQUIPO</b></h4>
-    </div> 
+		<div class="encabezado">
+			<center>
+			<h3 style = "color: #154458; margin-top: -20px">
+				<b>
+					POR CUALQUIER FALLA EN EL EQUIPO COMUNÍCATE A NUESTROS NÚMEROS  DE <br>
+					TELÉFONO 2435-2739 / 24319639
+				</b>
+			</h3>
+			<h4 class="encabezado2" style="margin-top: -10px"><b>ENTREGA DE EQUIPO</b></h4>
+		</div> 
 	{% endif %}
    
-
 	<div>
 		<center>
 			<table class="encabezado3"  width="830" >
@@ -112,6 +111,8 @@
 		<th bgcolor="#b3c4dd"width="135"><center>Sistema</center></th>
 		<th bgcolor="#b3c4dd"width="75"><center>Cargador</center></th>
 		<th bgcolor="#b3c4dd"width="75"><center>Estuche</center></th>
+		<th bgcolor="#b3c4dd"width="75"><center>Protector</center></th>
+
 		
 	    </center>
 	</tr>
@@ -147,6 +148,9 @@
 		<td><center>
 			{{tablet.estuche|default_if_none:""}}</center>
 		</td>
+		<td><center>
+			{{tablet.protector|default_if_none:""}}</center>
+		</td>
 		
 	</tr>
 	{% endfor %}
@@ -162,6 +166,8 @@
 	<td style="border:solid; border-width: 1px;border-color:gray" width="150" height="25"> <center>{{Cargador}} {{Descripcion}} </center></td>
 	<td width="80"><center> y </center></td>
 	<td style="border:solid; border-width: 1px;border-color:gray" width="150" height="25"> <center>{{Cargador}} Estuches  </center></td>
+	<td width="100"><center> ,</center></td>
+	<td style="border:solid; border-width: 1px;border-color:gray" width="150" height="25"> <center>{{Protector}} Protectores  </center></td>
 	<td width="100"><center>Jornada</center></td>
 	<td style="border:solid; border-width: 1px;border-color:gray" width="125" height="25"> <center>{{Jornada}} </center></td>
 	

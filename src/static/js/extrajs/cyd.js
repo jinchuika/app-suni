@@ -61,7 +61,7 @@ function listar_grupos_sede(sede_selector, grupo_selector, null_option,informe) 
                 options += '<option value="'+grupo.id+'">'+grupo.numero+' - '+grupo.curso+'</option>';
                 curso_ca.push({id:parseInt(grupo.curso_id),curso:grupo.curso})
             });
-            $(grupo_selector).html(options).trigger('change');           
+            $(grupo_selector).html(options).trigger('change');
             curso_ca = curso_ca.filter( o => hash[o.id]? false: hash[o.id] = true);
             curso_ca.forEach(element => {               
                 curso_options += '<option value="'+element.id+'">'+element.curso+'</option>'
@@ -391,7 +391,6 @@ $.ajax({
     console.log("Error");
   },
   success:function(data){
-
     for(k=0;k<data.length;k++){
       contador_curso++;
       try {
@@ -439,6 +438,56 @@ $.ajax({
 /*fin ajax*/
 
     }
+/***Final de la capacitacion */
+let date = new Date();
+let output = String(date.getDate()).padStart(2, '0') + '/' + String(date.getMonth() + 1).padStart(2, '0') + '/' + date.getFullYear()
+
+$('#finalizar-capacitacion').on('click', function () {
+    bootbox.confirm({
+        message: "<h3><i class='fa fa-info-circle' style='font-size: 45px;'></i>&nbsp;&nbsp;&nbsp;Esta Seguro que quiere Terminar la  capacitacion de la sede el dia de hoy: <b>\""+ output+"\".</b></h3></br> <h3>Recuerde que la informacion que ingresa es totalmente responsabilidad del capacitador</h3>",
+        className:"modal modal-warning fade",
+        buttons: {
+            confirm: {
+                label: '<i class="fa fa-check"></i> Confirmar',
+                className: 'btn-success'
+            },
+            cancel: {
+                label: '<i class="fa fa-times"></i> Rechazar',
+                className: 'btn-danger'
+            }
+        },
+        callback: function (result) {
+            if (result == true) {
+            /** */
+            $.ajax({
+                url:$('#finalizar-capacitacion').data("url"),
+                dataType:'json',
+                beforeSend: function(xhr, settings) {
+                    xhr.setRequestHeader("X-CSRFToken", $('input[name="csrfmiddlewaretoken"]').val());
+                },
+                data:{
+                  'sede':$('#finalizar-capacitacion').data("id"),
+                },
+                error:function(){
+                  console.log("Error");
+                },
+                success:function(data){
+                  //console.log(data);
+                  bootbox.alert({message: "<h2>Sede finalizada exitosamente.</h2>", className:"modal modal-success fade in"});
+                  location.reload();
+                
+                },
+                type: 'POST'
+              }
+              );
+            /** */
+          }
+
+        }
+    });
+  });
+
+
 }( window.SedeDetail = window.SedeDetail || {}, jQuery ));
 
 
@@ -2116,7 +2165,7 @@ CalendarioCyD.init = function () {
         searching:true,
         paging:true,
         ordering:true,
-        //order:[[7,"desc"]],
+        order:[[8,"desc"]],
         //pageLength: 50,
         deferLoading: [0],
         ajax:{
@@ -2459,7 +2508,7 @@ class ControlAcademicoGrupos{
 		(
 			  'submit', function (e) {
               e.preventDefault();                        
-              $("#guardar_tabla").show();
+              //$("#guardar_tabla").show();
               $.ajax(
 					{
 						type: 'POST',
@@ -2469,8 +2518,10 @@ class ControlAcademicoGrupos{
 							xhr.setRequestHeader("X-CSRFToken", $('input[name="csrfmiddlewaretoken"]').val());
 						},
 						data:$(this).serialize(),
-						success: function (response) {
+						success: function (response) {                            
+                            if(response[0].finalizada == false){                                                    
 							$('#guardar_tabla').show();
+                            }        
 							bootbox.alert({message: "<h2>"+"Listado generado correctamente"+"</h2>", className:"modal modal-success fade in"});
 							for(var k=0;k<=response[0].asistencia.length-1;k++){
 								//encabezado.push("Asistencia "+Number(k+1));
@@ -3680,6 +3731,13 @@ class NaatInforme{
                       }},
                       {data: "beneficiada"},
                       {data: "fecha"},
+                      {data: "estado_sede",render: function(data, type , full, meta){
+                       if(full.estado_sede){
+                        return "<h5 style='color:MediumSeaGreen;'>Finalizado</h5>"
+                       }else{
+                        return 'En proceso'
+                       }
+                    }},
   
                   ],
   
@@ -3689,3 +3747,110 @@ class NaatInforme{
   
     }
   } 
+
+  class CursoInforme{
+    constructor(){
+
+       $('#curso-list-form #id_departamento').on('change', function () {
+            listar_municipio_departamento('#curso-list-form #id_departamento', '#curso-list-form #id_municipio');       
+         });
+      $('#curso-list-form').submit(function (e) {
+              e.preventDefault();
+           var tablaDispositivos = $('#informe-curso-table').DataTable({
+                dom: 'lfrtipB',
+                destroy:true,
+                buttons: ['excel',  {extend:'pdf', orientation:'landscape'}],
+                processing: true,
+                deferLoading: [0],
+                ajax: {
+                    type: 'POST',
+                    url: $('#curso-list-form').attr('action'),
+                    deferRender: true,
+                    dataSrc: '',
+                    cache: true,
+                    data: function () {
+                        return $('#curso-list-form').serializeObject();
+                    }
+                },
+                columns:[
+                    {data: "numero"},                    
+                    {data: "nombre"},
+                    {data: "total_participantes"},
+                    {data: "total_hombres"},
+                    {data: "total_mujeres"},
+                    {data: "total_aprobados"},
+                    {data: "total_reprobados"},
+                    {data: "total_sedes"},
+                    {data: "total_municipios"},
+                    {data: "total_departamentos"},
+
+                ]
+
+              });
+              tablaDispositivos.clear().draw();
+
+            }); 
+    }
+  }
+
+
+  class informeCapacitadorParticipantes{
+    constructor(){
+      var contador =0;
+      var cantidad_hombres=0;
+      var cantidad_mujeres=0;
+      var cantidad_chicas=0;
+      var cantidad_chicos=0;
+      $('#informe-capacitador-list-form').submit(function (e) {
+          e.preventDefault();
+           var tablaDispositivos = $('#informe-capacitador-table-search').DataTable({
+              dom: 'lfrtipB',
+              destroy:true,
+              buttons: ['excel', {extend:'pdf', orientation:'landscape'}],
+              processing: true,
+              deferLoading: [0],
+              pageLength: 100,
+              ajax: {
+                  type: 'POST',
+                  url: $('#informe-capacitador-list-form').attr('action'),
+                  deferRender: true,
+                  dataSrc: '',
+                  cache: true,
+                  data: function (data,params) {
+                            return $('#informe-capacitador-list-form').serializeObject(true);
+                  }
+  
+              },
+              columns:[
+                  {data: "numero",render: function(data, type , full, meta){
+                     
+                      return "<a href="+full.url+">"+full.numero+"</a>";
+                  }},
+                  {data: "nombre"},
+                  {data: "apellido"},
+                  {data: "dpi"},
+                  {data: "genero"},
+                  
+                  {data: "mail"},
+                  {data: "tel_casa",render: function(data, type,full, meta){
+                    if(full.tel_casa=="No tiene"){
+                        return full.tel_movil
+                    }else{
+                        return full.tel_casa
+                    }
+                }},
+                  {data: "escolaridad"},
+                  {data: "etnia"},
+                  {data: "profesion"},
+                  {data: "grado_impartido"},
+                  {data: "chicos"},
+                  {data: "chicas"},
+  
+              ],
+  
+            });
+  
+            });
+  
+    }
+  }

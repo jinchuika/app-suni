@@ -380,6 +380,33 @@ class TabletEstucheUptadeView(LoginRequiredMixin, UpdateView):
         else:
             return reverse_lazy('estuche_tablet_detail', kwargs={'triage': self.object.triage})
 
+class TabletProtectorDetailView(LoginRequiredMixin, DispositivoDetailView):
+    """Vista de detalle de dispositivos tipo :class:`Tablet`"""
+    model = beqt_m.ProtectorTabletBeqt
+    template_name = 'beqt/dispositivo/protectorTablet/protector_tablet_detail.html'
+
+
+class TabletProtectorUptadeView(LoginRequiredMixin, UpdateView):
+    """ Esta clase sirve para actualizar la  :class:`Tablet`
+     mostrando los datos necesarios
+    """
+    model = beqt_m.ProtectorTabletBeqt
+    form_class = beqt_f.ProtectorTabletForm
+    slug_field = "triage"
+    slug_url_kwarg = "triage"
+    query_pk_and_slug = True
+    template_name = 'beqt/dispositivo/protectorTablet/protector_tablet_edit.html'
+
+    def form_valid(self, form):
+        form.instance.creada_por = self.request.user
+        return super(TabletProtectorUptadeView, self).form_valid(form)
+
+    def get_success_url(self):
+        if self.object.entrada_detalle.id != 1:
+            return reverse_lazy('detalles_dispositivos_beqt', kwargs={'pk': self.object.entrada, 'detalle': self.object.entrada_detalle.id})
+        else:
+            return reverse_lazy('protector_tablet_detail', kwargs={'triage': self.object.triage})
+        
 
 class RegletaDetailView(LoginRequiredMixin, DispositivoDetailView):
     """Vista de detalle de dispositivos tipo :class:`Tablet`"""

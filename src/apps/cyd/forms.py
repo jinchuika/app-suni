@@ -42,7 +42,7 @@ class SedeForm(forms.ModelForm):
     class Meta:
         model = Sede
         fields = '__all__'
-        exclude = ('nombre', 'capacitador', 'escuela_beneficiada', 'mapa', 'activa', 'fecha_creacion','fecha_finalizacion',)
+        exclude = ('nombre', 'capacitador', 'escuela_beneficiada', 'mapa', 'activa', 'fecha_creacion','fecha_finalizacion','finalizada')
         #exclude = ('nombre', 'capacitador', 'escuela_beneficiada', 'mapa', 'activa')
         widgets = {
             'municipio': forms.Select(attrs={'class': 'select2', 'required': 'true', 'tabindex': '1'}),
@@ -175,12 +175,12 @@ class ParticipanteFormList(ParticipanteBaseForm):
     Los campos tienen URL para que se consulte al API desde el template
     """
     sede = forms.ModelChoiceField(
-        queryset=Sede.objects.filter(activa=True),
+        queryset=Sede.objects.filter(activa=True,finalizada=False),
         widget=forms.Select(attrs={'class': 'select2', 'data-url': reverse_lazy('grupo_api_list')}),
         required=False
         )
     grupo = forms.ModelChoiceField(
-        queryset=Grupo.objects.all(),
+        queryset=Grupo.objects.filter(sede__activa=True,sede__finalizada=False),
         widget=forms.Select(attrs={'class': 'select2', 'data-url': reverse_lazy('participante_api_list')}),
         required=False
         )
@@ -524,3 +524,43 @@ class AsignacionWebForm(forms.Form):
     grupo = forms.ModelChoiceField(
         queryset=Grupo.objects.all(),
         widget=forms.Select(attrs={'class': 'select2', 'data-url': reverse_lazy('participante_api_list')}))
+    
+class InformeCursoslistadoForm(forms.Form):
+    curso = forms.ModelMultipleChoiceField(
+        queryset=Curso.objects.all().order_by('-id'),
+        widget=forms.SelectMultiple(attrs={'class': 'form-control select2'}),
+        required=False)
+    departamento = forms.ModelChoiceField(
+        queryset=Departamento.objects.all(),
+        widget=forms.Select(attrs={'class': 'form-control', 'data-url': reverse_lazy('municipio_api_list')}),
+        required=False)
+    municipio = forms.ModelChoiceField(
+        queryset=Municipio.objects.all(),
+        widget=forms.Select(attrs={'class': 'form-control'}),
+        required=False)
+    fecha_min = forms.CharField(
+        label='Fecha mínima',
+        widget=forms.TextInput(attrs={'class': 'form-control datepicker'}),
+        required=False)
+    fecha_max = forms.CharField(
+        label='Fecha máxima',
+        widget=forms.TextInput(attrs={'class': 'form-control datepicker'}),
+        required=False)
+    
+class InformeParticipanteCapacitadorForm(forms.Form):
+    capacitador = forms.ModelChoiceField(
+        queryset=User.objects.filter(groups__name='cyd_capacitador'),
+        widget=forms.Select(attrs={'class': 'select2 form-control'}),
+        required=True
+        )
+    fecha_min = forms.CharField(
+        label='Fecha mínima',
+        widget=forms.TextInput(attrs={'class': 'form-control datepicker'}),
+        required=True)
+    fecha_max = forms.CharField(
+        label='Fecha máxima',
+        widget=forms.TextInput(attrs={'class': 'form-control datepicker'}),
+        required=True)
+    def __init__(self, *args, **kwargs):
+        super(InformeParticipanteCapacitadorForm,self).__init__(*args, **kwargs)
+        self.fields['capacitador'].label_from_instance = lambda obj: "%s" % (obj.get_full_name())

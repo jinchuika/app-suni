@@ -12,6 +12,8 @@ participante_desactivar = api_views.SedeViewSet.as_view({
     'post':'desactivar_participante'})
 actualizar_control_academico = api_views.SedeViewSet.as_view({
     'post':'actualizar_control_academico'})
+finalizar_capacitacion_sede = api_views.SedeViewSet.as_view({
+    'post':'finalizar_capacitacion_sede'})
 sede_api_detail = api_views.SedeViewSet.as_view({
     'get': 'retrieve',
     'post': 'create',
@@ -83,6 +85,7 @@ urlpatterns = [
     url(r'^api/sede/listinforme/$', sede_api_list_informe, name='sede_api_list_informe'),
     url(r'^api/sede/desactivar_sede/$', sede_desactivar, name='sede_desactivar'),
     url(r'^api/sede/(?P<pk>\d+)/$', sede_api_detail, name='sede_api_detail'),
+    url(r'^api/sede/finalizar/$', finalizar_capacitacion_sede, name='sede_api_finalizar'),
     url(r'^api/asesoria/list/$', asesoria_api_list, name='asesoria_api_list'),
     url(r'^api/asesoria/add/$', asesoria_api, name='asesoria_api_add'),
     url(r'^api/asesoria/calendario/$', asesoria_api_calendario, name='asesoria_api_calendario'),

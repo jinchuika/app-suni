@@ -10,12 +10,14 @@
     <head>
         <link rel="stylesheet" href="https://uicdn.toast.com/tui-grid/latest/tui-grid.css" />
         <link rel="stylesheet" type="text/css" href="{% static 'css/bootstrap.min.css' %}">
+    </head>
 
-  <body>
-    <div>
-        <h3><b>Dispositivos del paquete {{object.paquete}}</b></h3>        
-    </div>
-      <div id="grid_id" class="code-html contents"  data-url="{%url 'beqt_api:api_dispositivopaquete-actualizar-dispositivos'%}" data-dispo="{%url 'beqt_api:api_dispositivo-grid-paquetes'%}" data-id={{object.id}}  >
+    <body>
+      <div>
+          <h3><b>Dispositivos del paquete {{object.paquete}}</b></h3>
+
+      </div>
+        <div id="grid_id" class="code-html contents"  data-url="{%url 'beqt_api:api_dispositivopaquete-actualizar-dispositivos'%}" data-dispo="{%url 'beqt_api:api_dispositivo-grid-paquetes'%}" data-id={{object.id}}  >
         {%csrf_token%}
         <div id="grid"></div>
         <button  onclick="actualizar_post()" class="btn btn-success">Guardar</button>

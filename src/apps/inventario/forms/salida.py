@@ -18,9 +18,9 @@ class SalidaInventarioForm(forms.ModelForm):
     
     caja_repuesto = forms.ModelMultipleChoiceField(
         label='Caja de repuesto',
-        queryset=inv_m.SalidaInventario.objects.filter(tipo_salida__nombre = "Caja de repuestos",  estado = "1" ),
+        queryset=inv_m.SalidaInventario.objects.filter(tipo_salida__nombre = "Caja de repuestos",  en_creacion=True ),
         required=False,
-        widget=forms.SelectMultiple(attrs={'class': 'form-control select2', 'tabindex': '6'}
+        widget=forms.SelectMultiple(attrs={'class': 'form-control select2', 'tabindex': '6','multiple': 'multiple'}
         ))  
     class Meta:
         model = inv_m.SalidaInventario
@@ -35,20 +35,17 @@ class SalidaInventarioForm(forms.ModelForm):
             'observaciones': forms.Textarea({'class': 'form-control', 'tabindex': '5'}),
             'reasignado_por': forms.HiddenInput(),
             'garantia': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '4'}),
-            'cooperante': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '8'}),
-            'caja_repuesto': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '9'}),
+            #'caja_repuesto': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '9'}),
+            'cooperante': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '8'})            
         }
 
     def __init__(self, *args, **kwargs):
         super(SalidaInventarioForm, self).__init__(*args, **kwargs)
-        self.fields['garantia'].label="Ticket"       
+        self.fields['garantia'].label="Ticket"                
         if self.instance.en_creacion:
             self.fields['beneficiario'].widget = forms.Select(
                 attrs={'style': "visibility:hidden", 'class': 'form-control select2', 'tabindex': '6'})
             self.fields['beneficiario'].queryset = crm_m.Donante.objects.all()
-
-
-            #self.fields['caja_repuesto'].queryset = inv_m.SalidaInventario.objects.filter(tipo_salida__nombre = "Caja de repuestos",  estado = "1" )
         else:
             self.fields['udi'].widget = forms.HiddenInput()
 

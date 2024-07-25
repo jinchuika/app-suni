@@ -17,6 +17,8 @@ var tipos_monitores =[];
 var os =[];
 var cargador=[];
 var estuche= [];
+var protector= [];
+
 var urldispositivo = $("#grid_id").data("url");
 $.ajax({
   type: 'POST',  
@@ -33,7 +35,7 @@ $.ajax({
     datos=response.data;
     dispositivo = response.dispositivo
     sistema = response.sistemas
-    nueva_data =JSON.stringify(datos[0]).toString()    
+    nueva_data =JSON.stringify(datos[0]).toString()
     var separators = [':',',', '\\\{', '\\\}'];
     var tokens = nueva_data.split(new RegExp(separators.join('|'), 'g'));
     for(c=0;c<tokens.length; c++){
@@ -42,7 +44,7 @@ $.ajax({
          "tipo":"TECLADO" y solo obteniendo "tipo" y lo guardamos en una lista
         */
         var token_sin = tokens[c].replace(/['"]+/g,'');
-        var name = token_sin.charAt(0).toUpperCase() + token_sin.slice(1);
+        var name = token_sin.charAt(0).toUpperCase() + token_sin.slice(1);        
         ////
         if (name =="Marca__marca"){
                   name ="Marca";
@@ -88,6 +90,9 @@ $.ajax({
                 }
                 if (name =="Estuche__triage"){                      
                   name ="Estuche";
+                }
+                if (name =="Protector__triage"){                      
+                  name ="Protector";
                 }
                 //Creacion de los encabezados y obtenecion de la linea que se modifico en el grid
                 if(name=="Id" || name=="Url" || name=="Entrada" || name=="Estado" || name=="Etapa" || name=="Tarima"){
@@ -222,7 +227,7 @@ $.ajax({
                                           useViewMode: true
                                       },
                                       copyOptions:{
-                                        useListItemText:true
+                                        useListItemText: true
                                       },
                                       component :{
                                         name:'select2'
@@ -337,6 +342,26 @@ $.ajax({
                                                         name:'select2'
                                                       }});
                                                   }else{
+                                                    if(name=="Protector"){
+                                                      encabezado.push({title:name,name:token_sin,
+                                                        onBeforeChange: function(ev){
+                                                                  console.log('Before change:' + ev);
+                                                              },
+                                                              onAfterChange: function(ev){
+                                                                console.log('After change:' + ev);
+                                                                linea.push(ev.rowKey);
+                                                              }, editOptions: {
+                                                              type: 'select',
+                                                              listItems:protector,
+                                                              useViewMode: true
+                                                          },
+                                                          copyOptions:{
+                                                            useListItemText:true
+                                                          },
+                                                          component :{
+                                                            name:'select2'
+                                                          }});
+                                                      }else{
                                                     if(name!=""){
                                                       encabezado.push({title:name,name:token_sin,
                                                              onBeforeChange: function(ev){
@@ -354,7 +379,7 @@ $.ajax({
                                                   }
 
                                                 /**/
-
+                                              }
                                             }                                  
                                            
                                                }
