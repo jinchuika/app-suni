@@ -1354,26 +1354,26 @@ def get_obtener_curso(curso,numero,fecha_max,fecha_min,departamento,municipio):
     sort_params_genero_mujer ={}
     crear_dic(sort_params,'grupo__sede__fecha_creacion__lte',fecha_max)
     crear_dic(sort_params,'grupo__sede__fecha_creacion__gte',fecha_min)
-    crear_dic(sort_params,'grupo__curso__in',curso)
+    crear_dic(sort_params,'grupo__curso__id',curso)
     crear_dic(sort_params,'grupo__sede__municipio__id',municipio)
     crear_dic(sort_params,'grupo__sede__municipio__departamento__id',departamento)
 
     crear_dic(sort_params_genero_hombre,'grupo__sede__fecha_creacion__lte',fecha_max)
     crear_dic(sort_params_genero_hombre,'grupo__sede__fecha_creacion__gte',fecha_min)
-    crear_dic(sort_params_genero_hombre,'grupo__curso__in',curso)
+    crear_dic(sort_params_genero_hombre,'grupo__curso__id',curso)
     crear_dic(sort_params_genero_hombre,'participante__genero__id',2)
     crear_dic(sort_params_genero_hombre,'grupo__sede__municipio__id',municipio)
     crear_dic(sort_params_genero_hombre,'grupo__sede__municipio__departamento__id',departamento)
     
-    crear_dic(sort_params_genero_mujer,'grupo__curso__in',curso)
+    crear_dic(sort_params_genero_mujer,'grupo__curso__id',curso)
     crear_dic(sort_params_genero_mujer,'grupo__sede__fecha_creacion__lte',fecha_max)
     crear_dic(sort_params_genero_mujer,'grupo__sede__fecha_creacion__gte',fecha_min)
     crear_dic(sort_params_genero_mujer,'participante__genero__id',1)
     crear_dic(sort_params_genero_mujer,'grupo__sede__municipio__id',municipio)
-    crear_dic(sort_params_genero_mujer,'grupo__sede__municipio__departamento__id',departamento)    
+    crear_dic(sort_params_genero_mujer,'grupo__sede__municipio__departamento__id',departamento)       
     aprobados =0
     reprobados = 0    
-    asignaciones = cyd_m.Asignacion.objects.filter(**sort_params)
+    asignaciones = cyd_m.Asignacion.objects.filter(**sort_params)    
     if curso != 0:
         data_curso = cyd_m.Curso.objects.get(id=curso)  
         asignaciones_mujeres = cyd_m.Asignacion.objects.filter(**sort_params_genero_mujer)
@@ -1448,15 +1448,18 @@ class InformeCursos(views.APIView):
         except MultiValueDictKeyError:
             fecha_max=0
                  
-        if len(cursos_buscar) > 1:           
+        if len(cursos_buscar) > 1:
+            print(1)           
             for data_curso in cursos_buscar:                
                 numero = numero  + 1 
                 listado_cursos.append(get_obtener_curso(data_curso,numero,fecha_max,fecha_min,departamento,municipio))
                 
-        elif len(cursos_buscar)==1:            
+        elif len(cursos_buscar)==1:
+            print(2)            
             listado_cursos.append(get_obtener_curso(cursos_buscar.pop(),1,fecha_max,fecha_min,departamento,municipio))
             
-        elif len(cursos_buscar)==0:           
+        elif len(cursos_buscar)==0:
+            print(3)           
             for data in get_obtener_curso(0,0,fecha_max,fecha_min,departamento,municipio):
                 listado_cursos.append(data)
             #listado_cursos.append(get_obtener_curso(0,0,fecha_max,fecha_min,departamento,municipio))           

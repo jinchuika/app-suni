@@ -61,7 +61,7 @@ function listar_grupos_sede(sede_selector, grupo_selector, null_option,informe) 
                 options += '<option value="'+grupo.id+'">'+grupo.numero+' - '+grupo.curso+'</option>';
                 curso_ca.push({id:parseInt(grupo.curso_id),curso:grupo.curso})
             });
-            $(grupo_selector).html(options).trigger('change');           
+            $(grupo_selector).html(options).trigger('change');
             curso_ca = curso_ca.filter( o => hash[o.id]? false: hash[o.id] = true);
             curso_ca.forEach(element => {               
                 curso_options += '<option value="'+element.id+'">'+element.curso+'</option>'
