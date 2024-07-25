@@ -764,7 +764,7 @@ class InformeDesechoJson(views.APIView):
                         Q(aprobado=True),
                         Q(desecho__en_creacion=False),
                         reduce(AND,q)
-                        ).annotate(Count('dispositivo'))
+                        ).annotate(Count('dispositivo'))           
 
             # Obtener Existencia Inicial y Saldo Inicial
             fecha_inicial = datetime.strptime(fecha_inicio, '%Y-%m-%d') - timedelta(days=1)
@@ -779,10 +779,12 @@ class InformeDesechoJson(views.APIView):
             precio_total = total_actual['saldo_total']
             existencia_actual = total_actual['existencia']
 
-            for datos_desecho in salida_detalle:
+            for datos_desecho in salida_detalle:                
                 salida = inv_m.DesechoSalida.objects.get(pk=datos_desecho['desecho'])
                 cantidad = datos_desecho['dispositivo__count']
                 dispositivo = {}
+                salida_dispositivo = inv_m.DesechoDispositivo.objects.filter(desecho=salida,dispositivo__tipo=tipo_dispositivo_nombre)
+                print(salida_dispositivo)
 
                 # Obtener Precio Estandar
                 precio = conta_m.PrecioEstandar.objects.get(
@@ -802,7 +804,7 @@ class InformeDesechoJson(views.APIView):
                 dispositivo['rango_fechas'] = str(fecha_inicio)+"  AL  "+str(fecha_fin)
                 dispositivo['tipo_dispositivo'] = tipo_dispositivo_nombre.tipo
                 dispositivo['total_costo_despues'] = precio_total
-                dispositivo['total_despues'] = existencia_actual
+                dispositivo['total_despues'] = existencia_actual  
                 lista.append(dispositivo)
             return Response(lista)
         else:

@@ -49,7 +49,7 @@
 	<div class="wrapper">
 		{% if user.is_authenticated %}
 			<header class="main-header">
-				{% include "base/main-header.html" %}
+				{% include "base/main-header.html" with  url="hola como estas" %}
 			</header>
 			<aside class="main-sidebar">
 				{% include "base/main-sidebar.html" %}
@@ -60,7 +60,7 @@
 		{% endblock content %}
 		</div>
 		<footer class="main-footer">
-			<strong>Copyright © 2023 <a href="https://funsepa.org">Fundación Sergio Paiz Andrade</a>.</strong>
+			<strong>Copyright © 2024 <a href="https://funsepa.org">Fundación Sergio Paiz Andrade</a>.</strong>
 			Todos los derechos reservados.
 		</footer>
 	</div>

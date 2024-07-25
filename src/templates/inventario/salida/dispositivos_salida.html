@@ -70,16 +70,19 @@
 								<td>
 									{{dispositivo.fecha_aprobacion|default_if_none:""}}
 								</td>
-								<td>	
-									 {% if dispositivo.paquete.salida.tipo_salida|stringformat:"s" == 'Caja de repuestos' or  dispositivo.paquete.salida.tipo_salida.id == 6%}
-									
-									 {% if dispositivo.asignado == 0 %}
-									 <a target='_blank' class='btn btn-primary btn-asignar' data-urlreasignar="{%url 'salidainventario_edit' pk=object.id%}" >Asignar</a>      <!-- Validar que sea CR  -->
-									 {% endif %}
-									 								 
-									 {%else%}
-									 {{dispositivo.paquete.salida.tipo_salida}}
-									 {%endif%}	
+								<td>
+									{% if  dispositivo.paquete.salida.en_creacion%}
+										{% if dispositivo.paquete.salida.tipo_salida|stringformat:"s" == 'Caja de repuestos' or  dispositivo.paquete.salida.tipo_salida.id == 6%}
+										
+											{% if dispositivo.asignado == 0 %}
+											<a target='_blank' class='btn btn-primary btn-asignar' data-urlreasignar="{%url 'salidainventario_edit' pk=object.id%}" >Asignar</a>      <!-- Validar que sea CR  -->
+											{% endif %}
+																		
+										{%else%}
+											{{dispositivo.paquete.salida.tipo_salida}}
+										{%endif%}	
+									{% endif %}	
+									 
 								</td>									
 								</tr>
 								{%endfor%}

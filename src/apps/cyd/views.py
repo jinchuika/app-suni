@@ -286,7 +286,7 @@ class CalendarioListView(JsonRequestResponseMixin, View):
                 'end': '{} {}'.format(calendario.fecha, calendario.hora_fin),
                 'color': calendario.grupo.sede.capacitador.perfil.color,
                 'tipo': 'c',
-                'tip_title': '{}'.format(calendario.grupo.curso),
+                'tip_title': '{},{}'.format(calendario.grupo.curso,calendario.grupo.sede.capacitador.get_full_name()),
                 'tip_text': 'Grupo {}, asistencia {} en la sede {}'.format(
                     calendario.grupo.numero,
                     calendario.cr_asistencia.modulo_num,
@@ -362,7 +362,8 @@ class ParticipanteCreateListView(LoginRequiredMixin, GroupRequiredMixin, FormVie
     def get_form(self, form_class=None):
         form = super(ParticipanteCreateListView, self).get_form(form_class)
         if self.request.user.groups.filter(name="cyd_capacitador").exists():
-            form.fields['sede'].queryset = self.request.user.sedes.all()
+            #form.fields['sede'].queryset = self.request.user.sedes.all()
+            form.fields['sede'].queryset = self.request.user.sedes.filter(activa=True,finalizado=False)
         return form
 
 
@@ -492,9 +493,9 @@ class ParticipanteBuscarView(LoginRequiredMixin, JsonRequestResponseMixin, FormV
     def get_form(self, form_class=None, **kwargs):
         form = super(ParticipanteBuscarView, self).get_form(form_class)
         if self.request.user.groups.filter(name="cyd_capacitador").exists():
-            form.fields['sede'].queryset = self.request.user.sedes.filter(activa=True)            
+            form.fields['sede'].queryset = self.request.user.sedes.filter(activa=True,finalizada=False)            
         else:
-            form.fields['sede'].queryset = cyd_m.Sede.objects.filter(activa=True)           
+            form.fields['sede'].queryset = cyd_m.Sede.objects.filter(activa=True,finalizada=False)           
         return form
 
     def get_context_data(self, **kwargs):
@@ -555,6 +556,7 @@ class InformeControlAcademicoGrupos(views.APIView):
                         control_academico['apellido'] = asignacion.participante.apellido
                         control_academico['asistencia']= list(nota_asistencia.values('nota'))
                         control_academico['trabajos'] = list(nota_trabajos.values('cr_hito__nombre','nota'))
+                        control_academico['finalizada'] = asignacion.grupo.sede.finalizada
                         listado_participantes.append(control_academico)
             elif self.request.POST['escuela']:
                 print("si viene escuela")
@@ -1312,7 +1314,12 @@ class InformeListadoSedeEscuela(views.APIView):
                     escuela_sede["direccion"] = info_sede.direccion
                     escuela_sede["codigo"]= info_sede.codigo
                     escuela_sede["cantidad_participantes"]= info_sede.cantidad_participantes
-                    escuela_sede["sede"]= data_participantes.nombre
+                    escuela_sede["sede"]= data_participantes.nombre                    
+                    if data_participantes.fecha_creacion.year <=2023:
+                        escuela_sede["estado_sede"]= True
+                    else:
+                        escuela_sede["estado_sede"] =data_participantes.finalizada
+
                     escuela_sede["capacitador"]= data_participantes.capacitador.get_full_name()
                     escuela_sede["departamento"]= data_participantes.municipio.departamento.nombre
                     escuela_sede["municipio"]= data_participantes.municipio.nombre
@@ -1337,6 +1344,208 @@ class InformeEscuelasSedesView(LoginRequiredMixin, FormView):
     """
     template_name = 'cyd/InformeEscuelaSedeV2.html'
     form_class = cyd_f.InformeEscuelaSedeslistadoForm
+
+
+def get_obtener_curso(curso,numero,fecha_max,fecha_min,departamento,municipio):    
+    numero_nuevo=0
+    datos_varios_cursos = []
+    sort_params = {}
+    sort_params_genero_hombre ={}
+    sort_params_genero_mujer ={}
+    crear_dic(sort_params,'grupo__sede__fecha_creacion__lte',fecha_max)
+    crear_dic(sort_params,'grupo__sede__fecha_creacion__gte',fecha_min)
+    crear_dic(sort_params,'grupo__curso__id',curso)
+    crear_dic(sort_params,'grupo__sede__municipio__id',municipio)
+    crear_dic(sort_params,'grupo__sede__municipio__departamento__id',departamento)
+
+    crear_dic(sort_params_genero_hombre,'grupo__sede__fecha_creacion__lte',fecha_max)
+    crear_dic(sort_params_genero_hombre,'grupo__sede__fecha_creacion__gte',fecha_min)
+    crear_dic(sort_params_genero_hombre,'grupo__curso__id',curso)
+    crear_dic(sort_params_genero_hombre,'participante__genero__id',2)
+    crear_dic(sort_params_genero_hombre,'grupo__sede__municipio__id',municipio)
+    crear_dic(sort_params_genero_hombre,'grupo__sede__municipio__departamento__id',departamento)
+    
+    crear_dic(sort_params_genero_mujer,'grupo__curso__id',curso)
+    crear_dic(sort_params_genero_mujer,'grupo__sede__fecha_creacion__lte',fecha_max)
+    crear_dic(sort_params_genero_mujer,'grupo__sede__fecha_creacion__gte',fecha_min)
+    crear_dic(sort_params_genero_mujer,'participante__genero__id',1)
+    crear_dic(sort_params_genero_mujer,'grupo__sede__municipio__id',municipio)
+    crear_dic(sort_params_genero_mujer,'grupo__sede__municipio__departamento__id',departamento)       
+    aprobados =0
+    reprobados = 0    
+    asignaciones = cyd_m.Asignacion.objects.filter(**sort_params)    
+    if curso != 0:
+        data_curso = cyd_m.Curso.objects.get(id=curso)  
+        asignaciones_mujeres = cyd_m.Asignacion.objects.filter(**sort_params_genero_mujer)
+        asignaciones_hombres = cyd_m.Asignacion.objects.filter(**sort_params_genero_hombre)        
+        for data in asignaciones:            
+            if data.get_aprobado():
+                aprobados = aprobados +1
+            else:
+                reprobados = reprobados +1       
+        datos_curso = {}
+        datos_curso["numero"] = numero
+        if curso !=0:
+            datos_curso["nombre"] = data_curso.nombre
+        else:
+            datos_curso["nombre"] = "pueva"
+
+        datos_curso["total_participantes"] = asignaciones.count()  
+        datos_curso["total_hombres"] = asignaciones_hombres.count()       
+        datos_curso["total_mujeres"] =asignaciones_mujeres.count()
+        datos_curso["total_aprobados"] = aprobados
+        datos_curso["total_reprobados"]= reprobados
+        datos_curso["total_sedes"]= asignaciones.values_list('grupo__sede').distinct().count()
+        datos_curso["total_municipios"]= asignaciones.values_list('grupo__sede__municipio').distinct().count()
+        datos_curso["total_departamentos"]= asignaciones.values_list('grupo__sede__municipio__departamento').distinct().count()    
+        return datos_curso
+    else:
+        for data_asig in asignaciones.values_list('grupo__curso__id','grupo__curso__nombre').distinct().order_by('-grupo__curso__id'):
+            numero_nuevo = numero_nuevo +1
+            datos_curso = {}           
+            aprobados = sum(b.get_aprobado() for b in asignaciones.filter(grupo__curso__id=data_asig[0]) )
+            reprobados = sum(c.get_reprobado() for c in asignaciones.filter(grupo__curso__id=data_asig[0]) )            
+            datos_curso["numero"] = numero_nuevo
+            datos_curso["nombre"] = data_asig[1]
+            datos_curso["total_participantes"] = asignaciones.filter(grupo__curso__id=data_asig[0]).count()
+            datos_curso["total_hombres"] = asignaciones.filter(grupo__curso__id=data_asig[0],participante__genero__id=1).count()     
+            datos_curso["total_mujeres"] = asignaciones.filter(grupo__curso__id=data_asig[0],participante__genero__id=2).count()
+            datos_curso["total_aprobados"] = aprobados
+            datos_curso["total_reprobados"]= reprobados
+            datos_curso["total_sedes"]= asignaciones.filter(grupo__curso__id=data_asig[0]).values_list("grupo__sede__id").distinct().count()
+            datos_curso["total_municipios"]= asignaciones.values_list('grupo__sede__municipio').distinct().count()
+            datos_curso["total_departamentos"]= asignaciones.values_list('grupo__sede__municipio__departamento').distinct().count()   
+            datos_varios_cursos.append(datos_curso)
+        return datos_varios_cursos 
+class InformeCursos(views.APIView):   
+    def post(self, request):
+        listado_cursos = []
+        numero = 0
+        try:
+            cursos = [x for x in self.request.POST.getlist('curso[]')]
+            cursos_buscar = [] 
+            if len(cursos) ==0:
+                curso = self.request.POST['curso'] 
+                cursos_buscar.append(curso)
+            else:
+                cursos_buscar=cursos  
+        except MultiValueDictKeyError:
+            cursos_buscar=[]        
+        try:
+            departamento = self.request.POST['departamento'] 
+        except MultiValueDictKeyError:
+            departamento=0
+        try:
+           municipio = self.request.POST['municipio']
+        except MultiValueDictKeyError:
+            municipio=0 
+        try:
+            fecha_min=self.request.POST['fecha_min']
+        except MultiValueDictKeyError:
+            fecha_min=0
+        try:
+            fecha_max=self.request.POST['fecha_max']
+        except MultiValueDictKeyError:
+            fecha_max=0
+                 
+        if len(cursos_buscar) > 1:
+            print(1)           
+            for data_curso in cursos_buscar:                
+                numero = numero  + 1 
+                listado_cursos.append(get_obtener_curso(data_curso,numero,fecha_max,fecha_min,departamento,municipio))
+                
+        elif len(cursos_buscar)==1:
+            print(2)            
+            listado_cursos.append(get_obtener_curso(cursos_buscar.pop(),1,fecha_max,fecha_min,departamento,municipio))
+            
+        elif len(cursos_buscar)==0:
+            print(3)           
+            for data in get_obtener_curso(0,0,fecha_max,fecha_min,departamento,municipio):
+                listado_cursos.append(data)
+            #listado_cursos.append(get_obtener_curso(0,0,fecha_max,fecha_min,departamento,municipio))           
+
+        return Response(
+                listado_cursos,
+            status=status.HTTP_200_OK
+            )
+class InformeCursosView(LoginRequiredMixin, FormView):
+    """ Vista para obtener la informacion de los dispositivos para crear el informe de existencia mediante un
+    api mediante el metodo GET  y lo muestra en el tempalte
+    """
+    template_name = 'cyd/Informe_cursos.html'
+    form_class = cyd_f.InformeCursoslistadoForm
+
+class InformeParticipanteCapacitador(views.APIView):   
+    def post(self, request):
+        listado_participantes = []
+        numero = 0
+        
+        try:
+           capacitador = self.request.POST['capacitador']
+        except MultiValueDictKeyError:
+            capacitador=0 
+        try:
+            fecha_min=self.request.POST['fecha_min']
+        except MultiValueDictKeyError:
+            fecha_min=0
+        try:
+            fecha_max=self.request.POST['fecha_max']
+        except MultiValueDictKeyError:
+            fecha_max=0
+
+        sede = cyd_m.Sede.objects.filter(capacitador__id=capacitador,fecha_creacion__lte=fecha_max, fecha_creacion__gte=fecha_min)
+        for data_participantes in sede:
+            for participante in data_participantes.get_participantes()['listado']:
+                 #print(participante['participante'].get_absolute_url())
+                 numero = numero +1
+                 info_participante = {}
+                 info_participante["numero"]=numero
+                 info_participante["url"]=participante['participante'].get_absolute_url()
+                 info_participante["nombre"]=participante['participante'].nombre
+                 info_participante["apellido"]=participante['participante'].apellido
+                 info_participante["dpi"]=participante['participante'].dpi
+                 info_participante["genero"]=participante['participante'].genero.genero
+                 
+                 if participante['participante'].mail is not None:                     
+                    info_participante["mail"]=participante['participante'].mail
+                 else:
+                     info_participante["mail"]="No tiene"
+
+                 if participante['participante'].tel_casa is not None: 
+                    info_participante["tel_casa"]=participante['participante'].tel_casa
+                 else:
+                     info_participante["tel_casa"]="No tiene"
+
+                 if participante['participante'].tel_movil is not None: 
+                    info_participante["tel_movil"]=participante['participante'].tel_movil
+                 else:
+                     info_participante["tel_movil"]="No tiene"
+                 
+                 info_participante["escolaridad"]=participante['participante'].escolaridad.nombre
+                 info_participante["etnia"]=participante['participante'].etnia.nombre
+                 try:
+                    info_participante["profesion"]=participante['participante'].profesion.nombre
+                 except:
+                     info_participante["profesion"]="No tiene"
+                 try:    
+                    info_participante["grado_impartido"]=participante['participante'].grado_impartido.grado_asignado
+                 except:
+                     info_participante["grado_impartido"]="No tiene"
+                 info_participante["chicos"]=participante['participante'].chicos
+                 info_participante["chicas"]=participante['participante'].chicas
+                 listado_participantes.append(info_participante)                  
+
+        return Response(
+                listado_participantes,
+            status=status.HTTP_200_OK
+            )
+class InformeCapacitadorParticipanteView(LoginRequiredMixin, FormView):
+    """ Vista para obtener la informacion de los dispositivos para crear el informe de existencia mediante un
+    api mediante el metodo GET  y lo muestra en el tempalte
+    """
+    template_name = 'cyd/InformeParticipanteCapacitador.html'
+    form_class = cyd_f.InformeParticipanteCapacitadorForm
+
 
 class InformeParticipantesNaat(views.APIView):
     def get(self, request):

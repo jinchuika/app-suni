@@ -103,6 +103,8 @@ class EntradaUpdate {
             searching:true,
             ordering: true,
             processing: true,
+            fixedHeader:true,
+            responsive:true,
             ajax: {
                 url: this.url_filtrada,
                 dataSrc: '',
@@ -2179,18 +2181,17 @@ class Salidas {
         }},
         {data:"cantidad"},
         {data:"aprobado", render: function(data, type, full, meta){
-          if(full.aprobado == true && full.aprobado_kardex==true){
-
+          if((full.aprobado==true && full.revisado_conta==true) || (full.aprobado_kardex==true && full.aprobado==true) || full.salida_caja==true){
             return "<span class='label label-success'>Revisado</span>"
 
           }else{
-            if(full.aprobado_kardex==true){
+            if(full.aprobado==true || full.aprobado_kardex==true){
               return "<span class='label label-warning'>Revisado CC</span>"
             }else{
               return "<span class='label label-danger'>No Revisado</span>"
             }
 
-          }
+          }          
         }},
         {data:"", render: function(data, type, full, meta){
           if(full.tipo_salida == "Especial" ){
@@ -2224,7 +2225,12 @@ class Salidas {
 
 
             }else{
-              return "<a target='_blank' rel='noopener noreferrer' href="+full.urlPaquet+" class='btn btn-primary btn-asignar'>Asignar Dispositivos</a>";
+              if(full.control_calidad == true){
+                return "<a target='_blank' rel='noopener noreferrer' href="+full.urlPaquet+" class='btn btn-primary btn-asignar'>Aprobar Dispositivos</a>";
+              }else{
+                return "<a target='_blank' rel='noopener noreferrer' href="+full.urlPaquet+" class='btn btn-primary btn-asignar'>Asignar Dispositivos</a>";
+              }
+             
             }
 
           }else{
@@ -2381,15 +2387,29 @@ class Salidas {
                                            salida :salida_pk,
                                        },
                                        success: function (response){
-                                         bootbox.alert("Salida Aprobada");
-                                        window.location.href = url_detail;
+                                         //bootbox.alert("Salida Aprobada");
+                                         bootbox.alert({message: "<h2>Salida aprobada exitosamente!</h2>", className:"modal modal-success fade in",
+                                          callback: function(result){
+                                            window.location.href = url_detail;
+                                            }});
+                                        
                                        },
+                                       error:function(response){
+                                        var jsonResponse = JSON.parse(response.responseText);
+                                        bootbox.alert({
+                                          message: "<h3><i class='fa fa-frown-o' style='font-size: 45px;'></i>&nbsp;&nbsp;&nbsp;"+jsonResponse["mensaje"]+"</h3></br>", className:"modal modal-danger fade",
+                                          callback:function(){                                            
+                                        location.reload(true);
+                                          }
+                                        });
+                                      }
                                      });
                                      /***/
                                 },
                                 error: function (response) {
                                      var jsonResponse = JSON.parse(response.responseText);
                                      bootbox.alert(jsonResponse["mensaje"]);
+                                     
                                      document.getElementById("id_en_creacion").checked = true;
                                 }
                             });
@@ -2630,6 +2650,8 @@ class Salidas {
         $('#id_garantia').next(".select2-container").hide();
         /**/
         $("[for='id_cooperante']").css({"visibility":"visible"});
+        //$("#id_cooperante").attr('type','visible');
+        //$("#id_cooperante").val(" ");
         $('#id_cooperante').next(".select2-container").show();
 
         $("[for='id_caja_repuesto']").css({"visibility":"visible"});
@@ -4802,15 +4824,11 @@ class CajaRepuestos{
                 descripcion : form_enviar.find('input[name=des]').val()
                 
               },
-              success: function (response){
-                var jsonResponse = JSON.parse(response.responseText);
-                bootbox.alert(response);
-                console.log("Aca1")
+              success: function (response){               
+                bootbox.alert(response["mensaje"]);                
                 },
                 error: function (response) {
-                var jsonResponse = JSON.parse(response.responseText);
-                bootbox.alert(response);
-                console.log("Aca2")
+                  bootbox.alert(response["mensaje"]);                
                 }
               });
           }

@@ -520,7 +520,8 @@ class DispositivoClase(models.Model):
 class Dispositivo(models.Model):
 
     """Cualquier elemento almacenado en la base de datos de inventario que puede ser entregado a una escuela.
-    No debe existir una instancia de este modelo sin un objeto heredado del mismo.
+    No debe existir una instancia de este modelo sin un objeto heredado del mismo. tambien al momento de crear los
+    dipositivos se le asigna el estado de "PENDIENTE" y etapa "ALMACENADO EN BODEGA"
     """
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -1942,11 +1943,9 @@ class SolicitudBitacora(models.Model):
    
 
 class CajaRepuestos(models.Model):
-    dispositivo_malo = models.ForeignKey(DispositivoPaquete, on_delete=models.CASCADE, related_name='dispo_bueno',null=True,blank=True)
-    salida_asignada =  models.ForeignKey(SalidaInventario, on_delete=models.CASCADE, related_name='salida_asig', null=True,blank=True)
-    dispositivo_bueno = models.ForeignKey(DispositivoPaquete, on_delete=models.CASCADE, related_name='dispo_malo',null=True,blank=True)
-    salida_caja =  models.ForeignKey(SalidaInventario, on_delete=models.CASCADE, related_name='salida_caja', null=True)    
-    tecnico_asignado=models.ForeignKey(User, on_delete=models.CASCADE,default=User.objects.get(username="Admin").pk)    
+    dispositivo_malo = models.ForeignKey(Dispositivo, related_name='dispo_bueno',null=True,blank=True)   
+    dispositivo_bueno = models.ForeignKey(Dispositivo, related_name='dispo_malo',null=True,blank=True)       
+    tecnico_asignado=models.ForeignKey(User, on_delete=models.PROTECT,default=User.objects.get(username="Admin").pk)    
     fecha=models.DateTimeField(default=timezone.now)
     descripcion_equipo=models.TextField(null=True, blank=True)
     observaciones=models.TextField(null=True, blank=True)

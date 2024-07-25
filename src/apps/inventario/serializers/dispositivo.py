@@ -3,6 +3,7 @@ from django.urls import reverse_lazy
 from apps.inventario import models as inv_m
 from .bodega import DispositivoSerializer
 from django.core import serializers as serializers_django
+from django.contrib.auth.models import User
 
 
 class DispositivoPaqueteSerializer(serializers.ModelSerializer):
@@ -43,6 +44,9 @@ class PaqueteSerializer(serializers.ModelSerializer):
     cantidad_dispositivos = serializers.SerializerMethodField()
     tipo_salida = serializers.StringRelatedField(source='salida.tipo_salida')
     url_detail = serializers.SerializerMethodField()
+    revisado_conta = serializers.SerializerMethodField()
+    control_calidad = serializers.SerializerMethodField()
+    salida_caja = serializers.SerializerMethodField()
 
     class Meta:
         model = inv_m.Paquete
@@ -62,18 +66,46 @@ class PaqueteSerializer(serializers.ModelSerializer):
             'url_detail',
             'usa_triage',
             'aprobado_kardex',
-            'desactivado',
-            'asignacion'
+            'desactivado',            
+            'revisado_conta',
+            'asignacion',
+            'control_calidad',
+            'salida_caja'
 
             )
 
     def get_cantidad_dispositivos(self, obj, pk=None):
         numero_dispositivos = inv_m.DispositivoPaquete.objects.filter(paquete=obj).count()
         return numero_dispositivos
+    
+    def get_revisado_conta(self, obj, pk=None):
+        dispositivo = inv_m.DispositivoPaquete.objects.filter(paquete=obj)
+        for data in dispositivo:
+            if data.aprobado is True and (data.dispositivo.etapa.id==5 or data.dispositivo.etapa.id==6):
+                return True
+            else:
+                return False
 
     def get_url_detail(self, obj):
         return reverse_lazy('dispositivo_asignados', kwargs={'pk': obj.id})
-
+    
+    def get_control_calidad(self, obj, pk=None):
+        usuario = self.context.get('request',None).user        
+        grupos  = User.objects.get(username=usuario)        
+        if grupos.groups.filter(id=26):
+            return True
+        else:
+            return False
+    
+    def get_salida_caja(self, obj, pk=None):
+        if(obj.salida.tipo_salida.id == 6  or obj.salida.tipo_salida=="Caja de repuesto") and obj.salida.en_creacion == False:
+            return True
+        else:
+            return False
+        
+        
+            
+           
 class SolicitudMovimientoSerializer(serializers.ModelSerializer):
     """ Serializer para generar los datos que se mostraran de la :class:`SolicitudMovimiento`
     """

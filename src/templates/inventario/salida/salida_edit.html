@@ -111,7 +111,8 @@
 							</div>
 							<div class="col-md-9">
 								{% if salidainventario.tipo_salida|stringformat:"s" == "Caja de repuestos" %}
-								
+								<a target='_blank' href="{% url 'formulario_entrada_caja' pk=object.id%}" class="btn btn-success">Formulario de Entrada</a>
+								<a target='_blank' href="{% url 'formulario_salida_caja' pk=object.id%}" class="btn btn-primary">Formulario de Salida</a>
 								{%else%}
 								<a target='_blank' href="{% url 'tpe_print' pk=object.id%}" class="btn btn-info">Entrega TPE</a>
 								{% if salidainventario.tipo_salida|stringformat:"s" == "Entrega" %}

@@ -182,7 +182,7 @@ class Escuela(models.Model):
             asignaciones = Asignacion.objects.filter(participante=data,grupo__sede__id=sede)
             if asignaciones.count() !=0:                
                 chicos_list.append(asignaciones.first().participante.chicos)
-                chicas_list.append(asignaciones.first().participante.chicos)
+                chicas_list.append(asignaciones.first().participante.chicas)
                 sexo.append(asignaciones.first().participante.genero.id) 
                 nota = round(sum(b.get_nota_promediada()['nota'] for b in asignaciones),2)
                 notas.append(nota)

@@ -71,12 +71,14 @@
                                         <tr>
                                             <th>No.</th>
                                             <th>Nombre</th>
+                                            <th>Fecha</th>
                                             <th>Capacitador</th>
                                             <th>Escuelas Beneficiadas</th>
                                             <th>Capacitados</th>
                                             <th>Aprobados</th>
                                             <th>Reprobados</th>
                                             <th>A Nivelar</th>
+                                            <th>Estado</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -86,12 +88,24 @@
                                                 <tr>
                                                     <td>{{ forloop.counter }}</td>
                                                     <td><a href="{{ sede.sede.get_absolute_url }}" target="_blank">{{ sede.sede.nombre }}</a></td>
+                                                    <td>{{ sede.sede.fecha_creacion|date:"d-m-Y"}}</td>
                                                     <td>{{ sede.sede.capacitador.get_full_name }}</td>
                                                     <td>{{ sede.sede.get_escuelas.count }}</td>
                                                     <td>{{ participantes.listado.count }}</td>
                                                     <td>{{ participantes.resumen.estado.aprobado.cantidad }}</td>
                                                     <td>{{ participantes.resumen.estado.reprobado.cantidad }}</td>
                                                     <td>{{ participantes.resumen.estado.nivelar.cantidad }}</td>
+                                                    <td>
+                                                        {% if  sede.sede.fecha_creacion.year <= 2023 %}
+                                                        <span class='label label-success'>Finalizado</span>
+                                                        {% else %}
+                                                            {% if sede.sede.finalizada%}
+                                                            <span class='label label-success'>Finalizado</span>
+                                                            {% else %}
+                                                            <span class='label label-warning'>En Proceso</span>
+                                                            {% endif %} 
+                                                        {% endif %} 
+                                                    </td>
                                                 </tr>
                                                 {% endwith %}
                                             {% endfor %}

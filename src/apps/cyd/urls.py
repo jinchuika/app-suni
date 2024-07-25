@@ -9,6 +9,7 @@ urlpatterns = [
     url(r'^curso/(?P<pk>\d+)/$', CursoDetailView.as_view(), name='curso_detail'),
     url(r'^curso/(?P<pk>\d+)/edit/$', CursoUpdateView.as_view(), name='curso_edit'),
     url(r'^curso/api/add/$', CreacionCursosApi.as_view(), name='curso_api_add'),
+    url(r'^curso/api/informe/$',InformeCursos.as_view(), name='informe_api_cursos'), 
 
     url(r'^sede/add/$', SedeCreateView.as_view(), name='sede_add'),
     url(r'^sede/list/$', SedeListView.as_view(), name='sede_list'),
@@ -33,6 +34,8 @@ urlpatterns = [
     url(r'^participante/buscar/$', ParticipanteBuscarView.as_view(), name='participante_buscar'),
     url(r'^participante/importar/$', ParticipanteCreateListView.as_view(), name='participante_importar'),
     url(r'^participante/api/naat/$',InformeParticipantesNaat.as_view(), name='informe_participantes_naat'),
+    url(r'^participante/api/capacitador/$',InformeParticipanteCapacitador.as_view(), name='participantes_api_capacitador'),
+    
     url(r'^controlacademico/grupo/$', CotrolAcademicoGruposFormView.as_view(), name='control_academico_grupo'),
     url(r'^controlacademico/api/grupo/$', InformeControlAcademicoGrupos.as_view(), name='control_academico_grupo_informe'),
     url(r'^controlacademico/api/asistencia/$', InformeAsistencia.as_view(), name='control_academico_asistencia_informe'),
@@ -57,6 +60,8 @@ urlpatterns = [
     url(r'^informe/escuela/capacitadas/$',InformeListadoEscuelasListView.as_view(), name='informe_escuela_capacitadas'),
     url(r'^informe/participante/naat/$',NaatInformeView.as_view(), name='informe_naat'),
     url(r'^informe/escuela/lista/sede/$',InformeEscuelasSedesView.as_view(), name='informe_escuela_sede_lista'), 
+    url(r'^informe/cursos/$',InformeCursosView.as_view(), name='informe_cursos'), 
+    url(r'^informe/capacitador/participantes/$',InformeCapacitadorParticipanteView.as_view(), name='informe_capacitador_participantes'), 
     
     url(r'^asistencia/$',InformeAsistenciaWebView.as_view(), name='asistencia_web'),
     url(r'^asistencia/asignar/$',AsignarAsistencia.as_view(), name='asistencia_web_asignar'),

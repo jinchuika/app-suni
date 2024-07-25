@@ -18,7 +18,7 @@ from apps.inventario import (
 )
 from django.contrib.auth.models import User
 from apps.kardex import models as kax_m
-from django.db.models import Count
+from django.db.models import Count,F
 import json
 
 
@@ -206,6 +206,7 @@ class DispositivoViewSet(viewsets.ModelViewSet):
         """
         paquete = request.data['paquete']
         newtipo = inv_m.DispositivoPaquete.objects.filter(paquete=paquete)
+        #print(newtipo.first().paquete.salida.id)
         paquetes = inv_m.DispositivoPaquete.objects.filter(paquete=paquete).values('dispositivo__triage')
         tipo = newtipo.first().paquete.tipo_paquete
         tipos = inv_m.DispositivoMarca.objects.all().values()
@@ -214,9 +215,13 @@ class DispositivoViewSet(viewsets.ModelViewSet):
         version_sis = inv_m.VersionSistema.objects.all().values()
         procesador = inv_m.Procesador.objects.all().values()
         os = inv_m.Software.objects.all().values()
-        disco = inv_m.HDD.objects.filter(
+        solicitud_disco_duro = inv_m.SolicitudMovimiento.objects.filter(no_salida=newtipo.first().paquete.salida.id,tipo_dispositivo__id=3,terminada=True)
+        #paquete_disco_duro= inv_m.CambioEtapa.objects.filter(solicitud=solicitud_disco_duro).values('dispositivo__triage')
+        #print(paquete_disco_duro.values('dispositivo__triage'))
+        disco= inv_m.CambioEtapa.objects.filter(solicitud=solicitud_disco_duro).values(triage=F('dispositivo__triage'))
+        """disco = inv_m.HDD.objects.filter(
             estado=inv_m.DispositivoEstado.PD,
-            etapa=inv_m.DispositivoEtapa.AB).values('triage')
+            etapa=inv_m.DispositivoEtapa.AB).values('triage')"""
         if str(tipo) == "MOUSE":
             tipos_mouse = inv_m.MouseTipo.objects.all().values()
             data = inv_m.Mouse.objects.filter(
@@ -235,7 +240,8 @@ class DispositivoViewSet(viewsets.ModelViewSet):
                 'data': list(data),
                 'tipo': list(tipos_mouse),
                 'puertos': list(puertos),
-                'dispositivo': str(tipo)
+                'dispositivo': str(tipo),                
+                'marcas': list(tipos)
                 })
         elif str(tipo) == "TECLADO":
             data = inv_m.Teclado.objects.filter(
@@ -769,7 +775,8 @@ class DispositivosPaquetesViewSet(viewsets.ModelViewSet):
 
     @action(methods=['post'], detail=False)
     def aprobar_conta_dispositivos(self, request, pk=None):
-        """ Metodo para aprobar los dispositivo en el area de contabilidad
+        """ Metodo para aprobar los dispositivo en el area de contabilidad les asigna
+        la etapa al dipositivo  de :"Listo":
         """
         kardex = request.data["kardex"]
         if kardex == 'true':
@@ -916,7 +923,7 @@ class DispositivosPaquetesViewSet(viewsets.ModelViewSet):
                     print("Clase no necesita actualizacion")
                 new_dispositivo.save()
         elif tipo == "HDD":
-            for datos in dispositivos:
+            for datos in dispositivos:                
                 new_dispositivo = inv_m.HDD.objects.get(triage=datos['triage'])
                 try:
                     new_dispositivo.marca = inv_m.DispositivoMarca.objects.get(id=datos['marca'])
@@ -950,6 +957,7 @@ class DispositivosPaquetesViewSet(viewsets.ModelViewSet):
                     new_dispositivo.clase = inv_m.DispositivoClase.objects.get(id=datos['clase'])
                 except ObjectDoesNotExist as e:
                     print("Clase no necesita actualizacion")
+                
                 new_dispositivo.save()
         elif tipo == "MONITOR":
             for datos in dispositivos:

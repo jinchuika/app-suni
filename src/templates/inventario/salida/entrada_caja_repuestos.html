@@ -3,7 +3,7 @@
 <html>
 <head>
   <title>
-    Constancia de préstamo
+    Formulario de entrada
   </title>
 </head>
 <meta charset="utf-8"/>
@@ -101,7 +101,7 @@
 
 <br> 
 
-<div align="center"> 
+<!--<div align="center"> 
   <table style="width:95%; border-collapse: collapse; border: 2px solid black;">
       <tr> 
           <td style="text-align:center;" >  KARDEX  </td>
@@ -110,7 +110,7 @@
           <td style="border: 1px solid black; text-align:center;"> {{salida.observaciones }}  </td>
       </tr>
   </table>
-</div>
+</div> -->
 
 <br> 
 
@@ -122,39 +122,40 @@
       <tr style="border: 1px solid black;">
           <td style="border: 1px solid black; text-align:center;">
             {% if dispo_malos|length == 0 %}
-              No fueron utilizados dispositivos
-              {% else%}
+              No fueron utilizados dispositivos1
+            {% else%}
               {% for dispositivo in dispo_malos %}
-              {% if dispositivo.dispositivo_malo.dispositivo.tipo.tipo == "ACCESS POINT" %}
-                  El <b> {{ dispositivo.dispositivo_malo.dispositivo.triage }} </b> es remplazdo por el <b> {{ dispositivo.dispositivo_bueno.dispositivo.triage }} </b> que pertenece a la entrega <b> {{ dispositivo.dispositivo_malo.paquete.salida }}</b> <br>
               
-              {% elif dispositivo.dispositivo_malo.dispositivo.tipo.tipo == "SWITCH" %}
-                El switch <b> {{ dispositivo.dispositivo_malo.dispositivo.triage }} </b> es remplazdo por el switch <b> {{ dispositivo.dispositivo_bueno.dispositivo.triage }} </b> que pertenece a la entrega <b> {{ dispositivo.dispositivo_malo.paquete.salida }}</b> <br>
+              {% if dispositivo.malo.tipo.tipo == "ACCESS POINT" %}
+                  El <b> {{ dispositivo.malo.triage }} </b> es remplazdo por el <b> {{ dispositivo.bueno.triage }} </b> que pertenece a la entrega <b> {{ dispositivo.salida }}</b> <br>
               
-              {% elif dispositivo.dispositivo_malo.dispositivo.tipo.tipo == "LAPTOP" %}
-                La laptop <b> {{ dispositivo.dispositivo_malo.dispositivo.triage }} </b> es remplazada por la laptop <b> {{ dispositivo.dispositivo_bueno.dispositivo.triage }} </b> que pertenece a la entrega <b> {{ dispositivo.dispositivo_malo.paquete.salida }}</b> <br>
+              {% elif dispositivo.malo.tipo.tipo == "SWITCH" %}
+                El switch <b> {{ dispositivo.malo.triage }} </b> es remplazdo por el switch <b> {{ dispositivo.bueno.triage }} </b> que pertenece a la entrega <b> {{ dispositivo.salida }}</b> <br>
+              
+              {% elif dispositivo.malo.tipo.tipo == "LAPTOP" %}
+                La laptop <b> {{ dispositivo.malo.triage }} </b> es remplazada por la laptop <b> {{ dispositivo.bueno.triage }} </b> que pertenece a la entrega <b> {{ dispositivo.salida }}</b> <br>
                 
-              {% elif dispositivo.dispositivo_malo.dispositivo.tipo.tipo == "CPU" %}
-                El <b> {{ dispositivo.dispositivo_malo.dispositivo.triage }} </b> es remplazdo por el <b> {{ dispositivo.dispositivo_bueno.dispositivo.triage }} </b> que pertenece a la entrega <b> {{ dispositivo.dispositivo_malo.paquete.salida }}</b> <br>
+              {% elif dispositivo.malo.tipo.tipo == "CPU" %}
+                El <b> {{ dispositivo.malo.triage }} </b> es remplazdo por el <b> {{ dispositivo.bueno.triage }} </b> que pertenece a la entrega <b> {{ dispositivo.salida }}</b> <br>
 
-              {% elif dispositivo.dispositivo_malo.dispositivo.tipo.tipo == "MONITOR" %}
-                El monitor <b>{{ dispositivo.dispositivo_malo.dispositivo.triage }} </b> es remplazdo por el monitor <b> {{ dispositivo.dispositivo_bueno.dispositivo.triage }} </b> que pertenece a la entrega <b> {{ dispositivo.dispositivo_malo.paquete.salida }}</b> <br>
+              {% elif dispositivo.malo.tipo.tipo == "MONITOR" %}
+                El monitor <b>{{ dispositivo.malo.triage }} </b> es remplazdo por el monitor <b> {{ dispositivo.bueno.triage }} </b> que pertenece a la entrega <b> {{ dispositivo.salida }}</b> <br>
                 
-              {% elif dispositivo.dispositivo_malo.dispositivo.tipo.tipo == "TABLET" %}
-                La tablet <b> {{ dispositivo.dispositivo_malo.dispositivo.triage }} </b> es remplazada por la tablet <b> {{ dispositivo.dispositivo_bueno.dispositivo.triage }} </b> que pertenece a la entrega <b> {{ dispositivo.dispositivo_malo.paquete.salida }}</b> <br>
+              {% elif dispositivo.malo.tipo.tipo == "TABLET" %}
+                La tablet <b> {{ dispositivo.malo.triage }} </b> es remplazada por la tablet <b> {{ dispositivo.bueno.triage }} </b> que pertenece a la entrega <b> {{ dispositivo.salida }}</b> <br>
 
-              {% elif dispositivo.dispositivo_malo.dispositivo.tipo.tipo == "HDD" %}
-                El HHD <b> {{ dispositivo.dispositivo_malo.dispositivo.triage }} </b> es remplazdo por el HHD <b> {{ dispositivo.dispositivo_bueno.dispositivo.triage }} </b> que pertenece a la entrega <b> {{ dispositivo.dispositivo_malo.paquete.salida }}</b> <br>
+              {% elif dispositivo.malo.tipo.tipo == "HDD" %}
+                El HHD <b> {{ dispositivo.malo.triage }} </b> es remplazdo por el HHD <b> {{ dispositivo.bueno.triage }} </b> que pertenece a la entrega <b> {{ dispositivo.salida }}</b> <br>
 
-              {% elif dispositivo.dispositivo_malo.dispositivo.tipo.tipo == "MOUSE" %}
-                El mouse <b> {{ dispositivo.dispositivo_malo.dispositivo.triage }} </b> es remplazdo por el mouse <b> {{ dispositivo.dispositivo_bueno.dispositivo.triage }} </b> que pertenece a la entrega <b> {{ dispositivo.dispositivo_malo.paquete.salida }}</b> <br>
+              {% elif dispositivo.malo.tipo.tipo == "MOUSE" %}
+                El mouse <b> {{ dispositivo.malo.triage }} </b> es remplazdo por el mouse <b> {{ dispositivo.bueno.triage }} </b> que pertenece a la entrega <b> {{ dispositivo.salida }}</b> <br>
                 
-              {% elif dispositivo.dispositivo_malo.dispositivo.tipo.tipo == "TECLADO" %}
-                El tecladp <b>{{ dispositivo.dispositivo_malo.dispositivo.triage }} </b> es remplazdo por el teclado <b> {{ dispositivo.dispositivo_bueno.dispositivo.triage }} </b> que pertenece a la entrega <b> {{ dispositivo.dispositivo_malo.paquete.salida }}</b> <br>
+              {% elif dispositivo.malo.tipo.tipo == "TECLADO" %}
+                El teclado <b>{{ dispositivo.malo.triage }} </b> es remplazdo por el teclado <b> {{ dispositivo.bueno.triage }} </b> que pertenece a la entrega <b> {{ dispositivo.salida }}</b> <br>
 
 
               {% else %}
-                  No fueron utilizados dispositivos
+                  No fueron utilizados dispositivos2
               {% endif %}
           {% endfor %}
           
@@ -219,7 +220,7 @@
 	<br>
 
 <!--FIN DE DATOS E IMAGENES-->
-<body>	
+	<!--
 	<table style="text-align:center;">
 		<thead>
 			<tr>
@@ -239,12 +240,12 @@
 		{% endfor %}
 		</tbody>
 				
-	  </table>
+	  </table> 
 	  <br>
 	  <br>
 	  <br>
 	  <br>
-  
+    -->
 	Caja de herramientas asignadas a las entregas : 
 	{% for salidas  in  salidas_asignadas %}
 	{{salidas}},
@@ -253,6 +254,7 @@
 	<br>
 	<br>
 	<br>
+
 
     
 </body>
