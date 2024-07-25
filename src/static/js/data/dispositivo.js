@@ -561,7 +561,7 @@ var urldispositivo = $("#grid_id").data("url");
                           }
                         } catch (e) {
                           console.log("No usa este campo");
-                        s} 
+                        } 
                      /***/
                     //Inicido del grid y  nombre de los encabezados
                 grid = new tui.Grid({
