@@ -435,7 +435,7 @@ class TabletBeqt(DispositivoBeqt):
     almacenamiento_externo = models.BooleanField(default=False)
     cargador = models.ForeignKey(CargadorTabletBeqt, related_name='cargador_tablets_beqt', null=True, blank=True ,verbose_name='Cargador')
     estuche = models.ForeignKey(CaseTabletBeqt, related_name='case_tablets_beqt', null=True, blank=True, verbose_name='Case')
-
+    protector = models.ForeignKey(ProtectorTabletBeqt, related_name='protector_tablets_beqt', null=True, blank=True, verbose_name='Protector')
 
     class Meta:
         verbose_name = "Tablet"

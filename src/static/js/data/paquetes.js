@@ -91,6 +91,9 @@ $.ajax({
                 if (name =="Estuche__triage"){                      
                   name ="Estuche";
                 }
+                if (name =="Protector__triage"){                      
+                  name ="Protector";
+                }
                 //Creacion de los encabezados y obtenecion de la linea que se modifico en el grid
                 if(name=="Id" || name=="Url" || name=="Entrada" || name=="Estado" || name=="Etapa" || name=="Tarima"){
                 }else{
@@ -339,6 +342,26 @@ $.ajax({
                                                         name:'select2'
                                                       }});
                                                   }else{
+                                                    if(name=="Protector"){
+                                                      encabezado.push({title:name,name:token_sin,
+                                                        onBeforeChange: function(ev){
+                                                                  console.log('Before change:' + ev);
+                                                              },
+                                                              onAfterChange: function(ev){
+                                                                console.log('After change:' + ev);
+                                                                linea.push(ev.rowKey);
+                                                              }, editOptions: {
+                                                              type: 'select',
+                                                              listItems:protector,
+                                                              useViewMode: true
+                                                          },
+                                                          copyOptions:{
+                                                            useListItemText:true
+                                                          },
+                                                          component :{
+                                                            name:'select2'
+                                                          }});
+                                                      }else{
                                                     if(name!=""){
                                                       encabezado.push({title:name,name:token_sin,
                                                              onBeforeChange: function(ev){
@@ -356,7 +379,7 @@ $.ajax({
                                                   }
 
                                                 /**/
-
+                                              }
                                             }                                  
                                            
                                                }

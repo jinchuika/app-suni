@@ -98,6 +98,9 @@ var urldispositivo = $("#grid_id").data("url");
                     if (name =="Estuche__triage"){                      
                       name ="Estuche";
                     }
+                    if (name =="Protector__triage"){                      
+                      name ="Protector";
+                    }
                     if (name =="Codigo_rti"){                      
                       name ="Codigo rti";
                     }
@@ -364,6 +367,28 @@ var urldispositivo = $("#grid_id").data("url");
                                                       }});
                                                       
                                                   }else{
+                                                    if(name=="Protector"){
+                                                      encabezado.push({title:name,name:token_sin,
+                                                        onBeforeChange: function(ev){
+                                                                  console.log('Before change:' + ev);
+                                                              },
+                                                              onAfterChange: function(ev){
+                                                                console.log('After change:' + ev);
+                                                                linea.push(ev.rowKey);
+                                                              }, editOptions: {
+                                                              type: 'select',
+                                                              listItems:protector,
+                                                              useViewMode: true
+                                                          },
+                                                          copyOptions:{
+                                                            useListItemText:true
+                                                          },
+                                                          component :{
+                                                            name:'select2'
+                                                          }});
+
+                                                      }else{
+
                                                     if(name!=""){
                                                       encabezado.push({title:name,name:token_sin,
                                                              onBeforeChange: function(ev){
@@ -381,7 +406,7 @@ var urldispositivo = $("#grid_id").data("url");
                                                   }
 
                                                 /**/
-
+                                                }
                                             }                                  
                                            
 
@@ -526,6 +551,17 @@ var urldispositivo = $("#grid_id").data("url");
                       } catch (e) {
                         console.log("No usa este campo");
                       } 
+                        //protector
+                        try {
+                          for( t=0; t< response.protector.length;t++){
+                            var id_protector = response.protector[t].triage
+                            var texto_protector = response.protector[t].triage
+                            var nuevo_ingreso_protector = {text:texto_protector,value:id_protector.toString()}
+                            protector.push(nuevo_ingreso_protector);
+                          }
+                        } catch (e) {
+                          console.log("No usa este campo");
+                        s} 
                      /***/
                     //Inicido del grid y  nombre de los encabezados
                 grid = new tui.Grid({

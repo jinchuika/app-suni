@@ -111,6 +111,8 @@
 		<th bgcolor="#b3c4dd"width="135"><center>Sistema</center></th>
 		<th bgcolor="#b3c4dd"width="75"><center>Cargador</center></th>
 		<th bgcolor="#b3c4dd"width="75"><center>Estuche</center></th>
+		<th bgcolor="#b3c4dd"width="75"><center>Protector</center></th>
+
 		
 	    </center>
 	</tr>
@@ -146,6 +148,9 @@
 		<td><center>
 			{{tablet.estuche|default_if_none:""}}</center>
 		</td>
+		<td><center>
+			{{tablet.protector|default_if_none:""}}</center>
+		</td>
 		
 	</tr>
 	{% endfor %}
@@ -161,6 +166,8 @@
 	<td style="border:solid; border-width: 1px;border-color:gray" width="150" height="25"> <center>{{Cargador}} {{Descripcion}} </center></td>
 	<td width="80"><center> y </center></td>
 	<td style="border:solid; border-width: 1px;border-color:gray" width="150" height="25"> <center>{{Cargador}} Estuches  </center></td>
+	<td width="100"><center> ,</center></td>
+	<td style="border:solid; border-width: 1px;border-color:gray" width="150" height="25"> <center>{{Protector}} Protectores  </center></td>
 	<td width="100"><center>Jornada</center></td>
 	<td style="border:solid; border-width: 1px;border-color:gray" width="125" height="25"> <center>{{Jornada}} </center></td>
 	

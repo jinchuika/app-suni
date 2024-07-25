@@ -11,7 +11,8 @@ class DispositivoSerializer(serializers.ModelSerializer):
     estado = serializers.StringRelatedField()
     etapa = serializers.StringRelatedField()
     marca = serializers.StringRelatedField()
-    modelo = serializers.StringRelatedField()    
+    modelo = serializers.StringRelatedField()
+    puerto = serializers.SerializerMethodField(read_only=True)       
     serie = serializers.StringRelatedField()
     clase = serializers.StringRelatedField()
     url = serializers.StringRelatedField(source='get_absolute_url')
@@ -29,6 +30,7 @@ class DispositivoSerializer(serializers.ModelSerializer):
             'etapa',
             'marca',
             'modelo',
+            'puerto',
             'serie',
             'clase',
             'tarima',
@@ -55,6 +57,14 @@ class DispositivoSerializer(serializers.ModelSerializer):
             return str(laptop_procesador.procesador) 
         else:
             return ""
+
+    def get_puerto(self, obj):
+        try:
+            puerto = (obj.puerto)
+            return str(puerto)
+        except:
+            return ""
+
 
 
 class TarimaSerializer(serializers.ModelSerializer):
