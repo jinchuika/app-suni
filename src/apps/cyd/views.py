@@ -363,7 +363,7 @@ class ParticipanteCreateListView(LoginRequiredMixin, GroupRequiredMixin, FormVie
         form = super(ParticipanteCreateListView, self).get_form(form_class)
         if self.request.user.groups.filter(name="cyd_capacitador").exists():
             #form.fields['sede'].queryset = self.request.user.sedes.all()
-            form.fields['sede'].queryset = self.request.user.sedes.filter(activa=True,finalizado=False)
+            form.fields['sede'].queryset = self.request.user.sedes.filter(activa=True,finalizada=False)
         return form
 
 
@@ -1503,6 +1503,7 @@ class InformeParticipanteCapacitador(views.APIView):
                  info_participante["url"]=participante['participante'].get_absolute_url()
                  info_participante["nombre"]=participante['participante'].nombre
                  info_participante["apellido"]=participante['participante'].apellido
+                 info_participante["escuela"]=participante['participante'].escuela.codigo
                  info_participante["dpi"]=participante['participante'].dpi
                  info_participante["genero"]=participante['participante'].genero.genero
                  
