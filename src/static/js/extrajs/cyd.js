@@ -3828,6 +3828,7 @@ class NaatInforme{
                   }},
                   {data: "nombre"},
                   {data: "apellido"},
+                  {data: "escuela"},
                   {data: "dpi"},
                   {data: "genero"},
                   
