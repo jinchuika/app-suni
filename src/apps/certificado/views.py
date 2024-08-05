@@ -501,24 +501,39 @@ class NewListadoMaestroView(TemplateView):
          data_participante["profesion"]=info_participante.profesion
          data_certificado["participante"]=data_participante         
          contador_curso = 0
-         nota_naat =0
-         id_cursos =[]       
+         nota_naat =0              
          ultima_sede = listado_sedes[0]        
          while len(listado_sedes) != 0:
+            id_cursos =[]  
             data_sedes = {}
             numero_sede = listado_sedes.pop()
             cursos = []
+            #recorrido para obtener los cursos
             for  data_tni in info_asignaciones.filter(grupo__sede__id=numero_sede):               
                contador_curso = contador_curso +1
+               #TNI2024
                if(data_tni.grupo.curso.id) in [66,67,68,69]:
                   id_cursos.append(data_tni.grupo.curso.id)
+               #TNI2023 Y RESTO 2024
+               if(data_tni.grupo.curso.id) in [66,67,68,53]:
+                  id_cursos.append(data_tni.grupo.curso.id)
+               #Kolibri-Khan Y RESTO 2024
+               if(data_tni.grupo.curso.id) in [71,67,68,69]:
+                  id_cursos.append(data_tni.grupo.curso.id)
+                #TNI2023  
+               elif (data_tni.grupo.curso.id) in [53,55,56,57]:
+                  id_cursos.append(data_tni.grupo.curso.id)
+                #NAAT 2024                  
                elif (data_tni.grupo.curso.id) in [62,63,64,65]:
                   id_cursos.append(data_tni.grupo.curso.id)
                   nota_naat = nota_naat + data_tni.get_nota_promediada()["nota"]
+
+            #recorrido para asignar el tipo de certificado o constancia que se entregara
+            id_cursos = list(dict.fromkeys(id_cursos))
             for  data in info_asignaciones.filter(grupo__sede__id=numero_sede):               
                data_cursos = {}
                if ultima_sede == numero_sede: 
-                if sum(id_cursos)== 270:
+                if sum(id_cursos)== 270:                    
                     if data.grupo.numero==2:
                       if data.get_nota_final()>=70:
                         data_sedes["tipo"]=signing.dumps("constancia_tni")
@@ -526,17 +541,31 @@ class NewListadoMaestroView(TemplateView):
                       else:
                          data_sedes["constancia"]=False                      
                     else:
-                      if data.grupo.curso.id in [69]:
-                         if data.get_nota_final()>=70:
+                      if data.grupo.curso.id in [69]:                       
+                         if data.get_nota_final()>=70:                          
                           data_sedes["tipo"]=signing.dumps("certificado_tni")
                           data_sedes["certificado"]=True
-                         else:
+                         else:                            
                             data_sedes["certificado"]=False
-                        
+                elif sum(id_cursos) == 221:
+                   if data.grupo.sede.fecha_creacion.year ==2024:
+                      data_sedes["tipo"]=signing.dumps("certificado_tni")
+                      data_sedes["certificado"]=True
+                elif sum(id_cursos) == 254:
+                   if data.grupo.sede.fecha_creacion.year ==2024:
+                      data_sedes["tipo"]=signing.dumps("certificado_tni")
+                      data_sedes["certificado"]=True
                 elif sum(id_cursos) ==135:                  
                     if data.grupo.curso.id in [69]:
                       if data.get_nota_final()>=70:                          
                           data_sedes["tipo"]=signing.dumps("certificado_tni_kalite")
+                          data_sedes["certificado"]=True
+                      else:
+                         data_sedes["certificado"]=False
+                elif sum(id_cursos) ==275:                  
+                    if data.grupo.curso.id in [69]:
+                      if data.get_nota_final()>=70:                          
+                          data_sedes["tipo"]=signing.dumps("certificado_combo_kalite")
                           data_sedes["certificado"]=True
                       else:
                          data_sedes["certificado"]=False
@@ -597,7 +626,10 @@ class NuevoDiplomaPdfView(View):
       url_perfil = str('https://suni.funsepa.org')+str(reverse_lazy('new_listado'))+str('?dpi=')+str(dpi)
       nuevo_url_perfil = "https://suni.funsepa.org/certificado/nuevo/maestros/"+str('?dpi=')+str(dpi)
       locale.setlocale(locale.LC_ALL,'es_GT.utf8')               
-      participante = cyd_m.Participante.objects.get(dpi=dpi)
+      participante = cyd_m.Participante.objects.get(dpi=dpi)      
+      contador_nombre = participante.nombre.split(" ")
+      contador_apellido = participante.apellido.split(" ")
+      numero_palabras = len(contador_nombre) + len(contador_apellido)         
       encuesta = eval_m.AsignacionPregunta.objects.filter(evaluado=participante).last()     
       asignacion = cyd_m.Asignacion.objects.filter(participante=participante).last() 
       fecha_finalizacion = asignacion.grupo.sede.fecha_finalizacion    
@@ -639,6 +671,9 @@ class NuevoDiplomaPdfView(View):
       elif tipo_decifrada =="certificado_tni_kalite":
          nombre_archivo = "certificado-tni-kalite-"+str(dpi)
          ruta_diploma = str(settings.STATICFILES_DIRS[0] ) + str("/css/diploma/2024/certificado-Kolibri-Khan-Academy-TNI-24.jpg")
+      elif tipo_decifrada =="certificado_combo_kalite":
+         nombre_archivo = "certificado-combo-kalite-"+str(dpi)
+         ruta_diploma = str(settings.STATICFILES_DIRS[0] ) + str("/css/diploma/2024/certificado-Kolibri-Khan-Academy-Mantenimiento preventivo-LE-TNI-24.jpg")
 
       
       #ruta_diploma = str(settings.STATICFILES_DIRS[0] ) + str("/css/diploma/TNIVirtual2024.jpg") 
@@ -669,13 +704,16 @@ class NuevoDiplomaPdfView(View):
       #creacion  de la imagen que se colocora de fondo
       c.drawImage(ruta_diploma, 0,0,width=792,height=612,anchor='sw',anchorAtXY=True,showBoundary=False)
       c.drawImage(ruta_qr,35,45,width=75,height=75,anchor='sw',anchorAtXY=True,showBoundary=False)
-      c.setFont("Edwardian",60,leading=None)
+      if numero_palabras <=4: 
+        c.setFont("Edwardian",60,leading=None)
+      else:
+         c.setFont("Edwardian",45,leading=None)
       #c.setFont("MyriadPro_Regular",30,leading=None)
       c.setFillColor((0,0,0))
       #c.drawCentredString(x+w*0.0,y+h*0.5, str(data[0]['nombre'].upper())+" "+str(data[0]['apellido'].upper()))
       c.drawCentredString(x+w*0.0,y+h*0.5, str(participante.nombre)+" "+str(participante.apellido))
       c.setFont("MyriadPro_BoldIt",18,leading=None)
-      #c.drawCentredString(x+w*0.0,60+h*0.5, "Guatemala, " + datetime.datetime.now().strftime("%d de %B del %Y"))    
+      #c.drawCentredString(x+w*0.0,60+h*0.5, "Guatemala, " + datetime.datetime.now().strftime("%d de %B del %Y"))         
       c.drawCentredString(x+w*0.0,60+h*0.3, "Guatemala, " + fecha_finalizacion.date().strftime("%d de %B del %Y")) 
       c.setTitle('Diploma Funsepa')
       c.showPage()

@@ -296,6 +296,8 @@ function validar_dpi_api(params) {
         });
     }
 
+  
+
     SedeDetail.init = function () {
 
         activar_edicion();
@@ -376,117 +378,149 @@ function validar_dpi_api(params) {
         /**/
 
 
-/*ajax*/
-/*Obtener los datos para que se muestre en las lineas de tiempo*/
-var cursos=[];
-var mostrar_curso=[];
-var contador_curso=0;
-$.ajax({
-  url:$('#linea').data("url"),
-  dataType:'json',
-  data:{
-    'grupo__sede':$('#linea').data("sede"),
-  },
-  error:function(){
-    console.log("Error");
-  },
-  success:function(data){
-    for(k=0;k<data.length;k++){
-      contador_curso++;
-      try {
-        if(data[k].grupo != data[k+1].grupo){
-          /*Formato establecido para las lineas de tiempo*/
-          /*[Id,Nombre,fecha_inicio,fecha_final]*/
-          cursos=[data[(k+1)-(contador_curso)].grupo.toString(),data[(k+1)-(contador_curso)].curso,new Date(data[(k+1)-(contador_curso)].fecha),new Date(data[(k+1)-(contador_curso)].fecha_fin['fecha'])]
-          mostrar_curso.push(cursos);
-          contador_curso=0;
-        }
-
-      } catch (e) {
-          cursos=[data[(k+1)-(contador_curso)].grupo.toString(),data[(k+1)-(contador_curso)].curso,new Date(data[(k+1)-(contador_curso)].fecha),new Date(data[(k+1)-(contador_curso)].fecha_fin['fecha'])]
-          mostrar_curso.push(cursos);
-          contador_curso=0;
-      }
-
-    }
-    /*Grafica*/
-    google.charts.load('current', {'packages':['timeline']});
-    google.charts.setOnLoadCallback(drawChart);
-    function drawChart() {
-      var container = document.getElementById('timeline');
-      var chart = new google.visualization.Timeline(container);
-      var dataTable = new google.visualization.DataTable();
-
-      dataTable.addColumn({ type: 'string', id: 'President' });
-      dataTable.addColumn({ type: 'string', id: 'Name' });
-      dataTable.addColumn({ type: 'date', id: 'Start' });
-      dataTable.addColumn({ type: 'date', id: 'End' });
-      dataTable.addRows(mostrar_curso);
-    var options = {
-      timeline:{ showRowLabels: false},
-      width:850
-
-    };
-
-      chart.draw(dataTable,options);
-    }
-    /*Fin grafica*/
-  },
-  type: 'GET'
-}
-);
-/*fin ajax*/
-
-    }
-/***Final de la capacitacion */
-let date = new Date();
-let output = String(date.getDate()).padStart(2, '0') + '/' + String(date.getMonth() + 1).padStart(2, '0') + '/' + date.getFullYear()
-
-$('#finalizar-capacitacion').on('click', function () {
-    bootbox.confirm({
-        message: "<h3><i class='fa fa-info-circle' style='font-size: 45px;'></i>&nbsp;&nbsp;&nbsp;Esta Seguro que quiere Terminar la  capacitacion de la sede el dia de hoy: <b>\""+ output+"\".</b></h3></br> <h3>Recuerde que la informacion que ingresa es totalmente responsabilidad del capacitador</h3>",
-        className:"modal modal-warning fade",
-        buttons: {
-            confirm: {
-                label: '<i class="fa fa-check"></i> Confirmar',
-                className: 'btn-success'
-            },
-            cancel: {
-                label: '<i class="fa fa-times"></i> Rechazar',
-                className: 'btn-danger'
-            }
-        },
-        callback: function (result) {
-            if (result == true) {
-            /** */
+            /*ajax*/
+            /*Obtener los datos para que se muestre en las lineas de tiempo*/
+            var cursos=[];
+            var mostrar_curso=[];
+            var contador_curso=0;
             $.ajax({
-                url:$('#finalizar-capacitacion').data("url"),
-                dataType:'json',
-                beforeSend: function(xhr, settings) {
-                    xhr.setRequestHeader("X-CSRFToken", $('input[name="csrfmiddlewaretoken"]').val());
-                },
-                data:{
-                  'sede':$('#finalizar-capacitacion').data("id"),
-                },
-                error:function(){
-                  console.log("Error");
-                },
-                success:function(data){
-                  //console.log(data);
-                  bootbox.alert({message: "<h2>Sede finalizada exitosamente.</h2>", className:"modal modal-success fade in"});
-                  location.reload();
-                
-                },
-                type: 'POST'
-              }
-              );
-            /** */
-          }
+            url:$('#linea').data("url"),
+            dataType:'json',
+            data:{
+                'grupo__sede':$('#linea').data("sede"),
+            },
+            error:function(){
+                console.log("Error");
+            },
+            success:function(data){
+                for(k=0;k<data.length;k++){
+                contador_curso++;
+                try {
+                    if(data[k].grupo != data[k+1].grupo){
+                    /*Formato establecido para las lineas de tiempo*/
+                    /*[Id,Nombre,fecha_inicio,fecha_final]*/
+                    cursos=[data[(k+1)-(contador_curso)].grupo.toString(),data[(k+1)-(contador_curso)].curso,new Date(data[(k+1)-(contador_curso)].fecha),new Date(data[(k+1)-(contador_curso)].fecha_fin['fecha'])]
+                    mostrar_curso.push(cursos);
+                    contador_curso=0;
+                    }
+
+                } catch (e) {
+                    cursos=[data[(k+1)-(contador_curso)].grupo.toString(),data[(k+1)-(contador_curso)].curso,new Date(data[(k+1)-(contador_curso)].fecha),new Date(data[(k+1)-(contador_curso)].fecha_fin['fecha'])]
+                    mostrar_curso.push(cursos);
+                    contador_curso=0;
+                }
+
+                }
+                /*Grafica*/
+                google.charts.load('current', {'packages':['timeline']});
+                google.charts.setOnLoadCallback(drawChart);
+                function drawChart() {
+                var container = document.getElementById('timeline');
+                var chart = new google.visualization.Timeline(container);
+                var dataTable = new google.visualization.DataTable();
+
+                dataTable.addColumn({ type: 'string', id: 'President' });
+                dataTable.addColumn({ type: 'string', id: 'Name' });
+                dataTable.addColumn({ type: 'date', id: 'Start' });
+                dataTable.addColumn({ type: 'date', id: 'End' });
+                dataTable.addRows(mostrar_curso);
+                var options = {
+                timeline:{ showRowLabels: false},
+                width:850
+
+                };
+
+                chart.draw(dataTable,options);
+                }
+                /*Fin grafica*/
+            },
+            type: 'GET'
+            }
+            );
+            /*fin ajax*/
+
+
+              //Grafica General de reprobados
+                var porcentaje_grafica_general =[]
+                var resultado_general = []
+
+                porcentaje_grafica_general.push("Aprobados:"+$("#capacitacion_final_chart_pie").data('porcentaje-aprobados')+"%");
+                porcentaje_grafica_general.push("Reprobados:"+$("#capacitacion_final_chart_pie").data('porcentaje-reprobados')+"%");
+                resultado_general.push($("#capacitacion_final_chart_pie").data('aprobados'))
+                resultado_general.push($("#capacitacion_final_chart_pie").data('reprobados'))
+                var general_chart = new Chart(document.getElementById("capacitacion_final_chart_pie"), {
+                    type: 'pie',
+                    data: {                    
+                        labels:porcentaje_grafica_general,
+                        datasets:[{
+                            backgroundColor:["#01afbf","#c40ece"],
+                            data:resultado_general
+                        }]
+                    },
+                    options: {
+                        title:{
+                            display:true,
+                            text: "Grafica de promoción"
+                        }
+                    }
+                }); 
+                /** */ 
+
+
+
 
         }
-    });
-  });
 
+
+
+        /***Final de la capacitacion */
+        let date = new Date();
+        let output = String(date.getDate()).padStart(2, '0') + '/' + String(date.getMonth() + 1).padStart(2, '0') + '/' + date.getFullYear()
+
+        $('#finalizar-capacitacion').on('click', function () {
+            bootbox.confirm({
+                message: "<h3><i class='fa fa-info-circle' style='font-size: 45px;'></i>&nbsp;&nbsp;&nbsp;Esta Seguro que quiere Terminar la  capacitacion de la sede el dia de hoy: <b>\""+ output+"\".</b></h3></br> <h3>Recuerde que la informacion que ingresa es totalmente responsabilidad del capacitador</h3>",
+                className:"modal modal-warning fade",
+                buttons: {
+                    confirm: {
+                        label: '<i class="fa fa-check"></i> Confirmar',
+                        className: 'btn-success'
+                    },
+                    cancel: {
+                        label: '<i class="fa fa-times"></i> Rechazar',
+                        className: 'btn-danger'
+                    }
+                },
+                callback: function (result) {
+                    if (result == true) {
+                    /** */
+                    $.ajax({
+                        url:$('#finalizar-capacitacion').data("url"),
+                        dataType:'json',
+                        beforeSend: function(xhr, settings) {
+                            xhr.setRequestHeader("X-CSRFToken", $('input[name="csrfmiddlewaretoken"]').val());
+                        },
+                        data:{
+                        'sede':$('#finalizar-capacitacion').data("id"),
+                        },
+                        error:function(){
+                        console.log("Error");
+                        },
+                        success:function(data){
+                        //console.log(data);
+                        bootbox.alert({message: "<h2>Sede finalizada exitosamente.</h2>", className:"modal modal-success fade in"});
+                        location.reload();
+                        
+                        },
+                        type: 'POST'
+                    }
+                    );
+                    /** */
+                }
+
+                }
+            });
+        }); 
 
 }( window.SedeDetail = window.SedeDetail || {}, jQuery ));
 
