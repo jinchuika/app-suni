@@ -113,6 +113,9 @@
                 <li>
                   <a href="#linea" data-toggle="tab"><i class="fa fa-line-chart" aria-hidden="true"></i>Linea de Tiempo</a>
                 </li>
+				<li>
+					<a href="#graficas" data-toggle="tab"><i class="fa fa-pie-chart" aria-hidden="true"></i>Graficas</a>
+				  </li>
 							</ul>
 							<div class="tab-content">
 								<div class="tab-pane active" id="participantes">
@@ -507,6 +510,13 @@
                   <div class="tab-pane no-padding" id="linea"  data-url="{% url 'calendario_api_list' %}" data-sede="{{sede.id}}">
                     <div id="timeline" style="height:600px; width:100%"></div>
                 </div>
+				<div class="tab-pane no-padding" id="graficas"  data-sede="{{sede.id}}">
+                    <canvas id="capacitacion_final_chart_pie" style="height: 230px; width: 485px;" height="230" width="485" data-aprobados={{sede.get_participantes.resumen.estado.aprobado.cantidad}}  data-porcentaje-aprobados={{sede.get_participantes.resumen.estado.aprobado.porcentaje}} data-reprobados={{sede.get_participantes.resumen.estado.reprobado.cantidad}} data-porcentaje-reprobados={{sede.get_participantes.resumen.estado.reprobado.porcentaje}}></canvas>
+					
+					
+                </div>	
+
+
 							</div>
 						</div>
 
@@ -525,6 +535,7 @@
 {% endblock extra_css %}
 
 {% block extra_js %}
+<script src="{% static 'js/distributed/Chart.min.js' %}"></script>
 <script src="{% static 'js/bootstrap-editable.min.js' %}"></script>
 <script src="{% static 'js/extrajs/cyd.js' %}"></script>
 <script>
