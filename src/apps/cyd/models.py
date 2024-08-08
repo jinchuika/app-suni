@@ -100,6 +100,7 @@ class Sede(models.Model):
     url_archivos = models.TextField(null=True, blank=True,verbose_name='Carpeta Archivos')
     fecha_creacion = models.DateTimeField(default=timezone.now)
     finalizada = models.BooleanField(default=False, blank=True, verbose_name='Finalizada')
+    finalizado_por = models.ForeignKey(User, related_name='finalizado', on_delete=models.CASCADE,default=User.objects.get(username="Admin").pk)
     
     class Meta:
         verbose_name = "Sede"

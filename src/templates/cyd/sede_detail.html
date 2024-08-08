@@ -1,7 +1,7 @@
 {% extends "base/base.html" %}
 {% load embed_gdrive_folder %}
 {% load telefonica %}
-{% load staticfiles editable_field %}
+{% load staticfiles editable_field has_group%}
 
 {% block page_title %}
 <title>{{ sede }}</title>
@@ -50,6 +50,7 @@
 							</tr>
 							{% else %}
 							{% if perms.cyd.change_sede %}
+							{% if request.user|has_group:"cyd_admin" or request.user|has_group:"cyd_capacitador" %}{% endif %}
 							<tr>
 								<td colspan="2">
 									<a href="{% url 'sede_update' pk=sede.id %}" class="btn btn-primary btn-block">
@@ -57,6 +58,7 @@
 									</a>
 								</td>
 							</tr>
+							
 							<tr>
 								<td colspan="2">
 									<a id="finalizar-capacitacion" data-url="{% url 'sede_api_finalizar'  %}"  data-id={{sede.id}} class="btn btn-success btn-block">
@@ -166,23 +168,62 @@
 												<th>Cursos</th>
 												<th>Rol</th>
 												<th>Escuela</th>
+												<th>Niños</th>
+												<th>Niñas</th>
 											</tr>
 										</thead>
-										<tbody>
-											{% for p in participantes.listado %}
-												<tr>
-													<td>{{ forloop.counter }}</td>
-													<td>
-														<a href="{{ p.participante.get_absolute_url }}">{{ p.participante.nombre }}</a></td>
-													<td>{{ p.participante.apellido }}</td>
-													<td>{{ p.grupo }}</td>
-													<td>{{ p.nota|floatformat:0}}</td>
-													<td>{{ p.participante.cursos_sede }}</td>
-													<td>{{ p.participante.rol }}</td>
-													<td>{{ p.participante.escuela }}</td>
-												</tr>
-											{% endfor %}
+										<tbody>											
+												{% for p in participantes.listado %}
+													<tr>
+														<td>{{ forloop.counter }}</td>
+														<td><a href="{{ p.participante.get_absolute_url }}">{{ p.participante.nombre }}</a></td>
+														<td>{{ p.participante.apellido }}</td>
+														<td>{{ p.grupo }}</td>
+														<td>{{ p.nota|floatformat:0}}</td>
+														<td>{{ p.participante.cursos_sede }}</td>
+														<td>{{ p.participante.rol }}</td>
+														<td>{{ p.participante.escuela }}</td>
+														<td>{{ p.participante.chicos }}</td>
+														<td>{{ p.participante.chicas }}</td>														
+													</tr>												
+												{% endfor %}											
 										</tbody>
+										<tfoot>
+											<tr>
+												<th>
+												</th>
+												<th>
+												</th>
+												<th>
+												</th>
+												<th>
+												</th>
+												<th>
+												</th>
+												<th>
+												</th>
+												<th>
+												</th>
+												<th>
+												</th>
+												<th>
+													<b>{{total_chicos}}</b>
+												</th>
+												<th>
+													<b>{{total_chicas}}</b>
+												</th>
+												<!--<td></td>
+												<td></td>
+												<td></td>
+												<td></td>
+												<td></td>
+												<td></td>
+												<td></td>
+												<td></td>
+												<td><b>{{total_chicos}}</b></td>
+												<td><b>{{total_chicas}}</b></td> -->
+											</tr>
+										</tfoot>
 									</table>
 								{% endwith %}
 								</div>
