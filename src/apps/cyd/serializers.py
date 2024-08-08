@@ -151,7 +151,9 @@ class ParticipanteSerializer(DynamicFieldsModelSerializer, serializers.ModelSeri
     escolaridad = serializers.StringRelatedField(source ='escolaridad.nombre') 
     rol_nombre = serializers.StringRelatedField(source='rol.nombre')    
     profesion_nombre = serializers.StringRelatedField(source='profesion.nombre')  
-    grado_impartido_nombre = serializers.StringRelatedField(source='grado_impartido.grado_asignado')       
+    grado_impartido_nombre = serializers.StringRelatedField(source='grado_impartido.grado_asignado')
+    chicos_asignados = serializers.IntegerField(source='chicos')
+    chicas_asignadas = serializers.IntegerField(source='chicas')      
 
 
     class Meta:

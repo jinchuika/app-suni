@@ -93,6 +93,18 @@
 									{{ participante.escolaridad|default_if_none:"" }}
 								</a>
 							</dd>
+							<dt>Niños</dt>							
+								<dd>
+									<a href="#" class="editable" data-name="chicos" data-type="text" data-pk="{{ participante.id }}" data-url="{% url 'participante_api_update' pk=participante.id %}">
+										{{ participante.chicos }}
+									</a>
+								</dd>							
+							<dt>Niñas</dt>
+							<dd>
+								<a href="#" class="editable" data-name="chicas" data-type="text" data-pk="{{ participante.id }}" data-url="{% url 'participante_api_update' pk=participante.id %}">
+									{{ participante.chicas }}
+								</a>
+							</dd>
 						</dl>
 					</div>
 				</div>

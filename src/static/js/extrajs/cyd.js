@@ -1667,7 +1667,8 @@ CalendarioCyD.init = function () {
             $.get($(this).data('url'),
             {
                 asignaciones__grupo: $(this).val(),
-                fields: 'dpi,nombre,apellido,escuela,url,rol_nombre,escolaridad,etnia'
+                fields: 'dpi,nombre,apellido,escuela,url,rol_nombre,escolaridad,etnia,grado_impartido_nombre,chicos_asignados,chicas_asignadas'
+                
             },
             function (respuesta) {
                 var filas = [];
@@ -1686,6 +1687,8 @@ CalendarioCyD.init = function () {
                     fila.append('<td><a href="'+participante.escuela.url+'">'+participante.escuela.nombre+'<br>'+participante.escuela.codigo+'</a></td>');
                     fila.append('<td>'+participante.etnia+'</td>');
                     fila.append('<td>'+participante.escolaridad+'</td>');
+                    fila.append('<td>'+participante.chicos_asignados+'</td>');
+                    fila.append('<td>'+participante.chicas_asignadas+'</td>');
                     filas.push(fila);
                     i = i+1;
                 });
@@ -3016,6 +3019,8 @@ class informeCapacitadores{
     var total_asignaciones=0;
     var total_participantes=0;
     var total_invitadas = 0
+    var total_chicos = 0
+    var total_chicas = 0
     $('#informecapacitadores-list-form').submit(function (e) {
         e.preventDefault();
         
@@ -3048,6 +3053,8 @@ class informeCapacitadores{
                 {data: "asignaciones"},
                 {data: "participantes"},
                 {data: "invitada"},
+                {data: "chicos"},
+                {data: "chicas"},
                 {data: "fecha"},
             ],
             footerCallback: function( tfoot, data, start, end, display){
@@ -3057,6 +3064,8 @@ class informeCapacitadores{
                   total_asignaciones=total_asignaciones+data[i].asignaciones
                   total_participantes=total_participantes+data[i].participantes
                   total_invitadas=total_invitadas+data[i].invitada
+                  total_chicos=total_chicos+data[i].chicos
+                  total_chicas=total_chicas+data[i].chicas
                   $(tfoot).find('th').eq(0).html( "TOTAL ");
                   $(tfoot).find('th').eq(1).html( "---");
                   $(tfoot).find('th').eq(2).html(total_grupos);
@@ -3064,6 +3073,8 @@ class informeCapacitadores{
                   $(tfoot).find('th').eq(4).html(total_asignaciones);
                   $(tfoot).find('th').eq(5).html(total_participantes);
                   $(tfoot).find('th').eq(6).html(total_invitadas);
+                  $(tfoot).find('th').eq(7).html(total_chicos);
+                  $(tfoot).find('th').eq(8).html(total_chicas);
                 };
               }
           });
@@ -3072,6 +3083,8 @@ class informeCapacitadores{
           total_asignaciones=0;
           total_participantes=0;
           total_invitadas=0
+          total_chicos=0
+          total_chicas=0
           tablaDispositivos.clear().draw();
 
           });
