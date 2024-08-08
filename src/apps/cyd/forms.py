@@ -42,7 +42,7 @@ class SedeForm(forms.ModelForm):
     class Meta:
         model = Sede
         fields = '__all__'
-        exclude = ('nombre', 'capacitador', 'escuela_beneficiada', 'mapa', 'activa', 'fecha_creacion','fecha_finalizacion','finalizada')
+        exclude = ('nombre', 'capacitador', 'escuela_beneficiada', 'mapa', 'activa', 'fecha_creacion','fecha_finalizacion','finalizada','finalizado_por')
         #exclude = ('nombre', 'capacitador', 'escuela_beneficiada', 'mapa', 'activa')
         widgets = {
             'municipio': forms.Select(attrs={'class': 'select2', 'required': 'true', 'tabindex': '1'}),

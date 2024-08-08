@@ -123,6 +123,13 @@ class SedeDetailView(LoginRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super(SedeDetailView, self).get_context_data(**kwargs)
         context['asesoria_form'] = cyd_f.AsesoriaForm(initial={'sede': self.object})
+        total_chicos = 0
+        total_chicas = 0        
+        for data in self.object.get_participantes()['listado']:
+            total_chicos = total_chicos + data['participante'].chicos
+            total_chicas = total_chicas + data['participante'].chicas       
+        context['total_chicos'] = total_chicos
+        context['total_chicas'] = total_chicas
         return context
 
 
@@ -741,7 +748,7 @@ class InformeCapacitadores(views.APIView):
     def post(self, request):
         listado_sede=[]
         listado_curso=[]
-        contador_sede=0        
+        contador_sede=0       
         #capacitador = User.objects.get(id=self.request.POST['capacitador'])
         si_es_naat =False
         try:
@@ -767,12 +774,20 @@ class InformeCapacitadores(views.APIView):
             sedes = cyd_m.Sede.objects.filter(**sort_params)
             asignacion_capacitador= cyd_m.Asignacion.objects.filter(grupo__sede__capacitador=capacitador)
             for sede in sedes:
+                total_chicos = 0
+                total_chicas = 0
                 total_participantes = sede.get_participantes()["resumen"]['genero'].aggregate(Sum('cantidad'))
+                for data_participante in sede.get_participantes()['listado']:
+                    total_chicos = total_chicos + data_participante["participante"].chicos
+                    total_chicas = total_chicas + data_participante["participante"].chicas
+                
                 listado_datos={}
                 contador_sede = contador_sede +1
                 listado_datos['numero']=contador_sede
                 listado_datos['sede']=sede.nombre
                 listado_datos['sede_url']=sede.get_absolute_url()
+                listado_datos["chicos"]=total_chicos
+                listado_datos["chicas"]=total_chicas
                 contado_participantes=0
                 contador_curso=0
                 contado_asignacion =0
@@ -817,6 +832,11 @@ class InformeCapacitadores(views.APIView):
             sedes = cyd_m.Sede.objects.filter(capacitador=capacitador,activa=True)
             asignacion_capacitador= cyd_m.Asignacion.objects.filter(grupo__sede__capacitador=capacitador)           
             for sede in sedes:
+                total_chicos = 0
+                total_chicas = 0                
+                for data_participante in sede.get_participantes()['listado']:
+                    total_chicos = total_chicos + data_participante["participante"].chicos
+                    total_chicas = total_chicas + data_participante["participante"].chicas                
                 total_participantes = sede.get_participantes()["resumen"]['genero'].aggregate(Sum('cantidad'))
                 listado_datos={}
                 escuela_invitada=cyd_m.Asignacion.objects.filter(grupo__sede=sede)
@@ -840,6 +860,8 @@ class InformeCapacitadores(views.APIView):
                 else:
                      listado_datos['invitada']=0
                 contador_sede = contador_sede +1
+                listado_datos["chicos"]=total_chicos
+                listado_datos["chicas"]=total_chicas
                 listado_datos['numero']=contador_sede
                 listado_datos['sede']=sede.nombre
                 listado_datos['sede_url']=sede.get_absolute_url()

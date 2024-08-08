@@ -221,6 +221,7 @@ class SedeViewSet(CsrfExemptMixin, viewsets.ModelViewSet):
         sede = Sede.objects.get(id=id_sede,activa=True)
         sede.fecha_finalizacion =datetime.now()
         sede.finalizada = True
+        sede.finalizado_por = request.user
         sede.save()
         return Response(
                             {'mensaje': 'Se ha terminado la capacitacion de la sede'},
