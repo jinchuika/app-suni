@@ -103,7 +103,7 @@ class RevisionSalidaCreateForm(forms.ModelForm):
     """
 
     salida = forms.ModelChoiceField(
-        queryset=inv_m.SalidaInventario.objects.filter(en_creacion=True, necesita_revision=True),
+        queryset=inv_m.SalidaInventario.objects.filter(en_creacion=True, necesita_revision=True,estado__id=1),
         widget=forms.Select(attrs={'class': 'form-control select2'})
     )
 
