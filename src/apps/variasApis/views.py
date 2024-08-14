@@ -23,6 +23,7 @@ import os
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from openpyxl import load_workbook
 from apps.mye.models  import Cooperante
+from apps.Evaluacion.models import estadoFormulario, AsignacionPregunta
 
 # Create your views here.
 class SubirTodo(views.APIView): 
@@ -493,7 +494,7 @@ class SubirNotasHitosJson(views.APIView):
 class escuelasApi(views.APIView):
     """Comentario de Api de prueba para la Apis de django"""
     def get(self, request): 
-     archivo_excel_path = "C:/Migracion2/Escuelas_MIG_2.xlsx"         #Aquí va la dirección
+     archivo_excel_path = "C:/Users/PC/Desktop/Migracion2/Escuelas_MIG_2.xlsx"         #Aquí va la dirección
      archivo_excel = load_workbook(filename=archivo_excel_path)
      hoja_excel = archivo_excel.active
      max_row = hoja_excel.max_row
@@ -548,7 +549,7 @@ class escuelasApi(views.APIView):
 class equipamientoApi(views.APIView):
     """Comentario de Api de prueba para la Apis de django"""
     def get(self, request): 
-          archivo_excel_path = "C:/Migracion2/Equipamientos_MIG_2.xlsx"
+          archivo_excel_path = "C:/Users/PC/Desktop/Migracion2/Equipamientos_MIG_2.xlsx"
           archivo_excel = load_workbook(filename=archivo_excel_path)
           hoja_excel = archivo_excel.active
           max_row = hoja_excel.max_row
@@ -611,8 +612,10 @@ class equipamientoApi(views.APIView):
 class participantesApi(views.APIView):
     """Comentario de Api de prueba para la Apis de django class:`Participante`"""
 
-    def get(self, request): 
-          archivo_excel_path = filename="C:/Migracion2/Participantes_MIG_2A_FinalC.xlsx" #Aquí va la dirección y sus variantes
+    def get(self, request):
+          archivo = self.request.GET.get('archivo')
+          nombre_archivo = "C:/Users/PC/Desktop/Migracion2/Asignacion_MIG_2A_Final" + archivo.upper() + ".xlsx" 
+          archivo_excel_path = filename= nombre_archivo
           archivo_excel = load_workbook(filename=archivo_excel_path)
           hoja_excel = archivo_excel.active
           max_row = hoja_excel.max_row
@@ -661,7 +664,7 @@ class SedeApi(views.APIView):
     """Comentario de Api de prueba para la Apis de django"""
 
     def get(self, request): 
-          archivo_excel_path = filename="Migracion2/Sedes_MIG_2.xlsx"   #Aquí va la dirección 
+          archivo_excel_path = filename="C:/Users/PC/Desktop/Migracion2/Sedes_MIG_2.xlsx"  #Aquí va la dirección 
           archivo_excel = load_workbook(filename=archivo_excel_path)
           hoja_excel = archivo_excel.active
           max_row = hoja_excel.max_row
@@ -673,8 +676,7 @@ class SedeApi(views.APIView):
           with open(ruta_archivo_txt, "w") as archivo_log:
                for i in range(2, max_row + 1):
                     try:
-                         if cyd_m.Sede.objects.get(escuela_beneficiada__codigo = hoja_excel.cell(row = i, column = 8).value):
-                              sede = cyd_m.Sede.objects.get(escuela_beneficiada__codigo = hoja_excel.cell(row = i, column = 8).value)
+                         if cyd_m.Sede.objects.get(escuela_beneficiada__codigo = hoja_excel.cell(row = i, column = 8).value, capacitador__id = hoja_excel.cell(row = i, column = 2).value):
                               existentes +=1
 
                     except ObjectDoesNotExist:
@@ -715,7 +717,7 @@ class GrupoApi(views.APIView):
     """Comentario de Api de prueba para la Apis de django"""
 
     def get(self, request): 
-          archivo_excel_path = filename="Migracion2/Grupo_MIG_2.xlsx" #Aquí va la dirección 
+          archivo_excel_path = filename= "C:/Users/PC/Desktop/Migracion2/Grupo_MIG_2.xlsx" #Aquí va la dirección 
           archivo_excel = load_workbook(filename=archivo_excel_path)
           hoja_excel = archivo_excel.active
           max_row = hoja_excel.max_row
@@ -727,17 +729,17 @@ class GrupoApi(views.APIView):
           with open(ruta_archivo_txt, "w") as archivo_log:
                for i in range(2, max_row + 1):
                     try:
-                         grupo = cyd_m.Grupo.objects.get(sede__escuela_beneficiada__codigo = hoja_excel.cell(row = i, column = 1).value, curso__nombre = hoja_excel.cell(row = i, column = 3).value)
+                         grupo = cyd_m.Grupo.objects.get(sede__escuela_beneficiada__codigo = hoja_excel.cell(row = i, column = 1).value, curso__id = hoja_excel.cell(row = i, column = 7).value, sede__capacitador__id = hoja_excel.cell(row = i, column = 6).value)
                          existentes +=1
 
                     except ObjectDoesNotExist:
                          try: 
-                              sede_mas_antigua = cyd_m.Sede.objects.filter(escuela_beneficiada__codigo=hoja_excel.cell(row=i, column=1).value).order_by('fecha_creacion').first()
+                              sede_mas_antigua = cyd_m.Sede.objects.filter(escuela_beneficiada__codigo=hoja_excel.cell(row=i, column=1).value, capacitador_id = hoja_excel.cell(row = i, column = 6).value).order_by('fecha_creacion').first()
                               registro_grupo = cyd_m.Grupo(
                                    sede = sede_mas_antigua,
                                    numero = hoja_excel.cell(row = i, column = 2).value,
-                                   curso = cyd_m.Curso.objects.get(nombre = hoja_excel.cell(row = i, column = 3).value),
-                                   comentario = "Grupo creado para el historico de SUNI 2010",
+                                   curso = cyd_m.Curso.objects.get(id = hoja_excel.cell(row = i, column = 7).value),
+                                   comentario = "Grupo creado con información tomada de las Actas de promoción y bases de datos del histórico de Capacitación y Proyectos. Migrado al SUNI en el 2024",
                                    activo = True
                               )
                               registro_grupo.save()
@@ -762,7 +764,10 @@ class GrupoApi(views.APIView):
 class AsignacionesApi(views.APIView): 
     """Comentario de Api de prueba para la Apis de django class ´Asignacion´"""
     def get(self, request): 
-          archivo_excel_path = filename="/Migracion2/Asignacion_MIG_2A_FinalC.xlsx" #Aquí va la dirección y sus variantes
+          archivo = self.request.GET.get('archivo')
+          nombre_archivo = "C:/Users/PC/Desktop/Migracion2/Asignacion_MIG_2A_Final" + archivo.upper() + ".xlsx" 
+          archivo_excel_path = filename= nombre_archivo
+          print(archivo_excel_path)
           archivo_excel = load_workbook(filename=archivo_excel_path)
           hoja_excel = archivo_excel.active
           max_row = hoja_excel.max_row
@@ -785,7 +790,8 @@ class AsignacionesApi(views.APIView):
                          except MultipleObjectsReturned: 
                               asignado = cyd_m.Participante.objects.filter(nombre =  hoja_excel.cell(row = i, column = 4).value, apellido = hoja_excel.cell(row = i, column = 5).value, escuela = escuela_par).last()
 
-                         cyd_m.Asignacion.objects.get(participante = asignado , grupo__curso__nombre = hoja_excel.cell(row = i, column = 26).value, )
+                         cyd_m.Asignacion.objects.get(participante = asignado , grupo__curso__id= hoja_excel.cell(row = i, column = 28, grupo__sede__capacitador__id = hoja_excel.cell(row=i, column=30).value).value)
+                         print(cyd_m.Asignacion.objects.get(participante = asignado , grupo__curso__id= hoja_excel.cell(row = i, column = 28).value))
                          existentes +=1
 
                     except MultipleObjectsReturned: 
@@ -802,11 +808,13 @@ class AsignacionesApi(views.APIView):
                          except MultipleObjectsReturned: 
                               par_asignado = cyd_m.Participante.objects.filter(nombre =  hoja_excel.cell(row = i, column = 4).value, apellido = hoja_excel.cell(row = i, column = 5).value, escuela = escuela_par).last()
                          
-                         sede_mas_antigua = cyd_m.Sede.objects.filter(escuela_beneficiada__codigo=hoja_excel.cell(row=i, column=27).value).order_by('fecha_creacion').first()
+                         sede_mas_antigua = cyd_m.Sede.objects.filter(escuela_beneficiada__codigo=hoja_excel.cell(row=i, column=27).value, capacitador = hoja_excel.cell(row=i, column=30).value).order_by('fecha_creacion').last()
+                         grupo = cyd_m.Grupo.objects.get(curso__id = int(hoja_excel.cell(row = i, column = 28).value) , sede = sede_mas_antigua, sede__capacitador__id = hoja_excel.cell(row=i, column=30).value)
+                         
                          registro_asigna = cyd_m.Asignacion(
                               participante = par_asignado,
-                              grupo = cyd_m.Grupo.objects.get(curso__nombre = hoja_excel.cell(row = i, column = 26).value , sede = sede_mas_antigua ),
-                              abandono = False,  
+                              grupo = grupo,
+                              abandono = False
                          )
                          registro_asigna.save()
                          agregados +=1
@@ -827,7 +835,10 @@ class HitosApi(views.APIView):
     """Comentario de Api de prueba para la Apis de django :class:`NotaHito`"""
 
     def get(self, request): 
-          archivo_excel_path = filename="Migracion2/Notas_MIG_2A_FinalC.xlsx" #Aquí va la dirección
+          archivo = self.request.GET.get('archivo')
+          nombre_archivo = "C:/Users/PC/Desktop/Migracion2/Asignacion_MIG_2A_Final" + archivo.upper() + ".xlsx" 
+          print(nombre_archivo)
+          archivo_excel_path = filename= nombre_archivo
           archivo_excel = load_workbook(filename=archivo_excel_path)
           hoja_excel = archivo_excel.active
           max_row = hoja_excel.max_row
@@ -849,13 +860,11 @@ class HitosApi(views.APIView):
                          except MultipleObjectsReturned: 
                               asignado = cyd_m.Participante.objects.filter(nombre =  hoja_excel.cell(row = i, column = 4).value, apellido = hoja_excel.cell(row = i, column = 5).value, escuela = escuela_par).last()
                          
-                         sede_mas_antigua = cyd_m.Sede.objects.filter(escuela_beneficiada__codigo=hoja_excel.cell(row=i, column=27).value).order_by('fecha_creacion').first()
-                         grupo = cyd_m.Grupo.objects.get(curso__nombre = hoja_excel.cell(row = i, column = 26).value, sede = sede_mas_antigua)
-
+                         sede_mas_antigua = cyd_m.Sede.objects.filter(escuela_beneficiada__codigo=hoja_excel.cell(row=i, column=27).value, capacitador = hoja_excel.cell(row=i, column=30).value).order_by('fecha_creacion').first()
+                         grupo = cyd_m.Grupo.objects.get(curso__id = hoja_excel.cell(row = i, column = 28).value , sede = sede_mas_antigua, sede__capacitador = hoja_excel.cell(row=i, column=30).value )
                          asignacion = cyd_m.Asignacion.objects.get(participante = asignado , grupo = grupo)
 
                          nota = cyd_m.NotaHito.objects.get(asignacion = asignacion)
-
                          nota.nota = hoja_excel.cell(row = i, column = 23).value
                          nota.save()
                          print(i)
@@ -896,3 +905,47 @@ class CapacitacionNotas(views.APIView):
                 status=status.HTTP_200_OK
             )
 
+
+
+###############################################
+class estadoFormularioAPI(views.APIView):
+    """Toma los datos del modulo de Evaluación para crear los modelos en la clase: ´estadoFormulario´"""
+
+    def get(self, request):          
+        asignaciones = AsignacionPregunta.objects.all()
+        agrupacion = {}
+        formularios_creados = 0
+        contar = 0 
+
+        # Agrupar las asignaciones por participante
+        for asignacion in asignaciones:
+            participante = asignacion.evaluado
+
+            print(participante)
+
+            # Crear una clave única para cada participante
+            if participante not in agrupacion:
+                agrupacion[participante] = []
+            agrupacion[participante].append(asignacion)
+
+        # Crear instancias de estadoFormulario para cada grupo de asignaciones
+        for participante, asignaciones in agrupacion.items():
+            # Verificar que todas las asignaciones en el grupo están respondidas
+            all_respondidas = all(asignacion.respondido for asignacion in asignaciones)
+
+            for asignacion in asignaciones:
+               contar += 1
+            print(str(contar) + "  -  " + str(asignacion.id) + " - " + str(asignacion.evaluado) )  
+
+            # Crear el estadoFormulario
+            estado_formulario = estadoFormulario.objects.create()
+            estado_formulario.preguntas.set(asignaciones)
+            estado_formulario.estado = all_respondidas
+
+            estado_formulario.save()
+            formularios_creados += 1
+
+        # Imprimir el número de formularios creados
+        print('Se crearon {} formularios'.format(formularios_creados))
+
+        return Response("Objetos creados correctamente: {}".format(formularios_creados), status=status.HTTP_200_OK)
