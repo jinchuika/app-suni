@@ -67,5 +67,10 @@ urlpatterns = [
     r'^capacitacion/nota/$',
     varias_v.CapacitacionNotas.as_view(),
     name='capacitacion_notas'
+ ), 
+url(
+   r'^evaluacion/estadoformulario/$',
+   varias_v.estadoFormularioAPI.as_view(),
+   name='estado_formulario_api'
  )
 ]
