@@ -502,7 +502,8 @@ class NewListadoMaestroView(TemplateView):
          data_certificado["participante"]=data_participante         
          contador_curso = 0
          nota_naat =0              
-         ultima_sede = listado_sedes[0]        
+         ultima_sede = listado_sedes[0]
+         es_naat= False        
          while len(listado_sedes) != 0:
             id_cursos =[]  
             data_sedes = {}
@@ -525,6 +526,7 @@ class NewListadoMaestroView(TemplateView):
                   id_cursos.append(data_tni.grupo.curso.id)
                 #NAAT 2024                  
                elif (data_tni.grupo.curso.id) in [62,63,64,65]:
+                  es_naat =True
                   id_cursos.append(data_tni.grupo.curso.id)
                   nota_naat = nota_naat + data_tni.get_nota_promediada()["nota"]
 
@@ -551,7 +553,7 @@ class NewListadoMaestroView(TemplateView):
                    if data.grupo.sede.fecha_creacion.year ==2024:
                       data_sedes["tipo"]=signing.dumps("certificado_tni")
                       data_sedes["certificado"]=True
-                elif sum(id_cursos) == 254:
+                elif sum(id_cursos) == 254 and es_naat==False:
                    if data.grupo.sede.fecha_creacion.year ==2024:
                       data_sedes["tipo"]=signing.dumps("certificado_tni")
                       data_sedes["certificado"]=True
@@ -581,7 +583,7 @@ class NewListadoMaestroView(TemplateView):
                        data_sedes["certificado"]=True
                     else:
                        data_sedes["certificado"]=False                                         
-                elif sum(id_cursos)== 254:                                      
+                elif sum(id_cursos)== 254 and es_naat==True:                                      
                     if nota_naat>=61:                     
                       data_sedes["tipo"]=signing.dumps("certificado_naat")
                       data_sedes["certificado"]=True
