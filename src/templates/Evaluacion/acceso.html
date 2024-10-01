@@ -19,6 +19,13 @@
         //Formatear el DPI automáticamente
         document.getElementById('dpiInput').addEventListener('input', function (e) {
             let inputValue = e.target.value.replace(/\D/g, '');
+
+                        // Limitar a 13 dígitos
+            if (inputValue.length > 13) {
+                inputValue = inputValue.slice(0, 13);
+            }
+
+                        
             if (inputValue.length > 4 && inputValue.length <= 9) {
                 e.target.value = inputValue.slice(0, 4) + '-' + inputValue.slice(4);
             } else if (inputValue.length > 9) {

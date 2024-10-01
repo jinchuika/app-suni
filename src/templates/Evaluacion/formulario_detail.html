@@ -1,0 +1,229 @@
+{% extends "base/base.html" %}
+{% load has_group %}
+{% load staticfiles widget_tweaks %}
+
+{% block page_title %}
+<title>Editar Formulario</title>
+{% endblock page_title %}
+
+{% block content %}
+
+<style> 
+    h4{
+        margin-left: 10px;
+        height: 50px;
+    }
+    canvas{
+        margin: 10px;
+        padding-right : 10px;
+    }
+    .texto{
+        height: 340px;
+        width: 300px;
+        overflow: visible;
+        overflow: scroll ;
+    }
+    .boton{
+        text-align: center;
+    }
+
+
+</style>
+{% if request.user|has_group:"eva_admin" or request.user|has_group:"eva_tpe" or request.user|has_group:"eva_capacitacion" %}
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="row-fluid">
+            <div class="col-md-4">
+                <div class="box box-primary" id="encabezado_general">
+                    <div class="box-body no-padding box-profile">
+                        <h3 class="text-center">Formulario No.{{ formulario.id }}</h3>
+
+                        <table class="table">
+							<tr>
+								<th><i class="fa fa-university"></i> Sede: </b></th>
+								<td><a href="{{ formulario.sede.get_absolute_url }}">{{ formulario.sede }}</a></td>
+							</tr>
+                            <tr>
+								<th><i class="fa fa-map-marker"></i> Municipio: </b></th>
+								<td>{{ formulario.sede.municipio.nombre }}</td>
+							</tr>
+                            <tr>
+								<th><i class="fa fa-user"></i> Capacitador: </b></th>
+								<td>{{  formulario.usuario.get_full_name }}</td>
+							</tr>
+                            <tr>
+								<th><i class="fa fa-hourglass-start"></i>  Fecha de inicio: </b></th>
+								<td>{{ formulario.fecha_inicio_formulario }}</td>
+							</tr>
+                            <tr>
+								<th><i class="fa fa-hourglass-end"></i>  Fecha de fin: </b></th>
+								<td> {{ formulario.fecha_fin_formulario }}</td>
+							</tr>
+                            <td colspan="2" class="text-right">
+                                <a href="{% url 'formulario_edit' pk=formulario.id %}" class="btn btn-warning" class="hvr-buzz-out" ><i class="fa fa-pencil-square-o" aria-hidden="true"></i> Editar </a>
+                            </td>
+                        </table>
+                    </div>
+                </div>    
+
+                <div class="box box-primary" id="encabezado_resumen">
+                    <div class="box-header with-border">
+                        <div id="Encabezado" class="encabezado"> 
+                            <div class="col-12 col-md-12">
+                                <h3 class="box-title"><i class="fa fa-line-chart" aria-hidden="true"></i> Resumen de formulario</h3>
+                            </div>
+                     
+                        <div class="col-6 col-md-6 ">
+                            <div class="info-box">
+                                <span class="info-box-icon bg-orange"><i class="fa fa-times-circle-o"></i></span>
+                                <div class="info-box-content">
+                                    <span class="info-box-text">No respondidos </span>
+                                    <span class="info-box-number">{{ no_participantes_no_respondidos }}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-6 col-md-6 ">
+                            <div class="info-box">
+                                <span class="info-box-icon bg-lime-active"><i class="fa fa-check-circle-o"></i></span>
+                                <div class="info-box-content">
+                                    <span class="info-box-text">Respondidios</span>
+                                    <span class="info-box-number">{{ no_participantes_respondidos }}</span>
+                                </div>
+                            </div>
+                        </div> 
+                    </div>    
+                </div>      
+            </div> 
+
+
+                <div class="box box-primary" id="encabezado_sede">
+                    <div class="box-header with-border">
+                    <div id="Encabezado" class="encabezado"> 
+                        <div class="col-12 col-md-12">
+                            <h3 class="box-title"><i class="fa fa-users" aria-hidden="true"></i> Resumen de participantes en la sede </h3>
+                        </div>
+        
+                        {% with formulario.sede.get_participantes as participantes %}    
+                            {% for genero in participantes.resumen.genero %}
+                                {%if genero.nombre_genero == 'Hombre' %}
+                                    <div class="col-6 col-md-6">
+                                        <div class="info-box">
+                                            <span class="info-box-icon bg-aqua"><i class="fa fa-male"></i></span>
+                                            <div class="info-box-content">
+                                                <span class="info-box-text">{{ genero.nombre_genero }}</span>
+                                                <span class="info-box-number">{{genero.cantidad }}</span>
+                                            </div>
+                                        </div>
+                                    </div> 
+                                {% endif %}
+    
+                                {%if genero.nombre_genero == 'Mujer' %}
+                                    <div class="col-6 col-md-6">
+                                        <div class="info-box">
+                                            <span class="info-box-icon bg-fuchsia-active"><i class="fa fa-female"></i></span>
+                                            <div class="info-box-content">
+                                                <span class="info-box-text">{{ genero.nombre_genero }}</span>
+                                                <span class="info-box-number">{{genero.cantidad }}</span>
+                                            </div>
+                                        </div>
+                                    </div> 
+                                {% endif %}
+                                    
+                            {% endfor %}
+    
+                                    
+                            <div class="col-6 col-md-6 ">
+                                <div class="info-box">
+                                    <span class="info-box-icon bg-green-active"><i class="fa fa-check"></i></span>
+                                    <div class="info-box-content">
+                                        <span class="info-box-text">Aprobado</span>
+                                        <span class="info-box-number">{{ participantes.resumen.estado.aprobado.cantidad }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-6 col-md-6 ">
+                                <div class="info-box">
+                                    <span class="info-box-icon bg-maroon"><i class="fa fa-times"></i></span>
+                                    <div class="info-box-content">
+                                        <span class="info-box-text">Reprobado</span>
+                                        <span class="info-box-number">{{ participantes.resumen.estado.reprobado.cantidad }}</span>
+                                    </div>
+                                </div>
+                            </div> 
+        
+                            {% for rol in participantes.resumen.roles %}
+                                <div class="col-6 col-md-6">
+                                    <div class="info-box">
+                                        <span class="info-box-icon bg-yellow"><i class="fa fa-users"></i></span>
+                                        <div class="info-box-content"> 
+                                            <span class="info-box-text">Total {{rol.nombre_rol}} </span>
+                                            <span class="info-box-number">{{rol.cantidad }}</span>
+                                        </div>
+                                    </div>
+                                </div> 
+                            {% endfor %}
+                        {% endwith %}
+                    </div>    
+                </div>
+            </div> 
+            </div>
+        </div>  
+
+  
+
+        <div class="row-fluid">
+            <div class="col-md-8">
+                <div class="box box-primary" id="estadistica_detalle" data-url="{% url 'estadistica_detail' %}"  data-id= {{formulario.id}}>
+                    {% for seccion in secciones %}
+                        <div class="text-center">
+                            <h1> Sección:  {{ seccion.seccion_pregunta }} </h1>
+                        </div> 
+
+                        <div class="box box-primary">
+                            <div class="row" >
+                                {% for pregunta in preguntas %}
+                                    {% if pregunta.seccion_pregunta.seccion_pregunta == seccion.seccion_pregunta  %} 
+
+                                        {% if pregunta.tipo_respuesta.tipo_respuesta == "Texto" %}
+                                            <div class="col-8 col-md-3" >
+                                                <h5 class="margin-left: 10px;" width="400" height="400" > 
+                                                    {{pregunta}}
+                                                </h5>
+                                                
+                                                <div width="400" class="texto">
+                                                    <div id="pregunta_{{pregunta}}" > </div>
+                                                </div>
+                                                
+                                            </div>
+                                        {% else %}
+                                            <div class="col-8 col-md-3 ">
+                                                <div width="400"><h5 class="margin-left: 10px;"> {{pregunta}} </h5>  </div>    
+                                                <canvas id="myChart_{{pregunta}}" width="335" height="360"></canvas>
+                                            </div>
+                                        {% endif %}
+
+                                    {% endif %}
+                                {% endfor %}
+                            </div> 
+                        </div>
+                    {% endfor %} 
+                </div> 
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endif %}
+{% endblock content %}
+
+{% block extra_js %}
+<script src="{% static 'js/distributed/Chart.min.js' %}"></script>
+<script src="{% static 'js/extrajs/evaluacion.js' %}"></script>
+
+<script> 
+    var  nuevo = new FormularioDetalle();
+</script> 
+{% endblock extra_js %}
+

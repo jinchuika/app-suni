@@ -1,0 +1,96 @@
+{% extends "base/base.html" %}
+{% load has_group %}
+{% load staticfiles widget_tweaks %}
+
+{% block page_title %}
+<title>Informe Evaluación</title>
+{% endblock page_title %}
+
+{% block content %}
+
+<style> 
+    h4{
+        margin-left: 10px;
+        height: 50px;
+    }
+    canvas{
+        margin: 10px;
+        padding-right : 10px;
+    }
+    .texto{
+        height: 340px;
+        width: 300px;
+        overflow: visible;
+        overflow: scroll ; /* Para ocultar el desvordamiento*/
+    }
+    .encabezado{
+        height: 5%;
+    }
+    .boton{
+        text-align: center;
+    }
+</style>
+
+
+{% if request.user|has_group:"eva_admin" or request.user|has_group:"eva_tpe" or request.user|has_group:"eva_capacitacion" %}
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="row-fluid">
+            <div class="col-md-3">
+                <div class="box box-primary">
+                    <div class="box-body no-padding box-profile">
+                        <div class="box">
+                            <form action="" id="evaluacion-informe" data-url="{% url 'api_evaluacion_informe'%}">
+                                <div class="box-header">
+                                    <input type="submit" class="btn btn-primary col-md-12" value="Generar Informe" /><br /><br />
+                                    <h3 class="box-title">Filtros</h3>
+                                </div>
+                                <div class="box-body">
+                                    {% csrf_token %}
+                                    {% for field in form.hidden_fields %}
+                                    {{ field }}
+                                    {% endfor %}
+                                    
+                                    {% for field in form.visible_fields %}
+                                    <div class="form-group">
+                                        {{field.label_tag}} {{field}}
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>            
+            </div>
+        </div>
+
+        <div class="row-fluid">
+            <div class="col-md-8">
+                <div class="box box-primary" id="estadistica_informe">
+                    <!-- Informcion que se construye desde JS--> 
+                </div> 
+            </div>
+        </div>
+    </div>
+</section>
+
+
+{% endif %}
+
+{% endblock content %}
+
+{% block extra_js %}
+<script src="{% static 'js/distributed/Chart.min.js' %}"></script>
+<script src="{% static 'js/extrajs/evaluacion.js' %}"></script>
+
+<script> 
+    var  nuevo = new InformeEvaluacion();
+</script> 
+
+
+{% endblock extra_js %}
+
+
+
+

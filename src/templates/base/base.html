@@ -93,6 +93,14 @@ $(document).on('focus', '.select2', function (e) {
        });
     }
 });
+
+
+<footer class="main-footer">
+	<strong>Copyright © <span id="currentYear"></span> <a href="https://funsepa.org">Fundación Sergio Paiz Andrade</a>.</strong>
+	Todos los derechos reservados.
+</footer>
+
+    document.getElementById('currentYear').textContent = new Date().getFullYear();
 </script>
 {% endblock extra_js %}
 
