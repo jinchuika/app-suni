@@ -23,7 +23,7 @@ import os
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from openpyxl import load_workbook
 from apps.mye.models  import Cooperante
-from apps.Evaluacion.models import estadoFormulario, AsignacionPregunta
+from apps.Evaluacion.models import estadoFormulario, AsignacionPregunta, Formulario
 
 # Create your views here.
 class SubirTodo(views.APIView): 
@@ -614,7 +614,7 @@ class participantesApi(views.APIView):
 
     def get(self, request):
           archivo = self.request.GET.get('archivo')
-          nombre_archivo = "C:/Users/PC/Desktop/Migracion2/Asignacion_MIG_2A_Final" + archivo.upper() + ".xlsx" 
+          nombre_archivo = "C:/Users/dguty/Desktop/Migracion2/Participantes_MIG_2A_Final" + archivo.upper() + ".xlsx" 
           archivo_excel_path = filename= nombre_archivo
           archivo_excel = load_workbook(filename=archivo_excel_path)
           hoja_excel = archivo_excel.active
@@ -664,7 +664,7 @@ class SedeApi(views.APIView):
     """Comentario de Api de prueba para la Apis de django"""
 
     def get(self, request): 
-          archivo_excel_path = filename="C:/Users/PC/Desktop/Migracion2/Sedes_MIG_2.xlsx"  #Aquí va la dirección 
+          archivo_excel_path = filename="C:/Users/dguty/Desktop/Migracion2/Sedes_MIG_2.xlsx"  #Aquí va la dirección 
           archivo_excel = load_workbook(filename=archivo_excel_path)
           hoja_excel = archivo_excel.active
           max_row = hoja_excel.max_row
@@ -717,7 +717,7 @@ class GrupoApi(views.APIView):
     """Comentario de Api de prueba para la Apis de django"""
 
     def get(self, request): 
-          archivo_excel_path = filename= "C:/Users/PC/Desktop/Migracion2/Grupo_MIG_2.xlsx" #Aquí va la dirección 
+          archivo_excel_path = filename= "C:/Users/dguty/Desktop/Migracion2/Grupo_MIG_2.xlsx" #Aquí va la dirección 
           archivo_excel = load_workbook(filename=archivo_excel_path)
           hoja_excel = archivo_excel.active
           max_row = hoja_excel.max_row
@@ -765,7 +765,7 @@ class AsignacionesApi(views.APIView):
     """Comentario de Api de prueba para la Apis de django class ´Asignacion´"""
     def get(self, request): 
           archivo = self.request.GET.get('archivo')
-          nombre_archivo = "C:/Users/PC/Desktop/Migracion2/Asignacion_MIG_2A_Final" + archivo.upper() + ".xlsx" 
+          nombre_archivo = "C:/Users/dguty/Desktop/Migracion2/Asignacion_MIG_2A_Final" + archivo.upper() + ".xlsx" 
           archivo_excel_path = filename= nombre_archivo
           print(archivo_excel_path)
           archivo_excel = load_workbook(filename=archivo_excel_path)
@@ -836,7 +836,7 @@ class HitosApi(views.APIView):
 
     def get(self, request): 
           archivo = self.request.GET.get('archivo')
-          nombre_archivo = "C:/Users/PC/Desktop/Migracion2/Asignacion_MIG_2A_Final" + archivo.upper() + ".xlsx" 
+          nombre_archivo = "C:/Users/dguty/Desktop/Migracion2/Asignacion_MIG_2A_Final" + archivo.upper() + ".xlsx" 
           print(nombre_archivo)
           archivo_excel_path = filename= nombre_archivo
           archivo_excel = load_workbook(filename=archivo_excel_path)
@@ -909,43 +909,42 @@ class CapacitacionNotas(views.APIView):
 
 ###############################################
 class estadoFormularioAPI(views.APIView):
-    """Toma los datos del modulo de Evaluación para crear los modelos en la clase: ´estadoFormulario´"""
+    """Toma los datos del modulo de Evaluación para crear los modelos en la clase: ´estadoFormulario´ """
 
     def get(self, request):          
-        asignaciones = AsignacionPregunta.objects.all()
-        agrupacion = {}
-        formularios_creados = 0
-        contar = 0 
+          asignaciones = AsignacionPregunta.objects.all()
+          formularios = Formulario.objects.all()
+          agrupacion = {}
+          formularios_creados = 0
+          contar = 0 
 
-        # Agrupar las asignaciones por participante
-        for asignacion in asignaciones:
-            participante = asignacion.evaluado
 
-            print(participante)
+          for formulario in formularios:
+               sede = cyd_m.Sede.objects.get(capacitador = formulario.usuario, escuela_beneficiada = formulario.escuela, activa = True)
+               formulario.sede = sede
+               formulario.save()
 
-            # Crear una clave única para cada participante
-            if participante not in agrupacion:
-                agrupacion[participante] = []
-            agrupacion[participante].append(asignacion)
+          for asignacion in asignaciones:
+               participante = asignacion.evaluado
 
-        # Crear instancias de estadoFormulario para cada grupo de asignaciones
-        for participante, asignaciones in agrupacion.items():
-            # Verificar que todas las asignaciones en el grupo están respondidas
-            all_respondidas = all(asignacion.respondido for asignacion in asignaciones)
+               if participante not in agrupacion:
+                    agrupacion[participante] = []
+               agrupacion[participante].append(asignacion)
 
-            for asignacion in asignaciones:
-               contar += 1
-            print(str(contar) + "  -  " + str(asignacion.id) + " - " + str(asignacion.evaluado) )  
+          for participante, asignaciones in agrupacion.items():
+               all_respondidas = all(asignacion.respondido for asignacion in asignaciones)
 
-            # Crear el estadoFormulario
-            estado_formulario = estadoFormulario.objects.create()
-            estado_formulario.preguntas.set(asignaciones)
-            estado_formulario.estado = all_respondidas
+               for asignacion in asignaciones:
+                    contar += 1
 
-            estado_formulario.save()
-            formularios_creados += 1
+               estado_formulario = estadoFormulario.objects.create()
+               estado_formulario.preguntas.set(asignaciones)
+               estado_formulario.estado = all_respondidas
 
-        # Imprimir el número de formularios creados
-        print('Se crearon {} formularios'.format(formularios_creados))
+               estado_formulario.save()
+               formularios_creados += 1
+               
+          print('Se crearon {} formularios'.format(formularios_creados))
 
-        return Response("Objetos creados correctamente: {}".format(formularios_creados), status=status.HTTP_200_OK)
+          return Response("Objetos creados correctamente: {}".format(formularios_creados), status=status.HTTP_200_OK)
+

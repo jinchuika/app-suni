@@ -35,8 +35,6 @@ class AreaEvaluada(models.Model):
         return self.area_evaluada
     
 
-
-
 class SeccionPregunta(models.Model):
     """La sección a la que pertenece un grupo de preguntas"""
     seccion_pregunta = models.CharField(max_length=40, verbose_name="seccion_pregunta")
@@ -79,7 +77,6 @@ class Evaluacion(models.Model):
 class Pregunta(models.Model):
     """Expresa la pregunta, va asociado a una respuesta que a su vez esta asociado a un tipo de respuesta"""
     pregunta = models.CharField(max_length=200, verbose_name="Pregunta")    
-
     tipo_respuesta = models.ForeignKey(TipoRespuesta, related_name= "tipo_de_pregunta", null=True, blank=True,on_delete=models.CASCADE)
     area_evaluada = models.ForeignKey(AreaEvaluada, on_delete=models.CASCADE, null=True, blank=True)
     seccion_pregunta = models.ForeignKey(SeccionPregunta, on_delete=models.CASCADE, null=True, blank=True)
@@ -100,7 +97,6 @@ class Pregunta(models.Model):
 class Respuesta(models.Model):
     """Contiene la respuesta, esta asociado al tipo de respuestas"""
     tipo_respuesta = models.ForeignKey(TipoRespuesta, on_delete=models.CASCADE) 
-
     respuesta = models.TextField(verbose_name='respuesta')
 
     class Meta:
@@ -113,15 +109,14 @@ class Respuesta(models.Model):
 
 
 class Formulario(models.Model):
-
     """Contiene la información del formular"""
-    activo = models.BooleanField(default= False) #Cambiar 
+    activo = models.BooleanField(default= False) 
     escuela = models.ForeignKey(esc_m.Escuela, related_name='formulario_escuela', on_delete=models.CASCADE)
-    usuario = models.ForeignKey(User, related_name='usuario', on_delete=models.CASCADE)
+    usuario = models.ForeignKey(User, related_name='Capacitador', on_delete=models.CASCADE)
     fecha_inicio_formulario = models.DateTimeField( default=timezone.now, verbose_name='Fecha incio formulario')
     fecha_fin_formulario = models.DateTimeField(default=timezone.now, verbose_name='Fecha fin formulario')
     fecha_creacion_formulario = models.DateTimeField( default=timezone.now, verbose_name='Fecha creacion formulario')
-
+    sede = models.ForeignKey(cyd_m.Sede, on_delete=models.CASCADE, blank=True, null=True)
     area_evaluada = models.ForeignKey(AreaEvaluada, on_delete=models.CASCADE, null=True, blank=True)
     formulario_creado_por =models.ForeignKey(User, on_delete=models.CASCADE,default=User.objects.get(username="Admin").pk)
     evaluacion = models.ForeignKey(Evaluacion, on_delete=models.CASCADE,  null=True, blank=True)
@@ -132,7 +127,7 @@ class Formulario(models.Model):
         verbose_name_plural = "Formularios"
 
     def __str__(self):
-        return 'Escuela: {escuela} -> Capacitador: {capacitador}'.format(escuela =self.escuela, capacitador =self.usuario)
+        return 'Sede: {sede} -> Capacitador: {capacitador}'.format(sede =self.sede, capacitador =self.usuario)
 
 
 class AsignacionPregunta(models.Model):
@@ -151,12 +146,11 @@ class AsignacionPregunta(models.Model):
         verbose_name_plural = "Asignacion de preguntas"
 
     def __str__(self):
-        return '{formulario} - {pregunta}'.format(formulario=self.formulario.escuela, pregunta = self.pregunta)
+        return '{id} -{formulario} - {pregunta}'.format(id=self.id, formulario=self.formulario.escuela, pregunta = self.pregunta)
 
 
 
 class DispositivoParticipantes(models.Model):
-
     """Información del dispositivo desde donde se llena el formulario"""
     dispositivo = models.CharField(max_length=50,blank=True, null= True, verbose_name='Tipo_dispositivo')
     os = models.CharField(max_length=50,blank=True, null= True, verbose_name='Tipo_sistema_operativo')
@@ -168,3 +162,31 @@ class DispositivoParticipantes(models.Model):
 
     def __str__(self):
         return self.dispositivo
+
+
+class estadoFormulario(models.Model):
+    """Información del estado del formulario si se completaron todas las preguntas"""
+    estado = models.BooleanField(default=False)
+    preguntas = models.ManyToManyField(AsignacionPregunta, related_name='Preguntas_Asignadas')
+
+
+    class Meta:
+        verbose_name = "Estado de formulario"
+        verbose_name_plural = "Estado de formularios"
+
+    def __str__(self):
+        return "Formulario " + str(self.estado)
+
+
+    def get_participante(self):
+        asignacion = self.preguntas.first()
+        if asignacion:
+            return asignacion.evaluado
+        return None
+    
+    def get_escuela(self):
+        asignacion = self.preguntas.first()
+        if asignacion:
+            return asignacion.formulario.escuela
+        return None
+    

@@ -1,7 +1,9 @@
-from apps.Evaluacion import models as evaluacion_models
-from apps.Evaluacion import serializers as evaluacion_serializers
 from rest_framework import viewsets, generics
-from rest_framework import status
-from rest_framework.response import Response
-from django.db.models import Q
+from braces.views import CsrfExemptMixin
+from apps.cyd import models as cyd_models
+from apps.Evaluacion import serializers as eva_serializers
 
+class SedeViewSet(CsrfExemptMixin, viewsets.ModelViewSet):
+    serializer_class = eva_serializers.SedeSerializer
+    queryset = cyd_models.Sede.objects.filter(activa = True)
+    filter_fields = ('capacitador', 'municipio','escuela_beneficiada__codigo','fecha_creacion')

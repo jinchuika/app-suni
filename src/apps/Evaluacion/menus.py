@@ -16,6 +16,12 @@ evaluacion_children = (
         weight=12,
         icon="fa fa-plus-circle"
     ),
+    ViewMenuItem(
+        "Informe Evaluación",
+        reverse_lazy("informe_estadisticas"),
+        weight=12,
+        icon="fa fa-bar-chart"
+    ),
 )
 Menu.add_item(
     "user",
