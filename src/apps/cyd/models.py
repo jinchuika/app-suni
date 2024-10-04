@@ -160,33 +160,34 @@ class Sede(models.Model):
         super(Sede, self).save(*args, **kwargs)
 
     def get_participantes(self):
+        contador_ciclo_participantes=0
         invitada = False
         resultado = {'listado': [], 'resumen': {'roles': {}, 'genero': {}, 'estado': {}}}
         resultados_sede_invitada = {'listado':[]}
         participantes = Participante.objects.filter(
             asignaciones__grupo__sede__id=self.id, activo=True).annotate(
-            cursos_sede=Count('asignaciones'))        
+            cursos_sede=Count('asignaciones')).exclude(asignaciones__grupo__curso__nombre__icontains='Tecnologia', asignaciones__grupo__numero=2)        
         for participante in participantes:
-            
-            asignaciones = participante.asignaciones.filter(grupo__sede=self)            
-            #print(asignaciones.first().grupo.sede.fecha_creacion.year)
-            new_asignaciones = participante.asignaciones.filter(grupo__sede=self, grupo__curso__nombre__icontains='Tecnologia', grupo__numero=2)            
-            if new_asignaciones.count() !=0:
-                invitada = True                    
-                nota_new =sum(b.get_nota_promediada()['nota'] for b in asignaciones)
-                resultados_sede_invitada['listado'].append({
-                    'participante':participante,
-                    'nota':nota_new,
-                    'grupo':new_asignaciones.first().grupo.numero,
-                    'year': new_asignaciones.first().grupo.sede.fecha_creacion.year,
-                    'curso':asignaciones.first().grupo.curso.nombre
-                })
+            asignaciones = participante.asignaciones.filter(grupo__sede=self) 
             resultado['listado'].append({
                 'participante': participante,
                 'nota': sum(a.get_nota_promediada()['nota'] for a in asignaciones),
                 'grupo': asignaciones.first().grupo.numero,
                 'year':asignaciones.first().grupo.sede.fecha_creacion.year,
                 'curso':asignaciones.first().grupo.curso.nombre
+                
+                })
+        participantes_invitados = Participante.objects.filter(
+            asignaciones__grupo__sede__id=self.id, activo=True, asignaciones__grupo__curso__nombre__icontains='Tecnologia', asignaciones__grupo__numero=2).annotate(
+            cursos_sede=Count('asignaciones'))
+        for participante_invitado in participantes_invitados:
+            asignaciones_invitadas = participante_invitado.asignaciones.filter(grupo__sede=self)            
+            resultado['listado'].append({
+                'participante': participante_invitado,
+                'nota': sum(a.get_nota_final() for a in asignaciones_invitadas),
+                'grupo': asignaciones_invitadas.first().grupo.numero,
+                'year':asignaciones_invitadas.first().grupo.sede.fecha_creacion.year,
+                'curso':asignaciones_invitadas.first().grupo.curso.nombre
                 
                 })
         
@@ -248,7 +249,7 @@ class Sede(models.Model):
             'porcentaje':(reprobados_invitada * 100 // len(resultados_sede_invitada['listado'])) if len(resultados_sede_invitada['listado']) > 0 else 0 }
         resultado['resumen']['estado']['invitada_aprobado'] ={
             'cantidad': aprobados_invitada,
-            'porcentaje':(aprobados_invitada * 100 // len(resultados_sede_invitada['listado'])) if len(resultados_sede_invitada['listado']) > 0 else 0 }  
+            'porcentaje':(aprobados_invitada * 100 // len(resultados_sede_invitada['listado'])) if len(resultados_sede_invitada['listado']) > 0 else 0 }        
         return resultado
 
 
