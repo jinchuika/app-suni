@@ -12,6 +12,16 @@ from django.contrib.auth.models import User
 from django.forms.widgets import TextInput
 from datetime import datetime
 
+class DateTimeLocalInput(forms.DateTimeInput):
+    input_type = "datetime-local"
+
+class DateTimeLocalField(forms.DateTimeField):
+    input_formats = [
+        "%Y-%m-%dT%H:%M:%S", 
+        "%Y-%m-%dT%H:%M:%S.%f", 
+        "%Y-%m-%dT%H:%M"
+    ]
+    widget = DateTimeLocalInput(format="%Y-%m-%dT%H:%M")
 
 class FormularioAdd(forms.ModelForm):
     """ Formulario para el control de la creación de un formulario
@@ -56,10 +66,12 @@ class FormularioAdd(forms.ModelForm):
         self.fields['usuario'].label_from_instance = lambda usuario: usuario.get_full_name()
 
 
-
 class FormularioForm(forms.ModelForm):
     """ Formulario para el control del listado de formulario, editar fomrulario
     """
+    fecha_inicio_formulario = DateTimeLocalField(required=False)
+    fecha_fin_formulario = DateTimeLocalField(required=False)
+
 
     class Meta:
         model = eva_models.Formulario
@@ -72,11 +84,11 @@ class FormularioForm(forms.ModelForm):
                 'fecha_inicio_formulario': forms.TextInput(attrs={
                 'class': 'form-control',
                 'type': 'datetime-local'
-            }),
+                }),
                 'fecha_fin_formulario': forms.TextInput(attrs={
                 'class': 'form-control',
                 'type': 'datetime-local'
-            }),
+                }),
             }
         
         fecha_inicio_formulario = forms.CharField(
@@ -88,8 +100,7 @@ class FormularioForm(forms.ModelForm):
             required=False
         )
         
-        
-        
+
     def __init__(self, *args, **kwargs):
         super(FormularioForm, self).__init__(*args, **kwargs)
         

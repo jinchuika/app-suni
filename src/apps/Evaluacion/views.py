@@ -88,28 +88,26 @@ class FormularioDetail(LoginRequiredMixin, GroupRequiredMixin, DetailView):
         context = super(FormularioDetail, self).get_context_data(**kwargs)
         formulario = self.object
 
-        secciones = eva_models.SeccionPregunta.objects.filter(area_evaluada = formulario.area_evaluada )
+        secciones = eva_models.SeccionPregunta.objects.filter(area_evaluada=formulario.area_evaluada)
         context['secciones'] = secciones
 
-        preguntas = eva_models.Pregunta.objects.filter(area_evaluada = formulario.area_evaluada, estado = True, evaluacion = formulario.evaluacion) 
+        preguntas = eva_models.Pregunta.objects.filter(area_evaluada=formulario.area_evaluada, estado=True, evaluacion=formulario.evaluacion)
         context['preguntas'] = preguntas
 
-        asignaciones = eva_models.AsignacionPregunta.objects.filter(formulario=formulario).order_by('evaluado')
-        asignaciones_unicas = [next(g) for _, g in groupby(asignaciones, key=attrgetter('evaluado'))]
+        estado_formulario = eva_models.estadoFormulario.objects.filter(preguntas__formulario=formulario).distinct()
 
-        respondidos = [asignacion for asignacion in asignaciones_unicas if asignacion.respondido]
-        no_respondidos = [asignacion for asignacion in asignaciones_unicas if not asignacion.respondido]
+        respondidos = estado_formulario.filter(estado=True).count()
+        no_respondidos = estado_formulario.filter(estado=False).count()
 
-        participantes_respondidos = [asignacion.evaluado for asignacion in respondidos]
-        participantes_no_respondidos = [asignacion.evaluado for asignacion in no_respondidos]
+        context['no_participantes_respondidos'] = respondidos
+        context['no_participantes_no_respondidos'] = no_respondidos
 
-        context['no_participantes_respondidos'] = len(participantes_respondidos)
-        context['no_participantes_no_respondidos'] = len(participantes_no_respondidos)
         total_participantes = cyd_models.Participante.objects.filter(
             asignaciones__grupo__sede=formulario.sede
         ).distinct().count()
+
         context['total_participantes'] = total_participantes
-        context['no_participantes_no_respondidos'] = total_participantes - context['no_participantes_respondidos']
+        context['no_participantes_no_respondidos'] = total_participantes - respondidos
 
         return context
 
@@ -151,7 +149,6 @@ class ingresoDPIView(TemplateView):
                     try:
                         sede = cyd_models.Asignacion.objects.filter(participante__dpi=participante.dpi).last()
                         
-                        
                         try:
                             formulario = eva_models.Formulario.objects.filter(escuela = sede.grupo.sede.escuela_beneficiada, usuario = sede.grupo.sede.capacitador).last()
                             fecha_actual = timezone.localtime(timezone.now())
@@ -159,23 +156,40 @@ class ingresoDPIView(TemplateView):
 
                             if formulario.fecha_inicio_formulario <= fechaActualUTC <= formulario.fecha_fin_formulario:
                                 Preguntas = eva_models.Pregunta.objects.filter(evaluacion= formulario.evaluacion, area_evaluada__area_evaluada = formulario.area_evaluada, estado = True, seccion_pregunta__activo = True)
-                                
+
                                 for pregunta in Preguntas:
                                     asignacion = eva_models.AsignacionPregunta.objects.filter(formulario = formulario, evaluado = participante, pregunta = pregunta)
-                            
-                                    if not asignacion.exists():  
-                                        AsignacionPregunta = eva_models.AsignacionPregunta(
-                                        formulario = formulario,
-                                        evaluado = participante,
-                                        pregunta = pregunta
-                                        )
-                                        AsignacionPregunta.save()
-                                    else:
-                                        if asignacion.last().respondido:
+                                    
+                                    estado = eva_models.estadoFormulario.objects.filter(preguntas__evaluado=participante).last()
+
+                                    if(estado is None):
+                                        if not asignacion.exists():  
+                                            AsignacionPregunta = eva_models.AsignacionPregunta(
+                                                formulario = formulario,
+                                                evaluado = participante,
+                                                pregunta = pregunta
+                                            )
+                                            AsignacionPregunta.save()
+                                        else:
+                                            fechaUpdate = eva_models.AsignacionPregunta.objects.filter(formulario = formulario, evaluado = participante, pregunta = pregunta).last()
+                                            fechaUpdate.fecha_incio_evaluacion = timezone.now()
+                                            fechaUpdate.save()
+
+                                    else: 
+                                        if estado.estado == False:
+                                            if not asignacion.exists():  
+                                                AsignacionPregunta = eva_models.AsignacionPregunta(
+                                                formulario = formulario,
+                                                evaluado = participante,
+                                                pregunta = pregunta
+                                                )
+                                                AsignacionPregunta.save()
+                                            else:
+                                                fechaUpdate = eva_models.AsignacionPregunta.objects.filter(formulario = formulario, evaluado = participante, pregunta = pregunta).last()
+                                                fechaUpdate.fecha_incio_evaluacion = timezone.now()
+                                                fechaUpdate.save()
+                                        else: 
                                             return redirect("acceso")
-                                        fechaUpdate = eva_models.AsignacionPregunta.objects.filter(formulario = formulario, evaluado = participante, pregunta = pregunta).last()
-                                        fechaUpdate.fecha_incio_evaluacion = timezone.now()
-                                        fechaUpdate.save()
 
                                 request.session['dpi'] = dpi
 
@@ -243,10 +257,71 @@ class guardarPreguntas(APIView):
             participante =  cyd_models.Participante.objects.get(dpi = dpi)
 
             asigancionUpdate = eva_models.AsignacionPregunta.objects.filter(formulario = formularioNo , evaluado = participante).last()
+            estado = eva_models.estadoFormulario.objects.filter(preguntas__evaluado=participante).first()
 
-            if asigancionUpdate is None:
-                return redirect("acceso")
-            else: 
+            if estado is not None: 
+                if estado.estado == False: 
+                    if asigancionUpdate.respondido == False:
+                        preguntas_respuestas = []
+                        for item in data.items():
+                            try:
+                                Pregunta = eva_models.Pregunta.objects.get(pregunta=item[0])
+                            except eva_models.Pregunta.DoesNotExist:
+                                continue
+                            
+                            try:
+                                respuesta = eva_models.Respuesta.objects.get(respuesta=item[1])
+                            except eva_models.Respuesta.DoesNotExist:
+                                respuestaAdd = eva_models.Respuesta(
+                                    tipo_respuesta = eva_models.TipoRespuesta.objects.get(tipo_respuesta="Texto"), 
+                                    respuesta = item[1]
+                                )
+                                respuestaAdd.save()
+                                respuesta = eva_models.Respuesta.objects.get(respuesta=item[1])
+                            
+                            asignacionAdd = eva_models.AsignacionPregunta.objects.get(formulario = formularioNo, evaluado = participante, pregunta = Pregunta) 
+                            
+
+                            asignacionAdd.respuesta = respuesta
+                            asignacionAdd.respondido = True
+                            asignacionAdd.fecha_fin_evaluacion = timezone.now()
+                            asignacionAdd.save()
+
+                            preguntas_respuestas.append(asignacionAdd)
+                        
+                        try: 
+                            estado_formulario = eva_models.estadoFormulario.objects.filter(preguntas__in=preguntas_respuestas, preguntas__evaluado=participante).distinct().last()
+                            estado_formulario.estado = True
+                            estado_formulario.save()
+
+                        except Exception as e:
+                            print(e)
+                            formularioAdd = eva_models.estadoFormulario.objects.create()
+                            formularioAdd.preguntas.set(preguntas_respuestas)
+                                
+                            cant_preguntas = eva_models.Pregunta.objects.filter(evaluacion = formularioNo.evaluacion).count()
+                            if cant_preguntas == len(preguntas_respuestas):
+                                formularioAdd.estado = True
+                                formularioAdd.save()
+
+                        user_agent = get_user_agent(request)
+                        tipoDispositivo = user_agent.device.family if user_agent.device.family else "Desconocido"
+                        tipoSO = user_agent.os.family if user_agent.os.family else "Desconocido"
+                        dispositivo_info = eva_models.DispositivoParticipantes.objects.create(
+
+                            dispositivo=tipoDispositivo,
+                            os=tipoSO,
+                            participante_info=participante
+                        )
+                        dispositivo_info.save()
+
+                    else: 
+                        return HttpResponse("Formulario ya contestado, gracias")
+
+                if estado.estado == True:
+                    return redirect("acceso")
+                
+            if estado is None: 
                 if asigancionUpdate.respondido == False:
                     preguntas_respuestas = []
                     for item in data.items():
@@ -276,11 +351,11 @@ class guardarPreguntas(APIView):
                         preguntas_respuestas.append(asignacionAdd)
                     
                     try: 
-                        estado_formulario = eva_models.estadoFormulario.objects.filter(preguntas__in=preguntas_respuestas, preguntas__evaluado=participante).distinct().first()
+                        estado_formulario = eva_models.estadoFormulario.objects.filter(preguntas__in=preguntas_respuestas, preguntas__evaluado=participante).distinct().last()
                         estado_formulario.estado = True
+                        estado_formulario.save()
 
                     except Exception as e:
-                        print(e)
                         formularioAdd = eva_models.estadoFormulario.objects.create()
                         formularioAdd.preguntas.set(preguntas_respuestas)
                             
@@ -288,8 +363,6 @@ class guardarPreguntas(APIView):
                         if cant_preguntas == len(preguntas_respuestas):
                             formularioAdd.estado = True
                             formularioAdd.save()
-                    
-                        evaluado = eva_models.estadoFormulario.objects.get(id = 1)
 
                     user_agent = get_user_agent(request)
                     tipoDispositivo = user_agent.device.family if user_agent.device.family else "Desconocido"

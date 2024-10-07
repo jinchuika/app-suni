@@ -60,9 +60,10 @@
 		{% endblock content %}
 		</div>
 		<footer class="main-footer">
-			<strong>Copyright © 2024 <a href="https://funsepa.org">Fundación Sergio Paiz Andrade</a>.</strong>
+			<strong>Copyright © <span id="currentYear"></span> <a href="https://funsepa.org">Fundación Sergio Paiz Andrade</a>.</strong>
 			Todos los derechos reservados.
 		</footer>
+		
 	</div>
 </body>
 {% endblock body %}
@@ -81,6 +82,8 @@
 <script src="{% static "js/distributed/noty.min.js" %}"></script>
 <script src="{% static "js/main.js" %}"></script>
 {% block extra_js %}
+
+
 <script>
 
 $(document).on('focus', '.select2', function (e) {
@@ -94,11 +97,6 @@ $(document).on('focus', '.select2', function (e) {
     }
 });
 
-
-<footer class="main-footer">
-	<strong>Copyright © <span id="currentYear"></span> <a href="https://funsepa.org">Fundación Sergio Paiz Andrade</a>.</strong>
-	Todos los derechos reservados.
-</footer>
 
     document.getElementById('currentYear').textContent = new Date().getFullYear();
 </script>
