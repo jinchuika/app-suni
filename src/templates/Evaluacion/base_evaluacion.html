@@ -54,12 +54,12 @@
 {% endblock body %}
 
 <footer class="main-footer">
-	<strong>Copyright © 2023 <a href="https://funsepa.org">Fundación Sergio Paiz Andrade</a>.</strong>
+	<strong>Copyright © <span id="currentYear"></span> <a href="https://funsepa.org">Fundación Sergio Paiz Andrade</a>.</strong>
 	Todos los derechos reservados.
 </footer>
 
-
-
-</html>
+<script>
+    document.getElementById('currentYear').textContent = new Date().getFullYear();
+</script>
 
 
