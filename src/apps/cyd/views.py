@@ -275,31 +275,45 @@ class CalendarioListView(JsonRequestResponseMixin, View):
         calendario_list = cyd_m.Calendario.objects.filter(
             fecha__gte=datetime.strptime(self.request.GET.get('start'), '%Y-%m-%d'),
             fecha__lte=datetime.strptime(self.request.GET.get('end'), '%Y-%m-%d'))
+        calendario_sedes = cyd_m.Sede.objects.filter(fecha_creacion__gte=datetime.strptime(self.request.GET.get('start'), '%Y-%m-%d'),
+            fecha_creacion__lte=datetime.strptime(self.request.GET.get('end'), '%Y-%m-%d'))        
         capacitador = self.request.GET.get('capacitador', False)
         if capacitador:
             calendario_list = calendario_list.filter(grupo__sede__capacitador__id=capacitador)
         else:
             if "cyd_admin" in self.request.user.groups.values_list('name', flat=True):
-                 calendario_list = calendario_list
+                 calendario_list = calendario_sedes
             else:
                 calendario_list = calendario_list.filter(grupo__sede__capacitador__id=self.request.user.id) 
         sede = self.request.GET.get('sede', False)
         if sede:
             calendario_list = calendario_list.filter(grupo__sede__id=sede)
         for calendario in calendario_list:
-            response.append({
-                'title': 'Grupo {}'.format(calendario.grupo),
-                'start': '{} {}'.format(calendario.fecha, calendario.hora_inicio),
-                'end': '{} {}'.format(calendario.fecha, calendario.hora_fin),
-                'color': calendario.grupo.sede.capacitador.perfil.color,
-                'tipo': 'c',
-                'tip_title': '{},{}'.format(calendario.grupo.curso,calendario.grupo.sede.capacitador.get_full_name()),
-                'tip_text': 'Grupo {}, asistencia {} en la sede {}'.format(
-                    calendario.grupo.numero,
-                    calendario.cr_asistencia.modulo_num,
-                    calendario.grupo.sede),
-                '_id': '{}'.format(calendario.id),
-                '_url': reverse('calendario_api_detail', kwargs={'pk': calendario.id})})
+             if "cyd_admin" in self.request.user.groups.values_list('name', flat=True):                 
+                 response.append({
+                    'title': calendario.escuela_beneficiada.nombre,
+                    'start': calendario.fecha_creacion.date(),
+                    'end': calendario.fecha_creacion.date(),
+                    'color': calendario.capacitador.perfil.color,
+                    'tipo': 'c',
+                    'tip_title': '{},{}'.format(calendario.nombre,calendario.capacitador.get_full_name()),
+                    'tip_text': 'Escuela: {} \nDireccion:{} \nCodigo {}' .format(calendario.escuela_beneficiada.nombre,calendario.escuela_beneficiada.direccion,calendario.escuela_beneficiada.codigo),
+                    '_id': '{}'.format(calendario.id),
+                    '_url':calendario.get_absolute_url()})                
+             else:
+                 response.append({
+                    'title': 'Grupo {}'.format(calendario.grupo),
+                    'start': '{} {}'.format(calendario.fecha, calendario.hora_inicio),
+                    'end': '{} {}'.format(calendario.fecha, calendario.hora_fin),
+                    'color': calendario.grupo.sede.capacitador.perfil.color,
+                    'tipo': 'c',
+                    'tip_title': '{},{}'.format(calendario.grupo.curso,calendario.grupo.sede.capacitador.get_full_name()),
+                    'tip_text': 'Grupo {}, asistencia {} en la sede {}'.format(
+                        calendario.grupo.numero,
+                        calendario.cr_asistencia.modulo_num,
+                        calendario.grupo.sede),
+                    '_id': '{}'.format(calendario.id),
+                    '_url': reverse('calendario_api_detail', kwargs={'pk': calendario.id})}) 
         return self.render_json_response(response)
 
 
@@ -893,23 +907,20 @@ class CapacitacionListHomeView(CsrfExemptMixin, JsonRequestResponseMixin, View):
         capacitacion_list = {'escuelas': [], 'sedes': [],'invitadas': []}        
         contador_sedes= 0
         contador_escuelas = 0
-        contador_escuelas_invitadas=0
+        contador_escuelas_invitadas=0        
         for i in range(1,(today.month)+1):
             if self.request.user.groups.filter(name="cyd_capacitador").exists():
                  sedes_sql = "SELECT id FROM  cyd_sede WHERE(YEAR(fecha_creacion)={year} AND MONTH(fecha_creacion)={mes}) AND activa=1 AND capacitador_id={capacitador}".format(year=today.year,mes=i,capacitador=self.request.user.id)
             else:
-                sedes_sql = "SELECT id FROM  cyd_sede WHERE(YEAR(fecha_creacion)={year} AND MONTH(fecha_creacion)={mes}) AND activa=1".format(year=today.year,mes=i)
+                sedes_sql = "SELECT id FROM  cyd_sede WHERE(YEAR(fecha_creacion)={year} AND MONTH(fecha_creacion)={mes}) AND activa=1".format(year=today.year,mes=i)                
             with connection.cursor() as cursor:
                     cursor.execute(sedes_sql)
-                    result =cursor.fetchall()       
+                    result =cursor.fetchall()                
             for data in result:
                 contador_sedes = contador_sedes + 1
                 sede_list = cyd_m.Sede.objects.get(id=data[0])
                 contador_escuelas = contador_escuelas + sede_list.get_escuelas().count()
-                try:
-                    contador_escuelas_invitadas = sede_list.get_escuelas_invitadas().count()
-                except AttributeError:
-                    contador_escuelas_invitadas = 0
+                contador_escuelas_invitadas = contador_escuelas_invitadas + sede_list.get_escuelas_invitadas().count()                
             capacitacion_list['sedes'].append(contador_sedes)
             capacitacion_list['escuelas'].append(contador_escuelas)
             capacitacion_list['invitadas'].append(contador_escuelas_invitadas)

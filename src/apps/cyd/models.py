@@ -133,14 +133,10 @@ class Sede(models.Model):
         return Escuela.objects.filter(
             participantes__in=participantes).annotate(cantidad_participantes=Count('participantes')).distinct()
     
-    def get_escuelas_invitadas(self):      
-        grupos = Grupo.objects.filter(sede=self.id,numero=2, curso__nombre__icontains="Tecnologia").count()
-        if grupos >=1:
-            participantes = Participante.objects.filter(asignaciones__grupo__sede__id=self.id)
-            return Escuela.objects.filter(
-            participantes__in=participantes).annotate(cantidad_participantes=Count('participantes')).distinct().count()
-        else:
-            return 0
+    def get_escuelas_invitadas(self):
+        participantes = Participante.objects.filter(asignaciones__grupo__sede__id=self.id,asignaciones__grupo__numero=2,asignaciones__grupo__curso__nombre__icontains="Tecnologia")
+        escuelas = Escuela.objects.filter(participantes__in=participantes).annotate(cantidad_participantes=Count('participantes')).distinct()             
+        return escuelas 
                
     def save(self, *args, **kwargs):
         if self.url_archivos:

@@ -17,7 +17,6 @@ class IndexView(LoginRequiredMixin, TemplateView):
 
     def get_widgets(self):
         widgets = []
-
         if self.request.user.groups.filter(Q(name='cyd')).exists():
             today = datetime.now()
             departamentos = []
@@ -43,8 +42,8 @@ class IndexView(LoginRequiredMixin, TemplateView):
                     'maestros_total': sum(len(e.get_participantes()['listado']) for e in sedes_list),
                     'aprobados_total': sum(int(e.get_participantes()['resumen']['estado']['aprobado']['cantidad']) for e in sedes_list),
                     'reprobados_total': sum(int(e.get_participantes()['resumen']['estado']['reprobado']['cantidad']) for e in sedes_list),
-                    'nivelar_total': sum(int(e.get_participantes()['resumen']['estado']['nivelar']['cantidad']) for e in sedes_list),
-                }
+                    'nivelar_total':0,                                        
+                }                
             })
 
             widgets.append({
