@@ -503,7 +503,7 @@ class NewListadoMaestroView(TemplateView):
          contador_curso = 0
          nota_naat =0              
          ultima_sede = listado_sedes[0]
-         es_naat= False        
+         es_naat= False      
          while len(listado_sedes) != 0:
             id_cursos =[]  
             data_sedes = {}
@@ -525,7 +525,7 @@ class NewListadoMaestroView(TemplateView):
                elif (data_tni.grupo.curso.id) in [53,55,56,57]:
                   id_cursos.append(data_tni.grupo.curso.id)
                 #NAAT 2024                  
-               elif (data_tni.grupo.curso.id) in [62,63,64,65]:
+               elif (data_tni.grupo.curso.id) in [62,63,64,65]:                  
                   es_naat =True
                   id_cursos.append(data_tni.grupo.curso.id)
                   nota_naat = nota_naat + data_tni.get_nota_promediada()["nota"]
@@ -534,8 +534,8 @@ class NewListadoMaestroView(TemplateView):
             id_cursos = list(dict.fromkeys(id_cursos))
             for  data in info_asignaciones.filter(grupo__sede__id=numero_sede):               
                data_cursos = {}
-               if ultima_sede == numero_sede: 
-                if sum(id_cursos)== 270:                    
+               if ultima_sede == numero_sede:                
+                if sum(id_cursos)== 270:                   
                     if data.grupo.numero==2:
                       if data.get_nota_final()>=70:
                         data_sedes["tipo"]=signing.dumps("constancia_tni")
@@ -596,6 +596,15 @@ class NewListadoMaestroView(TemplateView):
                       data_sedes["certificado"]=True
                     else:                      
                       data_sedes["certificado"]=False
+                elif sum(id_cursos)==69:
+                   if (data.grupo.numero)==2:
+                      if data.get_nota_final()>=70:
+                        data_sedes["tipo"]=signing.dumps("constancia_tni")
+                        data_sedes["constancia"]=True
+                      else:
+                         data_sedes["constancia"]=False
+                      
+                   
                data_cursos["asignacion"] =data.id
                data_cursos["curso"] =data.grupo.curso.nombre
                data_cursos["nota_aprobacion"] =data.grupo.curso.nota_aprobacion
@@ -683,6 +692,9 @@ class NuevoDiplomaPdfView(View):
       elif tipo_decifrada =="certificado_combo_kalite":
          nombre_archivo = "certificado-combo-kalite-"+str(dpi)
          ruta_diploma = str(settings.STATICFILES_DIRS[0] ) + str("/css/diploma/2024/certificado-Kolibri-Khan-Academy-Mantenimiento preventivo-LE-TNI-24.jpg")
+      elif tipo_decifrada =="constancia_tni":
+         nombre_archivo = "constancia_tni-"+str(dpi)
+         ruta_diploma = str(settings.STATICFILES_DIRS[0] ) + str("/css/constancia/2024/constancia-TNI-24.jpg")
 
       
       #ruta_diploma = str(settings.STATICFILES_DIRS[0] ) + str("/css/diploma/TNIVirtual2024.jpg") 
