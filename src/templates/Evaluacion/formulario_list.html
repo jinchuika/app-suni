@@ -1,10 +1,11 @@
 {% extends "base/base.html" %}
+{% load staticfiles %}
 {% load has_group %}
-
 {% load staticfiles widget_tweaks %}
 
+
 {% block page_title %}
-<title>Lisado de Formulario</title>
+    <title>Lisado de Formulario</title>
 {% endblock page_title %} 
 
 
@@ -13,50 +14,78 @@
 
 <section class="content">
     {% csrf_token %}
-       <div class="container-fluid">
-           <div class="row">
-               <div class="col-md-3">
-               {% if perms.evaluacion.formulario_add %}  
-                   <a href="{% url 'formulario_add' %}" class="btn btn-primary">Crear nuevo</a>
-               {% endif %}
-
-               </div>
-               <div class="col-md-6">
-                   <table class="table table-striped box box-primary">
-
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-3">
+                {% if perms.evaluacion.formulario_add %}  
+                    <a href="{% url 'formulario_add' %}" class="btn btn-primary">Crear nuevo</a>
+                {% endif %}
+            </div>
+            
+            <div id="formulario_list" class="code-html contents"  data-url="{%url 'participantes_info'%}" data-id={{object.id}}  >
+            <div class="col-md-6">
+                <table class="table table-striped box box-primary">
                     <tr>
                         <td>Sede</td>
                         <td>Inicio</td>
                         <td>Fin</td>
                         <td>Editar</td> 
+                        <td>Detalles</td>
+                        <td>Estado</td>
                     </tr> 
 
-                       {% for formulario in formularios %}
-                            
-                            <tr>
-                               <td>
-                                   <a href="{{formulario.escuela.get_absolute_url}}">{{ formulario.escuela }}</a>
-                               </td>           
-                                    
-                               <td>
-                                    {{ formulario.fecha_inicio_formulario }}
-                               </td>
-                               <td>
-                                    {{ formulario.fecha_fin_formulario }}
-                                    
-                               </td>
-                               <td>
-                                    <a href="{% url 'formulario_edit' pk=formulario.id %}" class="btn btn-warning"> Editar </a>
-                                </td>
-                           </tr>																	
-                       {% endfor %}
-                   </table>
-               </div>
-           </div>
-       </div>
-       
-   </section>
+                    {% for formulario in formularios %}
+                        <tr>
+                            <td>
+                                <a href="{{formulario.escuela.get_absolute_url}}">{{ formulario.sede }},  {{formulario.usuario.get_full_name }} </a>
+                            </td>           
+                            <td>
+                                {{ formulario.fecha_inicio_formulario }}
+                            </td>
+                            <td>
+                                {{ formulario.fecha_fin_formulario }}
+                            </td>
+                            <td>
+                                <a href="{% url 'formulario_edit' pk=formulario.id %}" class="btn btn-warning"><i class="fa fa-pencil-square-o" aria-hidden="true"></i> Editar </a>
+                            </td>
+                            <td>
+                                <a href="{% url 'formulario_ditail' pk=formulario.id %}" class="btn btn-success"> <i class="fa fa-bar-chart" aria-hidden="true"></i> Detalle </a>
+                            </td>
+                            <td style="width:20%">
+                                <div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" id="tooltip-{{ formulario.sede.id }}" data-bs-toggle="tooltip" data-bs-placement="top" title="">
+                                    <div class="progress-bar" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" id="progress-bar-{{ formulario.sede.id }}" style="width: {{ formulario.porcentaje_completado }}%;">
+                                        {{ formulario.porcentaje_completado }}%
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>                                                                    
+                    {% endfor %}
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+
+   
 
    
 {% endif %}
 {% endblock content %}
+
+{% block extra_js %}
+    <script src="{% static 'js/extrajs/evaluacion.js' %}"></script>
+
+    
+<script> 
+    var  nuevo = new FormularioList();
+</script> 
+
+{% endblock extra_js %}
+
+
+
+
+
+

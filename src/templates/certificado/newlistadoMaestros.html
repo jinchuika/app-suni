@@ -105,7 +105,7 @@
                                                     {% if sede.botones %}
                                                     {% if sede.finalizada %}
                                                     {% if sede.constancia %}
-                                                    <a class="btn btn-warning"  href="{% url 'constanciapdf'%}?dpi={{codigo}}&asignacion={{asignacion.numero_asignacion}}" target="_blank"><i class="fa fa-print"></i> Constancia</a>
+                                                    <a class="btn btn-warning"  href="{% url 'nuevodiplomapdf'%}?codigo={{sedes.participante.codigo}}&tipo={{sede.tipo}}" target="_blank"><i class="fa fa-print"></i> Constancia</a>
                                                     {%elif sede.certificado%}
                                                     <a class="btn btn-warning"  href="{% url 'nuevodiplomapdf'%}?codigo={{sedes.participante.codigo}}&tipo={{sede.tipo}}"><i class="fa fa-print"></i> Certificado</a> 
                                                     {% endif %}  
