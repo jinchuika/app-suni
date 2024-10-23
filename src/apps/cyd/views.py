@@ -817,8 +817,13 @@ class InformeCapacitadores(views.APIView):
                     else:
                         si_es_naat = False
                 numero_escuelas_invitadas=escuela_invitada.values("participante__escuela").distinct().count()            
-                if not si_es_naat:                    
-                    listado_datos['invitada'] = sede.get_escuelas_invitadas()
+                if not si_es_naat:
+                    #print(sede.get_escuelas_invitadas())
+                    if sede.get_escuelas_invitadas().count()==1:
+                        listado_datos['invitada'] = sede.get_escuelas_invitadas().count()
+                    else:
+                        listado_datos['invitada'] = 0
+
                     """if numero_escuelas_invitadas == 0:
                         listado_datos['invitada']=0
                     elif numero_escuelas_invitadas ==1:                                          
