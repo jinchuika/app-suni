@@ -762,7 +762,7 @@ class InformeCapacitadores(views.APIView):
     def post(self, request):
         listado_sede=[]
         listado_curso=[]
-        contador_sede=0       
+        contador_sede=0           
         #capacitador = User.objects.get(id=self.request.POST['capacitador'])
         si_es_naat =False
         try:
@@ -790,8 +790,11 @@ class InformeCapacitadores(views.APIView):
             for sede in sedes:
                 total_chicos = 0
                 total_chicas = 0
+                contador_participantes_invitados=0    
                 total_participantes = sede.get_participantes()["resumen"]['genero'].aggregate(Sum('cantidad'))
-                for data_participante in sede.get_participantes()['listado']:
+                for data_participante in sede.get_participantes()['listado']:                   
+                    if data_participante['invitado'] =="Si":
+                        contador_participantes_invitados = contador_participantes_invitados + 1
                     total_chicos = total_chicos + data_participante["participante"].chicos
                     total_chicas = total_chicas + data_participante["participante"].chicas
                 
@@ -816,7 +819,7 @@ class InformeCapacitadores(views.APIView):
                         si_es_naat = True
                     else:
                         si_es_naat = False
-                numero_escuelas_invitadas=escuela_invitada.values("participante__escuela").distinct().count()            
+                numero_escuelas_invitadas=escuela_invitada.values("participante__escuela").distinct().count()                          
                 if not si_es_naat:
                     #print(sede.get_escuelas_invitadas())
                     if sede.get_escuelas_invitadas().count()==1:
@@ -845,6 +848,7 @@ class InformeCapacitadores(views.APIView):
                 listado_datos['asignaciones']=contado_asignacion
                 listado_datos['curso']=contador_curso
                 listado_datos['fecha'] = sede.fecha_creacion.year
+                listado_datos["participantes_invitados"]=contador_participantes_invitados
                 listado_sede.append(listado_datos)
         except MultiValueDictKeyError as e:
             print("Trae errores")           
@@ -852,8 +856,11 @@ class InformeCapacitadores(views.APIView):
             asignacion_capacitador= cyd_m.Asignacion.objects.filter(grupo__sede__capacitador=capacitador)           
             for sede in sedes:
                 total_chicos = 0
-                total_chicas = 0                
+                total_chicas = 0
+                contador_participantes_invitados =0                
                 for data_participante in sede.get_participantes()['listado']:
+                    if data_participante['invitado'] =="Si":
+                        contador_participantes_invitados = contador_participantes_invitados + 1
                     total_chicos = total_chicos + data_participante["participante"].chicos
                     total_chicas = total_chicas + data_participante["participante"].chicas                
                 total_participantes = sede.get_participantes()["resumen"]['genero'].aggregate(Sum('cantidad'))
@@ -881,6 +888,7 @@ class InformeCapacitadores(views.APIView):
                 contador_sede = contador_sede +1
                 listado_datos["chicos"]=total_chicos
                 listado_datos["chicas"]=total_chicas
+                listado_datos["participantes_invitados"]=contador_participantes_invitados
                 listado_datos['numero']=contador_sede
                 listado_datos['sede']=sede.nombre
                 listado_datos['sede_url']=sede.get_absolute_url()

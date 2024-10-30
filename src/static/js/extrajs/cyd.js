@@ -3021,6 +3021,7 @@ class informeCapacitadores{
     var total_invitadas = 0
     var total_chicos = 0
     var total_chicas = 0
+    var total_participantes_invitados=0;
     $('#informecapacitadores-list-form').submit(function (e) {
         e.preventDefault();
         
@@ -3053,6 +3054,7 @@ class informeCapacitadores{
                 {data: "asignaciones"},
                 {data: "participantes"},
                 {data: "invitada"},
+                {data: "participantes_invitados"},
                 {data: "chicos"},
                 {data: "chicas"},
                 {data: "fecha"},
@@ -3066,6 +3068,7 @@ class informeCapacitadores{
                   total_invitadas=total_invitadas+data[i].invitada
                   total_chicos=total_chicos+data[i].chicos
                   total_chicas=total_chicas+data[i].chicas
+                  total_participantes_invitados=total_participantes_invitados+data[i].participantes_invitados
                   $(tfoot).find('th').eq(0).html( "TOTAL ");
                   $(tfoot).find('th').eq(1).html( "---");
                   $(tfoot).find('th').eq(2).html(total_grupos);
@@ -3073,8 +3076,9 @@ class informeCapacitadores{
                   $(tfoot).find('th').eq(4).html(total_asignaciones);
                   $(tfoot).find('th').eq(5).html(total_participantes);
                   $(tfoot).find('th').eq(6).html(total_invitadas);
-                  $(tfoot).find('th').eq(7).html(total_chicos);
-                  $(tfoot).find('th').eq(8).html(total_chicas);
+                  $(tfoot).find('th').eq(7).html(total_participantes_invitados);
+                  $(tfoot).find('th').eq(8).html(total_chicos);
+                  $(tfoot).find('th').eq(9).html(total_chicas);
                 };
               }
           });
@@ -3082,9 +3086,10 @@ class informeCapacitadores{
           total_cursos=0;
           total_asignaciones=0;
           total_participantes=0;
-          total_invitadas=0
-          total_chicos=0
-          total_chicas=0
+          total_invitadas=0;
+          total_chicos=0;
+          total_chicas=0;
+          total_participantes_invitados=0;
           tablaDispositivos.clear().draw();
 
           });
