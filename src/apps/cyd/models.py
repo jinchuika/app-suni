@@ -113,7 +113,7 @@ class Sede(models.Model):
         return reverse_lazy('sede_detail', kwargs={'pk': self.id})  
         
     def get_grupos(self):
-        grupos = Grupo.objects.filter(sede=self).count()        
+        grupos = Grupo.objects.filter(sede=self).exclude(numero=2).count()        
         return grupos
     
     def get_cursos_grupos(self):
@@ -187,7 +187,6 @@ class Sede(models.Model):
                     'curso':asignaciones.first().grupo.curso.nombre,
                     'invitado':"No"               
                     })
-
         resultado['resumen']['roles'] = participantes.annotate(
             nombre_rol=F('rol__nombre')).values('nombre_rol').annotate(cantidad=Count('id', distinct=True))
         resultado['resumen']['genero'] = participantes.annotate(
@@ -552,8 +551,8 @@ class Asignacion(models.Model):
     def get_nota_promediada(self):
         """Devuelve la nota final promediada respecto al porcentaje del :class:`cyd.Curso` relacionado.
         En caso de que el curso no tenga un porcentaje, devuelve la nota final real.
-        """    
-        if self.grupo.curso.porcentaje:
+        """   
+        if self.grupo.curso.porcentaje:            
             if(self.grupo.sede.get_grupos()==2):
                 if(self.grupo.sede.get_cursos_grupos().filter(curso__id__in=[69,66]).exists()):
                     if(self.grupo.curso.id==69):
@@ -568,11 +567,11 @@ class Asignacion(models.Model):
             else:
                 nota = self.get_nota_final() * (self.grupo.curso.porcentaje / 100)
                 promediada = True            
-        else:            
+        else:           
             cantidad_asignaciones = Asignacion.objects.filter(
                 grupo__sede=self.grupo.sede, participante=self.participante).count()           
             nota = self.get_nota_final() / cantidad_asignaciones
-            promediada = False       
+            promediada = False      
         return {'nota': nota, 'promediada': promediada}
 
 
