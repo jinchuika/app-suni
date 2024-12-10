@@ -676,8 +676,8 @@ class DispositivoViewSet(viewsets.ModelViewSet):
     def colocar_tarima(self, request, pk=None):
         """ Este se conecta a la app para poder colocar los dipositivos a las tarimas
         """
-        id = request.data['id']
-        tarima = request.data['tarima']
+        id = request.GET['id']
+        tarima = request.GET['tarima']
         asignar_tarima = inv_m.Tarima.objects.get(id=tarima)
         nueva_tarima = inv_m.Dispositivo.objects.get(id=id)
         nueva_tarima.tarima = asignar_tarima
@@ -691,8 +691,8 @@ class DispositivoViewSet(viewsets.ModelViewSet):
     def colocar_repuesto_tarima(self, request, pk=None):
         """ Este se conecta a la app para colocar los repuestos a las tarimas
         """
-        id = request.data['id']
-        tarima = request.data['tarima']
+        id = request.GET['id']
+        tarima = request.GET['tarima']
         asignar_tarima = inv_m.Tarima.objects.get(id=tarima)
         nueva_tarima = inv_m.Repuesto.objects.get(id=id)
         nueva_tarima.tarima = asignar_tarima
