@@ -30,7 +30,8 @@ DJANGO_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'django_filters')
+    'django_filters'
+    )
 
 THIRD_PARTY_APPS = (
     'braces',
@@ -46,7 +47,10 @@ THIRD_PARTY_APPS = (
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
-    'allauth.socialaccount.providers.facebook',)
+    'allauth.socialaccount.providers.facebook',
+    'corsheaders',
+    'rest_framework.authtoken',
+    )
 
 LOCAL_APPS = (
     'apps.main',
@@ -71,7 +75,8 @@ LOCAL_APPS = (
     'apps.informe',
     'apps.controlNotas',
     'apps.recaudacionFondos',
-    'apps.beqt'
+    'apps.beqt',
+    'apps.Evaluacion'
 )
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 
@@ -80,6 +85,7 @@ SITE_ID = 1
 
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -127,11 +133,11 @@ DATABASE_ROUTERS = ['apps.legacy.dbrouters.LegacyRouter', ]
 DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.mysql',
-            'NAME': 'suni_2702',
+            'NAME': 'suni_261124',
             'USER': 'root',
             'PASSWORD': '',
             'HOST': 'localhost',
-            'PORT': '3306',
+            'PORT': '3000',
         }
     }
 
@@ -184,7 +190,16 @@ USE_L10N = True
 USE_TZ = True
 
 REST_FRAMEWORK = {
-    'DEFAULT_FILTER_BACKENDS': ('django_filters.rest_framework.DjangoFilterBackend',)
+
+}
+
+
+REST_FRAMEWORK = {
+    'DEFAULT_FILTER_BACKENDS': ('django_filters.rest_framework.DjangoFilterBackend',),
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    ],
 }
 
 # Static files (CSS, JavaScript, Images)
@@ -278,3 +293,6 @@ EMAIL_USE_TLS = True
 EMAIL_PORT = 587
 EMAIL_HOST_USER = 'solicitudes_tpe@funsepa.org'
 EMAIL_HOST_PASSWORD = 'Funsepa2019'
+
+CORS_ORIGIN_ALLOW_ALL = True
+
