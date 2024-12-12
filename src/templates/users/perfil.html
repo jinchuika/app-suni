@@ -3,6 +3,7 @@
 {% load socialaccount %}
 {% load thumbnail %}
 {% load widget_tweaks %}
+{% load static %}
 
 {% block content %}
 
@@ -44,6 +45,7 @@
 					<li class="active"><a href="#edicion" data-toggle="tab">Mis datos</a></li>
 					<li><a href="#cuentas" data-toggle="tab">Cuentas enlazadas</a></li>
 					<li><a href="#preferencias" data-toggle="tab">Ajustes</a></li>
+					<li><a href="#autenticacion" data-toggle="tab">Token</a></li>
 				</ul>
 				<div class="tab-content">
 					<div class="tab-pane active" id="edicion">
@@ -82,6 +84,20 @@
 							</form>
 						</table>
 					</div>
+
+
+					<div class="tab-pane" id="autenticacion">
+						{% if not token %}
+							<h3> ¡NO tienes token de autenticación! </h3>
+							<p> Si necesitas un token de validadción solicitalo al Area de IT y con tu coordinadora. </p>
+						{% else %}
+							{% if qr_code_url %}
+								<img class="img-responsive img-thumbnail" src="{{ qr_code_url }}" alt="Código QR de Token" style="width: 350px; height: 350px;">
+							{% endif %}
+						{% endif %}
+					</div>
+
+
 				</div>
 			</div>
 		</div>
