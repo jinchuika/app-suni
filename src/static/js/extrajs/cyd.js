@@ -3898,6 +3898,8 @@ class NaatInforme{
                   {data: "grado_impartido"},
                   {data: "chicos"},
                   {data: "chicas"},
+                  {data: "nota"},
+                  {data: "capacitador"},
   
               ],
   
