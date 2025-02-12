@@ -8,7 +8,7 @@
         <h4> Para poder empezar la evaluación ingrese su número de DPI</h4>
         <div>
             <label class="form-label">
-                <input type="tel" name="dpi" id="dpiInput" class="form-control" placeholder="Ingrese su DPI sin guion" required>
+                <input type="tel" name="dpi" id="dpiInput" class="form-control" placeholder="      0000-00000-0000" required>
             </label>
                         
         </div>
@@ -20,11 +20,10 @@
         document.getElementById('dpiInput').addEventListener('input', function (e) {
             let inputValue = e.target.value.replace(/\D/g, '');
 
-                        // Limitar a 13 dígitos
+            // Limitar a 13 dígitos
             if (inputValue.length > 13) {
                 inputValue = inputValue.slice(0, 13);
             }
-
                         
             if (inputValue.length > 4 && inputValue.length <= 9) {
                 e.target.value = inputValue.slice(0, 4) + '-' + inputValue.slice(4);

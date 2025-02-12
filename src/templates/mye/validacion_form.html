@@ -15,25 +15,24 @@
 					<table class="table table-hover table-condensed table-striped">
 						{{ validacion_form.as_table }}
 						<tr>
-							<th colspan="2">
-								Histórico
-								<a href="javascript:void" class=" btn btn-primary btn-mini comentario-btn" data-url="{% url 'validacion_comentario_add' %}" data-id="{{ validacion_form.instance.id }}">+</a>
+							<th style="width: 35%;">Histórico</th>
+							<th style="width: 65%;">
+								<a href="javascript:void" class="btn btn-primary btn-mini comentario-btn" 
+								   data-url="{% url 'validacion_comentario_add' %}" 
+								   data-id="{{ validacion_form.instance.id }}">+</a>
 							</th>
 						</tr>
 						<tbody id="body-validacion-{{ validacion_form.instance.id }}">
 							{% for comentario in validacion_form.instance.comentarios.all %}
 							<tr>
-								<td>
-									{{ comentario.comentario }}
-								</td>
+								<td>{{ comentario.comentario }}</td>
 								<td><small>{{ comentario.fecha|date:'d/m/Y' }}, {{ comentario.usuario.perfil }}</small></td>
 							</tr>
 							{% endfor %}
 						</tbody>
 						<tr>
 							<td colspan="2">
-								<ul class="list-unstyled">
-								</ul>
+								<ul class="list-unstyled"></ul>
 							</td>
 						</tr>
 						<tr>
@@ -42,7 +41,7 @@
 								<a href="{% url "escuela_detail" pk=validacion_form.instance.escuela.id %}" class="btn btn-danger">Cancelar</a>
 							</td>
 						</tr>
-					</table>
+					</table>					
 				</form>
 			</div>
 		</div>

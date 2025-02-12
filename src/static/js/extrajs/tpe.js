@@ -129,6 +129,7 @@
                 }).join(', <br>');
             }
         },
+        { "data": "internet"},
         { "data": "alumnas"},
         { "data": "alumnos"},
         { "data": "total_alumnos"},

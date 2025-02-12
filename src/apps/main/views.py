@@ -69,6 +69,8 @@ class IndexView(LoginRequiredMixin, TemplateView):
             today = datetime.now()
             equipamiento_list = Equipamiento.objects.filter(fecha__year=today.year)
             reparaciones = TicketReparacion.objects.filter(fecha_fin__year=today.year).count()
+            ccts = equipamiento_list.filter(renovacion=False, escuela__nombre__startswith="CENTRO COMUNITARIO TECNOLOGICO").count()
+
             widgets.append({
                 'queryset': '',
                 'template_name': 'widgets/tpe_equipamiento_chart.html',
@@ -77,7 +79,8 @@ class IndexView(LoginRequiredMixin, TemplateView):
                 },
                 'extra': {
                     'url': reverse_lazy('equipamiento_list_home'),
-                    'equipamiento_total': equipamiento_list.filter(renovacion=False).count(),
+                    'equipamiento_total': equipamiento_list.filter(renovacion=False).count() - ccts,
+                    'equipamiento_cct': ccts,
                     'computadoras_total': sum(e.cantidad_equipo for e in equipamiento_list),
                     'alumnos_total': sum(e.poblacion.total_alumno for e in equipamiento_list if e.poblacion),
                     'maestros_total': sum(e.poblacion.total_maestro for e in equipamiento_list if e.poblacion),
