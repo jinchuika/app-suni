@@ -332,6 +332,7 @@
 
 
 (function( CalendarioKalite, $, undefined ) {
+    var permiso = $('#kalite-calendario').data('permiso');
     var crear_kalite_calendario = function () {
         $('#kalite-calendario').fullCalendar({
             header: {
@@ -348,6 +349,12 @@
                         text: event.tip_text
                     },
                 });
+            },
+            eventClick: function(event, jsEvent, view) {
+                if (permiso) {
+                    window.location.href = event.url;
+                }
+                return false;
             },
             eventSources: [{
                 url: $('#kalite-calendario').data('url-calendario'),

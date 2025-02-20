@@ -8,28 +8,38 @@ kalite_children = (
         "Rúbricas",
         reverse_lazy("rubrica_list"),
         weight=10,
-        icon="fa-list"),
+        icon="fa-list",
+        group="kalite"
+    ),
     ViewMenuItem(
         "Tipos de visita",
         reverse_lazy("tipovisita_list"),
         weight=5,
         icon="fa-list",
-        perm='kalite.add_tipovisita'),
+        group="kalite"
+    ),
     ViewMenuItem(
         "Calendario",
         reverse_lazy("kalite_calendario"),
         weight=40,
-        icon="fa-calendar"),
+        icon="fa-calendar",
+        group="kalite,kalite_calendario"
+    ),
     ViewMenuItem(
         "Informe",
         reverse_lazy("visita_kalite_informe"),
         weight=40,
-        icon="fa-th"),
+        icon="fa-th",
+        group="kalite"
+    ),
     ViewMenuItem(
         "Gráficos",
         reverse_lazy("visita_kalite_dashboard"),
         weight=50,
-        icon="fa-bar-chart"),)
+        icon="fa-bar-chart",
+        group="kalite"
+    ),
+)
 
 Menu.add_item(
     "user",
@@ -38,5 +48,7 @@ Menu.add_item(
         '#',
         weight=35,
         icon="fa-leaf",
-        group="kalite",
-        children=kalite_children))
+        group="kalite,kalite_calendario",
+        children=kalite_children
+    )
+)
