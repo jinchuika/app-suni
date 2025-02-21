@@ -1523,6 +1523,7 @@ class InformeCursosView(LoginRequiredMixin, FormView):
 
 class InformeParticipanteCapacitador(views.APIView):   
     def post(self, request):
+        print("Acaaaaa2")
         listado_participantes = []
         numero = 0
         restante_cascada = 0
@@ -1601,11 +1602,10 @@ class InformeParticipanteCapacitador(views.APIView):
                             listado_participantes.append(info_participante)
                      else:
                             restante_cascada = restante_cascada +1
-                     print(restante_cascada)
                  
 
                  else:
-                     #print("otro anio") 
+                     print("otro anio") 
                      info_participante = {}
                      info_participante["numero"]=numero
                      info_participante["url"]=participante['participante'].get_absolute_url()
@@ -1653,7 +1653,10 @@ class InformeParticipanteCapacitador(views.APIView):
                      info_participante["chicas"]=participante['participante'].chicas
                      info_participante["nota"]=round(participante['nota'],0)
                      info_participante["capacitador"]=data_participantes.capacitador.get_full_name()
-                     listado_participantes.append(info_participante)                  
+                     listado_participantes.append(info_participante)
+            print("Restante")
+            print(restante_cascada)
+        print("FIN DEL PROGRAMA")                  
 
         return Response(
                 listado_participantes,
