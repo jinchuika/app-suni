@@ -130,12 +130,28 @@ class SolicitudForm(forms.ModelForm):
     total_maestro = forms.IntegerField(
         required=False, label='Total de maestros',
         widget=forms.NumberInput(attrs={'min': 0, 'class': 'form-control'}))
+    prom_mat_seg_p = forms.DecimalField(
+        required=False, label='Promedio Matematica Segundo Primaria',decimal_places=2,
+        widget=forms.NumberInput(attrs={'min': 0, 'max': 100, 'class': 'form-control'}))
+    prom_mat_quinto_p = forms.DecimalField(
+        required=False, label='Promedio Matematica Quinto Primaria',decimal_places=2,
+        widget=forms.NumberInput(attrs={'min': 0, 'max': 100, 'class': 'form-control'}))
+    prom_mat_seg_b = forms.DecimalField(
+        required=False, label='Promedio Matematica Segundo Básico',decimal_places=2,
+        widget=forms.NumberInput(attrs={'min': 0, 'max': 100, 'class': 'form-control'}))
+    grupos_familia = forms.IntegerField(
+        required=False, label='Grupos familiares',
+        widget=forms.NumberInput(attrs={'min': 0, 'class': 'form-control'}))
+    internet = forms.BooleanField(
+        required=False,
+        label='Cuenta con internet')
 
     class Meta:
         model = mye_m.Solicitud
         fields = [
             'fecha', 'formulario', 'version', 'jornada', 'edf', 'lab_actual',
             'alumna', 'alumno', 'total_alumno', 'maestra', 'maestro', 'total_maestro',
+            'grupos_familia', 'prom_mat_seg_p', 'prom_mat_quinto_p', 'prom_mat_seg_b', 'internet', 
             'requisito', 'medio', 'observacion',
         ]
         exclude = ('escuela', ' poblacion','creado_por',)
@@ -167,6 +183,17 @@ class SolicitudForm(forms.ModelForm):
             self.fields['maestra'].initial = self.instance.poblacion.maestra
             self.fields['maestro'].initial = self.instance.poblacion.maestro
             self.fields['total_maestro'].initial = self.instance.poblacion.total_maestro
+
+        if hasattr(self.instance, 'escuela') and self.instance.escuela:
+            if self.instance.escuela.nivel.id == 4:
+                self.fields.pop('prom_mat_seg_b', None)
+            elif self.instance.escuela.nivel.id == 2:
+                self.fields.pop('prom_mat_seg_p', None)
+                self.fields.pop('prom_mat_quinto_p', None)
+            else:
+                self.fields.pop('prom_mat_seg_p', None)
+                self.fields.pop('prom_mat_quinto_p', None)
+                self.fields.pop('prom_mat_seg_b', None) 
 
     def save(self, commit=True):
         instance = super(SolicitudForm, self).save(commit=False)
@@ -278,12 +305,28 @@ class ValidacionForm(forms.ModelForm):
     total_maestro = forms.IntegerField(
         required=False, label='Total de maestros',
         widget=forms.NumberInput(attrs={'min': 0, 'class': 'form-control'}))
+    prom_mat_seg_p = forms.DecimalField(
+        required=False, label='Promedio Matematica Segundo Primaria',decimal_places=2,
+        widget=forms.NumberInput(attrs={'min': 0, 'max': 100, 'class': 'form-control'}))
+    prom_mat_quinto_p = forms.DecimalField(
+        required=False, label='Promedio Matematica Quinto Primaria',decimal_places=2,
+        widget=forms.NumberInput(attrs={'min': 0, 'max': 100, 'class': 'form-control'}))
+    prom_mat_seg_b = forms.DecimalField(
+        required=False, label='Promedio Matematica Segundo Básico',decimal_places=2,
+        widget=forms.NumberInput(attrs={'min': 0, 'max': 100, 'class': 'form-control'}))
+    grupos_familia = forms.IntegerField(
+        required=False, label='Grupos familiares',
+        widget=forms.NumberInput(attrs={'min': 0, 'class': 'form-control'}))
+    internet = forms.BooleanField(
+        required=False,
+        label='Cuenta con internet')
 
     class Meta:
         model = mye_m.Validacion
         fields = [
             'version', 'tipo', 'jornada', 'fecha_equipamiento',
             'alumna', 'alumno', 'total_alumno', 'maestra', 'maestro', 'total_maestro',
+            'grupos_familia', 'prom_mat_seg_p', 'prom_mat_quinto_p', 'prom_mat_seg_b', 'internet',
             'requisito', 'observacion', 'fotos_link', 'completada'
         ]
         exclude = ('escuela',)
@@ -312,6 +355,17 @@ class ValidacionForm(forms.ModelForm):
             self.fields['maestra'].initial = self.instance.poblacion.maestra
             self.fields['maestro'].initial = self.instance.poblacion.maestro
             self.fields['total_maestro'].initial = self.instance.poblacion.total_maestro
+
+        if hasattr(self.instance, 'escuela') and self.instance.escuela:
+            if self.instance.escuela.nivel.id == 4:
+                self.fields.pop('prom_mat_seg_b', None)
+            elif self.instance.escuela.nivel.id == 2:
+                self.fields.pop('prom_mat_seg_p', None)
+                self.fields.pop('prom_mat_quinto_p', None)
+            else:
+                self.fields.pop('prom_mat_seg_p', None)
+                self.fields.pop('prom_mat_quinto_p', None)
+                self.fields.pop('prom_mat_seg_b', None) 
 
     def save(self, commit=True):
         instance = super(ValidacionForm, self).save(commit=False)

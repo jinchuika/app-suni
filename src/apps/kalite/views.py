@@ -2,7 +2,7 @@ from django.urls import reverse_lazy
 from django.views.generic import DetailView, ListView, TemplateView
 from django.views.generic.edit import CreateView, FormView
 
-from braces.views import LoginRequiredMixin, PermissionRequiredMixin
+from braces.views import LoginRequiredMixin, PermissionRequiredMixin, GroupRequiredMixin
 
 from apps.kalite import forms as kalite_forms
 from apps.kalite.models import Rubrica, Indicador, Visita, Punteo, TipoVisita
@@ -90,7 +90,7 @@ class VisitaCreateView(LoginRequiredMixin, CreateView):
         return super(VisitaCreateView, self).form_valid(form)
 
 
-class VisitaCalendarView(LoginRequiredMixin, FormView):
+class VisitaCalendarView(LoginRequiredMixin, GroupRequiredMixin, FormView):
 
     """
     Vista para el calendario de KA Lite. Incluye un formulario para filtrar
@@ -99,6 +99,7 @@ class VisitaCalendarView(LoginRequiredMixin, FormView):
 
     template_name = 'kalite/calendario.html'
     form_class = kalite_forms.CalendarFilterForm
+    group_required = [u"kalite" ]
 
     def get_form(self, form_class=None):
         form = super(VisitaCalendarView, self).get_form(form_class)
