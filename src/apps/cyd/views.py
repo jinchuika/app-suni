@@ -1525,8 +1525,12 @@ class InformeParticipanteCapacitador(views.APIView):
     def post(self, request):
         print("Acaaaaa2")
         listado_participantes = []
+        datos_participantes = {}
         numero = 0
+        conteo_participantes = 0
         restante_cascada = 0
+        participantes = 0
+        otros_participantes = 0
         #print([x for x in self.request.POST.getlist('capacitador[]')])
         try:
            #capacitador = self.request.POST['capacitador']
@@ -1544,16 +1548,16 @@ class InformeParticipanteCapacitador(views.APIView):
         if len(capacitador) == 0:
             sede = cyd_m.Sede.objects.filter(fecha_creacion__lte=fecha_max, fecha_creacion__gte=fecha_min)
         else:
-             sede = cyd_m.Sede.objects.filter(capacitador__id__in=capacitador,fecha_creacion__lte=fecha_max, fecha_creacion__gte=fecha_min)  
-
-        for data_participantes in sede:            
+             sede = cyd_m.Sede.objects.filter(capacitador__id__in=capacitador,fecha_creacion__lte=fecha_max, fecha_creacion__gte=fecha_min) 
+        for data_participantes in sede:
             for participante in data_participantes.get_participantes()['listado']:
-                 #print(participante['participante'].nombre ,participante['nota'],participante['curso'], participante['year'])
-                 numero = numero +1
-                 if participante['year'] ==2010:
-                     if numero <=16142:
+                conteo_participantes = conteo_participantes + 1
+                if participante['year']==2010:
+                    numero = numero +1
+                    if numero <=16142:
+                            participantes = participantes +1
                             info_participante = {}
-                            info_participante["numero"]=numero
+                            info_participante["numero"]=conteo_participantes
                             info_participante["url"]=participante['participante'].get_absolute_url()
                             info_participante["nombre"]=participante['participante'].nombre
                             info_participante["apellido"]=participante['participante'].apellido
@@ -1584,9 +1588,7 @@ class InformeParticipanteCapacitador(views.APIView):
                             try:
                                 info_participante["etnia"]=participante['participante'].etnia.nombre
                             except:
-                                info_participante["etnia"]="No tiene"
-                                
-                            
+                                info_participante["etnia"]="No tiene" 
                             try:
                                 info_participante["profesion"]=participante['participante'].profesion.nombre
                             except:
@@ -1600,21 +1602,18 @@ class InformeParticipanteCapacitador(views.APIView):
                             info_participante["nota"]=round(participante['nota'],0)
                             info_participante["capacitador"]=data_participantes.capacitador.get_full_name()
                             listado_participantes.append(info_participante)
-                     else:
-                            restante_cascada = restante_cascada +1
-                 
-
-                 else:
-                     print("otro anio") 
+                    else:
+                        restante_cascada = restante_cascada + 1 
+                else:
+                     otros_participantes = otros_participantes + 1
                      info_participante = {}
-                     info_participante["numero"]=numero
+                     info_participante["numero"]=conteo_participantes
                      info_participante["url"]=participante['participante'].get_absolute_url()
                      info_participante["nombre"]=participante['participante'].nombre
                      info_participante["apellido"]=participante['participante'].apellido
                      info_participante["escuela"]=participante['participante'].escuela.codigo
                      info_participante["dpi"]=participante['participante'].dpi
-                     info_participante["genero"]=participante['participante'].genero.genero
-                    
+                     info_participante["genero"]=participante['participante'].genero.genero                    
                      if participante['participante'].mail is not None:                     
                         info_participante["mail"]=participante['participante'].mail
                      else:
@@ -1654,12 +1653,14 @@ class InformeParticipanteCapacitador(views.APIView):
                      info_participante["nota"]=round(participante['nota'],0)
                      info_participante["capacitador"]=data_participantes.capacitador.get_full_name()
                      listado_participantes.append(info_participante)
-            print("Restante")
-            print(restante_cascada)
-        print("FIN DEL PROGRAMA")                  
-
-        return Response(
-                listado_participantes,
+                        
+            
+        print("FIN DEL PROGRAMA")
+        print("Total participantes", participantes + otros_participantes )
+        print("Total participantes 2010", participantes)
+        print("Total maestros cascada", restante_cascada )
+        print("Total maestros otro anio", otros_participantes) 
+        return Response(listado_participantes,
             status=status.HTTP_200_OK
             )
 class InformeCapacitadorParticipanteView(LoginRequiredMixin, FormView):
