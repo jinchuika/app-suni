@@ -24,6 +24,23 @@ from django.db import connection
 import re
 from apps.escuela import models as escuela_m
 from apps.main import creacion_filtros_informe as crear_dict
+from django.http import JsonResponse
+from django.core import mail
+from django.template.loader import render_to_string
+
+import os
+import pathlib
+import shutil
+import errno
+from openpyxl import load_workbook
+from jinja2 import Environment, FileSystemLoader
+import pdfkit
+from num2words import num2words
+import zipfile
+from django.core.files.storage import FileSystemStorage
+from django.conf import settings
+from openpyxl import load_workbook
+
 """
     Función que devuelve la existencia y saldo monetario basado en el tipo de dispositivo,
     fecha y periodo a buscar.
@@ -1646,4 +1663,417 @@ class InformeResumenBeqtJson(views.APIView):
             return Response(lista)
         else:
             print("No existe en el periodo fiscal")
+
+
+class PlanillaApiContaJson(LoginRequiredMixin,views.APIView): 
+    """Vista que maneja la carga del archivo xls"""
+    def post(self, request):
+        """Método POST de carga de archivo xlsx y su almacenamiento"""
+        form=conta_f.PlanillaForm()
+        if request.method=='POST' and request.FILES.get("myfile"):
+            """Verífica que sea un método post al mismo tiempo que dentro del request se haya capturado un file"""
+            excel_path=os.path.join(settings.BASE_DIR,settings.MEDIA_ROOT_EXCEL)
+            os.makedirs(excel_path,exist_ok=True)
+            file_list =os.listdir(excel_path)
+            number_file=len(file_list)
+            myfile=request.FILES["myfile"]
+            new_name=str('PlanillaN') + str(number_file) +str(".")+str(myfile.name.split(".")[-1])          
+            fs=FileSystemStorage(location=excel_path)
+            f_name=fs.save(new_name, myfile)  
+            url=os.path.join(settings.MEDIA_URL,"html/output/Comprobantes.zip")
+            context={
+                'form':form,
+                'f_name':f_name,
+                'url':url,
+                'titulo':"Descargar comprobantes en zip"
+            }              
+            return render(
+                request,
+                'conta/planilla/datos.html',
+                 context
+                    )
+        return render(
+                request,
+                'conta/planilla/datos.html'
+            )  
+             
+                  
+class Empleado(object):
+    """Clase que que contiene y modela los distintos tipos de planillas"""
+    nombre = ''
+    codigo = ''
+    correo = ''
+    cuenta = ''
+    primera = 0.0
+    decreto = 0.0
+    descuentos = 0.0
+    asdeco = 0.0
+    igss = 0.0
+    salario = 0.0
+    total_descuentos = 0.0
+    depositar = 0.0
+
+    def __init__(self, quincena=1, datos=[], *args, **kwargs):
+        if quincena == 1:
+            self.crear_primera(datos)
+        elif quincena == 2:
+            self.crear_segunda(datos)
+        elif quincena == 3:
+            self.crear_bono(datos)
+        elif quincena == 4:
+            self.crear_aguinaldo(datos)
+
+    def __repr__(self):
+        return self.nombre
+
+    def crear_primera(self, datos):
+        """Método que settea los valores necesarios para procesar la planilla en la primera quincena"""
+        self.nombre = datos[1].value
+        self.codigo = datos[0].value
+        self.correo = datos[2].value
+        self.cuenta = datos[5].value
+        self.primera = float(datos[6].value)
+        self.decreto = float(datos[7].value)
+        self.descuentos = float(datos[9].value)
+        self.igss = float(datos[10].value)
+        self.asdeco = float(datos[11].value)
+        self.salario = self.primera + self.decreto
+        self.total_descuentos = self.descuentos + self.asdeco + self.igss
+        self.depositar = round(float(self.salario - self.total_descuentos), 2)
+        
+
+    def crear_segunda(self, datos):
+        """Método que settea los valores necesarios para procesar la planilla en la segunda quincena"""
+        self.nombre = datos[1].value
+        self.codigo = datos[0].value
+        self.correo = datos[2].value
+        self.cuenta = datos[4].value
+        self.sueldo = float(datos[5].value)
+        self.bonificacion = float(datos[6].value)
+        self.otros = float(datos[7].value)
+        self.quincena = float(datos[9].value)
+        self.igss2 = float(datos[10].value)
+        self.isr = float(datos[11].value)
+        self.boleto = float(datos[12].value)
+        self.asdeco2 = float(datos[13].value)
+        self.descuentos = float(datos[14].value)
+        self.devengado = self.sueldo + self.bonificacion + self.otros
+        self.total_descontado = self.quincena + self.igss2 + self.isr + self.boleto + self.asdeco2 + self.descuentos
+        self.depositar2 = self.devengado - self.total_descontado
+
+    def crear_bono(self, datos):
+        """Método que settea los valores necesarios para procesar la planilla de tipo Bono 14"""
+        self.nombre = datos[1].value
+        self.codigo = datos[0].value
+        self.correo = datos[2].value
+        self.cuenta = datos[3].value
+        self.bono = round(datos[20].value, 2)
+        self.letras = num2words(self.bono, lang='es')
+
+    def crear_aguinaldo(self, datos):
+        """Método que setea los valores necesarios para procesar la planilla de tipo Aguinaldo"""
+        self.nombre = datos[1].value
+        self.codigo = datos[0].value
+        self.correo = datos[2].value
+        self.cuenta = datos[3].value
+        self.aguinaldo = round(datos[20].value, 2)
+        self.letras = num2words(self.aguinaldo, lang='es')
+
+
+
+class PlanillaParse:
+    """Clase con variedad de métodos capaces de parsear los datos leídos de un excel para generar comprobantes de planillas"""
+    lista_empleados = []
+    f_quincena = ''
+
+    def __init__(self, file_name,planilla):  
+        self.file_name = file_name
+        self.planilla=int(planilla)
+        self.parse_Planilla()
+    
+    def load_Planilla(self,workbook,name_planilla,date_extra_rows,data_extra_rows):
+        """Método encargado de recorrer el archivo leído, agruparlo y proceder a la creación del setteo de datos por tipo de planilla"""
+        fila_inicial=1   
+        for row in workbook[name_planilla].iter_rows(min_row=1):
+            if any(row):
+                break
+            fila_inicial=+1 
+        self.f_quincena = workbook[name_planilla][(fila_inicial+date_extra_rows)][0].value
+        for numero, row in enumerate(workbook[name_planilla].iter_rows(min_row=(fila_inicial+data_extra_rows))):
+                
+            if any(row) and row[0].value is not None:
+                self.lista_empleados.append(Empleado(quincena=self.planilla,datos=row))
+        
+
+    def parse_Planilla(self):
+        """Método por el cual se controla que tipo de planilla (1:Primera quincena, 2:Segunda quincena, 
+        3 y 4: Bono 14 o aguinaldo respectivamente) se van a generar según el archivo obtenido"""
+        self.lista_empleados=[] 
+        workbook=None 
+        try:
+            workbook=load_workbook(self.file_name, data_only=True)
+        except Exception as e:
+            print(e)
+      
+        if self.planilla == 1:
+            self.load_Planilla(workbook,'Anticipo',2,6)
+        elif self.planilla == 2:
+            self.load_Planilla(workbook,'Fin de Mes',2,6)
+        elif self.planilla == 3 or self.planilla == 4:
+            self.load_Planilla(workbook,'Nomina',3,6)
+            
+        return self.lista_empleados
+    
+
+class HTMLGenerator:
+    """Clase creada con la finalidad de la creación de html, pdf y otros archivos de salida"""
+    options = {
+        'encoding': "UTF-8",
+        'margin-top': '0.7in',
+        'margin-right': '0.1in',
+        'margin-bottom': '1.5in',
+        'margin-left': '0.6in'
+    }
+    @classmethod
+    def settearDatos(cls, disposición,tipo_planilla):
+        """Método de clase que al obtener los valores númericos del tipo y disposición de planilla retorna
+        una tupla con las cadenas representativas de dichos valores de entrada"""
+        tipos_planilla=['primera','segunda','bono','aguinaldo']
+        tipo_planillaTexto=tipos_planilla[int(tipo_planilla)-1]
+        if disposición == 1:
+            return tipo_planillaTexto,'unico'
+        else:
+            return tipo_planillaTexto,'lista'
+        
+    def __init__(self,template_planilla,template_tipo,enviar , output_folder='html/output', template_folder='html/templates',destinatario=' '):
+        
+        self.template_name = 'template_{}_{}.html'.format(template_planilla, template_tipo)
+        self.template_folderAux=template_folder
+        self.output_folderAux=output_folder
+        self.output_folder=os.path.join(self.output_folderAux,"output")
+        self.template_folder=os.path.join(self.template_folderAux,"templates")
+        self.env=Environment(loader=FileSystemLoader(self.template_folder))       
+        self.output_folder=pathlib.Path(self.output_folder)
+        self.output_folder.mkdir(parents=True,exist_ok=True)
+        self.enviar=enviar
+        self.destinatario=destinatario
+        
+       
+    @classmethod
+    def copy(cls, src, dest):
+        """Método para copiar un directorio desde una locación actual a una destino"""
+        try:
+            shutil.copytree(src, dest)
+        except OSError as e:
+            if e.errno == errno.ENOTDIR:
+                shutil.copy(src, dest)
+            else:
+                pass    
+
+    def crear_lista(self,planilla):
+        """Método que genera la disposición de lista de los comprobantes de planilla para los empleados"""
+        template=self.env.get_template(self.template_name)
+        full_name_template=str(self.output_folder/'lista_empleados.html')
+        html_output=template.render(
+            lista_empleados=planilla.lista_empleados,
+            quincena=planilla.f_quincena,
+            hora=datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        )
+        with open(full_name_template,"w",encoding='utf-8') as html:
+            html.write(html_output)
+        self.copy(self.template_folder + '/img', str(self.output_folder / 'img'))
+        """Generar pdf"""
+        pdf=self.generar_pdf(full_name_template,"lista_empleados")
+        pdf_list=[]
+        if self.enviar and pdf is not None:
+            flag=self.send_mail(pdf,planilla.f_quincena,settings.FROM_CONTABILIDAD)
+            if flag:
+                return 0,''
+            else:
+                return -1,''
+        else:
+            pdf_list.append(str(pdf+'.pdf'))
+            return 1,pdf_list
+            
+
+    def crear_unico(self,planilla):
+        """Método que crea la disposición de los comprobanes de planilla de forma individual por cada empleado"""
+        template=self.env.get_template(self.template_name)
+        self.copy(self.template_folder + '/img', str(self.output_folder / 'img'))
+        retorno=-1
+        pdf_list=[]
+        for empleado in planilla.lista_empleados:
+            full_name_template=str(self.output_folder/'{}.html'.format(empleado.codigo))
+            html_output=template.render(
+            persona=empleado,
+            quincena=planilla.f_quincena,
+            hora=datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            )
+            with open(full_name_template,"w",encoding='utf-8') as html:
+                html.write(html_output)
+            self.copy(self.template_folder + '/img', str(self.output_folder / 'img'))
+            """Generar pdf"""
+            pdf=self.generar_pdf(full_name_template,empleado.codigo)
+            if self.enviar and pdf is not None:
+                flag=self.send_mail(pdf,planilla.f_quincena,empleado.correo)
+                if flag:
+                    retorno= 0
+                else:
+                    retorno -1
+            else:
+                pdf_list.append(str(pdf+'.pdf'))
+                retorno=1
+        return retorno,pdf_list
+                
+    def empaquetar_pdf(self,pdf_list):
+        """Método que comprime el(los) comprobante(s) creados para la disposición y tipo de planilla seleccionada"""
+        try:
+            zip_file="Comprobantes.zip"
+            path_zip=str(self.output_folder/zip_file)
+            with zipfile.ZipFile(path_zip,'w') as zipc:
+                for pdf in pdf_list:
+                    if os.path.exists(pdf):
+                        auxpdf=pdf.split("\\")
+                        pdf_name=auxpdf[len(auxpdf)-1]
+                        zipc.write(pdf,os.path.basename(pdf_name))
+            return True
+        except Exception as e:
+            print(e)
+            return Response(
+                "Ha ocurrido un error en la descarga de los comprobantes",
+                status=500
+            )
+        
+
+    def generar_pdf(self,template,fname):
+        """Método que genera los pdf requeridos utilizando archivos html para luego guardarlos"""
+        ruta_wkhmtltopdf= shutil.which("wkhtmltopdf")
+        if ruta_wkhmtltopdf is None:
+            ruta_wkhmtltopdf="C:\\Program Files\\wkhtmltopdf\\bin\\wkhtmltopdf.exe"
+        else:
+            pass
+        config=pdfkit.configuration(wkhtmltopdf=ruta_wkhmtltopdf)
+        f_name=str(self.output_folder/fname)
+        try:
+            pdfkit.from_file(
+            template,
+            '{}.pdf'.format(f_name),
+            options=self.options,
+            configuration=config
+            )
+        except Exception as e:
+            print(str(e))
+        return f_name
+    
+    def send_mail(self,pdf,quincena,to):
+        """Método que envía los correos electrónicos los cuales contienen los comprobantes como archivo adjunto"""
+        FROM_CONTABILIDAD= 'mrosales@funsepa.org'
+        try:
+            content ={
+                'subject': "Boleta de Pago",
+                'body': """Boleta de pago: {}.
+        Este mensaje fue generado de forma automática por SUNI por favor no contestar este correo.
+        Para dudas o comentarios favor escribir a {} o escanee el código QR en el documento""".format(quincena, FROM_CONTABILIDAD)
+            }
+            
+            
+
+            email=mail.EmailMessage(
+            content['subject'],
+            content['body'],
+            'soporte_contabilidad@funsepa.org',
+            [to],
+            connection=mail.get_connection(
+                backend='django.core.mail.backends.smtp.EmailBackend',
+                username='soporte_contabilidad@funsepa.org',
+                password='yjbk wgde lwdd tsht',
+                host='smtp.gmail.com',
+                port=587,
+                use_tls=True,
+                fail_silently=False
+                )
+            )
+            email.attach_file(str(pdf+".pdf"))
+            email.send()
+            return True
+            
+        except Exception as e:
+            print(e)
+            return False
+
+
+    def delete_files(self,excel_path):
+        """Método que elimina los archivos de salida a su totalidad al ser enviado un correo, borra html, pdf y comprimidos en zip"""
+        for archivos in os.listdir(excel_path):
+            path_archivo=os.path.join(excel_path,archivos)
+            if os.path.isfile(path_archivo):
+                os.remove(path_archivo)
+        for archivos in os.listdir(str(self.output_folder)):
+            path_archivo=os.path.join(str(self.output_folder),archivos)
+            if os.path.isfile(path_archivo):
+                os.remove(path_archivo)
+    
+    
+
+class DatosPlanillaApiContaJson(LoginRequiredMixin,views.APIView): 
+    """Este genera los html y los pdf"""
+    def post(self, request):            
+            if request.method=='POST':
+                    planillaSeleccionada=self.request.POST['tipo_de_planilla']
+                    distribucionSeleccionada=self.request.POST['disposicion_planilla']
+                    correo=request.POST.get('enviar_correo')                    
+                    excel_path=os.path.join(settings.BASE_DIR,settings.MEDIA_ROOT_EXCEL)
+                    sendMail=False
+                    if correo: 
+                        sendMail=True
+                    os.makedirs(excel_path,exist_ok=True)
+                    f_name=os.listdir(excel_path)[len(os.listdir(excel_path))-1]
+                    file_name=os.path.join(excel_path,f_name)                    
+                    datos = PlanillaParse(file_name,planillaSeleccionada)
+                    """Manejo de html's y pdf's"""
+                    outputfolder=os.path.join(settings.BASE_DIR,settings.MEDIA_ROOT_HTML)
+                    template_folder=os.path.join(settings.BASE_DIR,settings.MEDIA_ROOT_HTML)
+                    os.makedirs(outputfolder,exist_ok=True)
+                    os.makedirs(template_folder,exist_ok=True)
+                    tipo,disposicion=HTMLGenerator.settearDatos(int(distribucionSeleccionada),int(planillaSeleccionada))                    
+                    htmlG=HTMLGenerator(template_planilla=tipo,
+                                                template_tipo=disposicion,
+                                                output_folder=outputfolder,
+                                                enviar=sendMail, 
+                                                template_folder=template_folder
+                                                )
+                    flag=1
+                    pdf=[]
+                    if disposicion=='unico':
+                       flag,pdf=htmlG.crear_unico(datos)
+                    else:
+                        flag,pdf=htmlG.crear_lista(datos)
+                    if sendMail and flag==0:
+                        htmlG.delete_files(excel_path=os.path.join(settings.BASE_DIR,settings.MEDIA_ROOT_EXCEL))
+                        return Response(
+                            "Se han enviado los comprobantes de pago y eliminado los archivos exitosamente",
+                            status=200
+                            )
+                    elif sendMail==False and flag==1:
+                        flag= htmlG.empaquetar_pdf(pdf)
+                        path=os.path.join(settings.MEDIA_URL,"html/output/Comprobantes.zip")
+                        return JsonResponse({"empaquetado":"{}".format(path)},status=200)
+                        
+                    elif sendMail and flag==-1:
+                        return Response(
+                            "No se han enviado comprobantes, compruebe de nuevo",
+                            status=200
+                        )
+              
+    
+class PlanillaContaView(LoginRequiredMixin,GroupRequiredMixin,FormView):
+    """Vista que maneja el template de Planillas de Contabilidad"""
+    template_name = 'conta/planilla/datos.html'
+    form_class = conta_f.PlanillaForm
+    group_required = [u"conta_planilla", ]
+    def get_context_data(self, **kwargs):
+        context = super(PlanillaContaView, self).get_context_data(**kwargs)   
+        context['url']=os.path.join(settings.MEDIA_URL,"html/output/Comprobantes.zip")
+        context['titulo']= "Descargar comprobantes en zip"
+        return context
 

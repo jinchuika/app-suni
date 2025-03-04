@@ -199,6 +199,27 @@ urlpatterns = [
     conta_v.InformeResumenBeqtJson.as_view(),
     name='contabilidad_beqt_api_resumen'
     ),   
+     
+
+## Planilla Contabilidad
+ url(
+   r'^apiplanilla/$',
+   conta_v.PlanillaApiContaJson.as_view(),
+   name="api_planilla"
+   ),
+ url(
+   r'^apidatosplanilla/$',
+   conta_v.DatosPlanillaApiContaJson.as_view(),
+   name="api_datosplanilla"
+   ),
+ url(
+   r'^planilla/$',
+   conta_v.PlanillaContaView.as_view(),
+   name="planilla_conta"
+   ),
+      
+        
+
  # Api
  url(r'^api/', include(('apps.conta.api_urls', 'conta'), namespace='conta_api'))
 ]

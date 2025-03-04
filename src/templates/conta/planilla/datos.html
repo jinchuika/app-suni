@@ -1,0 +1,98 @@
+{% extends "base/base.html" %}
+{% load staticfiles widget_tweaks %}
+{% block page_title %}
+<title>Planillas Contabilidad</title>
+<style>
+	#fileInput{
+		display: none;
+	}
+</style>
+{% endblock page_title %}
+{% block content %}
+<section class="content-header">
+	<h1>Planilla Contabilidad</h1>
+</section>
+<section class="content">
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-md-4">
+				<!-- Comienza el formulario -->
+				<div class="box box-primary">
+
+					<form method="post" enctype="multipart/form-data" action="{% url 'api_planilla' %}" id="form-excel">
+						{% csrf_token %}
+						<div class="form-group" style="text-align: center;">
+							<div class="mb-3-text-center">
+								<label for="fileInput" class="btn btn-warning" style="margin: 1rem 0;">Seleccionar
+									Planilla
+									
+								</label>
+								<input type="file" name="myfile" id="fileInput" hidden>
+							</div>
+
+
+							<div class="mb-3 text-center">
+								<button class="btn btn-primary" type="submit" style="margin: 1rem 0;">Cargar archivo xlsx</button>
+							</div>
+						</div>
+				</div>
+				</form>
+
+
+			</div>
+			<!--Aca termina el formulario-->
+		</div>
+		{% if f_name %}
+		<div class="col-md-4">
+			<div class="box box-info">
+
+
+				<h3 class="box-title">Filtros</h3>
+				<form action="" data-url="{% url 'api_datosplanilla' %}" id="planilla-list-form">
+					<div class="box-body">
+						{% csrf_token %}
+						{% for field in form %}
+						<div class="form-group">
+							{{field.label_tag}} {{field}}
+						</div>
+						{% endfor %}
+						<div class="text-center" style="margin-top: 10px;">
+							<input type="submit" class="btn btn-primary " value="Generar Planilla" />
+						</div>
+					</div>
+				</form>
+
+
+
+			</div>
+		</div>
+		{% endif %}
+
+		<div id="comprobantes" class="col-md-4">
+			<div class="box box-success">
+
+				<div>
+					<h3>Comprobantes</h3>
+					<a class="btn btn-primary" id="urlZip" href={{url|default:"No_informacion"}} download>{{titulo}}</a>
+				</div>
+
+			</div>
+
+		</div>
+
+	</div>
+	</div>
+</section>
+
+{% endblock content %}
+
+{% block extra_js %}
+{% include "base/dataTables.html" %}
+<script src="{% static 'js/extrajs/conta.js' %}"></script>
+<script>
+	var nuevo = new Planilla();
+</script>
+
+
+
+{% endblock extra_js %}
