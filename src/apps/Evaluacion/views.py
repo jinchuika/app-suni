@@ -95,19 +95,16 @@ class FormularioDetail(LoginRequiredMixin, GroupRequiredMixin, DetailView):
         context['preguntas'] = preguntas
 
         estado_formulario = eva_models.estadoFormulario.objects.filter(preguntas__formulario=formulario).distinct()
-
         respondidos = estado_formulario.filter(estado=True).count()
-        no_respondidos = estado_formulario.filter(estado=False).count()
 
+        grupo_beneficiada = cyd_models.Grupo.objects.filter(sede = formulario.sede, numero = 1).first()
+        grupo_invitada = cyd_models.Grupo.objects.filter(sede = formulario.sede, numero = 2).first()
+        part_beneficiada = cyd_models.Asignacion.objects.filter(grupo = grupo_beneficiada).distinct().count()
+        part_invitada = cyd_models.Asignacion.objects.filter(grupo = grupo_invitada).distinct().count()
+        context['total_par_invitada'] = part_invitada        
+        context['total_par_beneficiada'] = part_beneficiada        
         context['no_participantes_respondidos'] = respondidos
-        context['no_participantes_no_respondidos'] = no_respondidos
-
-        total_participantes = cyd_models.Participante.objects.filter(
-            asignaciones__grupo__sede=formulario.sede
-        ).distinct().count()
-
-        context['total_participantes'] = total_participantes
-        context['no_participantes_no_respondidos'] = total_participantes - respondidos
+        context['no_participantes_no_respondidos'] = part_beneficiada - respondidos
 
         return context
 
@@ -411,7 +408,6 @@ class participantesApi(APIView):
     def get(self, request):
         try:
             sedes_info = {}
-            completados_info = {}
             faltantes_info = {}
             porcentaje_completado_info = {}
             total_participantes_global = 0
@@ -433,13 +429,17 @@ class participantesApi(APIView):
                     continue
 
                 participantes = cyd_models.Participante.objects.filter(
-                    asignaciones__grupo__sede__id=sede.id, activo=True).annotate(
+                    asignaciones__grupo__sede__id=sede.id, activo=True, asignaciones__grupo__numero = 1 ).annotate(
                     cursos_sede=Count('asignaciones'))
                 total_participantes = participantes.count()
+
+                grupo_beneficiada = cyd_models.Grupo.objects.filter(sede = sede, numero = 1).first()
+                part_beneficiada = cyd_models.Asignacion.objects.filter(grupo = grupo_beneficiada).distinct().count()
 
                 sedes_info[sede.escuela_beneficiada.codigo] = total_participantes
                 completados = eva_models.estadoFormulario.objects.filter(
                     preguntas__evaluado__asignaciones__grupo__sede__id=sede.id,
+                    preguntas__evaluado__asignaciones__grupo__numero=1,
                     preguntas__respondido=True,
                     estado=True
                 ).distinct()

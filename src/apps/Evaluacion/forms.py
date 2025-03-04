@@ -60,7 +60,9 @@ class FormularioAdd(forms.ModelForm):
         super(FormularioAdd, self).__init__(*args, **kwargs)
 
         fecha_inicio = datetime(2024, 1, 1)
-        self.fields['sede'].queryset = cyd_models.Sede.objects.filter(finalizada=False, fecha_creacion__gte=fecha_inicio)
+        sede_queryset = cyd_models.Sede.objects.filter(finalizada=False, fecha_creacion__gte=fecha_inicio, activa = True)
+        sede_ids = [sede.id for sede in sede_queryset if not sede.get_es_naat()]
+        self.fields['sede'].queryset = cyd_models.Sede.objects.filter(id__in=sede_ids)
 
         self.fields['usuario'].queryset = User.objects.filter(groups__name="cyd_capacitador")
         self.fields['usuario'].label_from_instance = lambda usuario: usuario.get_full_name()
@@ -103,9 +105,10 @@ class FormularioForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(FormularioForm, self).__init__(*args, **kwargs)
-        
         fecha_inicio = datetime(2024, 1, 1)
-        self.fields['sede'].queryset = cyd_models.Sede.objects.filter(finalizada=False, fecha_creacion__gte=fecha_inicio)
+        sede_queryset = cyd_models.Sede.objects.filter(finalizada=False, fecha_creacion__gte=fecha_inicio, activa = True)
+        sede_ids = [sede.id for sede in sede_queryset if not sede.get_es_naat()]
+        self.fields['sede'].queryset = cyd_models.Sede.objects.filter(id__in=sede_ids)
 
         self.fields['usuario'].queryset = User.objects.filter(groups__name="cyd_capacitador")
         self.fields['usuario'].label_from_instance = lambda usuario: usuario.get_full_name()
