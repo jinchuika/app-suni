@@ -1533,9 +1533,13 @@ class InformeParticipanteCapacitador(views.APIView):
         restante_cascada = 0
         participantes = 0
         otros_participantes = 0
+        lista_capacitador = []
         try:
-            capacitador = [x for x in self.request.POST.getlist('capacitador[]')]
-        except MultiValueDictKeyError:
+            capacitador = [x for x in self.request.POST.getlist('capacitador[]')]         
+            if len(capacitador)==0:
+                lista_capacitador.append(self.request.POST['capacitador'])                
+
+        except MultiValueDictKeyError:   
             capacitador=0 
         try:
             fecha_min=self.request.POST['fecha_min']
@@ -1545,10 +1549,13 @@ class InformeParticipanteCapacitador(views.APIView):
             fecha_max=self.request.POST['fecha_max']
         except MultiValueDictKeyError:
             fecha_max=0
-        if len(capacitador) == 0:
+        if capacitador == 0:           
             sede = cyd_m.Sede.objects.filter(fecha_creacion__lte=fecha_max, fecha_creacion__gte=fecha_min)
-        else:
-             sede = cyd_m.Sede.objects.filter(capacitador__id__in=capacitador,fecha_creacion__lte=fecha_max, fecha_creacion__gte=fecha_min) 
+        else:            
+             if len(lista_capacitador)==1:
+                 sede = cyd_m.Sede.objects.filter(capacitador__id__in=lista_capacitador,fecha_creacion__lte=fecha_max, fecha_creacion__gte=fecha_min)
+             else:
+                 sede = cyd_m.Sede.objects.filter(capacitador__id__in=capacitador,fecha_creacion__lte=fecha_max, fecha_creacion__gte=fecha_min)
         for data_participantes in sede:
             for participante in data_participantes.get_participantes()['listado']:
                 conteo_participantes = conteo_participantes + 1
@@ -1654,7 +1661,7 @@ class InformeParticipanteCapacitador(views.APIView):
                      listado_participantes.append(info_participante)        
         return Response({"data":listado_participantes,"cascada":restante_cascada},
             status=status.HTTP_200_OK
-            )
+            )        
     
 class InformeCapacitadorParticipanteView(LoginRequiredMixin, FormView):
     """ Vista para obtener la informacion de los dispositivos para crear el informe de existencia mediante un
