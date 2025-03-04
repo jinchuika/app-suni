@@ -1521,19 +1521,19 @@ class InformeCursosView(LoginRequiredMixin, FormView):
     template_name = 'cyd/Informe_cursos.html'
     form_class = cyd_f.InformeCursoslistadoForm
 
-class InformeParticipanteCapacitador(views.APIView):   
+class InformeParticipanteCapacitador(views.APIView):
+    """ Punto de acceso para obtener la informacion de los participantes  filtrandolo por capacitador y un rango de fecha
+        url de acceso: '/cyd/informe/capacitador/participantes/' obtiene la informacion mediante un medoto post ejecutado desde un boton 
+        del formulario 
+    """   
     def post(self, request):
-        print("Acaaaaa2")
         listado_participantes = []
-        datos_participantes = {}
         numero = 0
         conteo_participantes = 0
         restante_cascada = 0
         participantes = 0
         otros_participantes = 0
-        #print([x for x in self.request.POST.getlist('capacitador[]')])
         try:
-           #capacitador = self.request.POST['capacitador']
             capacitador = [x for x in self.request.POST.getlist('capacitador[]')]
         except MultiValueDictKeyError:
             capacitador=0 
@@ -1637,8 +1637,7 @@ class InformeParticipanteCapacitador(views.APIView):
                      try:
                         info_participante["etnia"]=participante['participante'].etnia.nombre
                      except:
-                        info_participante["etnia"]="No tiene"
-                        
+                        info_participante["etnia"]="No tiene"                      
                     
                      try:
                         info_participante["profesion"]=participante['participante'].profesion.nombre
@@ -1652,17 +1651,11 @@ class InformeParticipanteCapacitador(views.APIView):
                      info_participante["chicas"]=participante['participante'].chicas
                      info_participante["nota"]=round(participante['nota'],0)
                      info_participante["capacitador"]=data_participantes.capacitador.get_full_name()
-                     listado_participantes.append(info_participante)
-                        
-            
-        print("FIN DEL PROGRAMA")
-        print("Total participantes", participantes + otros_participantes )
-        print("Total participantes 2010", participantes)
-        print("Total maestros cascada", restante_cascada )
-        print("Total maestros otro anio", otros_participantes) 
-        return Response(listado_participantes,
+                     listado_participantes.append(info_participante)        
+        return Response({"data":listado_participantes,"cascada":restante_cascada},
             status=status.HTTP_200_OK
             )
+    
 class InformeCapacitadorParticipanteView(LoginRequiredMixin, FormView):
     """ Vista para obtener la informacion de los dispositivos para crear el informe de existencia mediante un
     api mediante el metodo GET  y lo muestra en el tempalte
