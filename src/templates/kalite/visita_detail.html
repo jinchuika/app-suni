@@ -1,11 +1,12 @@
 {% extends "base/base.html" %}
-{% load widget_tweaks staticfiles editable_field %}
+{% load widget_tweaks staticfiles editable_field has_group %}
 
 {% block page_title %}
 <title>{{ visita }}</title>
 {% endblock page_title %}
 
 {% block content %}
+{% if request.user|has_group:"kalite"%}
 <section class="content-header">
 	<h1>
 		Visita {{ visita.numero }} - <a href="{{ visita.escuela.get_absolute_url }}">{{ visita.escuela }}</a>
@@ -210,6 +211,7 @@
 		</div>
 	</div>
 </section>
+{% endif %}
 {% endblock content %}
 
 {% block extra_css %}

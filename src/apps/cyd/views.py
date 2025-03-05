@@ -27,6 +27,7 @@ from django.db.models import Sum, Count
 from django.utils import timezone
 from django.db import connection
 from openpyxl import load_workbook
+from apps.Evaluacion.models import Formulario
 class CursoCreateView(LoginRequiredMixin, GroupRequiredMixin, CreateView):
     """ Creacion de cursos desde una vista
     """
@@ -130,6 +131,10 @@ class SedeDetailView(LoginRequiredMixin, DetailView):
             total_chicas = total_chicas + data['participante'].chicas       
         context['total_chicos'] = total_chicos
         context['total_chicas'] = total_chicas
+
+        formulario = Formulario.objects.filter(sede__id=self.object.id).last()
+        context['formulario'] = formulario
+
         return context
 
 

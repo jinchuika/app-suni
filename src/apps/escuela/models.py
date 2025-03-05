@@ -273,6 +273,17 @@ class Escuela(models.Model):
     def datos_equipamiento(self):
         return self.equipamiento.last()
 
+    def get_internet(self,):
+        from apps.mye.models import Solicitud, Validacion 
+        validacion = Validacion.objects.filter(escuela_id = self.id).last()
+        if validacion is None:
+            solicitud = Solicitud.objects.filter(escuela_id = self.id).last()
+            if solicitud is None: 
+                return None
+            else:
+                return solicitud.internet
+        else: 
+            return True if validacion.internet else validacion.internet 
 
 
 

@@ -1,4 +1,12 @@
 {% load embed_gdrive_folder %}
+<style>
+	.table th, .table td {
+		vertical-align: middle;
+	}
+	.table td {
+		width: 12%;
+	}
+</style>
 
 <div class="row">
 	<div class="col-md-12">
@@ -59,6 +67,32 @@
 								<td><i class="fa fa-male"></i> {{ validacion.poblacion.maestro }}</td>
 								<td><i class="fa fa-male"></i><i class="fa fa-female"></i> {{ validacion.poblacion.total_maestro }}</td>
 							</tr>
+							{% if validacion.escuela.nivel.id == 2 %}
+								<tr>
+									<th>Promedio matemáticas segundo básico</th>
+									<td colspan="3">{{ validacion.prom_mat_seg_b }}</td>
+								</tr>
+							{% endif %}
+							{% if validacion.escuela.nivel.id == 4 %}
+								<tr>
+									<th>Promedio matemáticas</th>
+									<td>Segundo primaria</td>
+									<td colspan="3">Quinto primaria</td>
+								</tr>
+								<tr>
+									<th></th>
+									<td>{{ validacion.prom_mat_seg_p }}</td>
+									<td colspan="3">{{ validacion.prom_mat_quinto_p }}</td>
+								</tr>
+							{% endif %}	
+							<tr>
+								<th>Internet</th>
+								{% if validacion.internet %}
+									<td colspan="3">Si <i class="fa fa-wifi"></i></td>
+								{% else %}
+									<td colspan="3">No <i class="fa fa-times-circle-o"></i></td>
+								{% endif %}
+							</tr>
 							<tr>
 								<th colspan="4">Requerimientos</th>
 							</tr>
@@ -80,7 +114,7 @@
 							</tr>
 							<tr>
 								<th>Fotos</th>
-								<td>
+								<td colspan="3">
 									{% if validacion.fotos_link %}
 									<br>
 									{{ validacion.fotos_link|embed_gdrive_folder|safe }}

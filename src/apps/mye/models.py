@@ -93,6 +93,11 @@ class Solicitud(models.Model):
         related_name='solicitudes',
         null=True)
 
+    prom_mat_seg_p = models.FloatField(blank=True, null=True, verbose_name='Promedio matemática segundo primaria')
+    prom_mat_quinto_p = models.FloatField(blank=True, null=True, verbose_name='Promedio matemática quinto primaria')
+    prom_mat_seg_b = models.FloatField(blank=True, null=True, verbose_name='Promedio matemática segundo básico')
+    grupos_familia = models.IntegerField(blank=True, null=True, verbose_name='Grupos familias')
+    internet = models.BooleanField(default=False, blank=True)
     requisito = models.ManyToManyField(Requisito, blank=True)
     medio = models.ManyToManyField(Medio, blank=True)
 
@@ -161,6 +166,11 @@ class Validacion(models.Model):
         related_name='validaciones',
         null=True)
 
+    prom_mat_seg_p = models.FloatField(blank=True, null=True, verbose_name='Promedio matemática segundo primaria')
+    prom_mat_quinto_p = models.FloatField(blank=True, null=True, verbose_name='Promedio matemática quinto primaria')
+    prom_mat_seg_b = models.FloatField(blank=True, null=True, verbose_name='Promedio matemática segundo básico')
+    grupos_familia = models.IntegerField(blank=True, null=True, verbose_name='Grupos familias')
+    internet = models.BooleanField(default=False, blank=True)
     requisito = models.ManyToManyField(Requisito, blank=True)
 
     observacion = models.TextField(null=True, blank=True)

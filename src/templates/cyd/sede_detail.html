@@ -73,6 +73,23 @@
 						</table>
 					</div>
 				</div>
+
+				{% if formulario %}
+					{% if request.user|has_group:"eva_admin" or request.user|has_group:"eva_tpe"  or request.user|has_group:"eva_capacitacion" %}
+						<div class="box box-info">
+							<div class="box-body no-padding box-profile"> 
+								<table class="table">
+									<tr>
+										<th>Evaluación de sede</th>
+										<td><a href="{% url 'formulario_ditail' pk=formulario.id %}" class="btn btn-info"> <i class="fa fa-bar-chart" aria-hidden="true"></i> Detalle </a></td>
+									</tr>
+								</table> 
+								
+							</div>
+						</div>
+					{% endif %}
+				{% endif %}
+
 				{% if sede.escuela_beneficiada.mapa.lat and sede.escuela_beneficiada.mapa.lng %}
 				<div class="box box-info">
 					<div class="box-header with-border">
