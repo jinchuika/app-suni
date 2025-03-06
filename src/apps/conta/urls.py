@@ -204,12 +204,12 @@ urlpatterns = [
 ## Planilla Contabilidad
  url(
    r'^apiplanilla/$',
-   conta_v.PlanillaApiContaJson.as_view(),
+   conta_v.PlanillaApiConta.as_view(),
    name="api_planilla"
    ),
  url(
    r'^apidatosplanilla/$',
-   conta_v.DatosPlanillaApiContaJson.as_view(),
+   conta_v.FiltrosPlanillaApiConta.as_view(),
    name="api_datosplanilla"
    ),
  url(

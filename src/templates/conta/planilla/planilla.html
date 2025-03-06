@@ -23,8 +23,8 @@
 						{% csrf_token %}
 						<div class="form-group" style="text-align: center;">
 							<div class="mb-3-text-center">
-								<label for="fileInput" class="btn btn-warning" style="margin: 1rem 0;">Seleccionar
-									Planilla
+								<label for="fileInput" class="btn btn-warning" style="margin: 1rem 0;" onclick="mostrarBoton()">Seleccionar
+									archivo de planilla
 									
 								</label>
 								<input type="file" name="myfile" id="fileInput" hidden>
@@ -32,7 +32,7 @@
 
 
 							<div class="mb-3 text-center">
-								<button class="btn btn-primary" type="submit" style="margin: 1rem 0;">Cargar archivo xlsx</button>
+								<button id="btnCargarArchivo" class="btn btn-primary" type="submit" style="margin: 1rem 0;">Cargar archivo xlsx</button>
 							</div>
 						</div>
 				</div>
@@ -42,12 +42,13 @@
 			</div>
 			<!--Aca termina el formulario-->
 		</div>
-		{% if f_name %}
+		{% if file_name %}
 		<div class="col-md-4">
 			<div class="box box-info">
 
 
 				<h3 class="box-title">Filtros</h3>
+				<p class="box box-body">Archivo cargado: {{file_cargado}}</p>
 				<form action="" data-url="{% url 'api_datosplanilla' %}" id="planilla-list-form">
 					<div class="box-body">
 						{% csrf_token %}
@@ -69,11 +70,11 @@
 		{% endif %}
 
 		<div id="comprobantes" class="col-md-4">
-			<div class="box box-success">
+			<div class="box box-success" style="text-align: center;">
 
 				<div>
 					<h3>Comprobantes</h3>
-					<a class="btn btn-primary" id="urlZip" href={{url|default:"No_informacion"}} download>{{titulo}}</a>
+					<a class="btn btn-primary" style="margin: 0rem 0;" id="urlZip" href={{url|default:"No_informacion"}} download>{{titulo}}</a>
 				</div>
 
 			</div>
@@ -91,6 +92,10 @@
 <script src="{% static 'js/extrajs/conta.js' %}"></script>
 <script>
 	var nuevo = new Planilla();
+	function mostrarBoton(){
+		$("#btnCargarArchivo").css({"visibility":"visible"});
+	}
+
 </script>
 
 
