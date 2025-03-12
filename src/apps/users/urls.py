@@ -23,4 +23,7 @@ urlpatterns = [
     url(r'^(?P<pk>\d+)/$', user_views.PerfilUpdate.as_view(), name='perfil_detail'),
     url(r'^(?P<pk>\d+)/preferencias$', user_views.PerfilPreferenciasUpdate.as_view(), name='perfil_preferencias'),
     url(r'^preferences/', include('dynamic_preferences.urls')),
+
+    url(r'^api/validartoken/$', user_views.ValidarToken.as_view(), name='validar_token'),
+
 ]
