@@ -121,6 +121,7 @@ class EquipamientoFullSerializer(EquipamientoSerializer):
     latitud = serializers.StringRelatedField(source='escuela.mapa.lat')
     nivel = serializers.StringRelatedField(source='escuela.nivel.nivel')
     sector = serializers.StringRelatedField(source='escuela.sector.sector')
+    internet = serializers.SerializerMethodField()
     
     class Meta:
         model = tpe_models.Equipamiento
@@ -128,8 +129,11 @@ class EquipamientoFullSerializer(EquipamientoSerializer):
             'entrega', 'entrega_url', 'escuela', 'escuela_url', 'escuela_codigo', 'fecha',
             'renovacion', 'khan', 'cantidad', 'tipo_red', 'cooperante', 'proyecto',
             'municipio', 'departamento', 'direccion', 'alumnas', 'alumnos', 'total_alumnos',
-            'maestras', 'maestros', 'total_maestros', 'longitud', 'latitud','nivel', 'sector' )
-
+            'maestras', 'maestros', 'total_maestros', 'longitud', 'latitud','nivel', 'sector', 'internet' )
+        
+    def get_internet(self, obj):
+        return "Sí" if obj.escuela.get_internet() else "No"
+        
 
 class EquipamientoCalendarSerializer(main_s.CalendarSerializer):
     tip_title = serializers.CharField(source='escuela.municipio')

@@ -1,3 +1,12 @@
+<style>
+	.table th, .table td {
+		vertical-align: middle;
+	}
+	.table td {
+		width: 12%;
+	}
+</style>
+
 <div class="row">
 	<div class="col-md-12">
 		<div class="box box-info box-solid collapsed-box">
@@ -29,7 +38,7 @@
 							<td colspan="3">{{ solicitud.jornada }}</td>
 						</tr>
 						<tr>
-							<th>La escuela fue EDF</th>
+							<th>La escuela fue EDF:</th>
 							<td colspan="3">
 								{% if solicitud.edf %}
 								Sí
@@ -45,16 +54,46 @@
 							</td>
 						</tr>
 						<tr>
-							<th>Población estudiantil</th>
+							<th>Población estudiantil:</th>
 							<td><i class="fa fa-female"></i> {{solicitud.poblacion.alumna}}</td>
 							<td><i class="fa fa-male"></i> {{solicitud.poblacion.alumno}}</td>
 							<td><i class="fa fa-male"></i><i class="fa fa-female"></i> {{solicitud.poblacion.total_alumno}}</td>
 						</tr>
 						<tr>
-							<th>Población doncente</th>
+							<th>Población docente:</th>
 							<td><i class="fa fa-female"></i> {{solicitud.poblacion.maestra}}</td>
 							<td><i class="fa fa-male"></i> {{solicitud.poblacion.maestro}}</td>
 							<td><i class="fa fa-male"></i><i class="fa fa-female"></i> {{solicitud.poblacion.total_maestro}}</td>
+						</tr>
+						<tr>
+							<th>Grupos Familiares:</th>
+							<td colspan="3">{{ solicitud.grupos_familia }}</td>
+						</tr>
+						{% if solicitud.escuela.nivel.id == 2 %}
+							<tr>
+								<th>Promedio matemáticas segundo básico</th>
+								<td colspan="3">{{ solicitud.prom_mat_seg_b }}</td>
+							</tr>
+						{% endif %}
+						{% if solicitud.escuela.nivel.id == 4 %}
+							<tr>
+								<th>Promedio matemáticas</th>
+								<td>Segundo primaria</td>
+								<td colspan="3">Quinto primaria</td>
+							</tr>
+							<tr>
+								<th></th>
+								<td>{{ solicitud.prom_mat_seg_p }}</td>
+								<td colspan="3">{{ solicitud.prom_mat_quinto_p }}</td>
+							</tr>
+						{% endif %}	
+						<tr>
+							<th>Internet</th>
+							{% if solicitud.internet %}
+								<td colspan="3">Si <i class="fa fa-wifi"></i></td>
+							{% else %}
+								<td colspan="3">No <i class="fa fa-times-circle-o"></i></td>
+							{% endif %}
 						</tr>
 						<tr>
 							<th>Observaciones</th>

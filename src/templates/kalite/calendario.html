@@ -19,7 +19,7 @@
 				<div class="box box-success">
 					<div class="box-body no-padding">
 						<!-- Calendario -->
-						<div id="kalite-calendario" data-url-calendario="{% url 'kalite_api_calendario' %}"></div>
+						<div id="kalite-calendario" data-url-calendario="{% url 'kalite_api_calendario' %}"  data-permiso="{% if request.user|has_group:'kalite' %}true{% else %}false{% endif %}">></div>
 					</div>
 					<div class="box-footer">
 						<form id="calendario-form">

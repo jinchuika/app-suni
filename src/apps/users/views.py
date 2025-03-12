@@ -16,6 +16,9 @@ from rest_framework.authtoken.models import Token
 import qrcode
 import os
 from django.conf import settings
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
 
 
 class UserLogin(LoginView):
@@ -99,3 +102,21 @@ class PerfilCrear(LoginRequiredMixin, GroupRequiredMixin, CreateView):
         self.object.user.save()
         self.object.save()
         return super(PerfilCrear, self).form_valid(form)
+
+class ValidarToken(APIView):
+    """ Vista para validar Token de autenticación desde la app de Ionic, recibe el token como un parametro
+    """
+    def post(self, request, format=None):
+        token_key = request.data.get('token')
+        try:
+            token = Token.objects.get(key=token_key)
+            user = token.user
+            perfil = user.perfil  
+            return Response({
+                'mensaje': 'Token válido',
+                'usuario': user.username,
+                'nombre': perfil.nombre,
+                'apellido': perfil.apellido
+            }, status=status.HTTP_200_OK)
+        except Token.DoesNotExist:
+            return Response({'mensaje': 'Token inválido'}, status=status.HTTP_401_UNAUTHORIZED)
