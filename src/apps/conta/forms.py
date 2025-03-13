@@ -408,3 +408,15 @@ class ResumenInformeBeqtForm(forms.Form):
         label='Dispositivo',
         required=False,
         widget=forms.SelectMultiple(attrs={'class': 'form-control select2'}))
+    
+
+    
+class PlanillaForm(forms.Form):
+    """Este Formulario se encarga de enviar los filtros para  de selección de planilla
+    """
+    pagos=[('1','Quincena'),('2','Fin de mes'),('3','Bono 14'),('4','Aguinaldo')]
+    tipo_de_planilla = forms.ChoiceField(widget=forms.RadioSelect, choices=pagos)
+    agrupacion=[('1','Individual'),('2','Listado')]
+    disposicion_planilla = forms.ChoiceField(widget=forms.RadioSelect, choices=agrupacion)
+    enviar_correo = forms.BooleanField(widget=forms.CheckboxInput(attrs={'class': 'icheckbox_flat-green'}),required=False)
+                                                                        

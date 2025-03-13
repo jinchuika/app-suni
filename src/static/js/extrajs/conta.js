@@ -685,3 +685,47 @@ class RastreoRepuestoInforme{
   });
   }
 }
+
+
+
+class Planilla { 
+  constructor() {
+    $("#comprobantes").css({"visibility":"hidden"});
+    $("#btnCargarArchivo").css({"visibility":"hidden"});
+    var urlPlanilla= $('#planilla-list-form').data("url");
+    let planilla_form= $('#planilla-list-form');
+    
+    planilla_form.submit(function (e){
+      e.preventDefault();
+      $.ajax({
+        url:urlPlanilla,
+        data: $('#planilla-list-form').serialize(),
+        error:function(){
+          console.log("Error");
+        },
+        success:function(data){
+          if (data.empaquetado){
+              bootbox.alert({message:"Se ha creado un descargable con los comprobantes de pago, ir al apartado de \"Comprobantes\" para descargar el zip", className:"modal modal-success fade in"})
+              $("#comprobantes").css({"visibility":"visible"});
+              $("#urlZip").css({"visibility":"visible;","width":"auto","height":"auto"});
+              
+          }else if (data.success){
+            bootbox.alert({message: data.success,className:"modal modal-success fade in"});
+            console.log(data);
+          }else if (data.error){
+            bootbox.alert({message:data.error,className:"modal modal-danger fade"});
+            console.log(data);
+          }
+          else{
+
+          }
+        },
+        type: 'POST'
+      }
+      );
+    })
+
+  }
+}
+
+
