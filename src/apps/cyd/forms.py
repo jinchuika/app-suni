@@ -548,10 +548,10 @@ class InformeCursoslistadoForm(forms.Form):
         required=False)
     
 class InformeParticipanteCapacitadorForm(forms.Form):
-    capacitador = forms.ModelChoiceField(
+    capacitador = forms.ModelMultipleChoiceField(
         queryset=User.objects.filter(groups__name='cyd_capacitador'),
-        widget=forms.Select(attrs={'class': 'select2 form-control'}),
-        required=True
+        widget=forms.SelectMultiple(attrs={'class': 'select2 form-control'}),
+        required=False
         )
     fecha_min = forms.CharField(
         label='Fecha mínima',

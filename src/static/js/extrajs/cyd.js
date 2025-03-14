@@ -3848,60 +3848,62 @@ class NaatInforme{
 
   class informeCapacitadorParticipantes{
     constructor(){
-      var contador =0;
-      var cantidad_hombres=0;
-      var cantidad_mujeres=0;
-      var cantidad_chicas=0;
-      var cantidad_chicos=0;
       $('#informe-capacitador-list-form').submit(function (e) {
           e.preventDefault();
-           var tablaDispositivos = $('#informe-capacitador-table-search').DataTable({
-              dom: 'lfrtipB',
-              destroy:true,
-              buttons: ['excel', {extend:'pdf', orientation:'landscape'}],
-              processing: true,
-              deferLoading: [0],
-              pageLength: 100,
-              ajax: {
-                  type: 'POST',
-                  url: $('#informe-capacitador-list-form').attr('action'),
-                  deferRender: true,
-                  dataSrc: '',
-                  cache: true,
-                  data: function (data,params) {
-                            return $('#informe-capacitador-list-form').serializeObject(true);
-                  }
-  
-              },
-              columns:[
-                  {data: "numero",render: function(data, type , full, meta){
-                     
-                      return "<a href="+full.url+">"+full.numero+"</a>";
-                  }},
-                  {data: "nombre"},
-                  {data: "apellido"},
-                  {data: "escuela"},
-                  {data: "dpi"},
-                  {data: "genero"},
-                  
-                  {data: "mail"},
-                  {data: "tel_casa",render: function(data, type,full, meta){
-                    if(full.tel_casa=="No tiene"){
-                        return full.tel_movil
-                    }else{
-                        return full.tel_casa
-                    }
-                }},
-                  {data: "escolaridad"},
-                  {data: "etnia"},
-                  {data: "profesion"},
-                  {data: "grado_impartido"},
-                  {data: "chicos"},
-                  {data: "chicas"},
-  
-              ],
-  
-            });
+          $.post(
+            $('#informe-capacitador-list-form').attr('action'), 
+            $('#informe-capacitador-list-form').serializeObject(true)
+            ).then(function (response){
+                
+                var tablaDispositivos = $('#informe-capacitador-table-search').DataTable({
+                    footerCallback: function( tfoot, data, start, end, display){
+                        if(response.cascada>0){
+                            $(tfoot).find('th').eq(0).html("CAPACITACION EN CASCADA: ");
+                            $(tfoot).find('th').eq(1).html(response.cascada);
+                        }                        
+                      },            
+                    dom: 'lfrtipB',
+                    destroy:true,
+                    buttons: ['excel', {extend:'pdf', orientation:'landscape'}],
+                    processing: true,
+                    deferLoading: [0],
+                    pageLength: 100,
+                    data:response.data,                  
+                    columns:[
+                        {data: "numero",render: function(data, type , full, meta){
+                            return "<a href="+full.url+">"+full.numero+"</a>";
+                        }},
+                        {data: "nombre"},
+                        {data: "apellido"},
+                        {data: "escuela"},
+                        {data: "dpi"},
+                        {data: "genero"},
+                        
+                        {data: "mail"},
+                        {data: "tel_casa",render: function(data, type,full, meta){
+                          if(full.tel_casa=="No tiene"){
+                              return full.tel_movil
+                          }else{
+                              return full.tel_casa
+                          }
+                      }},
+                        {data: "escolaridad"},
+                        {data: "etnia"},
+                        {data: "profesion"},
+                        {data: "grado_impartido"},
+                        {data: "chicos"},
+                        {data: "chicas"},
+                        {data: "nota"},
+                        {data: "capacitador"},
+        
+                    ],
+        
+                  });
+            
+    
+          },function(response){
+            alert("Error al crear datos");
+          });
   
             });
   
