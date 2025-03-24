@@ -20,6 +20,9 @@ from django.contrib.auth.models import User
 from apps.kardex import models as kax_m
 from django.db.models import Count,F
 import json
+from rest_framework.authentication import TokenAuthentication, SessionAuthentication
+from rest_framework.permissions import IsAuthenticated
+
 
 
 class DispositivoFilter(filters.FilterSet):
@@ -86,6 +89,8 @@ class DispositivoViewSet(viewsets.ModelViewSet):
     serializer_class = inv_s.DispositivoSerializer
     filter_class = DispositivoFilter
     ordering = ('entrada')
+    authentication_classes = [TokenAuthentication, SessionAuthentication]
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         """ Este queryset se encarga de filtrar los dispositivo que se van a mostrar en lista
