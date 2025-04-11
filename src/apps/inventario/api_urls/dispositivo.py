@@ -34,6 +34,11 @@ dispositivo_router.register(
     api_views.DispositosDetalleAndroid,
     base_name='api_detalle_dispositivo_app'
 
+),
+dispositivo_router.register(
+    r'dispositivos/app',
+    api_views.DispositivosActualizarViewSet,
+    base_name='api_dispositivo_app'
 )
 dispositivo_urlpatterns = []
 dispositivo_urlpatterns += dispositivo_router.urls
