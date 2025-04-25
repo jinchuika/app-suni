@@ -31,6 +31,7 @@ from django.template.loader import render_to_string
 import os
 import pathlib
 import shutil
+import platform
 import errno
 from openpyxl import load_workbook
 from jinja2 import Environment, FileSystemLoader
@@ -1677,17 +1678,16 @@ class PlanillaApiConta(LoginRequiredMixin,views.APIView):
         form=conta_f.PlanillaForm()
         if request.method=='POST' and request.FILES.get("myfile"):
             """
-            Verífica que sea un método post al mismo tiempo que dentro del request se haya capturado un file
+            Verifíca que sea un método post al mismo tiempo que dentro del request se haya capturado un file
             """
-            excel_path=os.path.join(settings.BASE_DIR,settings.MEDIA_ROOT_EXCEL)
-            os.makedirs(excel_path,exist_ok=True)
+            excel_path=os.path.join(settings.MEDIA_ROOT,"planilla","excel")
             file_list =os.listdir(excel_path)
             number_file=len(file_list)
             myfile=request.FILES["myfile"]
             new_name=str('PlanillaN') + str(number_file) +str(".")+str(myfile.name.split(".")[-1])          
             file_storage=FileSystemStorage(location=excel_path)
             file_name=file_storage.save(new_name, myfile)  
-            url=os.path.join(settings.MEDIA_URL,"html/output/Comprobantes.zip")
+            url=str(settings.MEDIA_URL)+"planilla/output/Comprobantes.zip"
             context={
                 'form':form,
                 'file_name':file_name,
@@ -1859,10 +1859,11 @@ class html_generadoenerator:
     """
     options = {
         'encoding': "UTF-8",
+        'enable-local-file-access': '',
         'margin-top': '0.7in',
         'margin-right': '0.1in',
         'margin-bottom': '1.5in',
-        'margin-left': '0.6in'
+        'margin-left': '0.6in',
     }
     @classmethod
     def configurarFiltros(cls, disposición,tipo_planilla):
@@ -1881,13 +1882,13 @@ class html_generadoenerator:
         self.template_name = 'template_{}_{}.html'.format(template_planilla, template_tipo)
         self.template_folderAux=template_folder
         self.output_folderAux=output_folder
-        self.output_folder=os.path.join(self.output_folderAux,"output")
-        self.template_folder=os.path.join(self.template_folderAux,"templates")
+        self.output_folder=pathlib.Path(self.output_folderAux)
+        self.template_folder=pathlib.Path(self.template_folderAux)
         self.env=Environment(loader=FileSystemLoader(self.template_folder))       
         self.output_folder=pathlib.Path(self.output_folder)
-        self.output_folder.mkdir(parents=True,exist_ok=True)
         self.enviar=enviar
         self.destinatario=destinatario
+        
         
        
     @classmethod
@@ -1896,10 +1897,11 @@ class html_generadoenerator:
         Método para copiar un directorio desde una locación actual a una destino
         """
         try:
+            print("Se guarda en: ")
             shutil.copytree(src, dest)
         except OSError as e:
             if e.errno == errno.ENOTDIR:
-                shutil.copy(src, dest)
+                print(shutil.copy(src, dest))
             else:
                 pass    
 
@@ -1907,16 +1909,22 @@ class html_generadoenerator:
         """
         Método que genera la disposición de lista de los comprobantes de planilla para los empleados
         """
+        
+        ruta_logo = str(pathlib.Path(settings.BASE_DIR) / 'static/image/Logo_Funsepa-01.png').replace(os.sep,"/")
+        ruta_qr = str(pathlib.Path(settings.BASE_DIR) / 'static/image/qr_contador.png').replace(os.sep,"/")
+        logo_path = "file:///"+ruta_logo
+        qr_path = "file:///"+ruta_qr
         template=self.env.get_template(self.template_name)
         full_name_template=str(self.output_folder/'lista_empleados.html')
         html_output=template.render(
             lista_empleados=planilla.lista_empleados,
             quincena=planilla.fecha_quincena,
-            hora=datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            hora=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            qr=qr_path,
+            logo=logo_path
         )
         with open(full_name_template,"w",encoding='utf-8') as html:
             html.write(html_output)
-        self.copy(self.template_folder + '/img', str(self.output_folder / 'img'))
         #Generar pdf
         pdf=self.generar_pdf(full_name_template,"lista_empleados")
         pdf_list=[]
@@ -1939,19 +1947,23 @@ class html_generadoenerator:
         Método que crea la disposición de los comprobanes de planilla de forma individual por cada empleado
         """
         template=self.env.get_template(self.template_name)
-        self.copy(self.template_folder + '/img', str(self.output_folder / 'img'))
         retorno=-1
         pdf_list=[]
+        ruta_logo = str(pathlib.Path(settings.BASE_DIR) / 'static/image/Logo_Funsepa-01.png').replace(os.sep,"/")
+        ruta_qr = str(pathlib.Path(settings.BASE_DIR) / 'static/image/qr_contador.png').replace(os.sep,"/")
+        logo_path = "file:///"+ruta_logo
+        qr_path = "file:///"+ruta_qr
         for empleado in planilla.lista_empleados:
             full_name_template=str(self.output_folder/'{}.html'.format(empleado.codigo))
             html_output=template.render(
             persona=empleado,
             quincena=planilla.fecha_quincena,
-            hora=datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            hora=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            qr=qr_path,
+            logo=logo_path
             )
             with open(full_name_template,"w",encoding='utf-8') as html:
                 html.write(html_output)
-            self.copy(self.template_folder + '/img', str(self.output_folder / 'img'))
             #Generar pdf
             pdf=self.generar_pdf(full_name_template,empleado.codigo)
             if self.enviar and pdf is not None:
@@ -1994,9 +2006,20 @@ class html_generadoenerator:
         """
         Método que genera los pdf requeridos utilizando archivos html para luego guardarlos
         """
+        actual_so=platform.system()
         ruta_wkhmtltopdf= shutil.which("wkhtmltopdf")
         if ruta_wkhmtltopdf is None:
-            ruta_wkhmtltopdf="C:\\Program Files\\wkhtmltopdf\\bin\\wkhtmltopdf.exe"
+            if actual_so=="nt":
+
+                ruta_wkhmtltopdf="C:\\Program Files\\wkhtmltopdf\\bin\\wkhtmltopdf.exe"
+            elif actual_so=="posix":
+                ruta_wkhmtltopdf = "/usr/local/bin/wkhtmltopdf"
+            elif actual_so=="Windows":
+                ruta_wkhmtltopdf = "C:\\Program Files\\wkhtmltopdf\\bin\\wkhtmltopdf.exe"
+            elif actual_so=="Linux":
+                ruta_wkhmtltopdf = "/usr/local/bin/wkhtmltopdf"
+            else:
+                raise Exception("No se ha podido encontrar el Sistema Operativo")
         config=pdfkit.configuration(wkhtmltopdf=ruta_wkhmtltopdf)
         file_name=str(self.output_folder/fname)
         try:
@@ -2062,25 +2085,23 @@ class html_generadoenerator:
 
 class FiltrosPlanillaApiConta(LoginRequiredMixin,views.APIView): 
     """
-    Este genera los html y los pdf"""
+    Este genera los html y los pdf
+    """
     def post(self, request):            
             if request.method=='POST':
                     planilla_seleccionada=self.request.POST['tipo_de_planilla']
                     distribucion_seleccionada=self.request.POST['disposicion_planilla']
-                    correo=request.POST.get('enviar_correo')                    
-                    excel_path=os.path.join(settings.BASE_DIR,settings.MEDIA_ROOT_EXCEL)
+                    correo=request.POST.get('enviar_correo')
+                    excel_path=os.path.join(settings.MEDIA_ROOT,'planilla','excel')
                     send_mail=False
                     if correo: 
                         send_mail=True
-                    os.makedirs(excel_path,exist_ok=True)
                     file_path=os.listdir(excel_path)[len(os.listdir(excel_path))-1]
-                    file_name=os.path.join(excel_path,file_path)                    
+                    file_name=os.path.join(excel_path,file_path)             
                     datos = PlanillaParse(file_name,planilla_seleccionada)
-                    ##Manejo de html's y pdf's
-                    output_folder=os.path.join(settings.BASE_DIR,settings.MEDIA_ROOT_HTML)
-                    template_folder=os.path.join(settings.BASE_DIR,settings.MEDIA_ROOT_HTML)
-                    os.makedirs(output_folder,exist_ok=True)
-                    os.makedirs(template_folder,exist_ok=True)
+                    ##Manejo de html's y pdf's                    
+                    output_folder=os.path.join(settings.MEDIA_ROOT,'planilla','output')
+                    template_folder=os.path.join(settings.BASE_DIR,'templates/conta/planilla/')
                     tipo,disposicion=html_generadoenerator.configurarFiltros(int(distribucion_seleccionada),int(planilla_seleccionada))                    
                     html_generado=html_generadoenerator(template_planilla=tipo,
                                                 template_tipo=disposicion,
@@ -2095,12 +2116,12 @@ class FiltrosPlanillaApiConta(LoginRequiredMixin,views.APIView):
                     else:
                         flag,pdf=html_generado.crear_lista(datos)
                     if send_mail and flag==0:
-                        html_generado.delete_files(excel_path=os.path.join(settings.BASE_DIR,settings.MEDIA_ROOT_EXCEL))
+                        html_generado.delete_files(excel_path=os.path.join(settings.MEDIA_ROOT,'planilla','excel'))
                         return JsonResponse({"success":"Se han enviado los comprobantes de pago y eliminado los archivos exitosamente"},status=200)
                     elif send_mail==False and flag==1:
                         flag= html_generado.empaquetar_pdf(pdf)
-                        path=os.path.join(settings.MEDIA_URL,"html/output/Comprobantes.zip")
-                        return JsonResponse({"empaquetado":"{}".format(path)},status=200)
+                        path_url=os.path.join(settings.MEDIA_URL,"planilla/output/Comprobantes.zip")
+                        return JsonResponse({"empaquetado":"{}".format(path_url)},status=200)
                         
                     elif send_mail and flag==-1:
                         return JsonResponse({"error":"No se han enviado comprobantes, compruebe de nuevo"},status=200)
@@ -2114,7 +2135,6 @@ class PlanillaContaView(LoginRequiredMixin,GroupRequiredMixin,FormView):
     group_required = [u"conta_planilla", ]
     def get_context_data(self, **kwargs):
         context = super(PlanillaContaView, self).get_context_data(**kwargs)   
-        context['url']=os.path.join(settings.MEDIA_URL,"html/output/Comprobantes.zip")
-        context['titulo']= "Descargar comprobantes en zip"
+        context['url']=os.path.join(settings.MEDIA_URL,"planilla/output/Comprobantes.zip")
         return context
 
