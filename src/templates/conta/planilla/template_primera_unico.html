@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="UTF-8">
+	<link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+		integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+	<title>Planillas</title>
+	<style type="text/css">
+		th {
+			text-align: center
+		}
+	</style>
+</head>
+
+<body>
+	<div class="row">
+		<div class="col-10">
+			<table class="table table-striped table-sm">
+				<tr>
+					<td colspan="4">
+						<h2 class="text-center">
+							<div style="display:inline; width: 200; margin-left: -7.5%;">
+								<img src={{logo}} height="130">
+							</div>
+
+							<div style="display:inline-block; margin-top: 30px; margin-left: 12.5%;">
+								<p>Fundación</p>
+								<p style="margin: -8.5% 0;">Sergio Paiz Andrade</p>
+							</div>
+						</h2>
+					</td>
+				</tr>
+				<tr>
+					<td colspan="4">
+						<b>Boleta de pago de planilla primera quincena</b>:
+						{{ quincena }} <br>
+						<b>Nombre</b>: {{ persona.nombre }} <br>
+						<b>Código de empleado</b>: {{ persona.codigo }} <br>
+						<b>Cuenta</b>: {{ persona.cuenta }}
+					</td>
+				</tr>
+				<tr>
+					<th colspan="4">
+						<h4 class="text-center">Devengado</h4>
+					</th>
+				</tr>
+				<tr>
+					<th>Primera quincena</th>
+					<th>Bonificación de ley</th>
+					<th colspan="2" class="text-right">Total</th>
+				</tr>
+				<tr>
+					<td class="text-center">
+						Q. {{'%0.2f'|format(persona.primera|float)}}
+					</td>
+					<td class="text-center">
+						Q. {{'%0.2f'|format(persona.decreto|float)}}
+					</td>
+					<td colspan="2" class="text-right">
+						Q. {{'%0.2f'|format(persona.salario|float)}}
+					</td>
+				</tr>
+				<tr>
+					<th colspan="4">
+						<h4 class="text-center">Descuentos</h4>
+					</th>
+				</tr>
+				<tr>
+					<th>Descuentos</th>
+					<th>IGSS</th>
+					<th>Asdeco</th>
+					<th class="text-right">Total</th>
+				</tr>
+				<tr>
+					<td class="text-center">
+						Q. {{'%0.2f'|format(persona.descuentos|float)}}
+					</td>
+					<td class="text-center">
+						Q. {{'%0.2f'|format(persona.igss|float)}}
+					</td>
+					<td class="text-center">
+						Q. {{'%0.2f'|format(persona.asdeco|float)}}
+					</td>
+					<td class="text-right">
+						(Q. {{'%0.2f'|format(persona.total_descuentos|float)}})
+					</td>
+				</tr>
+				<tr class="text-success lead">
+					<th colspan="3" class="strong text-right">Líquido a recibir</th>
+					<td class="text-right">
+						<b>Q. {{'%0.2f'|format(persona.depositar|float)}}</b>
+					</td>
+				</tr>
+				<tr>
+					<td colspan="3" class="align-middle">
+						<b>Elaborado por: </b> Marlene Rosales ({{hora}})
+					</td>
+					<td class="text-right">
+						<img src={{qr}} height="100">
+					</td>
+				</tr>
+			</table>
+		</div>
+	</div>
+	<br>
+
+</body>
+<script src="js/bootstrap.min.js"></script>
+
+</html>
