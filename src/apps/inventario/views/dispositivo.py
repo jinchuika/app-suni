@@ -8,6 +8,8 @@ from django.urls import reverse_lazy
 from django.contrib import messages
 from django.shortcuts import reverse
 from django.views.generic import DetailView, UpdateView, CreateView, ListView, FormView
+from django.core.exceptions import ObjectDoesNotExist
+
 from django.db.models import Q
 from django.db.models import Sum
 from braces.views import (
@@ -16,6 +18,9 @@ from braces.views import (
 from apps.inventario import models as inv_m
 from apps.inventario import forms as inv_f
 from apps.kardex import models as kax_m
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
 
 
 #################################################
@@ -737,3 +742,144 @@ class DispositivosTarimaQr(LoginRequiredMixin, DetailView):
         context['dispositivo_qr'] = tarima_print
 
         return context
+
+###################
+# APP INVENTARIO # 
+###################
+class DispositivosActualizarAppViewSet(APIView):
+    """ ViewSet que se conecta a la app y actualiza el numero de tarima :class: `Disposiitivo`
+    """
+
+    def post(self, request, *args, **kwargs):
+        """ Metodo para actualizar listado de dispositivos mediante app de bodega 
+        Recibe el numero de tarima ("tarima") y un listado de dispositivos ("datos_actualizar") con su tipo ("triage","tipo"), para actualizar el campo de tarima
+        """
+        dispositivos = request.data.get("datos_actualizar", [])
+        tarima = request.data.get("tarima", [])
+
+        if not dispositivos or not tarima:
+                return Response({
+                    'mensaje': 'Datos incompletos'},
+                    status=status.HTTP_200_OK)
+        else:
+            try:
+                nueva_tarina = inv_m.Tarima.objects.get(id=tarima)
+            except ObjectDoesNotExist as e:
+                return Response({
+                    'mensaje': 'Tarima no existe'},
+                    status=status.HTTP_200_OK)
+                
+        errores = []
+        actualizados = []
+        error_tipo = []
+
+        for dispositivo in dispositivos:
+            tipo= dispositivo['tipo']
+            dispo_triage = dispositivo['triage']
+            if tipo.upper() == "TECLADO":
+                try:
+                    dispositivo = inv_m.Teclado.objects.get(triage=dispo_triage)
+                    if dispositivo.etapa.id == 1:
+                            dispositivo.tarima = nueva_tarina
+                            dispositivo.save()
+                            actualizados.append(dispositivo)
+                    else: 
+                        errores.append(dispositivo)
+                except ObjectDoesNotExist as e:
+                    errores.append(dispositivo)
+            elif tipo.upper() == "MOUSE":
+                try:
+                    dispositivo = inv_m.Mouse.objects.get(triage=dispo_triage)
+                    if dispositivo.etapa.id == 1:
+                        dispositivo.tarima = nueva_tarina
+                        dispositivo.save()
+                        actualizados.append(dispositivo)
+                    else: 
+                        errores.append(dispositivo)
+                except ObjectDoesNotExist as e:
+                    errores.append(dispositivo)
+            elif tipo.upper() == "HHD":
+                try:
+                    dispositivo = inv_m.HDD.objects.get(triage=dispo_triage)
+                    if dispositivo.etapa.id == 1:
+                        dispositivo.tarima = nueva_tarina
+                        dispositivo.save()
+                        actualizados.append(dispositivo)
+                    else: 
+                        errores.append(dispositivo)
+                except ObjectDoesNotExist as e:
+                    errores.append(dispositivo)
+            elif tipo.upper() == "TABLET":
+                try:
+                    dispositivo = inv_m.Tablet.objects.get(triage=dispo_triage)
+                    if dispositivo.etapa.id == 1:
+                        dispositivo.tarima = nueva_tarina
+                        dispositivo.save()
+                        actualizados.append(dispositivo)
+                    else: 
+                        errores.append(dispositivo)
+                except ObjectDoesNotExist as e:
+                    errores.append(dispositivo)
+            elif tipo.upper() == "MONITOR":
+                try:
+                    dispositivo = inv_m.Monitor.objects.get(triage=dispo_triage)
+                    if dispositivo.etapa.id == 1:
+                        dispositivo.tarima = nueva_tarina
+                        dispositivo.save()
+                        actualizados.append(dispositivo)
+                    else: 
+                        errores.append(dispositivo)
+                except ObjectDoesNotExist as e:
+                    errores.append(dispositivo)
+            elif tipo.upper() == "CPU":
+                try:
+                    dispositivo = inv_m.CPU.objects.get(triage=dispo_triage)
+                    if dispositivo.etapa.id == 1:
+                        dispositivo.tarima = nueva_tarina
+                        dispositivo.save()
+                        actualizados.append(dispositivo)
+                    else: 
+                        errores.append(dispositivo)
+                except ObjectDoesNotExist as e:
+                    errores.append(dispositivo)
+            elif tipo.upper() == "LAPTOP":
+                try:
+                    dispositivo = inv_m.Laptop.objects.get(triage=dispo_triage)
+                    if dispositivo.etapa.id == 1:
+                        dispositivo.tarima = nueva_tarina
+                        dispositivo.save()
+                        actualizados.append(dispositivo)
+                    else: 
+                        errores.append(dispositivo)
+                except ObjectDoesNotExist as e:
+                    errores.append(dispositivo)
+            elif tipo.upper() == "SWITCH":
+                try:
+                    dispositivo = inv_m.DispositivoRed.objects.get(triage=dispo_triage)
+                    if dispositivo.etapa.id == 1:
+                        dispositivo.tarima = nueva_tarina
+                        dispositivo.save()
+                        actualizados.append(dispositivo)
+                    else: 
+                        errores.append(dispositivo)
+                except ObjectDoesNotExist as e:
+                    errores.append(dispositivo)
+            elif tipo.upper() == "ACCESS POINT":
+                try:
+                    dispositivo = inv_m.AccessPoint.objects.get(triage=dispo_triage)
+                    if dispositivo.etapa.id == 1:
+                        dispositivo.tarima = nueva_tarina
+                        dispositivo.save()
+                        actualizados.append(dispositivo)
+                    else: 
+                        errores.append(dispositivo)
+                except ObjectDoesNotExist as e:
+                    errores.append(dispositivo)
+            else:
+                error_tipo.append(dispo_triage)
+
+        return Response({
+            "actualizados": [{"triage": d.triage} for d in actualizados], 
+            "errores": [{"triage": d.triage} for d in errores],  
+            "error_tipo": error_tipo,
+        }, status=status.HTTP_200_OK)
