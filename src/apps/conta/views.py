@@ -1882,8 +1882,8 @@ class html_generadoenerator:
         self.template_folderAux=template_folder
         self.output_folderAux=output_folder
         self.output_folder=pathlib.Path(self.output_folderAux)
-        self.template_folder=pathlib.Path(str(self.template_folderAux))
-        self.env=Environment(loader=FileSystemLoader(self.template_folder))       
+        self.template_folder=pathlib.Path(self.template_folderAux)
+        self.env=Environment(loader=FileSystemLoader(str(self.template_folder)))       
         self.output_folder=pathlib.Path(self.output_folder)
         self.enviar=enviar
         self.destinatario=destinatario
