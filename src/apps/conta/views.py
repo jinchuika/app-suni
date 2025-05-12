@@ -1878,12 +1878,11 @@ class html_generadoenerator:
             return tipo_planillaTexto,'lista'
         
     def __init__(self,template_planilla,template_tipo,enviar , output_folder='html/output', template_folder='html/templates',destinatario=' '):
-        
         self.template_name = 'template_{}_{}.html'.format(template_planilla, template_tipo)
         self.template_folderAux=template_folder
         self.output_folderAux=output_folder
         self.output_folder=pathlib.Path(self.output_folderAux)
-        self.template_folder=pathlib.Path(self.template_folderAux)
+        self.template_folder=pathlib.Path(str(self.template_folderAux))
         self.env=Environment(loader=FileSystemLoader(self.template_folder))       
         self.output_folder=pathlib.Path(self.output_folder)
         self.enviar=enviar
