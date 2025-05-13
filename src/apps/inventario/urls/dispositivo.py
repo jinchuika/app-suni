@@ -203,5 +203,12 @@ urlpatterns = [
         r'^dispositivo/tarima/list/$',
         inventario_v.DispositivosTarimaListView.as_view(),
         name='dispositivo_tarima'
-    )
+    ),
+
+    ### App Bodea ###
+    url(
+        r'dispositivo/app/actualizar_dispositivos',
+        inventario_v.DispositivosActualizarAppViewSet.as_view(),
+        name='api_dispositivo_app'
+)
 ]

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="UTF-8">
+	<link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+		integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+	<title>Planillas</title>
+	<style type="text/css">
+		th {
+			text-align: center
+		}
+	</style>
+</head>
+
+<body>
+	<div class="row">
+		<div class="col-10">
+			<table class="table table-striped table-sm">
+				<tr>
+					<td colspan="4">
+						<h2 class="text-center">
+							<div style="display:inline; width: 200; margin-left: -7.5%;">
+								<img src={{logo}} height="130">
+							</div>
+
+							<div style="display:inline-block; margin-top: 30px; margin-left: 12.5%;">
+								<p>Fundación</p>
+								<p style="margin: -8.5% 0;">Sergio Paiz Andrade</p>
+							</div>
+						</h2>
+					</td>
+				</tr>
+				<tr>
+					<td colspan="4">
+						<b>Nombre</b>: {{ persona.nombre }} <br>
+						<b>Cuenta</b>: {{ persona.cuenta }} <br>
+						<b>Código de empleado</b>: {{ persona.codigo }}
+					</td>
+				</tr>
+				<tr>
+					<th>
+						<h4 class="text-center">Constancia de pago de Bono 14</h4>
+					</th>
+				</tr>
+				<tr>
+					<td>
+						Por este medio se hace constar, que en la presente fecha se ha entregado la cantidad de Q.
+						{{'%0.2f'|format(persona.bono|float)}} ({{ persona.letras }}) en concepto de Bono 14,
+						correspondiente al periodo {{ quincena }} en virtud de mi relación laboral como trabajador de la
+						Fundación Sergio Paiz Andrade, en cumplimiento y de conformidad con el articulo No. 2 (dos) del
+						decreto 42-92 del Congreso de la República.
+					</td>
+				</tr>
+				<tr>
+					<td colspan="3" class="align-middle">
+						<b>Elaborado por: </b> Marlene Rosales ({{hora}})
+					</td>
+					<td class="text-right">
+						<img src={{qr}} height="100">
+					</td>
+				</tr>
+			</table>
+		</div>
+	</div>
+	<br>
+
+</body>
+<script src="js/bootstrap.min.js"></script>
+
+</html>

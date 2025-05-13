@@ -1526,14 +1526,25 @@ class InformeCursosView(LoginRequiredMixin, FormView):
     template_name = 'cyd/Informe_cursos.html'
     form_class = cyd_f.InformeCursoslistadoForm
 
-class InformeParticipanteCapacitador(views.APIView):   
+class InformeParticipanteCapacitador(views.APIView):
+    """ Punto de acceso para obtener la informacion de los participantes  filtrandolo por capacitador y un rango de fecha
+        url de acceso: '/cyd/informe/capacitador/participantes/' obtiene la informacion mediante un medoto post ejecutado desde un boton 
+        del formulario 
+    """   
     def post(self, request):
         listado_participantes = []
         numero = 0
-        
+        conteo_participantes = 0
+        restante_cascada = 0
+        participantes = 0
+        otros_participantes = 0
+        lista_capacitador = []
         try:
-           capacitador = self.request.POST['capacitador']
-        except MultiValueDictKeyError:
+            capacitador = [x for x in self.request.POST.getlist('capacitador[]')]         
+            if len(capacitador)==0:
+                lista_capacitador.append(self.request.POST['capacitador'])                
+
+        except MultiValueDictKeyError:   
             capacitador=0 
         try:
             fecha_min=self.request.POST['fecha_min']
@@ -1543,54 +1554,120 @@ class InformeParticipanteCapacitador(views.APIView):
             fecha_max=self.request.POST['fecha_max']
         except MultiValueDictKeyError:
             fecha_max=0
-
-        sede = cyd_m.Sede.objects.filter(capacitador__id=capacitador,fecha_creacion__lte=fecha_max, fecha_creacion__gte=fecha_min)
+        if capacitador == 0:           
+            sede = cyd_m.Sede.objects.filter(fecha_creacion__lte=fecha_max, fecha_creacion__gte=fecha_min)
+        else:            
+             if len(lista_capacitador)==1:
+                 sede = cyd_m.Sede.objects.filter(capacitador__id__in=lista_capacitador,fecha_creacion__lte=fecha_max, fecha_creacion__gte=fecha_min)
+             else:
+                 sede = cyd_m.Sede.objects.filter(capacitador__id__in=capacitador,fecha_creacion__lte=fecha_max, fecha_creacion__gte=fecha_min)
         for data_participantes in sede:
             for participante in data_participantes.get_participantes()['listado']:
-                 #print(participante['participante'].get_absolute_url())
-                 numero = numero +1
-                 info_participante = {}
-                 info_participante["numero"]=numero
-                 info_participante["url"]=participante['participante'].get_absolute_url()
-                 info_participante["nombre"]=participante['participante'].nombre
-                 info_participante["apellido"]=participante['participante'].apellido
-                 info_participante["escuela"]=participante['participante'].escuela.codigo
-                 info_participante["dpi"]=participante['participante'].dpi
-                 info_participante["genero"]=participante['participante'].genero.genero
-                 
-                 if participante['participante'].mail is not None:                     
-                    info_participante["mail"]=participante['participante'].mail
-                 else:
-                     info_participante["mail"]="No tiene"
+                conteo_participantes = conteo_participantes + 1
+                if participante['year']==2010:
+                    numero = numero +1
+                    if numero <=16142:
+                            participantes = participantes +1
+                            info_participante = {}
+                            info_participante["numero"]=conteo_participantes
+                            info_participante["url"]=participante['participante'].get_absolute_url()
+                            info_participante["nombre"]=participante['participante'].nombre
+                            info_participante["apellido"]=participante['participante'].apellido
+                            info_participante["escuela"]=participante['participante'].escuela.codigo
+                            info_participante["dpi"]=participante['participante'].dpi
+                            info_participante["genero"]=participante['participante'].genero.genero
+                            
+                            if participante['participante'].mail is not None:                     
+                                info_participante["mail"]=participante['participante'].mail
+                            else:
+                                info_participante["mail"]="No tiene"
 
-                 if participante['participante'].tel_casa is not None: 
-                    info_participante["tel_casa"]=participante['participante'].tel_casa
-                 else:
-                     info_participante["tel_casa"]="No tiene"
+                            if participante['participante'].tel_casa is not None: 
+                                info_participante["tel_casa"]=participante['participante'].tel_casa
+                            else:
+                                info_participante["tel_casa"]="No tiene"
 
-                 if participante['participante'].tel_movil is not None: 
-                    info_participante["tel_movil"]=participante['participante'].tel_movil
-                 else:
-                     info_participante["tel_movil"]="No tiene"
-                 
-                 info_participante["escolaridad"]=participante['participante'].escolaridad.nombre
-                 info_participante["etnia"]=participante['participante'].etnia.nombre
-                 try:
-                    info_participante["profesion"]=participante['participante'].profesion.nombre
-                 except:
-                     info_participante["profesion"]="No tiene"
-                 try:    
-                    info_participante["grado_impartido"]=participante['participante'].grado_impartido.grado_asignado
-                 except:
-                     info_participante["grado_impartido"]="No tiene"
-                 info_participante["chicos"]=participante['participante'].chicos
-                 info_participante["chicas"]=participante['participante'].chicas
-                 listado_participantes.append(info_participante)                  
+                            if participante['participante'].tel_movil is not None: 
+                                info_participante["tel_movil"]=participante['participante'].tel_movil
+                            else:
+                                info_participante["tel_movil"]="No tiene"
+                            
+                            try:
+                                info_participante["escolaridad"]=participante['participante'].escolaridad.nombre
+                            except:
+                                info_participante["escolaridad"]="No tiene"
+                            
+                            try:
+                                info_participante["etnia"]=participante['participante'].etnia.nombre
+                            except:
+                                info_participante["etnia"]="No tiene" 
+                            try:
+                                info_participante["profesion"]=participante['participante'].profesion.nombre
+                            except:
+                                info_participante["profesion"]="No tiene"
+                            try:    
+                                info_participante["grado_impartido"]=participante['participante'].grado_impartido.grado_asignado
+                            except:
+                                info_participante["grado_impartido"]="No tiene"
+                            info_participante["chicos"]=participante['participante'].chicos
+                            info_participante["chicas"]=participante['participante'].chicas
+                            info_participante["nota"]=round(participante['nota'],0)
+                            info_participante["capacitador"]=data_participantes.capacitador.get_full_name()
+                            listado_participantes.append(info_participante)
+                    else:
+                        restante_cascada = restante_cascada + 1 
+                else:
+                     otros_participantes = otros_participantes + 1
+                     info_participante = {}
+                     info_participante["numero"]=conteo_participantes
+                     info_participante["url"]=participante['participante'].get_absolute_url()
+                     info_participante["nombre"]=participante['participante'].nombre
+                     info_participante["apellido"]=participante['participante'].apellido
+                     info_participante["escuela"]=participante['participante'].escuela.codigo
+                     info_participante["dpi"]=participante['participante'].dpi
+                     info_participante["genero"]=participante['participante'].genero.genero                    
+                     if participante['participante'].mail is not None:                     
+                        info_participante["mail"]=participante['participante'].mail
+                     else:
+                        info_participante["mail"]="No tiene"
 
-        return Response(
-                listado_participantes,
+                     if participante['participante'].tel_casa is not None: 
+                        info_participante["tel_casa"]=participante['participante'].tel_casa
+                     else:
+                        info_participante["tel_casa"]="No tiene"
+
+                     if participante['participante'].tel_movil is not None: 
+                        info_participante["tel_movil"]=participante['participante'].tel_movil
+                     else:
+                        info_participante["tel_movil"]="No tiene"
+                    
+                     try:
+                        info_participante["escolaridad"]=participante['participante'].escolaridad.nombre
+                     except:
+                        info_participante["escolaridad"]="No tiene"
+                    
+                     try:
+                        info_participante["etnia"]=participante['participante'].etnia.nombre
+                     except:
+                        info_participante["etnia"]="No tiene"                      
+                    
+                     try:
+                        info_participante["profesion"]=participante['participante'].profesion.nombre
+                     except:
+                        info_participante["profesion"]="No tiene"
+                     try:    
+                        info_participante["grado_impartido"]=participante['participante'].grado_impartido.grado_asignado
+                     except:
+                        info_participante["grado_impartido"]="No tiene"
+                     info_participante["chicos"]=participante['participante'].chicos
+                     info_participante["chicas"]=participante['participante'].chicas
+                     info_participante["nota"]=round(participante['nota'],0)
+                     info_participante["capacitador"]=data_participantes.capacitador.get_full_name()
+                     listado_participantes.append(info_participante)        
+        return Response({"data":listado_participantes,"cascada":restante_cascada},
             status=status.HTTP_200_OK
-            )
+            )        
+    
 class InformeCapacitadorParticipanteView(LoginRequiredMixin, FormView):
     """ Vista para obtener la informacion de los dispositivos para crear el informe de existencia mediante un
     api mediante el metodo GET  y lo muestra en el tempalte
