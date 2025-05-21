@@ -24,6 +24,7 @@ from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from openpyxl import load_workbook
 from apps.mye.models  import Cooperante
 from apps.Evaluacion.models import estadoFormulario, AsignacionPregunta, Formulario
+from django.core.cache import cache
 
 # Create your views here.
 class SubirTodo(views.APIView): 
@@ -494,7 +495,7 @@ class SubirNotasHitosJson(views.APIView):
 class escuelasApi(views.APIView):
     """Comentario de Api de prueba para la Apis de django"""
     def get(self, request): 
-     archivo_excel_path = "C:/Users/PC/Desktop/Migracion2/Escuelas_MIG_2.xlsx"         #Aquí va la dirección
+     archivo_excel_path = "C:/Users/PC/Desktop/Migra2Final/Escuelas_MIG_2.xlsx"         #Aquí va la dirección
      archivo_excel = load_workbook(filename=archivo_excel_path)
      hoja_excel = archivo_excel.active
      max_row = hoja_excel.max_row
@@ -549,7 +550,7 @@ class escuelasApi(views.APIView):
 class equipamientoApi(views.APIView):
     """Comentario de Api de prueba para la Apis de django"""
     def get(self, request): 
-          archivo_excel_path = "C:/Users/PC/Desktop/Migracion2/Equipamientos_MIG_2.xlsx"
+          archivo_excel_path = "C:/Users/PC/Desktop/Migra2Final/Equipamientos_MIG_2.xlsx"
           archivo_excel = load_workbook(filename=archivo_excel_path)
           hoja_excel = archivo_excel.active
           max_row = hoja_excel.max_row
@@ -613,8 +614,12 @@ class participantesApi(views.APIView):
     """Comentario de Api de prueba para la Apis de django class:`Participante`"""
 
     def get(self, request):
+          if cache.get('carga_participantes_bloqueada'):
+               return Response("Proceso en ejecución. Intenta más tarde.", status=status.HTTP_429_TOO_MANY_REQUESTS)
+          cache.set('carga_participantes_bloqueada', True, timeout=300)
+
           archivo = self.request.GET.get('archivo')
-          nombre_archivo = "C:/Users/dguty/Desktop/Migracion2/Participantes_MIG_2A_Final" + archivo.upper() + ".xlsx" 
+          nombre_archivo = "C:/Users/PC/Desktop/Migra2Final/Participantes_MIG_2A_Final" + archivo.upper() + ".xlsx" 
           archivo_excel_path = filename= nombre_archivo
           archivo_excel = load_workbook(filename=archivo_excel_path)
           hoja_excel = archivo_excel.active
@@ -628,11 +633,14 @@ class participantesApi(views.APIView):
           with open(ruta_archivo_txt, "w") as archivo_log:
                for i in range(2, max_row + 1):
                     try:
-                         if cyd_m.Participante.objects.get(nombre = hoja_excel.cell(row = i, column = 4).value, apellido = hoja_excel.cell(row = i, column = 5).value) : 
-                              participante = cyd_m.Participante.objects.get(nombre = hoja_excel.cell(row = i, column = 4).value, apellido = hoja_excel.cell(row = i, column = 5).value)
+                         escuela = Escuela.objects.get(codigo = hoja_excel.cell(row = i, column = 2).value)
+                         if cyd_m.Participante.objects.get(nombre = hoja_excel.cell(row = i, column = 4).value, apellido = hoja_excel.cell(row = i, column = 5).value, escuela = escuela): 
                               registro = "{} Existe -> {} {}".format(i, hoja_excel.cell(row=i, column=4).value, hoja_excel.cell(row=i, column=5).value)
                               archivo_log.write(registro + "\n")
                               existentes +=1
+                    except MultipleObjectsReturned:
+                         participantes = cyd_m.Participante.objects.filter(nombre = hoja_excel.cell(row = i, column = 4).value, apellido = hoja_excel.cell(row = i, column = 5).value, escuela = escuela)
+                                   
                     except Exception as c:
                          registro_participantes = cyd_m.Participante(
                          dpi = hoja_excel.cell(row = i, column = 3).value,                          
@@ -664,7 +672,7 @@ class SedeApi(views.APIView):
     """Comentario de Api de prueba para la Apis de django"""
 
     def get(self, request): 
-          archivo_excel_path = filename="C:/Users/dguty/Desktop/Migracion2/Sedes_MIG_2.xlsx"  #Aquí va la dirección 
+          archivo_excel_path = filename="C:/Users/PC/Desktop/Migra2Final/Sedes_MIG_2.xlsx"  #Aquí va la dirección 
           archivo_excel = load_workbook(filename=archivo_excel_path)
           hoja_excel = archivo_excel.active
           max_row = hoja_excel.max_row
@@ -717,7 +725,7 @@ class GrupoApi(views.APIView):
     """Comentario de Api de prueba para la Apis de django"""
 
     def get(self, request): 
-          archivo_excel_path = filename= "C:/Users/dguty/Desktop/Migracion2/Grupo_MIG_2.xlsx" #Aquí va la dirección 
+          archivo_excel_path = filename= "C:/Users/PC/Desktop/Migra2Final/Grupo_MIG_2.xlsx" #Aquí va la dirección 
           archivo_excel = load_workbook(filename=archivo_excel_path)
           hoja_excel = archivo_excel.active
           max_row = hoja_excel.max_row
@@ -764,8 +772,12 @@ class GrupoApi(views.APIView):
 class AsignacionesApi(views.APIView): 
     """Comentario de Api de prueba para la Apis de django class ´Asignacion´"""
     def get(self, request): 
+          if cache.get('carga_participantes_bloqueada'):
+               return Response("Proceso en ejecución. Intenta más tarde.", status=status.HTTP_429_TOO_MANY_REQUESTS)
+          cache.set('carga_participantes_bloqueada', True, timeout=420)
+
           archivo = self.request.GET.get('archivo')
-          nombre_archivo = "C:/Users/dguty/Desktop/Migracion2/Asignacion_MIG_2A_Final" + archivo.upper() + ".xlsx" 
+          nombre_archivo = "C:/Users/PC/Desktop/Migra2Final/Asignacion_MIG_2A_Final" + archivo.upper() + ".xlsx" 
           archivo_excel_path = filename= nombre_archivo
           print(archivo_excel_path)
           archivo_excel = load_workbook(filename=archivo_excel_path)
@@ -790,7 +802,7 @@ class AsignacionesApi(views.APIView):
                          except MultipleObjectsReturned: 
                               asignado = cyd_m.Participante.objects.filter(nombre =  hoja_excel.cell(row = i, column = 4).value, apellido = hoja_excel.cell(row = i, column = 5).value, escuela = escuela_par).last()
 
-                         cyd_m.Asignacion.objects.get(participante = asignado , grupo__curso__id= hoja_excel.cell(row = i, column = 28, grupo__sede__capacitador__id = hoja_excel.cell(row=i, column=30).value).value)
+                         cyd_m.Asignacion.objects.get(participante = asignado , grupo__curso__id= hoja_excel.cell(row = i, column = 28).value, grupo__sede__capacitador__id = hoja_excel.cell(row=i, column=30).value)
                          print(cyd_m.Asignacion.objects.get(participante = asignado , grupo__curso__id= hoja_excel.cell(row = i, column = 28).value))
                          existentes +=1
 
@@ -835,8 +847,13 @@ class HitosApi(views.APIView):
     """Comentario de Api de prueba para la Apis de django :class:`NotaHito`"""
 
     def get(self, request): 
+          if cache.get('carga_participantes_bloqueada'):
+               return Response("Proceso en ejecución. Intenta más tarde.", status=status.HTTP_429_TOO_MANY_REQUESTS)
+          cache.set('carga_participantes_bloqueada', True, timeout=300)
+
+
           archivo = self.request.GET.get('archivo')
-          nombre_archivo = "C:/Users/dguty/Desktop/Migracion2/Asignacion_MIG_2A_Final" + archivo.upper() + ".xlsx" 
+          nombre_archivo = "C:/Users/PC/Desktop/Migra2Final/Asignacion_MIG_2A_Final" + archivo.upper() + ".xlsx" 
           print(nombre_archivo)
           archivo_excel_path = filename= nombre_archivo
           archivo_excel = load_workbook(filename=archivo_excel_path)
@@ -869,13 +886,15 @@ class HitosApi(views.APIView):
                          nota.save()
                          print(i)
                          agregados +=1
+                         registro = "{} Nota asignada: {} {}".format(i, asignacion, hoja_excel.cell(row=i, column=23).value)
+                         archivo_log.write(registro + "\n")
 
                     except Exception as c:
                          print(c)
                          problematicos += 1
 
 
-               resumen = "Total existentes: {}, total creadas: {}".format(existentes, agregados)
+               resumen = "Total existentes: {}, total creadas: {}".format(problematicos, agregados)
                archivo_log.write(resumen + "\n")
                print(resumen)
 
