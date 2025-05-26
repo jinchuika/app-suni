@@ -118,6 +118,11 @@ cyd_informes_children = (
         reverse_lazy("informe_capacitador_participantes"),
         weight=12,
         icon="fa-file-pdf-o"),
+    ViewMenuItem(
+        "Informe naat",
+        reverse_lazy("informe_naat"),
+        weight=12,
+        icon="fa-file-pdf-o"),
     
     #ViewMenuItem(
     #    "Escuela capacitada",
