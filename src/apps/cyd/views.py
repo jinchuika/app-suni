@@ -1613,6 +1613,22 @@ class InformeParticipanteCapacitador(views.APIView):
                             info_participante["chicas"]=participante['participante'].chicas
                             info_participante["nota"]=round(participante['nota'],0)
                             info_participante["capacitador"]=data_participantes.capacitador.get_full_name()
+                            info_participante["nombre_escuela"] = participante['participante'].escuela.nombre
+                            info_participante["direccion_escuela"] = participante['participante'].escuela.direccion
+                            try:
+                                info_participante["longitud"] = participante['participante'].escuela.mapa.lat
+                            except:
+                                info_participante["longitud"] = "No tiene"
+                            try:
+                                info_participante["latitud"] = participante['participante'].escuela.mapa.lng
+                            except:
+                                info_participante["latitud"] = "No tiene"
+                                
+                            info_participante["curso"] = participante['curso']
+                            try:
+                                info_participante["rol"] = participante['participante'].rol.nombre
+                            except:
+                                info_participante["rol"] = "No tiene"
                             listado_participantes.append(info_participante)
                     else:
                         restante_cascada = restante_cascada + 1 
@@ -1625,7 +1641,7 @@ class InformeParticipanteCapacitador(views.APIView):
                      info_participante["apellido"]=participante['participante'].apellido
                      info_participante["escuela"]=participante['participante'].escuela.codigo
                      info_participante["dpi"]=participante['participante'].dpi
-                     info_participante["genero"]=participante['participante'].genero.genero                    
+                     info_participante["genero"]=participante['participante'].genero.genero                                             
                      if participante['participante'].mail is not None:                     
                         info_participante["mail"]=participante['participante'].mail
                      else:
@@ -1658,11 +1674,28 @@ class InformeParticipanteCapacitador(views.APIView):
                      try:    
                         info_participante["grado_impartido"]=participante['participante'].grado_impartido.grado_asignado
                      except:
-                        info_participante["grado_impartido"]="No tiene"
+                        info_participante["grado_impartido"]="No tiene"                    
                      info_participante["chicos"]=participante['participante'].chicos
                      info_participante["chicas"]=participante['participante'].chicas
                      info_participante["nota"]=round(participante['nota'],0)
                      info_participante["capacitador"]=data_participantes.capacitador.get_full_name()
+                     info_participante["nombre_escuela"] = participante['participante'].escuela.nombre
+                     info_participante["direccion_escuela"] = participante['participante'].escuela.direccion
+                     try:
+                        info_participante["longitud"] = participante['participante'].escuela.mapa.lat
+                     except:
+                         info_participante["longitud"] = "No tiene"
+                     try:
+                         info_participante["latitud"] = participante['participante'].escuela.mapa.lng
+                     except:
+                         info_participante["latitud"] = "No tiene"
+                         
+                     info_participante["curso"] = participante['curso']
+                     try:
+                         info_participante["rol"] = participante['participante'].rol.nombre
+                     except:
+                         info_participante["rol"] = "No tiene"
+                         
                      listado_participantes.append(info_participante)        
         return Response({"data":listado_participantes,"cascada":restante_cascada},
             status=status.HTTP_200_OK
@@ -1678,34 +1711,132 @@ class InformeCapacitadorParticipanteView(LoginRequiredMixin, FormView):
 
 class InformeParticipantesNaat(views.APIView):
     def get(self, request):
-        #partipantes = cyd_m.Asignacion.objects.filter(grupo__curso__nombre__contains="NAAT").values(grupo__sede)[:10]
-        #print(partipantes)
+        numero_sedes = 0
+        acumulado_total_maestros = 0
+        acumulado_total_hombres = 0
+        acumulado_total_mujeres = 0 
+        acumulado_total_certificados = 0
+        acumulado_total_no_certificados= 0
+        acumulado_total_chicos = 0
+        acumulado_total_chicas = 0 
         listado_participante=[]
-        sedes = cyd_m.Grupo.objects.filter(curso__nombre__icontains="NAAT").values('sede_id').distinct()
-        grupo = cyd_m.Grupo.objects.filter(curso__nombre__icontains="NAAT").values('id').distinct()
-        sedes_buscar = cyd_m.Sede.objects.filter(id__in=sedes)
-        for data in sedes_buscar:
-            data_dict ={}
-            for data1 in data.get_participantes()['listado']:
-                data_dict["participante"] = str(data1["participante"])
-                listado_participante.append(data_dict)
-            
-            print("************")
-            
-        
+        lista_capacitador = []
+        datos_relevantes = []
+        informacion_relevante = {}
+        conteo_participantes = 0      
+        try:
+            capacitador = [x for x in self.request.GET.getlist('capacitador[]')]         
+            if len(capacitador)==0:
+                lista_capacitador.append(self.request.GET['capacitador'])                
+
+        except MultiValueDictKeyError:   
+            capacitador=0 
+        try:
+            fecha_min=self.request.GET['fecha_min']
+        except MultiValueDictKeyError:
+            fecha_min=0
+        try:
+            fecha_max=self.request.GET['fecha_max']
+        except MultiValueDictKeyError:
+            fecha_max=0
+        control_fecha = fecha_max is not 0 and fecha_min is not 0              
+        if capacitador == 0:          
+            sedes = cyd_m.Sede.objects.filter(fecha_creacion__lte=fecha_max, fecha_creacion__gte=fecha_min)
+        elif len(capacitador) >=2 and control_fecha is False:
+            sedes = cyd_m.Sede.objects.filter(capacitador__id__in=capacitador)
+        elif len(lista_capacitador)==1 and control_fecha is False:
+            sedes = cyd_m.Sede.objects.filter(capacitador__id__in=lista_capacitador)
+        elif len(lista_capacitador)==1 and control_fecha is True:
+            sedes = cyd_m.Sede.objects.filter(capacitador__id__in=capacitador,fecha_creacion__lte=fecha_max, fecha_creacion__gte=fecha_min)
+   
+        for data in sedes:           
+            if data.get_es_naat():
+                numero_sedes =  numero_sedes +1 
+                data_resumen = data.get_participantes()['resumen']
+                total_maestros = data_resumen['genero'].aggregate(Sum('cantidad'))
+                total_hombre = data_resumen['genero'].filter(nombre_genero="Hombre").aggregate(Sum('cantidad'))
+                total_mujeres = data_resumen['genero'].filter(nombre_genero="Mujer").aggregate(Sum('cantidad'))             
+                try:
+                    acumulado_total_maestros = acumulado_total_maestros +  total_maestros['cantidad__sum']
+                except:
+                    acumulado_total_maestros = acumulado_total_maestros +  0
+                try:
+                    acumulado_total_hombres = acumulado_total_hombres + total_hombre['cantidad__sum']
+                except:
+                    acumulado_total_hombres = acumulado_total_hombres + 0
+                try:
+                    acumulado_total_mujeres = acumulado_total_mujeres + total_mujeres['cantidad__sum'] 
+                except:
+                    acumulado_total_mujeres = acumulado_total_mujeres + 0
+
+                acumulado_total_certificados = acumulado_total_certificados  + data_resumen['estado']['aprobado']['cantidad']
+                acumulado_total_no_certificados = acumulado_total_no_certificados + data_resumen['estado']['reprobado']['cantidad']
+                for data_participante in data.get_participantes()['listado']:
+                    info_participante = {}
+                    conteo_participantes = conteo_participantes + 1                   
+                    acumulado_total_chicos = acumulado_total_chicos + data_participante['participante'].chicos 
+                    acumulado_total_chicas = acumulado_total_chicas + data_participante['participante'].chicas
+                    info_participante["numero"]=conteo_participantes
+                    info_participante["url"]=data_participante['participante'].get_absolute_url()
+                    info_participante["nombre"]=data_participante['participante'].nombre
+                    info_participante["apellido"]=data_participante['participante'].apellido
+                    info_participante["escuela"]=data_participante['participante'].escuela.codigo
+                    info_participante["dpi"]=data_participante['participante'].dpi
+                    info_participante["genero"]=data_participante['participante'].genero.genero
+                    if data_participante['participante'].mail is not None:                     
+                        info_participante["mail"]=data_participante['participante'].mail
+                    else:
+                        info_participante["mail"]="No tiene"
+
+                    if data_participante['participante'].tel_casa is not None: 
+                        info_participante["tel_casa"]=data_participante['participante'].tel_casa
+                    else:
+                        info_participante["tel_casa"]="No tiene"
+
+                    if data_participante['participante'].tel_movil is not None: 
+                        info_participante["tel_movil"]=data_participante['participante'].tel_movil
+                    else:
+                        info_participante["tel_movil"]="No tiene"
+                    info_participante["chicos"]=data_participante['participante'].chicos
+                    info_participante["chicas"]=data_participante['participante'].chicas
+                    info_participante["nota"]=round(data_participante['nota'],0)
+                    info_participante["capacitador"]=data.capacitador.get_full_name()
+                    info_participante["nombre_escuela"] = data_participante['participante'].escuela.nombre
+                    info_participante["sede"] = data.nombre
+                    if data.finalizada:
+                                     info_participante["estado_sede"] = "Finalizada"
+                    else:
+                         info_participante["estado_sede"] = "En proceso"
+
+                    if data.fecha_finalizacion is not None:
+                        info_participante["fecha_finalizacion"] = data.fecha_finalizacion.date()
+                    else:
+                        info_participante["fecha_finalizacion"] = "En proceso"
+                    info_participante["departamento"] = data.municipio.departamento.nombre 
+                    info_participante["municipio"] = data.municipio.nombre                   
+                    listado_participante.append(info_participante)
+        informacion_relevante["total_maestros"] = acumulado_total_maestros
+        informacion_relevante["total_hombres"] = acumulado_total_hombres
+        informacion_relevante["total_mujeres"] = acumulado_total_mujeres
+        informacion_relevante["total_certificados"] = acumulado_total_certificados
+        informacion_relevante["total_no_certificados"] = acumulado_total_no_certificados
+        informacion_relevante["total_chicos"] = acumulado_total_chicos
+        informacion_relevante["total_chicas"] = acumulado_total_chicas
+        informacion_relevante["total_sedes"] =  numero_sedes
+        datos_relevantes.append(informacion_relevante)
         return Response(
-            listado_participante,
+            {"participantes":listado_participante,"data":datos_relevantes},
             status=status.HTTP_200_OK
             )
     
-class NaatInformeView(LoginRequiredMixin, TemplateView):
+class NaatInformeView(LoginRequiredMixin, FormView):
     """ Vista para obtener la informacion de los dispositivos para crear el informe de existencia mediante un
     api mediante el metodo GET  y lo muestra en el tempalte
     """
     redirect_unauthenticated_users = True
     raise_exception = True
     template_name = "cyd/informe_naat.html"
-    #form_class = conta_f.RastreoDesechoInformeForm 
+    form_class = cyd_f.InformeNaatForm 
 
 class SubirControlAcademicoExcel(views.APIView):
     def get(self, request):
