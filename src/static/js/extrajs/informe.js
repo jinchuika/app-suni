@@ -16,6 +16,8 @@ $( "#id_codigo" )
 
     $('#informe-list-form').submit(function (e) {
             // Evita que se envíe el formulario
+            console.log($('#informe-escuela-form').serializeObject())   
+            //console.log(JSON.parse($('#informe-escuela-form').serializeObject()))         
             e.preventDefault();
             var tabla = $('#informe-table').DataTable({
             dom: 'lfrtipB',
@@ -30,8 +32,12 @@ $( "#id_codigo" )
                 type: "GET",
                 deferRender: true,
                 dataSrc: '',
-                data: function () {
-                    return $('#informe-list-form').serializeObject();
+                data:  {
+                  csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
+                  escuela:$('#informe-escuela-form').serializeObject(),
+                  capacitacion:$('#informe-capacitacion-form').serializeObject(),
+                  equipada:$('#informe-equipamiento-form').serializeObject()
+
                 }
             },
             columns: [
