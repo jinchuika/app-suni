@@ -3938,3 +3938,64 @@ class NaatInforme{
   
     }
   }
+
+  class informeSoloParticipantes{
+    constructor(){
+      $('#informe-capacitador-list-form').submit(function (e) {
+          e.preventDefault();
+          $.post(
+            $('#informe-capacitador-list-form').attr('action'), 
+            $('#informe-capacitador-list-form').serializeObject(true)
+            ).then(function (response){
+                
+                var tablaDispositivos = $('#informe-capacitador-table-search').DataTable({
+                    footerCallback: function( tfoot, data, start, end, display){
+                        if(response.cascada>0){
+                            $(tfoot).find('th').eq(0).html("CAPACITACION EN CASCADA: ");
+                            $(tfoot).find('th').eq(1).html(response.cascada);
+                        }                        
+                      },            
+                    dom: 'lfrtipB',
+                    destroy:true,
+                    buttons: ['excel', {extend:'pdf', orientation:'landscape'}],
+                    processing: true,
+                    deferLoading: [0],
+                    pageLength: 100,
+                    data:response.data,                  
+                    columns:[
+                        {data: "numero",render: function(data, type , full, meta){
+                            return "<a href="+full.url+">"+full.numero+"</a>";
+                        }},
+                        {data: "nombre"},
+                        {data: "apellido"},
+                        {data: "dpi"},                                                
+                        {data: "mail"},
+                        {data: "tel_casa",render: function(data, type,full, meta){
+                            if(full.tel_casa=="No tiene"){
+                                return full.tel_movil
+                            }else{
+                                return full.tel_casa
+                            }
+                        }},                        
+                        {data: "rol"},                        
+                        {data: "grado_impartido"},                                                
+                        {data: "curso"},                        
+                        {data: "nota"},   
+                        {data: "escuela"},                        
+                        {data: "nombre_escuela"},                     
+                        {data: "direccion_escuela"},
+                        {data: "longitud"},
+                        {data: "latitud"}, 
+                    ],
+                    
+                  });
+                  $('#spinner').hide();
+    
+          },function(response){
+            alert("Error al crear datos");
+          });
+  
+            });
+  
+    }
+  }
