@@ -61,7 +61,8 @@ urlpatterns = [
     url(r'^informe/participante/naat/$',NaatInformeView.as_view(), name='informe_naat'),
     url(r'^informe/escuela/lista/sede/$',InformeEscuelasSedesView.as_view(), name='informe_escuela_sede_lista'), 
     url(r'^informe/cursos/$',InformeCursosView.as_view(), name='informe_cursos'), 
-    url(r'^informe/capacitador/participantes/$',InformeCapacitadorParticipanteView.as_view(), name='informe_capacitador_participantes'), 
+    url(r'^informe/capacitador/participantes/$',InformeCapacitadorParticipanteView.as_view(), name='informe_capacitador_participantes'),
+    url(r'^informe/participantes/solo/$',InformeSoloParticipanteView.as_view(), name='informe_solo_participantes'), 
     
     url(r'^asistencia/$',InformeAsistenciaWebView.as_view(), name='asistencia_web'),
     url(r'^asistencia/asignar/$',AsignarAsistencia.as_view(), name='asistencia_web_asignar'),

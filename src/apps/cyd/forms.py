@@ -582,3 +582,14 @@ class InformeNaatForm(forms.Form):
     def __init__(self, *args, **kwargs):
         super(InformeNaatForm,self).__init__(*args, **kwargs)
         self.fields['capacitador'].label_from_instance = lambda obj: "%s" % (obj.get_full_name())
+
+class InformeSoloParticipanteForm(forms.Form):
+    fecha_min = forms.CharField(
+        label='Fecha mínima',
+        widget=forms.TextInput(attrs={'class': 'form-control datepicker'}),
+        required=True)
+    fecha_max = forms.CharField(
+        label='Fecha máxima',
+        widget=forms.TextInput(attrs={'class': 'form-control datepicker'}),
+        required=True)
+    
