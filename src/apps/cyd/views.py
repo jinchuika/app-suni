@@ -382,7 +382,8 @@ class ParticipanteCreateListView(LoginRequiredMixin, GroupRequiredMixin, FormVie
         context['escolaridad_list'] = cyd_m.ParEscolaridad.objects.all()
         context['etnia_list'] = cyd_m.ParEtnia.objects.all()
         context['profesion_list'] = cyd_m.Profesion.objects.all()
-        context['grado_list'] = cyd_m.Grado.objects.all()        
+        context['grado_list'] = cyd_m.Grado.objects.all() 
+        context['jornada_list'] = cyd_m.ParticipanteJornada.objects.all(activo=True)        
         return context
 
     def get_form(self, form_class=None):
@@ -427,7 +428,10 @@ class ParticipanteJsonCreateView(LoginRequiredMixin, JsonRequestResponseMixin, C
                 grado_imparte =cyd_m.Grado.objects.get(grado_asignado =self.request_json['grado_impartido'] if 'grado_impartido' in self.request_json else "Preprimaria")
             except:
                  grado_imparte =cyd_m.Grado.objects.get(id=self.request_json['grado_impartido'] if 'grado_impartido' in self.request_json else 1)
-
+            try:
+                jornada = cyd_m.Profesion.objects.get(nombre=self.request_json['jornada'] if 'jornada' in self.request_json else "Matutina")
+            except:
+                jornada = cyd_m.Profesion.objects.get(id=self.request_json['jornada'] if 'jornada' in self.request_json else 1)
             participante = cyd_m.Participante.objects.create(
                 dpi=self.request_json['dpi'],
                 nombre=self.request_json['nombre'],
@@ -445,7 +449,8 @@ class ParticipanteJsonCreateView(LoginRequiredMixin, JsonRequestResponseMixin, C
                 chicos=self.request_json['chicos'],
                 chicas=self.request_json['chicas'],
                 escolaridad=escolaridad,                
-                cyd_participante_creado_por = self.request.user)            
+                cyd_participante_creado_por = self.request.user,
+                jornada = jornada)            
             participante.asignar(grupo)
         except IntegrityError:
             participante = cyd_m.Participante.objects.get(slug=self.request_json['dpi'])
@@ -465,6 +470,7 @@ class ParticipanteJsonCreateView(LoginRequiredMixin, JsonRequestResponseMixin, C
             participante.chicas=self.request_json['chicas']
             participante.escolaridad=escolaridad
             participante.cyd_participante_creado_por = self.request.user
+            participante.jornada = self.request_json['jornada']
             participante.save()
 
             asignacion_existe = cyd_m.Asignacion.objects.filter(participante=participante, grupo=grupo)
@@ -1520,7 +1526,7 @@ class InformeCursos(views.APIView):
             status=status.HTTP_200_OK
             )
 class InformeCursosView(LoginRequiredMixin, FormView):
-    """ Vista para obtener la informacion de los dispositivos para crear el informe de existencia mediante un
+    """ Vista para obtener la informacion de los cursos para crear el informe  mediante un
     api mediante el metodo GET  y lo muestra en el tempalte
     """
     template_name = 'cyd/Informe_cursos.html'
@@ -1702,11 +1708,19 @@ class InformeParticipanteCapacitador(views.APIView):
             )        
     
 class InformeCapacitadorParticipanteView(LoginRequiredMixin, FormView):
-    """ Vista para obtener la informacion de los dispositivos para crear el informe de existencia mediante un
+    """ Vista para obtener la informacion de los participantes para crear el informe de existencia mediante un
     api mediante el metodo GET  y lo muestra en el tempalte
     """
     template_name = 'cyd/InformeParticipanteCapacitador.html'
     form_class = cyd_f.InformeParticipanteCapacitadorForm
+
+class InformeSoloParticipanteView(LoginRequiredMixin, FormView):
+    """ Vista para obtener la informacion de los participantes para crear el informe de existencia mediante un
+    api mediante el metodo GET  y lo muestra en el tempalte
+    """
+    template_name = 'cyd/InformeSoloParticipante.html'
+    form_class = cyd_f.InformeSoloParticipanteForm
+
 
 
 class InformeParticipantesNaat(views.APIView):
@@ -1830,12 +1844,12 @@ class InformeParticipantesNaat(views.APIView):
             )
     
 class NaatInformeView(LoginRequiredMixin, FormView):
-    """ Vista para obtener la informacion de los dispositivos para crear el informe de existencia mediante un
+    """ Vista para obtener la informacion de los participantes para crear el informe de existencia mediante un
     api mediante el metodo GET  y lo muestra en el tempalte
     """
     redirect_unauthenticated_users = True
     raise_exception = True
-    template_name = "cyd/informe_naat.html"
+    template_name = "cyd/Informe_naat.html"
     form_class = cyd_f.InformeNaatForm 
 
 class SubirControlAcademicoExcel(views.APIView):
