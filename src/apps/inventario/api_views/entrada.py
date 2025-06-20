@@ -369,16 +369,29 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
         """ autoriza  el detalle de dispositivo  para que los usuarios de bodega puedan
         crear los dispositivos
         """
+        print("Autorizando Detalle de Entrada")
+        print(request.data)
         id = request.data['id']
-        autorizado = request.data['autorizado']
-        pendiente_autorizar = request.data['pendiente_autorizar']
+        autorizado = request.data.get("autorizado") == "true"
         entrada_detalle = inv_m.EntradaDetalle.objects.get(id=id)
+        pendiente_autorizar = request.data.get("pendiente_autorizar") == "true"
+        rechazada = request.data.get("rechazada") == "true"
+        motivo_rechazo = request.data.get("motivo_rechazo", "")
         if entrada_detalle.pendiente_autorizar is False:
             entrada_detalle.pendiente_autorizar = True
             entrada_detalle.save()
         else:
-            if entrada_detalle.autorizado is False:
+            if autorizado is True:
+                print("Autorizado")
                 entrada_detalle.autorizado = True
+                entrada_detalle.save()
+            else:
+                print("Rechazada")
+                entrada_detalle.autorizado = False
+                entrada_detalle.pendiente_autorizar = False
+                entrada_detalle.rechazada = True
+                entrada_detalle.cant_rechazada += 1
+                entrada_detalle.motivo_rechazo = motivo_rechazo
                 entrada_detalle.save()
 
         return Response(

@@ -169,8 +169,11 @@ class EntradaDetalle(models.Model):
     qr_repuestos = models.BooleanField(default=False, blank=True, verbose_name='Imprimir Qr Repuesto')
     qr_dispositivo = models.BooleanField(default=False, blank=True, verbose_name='Imprimir Qr Dispositivo')
     impreso = models.BooleanField(default=False, blank=True, verbose_name='Impreso')
-    pendiente_autorizar = models.BooleanField(default=False, blank=True, verbose_name='pendiente')
+    pendiente_autorizar = models.BooleanField(default=False, blank=True, verbose_name='Aprobado')
     autorizado = models.BooleanField(default=False, blank=True, verbose_name='autorizado')
+    rechazada = models.BooleanField(default=False, blank=True, verbose_name='Rechazada')
+    cant_rechazada =  models.PositiveIntegerField(default=0, verbose_name='Veces Rechazadas')
+    motivo_rechazo = models.TextField(null=True, blank=True, verbose_name='Motivo de rechazo')
     # Creacion de fechas
     fecha_dispositivo = models.DateField(blank=True, null=True)
     fecha_repuesto = models.DateField(blank=True, null=True)
@@ -205,6 +208,8 @@ class EntradaDetalle(models.Model):
         null=True,
         related_name='tipo_entrada_kardex')
     proyecto = models.ManyToManyField('mye.Cooperante', blank=True,null=True ,related_name='proyecto_inventario_detalle')
+    
+
 
     class Meta:
         verbose_name = "Detalle de entrada"

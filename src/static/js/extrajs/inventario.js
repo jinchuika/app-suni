@@ -143,13 +143,14 @@ class EntradaUpdate {
                         if(full.autorizado == true){
                           return "";
                         }else{
+
                           if(full.dispositivos_creados == true || full.repuestos_creados == true ){
                               if(full.usa_triage == "False"){
                                 if(full.ingresado_kardex == true){
                                   return "";
                                 }else{
                                   var total_detalle_editar = full.util + full.desecho + full.repuesto;
-                                  if (total_detalle_editar != full.total){
+                                  if (total_detalle_editar != full.total && full.rechazada == false){
                                     return "<a href="+full.update_url+" class='btn btn-info btn-editar'>Editar</a>";
                                   }else{
                                     return "";
@@ -161,12 +162,15 @@ class EntradaUpdate {
                               }
                           }else{
                             var total_detalle_editar_normal = full.util + full.desecho + full.repuesto;
-                            if(total_detalle_editar_normal != full.total){
+                            console.log(full.rechazada);
+                            if(total_detalle_editar_normal != full.total && full.rechazada == false){
                               return "<a href="+full.update_url+" class='btn btn-info btn-editar'>Editar</a>";
-                            }else{
-                              return "";
+                            }else if(full.rechazada == true && full.pendiente_autorizar == false){
+                              return "<a href="+full.update_url+" class='btn btn-info btn-editar' style='border-top: 1px dashed aqua'> Editar  </a>";
                             }
-
+                            else {
+                              return "";
+                            } 
                           }
                         }
 
@@ -174,7 +178,8 @@ class EntradaUpdate {
                         if(full.grupos ==  20){
                           if(full.pendiente_autorizar == true){
                             if (full.autorizado == false){
-                                return "<a  class='btn btn-info btn-autorizar'>Autorizar</a>";
+                                console.log(tabla_temp.api_url);
+                                return "<a class='btn btn-info btn-autorizar' style='margin: 5px auto;' >Autorizar</a> <a class='btn btn-danger btn-rechazar'>Rechazar</a> ";
                             }else{
                               return "";
                             }
@@ -260,7 +265,11 @@ class EntradaUpdate {
                       if(full.tipo_entrada != "Especial"){
                         if(full.repuestos_creados == false){
                           if(full.usa_triage == "True" && full.repuesto > 0){
+                            if(full.autorizado != false){
                               return "<button class='btn btn-warning btn-repuesto'>Crear Rep</button>";
+                            }else{
+                              return " "; 
+                            }                      
                           }else{
                             return " ";
                           }
@@ -388,9 +397,28 @@ class EntradaUpdate {
         });
         tablabody.on('click', '.btn-autorizar', function () {
            let data_fila = tabla_temp.tabla.row($(this).parents('tr')).data();
-           EntradaUpdate.validar_detalles(tabla_temp.api_url,data_fila.id,data_fila.autorizado,data_fila.pendiente_autorizar);
+           EntradaUpdate.validar_detalles(tabla_temp.api_url,data_fila.id,true,data_fila.pendiente_autorizar);
 
         });
+
+        tablabody.on('click', '.btn-rechazar', function () {
+            let data_fila = tabla_temp.tabla.row($(this).parents('tr')).data();
+            bootbox.prompt({
+                title: "Ingrese el motivo del rechazo:",
+                inputType: 'textarea',
+                callback: function (motivo_rechazo) {
+                  EntradaUpdate.validar_detalles(
+                  tabla_temp.api_url,
+                  data_fila.id,
+                  false,
+                  data_fila.pendiente_autorizar,
+                  true,  
+                  motivo_rechazo
+                  );
+                }
+            });
+        });
+
         //kardex
         tablabody.on('click', '.btn-kardex', function () {
             let data_fila = tabla_temp.tabla.row($(this).parents('tr')).data();
@@ -441,7 +469,7 @@ class EntradaUpdate {
 
     }
 
-    static validar_detalles(urldetalles, id, autorizado, pendiente_autorizar) {
+    static validar_detalles(urldetalles, id, autorizado, pendiente_autorizar, rechazada = null, motivo_rechazo = null) {
       $.ajax({
             type: "post",
             url: urldetalles+"autorizar_detalles/",
@@ -451,6 +479,8 @@ class EntradaUpdate {
               id:id,
               autorizado:autorizado,
               pendiente_autorizar:pendiente_autorizar,
+              rechazada:rechazada,
+              motivo_rechazo: motivo_rechazo, 
             },
             success: function (response) {
               $("#entrada-table").DataTable().ajax.reload();
@@ -2226,9 +2256,9 @@ class Salidas {
 
             }else{
               if(full.control_calidad == true){
-                return "<a target='_blank' rel='noopener noreferrer' href="+full.urlPaquet+" class='btn btn-primary btn-asignar'>Aprobar Dispositivos</a>";
+                return "<a target='_blank' rel='noopener noreferrer' href="+full.urlPaquet+" class='btn btn-primary'>Aprobar Dispositivos</a>";
               }else{
-                return "<a target='_blank' rel='noopener noreferrer' href="+full.urlPaquet+" class='btn btn-primary btn-asignar'>Asignar Dispositivos</a>";
+                return "<a target='_blank' rel='noopener noreferrer' href="+full.urlPaquet+" class='btn btn-primary'>Asignar Dispositivos</a>";
               }
              
             }

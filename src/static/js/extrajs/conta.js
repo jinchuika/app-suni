@@ -418,8 +418,43 @@ class ResumenInforme {
   constructor() {
   let precioestandar_informe = $("#precioestandar-list-form");
   var urlPrecio= $('#precioestandar-table').data("api");
+  var tieneInvConta = $('#precioestandar-table').data("invconta") === true || $('#precioestandar-table').data("invconta") === "true";
+
   precioestandar_informe.submit(function (e){
     e.preventDefault();
+    let columns = [
+        {data: "tipo"},
+        {data: "existencia_anterior", render: function(data, type, full, meta){
+          return parseFloat(full.existencia_anterior).toLocaleString('en');
+        }},
+      ];
+      if (tieneInvConta) {
+        columns.push({
+          data: "saldo_anterior", render: function(data, type, full, meta){
+            return parseFloat(full.saldo_anterior).toLocaleString('en');
+          }
+        });
+      }
+      columns = columns.concat([
+        {data: "entradas", render: function(data, type, full, meta){
+          return parseFloat(full.entradas).toLocaleString('en');
+        }},
+        {data: "salidas", render: function(data, type, full, meta){
+          return parseFloat(full.salidas).toLocaleString('en');
+        }},
+      ]);
+        columns.push({  
+          data: "existencia", render: function(data, type, full, meta){
+            return parseFloat(full.existencia).toLocaleString('en');
+          }
+        });
+      if (tieneInvConta) {
+      columns.push({
+        data: "saldo_actual", render: function(data, type, full, meta){
+          return parseFloat(full.saldo_actual).toLocaleString('en');
+        }
+      });
+    }
     var tablaPrecio = $('#precioestandar-table').DataTable({
     headerCallback:function (thead, data, start, end, display ){
       for(var i in data){
@@ -434,8 +469,15 @@ class ResumenInforme {
         for (var i in data){
           $(tfoot).find('th').eq(0).html( "EXISTENCIA FINAL: "+ parseFloat(data[i].total_final).toLocaleString('en') );
           $(tfoot).find('th').eq(1).html( "ENTRADAS: "+ parseFloat(api.column(3, {page: 'current'}).data().sum() ).toLocaleString('en'));
-          $(tfoot).find('th').eq(2).html( "SALIDAS: "+ parseFloat(api.column(4, {page: 'current'}).data().sum() ).toLocaleString('en'));
-          $(tfoot).find('th').eq(3).html( "SALDO FINAL: "+ parseFloat(data[i].costo_final).toLocaleString('en') );
+          if(tieneInvConta) {
+            $(tfoot).find('th').eq(2).html( "SALIDAS: "+ parseFloat(api.column(4, {page: 'current'}).data().sum() ).toLocaleString('en'));
+          }else {
+            $(tfoot).find('th').eq(2).html( "SALIDAS: "+ parseFloat(api.column(3, {page: 'current'}).data().sum() ).toLocaleString('en'));
+          }
+          
+          if(tieneInvConta) {
+            $(tfoot).find('th').eq(3).html( "SALDO FINAL: "+ parseFloat(data[i].costo_final).toLocaleString('en') );
+          }
         };
       },
       dom: 'Bfrtip',
@@ -454,27 +496,7 @@ class ResumenInforme {
           return $('#precioestandar-list-form').serializeObject(true);
         }
       },
-      columns: [
-        {data: "tipo"},
-        {data: "existencia_anterior", render: function(data, type, full, meta){
-          return parseFloat(full.existencia_anterior).toLocaleString('en');
-        }},
-        {data: "saldo_anterior", render: function(data, type, full, meta){
-          return parseFloat(full.saldo_anterior).toLocaleString('en');
-        }},
-        {data: "entradas", render: function(data, type, full, meta){
-          return parseFloat(full.entradas).toLocaleString('en');
-        }},
-        {data: "salidas", render: function(data, type, full, meta){
-          return parseFloat(full.salidas).toLocaleString('en');
-        }},
-        {data: "existencia", render: function(data, type, full, meta){
-          return parseFloat(full.existencia).toLocaleString('en');
-        }},
-        {data: "saldo_actual", render: function(data, type, full, meta){
-          return parseFloat(full.saldo_actual).toLocaleString('en');
-        }},
-      ]
+      columns: columns
     });
     tablaPrecio.clear().draw();
     //tablaPrecio.ajax.reload();

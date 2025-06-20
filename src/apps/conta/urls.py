@@ -112,6 +112,12 @@ urlpatterns = [
     conta_v.InformeResumenJson.as_view(),
     name='contabilidad_api_resumen'
     ),
+   # Imprimir Informe de Resumen
+ url(
+    r'^precioestandar/informeresumen/print/$',
+    conta_v.ContabilidadResumenPrint.as_view(),
+    name='contabilidad_resumen_print'
+   ),
  # Informe de existencia
  url(
     r'^informe/dispositivo/existencias/$',

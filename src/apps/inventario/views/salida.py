@@ -677,15 +677,30 @@ class TabletPrintView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super(TabletPrintView, self).get_context_data(**kwargs)
         nuevas_tablets = []
+        nuevas_laptops = []
+        nuevos_mouses = []
+        nuevos_aps = []
         total_cargadores_mostrar = 0
         Tablet = inv_m.PaqueteTipo.objects.get(nombre="Tablet")
-        Cargador = inv_m.PaqueteTipo.objects.get(nombre="Cargadores")
+        Laptop = inv_m.PaqueteTipo.objects.get(nombre="Laptop")
+        Mouse = inv_m.PaqueteTipo.objects.get(nombre="Mouse")
+        Access_point = inv_m.PaqueteTipo.objects.get(nombre="ACCESS POINT")
+        Cargador = inv_m.PaqueteTipo.objects.get(nombre="CARGADOR PARA TABLET")
         Cargador_cubo = inv_m.PaqueteTipo.objects.get(nombre="CUBO DE CARGA PARA TABLET")
         Cable_cargador = inv_m.PaqueteTipo.objects.get(nombre="CABLE DE DATOS PARA TABLET")
         Cargador_grande = inv_m.PaqueteTipo.objects.get(nombre="CARGADOR ENTRADA GRANDE PARA TABLET")
         Total_Tablet = inv_m.DispositivoPaquete.objects.filter(
             paquete__salida__id=self.object.id,
             paquete__tipo_paquete=Tablet)
+        Total_Laptop = inv_m.DispositivoPaquete.objects.filter(
+            paquete__salida__id=self.object.id,
+            paquete__tipo_paquete=Laptop)
+        Total_mouse = inv_m.DispositivoPaquete.objects.filter(
+            paquete__salida__id=self.object.id,
+            paquete__tipo_paquete=Mouse)
+        Total_ap = inv_m.DispositivoPaquete.objects.filter(
+            paquete__salida__id=self.object.id,
+            paquete__tipo_paquete=Access_point)
         Total_Cargador = inv_m.Paquete.objects.filter(
             salida__id=self.object.id,
             tipo_paquete=Cargador).aggregate(cargadores=Sum('cantidad'))
@@ -702,6 +717,15 @@ class TabletPrintView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
         for triage in Total_Tablet:
             nueva_tablet = inv_m.Dispositivo.objects.get(triage=triage.dispositivo).cast()
             nuevas_tablets.append(nueva_tablet)
+        for triage in Total_Laptop:
+            nueva_laptop = inv_m.Dispositivo.objects.get(triage=triage.dispositivo).cast()
+            nuevas_laptops.append(nueva_laptop)
+        for triage in Total_mouse:
+            nuevo_mouse = inv_m.Dispositivo.objects.get(triage=triage.dispositivo).cast()
+            nuevos_mouses.append(nuevo_mouse)
+        for triage in Total_ap:
+            nuevo_ap = inv_m.Dispositivo.objects.get(triage=triage.dispositivo).cast()
+            nuevos_aps.append(nuevo_ap)
         escuela = inv_m.SalidaInventario.objects.get(id=self.object.id)
         try:
             encargado = escuela_m.EscContacto.objects.get(escuela=escuela.escuela, rol=5)
@@ -712,6 +736,9 @@ class TabletPrintView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
             context['Jornada'] = "No tiene Jornada"
             context['Encargado'] = "No Tiene Encargado"
         context['Tablets'] = nuevas_tablets
+        context['Laptops'] = nuevas_laptops
+        context['Mouses'] = nuevos_mouses
+        context['APs'] = nuevos_aps
         context['Total'] = Total_Tablet.count()
         if Total_Cargador['cargadores'] != None:
             total_cargadores_mostrar += Total_Cargador['cargadores']
@@ -721,10 +748,10 @@ class TabletPrintView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
             total_cargadores_mostrar += Total_Cargador_grande['cargadores']
         if Total_Cable_Cargador['cargadores'] != None:
             total_cargadores_mostrar += Total_Cable_Cargador['cargadores']
+        print("Total Cargadores: ", total_cargadores_mostrar)
         context['Cargador'] = total_cargadores_mostrar
         context['Descripcion'] = "Cargadores"
         return context
-
 
 class TpePrintView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
     """Vista encargada para imprimir las :class:`SalidaInventario` de las salidas correspondiente

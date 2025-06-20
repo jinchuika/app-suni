@@ -42,6 +42,8 @@ from django.core.files.storage import FileSystemStorage
 from django.conf import settings
 from openpyxl import load_workbook
 from apps.conta.config import EMAIL_CREDENCIALES
+import requests
+from django.urls import reverse
 
 """
     Función que devuelve la existencia y saldo monetario basado en el tipo de dispositivo,
@@ -304,6 +306,58 @@ class ContabilidadResumenInformeListView(LoginRequiredMixin, FormView):
         form = super(ContabilidadResumenInformeListView, self).get_form(form_class)
         form.fields['tipo_dispositivo'].queryset = inv_m.AsignacionTecnico.objects.get(usuario=self.request.user ).tipos.filter(usa_triage=True)
         return form
+
+
+
+class ContabilidadResumenPrint(TemplateView):
+    template_name = 'conta/informe_resumen_print.html'
+
+    def post(self, request, *args, **kwargs):
+        fecha_min = request.POST.get('fecha_min')
+        fecha_max = request.POST.get('fecha_max')
+        tipo_dispositivo = request.POST.getlist('tipo_dispositivo')
+
+        api_url = request.build_absolute_uri(reverse('contabilidad_api_resumen'))
+
+        params = {
+            'fecha_min': fecha_min, 
+            'fecha_max': fecha_max,
+            'tipo_dispositivo[]': tipo_dispositivo,
+        }
+        
+        # --- INICIO DE LA MODIFICACIÓN ---
+
+        # 1. Prepara las cookies para la nueva solicitud.
+        #    Tomamos la cookie 'sessionid' de la petición original del navegador.
+        cookies = {}
+        if 'sessionid' in request.COOKIES:
+            cookies['sessionid'] = request.COOKIES['sessionid']
+            
+        # --- FIN DE LA MODIFICACIÓN ---
+
+        context = {
+            'params': params,
+            'datos_api': None,
+            'error': None
+        }
+
+        try:
+            # 2. Añade el diccionario de cookies a tu llamada de requests
+            response = requests.get(url=api_url, params=params, cookies=cookies)
+            
+            if response.status_code == 200:
+                context['datos_api'] = response.json()
+            # Manejar el caso en que la autenticación falle incluso con la cookie
+            elif response.status_code == 401:
+                context['error'] = "Error de autenticación (401). La sesión podría ser inválida."
+            else:
+                print("Error en la API: Código" , {response.status_code})
+
+        except requests.exceptions.RequestException as e:
+            print(e)
+
+        return render(request, self.template_name, context)
+
 
 class InformeCantidadJson(views.APIView):
 
@@ -850,7 +904,7 @@ class InformeResumenJson(views.APIView):
             dispositivos = self.request.user.tipos_dispositivos.tipos.filter(conta=True)
         else:
             dispositivos = self.request.user.tipos_dispositivos.tipos.filter(id__in=tipo_dispositivo)
-        
+
         # Validar que el rango de fechas pertenezcan a un solo período fiscal
         validar_fecha = conta_m.PeriodoFiscal.objects.filter(fecha_inicio__lte=fecha_inicio, fecha_fin__gte=fecha_fin)
         acumulador = 0

@@ -215,7 +215,7 @@ interno_children = (
         "Informe",
         reverse_lazy('inventariointerno_list'),
         weight=12,
-        group="inv_interno,inv_cc,inv_conta",
+        group="inv_interno,inv_cc,inv_conta,tpe_tecnico",
         icon="fa-bar-chart",
     ),
 )
@@ -344,7 +344,7 @@ Menu.add_item(
         reverse_lazy('entrada_list'),
         weight=10,
         icon="fa-building",
-        group="inv_admin,inv_cc,inv_interno",
+        group="inv_admin,inv_cc,inv_interno,tpe_tecnico",
         children=interno_children
     )
 )
