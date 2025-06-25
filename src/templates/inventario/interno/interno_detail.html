@@ -56,6 +56,11 @@
 								<th>Fecha Devolución</th>
 								<td>{{ inventariointerno.fecha_devolucion }}</td>
 							</tr>
+							{% else %}
+							<th>Reasignación</th>
+								<td>
+									<button  id="id-reasignar" class="btn btn-info btn-rechazar" data-url="{%url 'inventario_api:api_inventariointerno-reasignar-colaborador'%}" data-urlusuarios="{%url 'inventario_api:api_usuarios-list'%}" data-pk="{{inventariointerno.id}}">Reasignar</button>
+								</td>
 							{% endif %}
 						</table>
 					</div>
@@ -115,4 +120,14 @@
 
 {% block extra_js %}
 {% include "base/dataTables.html" %}
+<script src="{% static "js/extrajs/interno.js" %}"></script>
+<script> 
+
+ $(document).ready(function (){
+	let Asignacion = new InventarioInternoDetail();	
+});
+
+</script>
+
+
 {% endblock extra_js %}

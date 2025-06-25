@@ -1653,6 +1653,8 @@ class InventarioInterno(models.Model):
     fecha_devolucion = models.DateTimeField(null=True, blank=True)
     estado = models.ForeignKey(IInternoEstado, on_delete=models.PROTECT, related_name='estados',  null=True, blank=True)
     borrador = models.BooleanField(default=True, blank=True)
+    reasignado = models.BooleanField(default=False, blank=True, verbose_name='Reasignado')
+    reasignado_por = models.ForeignKey(User, on_delete=models.PROTECT, related_name='reasignar_inventario', null=True, blank=True)
 
     class Meta:
         verbose_name = 'Inventario Interno'

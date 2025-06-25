@@ -1218,6 +1218,7 @@ class EntradaDetalleDetail {
                       },
                       success: function (response) {
                            bootbox.alert({message: "<h2>"+response.mensaje+"</h2>", className:"modal modal-success fade in"});
+                           location.reload();
                            //window.location= urlredireccion;
                       },
                       error: function (response) {
@@ -1283,8 +1284,8 @@ class EntradaDetalleDetail {
                         success: function (response) {
                             //document.getElementById('btn-terminar').disabled = false;
                              bootbox.alert({message: "<h2>"+response.mensaje+"</h2>", className:"modal modal-success fade in"});
+                             location.reload();
                              //window.location= urlredireccion;
-                            
                         },
                         error: function (response) {
                           var mensaje = JSON.parse(response.responseText)

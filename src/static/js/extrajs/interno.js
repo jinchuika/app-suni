@@ -418,3 +418,64 @@ class BuscadorTabla{
   });
   }
 }
+
+
+
+
+class InventarioInternoDetail {
+  constructor() {
+    var urlReasignar = $("#id-reasignar").data("url");
+    var urlUsuarios = $("#id-reasignar").data("urlusuarios");
+    var pk = $("#id-reasignar").data("pk");
+    
+    $('#id-reasignar').click( function() {
+      $.ajax({
+        url: urlUsuarios,
+        data: function() {
+          return {
+            asignacion: pk
+          }
+        },
+        error: function(response) {
+          var mensaje = JSON.parse(response.responseText)
+          bootbox.alert({message: "<h3><i class='fa fa-frown-o' style='font-size: 45px;'></i>&nbsp;&nbsp;&nbsp;HA OCURRIDO UN ERROR!!</h3></br>" + mensaje.error[0], className:"modal modal-danger fade"});
+        },
+        success: function(data) {
+          var listaUsuarios = [];
+          for (var i in data){
+            var usuario = {}
+            usuario['text'] = data[i].full_name;
+            usuario['value'] = data[i].id;
+            listaUsuarios.push(usuario)
+          }
+          bootbox.prompt({
+            title: "Seleccione el Usuario",
+            inputType: 'select',
+            inputOptions: listaUsuarios,
+            callback: function (result) {
+              $.ajax({
+                type: "POST",
+                url: urlReasignar,
+                data: {
+                  csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
+                  data:result,
+                  id_asignacion: pk
+                },
+                success: function (response){
+                  bootbox.alert({message: "<h3><i class='fa fa-smile-o' style='font-size: 45px;'></i>&nbsp;&nbsp;&nbsp;REGISTRO ACTUALIZADO EXITOSAMENTE!!</h3></br>", className:"modal modal-success fade"});
+                  location.reload();
+                },
+                error: function (response){
+                  var mensaje = JSON.parse(response.responseText)
+                  bootbox.alert({message: "<h3><i class='fa fa-frown-o' style='font-size: 45px;'></i>&nbsp;&nbsp;&nbsp;HA OCURRIDO UN ERROR!!</h3></br>" + mensaje.detail, className:"modal modal-danger fade"});
+                }
+              });
+            }
+          });
+        }
+      });
+    });
+
+
+  }
+}
