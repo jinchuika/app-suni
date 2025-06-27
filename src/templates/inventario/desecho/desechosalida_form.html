@@ -137,10 +137,10 @@
             <div class="box-header">
               <div class="box-title">
                     <h3><b>Desechos Por Entrada</b></h3>
-                    {% if request.user|has_group:"inv_sub_jefe" %}
-                        <input id="btn-sub" type="submit" class="btn btn-warning" value="Aprobar" />
+                    {% if request.user|has_group:"inv_sub_jefe" and not form.instance.revision_sub_jefe %}
+                      <input id="btn-sub" type="submit" class="btn btn-warning" value="Aprobar" />
                     {%endif%}
-                    {% if  request.user|has_group:"inv_admin" %}
+                    {% if  request.user|has_group:"inv_admin" and not form.instance.revision_jefe %}
                         <input id="btn-jefe" type="submit" class="btn btn-danger" value="Aprobar" />
                     {%endif%}
               </div>
