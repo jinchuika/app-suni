@@ -383,9 +383,9 @@ class InformeAsistenciaFinalForm(forms.Form):
         widget=forms.TextInput(attrs={'class': 'form-control', 'maxlength': '13', 'placeholder': '00-00-0000-00', 'data-url': reverse_lazy('escuela_api_list')}))
 
 class InformeCapacitadorForm(forms.Form):
-    capacitador = forms.ModelChoiceField(
+    capacitador = forms.ModelMultipleChoiceField(
         queryset=User.objects.filter(groups__name='cyd_capacitador'),
-        widget=forms.Select(attrs={'class': 'select2 form-control'}),
+        widget=forms.SelectMultiple(attrs={'class': 'select2 form-control'}),
         required=False
         )
     fecha_min = forms.CharField(

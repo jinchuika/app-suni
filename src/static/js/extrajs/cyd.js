@@ -3058,6 +3058,7 @@ class informeCapacitadores{
                 {data: "chicos"},
                 {data: "chicas"},
                 {data: "fecha"},
+                {data: "capacitador"},
             ],
             footerCallback: function( tfoot, data, start, end, display){
                 for (var i in data){

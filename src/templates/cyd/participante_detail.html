@@ -83,7 +83,7 @@
 							<dt>Etnia</dt>
 							<dd>
 								<a href="#" class="editable" data-name="etnia" data-type="select" data-source="[{% for etnia in etnia_list %}{'{{ etnia.id }}': '{{ etnia.nombre }}'},{% endfor %}]" data-pk="{{ participante.id }}" data-url="{% url 'participante_api_update' pk=participante.id %}">
-									{{ participante.etnia|default_if_none:"" }}
+									{{ participante.etnia.nombre|default_if_none:"" }}
 								</a>
 							</dd>
 
@@ -91,6 +91,18 @@
 							<dd>
 								<a href="#" class="editable" data-name="escolaridad" data-type="select" data-source="[{% for escolaridad in escolaridad_list %}{'{{ escolaridad.id }}': '{{ escolaridad.nombre }}'},{% endfor %}]" data-pk="{{ participante.id }}" data-url="{% url 'participante_api_update' pk=participante.id %}">
 									{{ participante.escolaridad|default_if_none:"" }}
+								</a>
+							</dd>
+							<dt>Profesion</dt>
+							<dd>
+								<a href="#" class="editable" data-name="profesion" data-type="select" data-source="[{% for profesion in profesion_list %}{'{{ profesion.id }}': '{{ profesion.nombre }}'},{% endfor %}]" data-pk="{{ participante.id }}" data-url="{% url 'participante_api_update' pk=participante.id %}">
+									{{ participante.profesion|default_if_none:"" }}
+								</a>
+							</dd>
+							<dt>Grado impartido</dt>
+							<dd>
+								<a href="#" class="editable" data-name="grado_impartido" data-type="select" data-source="[{% for grado_impartido in grado_impartido_list %}{'{{ grado_impartido.id }}': '{{ grado_impartido.grado_asignado }}'},{% endfor %}]" data-pk="{{ participante.id }}" data-url="{% url 'participante_api_update' pk=participante.id %}">
+									{{ participante.grado_impartido|default_if_none:"" }}
 								</a>
 							</dd>
 							<dt>Niños</dt>							
