@@ -427,7 +427,7 @@ class ParticipanteJsonCreateView(LoginRequiredMixin, JsonRequestResponseMixin, C
             try:
                 grado_imparte =cyd_m.Grado.objects.get(grado_asignado =self.request_json['grado_impartido'] if 'grado_impartido' in self.request_json else "Preprimaria")
             except:
-                 grado_imparte =cyd_m.Grado.objects.get(id=self.request_json['grado_impartido'] if 'grado_impartido' in self.request_json else 1)
+                grado_imparte =cyd_m.Grado.objects.get(id=self.request_json['grado_impartido'] if 'grado_impartido' in self.request_json else 1)
             try:
                 jornada = cyd_m.Profesion.objects.get(nombre=self.request_json['jornada'] if 'jornada' in self.request_json else "Matutina")
             except:
@@ -498,6 +498,8 @@ class ParticipanteDetailView(LoginRequiredMixin, DetailView):
         context['etnia_list'] = cyd_m.ParEtnia.objects.all()
         context['escolaridad_list'] = cyd_m.ParEscolaridad.objects.all()
         context['genero_list'] = cyd_m.ParGenero.objects.all()
+        context['profesion_list'] = cyd_m.Profesion.objects.all()
+        context['grado_impartido_list'] = cyd_m.Grado.objects.all()
         return context
 
 
@@ -773,13 +775,16 @@ class InformeCapacitadores(views.APIView):
     def post(self, request):
         listado_sede=[]
         listado_curso=[]
-        contador_sede=0           
-        #capacitador = User.objects.get(id=self.request.POST['capacitador'])
-        si_es_naat =False
+        contador_sede=0
+        lista_capacitador =[]           
+        si_es_naat =False        
         try:
-            capacitador = self.request.POST['capacitador']
-        except MultiValueDictKeyError:
-            capacitador =0
+            capacitador = [x for x in self.request.POST.getlist('capacitador[]')]         
+            if len(capacitador)==0:
+                lista_capacitador.append(self.request.POST['capacitador'])                
+
+        except MultiValueDictKeyError:   
+            capacitador=0 
         try:
             fecha_min = self.request.POST['fecha_min']
         except MultiValueDictKeyError:
@@ -789,15 +794,17 @@ class InformeCapacitadores(views.APIView):
         except MultiValueDictKeyError:
             fecha_max = 0
         sort_params = {}
-        crear_dic(sort_params,'capacitador',capacitador)
+        if len(lista_capacitador)==1:
+            crear_dic(sort_params,'capacitador__id__in',lista_capacitador)
+        else:
+            crear_dic(sort_params,'capacitador__id__in',capacitador)
+
         crear_dic(sort_params,'fecha_creacion__gte',fecha_min)
         crear_dic(sort_params,'fecha_creacion__lte',fecha_max)
         crear_dic(sort_params,'activa',True)
         try:
-            print("Sin errores")
-            #sedes = cyd_m.Sede.objects.filter(capacitador=capacitador,fecha_creacion__gte=self.request.POST['fecha_min'],fecha_creacion__lte=self.request.POST['fecha_max'],activa=True)
+            #print("Sin errores")            
             sedes = cyd_m.Sede.objects.filter(**sort_params)
-            asignacion_capacitador= cyd_m.Asignacion.objects.filter(grupo__sede__capacitador=capacitador)
             for sede in sedes:
                 total_chicos = 0
                 total_chicas = 0
@@ -816,6 +823,7 @@ class InformeCapacitadores(views.APIView):
                 listado_datos['sede_url']=sede.get_absolute_url()
                 listado_datos["chicos"]=total_chicos
                 listado_datos["chicas"]=total_chicas
+                listado_datos["capacitador"]=sede.capacitador.get_full_name()
                 contado_participantes=0
                 contador_curso=0
                 contado_asignacion =0
@@ -829,21 +837,12 @@ class InformeCapacitadores(views.APIView):
                     if "NAAT" in data_naat["grupo__curso__nombre"]:                        
                         si_es_naat = True
                     else:
-                        si_es_naat = False
-                numero_escuelas_invitadas=escuela_invitada.values("participante__escuela").distinct().count()                          
+                        si_es_naat = False                        
                 if not si_es_naat:
-                    #print(sede.get_escuelas_invitadas())
                     if sede.get_escuelas_invitadas().count()==1:
                         listado_datos['invitada'] = sede.get_escuelas_invitadas().count()
                     else:
                         listado_datos['invitada'] = 0
-
-                    """if numero_escuelas_invitadas == 0:
-                        listado_datos['invitada']=0
-                    elif numero_escuelas_invitadas ==1:                                          
-                            listado_datos['invitada']=1
-                    else:
-                        listado_datos['invitada']=numero_escuelas_invitadas -1"""
                 else:
                      listado_datos['invitada']=0
                 ##                
@@ -862,9 +861,8 @@ class InformeCapacitadores(views.APIView):
                 listado_datos["participantes_invitados"]=contador_participantes_invitados
                 listado_sede.append(listado_datos)
         except MultiValueDictKeyError as e:
-            print("Trae errores")           
-            sedes = cyd_m.Sede.objects.filter(capacitador=capacitador,activa=True)
-            asignacion_capacitador= cyd_m.Asignacion.objects.filter(grupo__sede__capacitador=capacitador)           
+            #print("Trae errores")           
+            sedes = cyd_m.Sede.objects.filter(capacitador=capacitador,activa=True)        
             for sede in sedes:
                 total_chicos = 0
                 total_chicas = 0
@@ -884,16 +882,8 @@ class InformeCapacitadores(views.APIView):
                         si_es_naat = True
                     else:
                         si_es_naat = False
-                numero_escuelas_invitadas=escuela_invitada.values("participante__escuela").distinct().count()
                 if not si_es_naat:
-                    listado_datos['invitada'] = sede.get_escuelas_invitadas()
-                    contador_invitadas = contador_invitadas = sede.get_escuelas_invitadas()
-                    """if numero_escuelas_invitadas == 0:
-                        listado_datos['invitada']=0
-                    elif numero_escuelas_invitadas ==1:
-                        listado_datos['invitada']=1
-                    else:
-                        listado_datos['invitada']=numero_escuelas_invitadas -1"""
+                    listado_datos['invitada'] = sede.get_escuelas_invitadas()                 
                 else:
                      listado_datos['invitada']=0
                 contador_sede = contador_sede +1
@@ -903,6 +893,7 @@ class InformeCapacitadores(views.APIView):
                 listado_datos['numero']=contador_sede
                 listado_datos['sede']=sede.nombre
                 listado_datos['sede_url']=sede.get_absolute_url()
+                listado_datos["capacitador"]=sede.capacitador.get_full_name()
                 contado_participantes=0
                 contador_curso=0
                 contado_asignacion =0
