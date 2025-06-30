@@ -217,6 +217,8 @@ class Escuela(models.Model):
         info_escuela["mujeres"] = mujeres
         info_escuela["chicos"] = chicos
         info_escuela["chicas"] = chicas
+        info_escuela["total_maestros"] = hombres + mujeres
+        info_escuela["total_ninos"] = chicas + chicos
         return info_escuela    
     def get_ficha_escolar(self):
         return 'https://public.tableau.com/views/1-FichaEscolarDatosGenerales/DatosGenerales?CODUDI={}'.format(
