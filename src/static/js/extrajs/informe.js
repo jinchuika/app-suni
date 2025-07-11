@@ -25,6 +25,7 @@ $( "#id_codigo" )
             var data_escuela =  $('#informe-escuela-form').serializeArray();
             var data_equipamiento = $('#informe-equipamiento-form').serializeArray()
             var data_capacitacion = $('#informe-capacitacion-form').serializeArray()
+            console.log(data_capacitacion);
             data_escuela.forEach(function(escuela, index){
               //console.log(`Elemento: ${escuela['value']}, Indice: ${index}`);
               if (escuela['value'] == ""){

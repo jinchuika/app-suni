@@ -115,9 +115,9 @@ class informeEquipamientoForm(forms.Form):
 
 class informeCapacitadaForm(forms.Form):
     ESTADO_CHOICES = (
-        (None, 'No importa'),
-        (True, 'Sí'),
-        (False, 'No'),)
+        (0, 'No importa'),
+        (1, 'Sí'),
+        (2, 'No'),)
     capacitador = forms.ModelChoiceField(
         queryset=User.objects.filter(groups__name='cyd_capacitador'),
         required=False,
