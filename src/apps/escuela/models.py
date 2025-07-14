@@ -152,6 +152,10 @@ class Escuela(models.Model):
         return True if self.equipamiento.count() > 0 else False
     equipada = property(es_equipada)
 
+    def fue_capacitada(self):
+        from apps.cyd.models import Sede
+        return True if Sede.objects.filter(escuela_beneficiada__codigo=self.codigo) else False
+
     def get_sedes(self):
         from apps.cyd.models import Sede, Asignacion
         resultado = {'listado':[]}
@@ -254,8 +258,9 @@ class Escuela(models.Model):
 
     @property
     def info_capacitacion(self):
+        from apps.cyd.models import Sede        
         try:
-            qs = [] #legacy_m.EscuelaSede.objects.filter(udi=self.codigo)
+            qs = Sede.objects.filter(escuela_beneficiada__codigo=self.codigo)
         except:
             qs = []
         return qs

@@ -25,7 +25,7 @@ $( "#id_codigo" )
             var data_escuela =  $('#informe-escuela-form').serializeArray();
             var data_equipamiento = $('#informe-equipamiento-form').serializeArray()
             var data_capacitacion = $('#informe-capacitacion-form').serializeArray()
-            console.log(data_capacitacion);
+            console.log(data_equipamiento);
             data_escuela.forEach(function(escuela, index){
               //console.log(`Elemento: ${escuela['value']}, Indice: ${index}`);
               if (escuela['value'] == ""){
@@ -33,13 +33,13 @@ $( "#id_codigo" )
               }
             });
             data_equipamiento.forEach(function(equipamiento, index){
-              //console.log(`Elemento: ${escuela['value']}, Indice: ${index}`);
+              console.log(`Elemento: ${equipamiento['value']}, Indice: ${index}`);
               if (equipamiento['value'] == ""){
                 contador_campos_equipamiento++;
               }
             });
             data_capacitacion.forEach(function(capacitacion, index){
-              //console.log(`Elemento: ${escuela['value']}, Indice: ${index}`);
+              //console.log(`Elemento: ${capacitacion['value']}, Indice: ${index}`);               
               if (capacitacion['value'] == ""){
                 contador_campos_capacitacion++;
               }
@@ -52,14 +52,19 @@ $( "#id_codigo" )
             }else{
               myData["escuela"] = JSON.stringify($('#informe-escuela-form').serializeArray())
             }
-            if (contador_campos_equipamiento == data_equipamiento.length){
+            console.log(contador_campos_equipamiento);
+              console.log(data_equipamiento.length);
+            if (contador_campos_equipamiento == (data_equipamiento.length-1)){
+              
+              console.log("aca1")
                data_equipamiento = []
                data_equipamiento.push({name:'equipada',value:false});
                myData["equipada"] = JSON.stringify(data_equipamiento)
             }else{
+              console.log("aca2")
               myData["equipada"] = JSON.stringify($('#informe-equipamiento-form').serializeArray())
             }
-            if (contador_campos_capacitacion == data_capacitacion.length){
+            if (contador_campos_capacitacion == (data_capacitacion.length-1)){
                 data_capacitacion = []
                 data_capacitacion.push({name:'capacitada',value:false}); 
                 myData["capacitacion"] = JSON.stringify(data_capacitacion)                

@@ -87,9 +87,9 @@ class informeEscuelaForm(forms.Form):
 
 class informeEquipamientoForm(forms.Form):
     ESTADO_CHOICES = (
-        (None, 'No importa'),
-        (True, 'Sí'),
-        (False, 'No'),)
+        (0, 'No importa'),
+        (1, 'Sí'),
+        (2, 'No'),)
     fecha_min = forms.CharField(
         label='Fecha (min)',
         required=False,
