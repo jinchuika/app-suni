@@ -282,10 +282,58 @@ class ConsultaEscuelaApi(views.APIView):
                     datos_enviar.append(datos_recolectar)
             elif viene_equipada ==2:
                 print("No viene equipada")
+                escuelas = escuela_m.Escuela.objects.all().count()
+                print(escuelas)
+                """for data in escuelas:
+                    if data.es_equipada() is False:
+                        print(data)"""
+                    
                 
             
         elif isinstance(query.first(), escuela_m.Escuela):
             print("Viene Escuela")
+            for data_final in query:
+                datos_recolectar ={}
+                datos_recolectar["Udi"]= data_final.codigo
+                datos_recolectar["Nombre"]= data_final.nombre
+                datos_recolectar["escuela_url"]= data_final.get_absolute_url()
+                datos_recolectar["Direccion"]= data_final.direccion
+                datos_recolectar["Departamento"]= data_final.municipio.departamento.nombre
+                datos_recolectar["Municipio"]= data_final.municipio.nombre
+                datos_recolectar["Ninos_beneficiados"]= data_final.get_poblacion()
+                datos_recolectar["Docentes"]= data_final.get_maestros()
+                datos_recolectar["Equipada"]= data_final.es_equipada()
+                if data_final.es_equipada():
+                        datos_recolectar["Fecha_equipamiento"]= data_final.escuela_beneficiada.datos_equipamiento().fecha
+                        datos_recolectar["No_equipamiento"]= data_final.escuela_beneficiada.datos_equipamiento().no_referencia
+                        datos_recolectar["Proyecto"]= [x.nombre for x in data_final.escuela_beneficiada.datos_equipamiento().proyecto.all()]
+                        datos_recolectar["Donante"]= [x.nombre for x in data_final.escuela_beneficiada.datos_equipamiento().cooperante.all()]
+                        datos_recolectar["Equipo_entregado"]= data_final.escuela_beneficiada.datos_equipamiento().cantidad_equipo                        
+                else:
+                    datos_recolectar["Fecha_equipamiento"]= "No tiene"
+                    datos_recolectar["No_equipamiento"]= "No tiene"
+                    datos_recolectar["Proyecto"]= "No tiene"
+                    datos_recolectar["Donante"]= "No tiene"
+                    datos_recolectar["Equipo_entregado"]= 0
+                if data_final.fue_capacitada():
+                        sede_capacitada = data_final.escuela_beneficiada.all().order_by('fecha_creacion').last()                       
+                        total = sede_capacitada.get_participantes()['resumen']["estado"]["aprobado"]["cantidad"] + sede_capacitada.get_participantes()['resumen']["estado"]["reprobado"]["cantidad"] + sede_capacitada.get_participantes()['resumen']["estado"]["nivelar"]["cantidad"]                        
+                        datos_recolectar["Capacitada"]= data_final.fue_capacitada()
+                        datos_recolectar["Fecha_capacitacion"]=sede_capacitada.fecha_creacion.date()
+                        datos_recolectar["Capacitador"]= sede_capacitada.capacitador.get_full_name()
+                        datos_recolectar["Maestros_capacitados"]= total
+                        datos_recolectar["Maestros_promovidos"]= sede_capacitada.get_participantes()['resumen']["estado"]["aprobado"]["cantidad"]
+                        datos_recolectar["Maestros_no_promovidos"]=sede_capacitada.get_participantes()['resumen']["estado"]["reprobado"]["cantidad"]
+                        datos_recolectar["Maestros_desertores"]= sede_capacitada.get_participantes()['resumen']["estado"]["nivelar"]["cantidad"]
+                else:
+                    datos_recolectar["Capacitada"]= data_final.fue_capacitada()
+                    datos_recolectar["Fecha_capacitacion"]="No tiene"
+                    datos_recolectar["Capacitador"]= "No tiene"
+                    datos_recolectar["Maestros_capacitados"]= 0
+                    datos_recolectar["Maestros_promovidos"]= 0
+                    datos_recolectar["Maestros_no_promovidos"]= 0
+                    datos_recolectar["Maestros_desertores"]= 0
+        datos_enviar.append(datos_recolectar)
 
          
         return Response(
