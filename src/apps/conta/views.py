@@ -42,6 +42,7 @@ from django.core.files.storage import FileSystemStorage
 from django.conf import settings
 from openpyxl import load_workbook
 from apps.conta.config import EMAIL_CREDENCIALES
+from apps.main import creacion_filtros_informe as crear_dict
 
 """
     Función que devuelve la existencia y saldo monetario basado en el tipo de dispositivo,
@@ -2137,3 +2138,37 @@ class PlanillaContaView(LoginRequiredMixin,GroupRequiredMixin,FormView):
         context['url']=os.path.join(settings.MEDIA_URL,"planilla/output/Comprobantes.zip")
         return context
 
+#Fin de la planilla de contabilidad
+
+class RastreoDispositivoContabilidad(views.APIView):
+    """ Lista todas las salidas de desecho con triage que han sucedido en un rango de fechas,
+    Solamente cuentan aquellas salidas que han sido cerradas.
+    """
+    def get(self, request):
+        fecha_inicio = self.request.GET['fecha_min']
+        fecha_fin = self.request.GET['fecha_max']
+        triage = self.request.GET['triage']
+        entrada = self.request.GET['entrada']
+        salida = self.request.GET['salida']
+        try:
+            tipo_dispositivo = []
+            tipo_dispositivo = self.request.GET.getlist('tipo_dispositivo[]')
+            if len(tipo_dispositivo) == 0:
+                tipo = self.request.GET['tipo_dispositivo']
+                tipo_dispositivo.append(tipo)
+        except MultiValueDictKeyError as e:
+            tipo_dispositivo = 0
+
+        sort_params = {}
+        crear_dict(sort_params,'fecha__lte',fecha_fin)
+        crear_dict(sort_params,'fecha__gte',fecha_inicio)
+        crear_dict(sort_params,'dispositivo__triage',triage)
+        crear_dict(sort_params,'entrada',entrada)
+        crear_dict(sort_params,'salida',salida)
+        crear_dict(sort_params,'tipo_dipositivo',tipo_dispositivo)       
+        
+    #asignaciones = cyd_m.Asignacion.objects.filter(**sort_params)    
+        # Filtrar por tipos de dispositivos seleccionados
+        lista = []
+        return Response(lista)
+        
