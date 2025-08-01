@@ -419,4 +419,34 @@ class PlanillaForm(forms.Form):
     agrupacion=[('1','Individual'),('2','Listado')]
     disposicion_planilla = forms.ChoiceField(widget=forms.RadioSelect, choices=agrupacion)
     enviar_correo = forms.BooleanField(widget=forms.CheckboxInput(attrs={'class': 'icheckbox_flat-green'}),required=False)
+
+class RastreoDispositivoInformeForm(forms.Form):
+    """Este Formulario se encarga de enviar los filtros para  su respectivo informe de Dispositivos por Entrada
+    """
+
+    triage = forms.CharField(
+        label='Triage',
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-control'}))
+
+    no_entrada = forms.IntegerField(
+        label='No. Entrada',
+        required=False,
+        widget=forms.NumberInput(attrs={'class': 'form-control'}))
+
+    tipo_dispositivo = forms.ModelChoiceField(
+        queryset=inv_m.DispositivoTipo.objects.filter(usa_triage=True),
+        label='Tipo de Dispositivo',
+        required=True,
+        widget=forms.Select(attrs={'class': 'form-control select2'}))
+
+    fecha_min = forms.CharField(
+        label='Fecha (min)',
+        required=True,
+        widget=forms.TextInput(attrs={'class': 'form-control datepicker'}))
+    
+    fecha_max = forms.CharField(
+        label='Fecha (max)',
+        required=True,
+        widget=forms.TextInput(attrs={'class': 'form-control datepicker'}))
                                                                         

@@ -2150,6 +2150,7 @@ class RastreoDispositivoContabilidad(views.APIView):
         triage = self.request.GET['triage']
         entrada = self.request.GET['entrada']
         salida = self.request.GET['salida']
+        lista = []
         try:
             tipo_dispositivo = []
             tipo_dispositivo = self.request.GET.getlist('tipo_dispositivo[]')
@@ -2160,15 +2161,27 @@ class RastreoDispositivoContabilidad(views.APIView):
             tipo_dispositivo = 0
 
         sort_params = {}
-        crear_dict(sort_params,'fecha__lte',fecha_fin)
-        crear_dict(sort_params,'fecha__gte',fecha_inicio)
-        crear_dict(sort_params,'dispositivo__triage',triage)
-        crear_dict(sort_params,'entrada',entrada)
-        crear_dict(sort_params,'salida',salida)
-        crear_dict(sort_params,'tipo_dipositivo',tipo_dispositivo)       
-        
-    #asignaciones = cyd_m.Asignacion.objects.filter(**sort_params)    
-        # Filtrar por tipos de dispositivos seleccionados
-        lista = []
+        #crear_dict(sort_params,'fecha__lte',fecha_fin)
+        #crear_dict(sort_params,'fecha__gte',fecha_inicio)
+        #crear_dict(sort_params,'dispositivo__triage',triage)
+        #crear_dict(sort_params,'entrada',entrada)
+        #crear_dict(sort_params,'salida',salida)
+        #crear_dict(sort_params,'tipo_dipositivo',tipo_dispositivo)       
+        #altas = conta_m.MovimientoDispositivo.objects.filter(dispositivo__triage=triage,tipo_movimiento=1)
+        #bajas = conta_m.MovimientoDispositivo.objects.filter(dispositivo__triage=triage,tipo_movimiento=-1)
+        #data  = conta_m.MovimientoDispositivo.objects.filter(dispositivo__triage=triage,tipo_movimiento=1)
+        data  = conta_m.MovimientoDispositivo.objects.filter(fecha__lte=fecha_fin,fecha__gte=fecha_inicio,tipo_movimiento=1)
+        #print(data)
+        for info in data:
+            print(info.dispositivo.rastreo_dispositivo())
+            lista.append(info.dispositivo.rastreo_dispositivo())        
         return Response(lista)
-        
+    
+class InformeRastreoDispositivoView(LoginRequiredMixin, FormView):
+    """ Vista para obtener la informacion de los participantes para crear el informe de existencia mediante un
+    api mediante el metodo GET  y lo muestra en el tempalte
+    """
+    redirect_unauthenticated_users = True
+    raise_exception = True
+    template_name = "conta/informe_rastreo_dispositivo.html"
+    form_class = conta_f.RastreoDispositivoInformeForm

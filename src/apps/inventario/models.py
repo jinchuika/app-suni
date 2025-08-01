@@ -617,6 +617,55 @@ class Dispositivo(models.Model):
         filename = 'dispositivo-{}.png'.format(self.id)
         filebuffer = InMemoryUploadedFile(buffer, None, filename, 'image/png', buffer.getbuffer().nbytes, None)
         self.codigo_qr.save(filename, filebuffer)
+    
+    def rastreo_dispositivo(self):
+        resultado = {}
+        resultado["triage"] = self.triage
+        resultado["tipo"] = self.tipo.tipo
+        resultado["entrada"] =self.entrada.id
+        resultado["proyecto"] =[x.nombre for x in self.entrada.proyecto.all()]  
+        resultado["proveedor"] = self.entrada.proveedor.nombre
+        resultado["etapa"] =self.etapa.proceso
+        resultado["url_dispositivo"] =self.get_absolute_url()
+        resultado["url_entrada"] =self.entrada.get_absolute_url()
+        #print("Triage",self.triage)
+        #print("Tipo",self.tipo)
+        #print("Entrada",self.entrada)
+        #print("Proyecto",self.entrada.proyecto.all())
+        #print("Proveedor",self.entrada.proveedor)
+        #print("Etapa",self.etapa)
+        try:
+            baja = conta_m.MovimientoDispositivo.objects.get(dispositivo=self, tipo_movimiento=-1)  
+            #print("Salida:",baja.referencia.split()[1])
+            resultado["salida"] = baja.referencia.split()[1]          
+        except:
+            #print("Salida:","No tiene")
+            resultado['salida']="No tiene"
+        try:
+            salida= SalidaInventario.objects.get(no_salida=baja.referencia.split()[1])
+            #print("Escuela",escuela.escuela)
+            #print("Codigo",escuela.escuela.codigo)
+            #print("Latitud",escuela.escuela.mapa.lat)
+            #print("Longitud",escuela.escuela.mapa.lng)
+            resultado["escuela"]=salida.escuela.nombre
+            resultado["url_escuela"]=salida.escuela.get_absolute_url()
+            resultado["codigo"]=salida.escuela.codigo
+            resultado["latitud"]= salida.escuela.mapa.lat
+            resultado["logitud"]= salida.escuela.mapa.lng
+            resultado["url_salida"]=salida.get_absolute_url()
+
+        except:
+            resultado["escuela"]="No tiene"
+            resultado["url_escuela"]="No tiene"
+            resultado["codigo"]= "No tiene"
+            resultado["latitud"]= "No tiene"
+            resultado["longitud"]= "No tiene"
+            resultado["url_salida"]="No tiene"
+            #print("Escuela","No tiene")
+            #print("Codigo","No tiene")
+            #print("Latitud","No tiene")
+            #print("Longitud","No tiene")
+        return resultado
 
     @classmethod
     def obtener_modelo_hijo(cls, tipo_dispositivo):
