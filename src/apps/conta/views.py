@@ -2158,7 +2158,7 @@ class RastreoDispositivoContabilidad(views.APIView):
         except:
             triage = 0
         try:
-            entrada = self.request.GET['entrada']
+            entrada = self.request.GET['no_entrada']
         except:
             entrada = 0
         try:
@@ -2179,12 +2179,13 @@ class RastreoDispositivoContabilidad(views.APIView):
         crear_dict.crear_dict(sort_params,'fecha__lte',fecha_fin)
         crear_dict.crear_dict(sort_params,'fecha__gte',fecha_inicio)
         crear_dict.crear_dict(sort_params,'dispositivo__triage',triage)
-        crear_dict.crear_dict(sort_params,'entrada',entrada)
+        crear_dict.crear_dict(sort_params,'dispositivo__entrada',entrada)
         crear_dict.crear_dict(sort_params,'salida',salida)
         crear_dict.crear_dict(sort_params,'dispositivo__tipo__id__in',tipo_dispositivo)
         crear_dict.crear_dict(sort_params,'tipo_movimiento',1)          
         #altas = conta_m.MovimientoDispositivo.objects.filter(dispositivo__triage=triage,tipo_movimiento=1)
         #bajas = conta_m.MovimientoDispositivo.objects.filter(dispositivo__triage=triage,tipo_movimiento=-1)
+        print(sort_params)
         data  = conta_m.MovimientoDispositivo.objects.filter(**sort_params)
         #data  = conta_m.MovimientoDispositivo.objects.filter(fecha__lte=fecha_fin,fecha__gte=fecha_inicio,tipo_movimiento=1)
         #print(data)
