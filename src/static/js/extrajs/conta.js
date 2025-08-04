@@ -735,7 +735,24 @@ class RastreoDispositivoInforme{
   rastreo_dispositivo_informe.submit(function (e){
     e.preventDefault();
     var tablaPrecio = $('#rastreo-dispo-table').DataTable({
-      dom: 'lfrtip',
+      footerCallback: function( tfoot, data, start, end, display){        
+        var costo_total = 0
+        var en_bodega  = 0
+        var total_dispo = 0
+        for (var i in data){
+          total_dispo = total_dispo + 1;
+          costo_total = costo_total + data[i].precio;
+          if (data[i].tipo_etapa==1){
+            en_bodega = en_bodega +1;
+          }     
+          
+        };
+         $(tfoot).find('th').eq(0).html( "CANTIDAD DE DISPOSITIVOS: "+ parseFloat(total_dispo).toLocaleString('en') );
+         $(tfoot).find('th').eq(1).html( "CANTIDAD EN BODEGA: "+ parseFloat(en_bodega).toLocaleString('en'));
+         $(tfoot).find('th').eq(2).html( "COSTO TOTAL: "+ parseFloat(costo_total).toLocaleString('en'));
+      },
+      dom: 'lfrtipB',
+      buttons: ['excel', 'pdf', 'copy'],
       searching:true,
       paging:false,
       ordering:true,
@@ -754,16 +771,21 @@ class RastreoDispositivoInforme{
         {data: "triage",render: function(data, type, full, meta){
           return "<a href="+full.url_dispositivo+">"+full.triage+"</a>";
         }},
+        {data: "precio"},
         {data: "tipo"},
         {data: "entrada",render: function(data, type, full, meta){
           return "<a href="+full.url_entrada+">"+full.entrada+"</a>";
         }},
+        {data: "fecha_ingreso"},
+        {data: "tipo_entrada"},
         {data: "proyecto"},
         {data: "proveedor"},
         {data: "etapa"},
         {data: "salida",render: function(data, type, full, meta){
           return "<a href="+full.url_salida+">"+full.salida+"</a>";
         }},
+        {data: "fecha_salida"},
+        {data: "tipo_salida"},
         {data: "escuela",render: function(data, type, full, meta){
           return "<a href="+full.url_escuela+">"+full.escuela+"</a>";
         }},

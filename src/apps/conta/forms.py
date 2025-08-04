@@ -9,6 +9,7 @@ from apps.crm import models as crm_m
 from apps.inventario import models as inventario_m
 from apps.escuela import models as escuela_m
 from apps.beqt import models as beqt_m
+from apps.mye import models as mye_m
 
 
 class PeriodoFiscalForm(forms.ModelForm):
@@ -439,6 +440,12 @@ class RastreoDispositivoInformeForm(forms.Form):
         label='Tipo de Dispositivo',
         required=False,
         widget=forms.Select(attrs={'class': 'form-control select2'}))
+    
+    proyecto = forms.ModelMultipleChoiceField(
+        queryset=mye_m.Cooperante.objects.all(),
+        label='Proyecto',
+        required=False,
+        widget=forms.SelectMultiple(attrs={'class': 'form-control select2'}))
 
     fecha_min = forms.CharField(
         label='Fecha (min)',

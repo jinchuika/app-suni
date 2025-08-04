@@ -2174,24 +2174,29 @@ class RastreoDispositivoContabilidad(views.APIView):
                 tipo_dispositivo.append(tipo)
         except MultiValueDictKeyError as e:
             tipo_dispositivo = 0
-
+        
+        try:
+            proyecto = []
+            proyecto = self.request.GET.getlist('proyecto[]')
+            if len(proyecto) == 0:
+                proyecto_solo = self.request.GET['proyecto']
+                proyecto.append(proyecto_solo)
+        except MultiValueDictKeyError as e:
+            proyecto = 0
         sort_params = {}
+        crear_dict.crear_dict(sort_params,'dispositivo__entrada_detalle__proyecto__in',proyecto)
         crear_dict.crear_dict(sort_params,'fecha__lte',fecha_fin)
         crear_dict.crear_dict(sort_params,'fecha__gte',fecha_inicio)
         crear_dict.crear_dict(sort_params,'dispositivo__triage',triage)
         crear_dict.crear_dict(sort_params,'dispositivo__entrada',entrada)
         crear_dict.crear_dict(sort_params,'salida',salida)
         crear_dict.crear_dict(sort_params,'dispositivo__tipo__id__in',tipo_dispositivo)
-        crear_dict.crear_dict(sort_params,'tipo_movimiento',1)          
-        #altas = conta_m.MovimientoDispositivo.objects.filter(dispositivo__triage=triage,tipo_movimiento=1)
-        #bajas = conta_m.MovimientoDispositivo.objects.filter(dispositivo__triage=triage,tipo_movimiento=-1)
-        print(sort_params)
-        data  = conta_m.MovimientoDispositivo.objects.filter(**sort_params)
-        #data  = conta_m.MovimientoDispositivo.objects.filter(fecha__lte=fecha_fin,fecha__gte=fecha_inicio,tipo_movimiento=1)
-        #print(data)
+        crear_dict.crear_dict(sort_params,'tipo_movimiento',1) 
+        data  = conta_m.MovimientoDispositivo.objects.filter(**sort_params)       
         for info in data:
-            print(info.dispositivo.rastreo_dispositivo())
-            lista.append(info.dispositivo.rastreo_dispositivo())        
+            data_resultado= info.dispositivo.rastreo_dispositivo()
+            data_resultado["fecha_ingreso"] = info.fecha            
+            lista.append(data_resultado)        
         return Response(lista)
     
 class InformeRastreoDispositivoView(LoginRequiredMixin, FormView):
