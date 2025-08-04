@@ -651,7 +651,7 @@ class Dispositivo(models.Model):
             resultado["url_escuela"]=salida.escuela.get_absolute_url()
             resultado["codigo"]=salida.escuela.codigo
             resultado["latitud"]= salida.escuela.mapa.lat
-            resultado["logitud"]= salida.escuela.mapa.lng
+            resultado["longitud"]= salida.escuela.mapa.lng
             resultado["url_salida"]=salida.get_absolute_url()
 
         except:

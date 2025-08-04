@@ -2,7 +2,7 @@
 {% load staticfiles %}
 {% load staticfiles has_group %}
 {% block page_title %}
-<title>Informe busqueda desecho </title>
+<title>Informe rastreo de dispositivos </title>
 {% endblock page_title %}
 {% block content %}
 <section class="content">
@@ -11,7 +11,7 @@
 			<!-- Comienza el formulario -->
 		<div class="col-md-3 col-sm-3">
 			<div class="box">
-				<form action="{%url 'informe_rastreo_desecho'%}" id="rastreo-desecho-list-form">
+				<form action="{%url 'informe_rastreo_dispositivo'%}" id="rastreo-dispositivo-list-form">
 					<div class="box-header">
 						<input type="submit" class="btn btn-primary col-md-12" value="Generar Informe" /><br />
 						<h3 class="box-title">Filtros</h3>
@@ -32,33 +32,27 @@
 					<div class="box-header">
 						<div class="row">
 							<div class="col-md-9">
-								<h3 class="box-title">Listado de desecho </h3>
+								<h3 class="box-title">Listado de dispositivos </h3>
 							</div>
 							<div class="col-md-3">
 							</div>
 						</div>
 					</div>
 					<div class="box-body table-responsive ">
-						<table class="table table-datatables table-striped table-hover table-bordered " id="rastreo-table" >
+						<table class="table table-datatables table-striped table-hover table-bordered " id="rastreo-dispo-table" >
 							<thead> 
 								<tr>
-								<th>No. desecho</th>								
-								<th>Fecha desecho</th>								
-								<th>Precio total </th>
-								<th>Tecnico bodega</th>
-								<th>Empresa</th>
-								<th>Cantidad de dispositivos enviados a desecho</th>
-								<th>Tipo dispositivo</th>
-								<th>Descripcion</th>
-								<th>Tecnico encargado dipositivo</th>
-								<th>No. Entrada</th>
-								<th>Tipo entrada</th>								
-								<th>Fecha de la entrada</th>
-								<th>Proveedor del dipositivo</th>
-								<th>Tecnico que recibio</th>
-								<th>No. factura</th>
-								<th>Fecha finalizacion entrada</th>
-								<th>Observaciones</th>
+								<th>Triage</th>								
+								<th>Tipo</th>								
+								<th>Entrada </th>
+								<th>Proyecto</th>
+								<th>Proveedor</th>
+								<th>Etapa</th>
+								<th>Salida</th>
+								<th>Escuela</th>
+								<th>Codigo</th>
+								<th>Latitud</th>
+								<th>Longitud</th>	
 								<th></th>
 								</tr>
 							</thead>
@@ -80,6 +74,6 @@
 {% include "base/dataTables.html" %}
 <script src="{% static "js/extrajs/conta.js" %}"></script>
 <script>
-  let rastreo_desecho = new RastreoDesechoInforme();
+  let rastreo_desecho = new RastreoDispositivoInforme();
 </script>
 {% endblock extra_js %}

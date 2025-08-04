@@ -437,16 +437,16 @@ class RastreoDispositivoInformeForm(forms.Form):
     tipo_dispositivo = forms.ModelChoiceField(
         queryset=inv_m.DispositivoTipo.objects.filter(usa_triage=True),
         label='Tipo de Dispositivo',
-        required=True,
+        required=False,
         widget=forms.Select(attrs={'class': 'form-control select2'}))
 
     fecha_min = forms.CharField(
         label='Fecha (min)',
-        required=True,
+        required=False,
         widget=forms.TextInput(attrs={'class': 'form-control datepicker'}))
     
     fecha_max = forms.CharField(
         label='Fecha (max)',
-        required=True,
+        required=False,
         widget=forms.TextInput(attrs={'class': 'form-control datepicker'}))
                                                                         

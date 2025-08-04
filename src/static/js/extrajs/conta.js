@@ -728,4 +728,55 @@ class Planilla {
   }
 }
 
+class RastreoDispositivoInforme{
+  constructor() {
+  let rastreo_dispositivo_informe = $("#rastreo-dispositivo-list-form");
+  var urlRastreo= $('#rastreo-dispositivo-list-form').attr('action');
+  rastreo_dispositivo_informe.submit(function (e){
+    e.preventDefault();
+    var tablaPrecio = $('#rastreo-dispo-table').DataTable({
+      dom: 'lfrtip',
+      searching:true,
+      paging:false,
+      ordering:true,
+      processing:true,
+      destroy:true,
+      ajax:{
+        url:urlRastreo,
+        dataSrc:'',
+        cache:false,
+        processing:true,
+        data: function () {
+          return $('#rastreo-dispositivo-list-form').serializeObject(true);
+        }
+      },
+      columns: [
+        {data: "triage",render: function(data, type, full, meta){
+          return "<a href="+full.url_dispositivo+">"+full.triage+"</a>";
+        }},
+        {data: "tipo"},
+        {data: "entrada",render: function(data, type, full, meta){
+          return "<a href="+full.url_entrada+">"+full.entrada+"</a>";
+        }},
+        {data: "proyecto"},
+        {data: "proveedor"},
+        {data: "etapa"},
+        {data: "salida",render: function(data, type, full, meta){
+          return "<a href="+full.url_salida+">"+full.salida+"</a>";
+        }},
+        {data: "escuela",render: function(data, type, full, meta){
+          return "<a href="+full.url_escuela+">"+full.escuela+"</a>";
+        }},
+        {data: "codigo"},
+        {data: "latitud"},
+        {data: "longitud"}
+        
 
+      ]
+    });
+    //tablaPrecio.clear().draw();
+    //tablaPrecio.ajax.reload();
+
+  });
+  }
+}

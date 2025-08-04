@@ -2145,11 +2145,26 @@ class RastreoDispositivoContabilidad(views.APIView):
     Solamente cuentan aquellas salidas que han sido cerradas.
     """
     def get(self, request):
-        fecha_inicio = self.request.GET['fecha_min']
-        fecha_fin = self.request.GET['fecha_max']
-        triage = self.request.GET['triage']
-        entrada = self.request.GET['entrada']
-        salida = self.request.GET['salida']
+        try:
+            fecha_inicio = self.request.GET['fecha_min']
+        except:
+            fecha_inicio =0
+        try:
+            fecha_fin = self.request.GET['fecha_max']
+        except:
+            fecha_fin = 0
+        try:    
+            triage = self.request.GET['triage']
+        except:
+            triage = 0
+        try:
+            entrada = self.request.GET['entrada']
+        except:
+            entrada = 0
+        try:
+            salida = self.request.GET['salida']
+        except:
+            salida = 0
         lista = []
         try:
             tipo_dispositivo = []
@@ -2161,16 +2176,17 @@ class RastreoDispositivoContabilidad(views.APIView):
             tipo_dispositivo = 0
 
         sort_params = {}
-        #crear_dict(sort_params,'fecha__lte',fecha_fin)
-        #crear_dict(sort_params,'fecha__gte',fecha_inicio)
-        #crear_dict(sort_params,'dispositivo__triage',triage)
-        #crear_dict(sort_params,'entrada',entrada)
-        #crear_dict(sort_params,'salida',salida)
-        #crear_dict(sort_params,'tipo_dipositivo',tipo_dispositivo)       
+        crear_dict.crear_dict(sort_params,'fecha__lte',fecha_fin)
+        crear_dict.crear_dict(sort_params,'fecha__gte',fecha_inicio)
+        crear_dict.crear_dict(sort_params,'dispositivo__triage',triage)
+        crear_dict.crear_dict(sort_params,'entrada',entrada)
+        crear_dict.crear_dict(sort_params,'salida',salida)
+        crear_dict.crear_dict(sort_params,'dispositivo__tipo__id__in',tipo_dispositivo)
+        crear_dict.crear_dict(sort_params,'tipo_movimiento',1)          
         #altas = conta_m.MovimientoDispositivo.objects.filter(dispositivo__triage=triage,tipo_movimiento=1)
         #bajas = conta_m.MovimientoDispositivo.objects.filter(dispositivo__triage=triage,tipo_movimiento=-1)
-        #data  = conta_m.MovimientoDispositivo.objects.filter(dispositivo__triage=triage,tipo_movimiento=1)
-        data  = conta_m.MovimientoDispositivo.objects.filter(fecha__lte=fecha_fin,fecha__gte=fecha_inicio,tipo_movimiento=1)
+        data  = conta_m.MovimientoDispositivo.objects.filter(**sort_params)
+        #data  = conta_m.MovimientoDispositivo.objects.filter(fecha__lte=fecha_fin,fecha__gte=fecha_inicio,tipo_movimiento=1)
         #print(data)
         for info in data:
             print(info.dispositivo.rastreo_dispositivo())
