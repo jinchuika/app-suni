@@ -630,7 +630,12 @@ class Dispositivo(models.Model):
         resultado["etapa"] =self.etapa.proceso
         resultado["url_dispositivo"] =self.get_absolute_url()
         resultado["url_entrada"] =self.entrada.get_absolute_url()
-        resultado["precio"] = self.entrada_detalle.precio_unitario        
+        resultado["precio"] = self.entrada_detalle.precio_unitario
+        try:
+            alta = conta_m.MovimientoDispositivo.objects.get(dispositivo=self, tipo_movimiento=1)            
+            resultado["fecha_ingreso"] = alta.fecha                       
+        except:
+            resultado["fecha_salida"] = "No tiene"          
         try:
             baja = conta_m.MovimientoDispositivo.objects.get(dispositivo=self, tipo_movimiento=-1)              
             resultado["salida"] = baja.referencia.split()[1]
@@ -647,6 +652,7 @@ class Dispositivo(models.Model):
             resultado["longitud"]= salida.escuela.mapa.lng
             resultado["url_salida"]=salida.get_absolute_url()
             resultado["tipo_salida"]=salida.tipo_salida.nombre
+            resultado["cooperante"]=salida.cooperante.nombre
 
         except:
             resultado["escuela"]="No tiene"
@@ -656,6 +662,7 @@ class Dispositivo(models.Model):
             resultado["longitud"]= "No tiene"
             resultado["url_salida"]="No tiene"
             resultado["tipo_salida"]="No tiene"
+            resultado["cooperante"]="No tiene"
         return resultado
 
     @classmethod

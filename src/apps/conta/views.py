@@ -2184,18 +2184,28 @@ class RastreoDispositivoContabilidad(views.APIView):
         except MultiValueDictKeyError as e:
             proyecto = 0
         sort_params = {}
-        crear_dict.crear_dict(sort_params,'dispositivo__entrada_detalle__proyecto__in',proyecto)
-        crear_dict.crear_dict(sort_params,'fecha__lte',fecha_fin)
-        crear_dict.crear_dict(sort_params,'fecha__gte',fecha_inicio)
-        crear_dict.crear_dict(sort_params,'dispositivo__triage',triage)
-        crear_dict.crear_dict(sort_params,'dispositivo__entrada',entrada)
-        crear_dict.crear_dict(sort_params,'salida',salida)
-        crear_dict.crear_dict(sort_params,'dispositivo__tipo__id__in',tipo_dispositivo)
-        crear_dict.crear_dict(sort_params,'tipo_movimiento',1) 
-        data  = conta_m.MovimientoDispositivo.objects.filter(**sort_params)       
+        #grupos = Grupo.objects.filter(curso__nombre__icontains="NAAT",sede=self).count()
+        if salida == 0:
+            crear_dict.crear_dict(sort_params,'dispositivo__entrada_detalle__proyecto__in',proyecto)
+            crear_dict.crear_dict(sort_params,'fecha__lte',fecha_fin)
+            crear_dict.crear_dict(sort_params,'fecha__gte',fecha_inicio)
+            crear_dict.crear_dict(sort_params,'dispositivo__triage',triage)
+            crear_dict.crear_dict(sort_params,'dispositivo__entrada',entrada)
+            crear_dict.crear_dict(sort_params,'dispositivo__tipo__id__in',tipo_dispositivo)
+            crear_dict.crear_dict(sort_params,'tipo_movimiento',1) 
+            data  = conta_m.MovimientoDispositivo.objects.filter(**sort_params)
+        else:
+            crear_dict.crear_dict(sort_params,'dispositivo__entrada_detalle__proyecto__in',proyecto)
+            crear_dict.crear_dict(sort_params,'fecha__lte',fecha_fin)
+            crear_dict.crear_dict(sort_params,'fecha__gte',fecha_inicio)
+            crear_dict.crear_dict(sort_params,'dispositivo__triage',triage)
+            crear_dict.crear_dict(sort_params,'dispositivo__entrada',entrada)
+            crear_dict.crear_dict(sort_params,'referencia__icontains',salida)
+            crear_dict.crear_dict(sort_params,'dispositivo__tipo__id__in',tipo_dispositivo)
+            crear_dict.crear_dict(sort_params,'tipo_movimiento',-1) 
+            data  = conta_m.MovimientoDispositivo.objects.filter(**sort_params)       
         for info in data:
-            data_resultado= info.dispositivo.rastreo_dispositivo()
-            data_resultado["fecha_ingreso"] = info.fecha            
+            data_resultado= info.dispositivo.rastreo_dispositivo()                       
             lista.append(data_resultado)        
         return Response(lista)
     

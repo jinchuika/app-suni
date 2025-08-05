@@ -434,6 +434,11 @@ class RastreoDispositivoInformeForm(forms.Form):
         label='No. Entrada',
         required=False,
         widget=forms.NumberInput(attrs={'class': 'form-control'}))
+    
+    salida = forms.CharField(
+        label='Salida',
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-control'}))
 
     tipo_dispositivo = forms.ModelChoiceField(
         queryset=inv_m.DispositivoTipo.objects.filter(usa_triage=True),

@@ -785,6 +785,7 @@ class RastreoDispositivoInforme{
           return "<a href="+full.url_salida+">"+full.salida+"</a>";
         }},
         {data: "fecha_salida"},
+        {data: "cooperante"},
         {data: "tipo_salida"},
         {data: "escuela",render: function(data, type, full, meta){
           return "<a href="+full.url_escuela+">"+full.escuela+"</a>";
