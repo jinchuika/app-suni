@@ -484,7 +484,7 @@ class NewListadoMaestroView(TemplateView):
          sedes = []   
          data_certificado = {}
          data_participante = {}  
-         info_participante = cyd_m.Participante.objects.get(dpi=self.request.GET['dpi'])
+         info_participante = cyd_m.Participante.objects.get(dpi=self.request.GET['dpi'],activo=True)
          encuesta = eval_m.AsignacionPregunta.objects.filter(evaluado=info_participante).last()         
          info_asignaciones = cyd_m.Asignacion.objects.filter(participante=info_participante)
          info_notas = 0
@@ -649,7 +649,7 @@ class NuevoDiplomaPdfView(View):
       contador_apellido = participante.apellido.split(" ")
       numero_palabras = len(contador_nombre) + len(contador_apellido)         
       encuesta = eval_m.AsignacionPregunta.objects.filter(evaluado=participante).last()     
-      asignacion = cyd_m.Asignacion.objects.filter(participante=participante).last() 
+      asignacion =  cyd_m.Asignacion.objects.filter(participante=participante).order_by("grupo__sede__fecha_creacion").last()
       fecha_finalizacion = asignacion.grupo.sede.fecha_finalizacion    
       tipo_decifrada = signing.loads(tipo)       
       #Creacion de codigos QR

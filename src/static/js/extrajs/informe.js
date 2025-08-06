@@ -13,11 +13,75 @@ $( "#id_codigo" )
   }).blur(function() {
        $('#boton_enviar').prop('disabled', false);
   });
-
+   var myData = {}
     $('#informe-list-form').submit(function (e) {
             // Evita que se envíe el formulario
-            console.log($('#informe-escuela-form').serializeObject())   
+            //console.log(JSON.stringify($('#informe-escuela-form').serializeArray()))   
             //console.log(JSON.parse($('#informe-escuela-form').serializeObject()))         
+            //console.log($('#informe-escuela-form').serializeArray())
+            var contador_campos_escuela = 0
+            var contador_campos_equipamiento = 0
+            var contador_campos_capacitacion = 0
+            var data_escuela =  $('#informe-escuela-form').serializeArray();
+            var data_equipamiento = $('#informe-equipamiento-form').serializeArray()
+            var data_capacitacion = $('#informe-capacitacion-form').serializeArray()
+            console.log(data_equipamiento);
+            data_escuela.forEach(function(escuela, index){
+              //console.log(`Elemento: ${escuela['value']}, Indice: ${index}`);
+              if (escuela['value'] == ""){
+                contador_campos_escuela++;
+              }
+            });
+            data_equipamiento.forEach(function(equipamiento, index){
+              console.log(`Elemento: ${equipamiento['value']}, Indice: ${index}`);
+              if (equipamiento['value'] == ""){
+                contador_campos_equipamiento++;
+              }
+            });
+            data_capacitacion.forEach(function(capacitacion, index){
+              //console.log(`Elemento: ${capacitacion['value']}, Indice: ${index}`);               
+              if (capacitacion['value'] == ""){
+                contador_campos_capacitacion++;
+              }
+            });
+            if (contador_campos_escuela == data_escuela.length){
+              data_escuela = []
+              data_escuela.push({name:'escuela',value:false});
+              myData["escuela"] = JSON.stringify(data_escuela)
+               //myData["escuela"] = "No"
+            }else{
+              myData["escuela"] = JSON.stringify($('#informe-escuela-form').serializeArray())
+            }
+            console.log(contador_campos_equipamiento);
+              console.log(data_equipamiento.length);
+            if (contador_campos_equipamiento == (data_equipamiento.length-1)){
+              
+              console.log("aca1")
+               data_equipamiento = []
+               data_equipamiento.push({name:'equipada',value:false});
+               myData["equipada"] = JSON.stringify(data_equipamiento)
+            }else{
+              console.log("aca2")
+              myData["equipada"] = JSON.stringify($('#informe-equipamiento-form').serializeArray())
+            }
+            if (contador_campos_capacitacion == (data_capacitacion.length-1)){
+                data_capacitacion = []
+                data_capacitacion.push({name:'capacitada',value:false}); 
+                myData["capacitacion"] = JSON.stringify(data_capacitacion)                
+              //myData["capacitacion"] = "No"
+            }else{
+              myData["capacitacion"] = JSON.stringify($('#informe-capacitacion-form').serializeArray())
+            }
+            //data_escuela.push({name:'si_escuela',value:true});
+            //console.log(data_escuela);
+            /*data_capacitacion.forEach(function(capacitacion, index){
+              console.log(`Elemento: ${capacitacion['value']}, Indice: ${index}`);
+            }) */
+            //console.log($('#informe-capacitacion-form').serializeArray())
+            //console.log($('#informe-equipamiento-form').serializeArray()) 
+            ///myData["escuela"] = JSON.stringify($('#informe-escuela-form').serializeArray())
+            //myData["capacitacion"] = JSON.stringify($('#informe-capacitacion-form').serializeArray())
+            //myData["equipada"] = JSON.stringify($('#informe-equipamiento-form').serializeArray())            
             e.preventDefault();
             var tabla = $('#informe-table').DataTable({
             dom: 'lfrtipB',
@@ -30,13 +94,11 @@ $( "#id_codigo" )
             ajax: {
                 url: $('#informe-list-form').attr('action'),
                 type: "GET",
+                contentType: "application/json",
                 deferRender: true,
                 dataSrc: '',
                 data:  {
-                  csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
-                  escuela:$('#informe-escuela-form').serializeObject(),
-                  capacitacion:$('#informe-capacitacion-form').serializeObject(),
-                  equipada:$('#informe-equipamiento-form').serializeObject()
+                  myData: JSON.stringify(myData),
 
                 }
             },
