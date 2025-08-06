@@ -9,6 +9,11 @@ urlpatterns = [
         informe_views.InformeView.as_view(),
         name="informe"
         ),
+    url(
+        r'^nuevo',
+        informe_views.InformeFinalView.as_view(),
+        name="informe_nuevo"
+        ),
     #  api escuela
     url(
         r'^api/escuela/',

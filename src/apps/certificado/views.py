@@ -649,7 +649,7 @@ class NuevoDiplomaPdfView(View):
       contador_apellido = participante.apellido.split(" ")
       numero_palabras = len(contador_nombre) + len(contador_apellido)         
       encuesta = eval_m.AsignacionPregunta.objects.filter(evaluado=participante).last()     
-      asignacion =  cyd_m.Asignacion.objects.filter(participante=participante).order_by("grupo_sede_fecha_creacion").last()
+      asignacion =  cyd_m.Asignacion.objects.filter(participante=participante).order_by("grupo__sede__fecha_creacion").last()
       fecha_finalizacion = asignacion.grupo.sede.fecha_finalizacion    
       tipo_decifrada = signing.loads(tipo)       
       #Creacion de codigos QR

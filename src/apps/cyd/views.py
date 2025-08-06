@@ -18,6 +18,7 @@ from braces.views import (LoginRequiredMixin, GroupRequiredMixin, JsonRequestRes
 from apps.cyd import forms as cyd_f
 from apps.cyd import models as cyd_m
 from apps.escuela.models import Escuela
+from apps.tpe.models import Equipamiento
 from apps.main.models import Coordenada
 from apps.main import creacion_filtros_informe as crear_dict
 from django.contrib.auth.models import User
@@ -1552,8 +1553,9 @@ class InformeParticipanteCapacitador(views.APIView):
                  sede = cyd_m.Sede.objects.filter(capacitador__id__in=lista_capacitador,fecha_creacion__lte=fecha_max, fecha_creacion__gte=fecha_min)
              else:
                  sede = cyd_m.Sede.objects.filter(capacitador__id__in=capacitador,fecha_creacion__lte=fecha_max, fecha_creacion__gte=fecha_min)
-        for data_participantes in sede:
-            for participante in data_participantes.get_participantes()['listado']:
+        for data_participantes in sede:            
+            donante = Equipamiento.objects.filter(escuela__codigo=data_participantes.escuela_beneficiada.codigo).last() 
+            for participante in data_participantes.get_participantes()['listado']:                
                 conteo_participantes = conteo_participantes + 1
                 if participante['year']==2010:
                     numero = numero +1
@@ -1620,7 +1622,9 @@ class InformeParticipanteCapacitador(views.APIView):
                                 info_participante["rol"] = participante['participante'].rol.nombre
                             except:
                                 info_participante["rol"] = "No tiene"
+                            info_participante["donante"] = [x.nombre for x in donante.cooperante.all()] 
                             listado_participantes.append(info_participante)
+                             
                     else:
                         restante_cascada = restante_cascada + 1 
                 else:
@@ -1686,7 +1690,7 @@ class InformeParticipanteCapacitador(views.APIView):
                          info_participante["rol"] = participante['participante'].rol.nombre
                      except:
                          info_participante["rol"] = "No tiene"
-                         
+                     info_participante["donante"] = [x.nombre for x in donante.cooperante.all()]     
                      listado_participantes.append(info_participante)        
         return Response({"data":listado_participantes,"cascada":restante_cascada},
             status=status.HTTP_200_OK
@@ -1750,6 +1754,7 @@ class InformeParticipantesNaat(views.APIView):
    
         for data in sedes:           
             if data.get_es_naat():
+                donante = Equipamiento.objects.filter(escuela__codigo=data.escuela_beneficiada.codigo).last()                 
                 numero_sedes =  numero_sedes +1 
                 data_resumen = data.get_participantes()['resumen']
                 total_maestros = data_resumen['genero'].aggregate(Sum('cantidad'))
@@ -1812,7 +1817,8 @@ class InformeParticipantesNaat(views.APIView):
                     else:
                         info_participante["fecha_finalizacion"] = "En proceso"
                     info_participante["departamento"] = data.municipio.departamento.nombre 
-                    info_participante["municipio"] = data.municipio.nombre                   
+                    info_participante["municipio"] = data.municipio.nombre
+                    info_participante["donante"] = [x.nombre for x in donante.cooperante.all()]                    
                     listado_participante.append(info_participante)
         informacion_relevante["total_maestros"] = acumulado_total_maestros
         informacion_relevante["total_hombres"] = acumulado_total_hombres
@@ -1821,7 +1827,7 @@ class InformeParticipantesNaat(views.APIView):
         informacion_relevante["total_no_certificados"] = acumulado_total_no_certificados
         informacion_relevante["total_chicos"] = acumulado_total_chicos
         informacion_relevante["total_chicas"] = acumulado_total_chicas
-        informacion_relevante["total_sedes"] =  numero_sedes
+        informacion_relevante["total_sedes"] =  numero_sedes        
         datos_relevantes.append(informacion_relevante)
         return Response(
             {"participantes":listado_participante,"data":datos_relevantes},

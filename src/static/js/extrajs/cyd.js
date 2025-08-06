@@ -3705,7 +3705,8 @@ class NaatInforme{
                         {data: "chicas"},
                         {data: "departamento"},
                         {data: "municipio"},
-                        {data: "capacitador"}
+                        {data: "capacitador"},
+                        {data: "donante"}
                     ],                   
         
                   });
@@ -3986,7 +3987,8 @@ class NaatInforme{
                         {data: "nombre_escuela"},                     
                         {data: "direccion_escuela"},
                         {data: "longitud"},
-                        {data: "latitud"}, 
+                        {data: "latitud"},
+                        {data: "donante"}, 
                     ],
                     
                   });

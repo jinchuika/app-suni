@@ -42,6 +42,7 @@ from django.core.files.storage import FileSystemStorage
 from django.conf import settings
 from openpyxl import load_workbook
 from apps.conta.config import EMAIL_CREDENCIALES
+from apps.main import creacion_filtros_informe as crear_dict
 
 """
     Función que devuelve la existencia y saldo monetario basado en el tipo de dispositivo,
@@ -2137,3 +2138,81 @@ class PlanillaContaView(LoginRequiredMixin,GroupRequiredMixin,FormView):
         context['url']=os.path.join(settings.MEDIA_URL,"planilla/output/Comprobantes.zip")
         return context
 
+#Fin de la planilla de contabilidad
+
+class RastreoDispositivoContabilidad(views.APIView):
+    """ Lista todas los dispositivos  con triage que han sucedido en un rango de fechas,
+    entradas, salidas, proyectos y mas.
+    """
+    def get(self, request):
+        try:
+            fecha_inicio = self.request.GET['fecha_min']
+        except:
+            fecha_inicio =0
+        try:
+            fecha_fin = self.request.GET['fecha_max']
+        except:
+            fecha_fin = 0
+        try:    
+            triage = self.request.GET['triage']
+        except:
+            triage = 0
+        try:
+            entrada = self.request.GET['no_entrada']
+        except:
+            entrada = 0
+        try:
+            salida = self.request.GET['salida']
+        except:
+            salida = 0
+        lista = []
+        try:
+            tipo_dispositivo = []
+            tipo_dispositivo = self.request.GET.getlist('tipo_dispositivo[]')
+            if len(tipo_dispositivo) == 0:
+                tipo = self.request.GET['tipo_dispositivo']
+                tipo_dispositivo.append(tipo)
+        except MultiValueDictKeyError as e:
+            tipo_dispositivo = 0
+        
+        try:
+            proyecto = []
+            proyecto = self.request.GET.getlist('proyecto[]')
+            if len(proyecto) == 0:
+                proyecto_solo = self.request.GET['proyecto']
+                proyecto.append(proyecto_solo)
+        except MultiValueDictKeyError as e:
+            proyecto = 0
+        sort_params = {}
+        if salida == 0:
+            crear_dict.crear_dict(sort_params,'dispositivo__entrada_detalle__proyecto__in',proyecto)
+            crear_dict.crear_dict(sort_params,'fecha__lte',fecha_fin)
+            crear_dict.crear_dict(sort_params,'fecha__gte',fecha_inicio)
+            crear_dict.crear_dict(sort_params,'dispositivo__triage',triage)
+            crear_dict.crear_dict(sort_params,'dispositivo__entrada',entrada)
+            crear_dict.crear_dict(sort_params,'dispositivo__tipo__id__in',tipo_dispositivo)
+            crear_dict.crear_dict(sort_params,'tipo_movimiento',1) 
+            data  = conta_m.MovimientoDispositivo.objects.filter(**sort_params)
+        else:
+            crear_dict.crear_dict(sort_params,'dispositivo__entrada_detalle__proyecto__in',proyecto)
+            crear_dict.crear_dict(sort_params,'fecha__lte',fecha_fin)
+            crear_dict.crear_dict(sort_params,'fecha__gte',fecha_inicio)
+            crear_dict.crear_dict(sort_params,'dispositivo__triage',triage)
+            crear_dict.crear_dict(sort_params,'dispositivo__entrada',entrada)
+            crear_dict.crear_dict(sort_params,'referencia__icontains',salida)
+            crear_dict.crear_dict(sort_params,'dispositivo__tipo__id__in',tipo_dispositivo)
+            crear_dict.crear_dict(sort_params,'tipo_movimiento',-1) 
+            data  = conta_m.MovimientoDispositivo.objects.filter(**sort_params)       
+        for info in data:
+            data_resultado= info.dispositivo.rastreo_dispositivo()                       
+            lista.append(data_resultado)        
+        return Response(lista)
+    
+class InformeRastreoDispositivoView(LoginRequiredMixin, FormView):
+    """ Vista para obtener la informacion de los dispositivos para crear el informe de rastreo mediante un
+    api y el metodo GET  y lo muestra en el template
+    """
+    redirect_unauthenticated_users = True
+    raise_exception = True
+    template_name = "conta/informe_rastreo_dispositivo.html"
+    form_class = conta_f.RastreoDispositivoInformeForm
