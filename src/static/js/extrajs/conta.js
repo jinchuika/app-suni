@@ -790,9 +790,7 @@ class RastreoDispositivoInforme{
         {data: "escuela",render: function(data, type, full, meta){
           return "<a href="+full.url_escuela+">"+full.escuela+"</a>";
         }},
-        {data: "codigo"},
-        {data: "latitud"},
-        {data: "longitud"}
+        {data: "codigo"}
         
 
       ]
