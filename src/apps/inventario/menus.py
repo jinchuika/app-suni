@@ -42,6 +42,13 @@ solicitudes_children = (
         weight=12,
         group="inv_cc,inv_tecnico",
         icon="fa-road",
+    ),    
+    ViewMenuItem(
+        "Util -> Desecho",
+        reverse_lazy('solicitudmovimiento_desecho_add'),
+        weight=12,
+        group="inv_cc,inv_tecnico",
+        icon="fa-recycle",
     ),
 )
 # Dispositivos
@@ -319,7 +326,7 @@ Menu.add_item(
     "user",
     ViewMenuItem(
         "Desecho",
-        reverse_lazy('entrada_list'),
+        reverse_lazy('desechosalida_list'),
         weight=10,
         icon="fa-trash-o",
         group="inv_bodega,inv_monitoreo,inv_sub_jefe",

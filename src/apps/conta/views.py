@@ -325,15 +325,9 @@ class ContabilidadResumenPrint(TemplateView):
             'tipo_dispositivo[]': tipo_dispositivo,
         }
         
-        # --- INICIO DE LA MODIFICACIÓN ---
-
-        # 1. Prepara las cookies para la nueva solicitud.
-        #    Tomamos la cookie 'sessionid' de la petición original del navegador.
         cookies = {}
         if 'sessionid' in request.COOKIES:
             cookies['sessionid'] = request.COOKIES['sessionid']
-            
-        # --- FIN DE LA MODIFICACIÓN ---
 
         context = {
             'params': params,
@@ -342,12 +336,10 @@ class ContabilidadResumenPrint(TemplateView):
         }
 
         try:
-            # 2. Añade el diccionario de cookies a tu llamada de requests
             response = requests.get(url=api_url, params=params, cookies=cookies)
             
             if response.status_code == 200:
                 context['datos_api'] = response.json()
-            # Manejar el caso en que la autenticación falle incluso con la cookie
             elif response.status_code == 401:
                 context['error'] = "Error de autenticación (401). La sesión podría ser inválida."
             else:

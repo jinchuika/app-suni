@@ -13,7 +13,16 @@ class DonanteForm(forms.ModelForm):
         model = crm_m.Donante
         fields = '__all__'
         widgets = {
-            'fax': forms.NumberInput(attrs={'class': 'form-control', 'step': '1'})
+            'nombre': forms.TextInput(attrs={'class': 'form-control'}),
+            'fax': forms.NumberInput(attrs={'class': 'form-control', 'step': '1'}),  
+            'pagina_web': forms.URLInput(attrs={'class': 'form-control'}),
+            'direccion': forms.TextInput(attrs={'class': 'form-control'}),
+            'referido': forms.TextInput(attrs={'class': 'form-control'}),
+            'comentario': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'tipo_donante': forms.Select(attrs={'class': 'form-control select2'}),
+            'nit': forms.TextInput(attrs={'class': 'form-control'}),
+            'genero': forms.Select(attrs={'class': 'form-control select2'}),
+            'tratamiento': forms.Select(attrs={'class': 'form-control select2'}),
         }
         exclude = ['creado_por']
 

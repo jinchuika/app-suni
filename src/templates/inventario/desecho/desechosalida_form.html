@@ -108,6 +108,7 @@
         <!--Fin de Entrada-->
           {%if  form.instance.id%}
           {% if request.user|has_group:"inv_bodega" or request.user|has_group:"inv_admin" %}
+            {% if form.instance.revision_sub_jefe == False %}
           <div class="box">
               <div class="box-header">
                 <div class="box-title">
@@ -128,6 +129,18 @@
                 {%include "inventario/desecho/desechodispositivo_add.html"%}
               </div>
           </div>
+          
+          <div class="box">
+              <div class="box-header">
+                <div class="box-title">
+                      <h3><b>Agregar Dispositivo de Solicitudes de Desecho</b></h3>
+                </div>
+              </div>
+              <div class="box-body">
+                {%include "inventario/desecho/desechosolicitud_add.html"%}
+              </div>
+          </div>
+          {%endif%}
           {%endif%}
           {%endif%}
       </div>
@@ -136,7 +149,7 @@
         <div class="box">
             <div class="box-header">
               <div class="box-title">
-                    <h3><b>Desechos Por Entrada</b></h3>
+                    <h3><b>Desechos por entrada</b></h3>
                     {% if request.user|has_group:"inv_sub_jefe" and not form.instance.revision_sub_jefe %}
                       <input id="btn-sub" type="submit" class="btn btn-warning" value="Aprobar" />
                     {%endif%}
@@ -164,7 +177,7 @@
         <div class="box">
             <div class="box-header">
               <div class="box-title">
-                    <h3><b>Desechos de Dispositivos</b></h3>
+                    <h3><b>Desechos de dispositivos</b></h3>
               </div>
             </div>
             <div class="box-body">
@@ -173,6 +186,27 @@
                   <tr>
                     <th>Triage</th>
                     <th>Tipo</th>
+                    <th></th>
+                    <th></th>
+                  </tr>
+                </thead>
+              </table>
+            </div>
+        </div>
+         <!---->
+        <div class="box">
+            <div class="box-header">
+              <div class="box-title">
+                    <h3><b>Desechos de dispositivos por solicitud</b></h3>
+              </div>
+            </div>
+            <div class="box-body">
+              <table id="solicitud-desecho-table" class="table table-condensed" data-api="{% url 'inventario_api:api_desechosolicitud-list' %}" data-apiaprobar="{% url 'inventario_api:api_desechosolicitud-aprobar-dispositivo' %}" data-apirechazar="{% url 'inventario_api:api_desechosolicitud-rechazar-dispositivo' %}">
+                <thead>
+                  <tr>
+                    <th>Triage</th>
+                    <th>Tipo</th>
+                    <th>Motivo</th>
                     <th></th>
                     <th></th>
                   </tr>
@@ -196,4 +230,5 @@
 <script>
   SalidaDetalleList.init();
 </script>
+
 {% endblock extra_js %}

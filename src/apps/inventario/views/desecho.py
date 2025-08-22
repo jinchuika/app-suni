@@ -8,6 +8,9 @@ from apps.inventario import forms as inv_f
 from django.db.models import Sum
 from rest_framework import status, views
 from rest_framework.response import Response
+from django.db.models import Q
+from apps.kardex import models as kax_m
+from apps.conta import models as conta_m
 class DesechoEmpresaCreateView(LoginRequiredMixin, CreateView, GroupRequiredMixin):
     """Vista   para obtener los datos de Entrada mediante una :class:`DesechoEmpresa`
     Funciona  para recibir los datos de un  'DesechoEmpresaForm' mediante el metodo  POST.  y
@@ -85,8 +88,20 @@ class DesechoSalidaDetailView(LoginRequiredMixin, DetailView, GroupRequiredMixin
 
     def get_context_data(self, **kwargs):
         context = super(DesechoSalidaDetailView, self).get_context_data(**kwargs)
+
+
+        desecho_solicitud = []
+        dispositivo_solicitud = inv_m.DesechoSolicitud.objects.filter(desecho=self.object.id, aprobado=True)
+        for solicitud in dispositivo_solicitud:
+            motivo = inv_m.CambioEtapa.objects.filter(dispositivo=solicitud.dispositivo).first()
+            desecho_solicitud.append({
+                'dispositivo': solicitud.dispositivo,
+                'motivo': motivo.motivo,
+            })
+
         context['desechodetalles'] = inv_m.DesechoDetalle.objects.filter(desecho=self.object.id)
         context['desechodispositivo'] = inv_m.DesechoDispositivo.objects.filter(desecho=self.object.id)
+        context['desechosolicitud'] = desecho_solicitud
         return context
 
 
@@ -102,6 +117,7 @@ class DesechoSalidaUpdateView(LoginRequiredMixin, UpdateView, GroupRequiredMixin
         context = super(DesechoSalidaUpdateView, self).get_context_data(**kwargs)
         context['DesechoDetalleForm'] = inv_f.DesechoDetalleForm(initial={'desecho': self.object})
         context['DesechoDispositivoForm'] = inv_f.DesechoDispositivoForm(initial={'desecho': self.object})
+        context['DesechoSolicitudForm'] = inv_f.DesechoSolicitudForm(initial={'desecho': self.object})
         return context
 
     def get_success_url(self):
@@ -119,12 +135,14 @@ class DesechoSalidaPrintView(LoginRequiredMixin, DetailView, GroupRequiredMixin)
         context = super(DesechoSalidaPrintView, self).get_context_data(**kwargs)
         context['desechodetalles'] = inv_m.DesechoDetalle.objects.filter(desecho=self.object.id)
         context['desechodispositivo'] = inv_m.DesechoDispositivo.objects.filter(desecho=self.object.id)
+        context['desechosolicitud'] = inv_m.DesechoSolicitud.objects.filter(desecho=self.object.id, aprobado=True)
         total_detalles = inv_m.DesechoDetalle.objects.filter(
                 desecho=self.object.id).aggregate(total_util=Sum('cantidad'))        
         if total_detalles['total_util'] is None:
             total_detalles['total_util'] = 0
-        total_dispositivo = inv_m.DesechoDispositivo.objects.filter(desecho=self.object.id).count()        
-        cantidad_total = total_dispositivo + total_detalles['total_util']
+        total_dispositivo = inv_m.DesechoDispositivo.objects.filter(desecho=self.object.id).count()
+        total_dispo_solicitudes =  + inv_m.DesechoSolicitud.objects.filter(desecho=self.object.id, aprobado=True).count()
+        cantidad_total = total_dispositivo + total_dispo_solicitudes + total_detalles['total_util']
         context['cantidad_total'] = cantidad_total
         return context
 
@@ -172,3 +190,30 @@ class ValidacionesDesechoJson(views.APIView):
                 },
                 status=status.HTTP_200_OK
             )
+
+
+class SolicitudMovimientoDesechoCreateView(LoginRequiredMixin, CreateView):
+    """ Crea la solicitud de movimiento de dispositivos que pasan de util a desecho.
+    Funciona  para recibir los datos de un  'SolicitudMovimientoCreateForm' mediante el metodo  POST.  y
+    nos muestra el template de visitas mediante el metodo GET.
+    """
+    model = inv_m.SolicitudMovimiento
+    template_name = 'inventario/desecho/solicitudmovimientodesecho_add.html'
+    form_class = inv_f.SolicitudMovimientoDesechoCreateForm
+    group_required = [u"inv_cc", u"inv_admin", u"inv_tecnico", u"inv_bodega"]
+
+    def form_valid(self, form):
+        tipo_dispositivo = form.cleaned_data['tipo_dispositivo']
+        form.instance.creada_por = self.request.user
+
+        return super(SolicitudMovimientoDesechoCreateView, self).form_valid(form)
+
+    def get_initial(self):
+        return {
+            'fecha_creacion': None
+        }
+
+    def get_form(self, form_class=None):
+        form = super(SolicitudMovimientoDesechoCreateView, self).get_form(form_class)
+        form.fields['tipo_dispositivo'].queryset = self.request.user.tipos_dispositivos.tipos.filter(Q(usa_triage=True) | Q(kardex=True))
+        return form

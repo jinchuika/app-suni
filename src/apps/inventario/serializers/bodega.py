@@ -66,14 +66,14 @@ class DispositivoSerializer(serializers.ModelSerializer):
             return ""
     
     def get_etapa(self, obj):
-        #try:
+        try:
             if obj.etapa.id == 7:
                 asignado = inv_m.IInternoDispositivo.objects.filter(dispositivo=obj).last()
                 return '{etapa}, {asignado}'.format(etapa= obj.etapa, asignado = asignado.no_asignacion.colaborador_asignado.get_full_name())
             else: 
                 return str(obj.etapa)
-        # except:
-        #     return "None"
+        except:
+            return "None"
 
 
 

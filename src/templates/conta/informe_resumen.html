@@ -37,12 +37,12 @@
                         </div>
                     </div>
 					{% if request.user|has_group:"inv_admin" %}
-						<form method="post" action="{% url 'contabilidad_resumen_print' %}" id="form-print">
+						<form method="post" action="{% url 'contabilidad_resumen_print' %}" id="form-print" target="_blank">
 							{% csrf_token %}
 							<input type="hidden" name="fecha_min" id="fecha_min_hidden">
 							<input type="hidden" name="fecha_max" id="fecha_max_hidden">
 							<div id="tipo_dispositivo_hidden_container"></div>
-							<button type="submit" class="btn btn-success form-control">Imprimir</button>
+							<button type="submit" class="btn btn-success form-control" style="width:15%; margin:3%;">Imprimir</button>
 						</form>
 					{% endif %}
 
@@ -100,15 +100,12 @@
 		const formFiltros = document.getElementById('precioestandar-list-form');
 		const formData = new FormData(formFiltros);
 
-		// Copiar fechas
 		document.getElementById('fecha_min_hidden').value = formData.get('fecha_min');
 		document.getElementById('fecha_max_hidden').value = formData.get('fecha_max');
 
-		// Limpiar inputs anteriores del contenedor
 		const container = document.getElementById('tipo_dispositivo_hidden_container');
 		container.innerHTML = '';
 
-		// Obtener todos los valores seleccionados del select multiple
 		const select = document.getElementById('id_tipo_dispositivo');
 		const selectedOptions = Array.from(select.selectedOptions);
 

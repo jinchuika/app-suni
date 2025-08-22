@@ -748,7 +748,6 @@ class TabletPrintView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
             total_cargadores_mostrar += Total_Cargador_grande['cargadores']
         if Total_Cable_Cargador['cargadores'] != None:
             total_cargadores_mostrar += Total_Cable_Cargador['cargadores']
-        print("Total Cargadores: ", total_cargadores_mostrar)
         context['Cargador'] = total_cargadores_mostrar
         context['Descripcion'] = "Cargadores"
         return context
