@@ -199,6 +199,13 @@ contabilidad_children = (
         group="inv_conta,inv_admin,conta_planilla",
         icon="fa-address-card ",
     ),
+    ViewMenuItem(
+        "Rastreo dispositivo",
+        reverse_lazy('informe_dispositivo_rastreo'),
+        weight=12,
+        group="inv_conta,inv_admin",
+        icon="fa fa-binoculars",
+    ),
     
 )
 

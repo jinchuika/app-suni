@@ -154,6 +154,7 @@ urlpatterns = [
     conta_v.RastreoDispositivoContabilidad.as_view(),
     name='informe_rastreo_dispositivo'
    ),
+# vista de rastreo de dispositivos
  url(
     r'^informe/dispositivos/rastreo/$',
     conta_v.InformeRastreoDispositivoView.as_view(),

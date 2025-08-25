@@ -2141,8 +2141,8 @@ class PlanillaContaView(LoginRequiredMixin,GroupRequiredMixin,FormView):
 #Fin de la planilla de contabilidad
 
 class RastreoDispositivoContabilidad(views.APIView):
-    """ Lista todas las salidas de desecho con triage que han sucedido en un rango de fechas,
-    Solamente cuentan aquellas salidas que han sido cerradas.
+    """ Lista todas los dispositivos  con triage que han sucedido en un rango de fechas,
+    entradas, salidas, proyectos y mas.
     """
     def get(self, request):
         try:
@@ -2209,8 +2209,8 @@ class RastreoDispositivoContabilidad(views.APIView):
         return Response(lista)
     
 class InformeRastreoDispositivoView(LoginRequiredMixin, FormView):
-    """ Vista para obtener la informacion de los participantes para crear el informe de existencia mediante un
-    api mediante el metodo GET  y lo muestra en el tempalte
+    """ Vista para obtener la informacion de los dispositivos para crear el informe de rastreo mediante un
+    api y el metodo GET  y lo muestra en el template
     """
     redirect_unauthenticated_users = True
     raise_exception = True
