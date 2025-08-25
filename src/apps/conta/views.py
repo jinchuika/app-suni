@@ -2184,7 +2184,6 @@ class RastreoDispositivoContabilidad(views.APIView):
         except MultiValueDictKeyError as e:
             proyecto = 0
         sort_params = {}
-        #grupos = Grupo.objects.filter(curso__nombre__icontains="NAAT",sede=self).count()
         if salida == 0:
             crear_dict.crear_dict(sort_params,'dispositivo__entrada_detalle__proyecto__in',proyecto)
             crear_dict.crear_dict(sort_params,'fecha__lte',fecha_fin)

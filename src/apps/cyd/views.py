@@ -1774,8 +1774,8 @@ class InformeParticipantesNaat(views.APIView):
                     acumulado_total_mujeres = acumulado_total_mujeres + 0
 
                 acumulado_total_certificados = acumulado_total_certificados  + data_resumen['estado']['aprobado']['cantidad']
-                acumulado_total_no_certificados = acumulado_total_no_certificados + data_resumen['estado']['reprobado']['cantidad']
-                for data_participante in data.get_participantes()['listado']:
+                acumulado_total_no_certificados = acumulado_total_no_certificados + data_resumen['estado']['reprobado']['cantidad']                              
+                for data_participante in data.get_participantes()['listado']:                    
                     info_participante = {}
                     conteo_participantes = conteo_participantes + 1                   
                     acumulado_total_chicos = acumulado_total_chicos + data_participante['participante'].chicos 
@@ -1798,7 +1798,7 @@ class InformeParticipantesNaat(views.APIView):
                         info_participante["tel_casa"]="No tiene"
 
                     if data_participante['participante'].tel_movil is not None: 
-                        info_participante["tel_movil"]=data_participante['participante'].tel_movil
+                        info_participante["tel_movil"]=data_participante['participante'].tel_movil                    
                     else:
                         info_participante["tel_movil"]="No tiene"
                     info_participante["chicos"]=data_participante['participante'].chicos
@@ -1810,15 +1810,24 @@ class InformeParticipantesNaat(views.APIView):
                     if data.finalizada:
                                      info_participante["estado_sede"] = "Finalizada"
                     else:
-                         info_participante["estado_sede"] = "En proceso"
+                         if data.fecha_creacion.date().year<=2023:
+                            info_participante["estado_sede"] = "Finalizada"
+                         else:
+                             info_participante["estado_sede"] = "En proceso"
 
                     if data.fecha_finalizacion is not None:
                         info_participante["fecha_finalizacion"] = data.fecha_finalizacion.date()
                     else:
-                        info_participante["fecha_finalizacion"] = "En proceso"
+                        info_participante["fecha_finalizacion"] = data.fecha_creacion.date()
+
+                    if data.fecha_creacion is not None:
+                        info_participante["fecha_creacion"] = data.fecha_creacion.date()                    
                     info_participante["departamento"] = data.municipio.departamento.nombre 
                     info_participante["municipio"] = data.municipio.nombre
-                    info_participante["donante"] = [x.nombre for x in donante.cooperante.all()]                    
+                    try:
+                        info_participante["donante"] = [x.nombre for x in donante.cooperante.all()]                    
+                    except:
+                        info_participante["donante"] = "No tiene"
                     listado_participante.append(info_participante)
         informacion_relevante["total_maestros"] = acumulado_total_maestros
         informacion_relevante["total_hombres"] = acumulado_total_hombres
