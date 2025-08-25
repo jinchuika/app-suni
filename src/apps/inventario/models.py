@@ -639,10 +639,12 @@ class Dispositivo(models.Model):
         try:
             baja = conta_m.MovimientoDispositivo.objects.get(dispositivo=self, tipo_movimiento=-1)              
             resultado["salida"] = baja.referencia.split()[1]
-            resultado["fecha_salida"] = baja.fecha                      
+            resultado["fecha_salida"] = baja.fecha
+            resultado["precio_salida"] = baja.precio                          
         except:
             resultado['salida']="No tiene"
-            resultado["fecha_salida"] = "No tiene"             
+            resultado["fecha_salida"] = "No tiene"
+            resultado["precio_salida"] = "No tiene"              
         try:
             salida= SalidaInventario.objects.get(no_salida=baja.referencia.split()[1])    
             resultado["escuela"]=salida.escuela.nombre
