@@ -3058,6 +3058,7 @@ class informeCapacitadores{
                 {data: "chicos"},
                 {data: "chicas"},
                 {data: "fecha"},
+                {data: "capacitador"},
             ],
             footerCallback: function( tfoot, data, start, end, display){
                 for (var i in data){
@@ -3670,36 +3671,64 @@ class NuevoinformeListadoEscuela{
 /************************************************ */
 class NaatInforme{
     constructor(){
-      $('#informe-naat-table').submit(function (e) {
-              e.preventDefault();
-           var tablaDispositivos = $('#informe-naat-table').DataTable({
-                dom: 'lfrtipB',
-                destroy:true,
-                buttons: ['excel', 'pdf'],
-                processing: true,
-                deferLoading: [0],
-                ajax: {
-                    type: 'GET',
-                    url: $('#informe-naat-table').data('url'),
-                    deferRender: true,
-                    dataSrc: '',
-                    cache: true,
-
-                },
-                columns:[
-                    {data: "Numero",render: function(data, type , full, meta){
-                        return "<a target='_blank' href="+full.url+">"+data+"</a>";
-                    }},                    
-                    {data: "Nombre"},
-                    {data: "Apellido"},
-                    {data: "Escuela"},
-
-                ]
-
-              });
-              tablaDispositivos.clear().draw();
-
-            }); 
+        $('#naat-list-form').submit(function (e) {
+          e.preventDefault();
+          $.get(
+            $('#naat-list-form').attr('action'), 
+            $('#naat-list-form').serializeObject(true)
+            ).then(function (response){
+                var tablainformeNaat = $('#informe-naat-table').DataTable({                              
+                    dom: 'lfrtipB',
+                    destroy:true,
+                    buttons: ['excel', {extend:'pdf', orientation:'landscape'}],
+                    processing: true,
+                    deferLoading: [0],
+                    pageLength: 100,
+                    data:response.participantes,                  
+                    columns:[
+                        {data: "numero",render: function(data, type , full, meta){
+                            return "<a href="+full.url+">"+full.numero+"</a>";
+                        }},
+                        {data: "nombre"},
+                        {data: "apellido"},                                                 
+                        {data: "dpi"},
+                        {data: "mail"},
+                        {data: "tel_casa"},
+                        {data: "tel_movil"},
+                        {data: "genero"},
+                        {data: "nota"},
+                        {data: "sede"},
+                        {data: "estado_sede"},
+                        {data: "fecha_creacion"},
+                        {data: "fecha_finalizacion"},    
+                        {data: "escuela"},                        
+                        {data: "nombre_escuela"}, 
+                        {data: "chicos"},
+                        {data: "chicas"},
+                        {data: "departamento"},
+                        {data: "municipio"},
+                        {data: "capacitador"},
+                        {data: "donante"}
+                    ],                   
+        
+                  });
+            /*** */
+            $("#sedes").text(response.data[0].total_sedes);
+            $("#total_docentes").text(response.data[0].total_maestros);
+            $("#docentes_hombres").text(response.data[0].total_hombres);
+            $("#docentes_mujeres").text(response.data[0].total_mujeres);
+            $("#docentes_certificados").text(response.data[0].total_certificados);
+            $("#docentes_no_certificados").text(response.data[0].total_no_certificados);
+            $("#chicos").text(response.data[0].total_chicos);
+            $("#chicas").text(response.data[0].total_chicas);
+            $('#spinner').hide();   
+            /** */      
+          },function(response){
+            alert("Error al cargar los  datos");
+          });
+  
+            });
+       
     }
   }
 
@@ -3875,10 +3904,13 @@ class NaatInforme{
                         }},
                         {data: "nombre"},
                         {data: "apellido"},
-                        {data: "escuela"},
+                        {data: "escuela"},                        
+                        {data: "nombre_escuela"},
+                        {data: "rol"},                        
+                        {data: "direccion_escuela"},                        
+                        {data: "curso"},
                         {data: "dpi"},
-                        {data: "genero"},
-                        
+                        {data: "genero"},                        
                         {data: "mail"},
                         {data: "tel_casa",render: function(data, type,full, meta){
                           if(full.tel_casa=="No tiene"){
@@ -3895,11 +3927,74 @@ class NaatInforme{
                         {data: "chicas"},
                         {data: "nota"},
                         {data: "capacitador"},
-        
+                        {data: "longitud"},
+                        {data: "latitud"}, 
                     ],
-        
+                    
                   });
-            
+                  $('#spinner').hide();
+    
+          },function(response){
+            alert("Error al crear datos");
+          });
+  
+            });
+  
+    }
+  }
+
+  class informeSoloParticipantes{
+    constructor(){
+      $('#informe-capacitador-list-form').submit(function (e) {
+          e.preventDefault();
+          $.post(
+            $('#informe-capacitador-list-form').attr('action'), 
+            $('#informe-capacitador-list-form').serializeObject(true)
+            ).then(function (response){
+                
+                var tablaDispositivos = $('#informe-capacitador-table-search').DataTable({
+                    footerCallback: function( tfoot, data, start, end, display){
+                        if(response.cascada>0){
+                            $(tfoot).find('th').eq(0).html("CAPACITACION EN CASCADA: ");
+                            $(tfoot).find('th').eq(1).html(response.cascada);
+                        }                        
+                      },            
+                    dom: 'lfrtipB',
+                    destroy:true,
+                    buttons: ['excel', {extend:'pdf', orientation:'landscape'}],
+                    processing: true,
+                    deferLoading: [0],
+                    pageLength: 100,
+                    data:response.data,                  
+                    columns:[
+                        {data: "numero",render: function(data, type , full, meta){
+                            return "<a href="+full.url+">"+full.numero+"</a>";
+                        }},
+                        {data: "nombre"},
+                        {data: "apellido"},
+                        {data: "dpi"},                                                
+                        {data: "mail"},
+                        {data: "tel_casa",render: function(data, type,full, meta){
+                            if(full.tel_casa=="No tiene"){
+                                return full.tel_movil
+                            }else{
+                                return full.tel_casa
+                            }
+                        }},                        
+                        {data: "rol"},                        
+                        {data: "grado_impartido"},                                                
+                        {data: "curso"},                        
+                        {data: "nota"},   
+                        {data: "escuela"},                        
+                        {data: "nombre_escuela"},                     
+                        {data: "direccion_escuela"},
+                        {data: "longitud"},
+                        {data: "latitud"},
+                        {data: "donante"}, 
+                    ],
+                    
+                  });
+                  $('#spinner').hide();
     
           },function(response){
             alert("Error al crear datos");

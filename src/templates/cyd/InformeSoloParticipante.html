@@ -1,10 +1,10 @@
 {% extends "base/base.html" %}
 {% load staticfiles widget_tweaks %}
 {% block page_title %}
-<title>Informe participantes por capacitador</title>
+<title>Informe participantes</title>
 {% endblock page_title %} {% block content %}
 <section class="content-header">
-	<h1>Informe participantes por capacitador</h1>
+	<h1>Informe participantes</h1>
 </section>
 <section class="content">
 	<div class="container-fluid">
@@ -45,25 +45,19 @@
 									<th>No</th>
 									<th>Nombre</th>
 									<th>Apellido</th>
-									<th>Establecimiento</th>
-									<th>Escuela</th>
-									<th>Rol</th>
-									<th>Direccion</th>
-									<th>Curso</th>
-									<th>DPI</th>
-									<th>Genero</th>
-									<th>E-mail</th>
-									<th>Teléfono</th>
-									<th>Escolaridad</th>
-									<th>Etnia</th>
-									<th>Profesion</th>
-									<th>Grado impartido</th>
-									<th>Niños</th>
-									<th>Niñas</th>
+									<th>DPI</th>									
+									<th>E-mail</th>									
+									<th>Teléfono</th>									
+									<th>Rol</th>									
+									<th>Grado impartido</th>									
+									<th>Curso asignado</th>									
 									<th>Nota</th>
-									<th>Capacitador</th>
+									<th>Código Establecimiento</th>
+									<th>Escuela</th>
+									<th>Dirección</th>
 									<th>Latitud</th>
-									<th>Longitud</th>
+									<th>Longitud</th>									
+									<th>Donante</th>
 								</tr>
 							</thead>
 							<tbody id="informe-capacitador-table-search-body">
@@ -85,6 +79,6 @@
 {% include "base/dataTables.html" %}
 <script src="{% static "js/extrajs/cyd.js" %}"></script>
 <script>
-	var  nuevo = new informeCapacitadorParticipantes();
+	var  nuevo = new informeSoloParticipantes();
 </script>
 {% endblock extra_js %}

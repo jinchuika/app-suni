@@ -22,7 +22,7 @@ from django.db.models import Sum
 from django.db.models import Q
 from django.core.exceptions import ObjectDoesNotExist, FieldError
 from django.utils.datastructures import MultiValueDictKeyError
-
+from django.db.models import Count
 # Create your views here.
 class InformeView(FormView):
     """ Vista  encargada de obtener los filtros necesarios para poder  obterner la informacion
@@ -32,35 +32,20 @@ class InformeView(FormView):
 
 class ConsultaEscuelaApi(views.APIView):
     """Apir para la creacion de cursos"""
-    def get(self, request):
-        total_hombre=0
-        total_mujeres=0
-        total_aprobados=0
-        filtros= self.request.GET
-        queryset=escuela_m.Escuela.objects.distinct()
-        queryset2=tpe_m.Equipamiento.objects.distinct()
-        queryset3=cyd_m.Sede.objects.distinct()
-        datos_enviar=[]
-        bandera_filtro_equipada=0
-        bandera_filtro_capacitada =0
-        bandera_filtro =0
-        bandera_filtro_prueba=0
-        valor_filtro_equipada=0
-        valor_filtro_capacitada=0
-        valor_filtro_combinado=0
-        valor_filtro=0
-        try:
-            validar_filtro_equipada = self.request.GET['equipada']
-            bandera_filtro_equipada = 1
-            bandera_filtro_prueba = bandera_filtro_prueba +1
-        except Exception as e:
-            try:
-                validar_filtro_capacitada = self.request.GET['capacitada']
-                bandera_filtro_capacitada =2
-                bandera_filtro_prueba = bandera_filtro_prueba +2
-            except Exception as e:
-                bandera_filtro = 3
-                bandera_filtro_prueba = bandera_filtro + 3
+    def get(self, request):        
+        datos_enviar = []
+        elegir_filtros = {}
+        filtros_usar = {}
+        contador_filtros = 0
+        filtros_aplicar =""
+        data = json.loads(self.request.GET["myData"]) 
+        data_escuela = json.loads(data.get("escuela"))
+        data_equipamiento = json.loads(data.get("equipada"))
+        data_capacitada = json.loads(data.get("capacitacion"))
+        elegir_filtros["escuela"] = len(data_escuela)
+        elegir_filtros["equipamiento"] = len(data_equipamiento)
+        elegir_filtros["capacitada"] = len(data_capacitada)
+        viene_equipada = False       
         filter_list = {
             'codigo': 'codigo',
             'nombre': 'nombre__icontains',
@@ -73,1019 +58,284 @@ class ConsultaEscuelaApi(views.APIView):
             'proyecto_tpe': 'proyecto',
             'fecha_min_capacitacion': 'fecha_creacion__gte',
             'fecha_max_capacitacion': 'fecha_creacion__lte',
-        }
-        filter_clauses = None
-        for key, filtro in filter_list.items():
-            if filtros.get(key):
-                q = Q(**{"%s" % filtro: filtros.get(key)})
-                if filter_clauses:
-                    filter_clauses = filter_clauses & q
-                else:
-                    filter_clauses = q
-        if filter_clauses:
-            #validaciones de filtros
-            if(filtros.get("capacitada")):
-                if(filtros.get("equipada")):
-                    valor_filtro_combinado=1
-                else:
-                    valor_filtro_capacitada=1
-            elif(filtros.get("equipada")):
-                valor_filtro_equipada=1
-            #seleccion de query
-            if valor_filtro_equipada == 1:
-                if filtros.get("equipada")=='True':                    
-                    try:
-                        for data in queryset.filter(filter_clauses):
-                            if not data.datos_equipamiento() is None:
-                                datos_recolectar={}
-                                datos_recolectar["Equipada"]=True
-                                datos_recolectar["Udi"]=data.codigo
-                                datos_recolectar["Nombre"]=data.nombre
-                                datos_recolectar["Direccion"]=data.direccion
-                                datos_recolectar["Departamento"]=data.municipio.departamento.nombre
-                                datos_recolectar["Municipio"]=data.municipio.nombre
-                                datos_recolectar["escuela_url"]=data.get_absolute_url()
-                                datos_recolectar["Ninos_beneficiados"]=data.poblacion
-                                datos_recolectar["Docentes"]=data.maestros
-                                datos_recolectar["Fecha_equipamiento"]=data.datos_equipamiento().fecha
-                                datos_recolectar["No_equipamiento"]=str(data.datos_equipamiento().id)
-                                datos_recolectar["Donante"]=str(data.datos_equipamiento().cooperante.all().last())
-                                datos_recolectar["Proyecto"]=str(data.datos_equipamiento().proyecto.all().last())
-                                datos_recolectar["Equipo_entregado"]=data.datos_equipamiento().cantidad_equipo
-                                if data.capacitacion["capacitada"]== True:
-                                    for  data_sede in data.get_sedes():
-                                        capacitador = data_sede.capacitador.get_full_name()
-                                        fecha_creacion =data_sede.fecha_creacion.date()
-                                    datos_recolectar["Capacitada"]=True
-                                    grupo=cyd_m.Grupo.objects.filter(sede=data.get_sedes())
-                                    for datos in grupo:
-                                        total_hombre = total_hombre + datos.get_hombres()
-                                        total_mujeres = total_mujeres + datos.get_mujeres()
-                                        total_aprobados= total_aprobados +datos.count_aprobados()
-                                    maestros_desertores=cyd_m.Asignacion.objects.filter(grupo__sede=data.get_sedes(),abandono=True).count()
-                                    datos_recolectar["Capacitador"]=capacitador
-                                    datos_recolectar["Fecha_capacitacion"]=fecha_creacion
-                                    datos_recolectar["Capacitador"]=capacitador
-                                    datos_recolectar["Maestros_capacitados"]= total_hombre + total_mujeres
-                                    datos_recolectar["Maestros_promovidos"]=total_aprobados
-                                    datos_recolectar["Maestros_no_promovidos"]=(total_mujeres + total_hombre) - total_aprobados
-                                    datos_recolectar["Maestros_desertores"]=maestros_desertores
-                                else:
-                                    datos_recolectar["Capacitada"]=False
-                                    datos_recolectar["Fecha_capacitacion"]="No tiene"
-                                    datos_recolectar["Capacitador"]="No tiene"
-                                    datos_recolectar["Maestros_capacitados"]= 0
-                                    datos_recolectar["Maestros_promovidos"]=0
-                                    datos_recolectar["Maestros_no_promovidos"]=0
-                                    datos_recolectar["Maestros_desertores"]=0
-                                datos_enviar.append(datos_recolectar)
-                    except Exception as e:
-                        for data in queryset2.filter(filter_clauses):
-                            datos_recolectar={}
-                            datos_recolectar["Udi"]=data.escuela.codigo
-                            datos_recolectar["Nombre"]=data.escuela.nombre
-                            datos_recolectar["Direccion"]=data.escuela.direccion
-                            datos_recolectar["Departamento"]=data.escuela.municipio.departamento.nombre
-                            datos_recolectar["Municipio"]=data.escuela.municipio.nombre
-                            datos_recolectar["escuela_url"]=data.escuela.get_absolute_url()
-                            try:
-                                poblacion =  escuela_m.EscPoblacion.objects.filter(escuela__codigo=data.escuela.codigo).last()
-                                datos_recolectar["Ninos_beneficiados"]=poblacion.total_alumno
-                                datos_recolectar["Docentes"]=poblacion.total_maestro
-                            except Exception as e:
-                                datos_recolectar["Ninos_beneficiados"]=0
-                                datos_recolectar["Docentes"]=0
-                            if data.cantidad_equipo >=1:
-                                datos_recolectar["Equipada"]=True
-                            else:
-                                datos_recolectar["Equipada"]=False
-                            datos_recolectar["Fecha_equipamiento"]=data.fecha
-                            datos_recolectar["No_equipamiento"]=str(data.id)
-                            datos_recolectar["Donante"]=str(data.cooperante.all().last())
-                            datos_recolectar["Proyecto"]=str(data.proyecto.all().last())
-                            datos_recolectar["Equipo_entregado"]=data.cantidad_equipo
-                            sede_capacitada= cyd_m.Sede.objects.filter(escuela_beneficiada__codigo=data.escuela.codigo).last()
-                            if cyd_m.Sede.objects.filter(escuela_beneficiada__codigo=data.escuela.codigo).count() >=1:
-                                datos_recolectar["Capacitada"]=True
-                            else:
-                                datos_recolectar["Capacitada"]=False
-                            grupo=cyd_m.Grupo.objects.filter(sede=sede_capacitada)
-                            for datos in grupo:
-                                total_hombre = total_hombre + datos.get_hombres()
-                                total_mujeres = total_mujeres + datos.get_mujeres()
-                                total_aprobados= total_aprobados +datos.count_aprobados()
-                            maestros_desertores=cyd_m.Asignacion.objects.filter(grupo__sede=sede_capacitada,abandono=True).count()
-                            try:
-                                datos_recolectar["Fecha_capacitacion"]=str(sede_capacitada.fecha_creacion.date())
-                                datos_recolectar["Capacitador"]=str(sede_capacitada.capacitador.get_full_name())
-                            except Exception as e:
-                                datos_recolectar["Fecha_capacitacion"]="No"
-                                datos_recolectar["Capacitador"]="No"
-                            datos_recolectar["Maestros_capacitados"]= total_hombre + total_mujeres
-                            datos_recolectar["Maestros_promovidos"]=total_aprobados
-                            datos_recolectar["Maestros_no_promovidos"]=(total_mujeres + total_hombre) - total_aprobados
-                            datos_recolectar["Maestros_desertores"]=maestros_desertores
-                            datos_enviar.append(datos_recolectar)
-                else:
-                    try:
-                        for data in queryset.filter(filter_clauses):
-                            if not data.datos_equipamiento():
-                                datos_recolectar={}
-                                datos_recolectar["Udi"]=data.codigo
-                                datos_recolectar["Nombre"]=data.nombre
-                                datos_recolectar["Direccion"]=data.direccion
-                                datos_recolectar["Departamento"]=data.municipio.departamento.nombre
-                                datos_recolectar["Municipio"]=data.municipio.nombre
-                                datos_recolectar["escuela_url"]=data.get_absolute_url()
-                                datos_recolectar["Ninos_beneficiados"]=data.poblacion
-                                datos_recolectar["Docentes"]=data.maestros
-                                datos_recolectar["Fecha_equipamiento"]="No tiene"
-                                datos_recolectar["No_equipamiento"]=0
-                                datos_recolectar["Donante"]=0
-                                datos_recolectar["Proyecto"]=0
-                                datos_recolectar["Equipo_entregado"]=0
-                                datos_recolectar["Equipada"]=False
-                                if data.capacitacion["capacitada"]== True:
-                                    for  data_sede in data.get_sedes():
-                                        capacitador = data_sede.capacitador.get_full_name()
-                                        fecha_creacion =data_sede.fecha_creacion.date()
-                                    datos_recolectar["Capacitada"]=True
-                                    grupo=cyd_m.Grupo.objects.filter(sede=data.get_sedes())
-                                    for datos in grupo:
-                                        total_hombre = total_hombre + datos.get_hombres()
-                                        total_mujeres = total_mujeres + datos.get_mujeres()
-                                        total_aprobados= total_aprobados +datos.count_aprobados()
-                                    maestros_desertores=cyd_m.Asignacion.objects.filter(grupo__sede=data.get_sedes(),abandono=True).count()
-                                    datos_recolectar["Capacitador"]=capacitador
-                                    datos_recolectar["Maestros_capacitados"]= total_hombre + total_mujeres
-                                    datos_recolectar["Maestros_promovidos"]=total_aprobados
-                                    datos_recolectar["Maestros_no_promovidos"]=(total_mujeres + total_hombre) - total_aprobados
-                                    datos_recolectar["Maestros_desertores"]=maestros_desertores
-                                else:
-                                    datos_recolectar["Capacitada"]=False
-                                    datos_recolectar["Fecha_capacitacion"]="No tiene"
-                                    datos_recolectar["Capacitador"]="No tiene"
-                                    datos_recolectar["Maestros_capacitados"]= 0
-                                    datos_recolectar["Maestros_promovidos"]=0
-                                    datos_recolectar["Maestros_no_promovidos"]=0
-                                    datos_recolectar["Maestros_desertores"]=0
-                                datos_enviar.append(datos_recolectar)
-                    except Exception as e:
-                        print("Esto es nuevo")
-            elif valor_filtro_capacitada==1:
-                print("Trae capacitacion1")
-                try:
-                    for data in queryset.filter(filter_clauses):
-                        if data.capacitacion["capacitada"] is True:
-                            datos_recolectar={}
-                            datos_recolectar["Udi"]=data.codigo
-                            datos_recolectar["Nombre"]=data.nombre
-                            datos_recolectar["Direccion"]=data.direccion
-                            datos_recolectar["Departamento"]=data.municipio.departamento.nombre
-                            datos_recolectar["Municipio"]=data.municipio.nombre
-                            datos_recolectar["escuela_url"]=data.get_absolute_url()
-                            datos_recolectar["Ninos_beneficiados"]=data.poblacion
-                            datos_recolectar["Docentes"]=data.maestros
-                            datos_recolectar["Fecha_equipamiento"]=data.datos_equipamiento().fecha
-                            datos_recolectar["No_equipamiento"]=str(data.datos_equipamiento().id)
-                            datos_recolectar["Donante"]=str(data.datos_equipamiento().cooperante.all().last())
-                            datos_recolectar["Proyecto"]=str(data.datos_equipamiento().proyecto.all().last())
-                            datos_recolectar["Equipo_entregado"]=data.datos_equipamiento().cantidad_equipo
-                            if str(data.datos_equipamiento().proyecto.all().last()) == 'NA´AT':
-                                datos_recolectar["Capacitador"]="No tiene"
-                                datos_recolectar["Maestros_capacitados"]= 0
-                                datos_recolectar["Maestros_promovidos"]=0
-                                datos_recolectar["Maestros_no_promovidos"]=0
-                                datos_recolectar["Maestros_desertores"]=0
-                                datos_recolectar["Fecha_capacitacion"]="No tiene"
-                                datos_enviar.append(datos_recolectar)
-                            else:
-                                for  data_sede in data.get_sedes():
-                                    capacitador = data_sede.capacitador.get_full_name()
-                                    fecha_creacion =data_sede.fecha_creacion.date()
-                                    datos_recolectar["Fecha_capacitacion"]= fecha_creacion
-                                datos_recolectar["Capacitada"]=True
-                                grupo=cyd_m.Grupo.objects.filter(sede=data.get_sedes())
-                                for datos in grupo:
-                                    total_hombre = total_hombre + datos.get_hombres()
-                                    total_mujeres = total_mujeres + datos.get_mujeres()
-                                    total_aprobados= total_aprobados +datos.count_aprobados()
-                                maestros_desertores=cyd_m.Asignacion.objects.filter(grupo__sede=data.get_sedes(),abandono=True).count()
-                                datos_recolectar["Capacitador"]=capacitador
-                                datos_recolectar["Maestros_capacitados"]= total_hombre + total_mujeres
-                                datos_recolectar["Maestros_promovidos"]=total_aprobados
-                                datos_recolectar["Maestros_no_promovidos"]=(total_mujeres + total_hombre) - total_aprobados
-                                datos_recolectar["Maestros_desertores"]=maestros_desertores
-                                datos_enviar.append(datos_recolectar)
-                except Exception as e:
-                    for data in queryset2.filter(filter_clauses):
-                        if filtros.get("capacitada")=='True':
-                            if data.escuela.capacitacion["capacitada"] is  True:
-                                datos_recolectar={}
-                                datos_recolectar["Udi"]=data.escuela.codigo
-                                datos_recolectar["Nombre"]=data.escuela.nombre
-                                datos_recolectar["Direccion"]=data.escuela.direccion
-                                datos_recolectar["Departamento"]=data.escuela.municipio.departamento.nombre
-                                datos_recolectar["Municipio"]=data.escuela.municipio.nombre
-                                datos_recolectar["escuela_url"]=data.escuela.get_absolute_url()
-                                datos_recolectar["Ninos_beneficiados"]=data.escuela.poblacion
-                                datos_recolectar["Docentes"]=data.escuela.maestros
-                                datos_recolectar["Fecha_equipamiento"]=data.escuela.datos_equipamiento().fecha
-                                datos_recolectar["No_equipamiento"]=str(data.escuela.datos_equipamiento().id)
-                                datos_recolectar["Donante"]=str(data.escuela.datos_equipamiento().cooperante.all().last())
-                                datos_recolectar["Proyecto"]=str(data.escuela.datos_equipamiento().proyecto.all().last())
-                                datos_recolectar["Equipo_entregado"]=data.escuela.datos_equipamiento().cantidad_equipo
-                                if str(data.escuela.datos_equipamiento().proyecto.all().last()) == 'NA´AT':
-                                    datos_recolectar["Capacitador"]="No tiene"
-                                    datos_recolectar["Maestros_capacitados"]= 0
-                                    datos_recolectar["Maestros_promovidos"]=0
-                                    datos_recolectar["Maestros_no_promovidos"]=0
-                                    datos_recolectar["Maestros_desertores"]=0
-                                    datos_enviar.append(datos_recolectar)
-                                else:
-                                    for  data_sede in data.escuela.get_sedes():
-                                        capacitador = data_sede.capacitador.get_full_name()
-                                        fecha_creacion =data_sede.fecha_creacion.date()
-                                    datos_recolectar["Capacitada"]=True
-                                    grupo=cyd_m.Grupo.objects.filter(sede=data.escuela.get_sedes())
-                                    for datos in grupo:
-                                        total_hombre = total_hombre + datos.get_hombres()
-                                        total_mujeres = total_mujeres + datos.get_mujeres()
-                                        total_aprobados= total_aprobados +datos.count_aprobados()
-                                    maestros_desertores=cyd_m.Asignacion.objects.filter(grupo__sede=data.escuela.get_sedes(),abandono=True).count()
-                                    datos_recolectar["Capacitador"]=capacitador
-                                    datos_recolectar["Maestros_capacitados"]= total_hombre + total_mujeres
-                                    datos_recolectar["Maestros_promovidos"]=total_aprobados
-                                    datos_recolectar["Maestros_no_promovidos"]=(total_mujeres + total_hombre) - total_aprobados
-                                    datos_recolectar["Maestros_desertores"]=maestros_desertores
-                                    datos_enviar.append(datos_recolectar)
-                        #End filtros.get("capacitada")=='True'
-                        else:
-                            if data.escuela.capacitacion["capacitada"] is  False:
-                                datos_recolectar={}
-                                datos_recolectar["Udi"]=data.escuela.codigo
-                                datos_recolectar["Nombre"]=data.escuela.nombre
-                                datos_recolectar["Direccion"]=data.escuela.direccion
-                                datos_recolectar["Departamento"]=data.escuela.municipio.departamento.nombre
-                                datos_recolectar["Municipio"]=data.escuela.municipio.nombre
-                                datos_recolectar["escuela_url"]=data.escuela.get_absolute_url()
-                                datos_recolectar["Ninos_beneficiados"]=data.escuela.poblacion
-                                datos_recolectar["Docentes"]=data.escuela.maestros
-                                datos_recolectar["Fecha_equipamiento"]=data.escuela.datos_equipamiento().fecha
-                                datos_recolectar["No_equipamiento"]=str(data.escuela.datos_equipamiento().id)
-                                datos_recolectar["Donante"]=str(data.escuela.datos_equipamiento().cooperante.all().last())
-                                datos_recolectar["Proyecto"]=str(data.escuela.datos_equipamiento().proyecto.all().last())
-                                datos_recolectar["Equipo_entregado"]=data.escuela.datos_equipamiento().cantidad_equipo
-                                datos_recolectar["Capacitada"]=False
-                                datos_recolectar["Capacitador"]="No tiene"
-                                datos_recolectar["Maestros_capacitados"]= 0
-                                datos_recolectar["Maestros_promovidos"]=0
-                                datos_recolectar["Maestros_no_promovidos"]=0
-                                datos_recolectar["Maestros_desertores"]=0
-                                datos_enviar.append(datos_recolectar)
-            elif valor_filtro_combinado==1:
-                print("Trae los 2 filtros")
-                if filtros.get("capacitada")=='True' and filtros.get("equipada")=='True' :
-                    print("Viene 2 verdaderos")
-                    try:
-                        for data in queryset.filter(filter_clauses):
-                            if (data.es_equipada() is True  and data.capacitacion["capacitada"] is True):
-                                datos_recolectar={}
-                                datos_recolectar["Udi"]=data.codigo
-                                datos_recolectar["Nombre"]=data.nombre
-                                datos_recolectar["Direccion"]=data.direccion
-                                datos_recolectar["Departamento"]=data.municipio.departamento.nombre
-                                datos_recolectar["Municipio"]=data.municipio.nombre
-                                datos_recolectar["escuela_url"]=data.get_absolute_url()
-                                datos_recolectar["Ninos_beneficiados"]=data.poblacion
-                                datos_recolectar["Docentes"]=data.maestros
-                                datos_recolectar["Fecha_equipamiento"]=data.datos_equipamiento().fecha
-                                datos_recolectar["No_equipamiento"]=str(data.datos_equipamiento().id)
-                                datos_recolectar["Donante"]=str(data.datos_equipamiento().cooperante.all().last())
-                                datos_recolectar["Proyecto"]=str(data.datos_equipamiento().proyecto.all().last())
-                                datos_recolectar["Equipo_entregado"]=data.datos_equipamiento().cantidad_equipo
-                                if str(data.datos_equipamiento().proyecto.all().last()) == 'NA´AT':
-                                    datos_recolectar["Capacitador"]="No tiene"
-                                    datos_recolectar["Maestros_capacitados"]= 0
-                                    datos_recolectar["Maestros_promovidos"]=0
-                                    datos_recolectar["Maestros_no_promovidos"]=0
-                                    datos_recolectar["Maestros_desertores"]=0
-                                    datos_recolectar["Fecha_capacitacion"]="No tiene"
-                                    datos_enviar.append(datos_recolectar)
-                                else:
-                                    for  data_sede in data.get_sedes():
-                                        capacitador = data_sede.capacitador.get_full_name()
-                                        fecha_creacion =data_sede.fecha_creacion.date()
-                                        datos_recolectar["Fecha_capacitacion"]= fecha_creacion
-                                    datos_recolectar["Capacitada"]=True
-                                    grupo=cyd_m.Grupo.objects.filter(sede=data.get_sedes())
-                                    for datos in grupo:
-                                        total_hombre = total_hombre + datos.get_hombres()
-                                        total_mujeres = total_mujeres + datos.get_mujeres()
-                                        total_aprobados= total_aprobados +datos.count_aprobados()
-                                    maestros_desertores=cyd_m.Asignacion.objects.filter(grupo__sede=data.get_sedes(),abandono=True).count()
-                                    datos_recolectar["Capacitador"]=capacitador
-                                    datos_recolectar["Maestros_capacitados"]= total_hombre + total_mujeres
-                                    datos_recolectar["Maestros_promovidos"]=total_aprobados
-                                    datos_recolectar["Maestros_no_promovidos"]=(total_mujeres + total_hombre) - total_aprobados
-                                    datos_recolectar["Maestros_desertores"]=maestros_desertores
-                                    datos_enviar.append(datos_recolectar)
-                    except Exception as e:
-                        print("Viene True, True  Equipamiento")
-                        try:
-                            for data in queryset2.filter(filter_clauses):
-                                if (data.escuela.es_equipada() is True  and data.escuela.capacitacion["capacitada"] is True):
-                                    datos_recolectar={}
-                                    datos_recolectar["Udi"]=data.escuela.codigo
-                                    datos_recolectar["Nombre"]=data.escuela.nombre
-                                    datos_recolectar["Direccion"]=data.escuela.direccion
-                                    datos_recolectar["Departamento"]=data.escuela.municipio.departamento.nombre
-                                    datos_recolectar["Municipio"]=data.escuela.municipio.nombre
-                                    datos_recolectar["escuela_url"]=data.escuela.get_absolute_url()
-                                    try:
-                                        poblacion =  escuela_m.EscPoblacion.objects.filter(escuela__codigo=data.escuela.codigo).last()
-                                        datos_recolectar["Ninos_beneficiados"]=poblacion.total_alumno
-                                        datos_recolectar["Docentes"]=poblacion.total_maestro
-                                    except Exception as e:
-                                        datos_recolectar["Ninos_beneficiados"]=0
-                                        datos_recolectar["Docentes"]=0
-                                    if data.cantidad_equipo >=1:
-                                        datos_recolectar["Equipada"]=True
-                                    else:
-                                        datos_recolectar["Equipada"]=False
-                                    datos_recolectar["Fecha_equipamiento"]=data.fecha
-                                    datos_recolectar["No_equipamiento"]=str(data.id)
-                                    datos_recolectar["Donante"]=str(data.cooperante.all().last())
-                                    datos_recolectar["Proyecto"]=str(data.proyecto.all().last())
-                                    datos_recolectar["Equipo_entregado"]=data.cantidad_equipo
-                                    sede_capacitada= cyd_m.Sede.objects.filter(escuela_beneficiada__codigo=data.escuela.codigo).last()
-                                    datos_recolectar["Capacitada"]= data.escuela.capacitacion["capacitada"]
-                                    grupo=cyd_m.Grupo.objects.filter(sede=sede_capacitada)
-                                    for datos in grupo:
-                                        total_hombre = total_hombre + datos.get_hombres()
-                                        total_mujeres = total_mujeres + datos.get_mujeres()
-                                        total_aprobados= total_aprobados +datos.count_aprobados()
-                                    maestros_desertores=cyd_m.Asignacion.objects.filter(grupo__sede=sede_capacitada,abandono=True).count()
-                                    try:
-                                        datos_recolectar["Fecha_capacitacion"]=str(sede_capacitada.fecha_creacion.date())
-                                        datos_recolectar["Capacitador"]=str(sede_capacitada.capacitador.get_full_name())
-                                    except Exception as e:
-                                        datos_recolectar["Fecha_capacitacion"]="No"
-                                        datos_recolectar["Capacitador"]="No"
-                                    datos_recolectar["Maestros_capacitados"]= total_hombre + total_mujeres
-                                    datos_recolectar["Maestros_promovidos"]=total_aprobados
-                                    datos_recolectar["Maestros_no_promovidos"]=(total_mujeres + total_hombre) - total_aprobados
-                                    datos_recolectar["Maestros_desertores"]=maestros_desertores
-                                    datos_enviar.append(datos_recolectar)
-                        except Exception as e:
-                            #cyd_m.Sede.objects.distinct()
-                            print("Sede")
-                            for data1 in queryset3.filter(filter_clauses):
-                                if (data1.escuela_beneficiada.es_equipada() is True  and data1.escuela_beneficiada.capacitacion["capacitada"] is True):
-                                    datos_recolectar={}
-                                    datos_recolectar["Udi"]=data1.escuela_beneficiada.codigo
-                                    datos_recolectar["Nombre"]=data1.escuela_beneficiada.nombre
-                                    datos_recolectar["Direccion"]=data1.escuela_beneficiada.direccion
-                                    datos_recolectar["Departamento"]=data1.escuela_beneficiada.municipio.departamento.nombre
-                                    datos_recolectar["Municipio"]=data1.escuela_beneficiada.municipio.nombre
-                                    datos_recolectar["escuela_url"]=data1.escuela_beneficiada.get_absolute_url()
-                                    datos_recolectar["Ninos_beneficiados"]=data1.escuela_beneficiada.poblacion
-                                    datos_recolectar["Docentes"]=data1.escuela_beneficiada.maestros
-                                    datos_recolectar["Fecha_equipamiento"]=data1.escuela_beneficiada.datos_equipamiento().fecha
-                                    datos_recolectar["No_equipamiento"]=str(data1.escuela_beneficiada.datos_equipamiento().id)
-                                    datos_recolectar["Donante"]=str(data1.escuela_beneficiada.datos_equipamiento().cooperante.all().last())
-                                    datos_recolectar["Proyecto"]=str(data1.escuela_beneficiada.datos_equipamiento().proyecto.all().last())
-                                    datos_recolectar["Equipo_entregado"]=data1.escuela_beneficiada.datos_equipamiento().cantidad_equipo
-                                    datos_recolectar["Equipada"]= data1.escuela_beneficiada.es_equipada()
-                                    if str(data1.escuela_beneficiada.datos_equipamiento().proyecto.all().last()) == 'NA´AT':
-                                        print("Si tengo un proyecto NAAT")
-                                        datos_recolectar["Capacitador"]="No tiene"
-                                        datos_recolectar["Maestros_capacitados"]= 0
-                                        datos_recolectar["Maestros_promovidos"]=0
-                                        datos_recolectar["Maestros_no_promovidos"]=0
-                                        datos_recolectar["Maestros_desertores"]=0
-                                        datos_recolectar["Fecha_capacitacion"]="No tiene"
-                                        datos_enviar.append(datos_recolectar)
-                                    else:
-                                        print("No es NA`AT")
-                                        for  data_sede in data1.escuela_beneficiada.get_sedes():
-                                            capacitador = data_sede.capacitador.get_full_name()
-                                            fecha_creacion =data_sede.fecha_creacion.date()
-                                            datos_recolectar["Fecha_capacitacion"]= fecha_creacion
-                                        datos_recolectar["Capacitada"]=True
-                                        grupo=cyd_m.Grupo.objects.filter(sede__in=data1.escuela_beneficiada.get_sedes())
-                                        for datos in grupo:
-                                            total_hombre = total_hombre + datos.get_hombres()
-                                            total_mujeres = total_mujeres + datos.get_mujeres()
-                                            total_aprobados= total_aprobados +datos.count_aprobados()
-                                        maestros_desertores=cyd_m.Asignacion.objects.filter(grupo__sede__in=data1.escuela_beneficiada.get_sedes(),abandono=True).count()
-                                        datos_recolectar["Capacitador"]=capacitador
-                                        datos_recolectar["Maestros_capacitados"]= total_hombre + total_mujeres
-                                        datos_recolectar["Maestros_promovidos"]=total_aprobados
-                                        datos_recolectar["Maestros_no_promovidos"]=(total_mujeres + total_hombre) - total_aprobados
-                                        datos_recolectar["Maestros_desertores"]=maestros_desertores
-                                        datos_enviar.append(datos_recolectar)
-                elif filtros.get("capacitada")=='False' and filtros.get("equipada")=='False' :
-                    print("Viene 2 Falsos")
-                    try:
-                        for data in queryset.filter(filter_clauses):
-                            if (data.es_equipada() is False  and data.capacitacion["capacitada"] is False):
-                                datos_recolectar={}
-                                datos_recolectar["Udi"]=data.codigo
-                                datos_recolectar["Nombre"]=data.nombre
-                                datos_recolectar["Direccion"]=data.direccion
-                                datos_recolectar["Departamento"]=data.municipio.departamento.nombre
-                                datos_recolectar["Municipio"]=data.municipio.nombre
-                                datos_recolectar["escuela_url"]=data.get_absolute_url()
-                                datos_recolectar["Ninos_beneficiados"]=data.poblacion
-                                datos_recolectar["Docentes"]=data.maestros
-                                datos_recolectar["Fecha_equipamiento"]="No tiene"
-                                datos_recolectar["No_equipamiento"]=0
-                                datos_recolectar["Donante"]="No tiene"
-                                datos_recolectar["Proyecto"]="No tiene"
-                                datos_recolectar["Equipo_entregado"]=0
-                                datos_recolectar["Capacitador"]="No tiene"
-                                datos_recolectar["Maestros_capacitados"]= 0
-                                datos_recolectar["Maestros_promovidos"]=0
-                                datos_recolectar["Maestros_no_promovidos"]=0
-                                datos_recolectar["Maestros_desertores"]=0
-                                datos_recolectar["Fecha_capacitacion"]="No tiene"
-                                datos_enviar.append(datos_recolectar)
-                    except Exception as e:
-                        print("Viene False, False  Equipamiento")
-                        try:
-                            #print(queryset.filter(filter_clauses))
-                            for data in queryset2.filter(filter_clauses):
-                                if (data.escuela.es_equipada() is False  and data.escuela.capacitacion["capacitada"] is False):
-                                    datos_recolectar={}
-                                    datos_recolectar["Udi"]=data.escuela.codigo
-                                    datos_recolectar["Nombre"]=data.escuela.nombre
-                                    datos_recolectar["Direccion"]=data.escuela.direccion
-                                    datos_recolectar["Departamento"]=data.escuela.municipio.departamento.nombre
-                                    datos_recolectar["Municipio"]=data.escuela.municipio.nombre
-                                    datos_recolectar["escuela_url"]=data.escuela.get_absolute_url()
-                                    datos_recolectar["Fecha_equipamiento"]="No tiene"
-                                    datos_recolectar["No_equipamiento"]="No tiene"
-                                    datos_recolectar["Donante"]="No tiene"
-                                    datos_recolectar["Proyecto"]="No tiene"
-                                    datos_recolectar["Equipo_entregado"]=data.cantidad_equipo
-                                    datos_recolectar["Maestros_capacitados"]= 0
-                                    datos_recolectar["Maestros_promovidos"]=0
-                                    datos_recolectar["Maestros_no_promovidos"]=0
-                                    datos_recolectar["Maestros_desertores"]=0
-                                    datos_enviar.append(datos_recolectar)
-                        except Exception as e:
-                            #cyd_m.Sede.objects.distinct()
-                            for data1 in queryset3.filter(filter_clauses):
-                                if (data1.escuela_beneficiada.es_equipada() is False  and data1.escuela_beneficiada.capacitacion["capacitada"] is False):
-                                    datos_recolectar={}
-                                    datos_recolectar["Udi"]=data1.escuela_beneficiada.codigo
-                                    datos_recolectar["Nombre"]=data1.escuela_beneficiada.nombre
-                                    datos_recolectar["Direccion"]=data1.escuela_beneficiada.direccion
-                                    datos_recolectar["Departamento"]=data1.escuela_beneficiada.municipio.departamento.nombre
-                                    datos_recolectar["Municipio"]=data1.escuela_beneficiada.municipio.nombre
-                                    datos_recolectar["escuela_url"]=data1.escuela_beneficiada.get_absolute_url()
-                                    datos_recolectar["Ninos_beneficiados"]=data1.escuela_beneficiada.poblacion
-                                    datos_recolectar["Docentes"]=data1.escuela_beneficiada.maestros
-                                    datos_recolectar["Fecha_equipamiento"]=data1.escuela_beneficiada.datos_equipamiento().fecha
-                                    datos_recolectar["No_equipamiento"]=str(data1.escuela_beneficiada.datos_equipamiento().id)
-                                    datos_recolectar["Donante"]=str(data1.escuela_beneficiada.datos_equipamiento().cooperante.all().last())
-                                    datos_recolectar["Proyecto"]=str(data1.escuela_beneficiada.datos_equipamiento().proyecto.all().last())
-                                    datos_recolectar["Equipo_entregado"]=data1.escuela_beneficiada.datos_equipamiento().cantidad_equipo
-                                    datos_recolectar["Capacitador"]="No tiene"
-                                    datos_recolectar["Maestros_capacitados"]= 0
-                                    datos_recolectar["Maestros_promovidos"]=0
-                                    datos_recolectar["Maestros_no_promovidos"]=0
-                                    datos_recolectar["Maestros_desertores"]=0
-                                    datos_enviar.append(datos_recolectar)
-                elif filtros.get("capacitada")=='True' and filtros.get("equipada")=='False' :
-                    print("Viene capacitada  y no equipada")
-                else:
-                    print("Viene equipa y no cacitada")
-                    try:
-                        for data in queryset.filter(filter_clauses):
-                            if (data.es_equipada() is True  and data.capacitacion["capacitada"] is False):
-                                datos_recolectar={}
-                                datos_recolectar["Udi"]=data.codigo
-                                datos_recolectar["Nombre"]=data.nombre
-                                datos_recolectar["Direccion"]=data.direccion
-                                datos_recolectar["Departamento"]=data.municipio.departamento.nombre
-                                datos_recolectar["Municipio"]=data.municipio.nombre
-                                datos_recolectar["escuela_url"]=data.get_absolute_url()
-                                datos_recolectar["Ninos_beneficiados"]=data.poblacion
-                                datos_recolectar["Docentes"]=data.maestros
-                                datos_recolectar["Fecha_equipamiento"]=data.datos_equipamiento().fecha
-                                datos_recolectar["No_equipamiento"]=str(data.datos_equipamiento().id)
-                                datos_recolectar["Donante"]=str(data.datos_equipamiento().cooperante.all().last())
-                                datos_recolectar["Proyecto"]=str(data.datos_equipamiento().proyecto.all().last())
-                                datos_recolectar["Equipo_entregado"]=data.datos_equipamiento().cantidad_equipo
-                                if str(data.datos_equipamiento().proyecto.all().last()) == 'NA´AT':
-                                    print("Si tengo un proyecto NAAT")
-                                    datos_recolectar["Capacitador"]="No tiene"
-                                    datos_recolectar["Maestros_capacitados"]= 0
-                                    datos_recolectar["Maestros_promovidos"]=0
-                                    datos_recolectar["Maestros_no_promovidos"]=0
-                                    datos_recolectar["Maestros_desertores"]=0
-                                    datos_recolectar["Fecha_capacitacion"]="No tiene"
-                                    datos_enviar.append(datos_recolectar)
-                                else:
-                                    print("No es NA`AT")
-                                    for  data_sede in data.get_sedes():
-                                        capacitador = data_sede.capacitador.get_full_name()
-                                        fecha_creacion =data_sede.fecha_creacion.date()
-                                        datos_recolectar["Fecha_capacitacion"]= fecha_creacion
-                                    datos_recolectar["Capacitada"]=True
-                                    grupo=cyd_m.Grupo.objects.filter(sede=data.get_sedes())
-                                    for datos in grupo:
-                                        total_hombre = total_hombre + datos.get_hombres()
-                                        total_mujeres = total_mujeres + datos.get_mujeres()
-                                        total_aprobados= total_aprobados +datos.count_aprobados()
-                                    maestros_desertores=cyd_m.Asignacion.objects.filter(grupo__sede=data.get_sedes(),abandono=True).count()
-                                    datos_recolectar["Capacitador"]=capacitador
-                                    datos_recolectar["Maestros_capacitados"]= total_hombre + total_mujeres
-                                    datos_recolectar["Maestros_promovidos"]=total_aprobados
-                                    datos_recolectar["Maestros_no_promovidos"]=(total_mujeres + total_hombre) - total_aprobados
-                                    datos_recolectar["Maestros_desertores"]=maestros_desertores
-                                    datos_enviar.append(datos_recolectar)
-                    except Exception as e:
-                        print("Viene True, False  Equipamiento")
-                        try:
-                            #print(queryset.filter(filter_clauses))
-                            for data in queryset2.filter(filter_clauses):
-                                if (data.escuela.es_equipada() is True  and data.escuela.capacitacion["capacitada"] is False):
-                                    datos_recolectar={}
-                                    datos_recolectar["Udi"]=data.escuela.codigo
-                                    datos_recolectar["Nombre"]=data.escuela.nombre
-                                    datos_recolectar["Direccion"]=data.escuela.direccion
-                                    datos_recolectar["Departamento"]=data.escuela.municipio.departamento.nombre
-                                    datos_recolectar["Municipio"]=data.escuela.municipio.nombre
-                                    datos_recolectar["escuela_url"]=data.escuela.get_absolute_url()
-                                    try:
-                                        poblacion =  escuela_m.EscPoblacion.objects.filter(escuela__codigo=data.escuela.codigo).last()
-                                        datos_recolectar["Ninos_beneficiados"]=poblacion.total_alumno
-                                        datos_recolectar["Docentes"]=poblacion.total_maestro
-                                    except Exception as e:
-                                        datos_recolectar["Ninos_beneficiados"]=0
-                                        datos_recolectar["Docentes"]=0
-                                    if data.cantidad_equipo >=1:
-                                        datos_recolectar["Equipada"]=True
-                                    else:
-                                        datos_recolectar["Equipada"]=False
-                                    datos_recolectar["Fecha_equipamiento"]=data.fecha
-                                    datos_recolectar["No_equipamiento"]=str(data.id)
-                                    datos_recolectar["Donante"]=str(data.cooperante.all().last())
-                                    datos_recolectar["Proyecto"]=str(data.proyecto.all().last())
-                                    datos_recolectar["Equipo_entregado"]=data.cantidad_equipo
-                                    sede_capacitada= cyd_m.Sede.objects.filter(escuela_beneficiada__codigo=data.escuela.codigo).last()
-                                    if cyd_m.Sede.objects.filter(escuela_beneficiada__codigo=data.escuela.codigo).count() >=1:
-                                        datos_recolectar["Capacitada"]=True
-                                    else:
-                                        datos_recolectar["Capacitada"]=False
-                                    grupo=cyd_m.Grupo.objects.filter(sede=sede_capacitada)
-                                    for datos in grupo:
-                                        total_hombre = total_hombre + datos.get_hombres()
-                                        total_mujeres = total_mujeres + datos.get_mujeres()
-                                        total_aprobados= total_aprobados +datos.count_aprobados()
-                                    maestros_desertores=cyd_m.Asignacion.objects.filter(grupo__sede=sede_capacitada,abandono=True).count()
-                                    try:
-                                        datos_recolectar["Fecha_capacitacion"]=str(sede_capacitada.fecha_creacion.date())
-                                        datos_recolectar["Capacitador"]=str(sede_capacitada.capacitador.get_full_name())
-                                    except Exception as e:
-                                        datos_recolectar["Fecha_capacitacion"]="No"
-                                        datos_recolectar["Capacitador"]="No"
-                                    datos_recolectar["Maestros_capacitados"]= total_hombre + total_mujeres
-                                    datos_recolectar["Maestros_promovidos"]=total_aprobados
-                                    datos_recolectar["Maestros_no_promovidos"]=(total_mujeres + total_hombre) - total_aprobados
-                                    datos_recolectar["Maestros_desertores"]=maestros_desertores
-                                    datos_enviar.append(datos_recolectar)
-                        except Exception as e:
-                            #cyd_m.Sede.objects.distinct()
-                            for data1 in queryset3.filter(filter_clauses):
-                                if (data1.escuela_beneficiada.es_equipada() is True  and data1.escuela_beneficiada.capacitacion["capacitada"] is False):
-                                    datos_recolectar={}
-                                    datos_recolectar["Udi"]=data1.escuela_beneficiada.codigo
-                                    datos_recolectar["Nombre"]=data1.escuela_beneficiada.nombre
-                                    datos_recolectar["Direccion"]=data1.escuela_beneficiada.direccion
-                                    datos_recolectar["Departamento"]=data1.escuela_beneficiada.municipio.departamento.nombre
-                                    datos_recolectar["Municipio"]=data1.escuela_beneficiada.municipio.nombre
-                                    datos_recolectar["escuela_url"]=data1.escuela_beneficiada.get_absolute_url()
-                                    datos_recolectar["Ninos_beneficiados"]=data1.escuela_beneficiada.poblacion
-                                    datos_recolectar["Docentes"]=data1.escuela_beneficiada.maestros
-                                    datos_recolectar["Fecha_equipamiento"]=data1.escuela_beneficiada.datos_equipamiento().fecha
-                                    datos_recolectar["No_equipamiento"]=str(data1.escuela_beneficiada.datos_equipamiento().id)
-                                    datos_recolectar["Donante"]=str(data1.escuela_beneficiada.datos_equipamiento().cooperante.all().last())
-                                    datos_recolectar["Proyecto"]=str(data1.escuela_beneficiada.datos_equipamiento().proyecto.all().last())
-                                    datos_recolectar["Equipo_entregado"]=data1.escuela_beneficiada.datos_equipamiento().cantidad_equipo
-                                    if str(data1.escuela_beneficiada.datos_equipamiento().proyecto.all().last()) == 'NA´AT':
-                                        datos_recolectar["Capacitador"]="No tiene"
-                                        datos_recolectar["Maestros_capacitados"]= 0
-                                        datos_recolectar["Maestros_promovidos"]=0
-                                        datos_recolectar["Maestros_no_promovidos"]=0
-                                        datos_recolectar["Maestros_desertores"]=0
-                                        datos_recolectar["Fecha_capacitacion"]="No tiene"
-                                        datos_enviar.append(datos_recolectar)
-                                    else:
-                                        for  data_sede in data1.escuela_beneficiada.get_sedes():
-                                            capacitador = data_sede.capacitador.get_full_name()
-                                            fecha_creacion =data_sede.fecha_creacion.date()
-                                            datos_recolectar["Fecha_capacitacion"]= fecha_creacion
-                                        datos_recolectar["Capacitada"]=True
-                                        grupo=cyd_m.Grupo.objects.filter(sede=data1.escuela_beneficiada.get_sedes())
-                                        for datos in grupo:
-                                            total_hombre = total_hombre + datos.get_hombres()
-                                            total_mujeres = total_mujeres + datos.get_mujeres()
-                                            total_aprobados= total_aprobados +datos.count_aprobados()
-                                        maestros_desertores=cyd_m.Asignacion.objects.filter(grupo__sede=data1.escuela_beneficiada.get_sedes(),abandono=True).count()
-                                        datos_recolectar["Capacitador"]=capacitador
-                                        datos_recolectar["Maestros_capacitados"]= total_hombre + total_mujeres
-                                        datos_recolectar["Maestros_promovidos"]=total_aprobados
-                                        datos_recolectar["Maestros_no_promovidos"]=(total_mujeres + total_hombre) - total_aprobados
-                                        datos_recolectar["Maestros_desertores"]=maestros_desertores
-                                        datos_enviar.append(datos_recolectar)
-                #endIF
-            else:
-                print("No trae los  dos filtros")
-                try:
-                    for data in queryset.filter(filter_clauses)[:1000]:
-                        datos_recolectar={}
-                        datos_recolectar["Udi"]=data.codigo
-                        datos_recolectar["Nombre"]=data.nombre
-                        datos_recolectar["Direccion"]=data.direccion
-                        datos_recolectar["Departamento"]=data.municipio.departamento.nombre
-                        datos_recolectar["Municipio"]=data.municipio.nombre
-                        datos_recolectar["escuela_url"]=data.get_absolute_url()
-                        datos_recolectar["Ninos_beneficiados"]=data.poblacion
-                        datos_recolectar["Docentes"]=data.maestros
-                        if data.datos_equipamiento():
-                            datos_recolectar["Fecha_equipamiento"]=data.datos_equipamiento().fecha
-                            datos_recolectar["No_equipamiento"]=str(data.datos_equipamiento().id)
-                            if data.datos_equipamiento().cooperante.all().last() is None:
-                                datos_recolectar["Donante"]="No tiene"
-                            else:
-                                datos_recolectar["Donante"]=str(data.datos_equipamiento().cooperante.all().last())
-                            if  data.datos_equipamiento().proyecto.all().last() is None:
-                                datos_recolectar["Proyecto"]="No tiene"
-                            else:
-                                datos_recolectar["Proyecto"]=str(data.datos_equipamiento().proyecto.all().last())
-                            datos_recolectar["Equipo_entregado"]=data.datos_equipamiento().cantidad_equipo
-                        else:
-                            datos_recolectar["Fecha_equipamiento"]=0
-                            datos_recolectar["No_equipamiento"]=0
-                            datos_recolectar["Donante"]="No tiene"
-                            datos_recolectar["Proyecto"]="No tiene"
-                            datos_recolectar["Equipo_entregado"]=0
-                        if data.capacitacion["capacitada"]== True:
-                            for  data_sede in data.get_sedes():
-                                capacitador = data_sede.capacitador.get_full_name()
-                                fecha_creacion =data_sede.fecha_creacion.date()
-                            datos_recolectar["Capacitada"]=True
-                            grupo=cyd_m.Grupo.objects.filter(sede=data.get_sedes())
-                            for datos in grupo:
-                                total_hombre = total_hombre + datos.get_hombres()
-                                total_mujeres = total_mujeres + datos.get_mujeres()
-                                total_aprobados= total_aprobados +datos.count_aprobados()
-                            maestros_desertores=cyd_m.Asignacion.objects.filter(grupo__sede=data.get_sedes(),abandono=True).count()
-                            try:
-                                datos_recolectar["Capacitador"]=capacitador
-                                datos_recolectar["Maestros_capacitados"]= total_hombre + total_mujeres
-                                datos_recolectar["Maestros_promovidos"]=total_aprobados
-                                datos_recolectar["Maestros_no_promovidos"]=(total_mujeres + total_hombre) - total_aprobados
-                                datos_recolectar["Maestros_desertores"]=maestros_desertores
-                                datos_recolectar["Fecha_capacitacion"]=fecha_creacion
-                            except Exception as e:
-                                datos_recolectar["Capacitador"]="No tiene"
-                                datos_recolectar["Maestros_capacitados"]= 0
-                                datos_recolectar["Maestros_promovidos"]=0
-                                datos_recolectar["Maestros_no_promovidos"]=0
-                                datos_recolectar["Maestros_desertores"]=0
-                                datos_recolectar["Fecha_capacitacion"]="No tiene"
-                        else:
-                            datos_recolectar["Capacitada"]=False
-                            datos_recolectar["Fecha_capacitacion"]=0
-                            datos_recolectar["Capacitador"]="No tiene"
-                            datos_recolectar["Maestros_capacitados"]= 0
-                            datos_recolectar["Maestros_promovidos"]=0
-                            datos_recolectar["Maestros_no_promovidos"]=0
-                            datos_recolectar["Maestros_desertores"]=0
-                        datos_enviar.append(datos_recolectar)
-                except Exception as e:
-                    print("Carretera")
-                    try:
-                        for data in queryset2.filter(filter_clauses):
-                            datos_recolectar={}
-                            datos_recolectar["Udi"]=data.escuela.codigo
-                            datos_recolectar["Nombre"]=data.escuela.nombre
-                            datos_recolectar["Direccion"]=data.escuela.direccion
-                            datos_recolectar["Departamento"]=data.escuela.municipio.departamento.nombre
-                            datos_recolectar["Municipio"]=data.escuela.municipio.nombre
-                            datos_recolectar["escuela_url"]=data.escuela.get_absolute_url()
-                            try:
-                                poblacion =  escuela_m.EscPoblacion.objects.filter(escuela__codigo=data.escuela.codigo).last()
-                                datos_recolectar["Ninos_beneficiados"]=poblacion.total_alumno
-                                datos_recolectar["Docentes"]=poblacion.total_maestro
-                            except Exception as e:
-                                datos_recolectar["Ninos_beneficiados"]=0
-                                datos_recolectar["Docentes"]=0
-                            if data.cantidad_equipo >=1:
-                                datos_recolectar["Equipada"]=True
-                            else:
-                                datos_recolectar["Equipada"]=False
-                            datos_recolectar["Fecha_equipamiento"]=data.fecha
-                            datos_recolectar["No_equipamiento"]=str(data.id)
-                            datos_recolectar["Donante"]=str(data.cooperante.all().last())
-                            datos_recolectar["Proyecto"]=str(data.proyecto.all().last())
-                            datos_recolectar["Equipo_entregado"]=data.cantidad_equipo
-                            sede_capacitada= cyd_m.Sede.objects.filter(escuela_beneficiada__codigo=data.escuela.codigo).last()
-                            if cyd_m.Sede.objects.filter(escuela_beneficiada__codigo=data.escuela.codigo).count() >=1:
-                                datos_recolectar["Capacitada"]=True
-                            else:
-                                datos_recolectar["Capacitada"]=False
-                            grupo=cyd_m.Grupo.objects.filter(sede=sede_capacitada)
-                            for datos in grupo:
-                                total_hombre = total_hombre + datos.get_hombres()
-                                total_mujeres = total_mujeres + datos.get_mujeres()
-                                total_aprobados= total_aprobados +datos.count_aprobados()
-                            maestros_desertores=cyd_m.Asignacion.objects.filter(grupo__sede=sede_capacitada,abandono=True).count()
-                            try:
-                                datos_recolectar["Fecha_capacitacion"]=str(sede_capacitada.fecha_creacion.date())
-                                datos_recolectar["Capacitador"]=str(sede_capacitada.capacitador.get_full_name())
-                            except Exception as e:
-                                datos_recolectar["Fecha_capacitacion"]="No"
-                                datos_recolectar["Capacitador"]="No"
-                            datos_recolectar["Maestros_capacitados"]= total_hombre + total_mujeres
-                            datos_recolectar["Maestros_promovidos"]=total_aprobados
-                            datos_recolectar["Maestros_no_promovidos"]=(total_mujeres + total_hombre) - total_aprobados
-                            datos_recolectar["Maestros_desertores"]=maestros_desertores
-                            datos_enviar.append(datos_recolectar)
-                    except Exception as e:
-                        #cyd_m.Sede.objects.distinct()
-                        for data1 in queryset3.filter(filter_clauses):
-                            datos_recolectar={}
-                            datos_recolectar["Udi"]=data1.escuela_beneficiada.codigo
-                            datos_recolectar["Nombre"]=data1.escuela_beneficiada.nombre
-                            datos_recolectar["Direccion"]=data1.escuela_beneficiada.direccion
-                            datos_recolectar["Departamento"]=data1.escuela_beneficiada.municipio.departamento.nombre
-                            datos_recolectar["Municipio"]=data1.escuela_beneficiada.municipio.nombre
-                            datos_recolectar["escuela_url"]=data1.escuela_beneficiada.get_absolute_url()
-                            try:
-                                poblacion =  escuela_m.EscPoblacion.objects.filter(escuela__codigo=data.escuela_beneficiada.codigo).last()
-                                datos_recolectar["Ninos_beneficiados"]=poblacion.total_alumno
-                                datos_recolectar["Docentes"]=poblacion.total_maestro
-                            except Exception as e:
-                                datos_recolectar["Ninos_beneficiados"]=0
-                                datos_recolectar["Docentes"]=0
-                            data_equipamiento=tpe_m.Equipamiento.objects.filter(escuela__codigo=data1.escuela_beneficiada.codigo).last()
-                            try:
-                                 cantidad = data_equipamiento.cantidad_equipo
-                            except Exception as e:
-                                cantidad = 0
-                            if cantidad >=1:
-                                datos_recolectar["Equipada"]=True
-                                datos_recolectar["Fecha_equipamiento"]=data_equipamiento.fecha
-                                datos_recolectar["No_equipamiento"]=str(data_equipamiento.id)
-                                datos_recolectar["Donante"]=str(data_equipamiento.cooperante.all().last())
-                                datos_recolectar["Proyecto"]=str(data_equipamiento.proyecto.all().last())
-                                datos_recolectar["Equipo_entregado"]=data_equipamiento.cantidad_equipo
-                            else:
-                                datos_recolectar["Equipada"]=False
-                                datos_recolectar["Fecha_equipamiento"]=0
-                                datos_recolectar["No_equipamiento"]=0
-                                datos_recolectar["Donante"]=0
-                                datos_recolectar["Proyecto"]=0
-                                datos_recolectar["Equipo_entregado"]=0
-
-                            if queryset3.filter(filter_clauses).count() >=1:
-                                datos_recolectar["Capacitada"]=True
-                            else:
-                                datos_recolectar["Capacitada"]=False
-                            grupo=cyd_m.Grupo.objects.filter(sede=data1)
-                            for datos in grupo:
-                                total_hombre = total_hombre + datos.get_hombres()
-                                total_mujeres = total_mujeres + datos.get_mujeres()
-                                total_aprobados= total_aprobados +datos.count_aprobados()
-                            maestros_desertores=cyd_m.Asignacion.objects.filter(grupo__sede=data1,abandono=True).count()
-                            try:
-                                datos_recolectar["Fecha_capacitacion"]=str(sede_capacitada.fecha_creacion.date())
-                                datos_recolectar["Capacitador"]=str(sede_capacitada.capacitador.get_full_name())
-                            except Exception as e:
-                                datos_recolectar["Fecha_capacitacion"]="No"
-                                datos_recolectar["Capacitador"]="No"
-                            datos_recolectar["Maestros_capacitados"]= total_hombre + total_mujeres
-                            datos_recolectar["Maestros_promovidos"]=total_aprobados
-                            datos_recolectar["Maestros_no_promovidos"]=(total_mujeres + total_hombre) - total_aprobados
-                            datos_recolectar["Maestros_desertores"]=maestros_desertores
-                            datos_enviar.append(datos_recolectar)
+        }             
+        for key,value in elegir_filtros.items():
+            if value != 1:
+                contador_filtros = contador_filtros + 1
+                filtros_aplicar = key                
+       
+        if contador_filtros ==1:
+            if filtros_aplicar == "escuela":
+                for dataEscuela in data_escuela:
+                    if dataEscuela["value"] !="":                                         
+                        for new_key, filtro in filter_list.items():
+                            if new_key == dataEscuela["name"]:
+                                filtros_usar[filtro] = dataEscuela["value"]
+                query = escuela_m.Escuela.objects.filter(**filtros_usar)                        
+            elif filtros_aplicar =="equipamiento":
+                print("aca2")
+                for dataEquipamiento in data_equipamiento:
+                    if dataEquipamiento["value"] !="":                       
+                        if dataEquipamiento["name"] == "equipada":                                                                       
+                            if dataEquipamiento["value"] is "0":
+                                viene_equipada = 0
+                            elif dataEquipamiento["value"] is "1":
+                                viene_equipada = 1
+                            elif dataEquipamiento["value"] is "2":
+                                viene_equipada = 2
+                        for new_key, filtro in filter_list.items():                            
+                            if new_key == dataEquipamiento["name"]:
+                                filtros_usar[filtro] = dataEquipamiento["value"]               
+                query = tpe_m.Equipamiento.objects.filter(**filtros_usar)
+            elif filtros_aplicar == "capacitada":
+                viene_capacitada = 0
+                for dataCapacitacion in data_capacitada:                    
+                    if dataCapacitacion["value"] !="":
+                        if dataCapacitacion["name"] =="capacitada":                             
+                            if dataCapacitacion["value"] is "0":
+                                viene_capacitada = 0
+                            elif dataCapacitacion["value"] is "1":
+                                viene_capacitada = 1
+                            elif dataCapacitacion["value"] is "2":
+                                viene_capacitada = 2    
+                        for new_key, filtro in filter_list.items():
+                            if new_key == dataCapacitacion["name"]:
+                                filtros_usar[filtro] = dataCapacitacion["value"]
+                query = cyd_m.Sede.objects.filter(**filtros_usar)
         else:
-            print("No trae filtros")
-            if filtros.get("capacitada")=='True' and filtros.get("equipada")=='True' :
-                print("Viene 2 verdaderos")
-                for data in tpe_m.Equipamiento.objects.distinct():
-                    if(data.cantidad_equipo >0  and data.escuela.capacitacion["capacitada"] is True and data.escuela.get_sedes().count()>0):
-                        datos_recolectar={}
-                        datos_recolectar["Udi"]=data.escuela.codigo
-                        datos_recolectar["Nombre"]=data.escuela.nombre
-                        datos_recolectar["Direccion"]=data.escuela.direccion
-                        datos_recolectar["Departamento"]=data.escuela.municipio.departamento.nombre
-                        datos_recolectar["Municipio"]=data.escuela.municipio.nombre
-                        datos_recolectar["escuela_url"]=data.escuela.get_absolute_url()
-                        datos_recolectar["Ninos_beneficiados"]=data.escuela.poblacion
-                        datos_recolectar["Docentes"]=data.escuela.maestros
-                        datos_recolectar["Fecha_equipamiento"]=data.escuela.datos_equipamiento().fecha
-                        datos_recolectar["No_equipamiento"]=str(data.escuela.datos_equipamiento().id)
-                        datos_recolectar["Equipada"]=True
-                        datos_recolectar["Donante"]=str(data.escuela.datos_equipamiento().cooperante.all().last())
-                        datos_recolectar["Proyecto"]=str(data.escuela.datos_equipamiento().proyecto.all().last())
-                        datos_recolectar["Equipo_entregado"]=data.escuela.datos_equipamiento().cantidad_equipo
-                        for  data_sede in data.escuela.get_sedes():
-                            capacitador = data_sede.capacitador.get_full_name()
-                            fecha_creacion =data_sede.fecha_creacion.date()
-                            datos_recolectar["Capacitada"]=True
-                            datos_recolectar["Capacitador"]=capacitador
-                            datos_recolectar["Fecha_capacitacion"]=fecha_creacion
-                        grupo=cyd_m.Grupo.objects.filter(sede__in=data.escuela.get_sedes())
-                        for datos in grupo:
-                            total_hombre = total_hombre + datos.get_hombres()
-                            total_mujeres = total_mujeres + datos.get_mujeres()
-                            total_aprobados= total_aprobados +datos.count_aprobados()
-                        maestros_desertores=cyd_m.Asignacion.objects.filter(grupo__sede__in=data.escuela.get_sedes(),abandono=True).count()
-                        datos_recolectar["Maestros_capacitados"]= total_hombre + total_mujeres
-                        datos_recolectar["Maestros_promovidos"]=total_aprobados
-                        datos_recolectar["Maestros_no_promovidos"]=(total_mujeres + total_hombre) - total_aprobados
-                        datos_recolectar["Maestros_desertores"]=maestros_desertores
-                        datos_enviar.append(datos_recolectar)
-            elif filtros.get("capacitada")=='False' and filtros.get("equipada")=='False' :
-                for data in escuela_m.Escuela.objects.distinct()[:1000]:
-                     if (data.equipada is False and data.capacitacion["capacitada"] is False):
-                         datos_recolectar={}
-                         datos_recolectar["Udi"]=data.codigo
-                         datos_recolectar["Nombre"]=data.nombre
-                         datos_recolectar["Direccion"]=data.direccion
-                         datos_recolectar["Departamento"]=data.municipio.departamento.nombre
-                         datos_recolectar["Municipio"]=data.municipio.nombre
-                         datos_recolectar["escuela_url"]=data.get_absolute_url()
-                         datos_recolectar["Ninos_beneficiados"]=data.poblacion
-                         datos_recolectar["Docentes"]=data.maestros
-                         datos_recolectar["Fecha_equipamiento"]="No tiene"
-                         datos_recolectar["No_equipamiento"]="No tiene"
-                         datos_recolectar["Equipada"]=False
-                         datos_recolectar["Donante"]="No tiene"
-                         datos_recolectar["Proyecto"]="No tiene"
-                         datos_recolectar["Equipo_entregado"]=0
-                         datos_recolectar["Capacitada"]=False
-                         datos_recolectar["Capacitador"]="No tiene"
-                         datos_recolectar["Fecha_capacitacion"]="No tiene"
-                         datos_recolectar["Maestros_capacitados"]=0
-                         datos_recolectar["Maestros_promovidos"]=0
-                         datos_recolectar["Maestros_no_promovidos"]=0
-                         datos_recolectar["Maestros_desertores"]=0
-                         datos_enviar.append(datos_recolectar)
-            elif filtros.get("capacitada")=='True' and filtros.get("equipada")=='False' :
-                print("Viene capacitada  y no equipada")
-            elif filtros.get("capacitada")=='True':
-                for data in tpe_m.Equipamiento.objects.distinct():
-                    if(data.escuela.capacitacion["capacitada"] is True):
-                        if(data.escuela.get_sedes().count()>0):
-                            datos_recolectar={}
-                            datos_recolectar["Udi"]=data.escuela.codigo
-                            datos_recolectar["Nombre"]=data.escuela.nombre
-                            datos_recolectar["Direccion"]=data.escuela.direccion
-                            datos_recolectar["Departamento"]=data.escuela.municipio.departamento.nombre
-                            datos_recolectar["Municipio"]=data.escuela.municipio.nombre
-                            datos_recolectar["escuela_url"]=data.escuela.get_absolute_url()
-                            datos_recolectar["Ninos_beneficiados"]=data.escuela.poblacion
-                            datos_recolectar["Docentes"]=data.escuela.maestros
-                            datos_recolectar["Fecha_equipamiento"]=data.escuela.datos_equipamiento().fecha
-                            datos_recolectar["No_equipamiento"]=str(data.escuela.datos_equipamiento().id)
-                            datos_recolectar["Equipada"]=True
-                            datos_recolectar["Donante"]=str(data.escuela.datos_equipamiento().cooperante.all().last())
-                            datos_recolectar["Proyecto"]=str(data.escuela.datos_equipamiento().proyecto.all().last())
-                            datos_recolectar["Equipo_entregado"]=data.escuela.datos_equipamiento().cantidad_equipo
-                            for data_sede in data.escuela.get_sedes():
-                                capacitador = data_sede.capacitador.get_full_name()
-                                fecha_creacion =data_sede.fecha_creacion.date()
-                                datos_recolectar["Capacitada"]=True
-                                datos_recolectar["Capacitador"]=capacitador
-                                datos_recolectar["Fecha_capacitacion"]=fecha_creacion
-                            grupo=cyd_m.Grupo.objects.filter(sede__in=data.escuela.get_sedes())
-                            for datos in grupo:
-                                total_hombre = total_hombre + datos.get_hombres()
-                                total_mujeres = total_mujeres + datos.get_mujeres()
-                                total_aprobados= total_aprobados +datos.count_aprobados()
-                            maestros_desertores=cyd_m.Asignacion.objects.filter(grupo__sede__in=data.escuela.get_sedes(),abandono=True).count()
-                            datos_recolectar["Maestros_capacitados"]= total_hombre + total_mujeres
-                            datos_recolectar["Maestros_promovidos"]=total_aprobados
-                            datos_recolectar["Maestros_no_promovidos"]=(total_mujeres + total_hombre) - total_aprobados
-                            datos_recolectar["Maestros_desertores"]=maestros_desertores
-                            datos_enviar.append(datos_recolectar)
-            elif filtros.get("equipada")=='True':
-                print("Solo viene equipada")
-                for data in tpe_m.Equipamiento.objects.distinct():
-                    if(data.cantidad_equipo >0 ):
-                        datos_recolectar={}
-                        datos_recolectar["Udi"]=data.escuela.codigo
-                        datos_recolectar["Nombre"]=data.escuela.nombre
-                        datos_recolectar["Direccion"]=data.escuela.direccion
-                        datos_recolectar["Departamento"]=data.escuela.municipio.departamento.nombre
-                        datos_recolectar["Municipio"]=data.escuela.municipio.nombre
-                        datos_recolectar["escuela_url"]=data.escuela.get_absolute_url()
-                        datos_recolectar["Ninos_beneficiados"]=data.escuela.poblacion
-                        datos_recolectar["Docentes"]=data.escuela.maestros
-                        datos_recolectar["Fecha_equipamiento"]=data.escuela.datos_equipamiento().fecha
-                        datos_recolectar["No_equipamiento"]=str(data.escuela.datos_equipamiento().id)
-                        datos_recolectar["Equipada"]=True
-                        datos_recolectar["Donante"]=str(data.escuela.datos_equipamiento().cooperante.all().last())
-                        datos_recolectar["Proyecto"]=str(data.escuela.datos_equipamiento().proyecto.all().last())
-                        datos_recolectar["Equipo_entregado"]=data.escuela.datos_equipamiento().cantidad_equipo
-                        if data.escuela.get_sedes().count()>0:
-                            for  data_sede in data.escuela.get_sedes():
-                                capacitador = data_sede.capacitador.get_full_name()
-                                fecha_creacion =data_sede.fecha_creacion.date()
-                                datos_recolectar["Capacitada"]=True
-                                datos_recolectar["Capacitador"]=capacitador
-                                datos_recolectar["Fecha_capacitacion"]=fecha_creacion
-                        else:
-                            datos_recolectar["Capacitada"]=False
-                            datos_recolectar["Capacitador"]="No tiene"
-                            datos_recolectar["Fecha_capacitacion"]="No tiene fecha"
-                        grupo=cyd_m.Grupo.objects.filter(sede__in=data.escuela.get_sedes())
-                        for datos in grupo:
-                            total_hombre = total_hombre + datos.get_hombres()
-                            total_mujeres = total_mujeres + datos.get_mujeres()
-                            total_aprobados= total_aprobados +datos.count_aprobados()
-                        maestros_desertores=cyd_m.Asignacion.objects.filter(grupo__sede__in=data.escuela.get_sedes(),abandono=True).count()
-                        datos_recolectar["Maestros_capacitados"]= total_hombre + total_mujeres
-                        datos_recolectar["Maestros_promovidos"]=total_aprobados
-                        datos_recolectar["Maestros_no_promovidos"]=(total_mujeres + total_hombre) - total_aprobados
-                        datos_recolectar["Maestros_desertores"]=maestros_desertores
-                        datos_enviar.append(datos_recolectar)
-            elif filtros.get("equipada")=='False':
-                for data in queryset.filter()[:1000]:
-                    if(data.equipada is False):
-                        datos_recolectar={}
-                        datos_recolectar["Udi"]=data.codigo
-                        datos_recolectar["Nombre"]=data.nombre
-                        datos_recolectar["Direccion"]=data.direccion
-                        datos_recolectar["Departamento"]=data.municipio.departamento.nombre
-                        datos_recolectar["Municipio"]=data.municipio.nombre
-                        datos_recolectar["escuela_url"]=data.get_absolute_url()
-                        datos_recolectar["Ninos_beneficiados"]=data.poblacion
-                        datos_recolectar["Docentes"]=data.maestros
-                        datos_recolectar["Fecha_equipamiento"]="No tiene"
-                        datos_recolectar["No_equipamiento"]=0
-                        datos_recolectar["Equipada"]=False
-                        datos_recolectar["Donante"]="No tiene"
-                        datos_recolectar["Proyecto"]="No tiene"
-                        datos_recolectar["Equipo_entregado"]=0
-                        if data.get_sedes().count()>0:
-                            for  data_sede in data.get_sedes():
-                                capacitador = data_sede.capacitador.get_full_name()
-                                fecha_creacion =data_sede.fecha_creacion.date()
-                                datos_recolectar["Capacitada"]=True
-                                datos_recolectar["Capacitador"]=capacitador
-                                datos_recolectar["Fecha_capacitacion"]=fecha_creacion
-                        else:
-                            datos_recolectar["Capacitada"]=False
-                            datos_recolectar["Capacitador"]="No tiene"
-                            datos_recolectar["Fecha_capacitacion"]="No tiene fecha"
+            print("Error")
 
-                        grupo=cyd_m.Grupo.objects.filter(sede__in=data.get_sedes())
-                        for datos in grupo:
-                            total_hombre = total_hombre + datos.get_hombres()
-                            total_mujeres = total_mujeres + datos.get_mujeres()
-                            total_aprobados= total_aprobados +datos.count_aprobados()
-                        maestros_desertores=cyd_m.Asignacion.objects.filter(grupo__sede__in=data.get_sedes(),abandono=True).count()
-                        datos_recolectar["Maestros_capacitados"]= total_hombre + total_mujeres
-                        datos_recolectar["Maestros_promovidos"]=total_aprobados
-                        datos_recolectar["Maestros_no_promovidos"]=(total_mujeres + total_hombre) - total_aprobados
-                        datos_recolectar["Maestros_desertores"]=maestros_desertores
-                        datos_enviar.append(datos_recolectar)
-            else:
-                print("Viene equipa y no capacitada")
-                for data in tpe_m.Equipamiento.objects.distinct():
-                    if(data.cantidad_equipo >0  and data.escuela.capacitacion["capacitada"] is False):
-                        datos_recolectar={}
-                        datos_recolectar["Udi"]=data.escuela.codigo
-                        datos_recolectar["Nombre"]=data.escuela.nombre
-                        datos_recolectar["Direccion"]=data.escuela.direccion
-                        datos_recolectar["Departamento"]=data.escuela.municipio.departamento.nombre
-                        datos_recolectar["Municipio"]=data.escuela.municipio.nombre
-                        datos_recolectar["escuela_url"]=data.escuela.get_absolute_url()
-                        datos_recolectar["Ninos_beneficiados"]=data.escuela.poblacion
-                        datos_recolectar["Docentes"]=data.escuela.maestros
-                        datos_recolectar["Fecha_equipamiento"]=data.escuela.datos_equipamiento().fecha
-                        datos_recolectar["No_equipamiento"]=str(data.escuela.datos_equipamiento().id)
-                        datos_recolectar["Equipada"]=True
-                        datos_recolectar["Donante"]="No tiene"
-                        datos_recolectar["Proyecto"]="No tiene"
-                        datos_recolectar["Equipo_entregado"]=data.escuela.datos_equipamiento().cantidad_equipo
-                        datos_recolectar["Capacitada"]=False
-                        datos_recolectar["Capacitador"]="No tiene"
+        if isinstance(query.first(), cyd_m.Sede):            
+            if viene_capacitada == 0:
+                for data_final in query:
+                    datos_recolectar ={}
+                    datos_recolectar["Udi"]= data_final.escuela_beneficiada.codigo
+                    datos_recolectar["Nombre"]= data_final.escuela_beneficiada.nombre
+                    datos_recolectar["escuela_url"]= data_final.escuela_beneficiada.get_absolute_url()
+                    datos_recolectar["Direccion"]= data_final.escuela_beneficiada.direccion
+                    datos_recolectar["Departamento"]= data_final.escuela_beneficiada.municipio.departamento.nombre
+                    datos_recolectar["Municipio"]= data_final.escuela_beneficiada.municipio.nombre
+                    datos_recolectar["Ninos_beneficiados"]= data_final.escuela_beneficiada.get_poblacion()
+                    datos_recolectar["Docentes"]= data_final.escuela_beneficiada.get_maestros()
+                    datos_recolectar["Equipada"]= data_final.escuela_beneficiada.es_equipada()
+                    if data_final.escuela_beneficiada.es_equipada():
+                        datos_recolectar["Fecha_equipamiento"]= data_final.escuela_beneficiada.datos_equipamiento().fecha
+                        datos_recolectar["No_equipamiento"]= data_final.escuela_beneficiada.datos_equipamiento().no_referencia
+                        datos_recolectar["Proyecto"]= [x.nombre for x in data_final.escuela_beneficiada.datos_equipamiento().proyecto.all()]  
+                        datos_recolectar["Donante"]= [x.nombre for x in data_final.escuela_beneficiada.datos_equipamiento().cooperante.all()]                       
+                        datos_recolectar["Equipo_entregado"]= data_final.escuela_beneficiada.datos_equipamiento().cantidad_equipo
+                    else:
+                        datos_recolectar["Fecha_equipamiento"]= "No tiene"
+                        datos_recolectar["No_equipamiento"]= "No tiene"
+                        datos_recolectar["Proyecto"]= "No tiene"  
+                        datos_recolectar["Donante"]= "No tiene"          
+                        datos_recolectar["Equipo_entregado"]= 0
+                    if data_final.escuela_beneficiada.fue_capacitada():
+                        datos_recolectar["Capacitada"]= data_final.escuela_beneficiada.fue_capacitada()
+                        datos_recolectar["Fecha_capacitacion"]=data_final.fecha_creacion.date()
+                        datos_recolectar["Capacitador"]= data_final.capacitador.get_full_name()
+                        datos_recolectar["Maestros_capacitados"]= data_final.escuela_beneficiada.get_escuelas_sedes("",data_final.escuela_beneficiada.codigo,data_final.id)["total_maestros"]
+                        datos_recolectar["Maestros_promovidos"]= data_final.escuela_beneficiada.get_escuelas_sedes("",data_final.escuela_beneficiada.codigo,data_final.id)["aprobados"]
+                        datos_recolectar["Maestros_no_promovidos"]=data_final.escuela_beneficiada.get_escuelas_sedes("",data_final.escuela_beneficiada.codigo,data_final.id)["reprobados"]
+                        datos_recolectar["Maestros_desertores"]= data_final.escuela_beneficiada.get_escuelas_sedes("",data_final.escuela_beneficiada.codigo,data_final.id)["nivelar"]
+                    else:
+                        datos_recolectar["Capacitada"]= data_final.escuela_beneficiada.fue_capacitada()
                         datos_recolectar["Fecha_capacitacion"]="No tiene"
-                        datos_recolectar["Maestros_capacitados"]=0
-                        datos_recolectar["Maestros_promovidos"]=0
-                        datos_recolectar["Maestros_no_promovidos"]=0
-                        datos_recolectar["Maestros_desertores"]=0
-                        datos_enviar.append(datos_recolectar)
+                        datos_recolectar["Capacitador"]= "No tiene"
+                        datos_recolectar["Maestros_capacitados"]= 0
+                        datos_recolectar["Maestros_promovidos"]= 0
+                        datos_recolectar["Maestros_no_promovidos"]= 0
+                        datos_recolectar["Maestros_desertores"]= 0
+                    datos_enviar.append(datos_recolectar)
+            elif viene_capacitada == 1:
+                for data_final in query:                    
+                    if data_final.escuela_beneficiada.fue_capacitada():
+                        datos_recolectar ={}
+                        datos_recolectar["Udi"]= data_final.escuela_beneficiada.codigo
+                        datos_recolectar["Nombre"]= data_final.escuela_beneficiada.nombre
+                        datos_recolectar["escuela_url"]= data_final.escuela_beneficiada.get_absolute_url()
+                        datos_recolectar["Direccion"]= data_final.escuela_beneficiada.direccion
+                        datos_recolectar["Departamento"]= data_final.escuela_beneficiada.municipio.departamento.nombre
+                        datos_recolectar["Municipio"]= data_final.escuela_beneficiada.municipio.nombre
+                        datos_recolectar["Ninos_beneficiados"]= data_final.escuela_beneficiada.get_poblacion()
+                        datos_recolectar["Docentes"]= data_final.escuela_beneficiada.get_maestros()
+                        datos_recolectar["Equipada"]= data_final.escuela_beneficiada.es_equipada()
+                        datos_recolectar["Capacitada"]= data_final.escuela_beneficiada.fue_capacitada()
+                        datos_recolectar["Fecha_capacitacion"]=data_final.fecha_creacion.date()
+                        datos_recolectar["Capacitador"]= data_final.capacitador.get_full_name()
+                        datos_recolectar["Maestros_capacitados"]= data_final.escuela_beneficiada.get_escuelas_sedes("",data_final.escuela_beneficiada.codigo,data_final.id)["total_maestros"]
+                        datos_recolectar["Maestros_promovidos"]= data_final.escuela_beneficiada.get_escuelas_sedes("",data_final.escuela_beneficiada.codigo,data_final.id)["aprobados"]
+                        datos_recolectar["Maestros_no_promovidos"]=data_final.escuela_beneficiada.get_escuelas_sedes("",data_final.escuela_beneficiada.codigo,data_final.id)["reprobados"]
+                        datos_recolectar["Maestros_desertores"]= data_final.escuela_beneficiada.get_escuelas_sedes("",data_final.escuela_beneficiada.codigo,data_final.id)["nivelar"]
+                        if data_final.escuela_beneficiada.es_equipada():
+                            datos_recolectar["Fecha_equipamiento"]= data_final.escuela_beneficiada.datos_equipamiento().fecha
+                            datos_recolectar["No_equipamiento"]= data_final.escuela_beneficiada.datos_equipamiento().no_referencia
+                            datos_recolectar["Proyecto"]= [x.nombre for x in data_final.escuela_beneficiada.datos_equipamiento().proyecto.all()]  
+                            datos_recolectar["Donante"]= [x.nombre for x in data_final.escuela_beneficiada.datos_equipamiento().cooperante.all()]                       
+                            datos_recolectar["Equipo_entregado"]= data_final.escuela_beneficiada.datos_equipamiento().cantidad_equipo
+                        else:
+                            datos_recolectar["Fecha_equipamiento"]= "No tiene"
+                            datos_recolectar["No_equipamiento"]= "No tiene"
+                            datos_recolectar["Proyecto"]= "No tiene"  
+                            datos_recolectar["Donante"]= "No tiene"          
+                            datos_recolectar["Equipo_entregado"]= 0
+                    datos_enviar.append(datos_recolectar)     
+            elif viene_capacitada == 2:
+                print("No hay capacitadas")
+        elif isinstance(query.first(), tpe_m.Equipamiento):
+            print("Viene Equipamiento: ", viene_equipada)
+            if viene_equipada ==0:
+                """codigo_repetido = cyd_m.Sede.objects.values('escuela_beneficiada__codigo').annotate(total=Count('escuela_beneficiada__codigo'))  
+                for data2 in codigo_repetido:
+                    if data2['total'] >=3:
+                        print(data2['escuela_beneficiada__codigo'])"""
+                #prueba_query = cyd_m.Sede.objects.filter(escuela_beneficiada__codigo="05-06-2709-43").order_by('fecha_creacion')
+                #print(prueba_query.last().id) # mas actual
+                #print(prueba_query.first().id)
+                #for data1 in prueba_query:
+                #    print(data1.id,"-->",data1.fecha_creacion.year)                
+                for data_final in query:
+                    datos_recolectar ={}
+                    datos_recolectar["Udi"]= data_final.escuela.codigo
+                    datos_recolectar["Nombre"]= data_final.escuela.nombre
+                    datos_recolectar["escuela_url"]= data_final.escuela.get_absolute_url()
+                    datos_recolectar["Direccion"]= data_final.escuela.direccion
+                    datos_recolectar["Departamento"]= data_final.escuela.municipio.departamento.nombre
+                    datos_recolectar["Municipio"]= data_final.escuela.municipio.nombre
+                    datos_recolectar["Ninos_beneficiados"]= data_final.escuela.get_poblacion()
+                    datos_recolectar["Docentes"]= data_final.escuela.get_maestros()
+                    datos_recolectar["Equipada"]= data_final.escuela.es_equipada()
+                    if data_final.escuela.es_equipada():
+                        datos_recolectar["Fecha_equipamiento"]= data_final.escuela.datos_equipamiento().fecha
+                        datos_recolectar["No_equipamiento"]= data_final.escuela.datos_equipamiento().no_referencia
+                        datos_recolectar["Proyecto"]= [x.nombre for x in data_final.escuela.datos_equipamiento().proyecto.all()]  
+                        datos_recolectar["Donante"]= [x.nombre for x in data_final.escuela.datos_equipamiento().cooperante.all()]                       
+                        datos_recolectar["Equipo_entregado"]= data_final.escuela.datos_equipamiento().cantidad_equipo
+                    else:
+                        datos_recolectar["Fecha_equipamiento"]= "No tiene"
+                        datos_recolectar["No_equipamiento"]= "No tiene"
+                        datos_recolectar["Proyecto"]= "No tiene"  
+                        datos_recolectar["Donante"]= "No tiene"          
+                        datos_recolectar["Equipo_entregado"]= 0
+                    if data_final.escuela.fue_capacitada():
+                        sede_capacitada = data_final.escuela.escuela_beneficiada.all().order_by('fecha_creacion').last()                       
+                        total = sede_capacitada.get_participantes()['resumen']["estado"]["aprobado"]["cantidad"] + sede_capacitada.get_participantes()['resumen']["estado"]["reprobado"]["cantidad"] + sede_capacitada.get_participantes()['resumen']["estado"]["nivelar"]["cantidad"]                        
+                        datos_recolectar["Capacitada"]= data_final.escuela.fue_capacitada()
+                        datos_recolectar["Fecha_capacitacion"]=sede_capacitada.fecha_creacion.date()
+                        datos_recolectar["Capacitador"]= sede_capacitada.capacitador.get_full_name()
+                        datos_recolectar["Maestros_capacitados"]= total
+                        datos_recolectar["Maestros_promovidos"]= sede_capacitada.get_participantes()['resumen']["estado"]["aprobado"]["cantidad"]
+                        datos_recolectar["Maestros_no_promovidos"]=sede_capacitada.get_participantes()['resumen']["estado"]["reprobado"]["cantidad"]
+                        datos_recolectar["Maestros_desertores"]= sede_capacitada.get_participantes()['resumen']["estado"]["nivelar"]["cantidad"]
+                    else:
+                        datos_recolectar["Capacitada"]= data_final.escuela.fue_capacitada()
+                        datos_recolectar["Fecha_capacitacion"]="No tiene"
+                        datos_recolectar["Capacitador"]= "No tiene"
+                        datos_recolectar["Maestros_capacitados"]= 0
+                        datos_recolectar["Maestros_promovidos"]= 0
+                        datos_recolectar["Maestros_no_promovidos"]= 0
+                        datos_recolectar["Maestros_desertores"]= 0
+                    datos_enviar.append(datos_recolectar)
+            elif viene_equipada ==1:
+                print("Si viene equipada")
+                for data_final in query:
+                    datos_recolectar ={}
+                    datos_recolectar["Udi"]= data_final.escuela.codigo
+                    datos_recolectar["Nombre"]= data_final.escuela.nombre
+                    datos_recolectar["escuela_url"]= data_final.escuela.get_absolute_url()
+                    datos_recolectar["Direccion"]= data_final.escuela.direccion
+                    datos_recolectar["Departamento"]= data_final.escuela.municipio.departamento.nombre
+                    datos_recolectar["Municipio"]= data_final.escuela.municipio.nombre
+                    datos_recolectar["Ninos_beneficiados"]= data_final.escuela.get_poblacion()
+                    datos_recolectar["Docentes"]= data_final.escuela.get_maestros()
+                    datos_recolectar["Equipada"]= data_final.escuela.es_equipada()
+                    if data_final.escuela.es_equipada():
+                        datos_recolectar["Fecha_equipamiento"]= data_final.escuela.datos_equipamiento().fecha
+                        datos_recolectar["No_equipamiento"]= data_final.escuela.datos_equipamiento().no_referencia
+                        datos_recolectar["Proyecto"]= [x.nombre for x in data_final.escuela.datos_equipamiento().proyecto.all()]  
+                        datos_recolectar["Donante"]= [x.nombre for x in data_final.escuela.datos_equipamiento().cooperante.all()]                       
+                        datos_recolectar["Equipo_entregado"]= data_final.escuela.datos_equipamiento().cantidad_equipo
+                    else:
+                        datos_recolectar["Fecha_equipamiento"]= "No tiene"
+                        datos_recolectar["No_equipamiento"]= "No tiene"
+                        datos_recolectar["Proyecto"]= "No tiene"  
+                        datos_recolectar["Donante"]= "No tiene"          
+                        datos_recolectar["Equipo_entregado"]= 0
+                    if data_final.escuela.fue_capacitada():
+                        sede_capacitada = data_final.escuela.escuela_beneficiada.all().order_by('fecha_creacion').last()                       
+                        total = sede_capacitada.get_participantes()['resumen']["estado"]["aprobado"]["cantidad"] + sede_capacitada.get_participantes()['resumen']["estado"]["reprobado"]["cantidad"] + sede_capacitada.get_participantes()['resumen']["estado"]["nivelar"]["cantidad"]                        
+                        datos_recolectar["Capacitada"]= data_final.escuela.fue_capacitada()
+                        datos_recolectar["Fecha_capacitacion"]=sede_capacitada.fecha_creacion.date()
+                        datos_recolectar["Capacitador"]= sede_capacitada.capacitador.get_full_name()
+                        datos_recolectar["Maestros_capacitados"]= total
+                        datos_recolectar["Maestros_promovidos"]= sede_capacitada.get_participantes()['resumen']["estado"]["aprobado"]["cantidad"]
+                        datos_recolectar["Maestros_no_promovidos"]=sede_capacitada.get_participantes()['resumen']["estado"]["reprobado"]["cantidad"]
+                        datos_recolectar["Maestros_desertores"]= sede_capacitada.get_participantes()['resumen']["estado"]["nivelar"]["cantidad"]
+                    else:
+                        datos_recolectar["Capacitada"]= data_final.escuela.fue_capacitada()
+                        datos_recolectar["Fecha_capacitacion"]="No tiene"
+                        datos_recolectar["Capacitador"]= "No tiene"
+                        datos_recolectar["Maestros_capacitados"]= 0
+                        datos_recolectar["Maestros_promovidos"]= 0
+                        datos_recolectar["Maestros_no_promovidos"]= 0
+                        datos_recolectar["Maestros_desertores"]= 0
+                    datos_enviar.append(datos_recolectar)
+            elif viene_equipada ==2:
+                print("No viene equipada")
+                escuelas = escuela_m.Escuela.objects.all().count()
+                print(escuelas)
+                """for data in escuelas:
+                    if data.es_equipada() is False:
+                        print(data)"""
+                    
+                
+            
+        elif isinstance(query.first(), escuela_m.Escuela):
+            print("Viene Escuela")
+            for data_final in query:
+                datos_recolectar ={}
+                datos_recolectar["Udi"]= data_final.codigo
+                datos_recolectar["Nombre"]= data_final.nombre
+                datos_recolectar["escuela_url"]= data_final.get_absolute_url()
+                datos_recolectar["Direccion"]= data_final.direccion
+                datos_recolectar["Departamento"]= data_final.municipio.departamento.nombre
+                datos_recolectar["Municipio"]= data_final.municipio.nombre
+                datos_recolectar["Ninos_beneficiados"]= data_final.get_poblacion()
+                datos_recolectar["Docentes"]= data_final.get_maestros()
+                datos_recolectar["Equipada"]= data_final.es_equipada()
+                if data_final.es_equipada():
+                        datos_recolectar["Fecha_equipamiento"]= data_final.escuela_beneficiada.datos_equipamiento().fecha
+                        datos_recolectar["No_equipamiento"]= data_final.escuela_beneficiada.datos_equipamiento().no_referencia
+                        datos_recolectar["Proyecto"]= [x.nombre for x in data_final.escuela_beneficiada.datos_equipamiento().proyecto.all()]
+                        datos_recolectar["Donante"]= [x.nombre for x in data_final.escuela_beneficiada.datos_equipamiento().cooperante.all()]
+                        datos_recolectar["Equipo_entregado"]= data_final.escuela_beneficiada.datos_equipamiento().cantidad_equipo                        
+                else:
+                    datos_recolectar["Fecha_equipamiento"]= "No tiene"
+                    datos_recolectar["No_equipamiento"]= "No tiene"
+                    datos_recolectar["Proyecto"]= "No tiene"
+                    datos_recolectar["Donante"]= "No tiene"
+                    datos_recolectar["Equipo_entregado"]= 0
+                if data_final.fue_capacitada():
+                        sede_capacitada = data_final.escuela_beneficiada.all().order_by('fecha_creacion').last()                       
+                        total = sede_capacitada.get_participantes()['resumen']["estado"]["aprobado"]["cantidad"] + sede_capacitada.get_participantes()['resumen']["estado"]["reprobado"]["cantidad"] + sede_capacitada.get_participantes()['resumen']["estado"]["nivelar"]["cantidad"]                        
+                        datos_recolectar["Capacitada"]= data_final.fue_capacitada()
+                        datos_recolectar["Fecha_capacitacion"]=sede_capacitada.fecha_creacion.date()
+                        datos_recolectar["Capacitador"]= sede_capacitada.capacitador.get_full_name()
+                        datos_recolectar["Maestros_capacitados"]= total
+                        datos_recolectar["Maestros_promovidos"]= sede_capacitada.get_participantes()['resumen']["estado"]["aprobado"]["cantidad"]
+                        datos_recolectar["Maestros_no_promovidos"]=sede_capacitada.get_participantes()['resumen']["estado"]["reprobado"]["cantidad"]
+                        datos_recolectar["Maestros_desertores"]= sede_capacitada.get_participantes()['resumen']["estado"]["nivelar"]["cantidad"]
+                else:
+                    datos_recolectar["Capacitada"]= data_final.fue_capacitada()
+                    datos_recolectar["Fecha_capacitacion"]="No tiene"
+                    datos_recolectar["Capacitador"]= "No tiene"
+                    datos_recolectar["Maestros_capacitados"]= 0
+                    datos_recolectar["Maestros_promovidos"]= 0
+                    datos_recolectar["Maestros_no_promovidos"]= 0
+                    datos_recolectar["Maestros_desertores"]= 0
+        datos_enviar.append(datos_recolectar)
+
+         
         return Response(
                 datos_enviar,
             status=status.HTTP_200_OK
@@ -1369,3 +619,14 @@ class ConsultaEscuelaApiDos(views.APIView):
             datos_enviar,
         status=status.HTTP_200_OK
         )
+class InformeFinalView(TemplateView):
+    """ Vista  encargada de obtener los filtros necesarios para poder  obterner la informacion
+    """
+    template_name = 'informe/informeFinal.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(InformeFinalView, self).get_context_data(**kwargs)
+        context['form_escuela'] = informe_f.informeEscuelaForm        
+        context['form_equipada'] = informe_f.informeEquipamientoForm
+        context['form_capacitada'] = informe_f.informeCapacitadaForm
+        return context
