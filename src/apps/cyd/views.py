@@ -1622,7 +1622,10 @@ class InformeParticipanteCapacitador(views.APIView):
                                 info_participante["rol"] = participante['participante'].rol.nombre
                             except:
                                 info_participante["rol"] = "No tiene"
-                            info_participante["donante"] = [x.nombre for x in donante.cooperante.all()] 
+                            try:
+                                info_participante["donante"] = [x.nombre for x in donante.cooperante.all()]
+                            except:
+                                 info_participante["donante"] = "No tiene"
                             listado_participantes.append(info_participante)
                              
                     else:
@@ -1690,7 +1693,10 @@ class InformeParticipanteCapacitador(views.APIView):
                          info_participante["rol"] = participante['participante'].rol.nombre
                      except:
                          info_participante["rol"] = "No tiene"
-                     info_participante["donante"] = [x.nombre for x in donante.cooperante.all()]     
+                     try:
+                        info_participante["donante"] = [x.nombre for x in donante.cooperante.all()]
+                     except:
+                        info_participante["donante"]  = "No tiene" 
                      listado_participantes.append(info_participante)        
         return Response({"data":listado_participantes,"cascada":restante_cascada},
             status=status.HTTP_200_OK
