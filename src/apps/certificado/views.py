@@ -644,7 +644,7 @@ class NuevoDiplomaPdfView(View):
       url_perfil = str('https://suni.funsepa.org')+str(reverse_lazy('new_listado'))+str('?dpi=')+str(dpi)
       nuevo_url_perfil = "https://suni.funsepa.org/certificado/nuevo/maestros/"+str('?dpi=')+str(dpi)
       locale.setlocale(locale.LC_ALL,'es_GT.utf8')               
-      participante = cyd_m.Participante.objects.get(dpi=dpi)      
+      participante = cyd_m.Participante.objects.get(dpi=dpi,activo=True)      
       contador_nombre = participante.nombre.split(" ")
       contador_apellido = participante.apellido.split(" ")
       numero_palabras = len(contador_nombre) + len(contador_apellido)         

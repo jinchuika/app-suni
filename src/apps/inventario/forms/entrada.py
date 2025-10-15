@@ -111,6 +111,9 @@ class EntradaDetalleForm(forms.ModelForm):
             'ingresado_kardex', 
             'pendiente_autorizar',
             'autorizado',  
+            'cant_rechazada',
+            'rechazada',
+            'motivo_rechazo',
             ]
         widgets = {
             'entrada': forms.HiddenInput(),
@@ -178,6 +181,9 @@ class EntradaDetalleUpdateForm(forms.ModelForm):
                     'pendiente_autorizar',
                     'autorizado',
                     'proyecto', 
+                    'cant_rechazada',
+                    'rechazada',
+                    'motivo_rechazo',
                     ]
         widgets = {
             'util': forms.NumberInput({'class': 'form-control'}),

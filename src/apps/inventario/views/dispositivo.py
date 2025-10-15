@@ -21,6 +21,7 @@ from apps.kardex import models as kax_m
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from apps.conta import models as conta_m
 
 
 #################################################
@@ -73,6 +74,8 @@ class DispositivoDetailView(DetailView):
     def get_context_data(self, *args, **kwargs):
         context = super(DispositivoDetailView, self).get_context_data(*args, **kwargs)
         context['form_falla'] = inv_f.DispositivoFallaCreateForm(initial={'dispositivo': self.object})
+        salida = self.object.get_salida()
+        context['salida'] = salida
         return context
 
 
@@ -288,6 +291,7 @@ class SolicitudMovimientoUpdateView(LoginRequiredMixin, UpdateView):
             'data-estado-inicial': estado.id,
             'data-tipo-dispositivo': self.object.tipo_dispositivo.id,
             'data-slug': self.object.tipo_dispositivo.slug,
+            'data-id': self.object.id,
         })
 
         queryset = inv_m.Dispositivo.objects.filter(
@@ -309,6 +313,8 @@ class SolicitudMovimientoUpdateView(LoginRequiredMixin, UpdateView):
             lista_dispositivos=form.cleaned_data['dispositivos'],
             usuario=self.request.user
         )
+        form.instance.cantidad = inv_m.CambioEtapa.objects.filter(solicitud=self.object.id).count()
+
         return super(SolicitudMovimientoUpdateView, self).form_valid(form)
 
     def get_context_data(self, *args, **kwargs):
@@ -323,6 +329,14 @@ class SolicitudMovimientoDetailView(LoginRequiredMixin, DetailView):
     model = inv_m.SolicitudMovimiento
     template_name = 'inventario/dispositivo/solicitudmovimiento_detail.html'
     group_required = [u"inv_cc", u"inv_admin", u"inv_tecnico", u"inv_bodega"]
+
+    def get_context_data(self, **kwargs):
+        context = super(SolicitudMovimientoDetailView, self).get_context_data(**kwargs)
+        motivos = self.object.cambios.filter(motivo__isnull=True).exists()
+        motivos = not motivos
+
+        context['motivos'] = motivos
+        return context
 
 
 class SolicitudMovimientoListView(LoginRequiredMixin, FormView):

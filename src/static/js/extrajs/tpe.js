@@ -662,6 +662,7 @@
         {data: "falla_reportada" },
         {data: "falla_encontrada" },
         {data: "solucion_detalle" },
+        {data: "costo" },
         {data: "estado" },
         {data: "tecnico_asignado"},
         {
@@ -671,6 +672,11 @@
                     return '<a href="' + cooperante.url + '">' + cooperante.nombre + '</a>';
                 }).join(', <br>');
             }
+        },
+        {data: "tipo_soporte",
+            render: function (data, type, full, meta) {
+                return data == "None" ? "" : data;
+        }
         },
         ]
     }).on('xhr.dt', function (e, settings, json, xhr) {

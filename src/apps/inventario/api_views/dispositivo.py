@@ -706,6 +706,27 @@ class DispositivoViewSet(viewsets.ModelViewSet):
             {'mensaje': 'Asignado repuesto correctamente'},
             status=status.HTTP_200_OK
         )
+    
+    @action(methods=['post'], detail=False)
+    def terminar(self, request, pk=None):
+        id = request.data['id']
+        solicitudes_movimiento = inv_m.SolicitudMovimiento.objects.get(id=id)
+        solicitudes_movimiento.terminada = True
+        solicitudes_movimiento.save()
+        # Agregar Registro a Bitácora
+        nueva_bitacora = inv_m.SolicitudBitacora(
+            fecha_movimiento=datetime.now(),
+            numero_solicitud=inv_m.SolicitudMovimiento.objects.get(id=id),
+            accion=inv_m.AccionBitacora.objects.get(id=2),
+            usuario=self.request.user
+        )
+        nueva_bitacora.save()
+
+        return Response(
+            {'mensaje': 'Solicitud Recibida'},
+            status=status.HTTP_200_OK
+        )
+
 
 
 class PaquetesFilter(filters.FilterSet):

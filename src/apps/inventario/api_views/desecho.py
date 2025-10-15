@@ -143,8 +143,11 @@ class DesechoDispositivoViewSet(viewsets.ModelViewSet):
                 dispositivos = inv_m.DesechoDispositivo.objects.filter(desecho=id_desecho).count()
                 dispositivos_aprobados = inv_m.DesechoDispositivo.objects.filter(desecho=id_desecho, aprobado=True).count()
                 aprobar_dispositivos = inv_m.DesechoDispositivo.objects.filter(desecho=id_desecho)
+                solicitudes = inv_m.DesechoSolicitud.objects.filter(desecho=id_desecho, rechazado=False).count()
+                solicitudes_aprobadas = inv_m.DesechoSolicitud.objects.filter(desecho=id_desecho, aprobado=True).count()
+                dispo_solicitud = inv_m.DesechoSolicitud.objects.filter(desecho=id_desecho, rechazado=False, aprobado=True)
                 if detalles_aprobados == detalles:
-                    if dispositivos_aprobados == dispositivos:
+                    if dispositivos_aprobados == dispositivos and solicitudes == solicitudes_aprobadas:
                         periodo_actual = conta_m.PeriodoFiscal.objects.get(actual=True)
                         for aprobar in aprobar_dispositivos:
                             precio = conta_m.PrecioDispositivo.objects.get(dispositivo = aprobar.dispositivo, activo= True)
@@ -163,6 +166,24 @@ class DesechoDispositivoViewSet(viewsets.ModelViewSet):
                                 precio=precio.precio,
                                 creado_por = self.request.user)
                             movimiento.save()
+
+                        for solicitud in dispo_solicitud:
+                            precio = conta_m.PrecioDispositivo.objects.get(dispositivo = solicitud.dispositivo, activo= True)
+                            solicitud.dispositivo.etapa = inv_m.DispositivoEtapa.objects.get(id=inv_m.DispositivoEtapa.DS)
+                            solicitud.dispositivo.valido = False
+                            solicitud.dispositivo.save()
+
+                            # Generar movimiento de salida
+                            movimiento = conta_m.MovimientoDispositivo(
+                                fecha=desecho.fecha,
+                                dispositivo=solicitud.dispositivo,
+                                periodo_fiscal=periodo_actual,
+                                tipo_movimiento=conta_m.MovimientoDispositivo.BAJA,
+                                referencia='Salida Desecho{}'.format(desecho.id),
+                                precio=precio.precio,
+                                creado_por = self.request.user)
+                            movimiento.save()
+
 
                         desecho.en_creacion = False
                         desecho.save()
@@ -189,7 +210,103 @@ class DesechoDispositivoViewSet(viewsets.ModelViewSet):
                 )
 
 
+class DesechoSolicitudViewSet(viewsets.ModelViewSet):
+    """ ViewSet para generar los detalles de la :class:`DesechoDetalle`
+    """
+    serializer_class = inv_s.DesechoSolicitudSerializer
+    queryset = inv_m.DesechoSolicitud.objects.all()
 
+    def get_queryset(self):
+            queryset = super().get_queryset()
+            desecho_id = self.request.query_params.get('desecho')
+            if desecho_id:
+                queryset = queryset.filter(desecho_id=desecho_id, rechazado= False)
+            return queryset
+    
+    def create(self, request, *args, **kwargs):
+        desecho_id = request.data.get('desecho')
+        solicitud_id = request.data.get('solicitud')
+        if not desecho_id or not solicitud_id:
+            return Response({"error": "Debe enviar 'desecho' y 'solicitud'"}, status=400)
+
+        try:
+            solicitud = inv_m.SolicitudMovimiento.objects.get(pk=solicitud_id)
+        except inv_m.SolicitudMovimiento.DoesNotExist:
+            return Response({"error": "SolicitudMovimiento no encontrada"}, status=404)
+        solicitud.etapa_final = inv_m.DispositivoEtapa.objects.get(pk=inv_m.DispositivoEtapa.DS)
+        solicitud.save()
+
+        dispositivos = inv_m.CambioEtapa.objects.filter(solicitud=solicitud)
+        
+        for cambio in dispositivos:
+            obj = inv_m.DesechoSolicitud.objects.create(
+                desecho_id=desecho_id,
+                solicitud=solicitud,
+                dispositivo=cambio.dispositivo,
+                creada_por=request.user,
+                aprobado=False,
+                rechazado=False
+            )
+        dispositivos = inv_m.CambioEtapa.objects.filter(solicitud=solicitud)
+
+        return Response({'mensaje': 'Dispositivos agregados con exito'},status=status.HTTP_200_OK)
+    
+    @action(methods=['post'], detail=False)
+    def aprobar_dispositivo(self, request, pk=None):
+        """Metodo para devolver los dispositivos que fueron prestados
+        """
+        if "inv_bodega" in self.request.user.groups.values_list('name', flat=True):
+            return Response(
+                {'mensaje': 'No Tienes la Autorizacion para esta accion'},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+        else:
+            solicitud = request.data["solicitud"]
+            solicitud_desecho = inv_m.DesechoSolicitud.objects.get(id=solicitud)
+            solicitud_desecho.aprobado = True
+            solicitud_desecho.save()
+            return Response(
+                    {
+                        'mensaje': 'Dispositivo Aprobado'
+                    },
+                    status=status.HTTP_200_OK
+                )
+
+    @action(methods=['post'], detail=False)
+    def rechazar_dispositivo(self, request, pk=None):
+        """Metodo para devolver los dispositivos que fueron prestados
+        """
+        if "inv_bodega" in self.request.user.groups.values_list('name', flat=True):
+            return Response(
+                {'mensaje': 'No Tienes la Autorizacion para esta accion'},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+        else:
+            solicitud = request.data["solicitud"]
+            comentario = request.data["comentario"]
+            solicitud_desecho = inv_m.DesechoSolicitud.objects.get(id=solicitud)
+            solicitud_desecho.rechazado = False
+            comentario_rechazar_detalle=inv_m.DesechoComentario(
+                desecho= solicitud_desecho.desecho,
+                comentario = comentario,
+                creado_por= self.request.user,
+                dispositivo= solicitud_desecho.dispositivo
+            )
+            comentario_rechazar_detalle.save()
+            solicitud_desecho.rechazado = True
+            solicitud_desecho.save()
+            dispositivo = solicitud_desecho.dispositivo
+            dispositivo.etapa = inv_m.DispositivoEtapa.objects.get(id=inv_m.DispositivoEtapa.AB)
+            dispositivo.save()
+
+            return Response(
+                    {
+                        'mensaje': 'Dispositivo Rechazado'
+                    },
+                    status=status.HTTP_200_OK
+                )
+
+    
 
 class DesechoSalidaFilter(filters.FilterSet):
     """ Filtros para generar informe de  Salida
@@ -216,3 +333,7 @@ class DesechoSalidaViewSet(viewsets.ModelViewSet):
     serializer_class = inv_s.DesechoSalidaSerializer
     queryset = inv_m.DesechoSalida.objects.all()
     filter_class = DesechoSalidaFilter
+
+class CambioEtapaAPIViewSet(viewsets.ModelViewSet):
+    serializer_class = inv_s.CambioEtapaSerializer
+    queryset = inv_m.CambioEtapa.objects.all()

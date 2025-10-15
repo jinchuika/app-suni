@@ -75,6 +75,8 @@ class EntradaDetalleSerializer(serializers.ModelSerializer):
             'fecha_desecho',
             'autorizado',
             'pendiente_autorizar',
+            'rechazada',
+            'cant_rechazada',
             'grupos',
             'info_proyecto',
             'proyecto'

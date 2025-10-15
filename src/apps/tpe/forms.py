@@ -123,7 +123,7 @@ class TicketRegistroUpdateForm(forms.ModelForm):
 class TicketReparacionForm(forms.ModelForm):
     class Meta:
         model = tpe_m.TicketReparacion
-        fields = ('triage', 'tipo_dispositivo', 'falla_reportada', 'tecnico_asignado')
+        fields = ('triage', 'tipo_dispositivo', 'falla_reportada', 'tecnico_asignado', 'tipo_soporte')
 
     def __init__(self, *args, **kwargs):
         super(TicketReparacionForm, self).__init__(*args, **kwargs)
@@ -302,10 +302,22 @@ class TicketReparacionInformeForm(forms.Form):
         label='Técnico asignado',
         queryset=User.objects.filter(groups__name='tpe_tecnico'),
         required=False)
+    cooperante = forms.ModelChoiceField(
+        label='Cooperante',
+        widget=forms.Select(attrs={'class': 'select2'}),
+        required=False,
+        queryset=mye_m.Cooperante.objects.all())
+    fecha_inicio_min = forms.DateField(label="Fecha inicio desde", required=False, widget=forms.DateInput(attrs={'type': 'date'}))
+    fecha_inicio_max = forms.DateField(label="Fecha inicio hasta", required=False, widget=forms.DateInput(attrs={'type': 'date'}))
+    fecha_fin_min = forms.DateField(label="Fecha fin desde", required=False, widget=forms.DateInput(attrs={'type': 'date'}))
+    fecha_fin_max = forms.DateField(label="Fecha fin hasta", required=False, widget=forms.DateInput(attrs={'type': 'date'}))
+        
 
     def __init__(self, *args, **kwargs):
         super(TicketReparacionInformeForm, self).__init__(*args, **kwargs)
         self.fields['tecnico_asignado'].label_from_instance = lambda obj: "%s" % obj.get_full_name()
+
+
 
 
 class EvaluacionMonitoreoCreateForm(forms.ModelForm):

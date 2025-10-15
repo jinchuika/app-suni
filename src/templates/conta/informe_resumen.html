@@ -6,74 +6,88 @@
 {% endblock page_title %}
 {% block content %}
 <section class="content">
-	<div class="container-fluid">
-		<div class="row">
-			<!-- Comienza el formulario -->
-		<div class="col-md-3 col-sm-3">
-			<div class="box">
-				<form action="" id="precioestandar-list-form">
-					<div class="box-header">
-						<input type="submit" class="btn btn-primary col-md-12" value="Generar Informe" /><br />
-						<h3 class="box-title">Filtros</h3>
-					</div>
-					<div class="box-body">
-						{% csrf_token %} {% for field in form %}
-						<div class="form-group">
-							{{field.label_tag}} {{field}}
-						</div>
-						{% endfor %}
-					</div>
-				</form>
-			</div>
-		</div>
-		<!--Aca termina el formulario-->
-			<div class="col-md-9">
-				<div class="box">
-					<div class="box-header">
-						<div class="row">
-							<div class="col-md-9">
-								<h3 class="box-title">Resumen </h3>
-							</div>
-							<div class="col-md-3">
-							</div>
-						</div>
-					</div>
-					<div class="box-body">
-						<table class="table table-datatables table-striped table-hover table-bordered" id="precioestandar-table" data-api="{%url 'contabilidad_api_resumen'%}">
-							<thead>
-								<tr style="font-size:large; background-color: darkslategrey; color: white;">
-									<th colspan="2">FECHA</th>
-									<th colspan="2">EXISTENCIA INICIAL</th>
-									{% if request.user|has_group:"inv_conta" %}
-									<th colspan="2">SALDO INICIAL</th>
-									{% endif %}
-								</tr>
-								<tr>
-									<th>Tipo</th>
-									<th>Existencia Inicial</th>
-									<th>Saldo Inicial</th>
-									<th>Entradas</th>
-									<th>Salidas</th>
-									<th>Existencia Final</th>
-									<th>Saldo Final</th>
-								</tr>
-							</thead>
-							<tbody>
-							</tbody>
-							<tfoot style="font-size:large">
-								<th colspan="2">EXISTENCIA FINAL</th>
-								<th>ENTRADAS</th>
-								<th colspan="2">SALIDAS</th>
-								{% if request.user|has_group:"inv_conta" %}
-								<th colspan="2">SALDO FINAL</th>
-								{% endif %}
-							</tfoot>
-						</table>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-3 col-sm-3">
+                <div class="box">
+                    <form action="" id="precioestandar-list-form" method="get"> 
+                        <div class="box-header">
+                            <input type="submit" class="btn btn-primary col-md-12" value="Generar Informe" /><br />
+                            <h3 class="box-title">Filtros</h3>
+                        </div>
+                        <div class="box-body">
+                            {% csrf_token %} {% for field in form %}
+                            <div class="form-group">
+                                {{field.label_tag}} {{field}}
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="col-md-9">
+                <div class="box">
+                    <div class="box-header">
+                        <div class="row">
+                            <div class="col-md-9">
+                                <h3 class="box-title">Resumen </h3>
+                            </div>
+                            <div class="col-md-3">
+                            </div>
+                        </div>
+                    </div>
+					{% if request.user|has_group:"inv_admin" %}
+						<form method="post" action="{% url 'contabilidad_resumen_print' %}" id="form-print" target="_blank">
+							{% csrf_token %}
+							<input type="hidden" name="fecha_min" id="fecha_min_hidden">
+							<input type="hidden" name="fecha_max" id="fecha_max_hidden">
+							<div id="tipo_dispositivo_hidden_container"></div>
+							<button type="submit" class="btn btn-success form-control" style="width:15%; margin:3%;">Imprimir</button>
+						</form>
+					{% endif %}
+
+
+                    
+                    <div class="box-body" id="print-tabla-informe">
+                        <table class="table table-datatables table-striped table-hover table-bordered" id="precioestandar-table" data-api="{%url 'contabilidad_api_resumen'%}" data-invconta="{% if request.user|has_group:'inv_conta' %}true{% else %}false{% endif %}">
+                            <thead>
+                                <tr style="font-size:large; background-color: darkslategrey; color: white;">
+                                    <th colspan="2">FECHA</th>
+                                    <th colspan="2">EXISTENCIA INICIAL</th>
+                                    {% if request.user|has_group:"inv_conta" %}
+                                    <th colspan="2">SALDO INICIAL</th>
+                                    {% endif %}
+                                </tr>
+                                <tr>
+                                    <th>Tipo</th>
+                                    <th>Existencia Inicial</th>
+                                    {% if request.user|has_group:"inv_conta" %}
+                                        <th>Saldo Inicial</th>
+                                    {% endif %}
+                                    <th>Entradas</th>
+                                    <th>Salidas</th>
+                                    <th>Existencia Final</th>
+                                    {% if request.user|has_group:"inv_conta" %}
+                                        <th>Saldo Final</th>
+                                    {% endif %}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                </tbody>
+                            <tfoot>
+                                <th colspan="2">EXISTENCIA FINAL</th>
+                                <th>ENTRADAS</th>
+                                <th colspan="2">SALIDAS</th>
+                                {% if request.user|has_group:"inv_conta" %}
+                                <th colspan="2">SALDO FINAL</th>
+                                {% endif %}
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </section>
 {% endblock content %}
 {% block extra_js %}
@@ -81,5 +95,29 @@
 <script src="{% static "js/extrajs/conta.js" %}"></script>
 <script>
 	let salida = new ResumenInforme();
-	</script>
+
+	document.getElementById('form-print').addEventListener('submit', function(e) {
+		const formFiltros = document.getElementById('precioestandar-list-form');
+		const formData = new FormData(formFiltros);
+
+		document.getElementById('fecha_min_hidden').value = formData.get('fecha_min');
+		document.getElementById('fecha_max_hidden').value = formData.get('fecha_max');
+
+		const container = document.getElementById('tipo_dispositivo_hidden_container');
+		container.innerHTML = '';
+
+		const select = document.getElementById('id_tipo_dispositivo');
+		const selectedOptions = Array.from(select.selectedOptions);
+
+		selectedOptions.forEach(option => {
+			const input = document.createElement('input');
+			input.type = 'hidden';
+			input.name = 'tipo_dispositivo';
+			input.value = option.value;
+			container.appendChild(input);
+		});
+	});
+</script>
+
+
 {% endblock extra_js %}

@@ -42,6 +42,13 @@ solicitudes_children = (
         weight=12,
         group="inv_cc,inv_tecnico",
         icon="fa-road",
+    ),    
+    ViewMenuItem(
+        "Util -> Desecho",
+        reverse_lazy('solicitudmovimiento_desecho_add'),
+        weight=12,
+        group="inv_cc,inv_tecnico",
+        icon="fa-recycle",
     ),
 )
 # Dispositivos
@@ -222,7 +229,7 @@ interno_children = (
         "Informe",
         reverse_lazy('inventariointerno_list'),
         weight=12,
-        group="inv_interno,inv_cc,inv_conta",
+        group="inv_interno,inv_cc,inv_conta,tpe_tecnico",
         icon="fa-bar-chart",
     ),
 )
@@ -326,7 +333,7 @@ Menu.add_item(
     "user",
     ViewMenuItem(
         "Desecho",
-        reverse_lazy('entrada_list'),
+        reverse_lazy('desechosalida_list'),
         weight=10,
         icon="fa-trash-o",
         group="inv_bodega,inv_monitoreo,inv_sub_jefe",
@@ -351,7 +358,7 @@ Menu.add_item(
         reverse_lazy('entrada_list'),
         weight=10,
         icon="fa-building",
-        group="inv_admin,inv_cc,inv_interno",
+        group="inv_admin,inv_cc,inv_interno,tpe_tecnico",
         children=interno_children
     )
 )

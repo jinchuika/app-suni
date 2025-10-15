@@ -24,12 +24,22 @@
                             <div class="box-tools pull-right">
                               {%if object.tipo_dispositivo.usa_triage %}
                                 {%if not object.recibida%}
-                                  {% if object.terminada  %}
-                                    {% if request.user|has_group:"inv_bodega" and object.devolucion or request.user|has_group:"inv_tecnico" and not object.devolucion %}
-                                        <a id="btn-recibido" href="{% url 'inventario_api:api_dispositivo-solicitud' %}" data-id ="{{object.id}}" class="btn btn-info btn-sm">Recibido</a>
+                                  {% if object.terminada %}
+                                    {% if request.user|has_group:"inv_bodega" %}
+                                        {% if object.devolucion or object.desecho %}
+                                            <a id="btn-recibido" href="{% url 'inventario_api:api_dispositivo-solicitud' %}" data-id ="{{object.id}}" class="btn btn-info btn-sm">Recibido</a>
+                                        {% endif %}
                                     {% endif %}
-                                  {% else %}
-                                    {% if request.user|has_group:"inv_bodega" and not object.devolucion or request.user|has_group:"inv_tecnico" and object.devolucion %}
+                                    {% if request.user|has_group:"inv_tecnico" %}
+                                        {% if not object.devolucion and not object.desecho %}
+                                            <a id="btn-recibido" href="{% url 'inventario_api:api_dispositivo-solicitud' %}" data-id ="{{object.id}}" class="btn btn-info btn-sm">Recibido</a>
+                                        {% endif %}
+                                    {% endif %}
+                                {% else %}
+                                    {% if object.desecho and request.user|has_group:"inv_tecnico"%}
+                                        <a id="btn-terminar-desecho" href="{% url 'inventario_api:api_dispositivo-terminar' %}" data-id ="{{object.id}}"  data-motivo ="{{motivos}}" class="btn btn-success btn-sm">Terminar</a>
+                                    {% endif %}
+                                    {% if request.user|has_group:"inv_bodega" and not object.devolucion and not object.desecho or request.user|has_group:"inv_tecnico" and object.devolucion or object.desecho and request.user|has_group:"inv_tecnico"%}
                                         <a href="{% url 'solicitudmovimiento_update' pk=object.id %}" class="btn btn-warning btn-sm">Editar</a>
                                     {% endif %}
                                   {% endif %}
@@ -118,13 +128,15 @@
                                             {% endif %}
                                         </td>
                                     </tr>
-                                    {%if object.devolucion%}
-                                    <tr>
-                                        <th>Tipo</th>
-                                        <td>
-                                            <span class="label label-danger">Devolución</span> <br>
-                                        </td>
-                                    </tr>
+                                    {%if object.devolucion or object.desecho%}
+                                    {% if object.devolucion %}
+                                        <tr>
+                                            <th>Tipo</th>
+                                            <td>
+                                                <span class="label label-danger">Devolución</span> <br>
+                                            </td>
+                                        </tr>
+                                    {% endif %}
                                     <tr>
                                         <th>Desecho</th>
                                         <td>
@@ -157,6 +169,9 @@
                                 <tr>
                                     <th>Dispositivo</th>
                                     <th>Fecha</th>
+                                    {% if object.desecho %}
+                                        <th>Motivos</th>
+                                    {% endif %}
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -168,6 +183,16 @@
                                         <td>
                                             {{ cambio.fechahora|date:"Y-m-d" }}
                                         </td>
+                                        {% if object.desecho %}
+                                            {% if cambio.motivo is None %}
+                                                <td>
+                                                </td>
+                                            {% else %}
+                                                <td>
+                                                    {{ cambio.motivo }}
+                                                </td>
+                                            {% endif %}
+                                        {% endif %}
                                     </tr>
                                 {% endfor %}
                                 </tbody>
