@@ -129,9 +129,10 @@ class Sede(models.Model):
 
 
     def get_escuelas(self):
-        participantes = Participante.objects.filter(asignaciones__grupo__sede__id=self.id)        
-        return Escuela.objects.filter(
-            participantes__in=participantes).annotate(cantidad_participantes=Count('participantes')).distinct()
+            participantes = Participante.objects.filter(asignaciones__grupo__sede__id=self.id)        
+            return Escuela.objects.filter(
+                participantes__in=participantes).annotate(cantidad_participantes=Count('participantes')).distinct()
+        
     
     def get_escuelas_invitadas(self):
         participantes = Participante.objects.filter(asignaciones__grupo__sede__id=self.id,asignaciones__grupo__numero=2,asignaciones__grupo__curso__nombre__icontains="Tecnologia")
@@ -159,13 +160,19 @@ class Sede(models.Model):
         contador_ciclo_participantes=0
         invitada = False
         resultado = {'listado': [], 'resumen': {'roles': {}, 'genero': {}, 'estado': {}}}
-        resultados_sede_invitada = {'listado':[]}        
-        participantes = Participante.objects.filter(
+        resultados_sede_invitada = {'listado':[]}
+        if self.fecha_creacion.year==2010:
+            participantes = Participante.objects.filter(
             asignaciones__grupo__sede__id=self.id, activo=True).annotate(
-            cursos_sede=Count('asignaciones'))
+            #cursos_sede=Count('asignaciones'))
+            cursos_sede=Count('asignaciones'))[:50]
+        else:
+            participantes = Participante.objects.filter(
+            asignaciones__grupo__sede__id=self.id, activo=True).annotate(
+            cursos_sede=Count('asignaciones'))        
         participantes_invitados = Participante.objects.filter(
             asignaciones__grupo__sede__id=self.id, asignaciones__grupo__curso__id__in=[69], asignaciones__grupo__numero=2).annotate(
-            cursos_sede=Count('asignaciones'))                         
+            cursos_sede=Count('asignaciones'))
         for participante in participantes:
             invitado = participantes_invitados.filter(id=participante.id).count()                     
             asignaciones = participante.asignaciones.filter(grupo__sede=self)
@@ -216,9 +223,9 @@ class Sede(models.Model):
                      nivelar= nivelar +1  
 
                 
-        aprobados = sum(1 for nota in resultado['listado'] if nota['nota'] >= 75)
-        nivelars = sum(1 for nota in resultado['listado'] if 70 <= nota['nota'] < 75) #70 <= nota['nota'] < 75)
-        reprobados = sum(1 for nota in resultado['listado'] if nota['nota'] < 70)
+        #aprobados = sum(1 for nota in resultado['listado'] if nota['nota'] >= 75)
+        #nivelars = sum(1 for nota in resultado['listado'] if 70 <= nota['nota'] < 75) #70 <= nota['nota'] < 75)
+        #reprobados = sum(1 for nota in resultado['listado'] if nota['nota'] < 70)
         reprobados_invitada =  sum(1 for nota in resultados_sede_invitada['listado'] if nota['nota'] < 70)
         aprobados_invitada =  sum(1 for nota in resultados_sede_invitada['listado'] if nota['nota'] >= 70)       
         sum_monitoreo = aprobado + nivelar +reprobado        
@@ -246,6 +253,7 @@ class Sede(models.Model):
         resultado['resumen']['estado']['invitada_aprobado'] ={
             'cantidad': aprobados_invitada,
             'porcentaje':(aprobados_invitada * 100 // len(resultados_sede_invitada['listado'])) if len(resultados_sede_invitada['listado']) > 0 else 0 }
+        
         return resultado
 
 
