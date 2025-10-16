@@ -99,7 +99,7 @@ class InventarioInternoListView(LoginRequiredMixin, GroupRequiredMixin, FormView
 	model = inv_m.IInternoDispositivo
 	template_name = 'inventario/interno/interno_list.html'
 	form_class = inv_f.InventarioInternoInformeForm
-	group_required = [u"inv_interno", u"inv_admin", u"inv_conta"]
+	group_required = [u"inv_interno", u"inv_admin", u"inv_conta",  u"tpe_tecnico"]
 
 class CartaPrintView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
 	"""Vista encargada de imprimir la carta de responsabilidad correspondiente"""

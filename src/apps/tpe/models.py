@@ -297,7 +297,16 @@ class TicketReparacionEstado(models.Model):
 
     def __str__(self):
         return self.estado
+    
+class TipoSoporteTicket(models.Model):
+    tipo = models.TextField(verbose_name='Tipo de soporte')
+    creado_por = models.ForeignKey(User, on_delete=models.CASCADE,default=User.objects.get(username="Admin").pk)
+    class Meta:
+        verbose_name = "Tipo de soporte de ticket"
+        verbose_name_plural = "Tipos de soporte de tickets"
 
+    def __str__(self):
+        return self.tipo
 
 class TicketReparacion(models.Model):
     ticket = models.ForeignKey(TicketSoporte, related_name='reparaciones', on_delete=models.CASCADE)
@@ -311,6 +320,7 @@ class TicketReparacion(models.Model):
     solucion_detalle = models.TextField(null=True, blank=True)
     fecha_inicio = models.DateField(default=timezone.now)
     fecha_fin = models.DateField(null=True, blank=True)
+    tipo_soporte = models.ForeignKey(TipoSoporteTicket,  on_delete=models.CASCADE, blank=True, null=True)
 
     class Meta:
         verbose_name = "Reparación de garantía"

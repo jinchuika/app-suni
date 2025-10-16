@@ -9,7 +9,7 @@ class DispositivoSerializer(serializers.ModelSerializer):
     """
     tipo = serializers.StringRelatedField(allow_null=True)
     estado = serializers.StringRelatedField()
-    etapa = serializers.StringRelatedField()
+    etapa = serializers.SerializerMethodField()
     marca = serializers.StringRelatedField()
     modelo = serializers.StringRelatedField()
     puerto = serializers.SerializerMethodField(read_only=True)       
@@ -64,6 +64,16 @@ class DispositivoSerializer(serializers.ModelSerializer):
             return str(puerto)
         except:
             return ""
+    
+    def get_etapa(self, obj):
+        try:
+            if obj.etapa.id == 7:
+                asignado = inv_m.IInternoDispositivo.objects.filter(dispositivo=obj).last()
+                return '{etapa}, {asignado}'.format(etapa= obj.etapa, asignado = asignado.no_asignacion.colaborador_asignado.get_full_name())
+            else: 
+                return str(obj.etapa)
+        except:
+            return "None"
 
 
 

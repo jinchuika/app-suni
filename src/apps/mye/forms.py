@@ -118,17 +118,11 @@ class SolicitudForm(forms.ModelForm):
     alumno = forms.IntegerField(
         label='Cantidad de niños',
         widget=forms.NumberInput(attrs={'min': 0, 'class': 'form-control'}))
-    total_alumno = forms.IntegerField(
-        required=False, label='Total de estudiantes',
-        widget=forms.NumberInput(attrs={'min': 0, 'class': 'form-control'}))
     maestra = forms.IntegerField(
         label='Cantidad de maestras',
         widget=forms.NumberInput(attrs={'min': 0, 'class': 'form-control'}))
     maestro = forms.IntegerField(
         label='Cantidad de maestros',
-        widget=forms.NumberInput(attrs={'min': 0, 'class': 'form-control'}))
-    total_maestro = forms.IntegerField(
-        required=False, label='Total de maestros',
         widget=forms.NumberInput(attrs={'min': 0, 'class': 'form-control'}))
     prom_mat_seg_p = forms.DecimalField(
         required=False, label='Promedio Matematica Segundo Primaria',decimal_places=2,
@@ -150,11 +144,11 @@ class SolicitudForm(forms.ModelForm):
         model = mye_m.Solicitud
         fields = [
             'fecha', 'formulario', 'version', 'jornada', 'edf', 'lab_actual',
-            'alumna', 'alumno', 'total_alumno', 'maestra', 'maestro', 'total_maestro',
+            'alumna', 'alumno', 'maestra', 'maestro',
             'grupos_familia', 'prom_mat_seg_p', 'prom_mat_quinto_p', 'prom_mat_seg_b', 'internet', 
             'requisito', 'medio', 'observacion',
         ]
-        exclude = ('escuela', ' poblacion','creado_por',)
+        exclude = ('escuela', ' poblacion','creado_por','total_alumno','total_maestro')
         labels = {
             'formulario': 'Formulario físico',
             'jornada': 'Cantidad de jornadas en la escuela',
@@ -179,10 +173,8 @@ class SolicitudForm(forms.ModelForm):
         if self.instance.poblacion:
             self.fields['alumna'].initial = self.instance.poblacion.alumna
             self.fields['alumno'].initial = self.instance.poblacion.alumno
-            self.fields['total_alumno'].initial = self.instance.poblacion.total_alumno
             self.fields['maestra'].initial = self.instance.poblacion.maestra
             self.fields['maestro'].initial = self.instance.poblacion.maestro
-            self.fields['total_maestro'].initial = self.instance.poblacion.total_maestro
 
         if hasattr(self.instance, 'escuela') and self.instance.escuela:
             if self.instance.escuela.nivel.id == 4:
@@ -204,10 +196,10 @@ class SolicitudForm(forms.ModelForm):
             instance.poblacion.escuela = instance.escuela
             instance.poblacion.alumna = self.cleaned_data['alumna']
             instance.poblacion.alumno = self.cleaned_data['alumno']
-            instance.poblacion.total_alumno = self.cleaned_data['total_alumno']
+            instance.poblacion.total_alumno = self.cleaned_data['alumno'] + self.cleaned_data['alumna']
             instance.poblacion.maestra = self.cleaned_data['maestra']
             instance.poblacion.maestro = self.cleaned_data['maestro']
-            instance.poblacion.total_maestro = self.cleaned_data['total_maestro']
+            instance.poblacion.total_maestro = self.cleaned_data['maestra'] + self.cleaned_data['maestro']
             instance.poblacion.save()
             instance.save()
             self.save_m2m()
@@ -293,17 +285,11 @@ class ValidacionForm(forms.ModelForm):
     alumno = forms.IntegerField(
         label='Cantidad de niños',
         widget=forms.NumberInput(attrs={'min': 0, 'class': 'form-control'}))
-    total_alumno = forms.IntegerField(
-        required=False, label='Total de estudiantes',
-        widget=forms.NumberInput(attrs={'min': 0, 'class': 'form-control'}))
     maestra = forms.IntegerField(
         label='Cantidad de maestras',
         widget=forms.NumberInput(attrs={'min': 0, 'class': 'form-control'}))
     maestro = forms.IntegerField(
         label='Cantidad de maestros',
-        widget=forms.NumberInput(attrs={'min': 0, 'class': 'form-control'}))
-    total_maestro = forms.IntegerField(
-        required=False, label='Total de maestros',
         widget=forms.NumberInput(attrs={'min': 0, 'class': 'form-control'}))
     prom_mat_seg_p = forms.DecimalField(
         required=False, label='Promedio Matematica Segundo Primaria',decimal_places=2,
@@ -325,11 +311,11 @@ class ValidacionForm(forms.ModelForm):
         model = mye_m.Validacion
         fields = [
             'version', 'tipo', 'jornada', 'fecha_equipamiento',
-            'alumna', 'alumno', 'total_alumno', 'maestra', 'maestro', 'total_maestro',
+            'alumna', 'alumno', 'maestra', 'maestro',
             'grupos_familia', 'prom_mat_seg_p', 'prom_mat_quinto_p', 'prom_mat_seg_b', 'internet',
             'requisito', 'observacion', 'fotos_link', 'completada'
         ]
-        exclude = ('escuela',)
+        exclude = ('escuela','total_maestro','total_alumno',)
         labels = {
             'jornada': 'Cantidad de jornadas en la escuela',
             'edf': 'La escuela fue EDF',
@@ -351,10 +337,8 @@ class ValidacionForm(forms.ModelForm):
         if self.instance.poblacion:
             self.fields['alumna'].initial = self.instance.poblacion.alumna
             self.fields['alumno'].initial = self.instance.poblacion.alumno
-            self.fields['total_alumno'].initial = self.instance.poblacion.total_alumno
             self.fields['maestra'].initial = self.instance.poblacion.maestra
             self.fields['maestro'].initial = self.instance.poblacion.maestro
-            self.fields['total_maestro'].initial = self.instance.poblacion.total_maestro
 
         if hasattr(self.instance, 'escuela') and self.instance.escuela:
             if self.instance.escuela.nivel.id == 4:
@@ -376,10 +360,10 @@ class ValidacionForm(forms.ModelForm):
             instance.poblacion.escuela = instance.escuela
             instance.poblacion.alumna = self.cleaned_data['alumna']
             instance.poblacion.alumno = self.cleaned_data['alumno']
-            instance.poblacion.total_alumno = self.cleaned_data['total_alumno']
+            instance.poblacion.total_alumno = self.cleaned_data['alumno'] + self.cleaned_data['alumna']
             instance.poblacion.maestra = self.cleaned_data['maestra']
             instance.poblacion.maestro = self.cleaned_data['maestro']
-            instance.poblacion.total_maestro = self.cleaned_data['total_maestro']
+            instance.poblacion.total_maestro = self.cleaned_data['maestra'] + self.cleaned_data['maestro']
             instance.poblacion.save()
             if self.cleaned_data['completada']:
                 instance.fecha_final = date.today()

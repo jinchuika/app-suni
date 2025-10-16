@@ -1,246 +1,443 @@
 {% load staticfiles%}
 <!DOCTYPE html>
 <html>
-<head>
-	<title>ENTREGA TABLET</title>
-</head>
-<!--ENCABEZADO DE DATOS E IMAGENES -->
-<header>
-	<div class="logo_izquierdo">
-	<img  width= "125" height="100" style="float:left; margin:10px;"src="{% static "image/Logo_Funsepa-01.png" %}">
-	</div>
-	<center>
-<div class="encabezado" >
-<h3 style="	color: #154458; ">
-<b>
-	POR CUALQUIER FALLA EN EL EQUIPO COMUNÍCATE A NUESTROS NÚMEROS  DE
-<br>
-TELÉFONO 2435-2739 / 24319639</b>
-</h3>
-<a class="encabezado2" ><b>ENTREGA DE EQUIPO</b></a>
-<b>
-<table class="encabezado3"  width="830" heigth="125">
+	<head>
+		<title>ENTREGA TABLET</title>
+	</head>
+		
+	<!--ENCABEZADO DE DATOS E IMAGENES -->
+	<header>
+		<div class="logo_izquierdo">
+			<img  width= "125" height="100" style="float:left; margin:10px;"src="{% static "image/Logo_Funsepa-01.png" %}">
+		</div>
 
-	<center>
+		<center>
+			<b>
+				<div class="encabezado" >
+					<h3 style="	color: #154458; ">
+						<b>POR CUALQUIER FALLA EN EL EQUIPO COMUNÍCATE A NUESTROS NÚMEROS  DE <br>
+						TELÉFONO 2435-2739 / 24319639</b>
+					</h3>
+					<a class="encabezado2" ><b>ENTREGA DE EQUIPO</b></a>
+					<table class="encabezado3"  width="830" heigth="125">
+						<td>Fecha de entrega</td>
+						<td style="border:solid; border-width: 1px" width="100" height="18">{{salidainventario.fecha}}</td>
+						<td width="18"></td>
+						<td>Código UDI</td>
+						<td style="border:solid; border-width: 1px" width="100" height="18">{{salidainventario.escuela.codigo}}</td>
+						<td width="18			"></td>
+						<td>No. Entrega:</td>
+						<td style="border:solid; border-width: 1px" width="100" height="18	">{{salidainventario}}</td>
+					</table>
+					<br>
+					<table class="info">
+						{% if salidainventario.tipo_salida|stringformat:"s" == 'A terceros' %}
+							<td width="	250" >NOMBRE DEL BENEFICIARIO</td>
+							<td style="border:solid; border-width: 1px;border-color:gray" width="675" height="28">{{salidainventario.beneficiario}}</td>
+							<td  width="20"></td>
+							<td>DIRECCIÓN</td>
+							<td style="border:solid; border-width: 1px;border-color:gray" width="675" height="28">
+								{% if  salidainventario.beneficiario.direccion %}{{salidainventario.beneficiario.direccion}} {% else %} NO APLICA{% endif %}
+							</td>
+						{% else %}
+							<td width="	250" >NOMBRE DE LA INSTITUCIÓN</td>
+							<td style="border:solid; border-width: 1px;border-color:gray" width="675" height="28">{{salidainventario.escuela}}</td>
+							<td  width="20"></td>
+							<td>DIRECCIÓN</td>
+							<td style="border:solid; border-width: 1px;border-color:gray" width="675" height="28">{{salidainventario.escuela.direccion}}</td>
+						{% endif %}
+					</table>
 
-	<td>Fecha de entrega</td>
-	<td style="border:solid; border-width: 1px" width="100" height="18">{{salidainventario.fecha}}</td>
-	<td  width="18"></td>
-	<td>Código UDI</td>
-	<td style="border:solid; border-width: 1px" width="100" height="18">{{salidainventario.escuela.codigo}}</td>
-	<td  width="18			"></td>
-	<td>No. Entrega:</td>
-	<td style="border:solid; border-width: 1px" width="100" height="18	">{{salidainventario}}</td>
-	</center>
-
-<table class="info" >
-	<b>
-	<br>
-	{% if salidainventario.tipo_salida|stringformat:"s" == 'A terceros' %}
-<td width="	250" >NOMBRE DEL BENEFICIARIO</td>
-<td style="border:solid; border-width: 1px;border-color:gray" width="675" height="28">{{salidainventario.beneficiario}}</td>
-<td  width="20"></td>
-<td>DIRECCIÓN</td>
-<td style="border:solid; border-width: 1px;border-color:gray" width="675" height="28">
-		{% if  salidainventario.beneficiario.direccion %}{{salidainventario.beneficiario.direccion}} {% else %} NO APLICA{% endif %}
-</td>
-
-{% else %}
-<td width="	250" >NOMBRE DE LA INSTITUCIÓN</td>
-<td style="border:solid; border-width: 1px;border-color:gray" width="675" height="28">{{salidainventario.escuela}}</td>
-<td  width="20"></td>
-<td>DIRECCIÓN</td>
-<td style="border:solid; border-width: 1px;border-color:gray" width="675" height="28">{{salidainventario.escuela.direccion}}</td>
-
-{% endif %}
-	</b>
-</table>
-
-<table class="info2" >
-
-	{% if salidainventario.tipo_salida|stringformat:"s" == 'A terceros' %}
-	<td width="	250" >NOMBRE DEL ENCARGADO(A)</td>
-	<td style="border:solid; border-width: 1px;border-color:gray" width="700" height="28">&nbsp;&nbsp;NO APLICA</td>
-	<td  width="20"></td>
-	<td>TELEFONO(S)</td>
-	<td style="border:solid; border-width: 1px;border-color:gray" width="700" height="28">&nbsp;&nbsp;
-
-			{% if  salidainventario.beneficiario.fax %}{{salidainventario.beneficiario.fax}} {% else %} NO APLICA{% endif %}
-	</td>
-	{% else %}
-	<td width="	250" >NOMBRE DEL ENCARGADO(A)</td>
-	<td style="border:solid; border-width: 1px;border-color:gray" width="700" height="28">&nbsp;&nbsp;{{Encargado}}</td>
-	<td  width="20"></td>
-	<td>TELEFONO(S)</td>
-	<td style="border:solid; border-width: 1px;border-color:gray" width="700" height="28">&nbsp;&nbsp;
-
-			{% if  Telefono|stringformat:"s" == 'None' %} {{salidainventario.escuela.telefono}}{% else %} NO APLICA{% endif %}
-	</td>
-	{% endif %}
-</table>
-</table>
-</b>
-</center>
-</header>
-<!--FIN DE DATOS E IMAGENES-->
-<body>
-
-<!--TITULOS DE LA TABLA-->
-<center>
-<table  bgcolor="lightgray" style="font-size: 20px"  width="975" height="10">
-<center><th><center>TABLET</center></th></center>
-
-</table>
-	<table class="datos">
-	<tr>
-		<th bgcolor="#b3c4dd" width="75" height="25"><center>Triage</center></th>
-		<th bgcolor="#b3c4dd"width="100"><center>Marca</center></th>
-		<th bgcolor="#b3c4dd"width="75"><center>Modelo</center></th>
-		<th bgcolor="#b3c4dd"width="75"><center>Capacidad</center></th>
-		<th bgcolor="#b3c4dd"width="75"><center>Ram</center></th>
-		<th bgcolor="#b3c4dd"width="75"><center>Sistema</center></th>
-	</tr>
-	{% for tablet in Tablets %}
-	<tr>
-		<td>
-			{{tablet|default_if_none:""}}
-		</td>
-		<td>
-			{{tablet.marca |default_if_none:"" }}
-		</td>
-		<td>
-			{{tablet.modelo |default_if_none:"" }}
-		</td>
-		<td>
-			{{tablet.almacenamiento|default_if_none:""}}
-		</td>
-		<td>
-			{{tablet.ram|default_if_none:""}}
-		</td>
-		<td>
-			{{tablet.version_sistema|default_if_none:""}}
-		</td>
-	</tr>
-	{% endfor %}
-<!--FIN DE TITULOS DE LA TABLA-->
-</table>
-</center>
-<table class="contador">
-	<td width="75">Total</td>
-	<td style="border-bottom:solid;" width="150"> <center>{{Total}} Tablets </center></td>
-	<td width="100"><center> y </center></td>
-	<td style="border:solid; border-width: 1px;border-color:gray" width="150" height="25">{{Cargador}} {{Descripcion}}</td>
-	<td width="100"><center>Jornada</center></td>
-	<td style="border:solid; border-width: 1px;border-color:gray" width="150" height="25">{{Jornada}}</td>
-
-</table>
-<!--FIN DE CELDAS -->
-<!--INICIO DE FIRMA Y SELLO -->
-</body>
-<footer>
-	<br>
-	<br>
-<br>
-	<br>
-	<br>
-
-<center>
-	<table style="font-size: 20px;">
-
-		<td  >
-			<hr width="430" style="border-color:black; border-width: 1px;">
-			<center>REPRESENTANTE DE LA ESCUELA
-			<p><center>NOMBRE Y FIRMA</center></p></center>
-		</td>
-
-		<td width="200" valign="center" ><center>SELLO</center>
-		</td>
-
-		<td >
-			<hr width="430" style="border-color:black; border-width: 1px;">
-
-			<center>REPRESENTANTE DE FUNSEPA
-			<p><center>LIC. KARLA DEL VALLE</center></p></center>
-		</td>
-
-	</table>
-
-	</center>
-<!--TERMINAR TABLAS DE FIRMA Y SELLO-->
+					<table class="info2" >
+						{% if salidainventario.tipo_salida|stringformat:"s" == 'A terceros' %}
+							<td width="	250" >NOMBRE DEL ENCARGADO(A)</td>
+							<td style="border:solid; border-width: 1px;border-color:gray" width="700" height="28">&nbsp;&nbsp;NO APLICA</td>
+							<td  width="20"></td>
+							<td>TELEFONO(S)</td>
+							<td style="border:solid; border-width: 1px;border-color:gray" width="700" height="28">&nbsp;&nbsp;
+								{% if  salidainventario.beneficiario.fax %}{{salidainventario.beneficiario.fax}} {% else %} NO APLICA{% endif %}
+							</td>
+						{% else %}
+							<td width="	250" >NOMBRE DEL ENCARGADO(A)</td>
+							<td style="border:solid; border-width: 1px;border-color:gray" width="700" height="28">&nbsp;&nbsp;{{Encargado}}</td>
+							<td  width="20"></td>
+							<td>TELEFONO(S)</td>
+							<td style="border:solid; border-width: 1px;border-color:gray" width="700" height="28">&nbsp;&nbsp;
+								{% if  Telefono|stringformat:"s" == 'None' %} {{salidainventario.escuela.telefono}}{% else %} NO APLICA{% endif %}
+							</td>
+						{% endif %}
+					</table>
+				</div>
+			</b>
+		</center>
+	</header>
+	<!--FIN DE DATOS E IMAGENES-->
 
 
-</body>
+	<body>
+		<center>
+			<div class="parent">
+				{% if Mouses and APs %}
+					<!--div de MOUSE y ACCESS POINT-->
+					<div class="div1"> 
+						<table  bgcolor="lightgray" style="font-size: 20px"  width="310" height="10">
+							<th>MOUSE</th>
+						</table>
 
-<!--PIE DE PAGINA-->
-<footer>
+						<table class="datos">
+							<tr>
+								<th bgcolor="#b3c4dd"width="100" height="25"><center>Triage</center></th>
+								<th bgcolor="#b3c4dd"width="100"><center>Marca</center></th>
+								<th bgcolor="#b3c4dd"width="100"><center>Modelo</center></th>
+							</tr>
+							{% for mouse in Mouses %}
+								<tr>
+									<td>
+										{{mouse|default_if_none:""}}
+									</td>
+									<td>
+										{{mouse.marca |default_if_none:"" }}
+									</td>
+									<td>
+										{{mouse.modelo |default_if_none:"" }}
+									</td>
+								</tr>
+							{% endfor %}
+						</table>
+					</div>
+
+					<div class="div2"> 
+						<table  bgcolor="lightgray" style="font-size: 20px"  width="310" height="10">
+							<th>ACCESS POINT</th>
+						</table>
+						<table class="datos">
+							<tr>
+								<th bgcolor="#b3c4dd"width="100" height="25"><center>Triage</center></th>
+								<th bgcolor="#b3c4dd"width="100"><center>Marca</center></th>
+								<th bgcolor="#b3c4dd"width="100"><center>Modelo</center></th>
+							</tr>
+							{% for ap in APs %}
+								<tr>
+									<td>
+										{{ap|default_if_none:""}}
+									</td>
+									<td>
+										{{ap.marca |default_if_none:"" }}
+									</td>
+									<td>
+										{{ap.modelo |default_if_none:"" }}
+									</td>
+								</tr>
+							{% endfor %}
+						</table>
+					</div>
+
+				{% elif Mouses %}
+					<!--div de MOUSE si no hay AP-->
+					<div class="div5"> 
+						<table  bgcolor="lightgray" style="font-size: 20px"  width="310" height="10">
+							<th>MOUSE</th>
+						</table>
+
+						<table class="datos">
+							<tr>
+								<th bgcolor="#b3c4dd"width="100" height="25"><center>Triage</center></th>
+								<th bgcolor="#b3c4dd"width="100"><center>Marca</center></th>
+								<th bgcolor="#b3c4dd"width="100"><center>Modelo</center></th>
+							</tr>
+							{% for mouse in Mouses %}
+								<tr>
+									<td>
+										{{mouse|default_if_none:""}}
+									</td>
+									<td>
+										{{mouse.marca |default_if_none:"" }}
+									</td>
+									<td>
+										{{mouse.modelo |default_if_none:"" }}
+									</td>
+								</tr>
+							{% endfor %}
+						</table>
+					</div>
+				{% elif APs %}
+					<!--div de AP si no hay MOUSE-->
+					<div class="div5"> 
+						<table  bgcolor="lightgray" style="font-size: 20px"  width="310" height="10">
+							<th>ACCESS POINT</th>
+						</table>
+						<table class="datos">
+							<tr>
+								<th bgcolor="#b3c4dd"width="100" height="25"><center>Triage</center></th>
+								<th bgcolor="#b3c4dd"width="100"><center>Marca</center></th>
+								<th bgcolor="#b3c4dd"width="100"><center>Modelo</center></th>
+							</tr>
+							{% for ap in APs %}
+								<tr>
+									<td>
+										{{ap|default_if_none:""}}
+									</td>
+									<td>
+										{{ap.marca |default_if_none:"" }}
+									</td>
+									<td>
+										{{ap.modelo |default_if_none:"" }}
+									</td>
+								</tr>
+							{% endfor %}
+						</table>
+					</div>
+				{% endif %}
+
+				<div class="div3" id="divTablets">
+					<table  bgcolor="lightgray" style="font-size: 20px"  width="650" height="10">
+						<th>TABLET</th>
+					</table>
+
+					<table class="datos">
+						<tr>
+							<th bgcolor="#b3c4dd" width="100" height="25"><center>Triage</center></th>
+							<th bgcolor="#b3c4dd"width="100"><center>Marca</center></th>
+							<th bgcolor="#b3c4dd"width="100"><center>Modelo</center></th>
+							<th bgcolor="#b3c4dd"width="100"><center>Capacidad</center></th>
+							<th bgcolor="#b3c4dd"width="100"><center>Ram</center></th>
+							<th bgcolor="#b3c4dd"width="125"><center>Sistema</center></th>
+						</tr>
+						{% for tablet in Tablets %}
+							<tr>
+								<td>
+									{{tablet|default_if_none:""}}
+								</td>
+								<td>
+									{{tablet.marca |default_if_none:"" }}
+								</td>
+								<td>
+									{{tablet.modelo |default_if_none:"" }}
+								</td>
+								<td>
+									{{tablet.almacenamiento|default_if_none:""}}
+								</td>
+								<td>
+									{{tablet.ram|default_if_none:""}}
+								</td>
+								<td>
+									{{tablet.version_sistema|default_if_none:""}}
+								</td>
+							</tr>
+						{% endfor %}
+					</table>
+				</div>
+				
+				{% if Laptops %}
+					<div class="div4" id="divTablets">
+						<table  bgcolor="lightgray" style="font-size: 20px"  width=830" height="10">
+							<th>LAPTOP</th>
+						</table>
+
+						<table class="datos">
+							<tr>
+								<th bgcolor="#b3c4dd"width="100" height="25"><center>Triage</center></th>
+								<th bgcolor="#b3c4dd"width="100"><center>Marca</center></th>
+								<th bgcolor="#b3c4dd"width="100"><center>Modelo</center></th>
+								<th bgcolor="#b3c4dd"width="100"><center>HHD</center></th>
+								<th bgcolor="#b3c4dd"width="100"><center>Capacidad</center></th>
+								<th bgcolor="#b3c4dd"width="100"><center>Procesador</center></th>
+								<th bgcolor="#b3c4dd"width="100"><center>RAM</center></th>
+								<th bgcolor="#b3c4dd"width="100"><center>S.O.</center></th>
+							</tr>
+							{% for laptop in Laptops %}
+								<tr>
+									<td>
+										{{laptop|default_if_none:""}}
+									</td>
+									<td>
+										{{laptop.marca |default_if_none:"" }}
+									</td>
+									<td>
+										{{laptop.modelo |default_if_none:"" }}
+									</td>
+									<td>
+										{{laptop.disco_duro|default_if_none:""}}
+									</td>
+									<td>
+										{{laptop.disco_duro.capacidad|default_if_none:""}}
+									</td>
+									<td>
+										{{laptop.procesador|default_if_none:""}}
+									</td>									
+									<td>
+										{{laptop.ram|default_if_none:""}}
+									</td>									
+									<td>
+										{{laptop.version_sistema|default_if_none:""}}
+									</td>
+								</tr>
+							{% endfor %}
+						</table>
+					</div>
+				{% endif %}
+			</div>
+		</center>
+
+		<center> 
+			<table class="contador">
+				<td width="75">Total</td>
+				<td style="border-bottom:solid;" width="150"> <center>{{Total}} Tablets </center></td>
+				{% if Cargador %}
+					<td width="10"><center>,</center></td>
+					<td style="border-bottom:solid;" width="150" width="150" height="25"> <center> {{Cargador}} {{Descripcion}} </center></td>
+				{% endif %}				
+				{% if Laptops %}
+					<td width="10"><center>,</center></td>
+					<td style="border-bottom:solid;" width="100" width="150" height="25"> 
+						<center>
+							{{Laptops|length}}
+							{% if Laptops|length > 1 %}
+								Laptops 
+							{% else %}
+								Laptop 
+							{% endif %}
+						</center>
+					</td>
+				{% endif %}				
+				{% if Mouses %}
+					<td width="10"><center>,</center></td>
+					<td style="border-bottom:solid;" width="100" width="150" height="25"> 
+						<center>
+							{{Mouses|length}}
+							{% if Mouses|length > 1 %}
+								Mouses 
+							{% else %}
+								Mouse 
+							{% endif %}
+						</center>
+					</td>
+				{% endif %}				
+				{% if APs %}
+					<td width="10"><center>,</center></td>
+					<td style="border-bottom:solid;" width="150" width="150" height="25"> 
+						<center>
+							{{APs|length}}
+							{% if APs|length > 1 %}
+								Access Points 
+							{% else %}
+								Access Point  
+							{% endif %}
+						</center>
+					</td>
+				{% endif %}
+
+				<td width="100"><center>Jornada</center></td>
+				<td style="border:solid; border-width: 1px;border-color:gray" width="150" height="25">{{Jornada}}</td>
+			</table>
+		</center>
+	</body>
 
 
-	<br>
-	<br>
-	<br>
+	<footer>
+		<br>
+		<br>
+		<br>
+		<br>
+		<br>
 
-	<table style="margin-left: 0px;">
-		<td width="1100">Nota: Todas las tablets cuentan con sus respectivo cargador.</td>
-		<td style="font-size: 12px">Latitud</td>
-		<td style="border:solid; border-width: 1px;border-color:gray" width="200" height="14">{{salidainventario.escuela.mapa.lat}}</td>
-				<td  width="30"></td>
+		<center>
+			<table style="font-size: 20px;">
+				<td  >
+					<hr width="430" style="border-color:black; border-width: 1px;">
+						<center>REPRESENTANTE DE LA ESCUELA
+					<p><center>NOMBRE Y FIRMA</center></p></center>
+				</td>
 
-		<td style="font-size: 12px">Longitud</td>
-		<td style="border:solid; border-width: 1px;border-color:gray" width="200" height="14">{{salidainventario.escuela.mapa.lng}}</td>
-	</table>
-</footer>
+				<td width="200" valign="center" ><center>SELLO</center>
+				</td>
+				<td >
+					<hr width="430" style="border-color:black; border-width: 1px;">
+					<center>REPRESENTANTE DE FUNSEPA
+					<p><center>LIC. KARLA DEL VALLE</center></p></center>
+				</td>
+			</table>
+		</center>
+		<!--TERMINAR TABLAS DE FIRMA Y SELLO-->
 
 
-<!--TERMINA PIE DE PAGINA-->
+
+		<!--PIE DE PAGINA-->
+		<br>
+		<br>
+		<br>
+			<table style="margin-left: 0px;">
+				<td width="1100">Nota: Todas las tablets cuentan con sus respectivo cargador.</td>
+				<td style="font-size: 12px">Latitud</td>
+				<td style="border:solid; border-width: 1px;border-color:gray" width="200" height="14">{{salidainventario.escuela.mapa.lat}}</td>
+						<td  width="30"></td>
+
+				<td style="font-size: 12px">Longitud</td>
+				<td style="border:solid; border-width: 1px;border-color:gray" width="200" height="14">{{salidainventario.escuela.mapa.lng}}</td>
+			</table>
+		</footer>
+		<!--TERMINA PIE DE PAGINA-->
 
 
-<!--CSS -->
-<style type="text/css">
-	@page{
-	margin-top: 0mm;
-	margin-bottom: 0mm;
-}
-body{
-	font-family: arial;
-	 background-image: none;
-	-webkit-print-color-adjust: exact; /*economy | exact*/
-    color-adjust: exact;
-}
-.encabezado{
-	margin:10px;
-	margin-top:10mm;
-}
-.encabezado2{
-	font-size:12px;
-	text-align: center;
-}
-.encabezado3{
-	border-bottom:solid;
-	border-top:solid;
-	border-width: 1.5px;
-	margin-top:0mm;
-	font-size:14px;
-}
-.info{
-	width: 1750px
-}
-}
-.datos tr:nth-child(odd){
-	background-color: #F2F2F2;
-}
-.datos tr:nth-child(even){
-	background-color: #e5e5e5;
-}
-.contador {
-	margin-left:  370px;
-	font-family: arial;
-	font-size: 18px
-}
-</style>
+	<!--CSS -->
+	<style type="text/css">
+		@page{
+		margin-top: 0mm;
+		margin-bottom: 0mm;
+	}
+	body{
+		font-family: arial;
+		background-image: none;
+		-webkit-print-color-adjust: exact; /*economy | exact*/
+		color-adjust: exact;
+	}
+	.encabezado{
+		margin:10px;
+		margin-top:10mm;
+	}
+	.encabezado2{
+		font-size:12px;
+		text-align: center;
+	}
+	.encabezado3{
+		border-bottom:solid;
+		border-top:solid;
+		border-width: 1.5px;
+		margin-top:0mm;
+		font-size:14px;
+	}
+	.info{
+		width: 1750px
+	}
+	}
+	.datos tr:nth-child(odd){
+		background-color: #F2F2F2;
+	}
+	.datos tr:nth-child(even){
+		background-color: #e5e5e5;
+	}
+	.contador {
+		font-family: arial;
+		font-size: 18px
+	}
+	.parent {
+		display: grid;
+		grid-template-columns: repeat(2, 1fr);
+		grid-column-gap: 0px;
+		grid-row-gap: 0px;
+		gap: 10px;
+	}
+	.div1 { grid-area: 1 / 1 / 2 / 2; }
+	.div2 { grid-area: 1 / 2 / 2 / 3; }
+	.div3 { grid-area: 2 / 1 / 3 / 3; }
+	.div4 { grid-area: 3 / 1 / 4 / 3; }
+	.div5 { grid-area: 1 / 1 / 2 / 3; }
+	
+	</style>
 
-{% block extra_js %}
-<script>
-//window.onload= function () { window.print();window.close();   }
-</script>
-{% endblock extra_js %}
+	{% block extra_js %}
+	<script>
+	/*window.onload= function () { window.print();}
+	</script>
+	{% endblock extra_js %}
 </html>

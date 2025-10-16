@@ -42,6 +42,8 @@ from django.core.files.storage import FileSystemStorage
 from django.conf import settings
 from openpyxl import load_workbook
 from apps.conta.config import EMAIL_CREDENCIALES
+import requests
+from django.urls import reverse
 from apps.main import creacion_filtros_informe as crear_dict
 
 """
@@ -305,6 +307,50 @@ class ContabilidadResumenInformeListView(LoginRequiredMixin, FormView):
         form = super(ContabilidadResumenInformeListView, self).get_form(form_class)
         form.fields['tipo_dispositivo'].queryset = inv_m.AsignacionTecnico.objects.get(usuario=self.request.user ).tipos.filter(usa_triage=True)
         return form
+
+
+
+class ContabilidadResumenPrint(TemplateView):
+    template_name = 'conta/informe_resumen_print.html'
+
+    def post(self, request, *args, **kwargs):
+        fecha_min = request.POST.get('fecha_min')
+        fecha_max = request.POST.get('fecha_max')
+        tipo_dispositivo = request.POST.getlist('tipo_dispositivo')
+
+        api_url = request.build_absolute_uri(reverse('contabilidad_api_resumen'))
+
+        params = {
+            'fecha_min': fecha_min, 
+            'fecha_max': fecha_max,
+            'tipo_dispositivo[]': tipo_dispositivo,
+        }
+        
+        cookies = {}
+        if 'sessionid' in request.COOKIES:
+            cookies['sessionid'] = request.COOKIES['sessionid']
+
+        context = {
+            'params': params,
+            'datos_api': None,
+            'error': None
+        }
+
+        try:
+            response = requests.get(url=api_url, params=params, cookies=cookies)
+            
+            if response.status_code == 200:
+                context['datos_api'] = response.json()
+            elif response.status_code == 401:
+                context['error'] = "Error de autenticación (401). La sesión podría ser inválida."
+            else:
+                print("Error en la API: Código" , {response.status_code})
+
+        except requests.exceptions.RequestException as e:
+            print(e)
+
+        return render(request, self.template_name, context)
+
 
 class InformeCantidadJson(views.APIView):
 
@@ -851,7 +897,7 @@ class InformeResumenJson(views.APIView):
             dispositivos = self.request.user.tipos_dispositivos.tipos.filter(conta=True)
         else:
             dispositivos = self.request.user.tipos_dispositivos.tipos.filter(id__in=tipo_dispositivo)
-        
+
         # Validar que el rango de fechas pertenezcan a un solo período fiscal
         validar_fecha = conta_m.PeriodoFiscal.objects.filter(fecha_inicio__lte=fecha_inicio, fecha_fin__gte=fecha_fin)
         acumulador = 0

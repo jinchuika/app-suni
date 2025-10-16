@@ -37,6 +37,18 @@
                                         </a>
                                     </td>
                                 </tr>
+                                {%for permiso in user.groups.all %}
+                                    {% if permiso.name == "inv_conta" and salida is not None %}
+                                        <tr>
+                                            <th>Salida</th>
+                                            <td>
+                                                <a href="{{ salida.get_absolute_url_detail }}" class="btn-block">
+                                                    {{salida}}
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    {%endif%}
+                                {% endfor %}
                                 <tr>
                                     <th>Marca</th>
                                     <td>

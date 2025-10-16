@@ -9,7 +9,7 @@
 <section class="content">
     <div class="container-fluid">
         {% if not object.terminada and not object.tipo_dispositivo.kardex%}
-        {% if request.user|has_group:"inv_bodega" and not object.devolucion or request.user|has_group:"inv_tecnico" and object.devolucion %}
+        {% if request.user|has_group:"inv_bodega" and not object.devolucion or request.user|has_group:"inv_tecnico" and object.devolucion or object.desecho and request.user|has_group:"inv_tecnico" %}
         <div class="row">
             <div class="col-md-6">
                 <div class="box">
@@ -26,7 +26,9 @@
                     <div class="box-body">
                         <form action="" method="post">
                             {% csrf_token %}
-                            <table id="solicitud-table" class="table table-condensed" data-cantidad="{{ form.instance.cantidad }}" data-dispo="{{dispositivos_no}}" data-salida="{{object.no_salida.id}}">
+                            <table id="solicitud-table" class="table table-condensed" data-cantidad="{{ form.instance.cantidad }}" data-dispo="{{dispositivos_no}}" data-salida="{{object.no_salida.id}}" data-desecho="{{ form.instance.desecho }}">
+
+    
                                 {%if object.no_salida%}
                                 <tr>
                                     <th>Salida</th>
@@ -92,6 +94,7 @@
                                 <tr>
                                     <th>Dispositivo</th>
                                     <th>Fecha</th>
+                                     {% if form.instance.desecho%} <th>Motivo de Desecho</th> {%endif%}
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -103,6 +106,14 @@
                                         <td>
                                             {{ cambio.fechahora|date:"Y-m-d" }}
                                         </td>
+                                        {% if form.instance.desecho%}
+                                            <td>
+                                                {% csrf_token %}
+								                <a href="#" class="editable" data-name="motivo" data-type="text" data-pk="{{cambio.id}}" data-url="{% url 'inventario_api:cambios_etapa-detail' pk=cambio.id %}">
+                                                    {{cambio.motivo}}
+                                                </a>
+                                            </td>
+                                        {%endif%}
                                     </tr>
                                 {% endfor %}
                                 </tbody>
@@ -118,13 +129,20 @@
 {% endif %}
 
 {% endblock content %}
+{% block extra_css %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/bootstrap-editable.css' %}">
+{% endblock extra_css %}
+
 {% block extra_js %}
     <script src="{% static "js/extrajs/inventario.js" %}"></script>
     <script src="{% static "js/i18n/es.js" %}"></script>
+    <script src="{% static 'js/bootstrap-editable.min.js' %}"></script>
     <script>
         $(document).ready(function () {
             $("#area_scanner").focus();
             let app = new SolicitudMovimientoUpdate();
+            let desechoUpdateApp  = new SolicitudMovimientoDesechoUpdate();
         });
     </script>
+    
 {% endblock extra_js %}

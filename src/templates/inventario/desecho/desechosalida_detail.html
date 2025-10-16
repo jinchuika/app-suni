@@ -130,6 +130,33 @@
 					</tbody>
 				</table>
 			</div>
+			<div class="col-md-6">
+				<h3><b>Desecho de útil a desecho</b></h3>
+				<table class="table table-condensed">
+					<thead>
+						<tr>
+							<th>Triage</th>
+							<th>Tipo</th>
+							<th>Motivo</th>
+						</tr>
+					</thead>
+					<tbody>
+						{%for dispositivo in desechosolicitud %}
+							<tr>
+								<td>
+									{{dispositivo.dispositivo.triage}}
+								</td>
+								<td>
+									{{dispositivo.dispositivo.tipo}}
+								</td>
+								<td>
+									{{dispositivo.motivo}}
+								</td>
+							</tr>
+						{%endfor%}
+					</tbody>
+				</table>
+			</div>
 		</div>
 	</div>
 </section>

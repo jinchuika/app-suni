@@ -63,4 +63,10 @@ urlpatterns = [
         inventario_v.ValidacionesDesechoJson.as_view(),
         name='desechosalida_validar'
     ),
+    # Creacion de Solicitudes de movimiento
+    url(
+        r'^desecho/solicitudmovimiento/add/$',
+        inventario_v.SolicitudMovimientoDesechoCreateView.as_view(),
+        name='solicitudmovimiento_desecho_add'
+    ),
 ]
