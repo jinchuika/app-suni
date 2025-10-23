@@ -123,6 +123,7 @@
         if (typeof $ !== 'undefined' && $.fn.DataTable) {
             const dataTable = $('#precioestandar-table').DataTable();
             const datosTabla = dataTable.rows().data().toArray(); 
+            const datosJson = JSON.stringify(datosTabla);
             document.getElementById('datos_informe_json_hidden').value = datosJson;
         } else {
             console.error("DataTables no está disponible o no se ha inicializado.");
