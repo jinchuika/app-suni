@@ -3,6 +3,7 @@ from django import forms
 from django.contrib.auth.models import User
 from apps.inventario import models as inv_m
 from django.urls import reverse_lazy
+from apps.conta import models as conta_m
 
 
 class TecladoForm(forms.ModelForm):
@@ -111,7 +112,7 @@ class LaptopForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(LaptopForm, self).__init__(*args, **kwargs)
-        self.fields['disco_duro'].queryset = inv_m.HDD.objects.filter(valido=True, asignado=False)
+        self.fields['disco_duro'].queryset =inv_m.HDD.objects.filter(valido=True, asignado=False).exclude(movimientodispositivo__tipo_movimiento=conta_m.MovimientoDispositivo.BAJA)
 
 
 class MonitorForm(forms.ModelForm):
