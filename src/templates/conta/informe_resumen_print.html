@@ -123,7 +123,7 @@
             <td width="5%"> </td> 		
 			<td width="15%">
 				<hr style="border-color:black; border-width: 1px;">
-				<center>Auxiliar de Bodega></center>
+				<center>Auxiliar de Bodega</center>
 			</td>	
             <td width="5%"> </td> 		
 			<td width="15%">
@@ -144,13 +144,22 @@
 
 	{% block extra_js %}
         <script>
-            // Obtener la fecha actual
             var fechaActual = new Date();
-            // Formatear la fecha como "dd/mm/yyyy"
-            var fechaFormateada = fechaActual.toLocaleDateString('es-ES');
-            // Insertar la fecha en el elemento con id "fecha-generada"
-            document.getElementById('fecha-generada').textContent = fechaFormateada;
-            window.onload= function () { window.print();}
-        </script> 
+            var fechaFormateada = fechaActual.toLocaleDateString('es-ES', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit'
+            });
+
+            var horaFormateada = fechaActual.toLocaleTimeString('es-ES', {
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: true
+            });
+
+            var fechaYHora = fechaFormateada + ' a las ' + horaFormateada; 
+            document.getElementById('fecha-generada').textContent = fechaYHora;
+            window.onload = function () { window.print();}
+        </script>
 	{% endblock extra_js %}
 </html>

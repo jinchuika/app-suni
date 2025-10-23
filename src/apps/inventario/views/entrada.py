@@ -146,7 +146,7 @@ class EntradaDetalleUpdateView(LoginRequiredMixin, GroupRequiredMixin, UpdateVie
     model = inv_m.EntradaDetalle
     form_class = inv_f.EntradaDetalleUpdateForm
     template_name = 'inventario/entrada/entradadetalle_detail.html'
-    group_required = [u"inv_tecnico", u"inv_admin", u"inv_cc"]
+    group_required = [u"inv_tecnico", u"inv_admin", u"inv_cc", u"inv_bodega"]
 
     def get_context_data(self, **kwargs):
         context = super(EntradaDetalleUpdateView, self).get_context_data(**kwargs)

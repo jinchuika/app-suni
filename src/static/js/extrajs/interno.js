@@ -255,7 +255,7 @@ class InventarioInternoUpdate {
         tabla.ajax.reload();
         location.reload();
     });
-
+    //Inicio de boton reasignar usuario
     $('#id-reasignar').click( function() {
       $.ajax({
         url: urlUsuarios,
