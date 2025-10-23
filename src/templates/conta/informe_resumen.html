@@ -41,8 +41,9 @@
 							{% csrf_token %}
 							<input type="hidden" name="fecha_min" id="fecha_min_hidden">
 							<input type="hidden" name="fecha_max" id="fecha_max_hidden">
-							<div id="tipo_dispositivo_hidden_container"></div>
-							<button type="submit" class="btn btn-success form-control" style="width:15%; margin:3%;">Imprimir</button>
+                            <input type="hidden" name="datos_informe_json" id="datos_informe_json_hidden">
+                            <div id="tipo_dispositivo_hidden_container"></div>
+							<button type="submit" class="btn btn-success form-control" style="width:8%; margin:10px 91%;">Imprimir</button>
 						</form>
 					{% endif %}
 
@@ -97,26 +98,36 @@
 	let salida = new ResumenInforme();
 
 	document.getElementById('form-print').addEventListener('submit', function(e) {
-		const formFiltros = document.getElementById('precioestandar-list-form');
-		const formData = new FormData(formFiltros);
+        
+        const formFiltros = document.getElementById('precioestandar-list-form');
+        const formData = new FormData(formFiltros);
 
-		document.getElementById('fecha_min_hidden').value = formData.get('fecha_min');
-		document.getElementById('fecha_max_hidden').value = formData.get('fecha_max');
+        document.getElementById('fecha_min_hidden').value = formData.get('fecha_min');
+        document.getElementById('fecha_max_hidden').value = formData.get('fecha_max');
 
-		const container = document.getElementById('tipo_dispositivo_hidden_container');
-		container.innerHTML = '';
+        const container = document.getElementById('tipo_dispositivo_hidden_container');
+        container.innerHTML = '';
 
-		const select = document.getElementById('id_tipo_dispositivo');
-		const selectedOptions = Array.from(select.selectedOptions);
-
-		selectedOptions.forEach(option => {
-			const input = document.createElement('input');
-			input.type = 'hidden';
-			input.name = 'tipo_dispositivo';
-			input.value = option.value;
-			container.appendChild(input);
-		});
-	});
+        const select = document.getElementById('id_tipo_dispositivo');
+        if (select) {
+            const selectedOptions = Array.from(select.selectedOptions);
+            selectedOptions.forEach(option => {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'tipo_dispositivo';
+                input.value = option.value;
+                container.appendChild(input);
+            });
+        }
+        
+        if (typeof $ !== 'undefined' && $.fn.DataTable) {
+            const dataTable = $('#precioestandar-table').DataTable();
+            const datosTabla = dataTable.rows().data().toArray(); 
+            document.getElementById('datos_informe_json_hidden').value = datosJson;
+        } else {
+            console.error("DataTables no está disponible o no se ha inicializado.");
+        }
+    });
 </script>
 
 

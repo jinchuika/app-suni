@@ -4233,6 +4233,7 @@ class DispositivoList {
                  {data: "tarima", className: "nowrap"},
                  {data: "estado", className: "nowrap"},
                  {data: "etapa", className: "nowrap"},
+                 {data: "asignado", className: "nowrap"},
                  {data: "procesador", className: "nowrap"}
              ]
            });

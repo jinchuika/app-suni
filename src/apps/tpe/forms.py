@@ -307,17 +307,18 @@ class TicketReparacionInformeForm(forms.Form):
         widget=forms.Select(attrs={'class': 'select2'}),
         required=False,
         queryset=mye_m.Cooperante.objects.all())
-    fecha_inicio_min = forms.DateField(label="Fecha inicio desde", required=False, widget=forms.DateInput(attrs={'type': 'date'}))
-    fecha_inicio_max = forms.DateField(label="Fecha inicio hasta", required=False, widget=forms.DateInput(attrs={'type': 'date'}))
-    fecha_fin_min = forms.DateField(label="Fecha fin desde", required=False, widget=forms.DateInput(attrs={'type': 'date'}))
-    fecha_fin_max = forms.DateField(label="Fecha fin hasta", required=False, widget=forms.DateInput(attrs={'type': 'date'}))
-        
+    fecha_inicio_min = forms.CharField(
+        label="Fecha min",
+        required=False, 
+        widget=forms.TextInput(attrs={'class': 'datepicker'}))
+    fecha_inicio_max = forms.CharField(
+        label="Fecha max", 
+        required=False, 
+        widget=forms.TextInput(attrs={'class': 'datepicker'}))
 
     def __init__(self, *args, **kwargs):
         super(TicketReparacionInformeForm, self).__init__(*args, **kwargs)
         self.fields['tecnico_asignado'].label_from_instance = lambda obj: "%s" % obj.get_full_name()
-
-
 
 
 class EvaluacionMonitoreoCreateForm(forms.ModelForm):

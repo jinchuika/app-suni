@@ -9,7 +9,7 @@ class DispositivoSerializer(serializers.ModelSerializer):
     """
     tipo = serializers.StringRelatedField(allow_null=True)
     estado = serializers.StringRelatedField()
-    etapa = serializers.SerializerMethodField()
+    etapa = serializers.StringRelatedField()
     marca = serializers.StringRelatedField()
     modelo = serializers.StringRelatedField()
     puerto = serializers.SerializerMethodField(read_only=True)       
@@ -17,6 +17,7 @@ class DispositivoSerializer(serializers.ModelSerializer):
     clase = serializers.StringRelatedField()
     url = serializers.StringRelatedField(source='get_absolute_url')
     fecha_desecho = serializers.SerializerMethodField(read_only=True)
+    asignado = serializers.SerializerMethodField()
     procesador = serializers.SerializerMethodField()
 
     class Meta:
@@ -36,6 +37,7 @@ class DispositivoSerializer(serializers.ModelSerializer):
             'tarima',
             'url',
             'fecha_desecho',
+            'asignado',
             'procesador']
 
     def get_fecha_desecho(self, obj):
@@ -65,17 +67,13 @@ class DispositivoSerializer(serializers.ModelSerializer):
         except:
             return ""
     
-    def get_etapa(self, obj):
+    def get_asignado(self, obj):
         try:
             if obj.etapa.id == 7:
                 asignado = inv_m.IInternoDispositivo.objects.filter(dispositivo=obj).last()
-                return '{etapa}, {asignado}'.format(etapa= obj.etapa, asignado = asignado.no_asignacion.colaborador_asignado.get_full_name())
-            else: 
-                return str(obj.etapa)
+                return '{asignado}'.format(asignado = asignado.no_asignacion.colaborador_asignado.get_full_name())
         except:
-            return "None"
-
-
+            return ""
 
 class TarimaSerializer(serializers.ModelSerializer):
     """ Serializer para generar los datos del app  de la :class:`Tarima`
