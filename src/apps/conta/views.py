@@ -28,6 +28,7 @@ from django.http import JsonResponse
 from django.core import mail
 from django.template.loader import render_to_string
 
+
 import os
 import pathlib
 import shutil
@@ -43,6 +44,7 @@ from django.conf import settings
 from openpyxl import load_workbook
 from apps.conta.config import EMAIL_CREDENCIALES
 import requests
+import json
 from django.urls import reverse
 from apps.main import creacion_filtros_informe as crear_dict
 
@@ -316,41 +318,32 @@ class ContabilidadResumenPrint(TemplateView):
     def post(self, request, *args, **kwargs):
         fecha_min = request.POST.get('fecha_min')
         fecha_max = request.POST.get('fecha_max')
-        tipo_dispositivo = request.POST.getlist('tipo_dispositivo')
 
-        api_url = request.build_absolute_uri(reverse('contabilidad_api_resumen'))
-
-        params = {
-            'fecha_min': fecha_min, 
-            'fecha_max': fecha_max,
-            'tipo_dispositivo[]': tipo_dispositivo,
-        }
+        datos_informe_json = request.POST.get('datos_informe_json')
         
-        cookies = {}
-        if 'sessionid' in request.COOKIES:
-            cookies['sessionid'] = request.COOKIES['sessionid']
+        datos_api = []
+        error = None
+        
+        if datos_informe_json:
+            try:
+                datos_api = json.loads(datos_informe_json)
+            except json.JSONDecodeError:
+                error = "Error al decodificar los datos del informe enviados."
+            except TypeError:
+                error = "Los datos del informe enviados no tienen un formato válido."
+        else:
+            error = "No se recibieron datos para generar el informe." 
 
+        rango_fechas = '{} al {}'.format(fecha_min, fecha_max)
+
+        if datos_api and isinstance(datos_api, list) and datos_api[0]:
+             datos_api[0]['rango_fechas'] = rango_fechas
+        
         context = {
-            'params': params,
-            'datos_api': None,
-            'error': None
+            'datos_api': datos_api,
+            'error': error,
         }
-
-        try:
-            response = requests.get(url=api_url, params=params, cookies=cookies)
-            
-            if response.status_code == 200:
-                context['datos_api'] = response.json()
-            elif response.status_code == 401:
-                context['error'] = "Error de autenticación (401). La sesión podría ser inválida."
-            else:
-                print("Error en la API: Código" , {response.status_code})
-
-        except requests.exceptions.RequestException as e:
-            print(e)
-
         return render(request, self.template_name, context)
-
 
 class InformeCantidadJson(views.APIView):
 

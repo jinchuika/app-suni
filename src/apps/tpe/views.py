@@ -460,17 +460,10 @@ class TicketReparacionInformeView(InformeMixin):
         if form.is_valid():
             fecha_inicio_min = form.cleaned_data.get('fecha_inicio_min')
             fecha_inicio_max = form.cleaned_data.get('fecha_inicio_max')
-            fecha_fin_min = form.cleaned_data.get('fecha_fin_min')
-            fecha_fin_max = form.cleaned_data.get('fecha_fin_max')
-
             if fecha_inicio_min:
                 queryset = queryset.filter(fecha_inicio__gte=fecha_inicio_min)
             if fecha_inicio_max:
                 queryset = queryset.filter(fecha_inicio__lte=fecha_inicio_max)
-            if fecha_fin_min:
-                queryset = queryset.filter(fecha_fin__gte=fecha_fin_min)
-            if fecha_fin_max:
-                queryset = queryset.filter(fecha_fin__lte=fecha_fin_max)
 
         var = [
             {
