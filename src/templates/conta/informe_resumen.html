@@ -29,23 +29,23 @@
                 <div class="box">
                     <div class="box-header">
                         <div class="row">
-                            <div class="col-md-9">
+                            <div class="col-md-3">
                                 <h3 class="box-title">Resumen </h3>
                             </div>
-                            <div class="col-md-3">
+                            <div class="col-md-9">
+                                {% if request.user|has_group:"inv_admin" %}
+                                    <form method="post" action="{% url 'contabilidad_resumen_print' %}" id="form-print" target="_blank">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="fecha_min" id="fecha_min_hidden">
+                                        <input type="hidden" name="fecha_max" id="fecha_max_hidden">
+                                        <input type="hidden" name="datos_informe_json" id="datos_informe_json_hidden">
+                                        <div id="tipo_dispositivo_hidden_container"></div>
+                                        <button type="submit" class="btn btn-success form-control" style="width:14%; margin:0px 56%;">Imprimir</button>
+                                    </form>
+					            {% endif %}
                             </div>
                         </div>
                     </div>
-					{% if request.user|has_group:"inv_admin" %}
-						<form method="post" action="{% url 'contabilidad_resumen_print' %}" id="form-print" target="_blank">
-							{% csrf_token %}
-							<input type="hidden" name="fecha_min" id="fecha_min_hidden">
-							<input type="hidden" name="fecha_max" id="fecha_max_hidden">
-                            <input type="hidden" name="datos_informe_json" id="datos_informe_json_hidden">
-                            <div id="tipo_dispositivo_hidden_container"></div>
-							<button type="submit" class="btn btn-success form-control" style="width:8%; margin:10px 91%;">Imprimir</button>
-						</form>
-					{% endif %}
 
 
                     
