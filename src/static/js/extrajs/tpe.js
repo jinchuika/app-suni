@@ -608,6 +608,7 @@
         {data: "costo_reparacion", type: "num"},
         {data: "costo_transporte", type: "num"},
         {data: "costo_total", type: "num"},
+        {data: "tipo_soporte"},
         ]
     }).on('xhr.dt', function (e, settings, json, xhr) {
         $('#spinner').hide();

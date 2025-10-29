@@ -57,12 +57,14 @@
 								<td>{{ inventariointerno.fecha_devolucion }}</td>
 							</tr>
 							{% else %}
-							<tr>
-								<th>Reasignación</th>
-								<td>
-									<button id="id-reasignar" class="btn-info btn" data-url="{%url 'inventario_api:api_inventariointerno-reasignar-colaborador'%}" data-urlusuarios="{%url 'inventario_api:api_usuarios-list'%}" data-pk="{{inventariointerno.id}}" style="padding-bottom: 2px; padding-top: 2px;">Reasignar</button>
-								</td>
-							</tr>
+								{% if request.user|has_group:"inv_admin" %}
+									<tr>
+										<th>Reasignación</th>
+										<td>
+											<button id="id-reasignar" class="btn-info btn" data-url="{%url 'inventario_api:api_inventariointerno-reasignar-colaborador'%}" data-urlusuarios="{%url 'inventario_api:api_usuarios-list'%}" data-pk="{{inventariointerno.id}}" style="padding-bottom: 2px; padding-top: 2px;">Reasignar</button>
+										</td>
+									</tr>
+								{% endif %}
 							{% endif %}
 							
 						</table>
