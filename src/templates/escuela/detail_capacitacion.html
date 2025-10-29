@@ -11,15 +11,15 @@
                             <table class="table table-condensed table-hover">
                                 <tr>
                                     <th>Capacitador</th>
-                                    <td>{{ capacitacion.capacitador }}</td>
+                                    <td>{{ capacitacion.capacitador.get_full_name}}</td>
                                 </tr>
                                 <tr>
                                     <th>Fecha de inicio</th>
-                                    <td>{{ capacitacion.inicio }}</td>
+                                    <td>{{ capacitacion.fecha_creacion }}</td>
                                 </tr>
                                 <tr>
                                     <th>Fecha de fin</th>
-                                    <td>{{ capacitacion.fin }}</td>
+                                    <td>{{ capacitacion.fecha_finalizacion }}</td>
                                 </tr>
                                 <tr>
                                     <th>Docentes capacitados</th>
@@ -79,6 +79,7 @@
                                             <th>Reprobados</th>
                                             <th>A Nivelar</th>
                                             <th>Estado</th>
+                                            <th></th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -104,6 +105,11 @@
                                                             {% else %}
                                                             <span class='label label-warning'>En Proceso</span>
                                                             {% endif %} 
+                                                        {% endif %} 
+                                                    </td>
+                                                    <td>
+                                                        {% if  sede.sede.fecha_creacion.year == 2010 %}
+                                                        <span class='label label-warning'>capacitacion cascada</span>                                                        
                                                         {% endif %} 
                                                     </td>
                                                 </tr>

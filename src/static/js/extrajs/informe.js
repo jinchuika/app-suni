@@ -16,30 +16,25 @@ $( "#id_codigo" )
    var myData = {}
     $('#informe-list-form').submit(function (e) {
             // Evita que se envíe el formulario
-            //console.log(JSON.stringify($('#informe-escuela-form').serializeArray()))   
-            //console.log(JSON.parse($('#informe-escuela-form').serializeObject()))         
-            //console.log($('#informe-escuela-form').serializeArray())
             var contador_campos_escuela = 0
             var contador_campos_equipamiento = 0
             var contador_campos_capacitacion = 0
             var data_escuela =  $('#informe-escuela-form').serializeArray();
             var data_equipamiento = $('#informe-equipamiento-form').serializeArray()
             var data_capacitacion = $('#informe-capacitacion-form').serializeArray()
-            console.log(data_equipamiento);
+            var equipada = data_equipamiento[4]["value"]
+            var capacitada = data_capacitacion[3]["value"]             
             data_escuela.forEach(function(escuela, index){
-              //console.log(`Elemento: ${escuela['value']}, Indice: ${index}`);
               if (escuela['value'] == ""){
                 contador_campos_escuela++;
               }
             });
             data_equipamiento.forEach(function(equipamiento, index){
-              console.log(`Elemento: ${equipamiento['value']}, Indice: ${index}`);
               if (equipamiento['value'] == ""){
                 contador_campos_equipamiento++;
               }
             });
-            data_capacitacion.forEach(function(capacitacion, index){
-              //console.log(`Elemento: ${capacitacion['value']}, Indice: ${index}`);               
+            data_capacitacion.forEach(function(capacitacion, index){            
               if (capacitacion['value'] == ""){
                 contador_campos_capacitacion++;
               }
@@ -47,41 +42,24 @@ $( "#id_codigo" )
             if (contador_campos_escuela == data_escuela.length){
               data_escuela = []
               data_escuela.push({name:'escuela',value:false});
-              myData["escuela"] = JSON.stringify(data_escuela)
-               //myData["escuela"] = "No"
+              myData["escuela"] = JSON.stringify(data_escuela);              
             }else{
               myData["escuela"] = JSON.stringify($('#informe-escuela-form').serializeArray())
             }
-            console.log(contador_campos_equipamiento);
-              console.log(data_equipamiento.length);
             if (contador_campos_equipamiento == (data_equipamiento.length-1)){
-              
-              console.log("aca1")
                data_equipamiento = []
-               data_equipamiento.push({name:'equipada',value:false});
+               data_equipamiento.push({name:'equipada',value:equipada});
                myData["equipada"] = JSON.stringify(data_equipamiento)
             }else{
-              console.log("aca2")
               myData["equipada"] = JSON.stringify($('#informe-equipamiento-form').serializeArray())
             }
             if (contador_campos_capacitacion == (data_capacitacion.length-1)){
                 data_capacitacion = []
-                data_capacitacion.push({name:'capacitada',value:false}); 
-                myData["capacitacion"] = JSON.stringify(data_capacitacion)                
-              //myData["capacitacion"] = "No"
+                data_capacitacion.push({name:'capacitada',value:capacitada}); 
+                myData["capacitacion"] = JSON.stringify(data_capacitacion);   
             }else{
               myData["capacitacion"] = JSON.stringify($('#informe-capacitacion-form').serializeArray())
-            }
-            //data_escuela.push({name:'si_escuela',value:true});
-            //console.log(data_escuela);
-            /*data_capacitacion.forEach(function(capacitacion, index){
-              console.log(`Elemento: ${capacitacion['value']}, Indice: ${index}`);
-            }) */
-            //console.log($('#informe-capacitacion-form').serializeArray())
-            //console.log($('#informe-equipamiento-form').serializeArray()) 
-            ///myData["escuela"] = JSON.stringify($('#informe-escuela-form').serializeArray())
-            //myData["capacitacion"] = JSON.stringify($('#informe-capacitacion-form').serializeArray())
-            //myData["equipada"] = JSON.stringify($('#informe-equipamiento-form').serializeArray())            
+            }            
             e.preventDefault();
             var tabla = $('#informe-table').DataTable({
             dom: 'lfrtipB',
@@ -99,8 +77,11 @@ $( "#id_codigo" )
                 dataSrc: '',
                 data:  {
                   myData: JSON.stringify(myData),
+                },
+                error:function(xhr, error, thrown){
+                  bootbox.alert({message: "<h3><i class='fa fa-frown-o' style='font-size: 45px;'></i>&nbsp;&nbsp;&nbsp;"+xhr.responseText+"</h3></br>" , className:"modal modal-danger fade"});
 
-                }
+                 }
             },
             columns: [
             {data: "Udi"},
@@ -151,8 +132,6 @@ $( "#id_codigo" )
               var acumulador_no_promovidos=0;
               var acumulador_inconclusos=0;
               for (var i in data){
-                //console.log(data[i].Ninos_beneficiados)
-
                 acumulador_ninos_beneficiados= acumulador_ninos_beneficiados + data[i].Ninos_beneficiados;
                 acumulador_docentes = acumulador_docentes + data[i].Docentes;
                 acumulador_equipo_entregado=acumulador_equipo_entregado+data[i].Equipo_entregado;
@@ -172,10 +151,6 @@ $( "#id_codigo" )
                 $(tfoot).find('th').eq(17).html(acumulador_promovidos);
                 $(tfoot).find('th').eq(18).html(acumulador_no_promovidos);
                 $(tfoot).find('th').eq(19).html(acumulador_inconclusos);
-
-
-
-                //console.log(nuevo);
               };
 
             },
@@ -187,11 +162,8 @@ $( "#id_codigo" )
             $('span.glyphicon-remove')
                 .click(function(event) {
                     var tdIndex = $(this).parent('th').index()
-                    console.log("Esto es un mosaico");
-                    //$(this).parent('th').remove()
-
+                    console.log("Esto es un mosaico"); 
                     tabla.column(tdIndex).visible( false );
-
                     $('table tr').each(function() {
                         $(this).find('td').eq(tdIndex).fadeOut()
                     })

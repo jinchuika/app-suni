@@ -2056,7 +2056,8 @@ class html_generadoenerator:
             elif actual_so=="Windows":
                 ruta_wkhmtltopdf = "C:\\Program Files\\wkhtmltopdf\\bin\\wkhtmltopdf.exe"
             elif actual_so=="Linux":
-                ruta_wkhmtltopdf = "/usr/local/bin/wkhtmltopdf"
+                #ruta_wkhmtltopdf = ""
+                ruta_wkhmtltopdf = "/usr/local/bin/wkhtmltopdf"                
             else:
                 raise Exception("No se ha podido encontrar el Sistema Operativo")
         config=pdfkit.configuration(wkhtmltopdf=ruta_wkhmtltopdf)
