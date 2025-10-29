@@ -437,6 +437,7 @@ class TicketInformeView(InformeMixin):
                 'costo_reparacion': ticket.get_costo_reparacion(),
                 'costo_transporte': ticket.get_costo_transporte(),
                 'costo_total': ticket.get_costo_total(),
+                'tipo_soporte': [registro.tipo.tipo for registro in ticket.registros.all()],
             } for ticket in queryset
         ]
         return var
