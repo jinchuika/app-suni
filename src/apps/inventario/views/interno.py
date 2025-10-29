@@ -91,7 +91,7 @@ class InventarioInternoDetailView(LoginRequiredMixin, GroupRequiredMixin, Detail
 	""" Vista para poder ver el detalle de asignaciones ya cerradas """
 	model = inv_m.InventarioInterno
 	template_name = 'inventario/interno/interno_detail.html'
-	group_required = [u"inv_interno", u"inv_admin", u"inv_cc", u"inv_conta"]
+	group_required = [u"inv_interno", u"inv_admin", u"inv_cc", u"inv_conta", u"tpe_tecnico"]
 
 class InventarioInternoListView(LoginRequiredMixin, GroupRequiredMixin, FormView):
 	""" Vista para mostrar la lista de asignaciones de dispositivos de acuerdo a parámetros de búsqueda
@@ -99,7 +99,7 @@ class InventarioInternoListView(LoginRequiredMixin, GroupRequiredMixin, FormView
 	model = inv_m.IInternoDispositivo
 	template_name = 'inventario/interno/interno_list.html'
 	form_class = inv_f.InventarioInternoInformeForm
-	group_required = [u"inv_interno", u"inv_admin", u"inv_conta"]
+	group_required = [u"inv_interno", u"inv_admin", u"inv_conta",  u"tpe_tecnico"]
 
 class CartaPrintView(LoginRequiredMixin, GroupRequiredMixin, DetailView):
 	"""Vista encargada de imprimir la carta de responsabilidad correspondiente"""

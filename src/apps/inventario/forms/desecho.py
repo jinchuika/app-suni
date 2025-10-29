@@ -95,6 +95,28 @@ class DesechoDispositivoForm(forms.ModelForm):
         dispositivos_desechados = inv_m.Dispositivo.objects.filter(estado=inv_m.DispositivoEstado.DS, etapa=inv_m.DispositivoEtapa.AB)
         self.fields['dispositivo'].queryset = inv_m.Dispositivo.objects.filter(estado=inv_m.DispositivoEstado.DS, etapa=inv_m.DispositivoEtapa.AB).exclude(id__in=dispositivos_desecho)
 
+class DesechoSolicitudForm(forms.ModelForm):
+    """Formulario para seleccionar solicitudes de movimeiento de tipo desecho"""    
+    solicitud = forms.ModelChoiceField(
+        queryset=inv_m.SolicitudMovimiento.objects.filter(desecho=True, etapa_final=inv_m.DispositivoEtapa.TR, recibida=True, terminada=True).order_by('-id'),
+        label="Solicitud de Desecho",
+        widget=forms.Select(attrs={'class': 'form-control select2', 'id': 'select-solicitud'})
+    )
+
+    class Meta:
+        model = inv_m.SolicitudMovimiento
+        fields = ()
+        exclude = ('etapa_inicial','fecha_creacion','creada_por','recibida_por','autorizada_por','terminada',
+                   'recibida','devolucion','rechazar','desecho','salida_kardex','entrada_kardex','observaciones',
+                   'no_salida','no_inventariointerno','tipo_dispositivo','cantidad','tipo_dispositivo','cantidad')
+        
+        widgets = {
+            'tipo_dispositivo': forms.Select(attrs={'class': 'form-control select2'}),
+            'cantidad': forms.NumberInput(attrs={'class': 'form-control', 'min': 1}),
+        }
+    def __init__(self, *args, **kwargs):
+        super(DesechoSolicitudForm, self).__init__(*args, **kwargs)
+        self.fields['solicitud'].label_from_instance = lambda obj: '{} | Tipo: {} | Cantidad: {}'.format(obj.id, obj.tipo_dispositivo, obj.cantidad)
 
 class DesechoInventarioListForm(forms.Form):
     """Este Formulario se encarga de enviar los filtros para  su respectivo informe de Entradas
@@ -121,3 +143,45 @@ class DesechoInventarioListForm(forms.Form):
         label='Fecha (max)',
         required=False,
         widget=forms.TextInput(attrs={'class': 'form-control datepicker'}))
+
+
+class SolicitudMovimientoDesechoCreateForm(forms.ModelForm):
+    """Formulario para el control de las Solicitud de Movimiento que van a desecho.
+    """
+    field_order = ['tipo_dispositivo','observaciones']
+
+    class Meta:
+        model = inv_m.SolicitudMovimiento
+        exclude = [
+            'autorizada_por',
+            'terminada',
+            'creada_por',
+            'fecha_creacion',
+            'etapa_inicial',
+            'etapa_final',
+            'recibida',
+            'recibida_por',
+            'devolucion',
+            'desecho',
+            'rechazar',
+            'salida_kardex',
+            'entrada_kardex',
+            'inventario_interno',
+            'no_inventariointerno',
+            'no_salida', 
+            'cantidad'
+            ]
+        widgets = {
+            'tipo_dispositivo': forms.Select(attrs={'id': 'tipo_dispositivo_movimiento', 'class': 'form-control select2', 'tabindex': '2'}),
+            'observaciones': forms.Textarea({'class': 'form-control', 'tabindex': '4'}),
+        }
+        
+    def save(self, commit=True):
+        instance = super(SolicitudMovimientoDesechoCreateForm, self).save(commit=False)
+        instance.cantidad = 0
+        instance.etapa_inicial = inv_m.DispositivoEtapa.objects.get(id=inv_m.DispositivoEtapa.AB)
+        instance.etapa_final = inv_m.DispositivoEtapa.objects.get(id=inv_m.DispositivoEtapa.TR)
+        instance.desecho = True
+        if commit:
+            instance.save()
+        return instance

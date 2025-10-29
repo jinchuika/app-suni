@@ -3,6 +3,7 @@ from django import forms
 from django.contrib.auth.models import User
 from apps.inventario import models as inv_m
 from django.urls import reverse_lazy
+from apps.conta import models as conta_m
 
 
 class TecladoForm(forms.ModelForm):
@@ -111,7 +112,7 @@ class LaptopForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(LaptopForm, self).__init__(*args, **kwargs)
-        self.fields['disco_duro'].queryset = inv_m.HDD.objects.filter(valido=True, asignado=False)
+        self.fields['disco_duro'].queryset =inv_m.HDD.objects.filter(valido=True, asignado=False).exclude(movimientodispositivo__tipo_movimiento=conta_m.MovimientoDispositivo.BAJA)
 
 
 class MonitorForm(forms.ModelForm):
@@ -640,7 +641,7 @@ class CPUFormUpdate(forms.ModelForm):
             'cantidad_puertos': forms.TextInput({'class': 'form-control'}),
             'ram': forms.NumberInput({'class': 'form-control', 'tabindex': '9'}),
             'ram_medida': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '10'}),
-            'disco_duro': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '8'}),
+            'disco_duro': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '8'},),
             'version_sistema': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '7'}),
             'procesador': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '6'}),
             'descripcion': forms.Textarea(attrs={'cols': 30, 'rows': 3, 'class': 'form-control', 'tabindex': '5'}),
@@ -650,8 +651,8 @@ class CPUFormUpdate(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
-        super(CPUFormUpdate, self).__init__(*args, **kwargs)        
-       
+        super(CPUFormUpdate, self).__init__(*args, **kwargs)    
+        self.fields['disco_duro'].required = False  
         
         try:
              dispositivos = inv_m.CambioEtapa.objects.get(dispositivo=self.instance)

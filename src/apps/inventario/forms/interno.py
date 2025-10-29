@@ -20,7 +20,7 @@ class InventarioInternoForm(forms.ModelForm):
 	class Meta:
 		model = inv_m.InventarioInterno
 		fields = '__all__'
-		exclude = ['no_asignacion', 'creada_por', 'fecha_devolucion', 'estado', 'fecha_asignacion', 'borrador']
+		exclude = ['no_asignacion', 'creada_por', 'fecha_devolucion', 'estado', 'fecha_asignacion', 'borrador', 'reasignado', 'reasignado_por', 'reasignado_por']
 
 	def __init__(self, *args, **kwargs):
 		super(InventarioInternoForm, self).__init__(*args, **kwargs)

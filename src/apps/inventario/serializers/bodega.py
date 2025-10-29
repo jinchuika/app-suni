@@ -17,6 +17,7 @@ class DispositivoSerializer(serializers.ModelSerializer):
     clase = serializers.StringRelatedField()
     url = serializers.StringRelatedField(source='get_absolute_url')
     fecha_desecho = serializers.SerializerMethodField(read_only=True)
+    asignado = serializers.SerializerMethodField()
     procesador = serializers.SerializerMethodField()
 
     class Meta:
@@ -36,6 +37,7 @@ class DispositivoSerializer(serializers.ModelSerializer):
             'tarima',
             'url',
             'fecha_desecho',
+            'asignado',
             'procesador']
 
     def get_fecha_desecho(self, obj):
@@ -64,8 +66,14 @@ class DispositivoSerializer(serializers.ModelSerializer):
             return str(puerto)
         except:
             return ""
-
-
+    
+    def get_asignado(self, obj):
+        try:
+            if obj.etapa.id == 7:
+                asignado = inv_m.IInternoDispositivo.objects.filter(dispositivo=obj).last()
+                return '{asignado}'.format(asignado = asignado.no_asignacion.colaborador_asignado.get_full_name())
+        except:
+            return ""
 
 class TarimaSerializer(serializers.ModelSerializer):
     """ Serializer para generar los datos del app  de la :class:`Tarima`

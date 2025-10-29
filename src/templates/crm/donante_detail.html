@@ -74,6 +74,29 @@
 									{%endfor%}
 								</td>
 							</tr>
+							<tr>
+								<th>Tipo de trato</th>
+								<td>{{ donante.tratamiento|default_if_none:"" }}</td>
+							</tr>
+							<tr>
+								<th>Destinatario</th>
+								<td>
+									{% if donante.tratamiento == "INDIVIDUAL" %}
+										{% if donante.genero == "F"%}
+											Estimada 
+										{% elif donante.genero == "M" %}
+											Estimado
+										{% endif %}
+									{% else %}
+										{% if donante.genero == "F"%}
+											Estimadas
+										{% elif donante.genero == "M" %}
+											Estimados
+										{% endif %}
+									{% endif %}
+									{{ donante.nombre|default_if_none:"" }}
+								</td>
+							</tr>
 						</table>
 					</div>
 				</div>

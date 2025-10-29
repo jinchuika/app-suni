@@ -123,7 +123,7 @@ class TicketRegistroUpdateForm(forms.ModelForm):
 class TicketReparacionForm(forms.ModelForm):
     class Meta:
         model = tpe_m.TicketReparacion
-        fields = ('triage', 'tipo_dispositivo', 'falla_reportada', 'tecnico_asignado')
+        fields = ('triage', 'tipo_dispositivo', 'falla_reportada', 'tecnico_asignado', 'tipo_soporte')
 
     def __init__(self, *args, **kwargs):
         super(TicketReparacionForm, self).__init__(*args, **kwargs)
@@ -302,6 +302,19 @@ class TicketReparacionInformeForm(forms.Form):
         label='Técnico asignado',
         queryset=User.objects.filter(groups__name='tpe_tecnico'),
         required=False)
+    cooperante = forms.ModelChoiceField(
+        label='Cooperante',
+        widget=forms.Select(attrs={'class': 'select2'}),
+        required=False,
+        queryset=mye_m.Cooperante.objects.all())
+    fecha_inicio_min = forms.CharField(
+        label="Fecha min",
+        required=False, 
+        widget=forms.TextInput(attrs={'class': 'datepicker'}))
+    fecha_inicio_max = forms.CharField(
+        label="Fecha max", 
+        required=False, 
+        widget=forms.TextInput(attrs={'class': 'datepicker'}))
 
     def __init__(self, *args, **kwargs):
         super(TicketReparacionInformeForm, self).__init__(*args, **kwargs)

@@ -22,7 +22,7 @@
 						</div>
 						<div class="col-md-3"></div>
 					</div>
-					<div class="box-body">
+					<div class="box-body" style="padding-bottom: 5px;">
 						<table class="table table-condensed">
 							<tr>
 								<th>Asignación No.</th>
@@ -56,7 +56,17 @@
 								<th>Fecha Devolución</th>
 								<td>{{ inventariointerno.fecha_devolucion }}</td>
 							</tr>
+							{% else %}
+								{% if request.user|has_group:"inv_admin" %}
+									<tr>
+										<th>Reasignación</th>
+										<td>
+											<button id="id-reasignar" class="btn-info btn" data-url="{%url 'inventario_api:api_inventariointerno-reasignar-colaborador'%}" data-urlusuarios="{%url 'inventario_api:api_usuarios-list'%}" data-pk="{{inventariointerno.id}}" style="padding-bottom: 2px; padding-top: 2px;">Reasignar</button>
+										</td>
+									</tr>
+								{% endif %}
 							{% endif %}
+							
 						</table>
 					</div>
 				</div>
@@ -115,4 +125,14 @@
 
 {% block extra_js %}
 {% include "base/dataTables.html" %}
+<script src="{% static "js/extrajs/interno.js" %}"></script>
+<script> 
+
+ $(document).ready(function (){
+	let Asignacion = new InventarioInternoDetail();	
+});
+
+</script>
+
+
 {% endblock extra_js %}

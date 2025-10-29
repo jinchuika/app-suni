@@ -42,6 +42,52 @@ class InventarioInternoViewSet(viewsets.ModelViewSet):
                 return Response({'mensaje': 'El usuario no existe'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         else:
             return Response({'mensaje': 'No se encontró la asignación'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+    
+    @action(methods=['post'], detail=False)
+    def reasignar_colaborador(self, request, pk=None):
+        """ Método para reasignar colaborador a una salida de inventario interno """
+        id_asignacion = request.data['id_asignacion']
+        data = request.data['data']
+
+        asignacion_ii = inv_m.InventarioInterno.objects.get(id=id_asignacion)
+        dispositivos = inv_m.IInternoDispositivo.objects.filter(no_asignacion=asignacion_ii)
+
+        if asignacion_ii:
+            try:
+                usuario = User.objects.get(id=data)
+                asignacion_ii.fecha_devolucion = datetime.now()
+                asignacion_ii.estado = inv_m.IInternoEstado.objects.get(id=3) 
+                asignacion_ii.reasignado = True
+                asignacion_ii.reasignado_por = request.user
+                asignacion_ii.save()
+
+                asigna_ii_add = inv_m.InventarioInterno(
+                    colaborador_asignado=usuario,
+                    fecha_asignacion = datetime.now(),  
+                    creada_por = request.user,
+                    estado = inv_m.IInternoEstado.objects.get(id=2),
+                    borrador = False
+                )
+                asigna_ii_add.save()
+
+                for dispositivo in dispositivos:
+                    dispositivo_asignado = inv_m.IInternoDispositivo(
+                        no_asignacion=asigna_ii_add,
+                        dispositivo=dispositivo.dispositivo,
+                        fecha_creacion=datetime.now(),
+                        asignado_por=request.user,
+                        fecha_aprobacion=datetime.now(),
+                        aprobado_por=request.user,
+                        indice=dispositivo.indice
+                    )
+                    dispositivo_asignado.save()
+
+                return Response({'mensaje': 'Asignación Reasignada'}, status=status.HTTP_200_OK )
+            except ObjectDoesNotExist as e:
+                return Response({'mensaje': 'El usuario no existe'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        else:
+            return Response({'mensaje': 'No se encontró la asignación'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @action(methods=['post'], detail=False)
     def entregar_asignacion(self, request, pk=None):

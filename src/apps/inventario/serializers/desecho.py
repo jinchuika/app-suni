@@ -48,3 +48,28 @@ class DesechoSalidaSerializer(serializers.ModelSerializer):
 
     def get_url_detalle(self, obj):
         return reverse_lazy('desechosalida_detail', kwargs={'pk':obj.id})
+
+
+class CambioEtapaSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = inv_m.CambioEtapa
+        fields = ('id', 'motivo', 'fechahora', 'dispositivo')
+        read_only_fields = ('id', 'fechahora', 'dispositivo')
+
+class DesechoSolicitudSerializer(serializers.ModelSerializer):
+    solicitud = serializers.StringRelatedField()
+    motivo = serializers.SerializerMethodField()
+    triage = serializers.StringRelatedField(source='dispositivo.triage')
+    tipo = serializers.StringRelatedField(source='dispositivo.tipo')
+
+    class Meta:
+        model = inv_m.DesechoSolicitud
+        fields = ['id','solicitud', 'dispositivo','aprobado','motivo','triage', 'tipo']
+        read_only_fields = ['id','solicitud','dispositivo','aprobado','motivo', 'triage']
+
+    def get_motivo(self, obj):
+            cambio = inv_m.CambioEtapa.objects.filter(
+                dispositivo=obj.dispositivo,
+                solicitud=obj.solicitud
+            ).first()
+            return cambio.motivo if cambio else None

@@ -14,9 +14,19 @@ desecho_router.register(
     base_name='api_desechodispositivo'
 ),
 desecho_router.register(
+    r'desechosolicitud',
+    api_views.DesechoSolicitudViewSet,
+    base_name='api_desechosolicitud'
+),
+desecho_router.register(
     r'desecholist',
     api_views.DesechoSalidaViewSet,
     base_name='api_desecholist'
+),
+desecho_router.register(
+    r'cambios_etapa',
+    api_views.CambioEtapaAPIViewSet,
+    base_name='cambios_etapa'
 ),
 desecho_urlpatterns = []
 desecho_urlpatterns += desecho_router.urls

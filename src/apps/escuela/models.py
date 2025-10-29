@@ -161,11 +161,11 @@ class Escuela(models.Model):
         resultado = {'listado':[]}
         sedes = []
         for e in self.participantes.all():
-            asignaciones = Asignacion.objects.filter(participante=e, participante__escuela=self)
+            asignaciones = Asignacion.objects.filter(participante=e, participante__escuela=self).order_by('-grupo__sede__fecha_creacion')
             for asignacion in asignaciones:
                 if asignacion.grupo.sede not in sedes:
                     sedes.append(asignacion.grupo.sede)
-        for e in Sede.objects.filter(escuela_beneficiada=self.id, activa=True):
+        for e in Sede.objects.filter(escuela_beneficiada=self.id, activa=True):            
             if e not in sedes:
                 sedes.append(e)
         for sede in sedes:

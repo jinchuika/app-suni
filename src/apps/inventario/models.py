@@ -169,8 +169,11 @@ class EntradaDetalle(models.Model):
     qr_repuestos = models.BooleanField(default=False, blank=True, verbose_name='Imprimir Qr Repuesto')
     qr_dispositivo = models.BooleanField(default=False, blank=True, verbose_name='Imprimir Qr Dispositivo')
     impreso = models.BooleanField(default=False, blank=True, verbose_name='Impreso')
-    pendiente_autorizar = models.BooleanField(default=False, blank=True, verbose_name='pendiente')
+    pendiente_autorizar = models.BooleanField(default=False, blank=True, verbose_name='Aprobado')
     autorizado = models.BooleanField(default=False, blank=True, verbose_name='autorizado')
+    rechazada = models.BooleanField(default=False, blank=True, verbose_name='Rechazada')
+    cant_rechazada =  models.PositiveIntegerField(default=0, verbose_name='Veces Rechazadas')
+    motivo_rechazo = models.TextField(null=True, blank=True, verbose_name='Motivo de rechazo')
     # Creacion de fechas
     fecha_dispositivo = models.DateField(blank=True, null=True)
     fecha_repuesto = models.DateField(blank=True, null=True)
@@ -680,6 +683,21 @@ class Dispositivo(models.Model):
         if modelo is None:
             raise OperationalError('No es un dispositivo')
         return modelo
+    
+    def get_salida(self):
+        try:
+            baja_dispo = conta_m.MovimientoDispositivo.objects.get(dispositivo=self, tipo_movimiento=conta_m.MovimientoDispositivo.BAJA)
+        except conta_m.MovimientoDispositivo.DoesNotExist:
+            salida = None
+            return salida
+
+        if baja_dispo.referencia.startswith('Salida Desecho'):
+            referencia = str(baja_dispo.referencia).replace('Salida Desecho','')
+            salida = DesechoSalida.objects.get(id=referencia)
+        elif baja_dispo.referencia.startswith('Salida '):
+            referencia = str(baja_dispo.referencia).replace('Salida ','')
+            salida = SalidaInventario.objects.get(no_salida=referencia)
+        return salida
 
 
 class DispositivoFalla(models.Model):
@@ -1697,6 +1715,8 @@ class InventarioInterno(models.Model):
     fecha_devolucion = models.DateTimeField(null=True, blank=True)
     estado = models.ForeignKey(IInternoEstado, on_delete=models.PROTECT, related_name='estados',  null=True, blank=True)
     borrador = models.BooleanField(default=True, blank=True)
+    reasignado = models.BooleanField(default=False, blank=True, verbose_name='Reasignado')
+    reasignado_por = models.ForeignKey(User, on_delete=models.PROTECT, related_name='reasignar_inventario', null=True, blank=True)
 
     class Meta:
         verbose_name = 'Inventario Interno'
@@ -1834,6 +1854,7 @@ class CambioEtapa(models.Model):
     etapa_final = models.ForeignKey(DispositivoEtapa, models.PROTECT, related_name='cambios_final')
     fechahora = models.DateTimeField(default=timezone.now)
     creado_por = models.ForeignKey(User, on_delete=models.PROTECT,default=User.objects.get(username="Admin").pk)
+    motivo = models.TextField(null=True, blank=True, verbose_name='motivo')
 
     class Meta:
         verbose_name = 'Cambio de etapa'
@@ -2006,7 +2027,26 @@ class CajaRepuestos(models.Model):
     def __str__(self):
         return str(self.id)
         
+class DesechoSolicitud(models.Model):
+    desecho = models.ForeignKey(DesechoSalida, on_delete=models.PROTECT, related_name='no_desecho')
+    solicitud = models.ForeignKey(
+        SolicitudMovimiento,
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name="solicitud_movimiento_desecho")
+    dispositivo = models.ForeignKey(Dispositivo, on_delete=models.CASCADE, related_name='dispo_solicitud_desecho')
+    creada_por = models.ForeignKey(User, on_delete=models.PROTECT,default=User.objects.get(username="Admin").pk,related_name='solicitudes_creadas')
+    aprobado_por = models.ForeignKey(User, on_delete=models.PROTECT,default=User.objects.get(username="Admin").pk,related_name='solicitudes_aprobadas')
+    aprobado = models.BooleanField(default=False, blank=True) 
+    rechazado = models.BooleanField(default=False, blank=True)
+
+    class Meta:
+        verbose_name = "Detalle de salida de solicitud"
+        verbose_name_plural = "Detalles de salida de solicitudes"
 
 
-
-
+    def __str__(self):
+        return '{dispositivo} -> {desecho}'.format(
+            dispositivo=self.dispositivo,
+            desecho=self.desecho)

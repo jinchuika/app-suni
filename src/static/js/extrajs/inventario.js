@@ -143,13 +143,14 @@ class EntradaUpdate {
                         if(full.autorizado == true){
                           return "";
                         }else{
+
                           if(full.dispositivos_creados == true || full.repuestos_creados == true ){
                               if(full.usa_triage == "False"){
                                 if(full.ingresado_kardex == true){
                                   return "";
                                 }else{
                                   var total_detalle_editar = full.util + full.desecho + full.repuesto;
-                                  if (total_detalle_editar != full.total){
+                                  if (total_detalle_editar != full.total && full.rechazada == false){
                                     return "<a href="+full.update_url+" class='btn btn-info btn-editar'>Editar</a>";
                                   }else{
                                     return "";
@@ -161,12 +162,14 @@ class EntradaUpdate {
                               }
                           }else{
                             var total_detalle_editar_normal = full.util + full.desecho + full.repuesto;
-                            if(total_detalle_editar_normal != full.total){
+                            if(total_detalle_editar_normal != full.total && full.rechazada == false){
                               return "<a href="+full.update_url+" class='btn btn-info btn-editar'>Editar</a>";
-                            }else{
-                              return "";
+                            }else if(full.rechazada == true && full.pendiente_autorizar == false){
+                              return "<a href="+full.update_url+" class='btn btn-info btn-editar' style='border-top: 1px dashed aqua'> Editar  </a>";
                             }
-
+                            else {
+                              return "";
+                            } 
                           }
                         }
 
@@ -174,7 +177,7 @@ class EntradaUpdate {
                         if(full.grupos ==  20){
                           if(full.pendiente_autorizar == true){
                             if (full.autorizado == false){
-                                return "<a  class='btn btn-info btn-autorizar'>Autorizar</a>";
+                                return "<a class='btn btn-info btn-autorizar' style='margin: 5px auto;' >Autorizar</a> <a class='btn btn-danger btn-rechazar'>Rechazar</a> ";
                             }else{
                               return "";
                             }
@@ -260,7 +263,11 @@ class EntradaUpdate {
                       if(full.tipo_entrada != "Especial"){
                         if(full.repuestos_creados == false){
                           if(full.usa_triage == "True" && full.repuesto > 0){
+                            if(full.autorizado != false){
                               return "<button class='btn btn-warning btn-repuesto'>Crear Rep</button>";
+                            }else{
+                              return " "; 
+                            }                      
                           }else{
                             return " ";
                           }
@@ -388,9 +395,28 @@ class EntradaUpdate {
         });
         tablabody.on('click', '.btn-autorizar', function () {
            let data_fila = tabla_temp.tabla.row($(this).parents('tr')).data();
-           EntradaUpdate.validar_detalles(tabla_temp.api_url,data_fila.id,data_fila.autorizado,data_fila.pendiente_autorizar);
+           EntradaUpdate.validar_detalles(tabla_temp.api_url,data_fila.id,true,data_fila.pendiente_autorizar);
 
         });
+
+        tablabody.on('click', '.btn-rechazar', function () {
+            let data_fila = tabla_temp.tabla.row($(this).parents('tr')).data();
+            bootbox.prompt({
+                title: "Ingrese el motivo del rechazo:",
+                inputType: 'textarea',
+                callback: function (motivo_rechazo) {
+                  EntradaUpdate.validar_detalles(
+                  tabla_temp.api_url,
+                  data_fila.id,
+                  false,
+                  data_fila.pendiente_autorizar,
+                  true,  
+                  motivo_rechazo
+                  );
+                }
+            });
+        });
+
         //kardex
         tablabody.on('click', '.btn-kardex', function () {
             let data_fila = tabla_temp.tabla.row($(this).parents('tr')).data();
@@ -441,7 +467,7 @@ class EntradaUpdate {
 
     }
 
-    static validar_detalles(urldetalles, id, autorizado, pendiente_autorizar) {
+    static validar_detalles(urldetalles, id, autorizado, pendiente_autorizar, rechazada = null, motivo_rechazo = null) {
       $.ajax({
             type: "post",
             url: urldetalles+"autorizar_detalles/",
@@ -451,6 +477,8 @@ class EntradaUpdate {
               id:id,
               autorizado:autorizado,
               pendiente_autorizar:pendiente_autorizar,
+              rechazada:rechazada,
+              motivo_rechazo: motivo_rechazo, 
             },
             success: function (response) {
               $("#entrada-table").DataTable().ajax.reload();
@@ -798,10 +826,13 @@ class EntradaDetalleDetail {
     var pk = $('#salida-table').data("pk");
     var urlapi = valor + "?entrada=" + pk;
     var urlDispositivo =  $('#dispositivo-table').data("api");
+    var urlSolicitud =  $('#solicitud-desecho-table').data("api");
     var urlAprobar =  $('#salida-table').data("apiaprobar");
     var urlRechazar =  $('#salida-table').data("apirechazar");
     var urlAprobarDispositivo = $('#dispositivo-table').data("apiaprobar");
     var urlRechazarDispositivo = $('#dispositivo-table').data("apirechazar");
+    var urlAprobarSolicitud = $('#solicitud-desecho-table').data("apiaprobar");
+    var urlRechazarSolicitud = $('#solicitud-desecho-table').data("apirechazar");
     var urlTipoDispositivo = $('#dispositivo-table').data("tipo");
     var urlFinalizar = $('#salida-table').data("finalizar");
     var urlredireccion = $('#salida-table').data("redireccion");
@@ -868,6 +899,41 @@ class EntradaDetalleDetail {
               }
 
 
+            }},
+            {data: "",render: function(data, type, full, meta){
+                if(full.aprobado == false){
+                  return "<a id='desecho-rechazar' data-triage="+full.dispositivo+"  class='btn btn-warning btn-rechazar-dispositivo'>Rechazar</a>";
+                }else{
+                  return "";
+                }
+
+            }},
+        ]
+    });
+    /**/
+    var tablaSolicitud = $('#solicitud-desecho-table').DataTable({
+        searching: true,
+        paging: true,
+        ordering: true,
+        processing: true,
+        ajax: {
+            url: urlSolicitud,
+            dataSrc: '',
+            cache: true,
+            data: {
+              desecho : pk
+            }
+        },
+        columns: [
+            {data: "triage"},
+            {data: "tipo"},
+            {data: "motivo"},
+            {data: "",render: function(data, type, full, meta){
+              if(full.aprobado == false){
+                  return "<a id='desecho-aprobar' data-triage="+full.dispositivo+"  class='btn btn-success btn-aprobar-dispositivo'>Aprobar</a>";
+              }else{
+                return "<span class='label label-success'>Aprobado</span>"
+              }
             }},
             {data: "",render: function(data, type, full, meta){
                 if(full.aprobado == false){
@@ -1109,6 +1175,80 @@ class EntradaDetalleDetail {
                       }
                     });
 
+          /*Aprobar Dispositivo de solicitud de desecho*/
+          tablaSolicitud.on('click', '.btn-aprobar-dispositivo', function () {
+            let data_fila = tablaSolicitud.row($(this).parents('tr')).data();
+            $.ajax({
+              type: "POST",
+              url: urlAprobarSolicitud,
+              dataType: 'json',
+              data: {
+                csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
+                solicitud:data_fila.id
+              },
+              success: function (response) {
+                tablaSolicitud.clear().draw();
+                tablaSolicitud.ajax.reload();
+              },
+              error: function (response) {
+                var mensaje = JSON.parse(response.responseText)
+                bootbox.alert({message: "<h3><i class='fa fa-frown-o' style='font-size: 45px;'></i>&nbsp;&nbsp;&nbsp;HA OCURRIDO UN ERROR!!</h3></br>" + mensaje['mensaje'], className:"modal modal-danger fade"});
+                }
+            });
+          });
+              /**/
+          /*Rechazar Dispositivo de solicitud de desecho*/
+          tablaSolicitud.on('click', '.btn-rechazar-dispositivo', function () {
+                      let data_fila = tablaSolicitud.row($(this).parents('tr')).data();
+                      bootbox.confirm({
+                          message: "¿Esta seguro que quiere rechazar este dispositivo?",
+                          buttons: {
+                              confirm: {
+                                  label: '<i class="fa fa-check"></i> Confirmar',
+                                  className: 'btn-success'
+                              },
+                              cancel: {
+                                  label: '<i class="fa fa-times"></i> Cancelar',
+                                  className: 'btn-danger'
+                              }
+                          },
+                          callback: function (result) {
+                            if (!result) return;
+                            bootbox.prompt({
+                              title: "Ingrese el motivo de rechazo:",
+                              inputType: 'textarea',
+                              callback: function (result) {
+                                  $.ajax({
+                                    type: "POST",
+                                    url: urlRechazarSolicitud,
+                                    dataType: 'json',
+                                    data: {
+                                      csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
+                                      solicitud:data_fila.id,
+                                      comentario:result
+                                    },
+                                    success: function (response) {
+                                      tablaSolicitud.clear().draw();
+                                      tablaSolicitud.ajax.reload();
+                                    },
+                                    error: function (response) {
+                                      var mensaje = JSON.parse(response.responseText)
+                                      bootbox.alert({message: "<h3><i class='fa fa-frown-o' style='font-size: 45px;'></i>&nbsp;&nbsp;&nbsp;HA OCURRIDO UN ERROR!!</h3></br>" + mensaje['mensaje'], className:"modal modal-danger fade"});
+                                    }
+                                });
+                              }
+                          });
+                            /**/
+
+
+
+                          }
+                      });
+
+
+
+                  });
+
     SalidaDetalleList.init = function () {
         console.log(urlFinalizar);
         $('#btn-terminar').click(function () {
@@ -1188,6 +1328,7 @@ class EntradaDetalleDetail {
                       },
                       success: function (response) {
                            bootbox.alert({message: "<h2>"+response.mensaje+"</h2>", className:"modal modal-success fade in"});
+                           location.reload();
                            //window.location= urlredireccion;
                       },
                       error: function (response) {
@@ -1253,8 +1394,8 @@ class EntradaDetalleDetail {
                         success: function (response) {
                             //document.getElementById('btn-terminar').disabled = false;
                              bootbox.alert({message: "<h2>"+response.mensaje+"</h2>", className:"modal modal-success fade in"});
+                             location.reload();
                              //window.location= urlredireccion;
-                            
                         },
                         error: function (response) {
                           var mensaje = JSON.parse(response.responseText)
@@ -1322,6 +1463,7 @@ class EntradaDetalleDetail {
       /** uso de DRF**/
       $('#dispositivoForm').submit(function (e) {
           e.preventDefault()
+          datos = $('#dispositivoForm').serialize();
          $.ajax({
               type: "POST",
               url: $('#dispositivoForm').attr('action'),
@@ -1336,12 +1478,38 @@ class EntradaDetalleDetail {
           tablaDispositivo.ajax.reload();
           document.getElementById("dispositivoForm").reset();
       });
+      /** uso de DRF**/
+      $('#solicitudForm').submit(function (e) {
+          e.preventDefault()
+          datos = $('#solicitudForm').serialize();
+          var formData = Object.fromEntries(new URLSearchParams(datos));
+          formData['desecho'] = pk;
+         $.ajax({
+              type: "POST",
+              url: $('#solicitudForm').attr('action'),
+              data: formData,
+              success: function (response) {
+                  console.log("datos ingresados correctamente");
+              },
+              error: function (response) {
+                var mensaje = JSON.parse(response.responseText)
+                bootbox.alert({message: "<h3><i class='fa fa-frown-o' style='font-size: 45px;'></i>&nbsp;&nbsp;&nbsp;HA OCURRIDO UN ERROR!!</h3></br>" + mensaje.error[0], className:"modal modal-danger fade"});
+              }
+          });
+         $('#select-solicitud option:selected').remove();
+
+          tablaSolicitud.clear().draw();
+          tablaSolicitud.ajax.reload();
+          document.getElementById("solicitudForm").reset();
+      });
+      
     }
 }(window.SalidaDetalleList = window.SalidaDetalleList || {}, jQuery));
 
 class SolicitudMovimiento {
   constructor() {
     var url =  $('#recibido-kardex').data("url");
+    var motivo =  $('#btn-terminar-desecho').data("motivo") === "True" || $('#btn-terminar-desecho').data("motivo") === true; 
     $('#movimientos-table-body').DataTable({
       dom: 'lfrtipB',
       buttons: ['excel','pdf']
@@ -1470,6 +1638,55 @@ class SolicitudMovimiento {
             }
         });
     });
+
+    $('#btn-terminar-desecho').click(function (e) {
+       e.preventDefault();
+        bootbox.confirm({
+            message: "¿Está seguro que quiere terminar esta solicitud de movimiento de desecho?",
+            buttons: {
+                confirm: {
+                    label: '<i class="fa fa-check"></i> Confirmar',
+                    className: 'btn-success'
+                },
+                cancel: {
+                    label: '<i class="fa fa-times"></i> Cancelar',
+                    className: 'btn-danger'
+                }
+            },
+            callback: function (result) {
+                if (result == true) {
+                  if(motivo){
+                    $.ajax({
+                        type: "POST",
+                        url: $('#btn-terminar-desecho').attr('href'),
+                        dataType: 'json',
+                        data: {
+                          csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
+                          id: $('#btn-terminar-desecho').data("id")
+                        },
+                        success: function (response) {
+                            location.reload();
+
+                        },
+                    });
+                  }else {
+                    bootbox.alert({
+                    message: "No se puede terminar esta solicitud porque hay motivos de desecho pendientes. Por favor, rellene todos los motivos antes de terminar.",
+                    buttons: {
+                        ok: {
+                            label: 'Ok',
+                            className: 'btn-danger'
+                        }
+                      }
+                    });
+                    return;
+                  }
+                }
+
+            }
+        });
+    });
+
   }
 }
 
@@ -1561,11 +1778,13 @@ class SolicitudMovimientoUpdate {
     constructor() {
         var sel_dispositivos = $('#id_dispositivos');
         let api_url = sel_dispositivos.data('api-url');
+        let solicitud_id = sel_dispositivos.data('id');
         let etapa_inicial = sel_dispositivos.data('etapa-inicial');
         let estado_inicial = sel_dispositivos.data('estado-inicial');
         let tipo_dipositivo = sel_dispositivos.data('tipo-dispositivo');
         let slug = sel_dispositivos.data('slug');
         var cantidad = $("#solicitud-table").data("cantidad");
+        let desecho = $("#solicitud-table").data("desecho") === "True" || $("#solicitud-table").data("desecho") === true; 
         let cantidad_disponible = $("#solicitud-table").data("dispo");
         let cantidad_asignar = cantidad-cantidad_disponible;
         let salida=  $("#solicitud-table").data("salida");
@@ -1579,10 +1798,12 @@ class SolicitudMovimientoUpdate {
         let cantidad_dispositivos = sel_dispositivos;
         $('form').on('submit', function(e){
            let restante  = cantidad_dispositivos.select2('data').length - cantidad_asignar;
-          if(cantidad_dispositivos.select2('data').length > cantidad_asignar){
+           if(!desecho){
+            if(cantidad_dispositivos.select2('data').length > cantidad_asignar){
             bootbox.alert({ message: "<h3>Ya no puede ingresar mas dispositivos , tiene de excendente: "+restante+"!</h3>", className:"modal modal-danger fade in" });
             e.preventDefault();
-          }
+            }
+           }
         });
         /*Scanner Para Solicitudes de movimiento*/
         var inputStart, inputStop, firstKey, lastKey, timing, userFinishedEntering;
@@ -2226,9 +2447,9 @@ class Salidas {
 
             }else{
               if(full.control_calidad == true){
-                return "<a target='_blank' rel='noopener noreferrer' href="+full.urlPaquet+" class='btn btn-primary btn-asignar'>Aprobar Dispositivos</a>";
+                return "<a target='_blank' rel='noopener noreferrer' href="+full.urlPaquet+" class='btn btn-primary'>Aprobar Dispositivos</a>";
               }else{
-                return "<a target='_blank' rel='noopener noreferrer' href="+full.urlPaquet+" class='btn btn-primary btn-asignar'>Asignar Dispositivos</a>";
+                return "<a target='_blank' rel='noopener noreferrer' href="+full.urlPaquet+" class='btn btn-primary'>Asignar Dispositivos</a>";
               }
              
             }
@@ -4012,6 +4233,7 @@ class DispositivoList {
                  {data: "tarima", className: "nowrap"},
                  {data: "estado", className: "nowrap"},
                  {data: "etapa", className: "nowrap"},
+                 {data: "asignado", className: "nowrap"},
                  {data: "procesador", className: "nowrap"}
              ]
            });
@@ -4895,3 +5117,69 @@ class ResumenBodega{
   }
 }
 //
+class SolicitudMovimientoDesecho{
+  constructor() {
+    $("#existencia-head").css({"display":"none"});
+  
+    var tipo_dispositivo;
+    $('#tipo_dispositivo_movimiento').change( function() {
+      tipo_dispositivo=$('#tipo_dispositivo_movimiento option:selected').text();
+      $.ajax({
+          type: "POST",
+          async:false,
+          url: $('#solicitud').data('url'),
+          dataType: 'json',
+          data: {
+            csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
+            tipo_dispositivo: tipo_dispositivo,
+          },
+          success: function (response) {
+            var disponibles = response['mensaje'];
+            $("[for='cantidad']").text(disponibles);
+            $("#existencia-head").css({"display":"block"});
+          },
+          error:function(response){
+            var jsonResponse = JSON.parse(response.responseText);
+            bootbox.alert(jsonResponse.mensaje);
+            location.reload();
+          },
+      });
+    });
+  }
+}
+
+
+
+class SolicitudMovimientoDesechoUpdate {
+  constructor() {
+    $.fn.editable.defaults.mode = 'inline';
+    $.fn.editable.defaults.emptytext = 'Vacío'; 
+    $.fn.editable.defaults.highlight = false; 
+
+            $('.editable').editable({
+            ajaxOptions: {
+                contentType: 'application/json',
+                dataType: 'json',
+                type: "PATCH",
+                beforeSend: function(xhr, settings) {
+                    xhr.setRequestHeader("X-CSRFToken", $('input[name="csrfmiddlewaretoken"]').val());
+                }
+            },
+            error: function (response, newValue) {
+                var respuesta = JSON.parse(response.responseText);
+                var respuestaText = '';
+                $.each(respuesta, function (index, item) {
+                    respuestaText += item[0];
+                });
+                return respuestaText;
+            },
+            mode: 'inline',
+            params: function(params) {
+                var obj = {};
+                obj[params['name']] = params['value'];
+                return JSON.stringify(obj);
+            },
+        });
+  }
+}
+

@@ -43,12 +43,23 @@
 {% endblock content %}
 {% block extra_js %}
 <script>
-  var disco = $("#disco").data("id");
-  var triage = $("#disco").data("triage");
-  var newOption = new Option(triage,disco,false,false);
-  $("#id_disco_duro").append(newOption).trigger("change");
-  $("#id_disco_duro").select2();
-  $("#id_disco_duro").val(disco).trigger("change");
+$(document).ready(function() { 
+    var disco_id = $("#disco").data("id");
+    var triage = $("#disco").data("triage");
+
+    $("#id_disco_duro").select2({
+        placeholder: "Seleccione un disco duro",
+        allowClear: true 
+    });
+
+    if (disco_id && disco_id !== "---------") {
+        if ($('#id_disco_duro option[value="' + disco_id + '"]').length === 0) {
+            var newOption = new Option(triage, disco_id, true, true);
+            $('#id_disco_duro').append(newOption);
+        }
+        $('#id_disco_duro').val(disco_id).trigger('change');
+    }
+});
 </script>
 
 {% endblock extra_js %}

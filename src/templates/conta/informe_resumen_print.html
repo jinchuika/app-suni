@@ -1,0 +1,165 @@
+
+{% load staticfiles%}
+<!DOCTYPE html>
+<html>
+	<style>
+        @page{
+            margin-top: 0mm;
+            margin-bottom: 0mm;
+	    }
+        body{
+            font-family: arial;
+            background-image: none;
+            -webkit-print-color-adjust: exact; /*economy | exact*/
+            color-adjust: exact;
+        }
+		table {
+			margin: auto auto;
+            width: 80%;
+		}
+        .Logo_funsepa1{
+            margin-top:2rem;
+            display: inline-block;
+        }
+        .encabezado {
+            margin: -7rem 0rem 4rem;
+        }
+        td {
+            text-align: center;
+            font-size: 14px;
+            height:2rem
+        }
+        .datos tr:nth-child(odd){
+		background-color: #F2F2F2;
+        }
+        .datos tr:nth-child(even){
+            background-color: #e5e5e5;
+        }
+	</style>
+    <head>
+		<title>RESUMEN INVENTARIO</title>
+	</head>
+
+	<header>
+		<div class="Logo_funsepa1">
+			<img style="width:20%" src="{% static "image/Logo_Funsepa-01.png" %}">
+		</div>
+		<center>
+            <div class="encabezado" >
+                <h2 style="	color: #154458; ">
+                    <b> </br> </br>
+                        RESUMEN DE INVENTARIO
+                    </b>
+                </h2>
+            </div>
+		</center>
+	</header>
+
+	<body>
+		{% if datos_api %}
+                <div>
+                    <div style="text-align: center; margin: auto;"> 
+                        <h4><strong>Rango de Fechas:</strong> {{ datos_api.0.rango_fechas }}</h4>
+                    </div>
+		            
+                    <table  class="datos">
+                        <thead>
+                            <tr>
+                                <th bgcolor="#b3c4dd"width="20%"><center>Tipo</center></th>
+                                <th bgcolor="#b3c4dd"width="17%"><center>Existencia Inicial</center></th>
+                                <th bgcolor="#b3c4dd"width="11%"><center>Entradas</center></th>
+                                <th bgcolor="#b3c4dd"width="11%"><center>Salidas</center></th>
+                                <th bgcolor="#b3c4dd"width="17%"><center>Existencia Final</center></th>
+                                <th bgcolor="#b3c4dd"width="19%"><center>Firma</center></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in datos_api %}
+                            <tr>
+                                <td>{{ item.tipo }}</td>
+                                <td>{{ item.existencia_anterior }}</td>
+                                <td>{{ item.entradas }}</td>
+                                <td>{{ item.salidas }}</td>
+                                <td> <b> {{ item.existencia }} </b> </td>
+                                <td> </td> 
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="6" style="text-align: center;">No se encontraron datos para mostrar.</td>
+                            </tr>
+                            {% endfor %}
+                            <tr>
+                                <td style="font-weight: bold; text-align: right; padding-right: 10px;">Observaciones:</td>
+                                <td colspan="5" style="background-color:white;">
+                                    <input type="text" style="width: 100%; padding: 10px; box-sizing: border-box; border: 0px solid #ccc;">
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                <div>
+        {% else %}
+            <p>No hay datos disponibles para generar el informe.</p>
+        {% endif %}
+		<br>
+	    <br>
+		<br>
+		<br>
+
+		<table> <!--Firmas-->
+			<td width="15%">
+				<hr style="border-color:black; border-width: 1px;">
+				<center>Vo.Bo. Admin C.R.</center>
+			</td>	
+            <td width="5%"> </td> 		
+			<td width="15%">
+				<hr style="border-color:black; border-width: 1px;">
+				<center>Sup. de Producción</center>
+			</td>	
+            <td width="5%"> </td> 		
+			<td width="15%">
+				<hr style="border-color:black; border-width: 1px;">
+				<center>Inventarios y Compras</center>
+			</td>	
+            <td width="5%"> </td> 		
+			<td width="15%">
+				<hr style="border-color:black; border-width: 1px;">
+				<center>Auxiliar de Bodega</center>
+			</td>	
+            <td width="5%"> </td> 		
+			<td width="15%">
+				<hr style="border-color:black; border-width: 1px;">
+				<center>Coordinadora TPE</center>
+			</td>		
+		</table>
+    </body>
+
+
+	<footer style="font-size: 12px">
+        <br>
+        <br>
+        <br>
+        Este documento fue generado por SUNI el  <span id="fecha-generada"></span>
+	</footer>
+
+
+	{% block extra_js %}
+        <script>
+            var fechaActual = new Date();
+            var fechaFormateada = fechaActual.toLocaleDateString('es-ES', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit'
+            });
+
+            var horaFormateada = fechaActual.toLocaleTimeString('es-ES', {
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: true
+            });
+
+            var fechaYHora = fechaFormateada + ' a las ' + horaFormateada; 
+            document.getElementById('fecha-generada').textContent = fechaYHora;
+            window.onload = function () { window.print();}
+        </script>
+	{% endblock extra_js %}
+</html>

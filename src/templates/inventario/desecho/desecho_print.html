@@ -29,6 +29,7 @@ Por este medio se hace constar que se esta entregando a la empresa {{desechosali
 </p>
 <center>
 <table class="cuerpo">
+  {% if desechodetalles|length > 0  %}
   <thead>
     <tr>
       <th width="34%">
@@ -59,34 +60,41 @@ Por este medio se hace constar que se esta entregando a la empresa {{desechosali
         </td>
       </tr>
       {%endfor%}
+    {%endif%}
   </tbody>
   <tfoot>
     <table class="cuerpo">
-      {% if desechodispositivo  %}
-      <thead>
-        <tr>
-          <th>
-            <center>
-              Varias
-            </br/>
-              Entradas
-            </center>
-          </th>
-          <th width="34%" style="border:none; border-width: 1px;border-color:gray">
-
-          </th>
-          <th width="34%" style="border:none; border-width: 1px;border-color:gray">
-
-          </th>
-        </tr>
-      </thead>
+      {% if desechodispositivo or desechosolicitud %}
+      
+        {% if desechodetalles|length > 0  %}
+          <thead style="text-align: center;">
+          Dispositivos con Triage
+          <tr style="text-align: center;">
+        {% endif%} 
+            <th> 
+              Triage
+            </th>
+            <th>
+              Tipo
+            </th>
+          </thead>
+          
       <tbody>
+
         {% for dispositivos in desechodispositivo  %}
           <tr>
-            <td>
-            </td>
             <td style="border:none; border-width: 1px;border-color:gray;text-align:center;">
-            {{  dispositivos.dispositivo}}
+              {{dispositivos.dispositivo}}
+            </td>
+            <td>
+              {{dispositivos.dispositivo.tipo}}
+            </td>
+          </tr>
+        {% endfor %}
+        {% for dispositivos in desechosolicitud  %}
+          <tr>
+            <td style="border:none; border-width: 1px;border-color:gray;text-align:center;">
+              {{dispositivos.dispositivo}}
             </td>
             <td>
               {{dispositivos.dispositivo.tipo}}
@@ -98,7 +106,7 @@ Por este medio se hace constar que se esta entregando a la empresa {{desechosali
       <tfoot>
         <tr>
           <td>
-            <b>Total:</b>
+            <b>Dispositivos Totales:</b>
           </td>
           <td style="border:none; border-width: 1px;border-color:gray">
               {{cantidad_total}}
@@ -257,6 +265,6 @@ footer{
 </style>
 {% block extra_js %}
 <script>
-window.onload= function () { window.print();window.close();   }
+window.onload= function () { window.print()}
 </script>
 {% endblock extra_js %}

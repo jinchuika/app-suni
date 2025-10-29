@@ -13,6 +13,7 @@ class DonanteTipo(models.Model):
     """
     tipo = models.CharField(max_length=20, verbose_name="Tipo de Donante")
     creado_por = models.ForeignKey(User, on_delete=models.PROTECT, null=True, blank=True,default=User.objects.get(username="Admin").pk)
+    
     class Meta:
         verbose_name = "Tipo de Donante"
         verbose_name_plural = "Tipos de Donantes"
@@ -37,6 +38,14 @@ class OfertaTipo(models.Model):
 class Donante(models.Model):
     """ Datos de los Donantes a utilizar
     """
+    GENERO_CHOICES = (
+        ('M', 'Masculino'),
+        ('F', 'Femenino'),
+    )
+    TRATAMIENTO_CHOICES = (
+        ('INDIVIDUAL', 'Individual'),
+        ('ORGANIZACIONAL', 'Organizacional'),
+    )
     nombre = models.CharField(max_length=125, verbose_name="Nombre del Donante")
     pagina_web = models.URLField(verbose_name="Pagina Web",  blank=True)
     direccion = models.CharField(null=True, blank=True, max_length=150, verbose_name="Dirección")
@@ -45,6 +54,8 @@ class Donante(models.Model):
     comentario = models.TextField(verbose_name="Comentario", null=True, blank=True)
     tipo_donante = models.ForeignKey(DonanteTipo, on_delete=models.PROTECT)
     nit = models.CharField(max_length=15, verbose_name="Numero de Nit", null=True, blank=True)
+    genero = models.CharField(choices=GENERO_CHOICES, max_length=2,default='M', verbose_name="Género")
+    tratamiento = models.CharField(choices=TRATAMIENTO_CHOICES,max_length=40,default='INDIVIDUAL',verbose_name="Tratamiento del Donante")
     creado_por = models.ForeignKey(User, on_delete=models.PROTECT,null=True,blank=True,default=User.objects.get(username="Admin").pk)
     class Meta:
         verbose_name = "Donante"

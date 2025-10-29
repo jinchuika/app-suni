@@ -437,6 +437,7 @@ class TicketInformeView(InformeMixin):
                 'costo_reparacion': ticket.get_costo_reparacion(),
                 'costo_transporte': ticket.get_costo_transporte(),
                 'costo_total': ticket.get_costo_total(),
+                'tipo_soporte': [registro.tipo.tipo for registro in ticket.registros.all()],
             } for ticket in queryset
         ]
         return var
@@ -450,11 +451,21 @@ class TicketReparacionInformeView(InformeMixin):
         'ticket': 'ticket',
         'tipo_dispositivo': 'tipo_dispositivo',
         'triage': 'triage',
-        'tecnico_asignado': 'tecnico_asignado'
+        'tecnico_asignado': 'tecnico_asignado',
+        'cooperante': 'ticket__garantia__equipamiento__cooperante',
     }
     queryset = tpe_m.TicketReparacion.objects.all()
 
     def create_response(self, queryset):
+        form = self.get_form()
+        if form.is_valid():
+            fecha_inicio_min = form.cleaned_data.get('fecha_inicio_min')
+            fecha_inicio_max = form.cleaned_data.get('fecha_inicio_max')
+            if fecha_inicio_min:
+                queryset = queryset.filter(fecha_inicio__gte=fecha_inicio_min)
+            if fecha_inicio_max:
+                queryset = queryset.filter(fecha_inicio__lte=fecha_inicio_max)
+
         var = [
             {
                 'entrega': reparacion.ticket.garantia.equipamiento.id,
@@ -476,6 +487,8 @@ class TicketReparacionInformeView(InformeMixin):
                 'solucion_detalle': reparacion.solucion_detalle,
                 'estado': str(reparacion.estado),
                 'tecnico_asignado': reparacion.tecnico_asignado.get_full_name(),
+                'costo': reparacion.get_costo(),
+                'tipo_soporte': str(reparacion.tipo_soporte),
                 'cooperante': [{
                     'nombre': cooperante.nombre,
                     'url': cooperante.get_absolute_url()}

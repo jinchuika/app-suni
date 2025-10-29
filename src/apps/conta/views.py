@@ -28,6 +28,7 @@ from django.http import JsonResponse
 from django.core import mail
 from django.template.loader import render_to_string
 
+
 import os
 import pathlib
 import shutil
@@ -42,6 +43,9 @@ from django.core.files.storage import FileSystemStorage
 from django.conf import settings
 from openpyxl import load_workbook
 from apps.conta.config import EMAIL_CREDENCIALES
+import requests
+import json
+from django.urls import reverse
 from apps.main import creacion_filtros_informe as crear_dict
 
 """
@@ -305,6 +309,41 @@ class ContabilidadResumenInformeListView(LoginRequiredMixin, FormView):
         form = super(ContabilidadResumenInformeListView, self).get_form(form_class)
         form.fields['tipo_dispositivo'].queryset = inv_m.AsignacionTecnico.objects.get(usuario=self.request.user ).tipos.filter(usa_triage=True)
         return form
+
+
+
+class ContabilidadResumenPrint(TemplateView):
+    template_name = 'conta/informe_resumen_print.html'
+
+    def post(self, request, *args, **kwargs):
+        fecha_min = request.POST.get('fecha_min')
+        fecha_max = request.POST.get('fecha_max')
+
+        datos_informe_json = request.POST.get('datos_informe_json')
+        
+        datos_api = []
+        error = None
+        
+        if datos_informe_json:
+            try:
+                datos_api = json.loads(datos_informe_json)
+            except json.JSONDecodeError:
+                error = "Error al decodificar los datos del informe enviados."
+            except TypeError:
+                error = "Los datos del informe enviados no tienen un formato válido."
+        else:
+            error = "No se recibieron datos para generar el informe." 
+
+        rango_fechas = '{} al {}'.format(fecha_min, fecha_max)
+
+        if datos_api and isinstance(datos_api, list) and datos_api[0]:
+             datos_api[0]['rango_fechas'] = rango_fechas
+        
+        context = {
+            'datos_api': datos_api,
+            'error': error,
+        }
+        return render(request, self.template_name, context)
 
 class InformeCantidadJson(views.APIView):
 
@@ -851,7 +890,7 @@ class InformeResumenJson(views.APIView):
             dispositivos = self.request.user.tipos_dispositivos.tipos.filter(conta=True)
         else:
             dispositivos = self.request.user.tipos_dispositivos.tipos.filter(id__in=tipo_dispositivo)
-        
+
         # Validar que el rango de fechas pertenezcan a un solo período fiscal
         validar_fecha = conta_m.PeriodoFiscal.objects.filter(fecha_inicio__lte=fecha_inicio, fecha_fin__gte=fecha_fin)
         acumulador = 0
@@ -2017,7 +2056,8 @@ class html_generadoenerator:
             elif actual_so=="Windows":
                 ruta_wkhmtltopdf = "C:\\Program Files\\wkhtmltopdf\\bin\\wkhtmltopdf.exe"
             elif actual_so=="Linux":
-                ruta_wkhmtltopdf = "/usr/local/bin/wkhtmltopdf"
+                #ruta_wkhmtltopdf = ""
+                ruta_wkhmtltopdf = "/usr/local/bin/wkhtmltopdf"                
             else:
                 raise Exception("No se ha podido encontrar el Sistema Operativo")
         config=pdfkit.configuration(wkhtmltopdf=ruta_wkhmtltopdf)
