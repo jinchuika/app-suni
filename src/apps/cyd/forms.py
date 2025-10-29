@@ -63,6 +63,7 @@ class GrupoForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(GrupoForm, self).__init__(*args, **kwargs)
         self.fields['numero'].label = "Cantidad de grupos a crear"
+        self.fields['curso'].queryset=Curso.objects.filter(activo=True)
 
 class SedeFilterForm(forms.Form):
     ESTADO_CHOICES = (
@@ -383,9 +384,9 @@ class InformeAsistenciaFinalForm(forms.Form):
         widget=forms.TextInput(attrs={'class': 'form-control', 'maxlength': '13', 'placeholder': '00-00-0000-00', 'data-url': reverse_lazy('escuela_api_list')}))
 
 class InformeCapacitadorForm(forms.Form):
-    capacitador = forms.ModelChoiceField(
+    capacitador = forms.ModelMultipleChoiceField(
         queryset=User.objects.filter(groups__name='cyd_capacitador'),
-        widget=forms.Select(attrs={'class': 'select2 form-control'}),
+        widget=forms.SelectMultiple(attrs={'class': 'select2 form-control'}),
         required=False
         )
     fecha_min = forms.CharField(
@@ -564,3 +565,40 @@ class InformeParticipanteCapacitadorForm(forms.Form):
     def __init__(self, *args, **kwargs):
         super(InformeParticipanteCapacitadorForm,self).__init__(*args, **kwargs)
         self.fields['capacitador'].label_from_instance = lambda obj: "%s" % (obj.get_full_name())
+
+class InformeNaatForm(forms.Form):
+    capacitador = forms.ModelMultipleChoiceField(
+        queryset=User.objects.filter(groups__name='cyd_capacitador'),
+        widget=forms.SelectMultiple(attrs={'class': 'select2 form-control'}),
+        required=False
+        )
+    fecha_min = forms.CharField(
+        label='Fecha mínima',
+        widget=forms.TextInput(attrs={'class': 'form-control datepicker'}),
+        required=False)
+    fecha_max = forms.CharField(
+        label='Fecha máxima',
+        widget=forms.TextInput(attrs={'class': 'form-control datepicker'}),
+        required=False)
+    def __init__(self, *args, **kwargs):
+        super(InformeNaatForm,self).__init__(*args, **kwargs)
+        self.fields['capacitador'].label_from_instance = lambda obj: "%s" % (obj.get_full_name())
+
+class InformeSoloParticipanteForm(forms.Form):
+    departamento = forms.ModelChoiceField(
+        queryset=Departamento.objects.all(),
+        widget=forms.Select(attrs={'class': 'form-control', 'data-url': reverse_lazy('municipio_api_list')}),
+        required=False)
+    municipio = forms.ModelChoiceField(
+        queryset=Municipio.objects.all(),
+        widget=forms.Select(attrs={'class': 'form-control'}),
+        required=False)
+    fecha_min = forms.CharField(
+        label='Fecha mínima',
+        widget=forms.TextInput(attrs={'class': 'form-control datepicker'}),
+        required=True)
+    fecha_max = forms.CharField(
+        label='Fecha máxima',
+        widget=forms.TextInput(attrs={'class': 'form-control datepicker'}),
+        required=True)
+    
