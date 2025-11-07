@@ -290,7 +290,24 @@ class Escuela(models.Model):
             else:
                 return solicitud.internet
         else: 
-            return True if validacion.internet else validacion.internet 
+            return True if validacion.internet else validacion.internet
+
+    def get_es_cct(self,):
+        if self.codigo.split("-")[3] == "99": 
+            return 1
+        else:
+            return 0        
+
+    def get_es_muni_digi(self,):
+        from apps.tpe.models import Equipamiento
+        try:            
+            proyectos=Equipamiento.objects.filter(escuela__codigo=self.codigo).last().proyecto.all()
+            muni_digi=proyectos.filter(id=35)            
+            if len(muni_digi)==1:
+                return 1
+        except:
+            return 0
+             
 
 
 
