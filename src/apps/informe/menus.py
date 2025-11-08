@@ -6,22 +6,10 @@ from apps.main.menus import ViewMenuItem
 informe_children = (
     ViewMenuItem(
         "Informe General",
-        reverse_lazy("informe"),
+        reverse_lazy("informe_nuevo"),
         weight=12,
         icon="fa fa-line-chart"
     ),
-    ViewMenuItem(
-        "KA Lite",
-        reverse_lazy("visita_kalite_informe"),
-        weight=13,
-        icon="fa fa-leaf"
-    ),
-    ViewMenuItem(
-        "Inventario",
-        reverse_lazy("contabilidad_resumen"),
-        weight=14,
-        icon="fa fa-truck"
-    )
 )
 Menu.add_item(
     "user",
