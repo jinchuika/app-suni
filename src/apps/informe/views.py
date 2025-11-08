@@ -34,6 +34,7 @@ class ConsultaEscuelaApi(views.APIView):
     """Api para la creacion del informe general mediante un metodo get"""
     def get(self, request):        
         datos_enviar = []
+        municipios_digitales =[]
         elegir_filtros = {}
         filtros_usar = {}
         contador_filtros = 0
@@ -69,8 +70,8 @@ class ConsultaEscuelaApi(views.APIView):
                     if dataEscuela["value"] !="":                                         
                         for new_key, filtro in filter_list.items():
                             if new_key == dataEscuela["name"]:
-                                filtros_usar[filtro] = dataEscuela["value"]
-                query = escuela_m.Escuela.objects.filter(**filtros_usar)                       
+                                filtros_usar[filtro] = dataEscuela["value"]                
+                query = escuela_m.Escuela.objects.filter(**filtros_usar)                     
             elif filtros_aplicar =="equipamiento":               
                 for dataEquipamiento in data_equipamiento:
                     if dataEquipamiento["value"] !="":                       
@@ -103,7 +104,7 @@ class ConsultaEscuelaApi(views.APIView):
         else:
             if int(data_capacitada[0]["value"]) == 0 and int(data_equipamiento[0]["value"]) ==0:
                     return Response(
-                        {str("Por favor estos filtros tiene que acompa;ado de otro campo")},
+                        {str("Por favor estos filtros tiene que acompañado de otro campo")},
                         status=status.HTTP_400_BAD_REQUEST)
             else:
                 if int(data_equipamiento[0]["value"]) ==1:                    
@@ -123,7 +124,7 @@ class ConsultaEscuelaApi(views.APIView):
 
         if isinstance(query.first(), cyd_m.Sede):            
             if viene_capacitada == 0:
-                for data_final in query:
+                for data_final in query:  
                     datos_recolectar ={}
                     datos_recolectar["Udi"]= data_final.escuela_beneficiada.codigo
                     datos_recolectar["Nombre"]= data_final.escuela_beneficiada.nombre
@@ -134,6 +135,9 @@ class ConsultaEscuelaApi(views.APIView):
                     datos_recolectar["Ninos_beneficiados"]= data_final.escuela_beneficiada.get_poblacion()
                     datos_recolectar["Docentes"]= data_final.escuela_beneficiada.get_maestros()
                     datos_recolectar["Equipada"]= data_final.escuela_beneficiada.es_equipada()
+                    datos_recolectar["Cct"]= data_final.escuela_beneficiada.get_es_cct()
+                    if data_final.escuela_beneficiada.get_es_muni_digi()==1:
+                        municipios_digitales.append(data_final.escuela_beneficiada.municipio.id)                                            
                     if data_final.escuela_beneficiada.es_equipada():
                         datos_recolectar["Fecha_equipamiento"]= data_final.escuela_beneficiada.datos_equipamiento().fecha
                         datos_recolectar["No_equipamiento"]= data_final.escuela_beneficiada.datos_equipamiento().no_referencia
@@ -162,10 +166,13 @@ class ConsultaEscuelaApi(views.APIView):
                         datos_recolectar["Maestros_promovidos"]= 0
                         datos_recolectar["Maestros_no_promovidos"]= 0
                         datos_recolectar["Maestros_desertores"]= 0
+                    datos_recolectar["Municipios_digitales"]=len(set(municipios_digitales))    
                     datos_enviar.append(datos_recolectar)
             elif viene_capacitada == 1:
-                for data_final in query:                    
-                    if data_final.escuela_beneficiada.fue_capacitada():
+                for data_final in query:
+                    if data_final.escuela_beneficiada.get_es_muni_digi()==1:
+                        municipios_digitales.append(data_final.escuela_beneficiada.municipio.id)                        
+                    if data_final.escuela_beneficiada.fue_capacitada():                        
                         datos_recolectar ={}
                         datos_recolectar["Udi"]= data_final.escuela_beneficiada.codigo
                         datos_recolectar["Nombre"]= data_final.escuela_beneficiada.nombre
@@ -183,6 +190,7 @@ class ConsultaEscuelaApi(views.APIView):
                         datos_recolectar["Maestros_promovidos"]= data_final.escuela_beneficiada.get_escuelas_sedes("",data_final.escuela_beneficiada.codigo,data_final.id)["aprobados"]
                         datos_recolectar["Maestros_no_promovidos"]=data_final.escuela_beneficiada.get_escuelas_sedes("",data_final.escuela_beneficiada.codigo,data_final.id)["reprobados"]
                         datos_recolectar["Maestros_desertores"]= data_final.escuela_beneficiada.get_escuelas_sedes("",data_final.escuela_beneficiada.codigo,data_final.id)["nivelar"]
+                        datos_recolectar["Cct"]= data_final.escuela_beneficiada.get_es_cct()
                         if data_final.escuela_beneficiada.es_equipada():
                             datos_recolectar["Fecha_equipamiento"]= data_final.escuela_beneficiada.datos_equipamiento().fecha
                             datos_recolectar["No_equipamiento"]= data_final.escuela_beneficiada.datos_equipamiento().no_referencia
@@ -195,9 +203,13 @@ class ConsultaEscuelaApi(views.APIView):
                             datos_recolectar["Proyecto"]= "No tiene"  
                             datos_recolectar["Donante"]= "No tiene"          
                             datos_recolectar["Equipo_entregado"]= 0
+                    datos_recolectar["Municipios_digitales"]=len(set(municipios_digitales)) 
                     datos_enviar.append(datos_recolectar)     
             elif viene_capacitada == 2:
                 print("No hay capacitadas")
+                return Response(
+                        {str("No hay escuelas capacitadas")},
+                        status=status.HTTP_400_BAD_REQUEST)
         elif isinstance(query.first(), tpe_m.Equipamiento):
             if viene_equipada ==0:                             
                 for data_final in query:                  
@@ -211,6 +223,9 @@ class ConsultaEscuelaApi(views.APIView):
                     datos_recolectar["Ninos_beneficiados"]= data_final.escuela.get_poblacion()
                     datos_recolectar["Docentes"]= data_final.escuela.get_maestros()
                     datos_recolectar["Equipada"]= data_final.escuela.es_equipada()
+                    datos_recolectar["Cct"]= data_final.escuela.get_es_cct()
+                    if data_final.escuela.get_es_muni_digi()==1:
+                        municipios_digitales.append(data_final.escuela.municipio.id) 
                     if data_final.escuela.es_equipada():
                         datos_recolectar["Fecha_equipamiento"]= data_final.escuela.datos_equipamiento().fecha
                         datos_recolectar["No_equipamiento"]= data_final.escuela.datos_equipamiento().no_referencia
@@ -241,6 +256,7 @@ class ConsultaEscuelaApi(views.APIView):
                         datos_recolectar["Maestros_promovidos"]= 0
                         datos_recolectar["Maestros_no_promovidos"]= 0
                         datos_recolectar["Maestros_desertores"]= 0
+                    datos_recolectar["Municipios_digitales"]=len(set(municipios_digitales))    
                     datos_enviar.append(datos_recolectar)
             elif viene_equipada ==1:               
                 for data_final in query:
@@ -254,6 +270,9 @@ class ConsultaEscuelaApi(views.APIView):
                     datos_recolectar["Ninos_beneficiados"]= data_final.escuela.get_poblacion()
                     datos_recolectar["Docentes"]= data_final.escuela.get_maestros()
                     datos_recolectar["Equipada"]= data_final.escuela.es_equipada()
+                    datos_recolectar["Cct"]= data_final.escuela.get_es_cct()
+                    if data_final.escuela.get_es_muni_digi()==1:
+                        municipios_digitales.append(data_final.escuela_beneficiada.municipio.id) 
                     if data_final.escuela.es_equipada():
                         datos_recolectar["Fecha_equipamiento"]= data_final.escuela.datos_equipamiento().fecha
                         datos_recolectar["No_equipamiento"]= data_final.escuela.datos_equipamiento().no_referencia
@@ -284,6 +303,7 @@ class ConsultaEscuelaApi(views.APIView):
                         datos_recolectar["Maestros_promovidos"]= 0
                         datos_recolectar["Maestros_no_promovidos"]= 0
                         datos_recolectar["Maestros_desertores"]= 0
+                    datos_recolectar["Municipios_digitales"]=len(set(municipios_digitales))
                     datos_enviar.append(datos_recolectar)
             elif viene_equipada ==2:
                 for data_final in query:
@@ -297,6 +317,9 @@ class ConsultaEscuelaApi(views.APIView):
                     datos_recolectar["Ninos_beneficiados"]= data_final.escuela.get_poblacion()
                     datos_recolectar["Docentes"]= data_final.escuela.get_maestros()
                     datos_recolectar["Equipada"]= data_final.escuela.es_equipada()
+                    datos_recolectar["Cct"]= data_final.escuela.get_es_cct()
+                    if data_final.escuela.get_es_muni_digi()==1:
+                        municipios_digitales.append(data_final.escuela_beneficiada.municipio.id) 
                     if data_final.escuela.es_equipada() is not True:
                         datos_recolectar["Fecha_equipamiento"]= data_final.escuela.datos_equipamiento().fecha
                         datos_recolectar["No_equipamiento"]= data_final.escuela.datos_equipamiento().no_referencia
@@ -327,10 +350,11 @@ class ConsultaEscuelaApi(views.APIView):
                         datos_recolectar["Maestros_promovidos"]= 0
                         datos_recolectar["Maestros_no_promovidos"]= 0
                         datos_recolectar["Maestros_desertores"]= 0
+                    datos_recolectar["Municipios_digitales"]=len(set(municipios_digitales))
                     datos_enviar.append(datos_recolectar)                    
-        elif isinstance(query.first(), escuela_m.Escuela):
+        elif isinstance(query.first(), escuela_m.Escuela):            
             for data_final in query:
-                datos_recolectar ={}
+                datos_recolectar ={}                               
                 datos_recolectar["Udi"]= data_final.codigo
                 datos_recolectar["Nombre"]= data_final.nombre
                 datos_recolectar["escuela_url"]= data_final.get_absolute_url()
@@ -340,6 +364,9 @@ class ConsultaEscuelaApi(views.APIView):
                 datos_recolectar["Ninos_beneficiados"]= data_final.get_poblacion()
                 datos_recolectar["Docentes"]= data_final.get_maestros()
                 datos_recolectar["Equipada"]= data_final.es_equipada()
+                datos_recolectar["Cct"]= data_final.get_es_cct()
+                if data_final.get_es_muni_digi()==1:
+                        municipios_digitales.append(data_final.municipio.id) 
                 if data_final.es_equipada():
                         datos_recolectar["Fecha_equipamiento"]= data_final.datos_equipamiento().fecha
                         datos_recolectar["No_equipamiento"]= data_final.datos_equipamiento().no_referencia
@@ -370,9 +397,8 @@ class ConsultaEscuelaApi(views.APIView):
                     datos_recolectar["Maestros_promovidos"]= 0
                     datos_recolectar["Maestros_no_promovidos"]= 0
                     datos_recolectar["Maestros_desertores"]= 0
-        datos_enviar.append(datos_recolectar)
-
-         
+                datos_recolectar["Municipios_digitales"]=len(set(municipios_digitales))
+                datos_enviar.append(datos_recolectar)
         return Response(
                 datos_enviar,
             status=status.HTTP_200_OK

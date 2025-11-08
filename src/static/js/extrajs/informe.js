@@ -131,7 +131,10 @@ $( "#id_codigo" )
               var acumulador_promovidos=0;
               var acumulador_no_promovidos=0;
               var acumulador_inconclusos=0;
+              var acumulador_ccts =0;
+              var contador = 0
               for (var i in data){
+                contador = contador + 1
                 acumulador_ninos_beneficiados= acumulador_ninos_beneficiados + data[i].Ninos_beneficiados;
                 acumulador_docentes = acumulador_docentes + data[i].Docentes;
                 acumulador_equipo_entregado=acumulador_equipo_entregado+data[i].Equipo_entregado;
@@ -139,11 +142,13 @@ $( "#id_codigo" )
                 acumulador_promovidos=  acumulador_promovidos+data[i].Maestros_promovidos;
                 acumulador_no_promovidos=acumulador_no_promovidos+data[i].Maestros_no_promovidos;
                 acumulador_inconclusos=acumulador_inconclusos+data[i].Maestros_desertores;
+                acumulador_ccts = acumulador_ccts + data[i].Cct;
 
-               $("#escuela").text(Number(i)+1);
+               $("#escuela").text((Number(i)+1)-acumulador_ccts);
                $("#ninos").text(acumulador_ninos_beneficiados);
                $("#equipo").text(acumulador_equipo_entregado);
                $("#capacitados").text(acumulador_maestros_capacitados);
+               $("#cct").text(acumulador_ccts);
                 $(tfoot).find('th').eq(5).html(acumulador_ninos_beneficiados);
                 $(tfoot).find('th').eq(6).html(acumulador_docentes);
                 $(tfoot).find('th').eq(12).html(acumulador_equipo_entregado);
@@ -152,27 +157,32 @@ $( "#id_codigo" )
                 $(tfoot).find('th').eq(18).html(acumulador_no_promovidos);
                 $(tfoot).find('th').eq(19).html(acumulador_inconclusos);
               };
-
+              try {
+                $("#muni_digi").text(data[contador-1].Municipios_digitales);
+              } catch (error) {
+                $("#muni_digi").text("");
+              }
+              
             },
-        });
-        $('table tr:eq(0)')
-            .children('th')
-            .css('vertical-align', 'middle')
-            .append('<span class="glyphicon glyphicon-remove" style="cursor: pointer"></span>');
-            $('span.glyphicon-remove')
-                .click(function(event) {
-                    var tdIndex = $(this).parent('th').index()
-                    console.log("Esto es un mosaico"); 
-                    tabla.column(tdIndex).visible( false );
-                    $('table tr').each(function() {
-                        $(this).find('td').eq(tdIndex).fadeOut()
-                    })
-                })
+            });
+                /*$('table tr:eq(0)')
+                      .children('th')
+                      .css('vertical-align', 'middle')
+                      .append('<span class="glyphicon glyphicon-remove" style="cursor: pointer"></span>');*/
+                    /* $('span.glyphicon-remove')
+                          .click(function(event) {
+                              var tdIndex = $(this).parent('th').index()
+                              console.log("Esto es un mosaico"); 
+                              tabla.column(tdIndex).visible( false );
+                              $('table tr').each(function() {
+                                  $(this).find('td').eq(tdIndex).fadeOut()
+                              })
+                          })*/ //aca
 
         });
 
-        $('#informe-list-form #id_departamento').on('change', function () {
-            listar_municipio_departamento('#informe-list-form #id_departamento', '#informe-list-form #id_municipio', true);
+        $('#informe-escuela-form #id_departamento').on('change', function () {
+            listar_municipio_departamento('#informe-escuela-form #id_departamento', '#informe-escuela-form #id_municipio', true);
         });
   }
 }
