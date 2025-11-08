@@ -157,29 +157,32 @@ $( "#id_codigo" )
                 $(tfoot).find('th').eq(18).html(acumulador_no_promovidos);
                 $(tfoot).find('th').eq(19).html(acumulador_inconclusos);
               };
-              console.log(contador);
-              console.log(data[contador-1])
-
+              try {
+                $("#muni_digi").text(data[contador-1].Municipios_digitales);
+              } catch (error) {
+                $("#muni_digi").text("");
+              }
+              
             },
-        });
-       /*$('table tr:eq(0)')
-            .children('th')
-            .css('vertical-align', 'middle')
-            .append('<span class="glyphicon glyphicon-remove" style="cursor: pointer"></span>');*/
-           /* $('span.glyphicon-remove')
-                .click(function(event) {
-                    var tdIndex = $(this).parent('th').index()
-                    console.log("Esto es un mosaico"); 
-                    tabla.column(tdIndex).visible( false );
-                    $('table tr').each(function() {
-                        $(this).find('td').eq(tdIndex).fadeOut()
-                    })
-                })*/
+            });
+                /*$('table tr:eq(0)')
+                      .children('th')
+                      .css('vertical-align', 'middle')
+                      .append('<span class="glyphicon glyphicon-remove" style="cursor: pointer"></span>');*/
+                    /* $('span.glyphicon-remove')
+                          .click(function(event) {
+                              var tdIndex = $(this).parent('th').index()
+                              console.log("Esto es un mosaico"); 
+                              tabla.column(tdIndex).visible( false );
+                              $('table tr').each(function() {
+                                  $(this).find('td').eq(tdIndex).fadeOut()
+                              })
+                          })*/ //aca
 
         });
 
-        $('#escuela-list-form #id_departamento').on('change', function () {
-            listar_municipio_departamento('#escuela-list-form #id_departamento', '#escuela-list-form #id_municipio', true);
+        $('#informe-escuela-form #id_departamento').on('change', function () {
+            listar_municipio_departamento('#informe-escuela-form #id_departamento', '#informe-escuela-form #id_municipio', true);
         });
   }
 }
