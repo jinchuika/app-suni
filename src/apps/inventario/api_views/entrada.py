@@ -286,9 +286,13 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
     @action(methods=['post'], detail=False)
     def validar_solicitud_movimientos(self, request, pk=None):
         tipo_dispositivo = request.data['tipo_dispositivo']
+        id_salida = request.data['id_salida']
         etapa_transito = inv_m.DispositivoEtapa.objects.get(id=inv_m.DispositivoEtapa.AB)
         estado = inv_m.DispositivoEstado.objects.get(id=inv_m.DispositivoEstado.PD)
         validar_dispositivos = inv_m.DispositivoTipo.objects.get(tipo=tipo_dispositivo)
+        salida = inv_m.SalidaInventario.objects.get(id=id_salida)
+        print(salida.cooperante)
+        detalle_entrada =inv_m.EntradaDetalle.objects.filter(proyecto__id=salida.cooperante.id,tipo_dispositivo=validar_dispositivos)        
         if(validar_dispositivos.kardex):
             cantidad_kardex = kax_m.Equipo.objects.get(nombre=tipo_dispositivo)
             numero_dispositivos = cantidad_kardex.existencia
@@ -296,7 +300,8 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
             numero_dispositivos = inv_m.Dispositivo.objects.filter(
                 tipo=validar_dispositivos,
                 etapa=etapa_transito,
-                estado=estado).count()
+                estado=estado,
+                entrada_detalle__in=detalle_entrada).count()
         return Response(
                 {'mensaje': numero_dispositivos},
                 status=status.HTTP_200_OK)

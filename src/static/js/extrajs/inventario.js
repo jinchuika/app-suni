@@ -1717,6 +1717,8 @@ class SolicitudMovimientoValidar {
 
     var tipo_dispositivo;
     $('#tipo_dispositivo_movimiento').change( function() {
+      console.log($('#id_no_salida option:selected').val());
+      //$('#id_tipo_salida option:selected').text()
       tipo_dispositivo=$('#tipo_dispositivo_movimiento option:selected').text();
       $.ajax({
           type: "POST",
@@ -1726,6 +1728,7 @@ class SolicitudMovimientoValidar {
           data: {
             csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
             tipo_dispositivo: tipo_dispositivo,
+            id_salida:$('#id_no_salida option:selected').val(),
           },
           success: function (response) {
             var disponibles = response['mensaje'];
