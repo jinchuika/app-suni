@@ -290,9 +290,17 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
         etapa_transito = inv_m.DispositivoEtapa.objects.get(id=inv_m.DispositivoEtapa.AB)
         estado = inv_m.DispositivoEstado.objects.get(id=inv_m.DispositivoEstado.PD)
         validar_dispositivos = inv_m.DispositivoTipo.objects.get(tipo=tipo_dispositivo)
-        salida = inv_m.SalidaInventario.objects.get(id=id_salida)
-        print(salida.cooperante)
-        detalle_entrada =inv_m.EntradaDetalle.objects.filter(proyecto__id=salida.cooperante.id,tipo_dispositivo=validar_dispositivos)        
+        if id_salida is "":
+            print("No trae id")
+            detalle_entrada =inv_m.EntradaDetalle.objects.filter(tipo_dispositivo=validar_dispositivos)  
+        else:
+            print("Trae salida")
+            salida = inv_m.SalidaInventario.objects.get(id=id_salida)
+            #print(salida)
+            valida_detalle_entrada = inv_m.EntradaDetalle.objects.filter(proyecto__id=salida.cooperante.id,entrada__tipo__id=2,tipo_dispositivo=validar_dispositivos)
+            print(valida_detalle_entrada)
+            detalle_entrada =inv_m.EntradaDetalle.objects.filter(proyecto__id=salida.cooperante.id,tipo_dispositivo=validar_dispositivos)  
+             
         if(validar_dispositivos.kardex):
             cantidad_kardex = kax_m.Equipo.objects.get(nombre=tipo_dispositivo)
             numero_dispositivos = cantidad_kardex.existencia
