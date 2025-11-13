@@ -204,7 +204,8 @@ class GrupoCreateView(LoginRequiredMixin, GroupRequiredMixin, CreateView):
     def get_form(self, form_class=None):
         form = super(GrupoCreateView, self).get_form(form_class)
         if self.request.user.groups.filter(name="cyd_capacitador").exists():
-            form.fields['sede'].queryset = cyd_m.Sede.objects.filter(capacitador=self.request.user, activa=True)
+            form.fields['sede'].queryset = cyd_m.Sede.objects.filter(capacitador=self.request.user, activa=True, finalizada=False, fecha_creacion__year__gte=2024)
+            form.fields['curso'].queryset= cyd_m.Curso.objects.filter(activo=True)
         return form
 
     def form_valid(self, form):
@@ -363,7 +364,9 @@ class ParticipanteCreateView(LoginRequiredMixin, GroupRequiredMixin, CreateView)
     def get_form(self, form_class=None):
         form = super(ParticipanteCreateView, self).get_form(form_class)
         if self.request.user.groups.filter(name="cyd_capacitador").exists():
-            form.fields['sede'].queryset = self.request.user.sedes.all()
+            #form.fields['sede'].queryset = self.request.user.sedes.all()
+            form.fields['sede'].queryset = self.request.user.sedes.filter(activa=True, fecha_creacion__year__gte=2023)
+            #print(str(form.fields['sede'].queryset.query))
         return form
 
 
@@ -389,8 +392,7 @@ class ParticipanteCreateListView(LoginRequiredMixin, GroupRequiredMixin, FormVie
     def get_form(self, form_class=None):
         form = super(ParticipanteCreateListView, self).get_form(form_class)
         if self.request.user.groups.filter(name="cyd_capacitador").exists():
-            #form.fields['sede'].queryset = self.request.user.sedes.all()
-            form.fields['sede'].queryset = self.request.user.sedes.filter(activa=True,finalizada=False)
+            form.fields['sede'].queryset = self.request.user.sedes.filter(activa=True, fecha_creacion__year__gte=2024, finalizada=False)
         return form
 
 
@@ -1364,8 +1366,8 @@ class InformeListadoSedeEscuela(views.APIView):
                         escuela_sede["estado_sede"] =data_participantes.finalizada
 
                     escuela_sede["capacitador"]= data_participantes.capacitador.get_full_name()
-                    escuela_sede["departamento"]= data_participantes.municipio.departamento.nombre
-                    escuela_sede["municipio"]= data_participantes.municipio.nombre
+                    escuela_sede["departamento"]= info_sede.municipio.departamento.nombre
+                    escuela_sede["municipio"]= info_sede.municipio.nombre
                     escuela_sede["fecha"]= data_participantes.fecha_creacion.date()
                     escuela_sede["control_academico"]= info_sede.get_escuelas_sedes(capacitador, info_sede.codigo,data_participantes.id)                    
                     if data_participantes.escuela_beneficiada.codigo == info_sede.codigo:
@@ -1519,7 +1521,7 @@ class InformeCursosView(LoginRequiredMixin, FormView):
     form_class = cyd_f.InformeCursoslistadoForm
 
 class InformeParticipanteCapacitador(views.APIView):
-    """ Punto de acceso para obtener la informacion de los participantes  filtrandolo por capacitador y un rango de fecha
+    """ Punto de acceso para obtener la informacion de los participantes  filtrandolo por capacitador y un rango de fecha, departamento y municipio
         url de acceso: '/cyd/informe/capacitador/participantes/' obtiene la informacion mediante un medoto post ejecutado desde un boton 
         del formulario 
     """   
@@ -1546,6 +1548,14 @@ class InformeParticipanteCapacitador(views.APIView):
             fecha_max=self.request.POST['fecha_max']
         except MultiValueDictKeyError:
             fecha_max=0
+        try:
+            departamento=self.request.POST['departamento']
+        except MultiValueDictKeyError:
+            departamento=''
+        try:
+            municipio=self.request.POST['municipio']
+        except MultiValueDictKeyError:
+            municipio=''
         if capacitador == 0:           
             sede = cyd_m.Sede.objects.filter(fecha_creacion__lte=fecha_max, fecha_creacion__gte=fecha_min)
         else:            
@@ -1553,6 +1563,8 @@ class InformeParticipanteCapacitador(views.APIView):
                  sede = cyd_m.Sede.objects.filter(capacitador__id__in=lista_capacitador,fecha_creacion__lte=fecha_max, fecha_creacion__gte=fecha_min)
              else:
                  sede = cyd_m.Sede.objects.filter(capacitador__id__in=capacitador,fecha_creacion__lte=fecha_max, fecha_creacion__gte=fecha_min)
+        if municipio:
+            sede = sede.filter(municipio=municipio)
         for data_participantes in sede:            
             donante = Equipamiento.objects.filter(escuela__codigo=data_participantes.escuela_beneficiada.codigo).last() 
             for participante in data_participantes.get_participantes()['listado']:                
