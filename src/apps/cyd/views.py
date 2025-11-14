@@ -364,9 +364,7 @@ class ParticipanteCreateView(LoginRequiredMixin, GroupRequiredMixin, CreateView)
     def get_form(self, form_class=None):
         form = super(ParticipanteCreateView, self).get_form(form_class)
         if self.request.user.groups.filter(name="cyd_capacitador").exists():
-            #form.fields['sede'].queryset = self.request.user.sedes.all()
-            form.fields['sede'].queryset = self.request.user.sedes.filter(activa=True, fecha_creacion__year__gte=2023)
-            #print(str(form.fields['sede'].queryset.query))
+            form.fields['sede'].queryset = self.request.user.sedes.all()
         return form
 
 
