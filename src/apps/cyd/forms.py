@@ -389,6 +389,14 @@ class InformeCapacitadorForm(forms.Form):
         widget=forms.SelectMultiple(attrs={'class': 'select2 form-control'}),
         required=False
         )
+    departamento = forms.ModelChoiceField(
+        queryset=Departamento.objects.all(),
+        widget=forms.Select(attrs={'class': 'form-control', 'data-url': reverse_lazy('municipio_api_list')}),
+        required=False)
+    municipio = forms.ModelChoiceField(
+        queryset=Municipio.objects.all(),
+        widget=forms.Select(attrs={'class': 'form-control'}),
+        required=False)
     fecha_min = forms.CharField(
         label='Fecha mínima',
         widget=forms.TextInput(attrs={'class': 'form-control datepicker'}),

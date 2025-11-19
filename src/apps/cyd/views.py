@@ -788,6 +788,14 @@ class InformeCapacitadores(views.APIView):
             fecha_max = self.request.POST['fecha_max']
         except MultiValueDictKeyError:
             fecha_max = 0
+        try:
+            departamento = self.request.POST['departamento']
+        except MultiValueDictKeyError:
+            departamento = 0
+        try:
+            municipio = self.request.POST['municipio']
+        except MultiValueDictKeyError:
+            municipio = 0
         sort_params = {}
         if len(lista_capacitador)==1:
             crear_dic(sort_params,'capacitador__id__in',lista_capacitador)
@@ -797,6 +805,7 @@ class InformeCapacitadores(views.APIView):
         crear_dic(sort_params,'fecha_creacion__gte',fecha_min)
         crear_dic(sort_params,'fecha_creacion__lte',fecha_max)
         crear_dic(sort_params,'activa',True)
+        crear_dic(sort_params,'municipio',municipio)
         try:
             #print("Sin errores")            
             sedes = cyd_m.Sede.objects.filter(**sort_params)
@@ -854,6 +863,8 @@ class InformeCapacitadores(views.APIView):
                 listado_datos['curso']=contador_curso
                 listado_datos['fecha'] = sede.fecha_creacion.year
                 listado_datos["participantes_invitados"]=contador_participantes_invitados
+                listado_datos['departamento']=sede.municipio.departamento.nombre
+                listado_datos['municipio']=sede.municipio.nombre
                 listado_sede.append(listado_datos)
         except MultiValueDictKeyError as e:
             #print("Trae errores")           

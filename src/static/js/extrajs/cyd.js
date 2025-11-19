@@ -3069,6 +3069,9 @@ class informeCapacitadores{
     var total_chicos = 0
     var total_chicas = 0
     var total_participantes_invitados=0;
+    $('#informecapacitadores-list-form #id_departamento').on('change', function () {
+            listar_municipio_departamento('#informecapacitadores-list-form #id_departamento', '#informecapacitadores-list-form #id_municipio');       
+         });
     $('#informecapacitadores-list-form').submit(function (e) {
         e.preventDefault();
         
@@ -3096,6 +3099,8 @@ class informeCapacitadores{
                     return "<a href="+full.sede_url+">"+full.numero+"</a>";
                 }},
                 {data: "sede"},
+                {data: "departamento"},
+                {data: "municipio"},
                 {data: "grupos"},
                 {data: "curso"},
                 {data: "asignaciones"},

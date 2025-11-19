@@ -56,77 +56,91 @@ cyd_informes_children = (
         "Control academico",
         reverse_lazy("informe_control_academico"),
         weight=12,
+        group="cyd_admin,cyd_informes",
         icon="fa-list-ol"),
         
      ViewMenuItem(
         "Asistencia",
         reverse_lazy("informe_asistencia"),
         weight=12,
+        group="cyd_admin,cyd_informes",
         icon="fa-file-pdf-o"),
     
     ViewMenuItem(
         "Finalizacion de proceso",
         reverse_lazy("informe_finalizacion_proyecto"),
         weight=12,
+        group="cyd_admin,cyd_informes",
         icon="fa-check-circle"),
     
     ViewMenuItem(
         "Capacitadores",
         reverse_lazy("informe_capacitador"),
         weight=12,
+       group="cyd_admin,cyd_informes,cyd_capacitador_informe",
         icon="fa-file-pdf-o"),
     
     ViewMenuItem(
         "Por Escuela",
         reverse_lazy("informe_escuela"),
         weight=12,
+        group="cyd_admin,cyd_informes",
         icon="fa-file-pdf-o"),
     
     ViewMenuItem(
         "Grupo completo",
         reverse_lazy("informe_grupo"),
         weight=12,
+        group="cyd_admin,cyd_informes",
         icon="fa-file-pdf-o"),
     ViewMenuItem(
         "Asistencia por periodo",
         reverse_lazy("informe_asistencia_periodos"),
         weight=12,
+        group="cyd_admin,cyd_informes",
         icon="fa-file-pdf-o"),
     
     ViewMenuItem(
         "Listado escuela",
         reverse_lazy("informe_escuela_lista"),
         weight=12,
+        group="cyd_admin,cyd_informes",
         icon="fa-file-pdf-o"), 
     ViewMenuItem(
         "Listado escuelas sede",
         reverse_lazy("informe_escuela_sede_lista"),
         weight=12,
+        group="cyd_admin,cyd_informes",
         icon="fa-file-pdf-o"),     
     ViewMenuItem(
         "Escuela sede",
         reverse_lazy("informe_escuela_sede"),
         weight=12,
+        group="cyd_admin,cyd_informes",
         icon="fa-file-pdf-o"),
     ViewMenuItem(
         "Por Curso",
         reverse_lazy("informe_cursos"),
         weight=12,
+        group="cyd_admin,cyd_informes",
         icon="fa-file-pdf-o"),
     ViewMenuItem(
         "Participantes por Cap",
         reverse_lazy("informe_capacitador_participantes"),
         weight=12,
+        group="cyd_admin,cyd_informes",
         icon="fa-file-pdf-o"),
     ViewMenuItem(
         "Informe naat",
         reverse_lazy("informe_naat"),
         weight=12,
+        group="cyd_admin,cyd_informes",
         icon="fa-file-pdf-o"),
      ViewMenuItem(
         "Informe participantes",
         reverse_lazy("informe_solo_participantes"),
         weight=12,
+        group="cyd_admin,cyd_informes",
         icon="fa-file-pdf-o"),
     
     #ViewMenuItem(
@@ -185,5 +199,5 @@ Menu.add_item(
         '#',
         weight=10,
         icon="fa-file-pdf-o",
-        group="cyd_admin,cyd_informes",
+        group="cyd_admin,cyd_informes,cyd_capacitador_informe",
         children=cyd_informes_children),)
