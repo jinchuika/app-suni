@@ -1438,7 +1438,7 @@ CalendarioCyD.init = function () {
                         table.instance.setDataAtCell(table.row, 11, respuesta[0].chicos) 
                         table.instance.setDataAtCell(table.row, 12, respuesta[0].chicas)
                         
-                        $("#btn-crear").prop("disabled",true);  
+                        //$("#btn-crear").prop("disabled",true);  
                         return callback(false);
                     } else {
                         $("#btn-crear").prop("disabled",false);  
@@ -1448,94 +1448,141 @@ CalendarioCyD.init = function () {
         } else { callback(false) }
     }
 
+    var dpi_exists = function(dpi,callback){
+        if(dpi.length >0){
+            $.get(
+                participante_api_list_url,{
+                    dpi:dpi
+                },
+                function(response){
+                    if(response.length>0){
+                        return callback(true);
+                    }
+                    return callback(false);
+                }
+            );
+        }else{
+            return callback(true);
+        }
+        
+    }
+
+    var dpi_existentes = 0;
+    var total_creados = 0;
+    var total_errores = 0;
+
     var guardar_tabla = function () {
         var udi = $('#id_udi').val();
         var grupo = $('#id_grupo').val();        
         var progress = 0;
+        dpi_existentes = 0;
+        total_creados = 0;
+        total_errores = 0;
         if (udi && grupo) {
             $.each(tabla_importar.getData(), function (index, fila) {                
-               if (fila[0] && fila[1] && fila[2] && fila[3] && fila[4]) {
+               var fila_valida = fila.some(function(celda) {
+                    return celda !== null && celda !== undefined && celda.toString().trim() !== '';
+                });
+                if (!fila_valida) {
+                    total_errores=-1;
+                }
+                if (fila[0] && fila[1] && fila[2] && fila[3] && fila[4]) {
                     //udi_send = fila[7] ? fila[7] : udi
                     udi_send =  udi
-                    try{
-                        $.ajax({
-                            beforeSend: function(xhr, settings) {
-                                xhr.setRequestHeader("X-CSRFToken", $("[name=csrfmiddlewaretoken]").val());
-                            },
-                            data: JSON.stringify({
-                                grupo: grupo,
-                                udi: udi_send,
-                                dpi: fila[0],
-                                nombre: fila[1],
-                                apellido: fila[2],
-                                genero: fila[3],
-                                rol: fila[4],
-                                mail: fila[5],
-                                tel_movil: fila[6],
-                                etnia:fila[7].id,
-                                escolaridad:fila[8],
-                                profesion:fila[9],
-                                grado_impartido:fila[10],
-                                chicos:Number(fila[11]),
-                                chicas:Number(fila[12])
-                            }),
-                            error: function (xhr, status, errorThrown) {
-                                new Noty({
-                                    text: 'Error al crear a ' + fila[1] + ' ' + fila[2],
-                                    type: 'error',
-                                    timeout: 3500,
-                                }).show();
+                    try {
+                        dpi_exists(fila[0], function (existe) {
+                            if (!existe) {
+                                $.ajax({
+                                    beforeSend: function (xhr, settings) {
+                                        xhr.setRequestHeader("X-CSRFToken", $("[name=csrfmiddlewaretoken]").val());
+                                    },
+                                    data: JSON.stringify({
+                                        grupo: grupo,
+                                        udi: udi_send,
+                                        dpi: fila[0],
+                                        nombre: fila[1],
+                                        apellido: fila[2],
+                                        genero: fila[3],
+                                        rol: fila[4],
+                                        mail: fila[5],
+                                        tel_movil: fila[6],
+                                        etnia: fila[7].id,
+                                        escolaridad: fila[8],
+                                        profesion: fila[9],
+                                        grado_impartido: fila[10],
+                                        chicos: Number(fila[11]),
+                                        chicas: Number(fila[12])
+                                    }),
+                                    error: function (xhr, status, errorThrown) {
+                                        total_errores += 1;
+                                        progress += 1;
+                                        notificar_fin(tabla_importar.countRows(), progress);
+                                    },
+                                    success: function (respuesta) {
+                                        if (respuesta.status == "ok") {
+                                            total_creados += 1;
+                                            filas_borrar.push(index + 1);
+                                        } else {
+                                            total_errores += 1;
+                                        }
+                                        progress += 1;
+                                        notificar_fin(tabla_importar.countRows(), progress);
+                                    },
+                                    contentType: "application/json; charset=utf-8",
+                                    dataType: 'json',
+                                    type: 'POST',
+                                    url: participante_add_ajax_url
+                                });
+                            } else {
+                                dpi_existentes += 1;
                                 progress += 1;
                                 notificar_fin(tabla_importar.countRows(), progress);
-                            },
-                            success: function (respuesta) {
-                                if(respuesta.status=="ok"){
-                                    progress += 1;
-                                    filas_borrar.push(index + 1);
-                                    notificar_fin(tabla_importar.countRows(), progress);
-                                    //tabla_importar.alter('remove_row', index);
-                                }
-                                else{
-                                    bootbox.alert("Error desconocido.");
-                                }
-                            },
-                            contentType: "application/json; charset=utf-8",
-                            dataType: 'json',
-                            type: 'POST',
-                            url: participante_add_ajax_url
+                            }
                         });
+                    } catch (err) {
+                        console.log('Error:', err);
+                        total_errores += 1;
+                        progress += 1;
+                        notificar_fin(tabla_importar.countRows(), progress);
                     }
-                    catch(err){
-                        console.log('asd');
-                    }
-                }
-                else{
+                } else {
+                    total_errores += 1;
                     progress += 1;
+                    notificar_fin(tabla_importar.countRows(), progress);
                 }
             });
         }
-    }
+    };
 
     var notificar_fin = function(length_all, progress) {
         if (length_all == progress) {
+            var descripcion = '';
+            var tipo = 'info';
+            descripcion = 'Proceso terminado.<br>'
+                + '<b>' + total_creados + '</b> participantes creados correctamente.<br>'
+                + '<b>' + total_errores + '</b> errores.<br>'
+                + '<b>' + dpi_existentes + '</b> participantes repetidos.';
+
+            if (total_creados > 0 && total_errores == 0 && dpi_existentes == 0) tipo = 'success';
+            else if (total_errores > 0) tipo = 'error';
+            else if (dpi_existentes > 0) tipo = 'warning';
+
             new Noty({
-                text: 'Proceso terminado. Creados ' + filas_borrar.length + ' participantes.',
-                type: 'success',
-                timeout: 1000,
+                text: descripcion,
+                type: tipo,
+                timeout: 4000,
             }).show();
 
-            filas_borrar.sort(function(a, b){return b-a});
-
+            filas_borrar.sort(function (a, b) { return b - a });
             $('#btn-crear').prop('disabled', false);
-
             filas_borrar = [];
             $('#id_grupo').trigger('change');
             Pace.stop();
             tabla_importar.updateSettings({
-                data : []
+                data: []
             });
         }
-    }
+    };
 
     ParticipanteImportar.init = function () {
 
@@ -3022,6 +3069,9 @@ class informeCapacitadores{
     var total_chicos = 0
     var total_chicas = 0
     var total_participantes_invitados=0;
+    $('#informecapacitadores-list-form #id_departamento').on('change', function () {
+            listar_municipio_departamento('#informecapacitadores-list-form #id_departamento', '#informecapacitadores-list-form #id_municipio');       
+         });
     $('#informecapacitadores-list-form').submit(function (e) {
         e.preventDefault();
         
@@ -3049,6 +3099,8 @@ class informeCapacitadores{
                     return "<a href="+full.sede_url+">"+full.numero+"</a>";
                 }},
                 {data: "sede"},
+                {data: "departamento"},
+                {data: "municipio"},
                 {data: "grupos"},
                 {data: "curso"},
                 {data: "asignaciones"},
@@ -3777,7 +3829,10 @@ class NaatInforme{
                       {data: "escuela",render: function(data, type , full, meta){
                           return "<a target='_blank' href="+full.escuela_url+">"+data+"</a>";
                       }},
-                      
+                      {data: "sede",render: function(data, type , full, meta){
+                          return "<a target='_blank' href="+full.url_sede+">"+data+"</a>";
+                      }},
+                      {data: "beneficiada"},
                       {data: "cantidad_participantes"},
                       {data: "",render: function(data, type , full, meta){                    
                         return full.control_academico.hombres
@@ -3807,10 +3862,6 @@ class NaatInforme{
                         return full.control_academico.chicas
                     }},
                       {data: "capacitador"},                   
-                      {data: "sede",render: function(data, type , full, meta){
-                          return "<a target='_blank' href="+full.url_sede+">"+data+"</a>";
-                      }},
-                      {data: "beneficiada"},
                       {data: "fecha"},
                       {data: "estado_sede",render: function(data, type , full, meta){
                        if(full.estado_sede){
@@ -3945,6 +3996,9 @@ class NaatInforme{
 
   class informeSoloParticipantes{
     constructor(){
+        $('#informe-capacitador-list-form #id_departamento').on('change', function () {
+            listar_municipio_departamento('#informe-capacitador-list-form #id_departamento', '#informe-capacitador-list-form #id_municipio');       
+         });
       $('#informe-capacitador-list-form').submit(function (e) {
           e.preventDefault();
           $.post(
@@ -3986,7 +4040,7 @@ class NaatInforme{
                         {data: "curso"},                        
                         {data: "nota"},   
                         {data: "escuela"},                        
-                        {data: "nombre_escuela"},                     
+                        {data: "nombre_escuela"},              
                         {data: "direccion_escuela"},
                         {data: "longitud"},
                         {data: "latitud"},
