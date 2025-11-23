@@ -63,6 +63,7 @@ class GrupoForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(GrupoForm, self).__init__(*args, **kwargs)
         self.fields['numero'].label = "Cantidad de grupos a crear"
+        self.fields['curso'].queryset=Curso.objects.filter(activo=True)
 
 class SedeFilterForm(forms.Form):
     ESTADO_CHOICES = (
@@ -388,6 +389,14 @@ class InformeCapacitadorForm(forms.Form):
         widget=forms.SelectMultiple(attrs={'class': 'select2 form-control'}),
         required=False
         )
+    departamento = forms.ModelChoiceField(
+        queryset=Departamento.objects.all(),
+        widget=forms.Select(attrs={'class': 'form-control', 'data-url': reverse_lazy('municipio_api_list')}),
+        required=False)
+    municipio = forms.ModelChoiceField(
+        queryset=Municipio.objects.all(),
+        widget=forms.Select(attrs={'class': 'form-control'}),
+        required=False)
     fecha_min = forms.CharField(
         label='Fecha mínima',
         widget=forms.TextInput(attrs={'class': 'form-control datepicker'}),
@@ -584,6 +593,14 @@ class InformeNaatForm(forms.Form):
         self.fields['capacitador'].label_from_instance = lambda obj: "%s" % (obj.get_full_name())
 
 class InformeSoloParticipanteForm(forms.Form):
+    departamento = forms.ModelChoiceField(
+        queryset=Departamento.objects.all(),
+        widget=forms.Select(attrs={'class': 'form-control', 'data-url': reverse_lazy('municipio_api_list')}),
+        required=False)
+    municipio = forms.ModelChoiceField(
+        queryset=Municipio.objects.all(),
+        widget=forms.Select(attrs={'class': 'form-control'}),
+        required=False)
     fecha_min = forms.CharField(
         label='Fecha mínima',
         widget=forms.TextInput(attrs={'class': 'form-control datepicker'}),
