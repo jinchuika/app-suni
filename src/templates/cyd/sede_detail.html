@@ -376,6 +376,8 @@
 												<th>Nombre</th>
 												<th>UDI</th>
 												<th>Dirección</th>
+												<th>Departamento</th>
+												<th>Municipio</th>
 												<th>Participantes</th>
 											</tr>
 										</thead>
@@ -387,6 +389,8 @@
 												</td>
 												<td>{{ escuela.codigo }}</td>
 												<td>{{ escuela.direccion }}</td>
+												<td>{{ escuela.municipio.departamento }}</td>
+												<td>{{ escuela.municipio.nombre }}</td>
 												<td>{{ escuela.cantidad_participantes }}</td>
 											</tr>
 											{% endfor %}
