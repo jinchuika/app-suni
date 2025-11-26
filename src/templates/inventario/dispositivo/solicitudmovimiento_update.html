@@ -26,7 +26,7 @@
                     <div class="box-body">
                         <form action="" method="post">
                             {% csrf_token %}
-                            <table id="solicitud-table" class="table table-condensed" data-cantidad="{{ form.instance.cantidad }}" data-dispo="{{dispositivos_no}}" data-salida="{{object.no_salida.id}}" data-desecho="{{ form.instance.desecho }}">
+                            <table id="solicitud-table" class="table table-condensed" data-cantidad="{{ form.instance.cantidad }}" data-dispo="{{dispositivos_no}}" data-salida="{{object.no_salida.id}}" data-desecho="{{ form.instance.desecho }}" data-proyecto="{{object.no_salida.cooperante.id}}">
 
     
                                 {%if object.no_salida%}
@@ -35,6 +35,22 @@
                                         <td><a href="{{form.instance.no_salida.get_absolute_url}}" target="_blank">{{form.instance.no_salida |default_if_none:""}}</a></td>
                                     </tr>
                                 <tr>
+                                <tr>
+                                        <th>Proyecto</th>
+                                        <td>
+                                            
+                                                <span class="label label-success">{{object.no_salida.cooperante}}</span>
+                                            
+                                        </td>
+                                    </tr>
+                                <tr>
+                                        <th>Municipio</th>
+                                        <td>
+                                            
+                                                <span class="label label-warning">{{object.no_salida.escuela.municipio}}</span>
+                                            
+                                        </td>
+                                    </tr>
                                 {%else%}
                                     {%if object.no_inventariointerno%}
                                     <tr>

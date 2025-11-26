@@ -24,6 +24,7 @@ from apps.escuela import models as escuela_m
 from apps.mye import models as mye
 from apps.conta import models as conta_m
 from apps.kardex import models as kardex_m
+from apps.main.models import Municipio
 
 
 class EntradaTipo(models.Model):
@@ -75,7 +76,8 @@ class Entrada(models.Model):
     proveedor = models.ForeignKey(crm_m.Donante, on_delete=models.PROTECT, related_name='entradas')
     factura = models.PositiveIntegerField(default=0)
     observaciones = models.TextField(null=True, blank=True)
-    proyecto = models.ManyToManyField('mye.Cooperante', blank=True,null=True ,related_name='proyecto_inventario')  
+    proyecto = models.ManyToManyField('mye.Cooperante', blank=True,null=True ,related_name='proyecto_inventario')
+    municipio = models.ForeignKey(Municipio, on_delete=models.CASCADE,blank=True,null=True, related_name='entradas_municipio')  
 
     class Meta:
         verbose_name = "Entrada"

@@ -69,6 +69,14 @@
                                         <th>Salida</th>
                                         <td><a href="{{object.no_salida.get_absolute_url}}" target="_blank">{{object.no_salida |default_if_none:""}}</a></td>
                                     </tr>
+                                    <tr>
+                                        <th>Proyecto</th>
+                                        <td>
+                                            
+                                                <span class="label label-success">{{object.no_salida.cooperante}}</span>
+                                            
+                                        </td>
+                                    </tr>
                                     {%else%}
                                         {%if object.no_inventariointerno%}
                                         <tr>
@@ -128,6 +136,7 @@
                                             {% endif %}
                                         </td>
                                     </tr>
+                                    
                                     {%if object.devolucion or object.desecho%}
                                     {% if object.devolucion %}
                                         <tr>

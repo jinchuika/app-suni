@@ -105,10 +105,11 @@ class DispositivoViewSet(viewsets.ModelViewSet):
         etapa = self.request.query_params.get('etapa', None)
         estado = self.request.query_params.get('estado', None)
         salida = self.request.query_params.get('id_salida', None)
-        solicitud = self.request.query_params.get('solicitud', None)               
+        solicitud = self.request.query_params.get('solicitud', None)
+        proyecto = self.request.query_params.get('proyecto', None)                
         lista_dispositivos = []      
         if bool(solicitud):           
-            if estado == "1"  and etapa == "1":                
+            if estado == "1"  and etapa == "1":
                 return inv_m.Dispositivo.objects.filter(triage=triage)
             else:
                 return"Dispositivo no aceptado"      
@@ -810,6 +811,11 @@ class DispositivosPaquetesViewSet(viewsets.ModelViewSet):
             nuevo_paquete = inv_m.Paquete.objects.get(id=paquete)
             nuevo_paquete.aprobado = True
             nuevo_paquete.save()
+            return Response({
+            'mensaje': 'El dispositivo de Kardex  tipo {nuevo_paquete.tipo_paquete} ha sido Aprobado'
+        },
+            status=status.HTTP_200_OK
+        )
         else:
             triage = request.data["triage"]
             salida = request.data["salida"]
@@ -840,16 +846,16 @@ class DispositivosPaquetesViewSet(viewsets.ModelViewSet):
                 cambio_estado.save()
             else:
                 return Response({
-                    'mensaje': 'El dispositivo no pertenece a esta salida',
+                    'mensaje': 'El dispositivo con triage: {} no pertenece a esta salida'.format(triage),
                     'code': 1},
 
                     status=status.HTTP_200_OK)
-
         return Response({
-            'mensaje': 'El dispositivo ha sido Aprobado'
+            'mensaje': 'El dispositivo con triage: {} ha sido Aprobado'.format(triage)
         },
             status=status.HTTP_200_OK
         )
+        
 
     @action(methods=['post'], detail=False)
     def rechazar_conta_dispositivos(self, request, pk=None):

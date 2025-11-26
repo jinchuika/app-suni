@@ -76,6 +76,28 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
                 {'mensaje': 'No tienes la autorización para realizar esta acción.'},
                 status=status.HTTP_401_UNAUTHORIZED
             )
+        
+    @action(methods=['post'], detail=False)
+    def bloquear_impresion_qr(self, request, pk=None):
+        """Metodo para bloquear los qr de dispositivo y repuestos por medio del detalle
+        de entrada
+        """
+        if "inv_bodega" in self.request.user.groups.values_list('name', flat=True):            
+            detalles_id = request.data['detalles_id']
+            entrada = request.data['id']
+            entrada_detalle = inv_m.EntradaDetalle.objects.get(id=detalles_id,entrada__id=entrada)
+            entrada_detalle.impreso = True
+            entrada_detalle.save()            
+            return Response(
+                {'mensaje': 'Dispositivos impresos.'},
+                status=status.HTTP_200_OK
+            )
+        else:
+            return Response(
+                {'mensaje': 'No tienes la autorización para realizar esta acción.'},
+                status=status.HTTP_401_UNAUTHORIZED
+            )    
+
 
     @action(methods=['post'], detail=False)
     def cuadrar_salida(self, request, pk=None):
@@ -285,31 +307,41 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
 
     @action(methods=['post'], detail=False)
     def validar_solicitud_movimientos(self, request, pk=None):
+        """
+        tipo=validar_dispositivos,
+                etapa=etapa_transito,
+                estado=estado,
+                entrada_detalle__in=detalle_entrada
+        """
         tipo_dispositivo = request.data['tipo_dispositivo']
         id_salida = request.data['id_salida']
         etapa_transito = inv_m.DispositivoEtapa.objects.get(id=inv_m.DispositivoEtapa.AB)
         estado = inv_m.DispositivoEstado.objects.get(id=inv_m.DispositivoEstado.PD)
         validar_dispositivos = inv_m.DispositivoTipo.objects.get(tipo=tipo_dispositivo)
+        parametros ={
+            "tipo":validar_dispositivos,
+            "etapa":etapa_transito,
+            "estado":estado
+        }
+
         if id_salida is "":
-            print("No trae id")
             detalle_entrada =inv_m.EntradaDetalle.objects.filter(tipo_dispositivo=validar_dispositivos)  
         else:
-            print("Trae salida")
             salida = inv_m.SalidaInventario.objects.get(id=id_salida)
-            #print(salida)
-            valida_detalle_entrada = inv_m.EntradaDetalle.objects.filter(proyecto__id=salida.cooperante.id,entrada__tipo__id=2,tipo_dispositivo=validar_dispositivos)
-            print(valida_detalle_entrada)
-            detalle_entrada =inv_m.EntradaDetalle.objects.filter(proyecto__id=salida.cooperante.id,tipo_dispositivo=validar_dispositivos)  
-             
+            if salida.tipo_salida.id==1:
+                valida_detalle_entrada = inv_m.EntradaDetalle.objects.filter(proyecto__id=salida.cooperante.id,entrada__tipo__id=2,tipo_dispositivo=validar_dispositivos,entrada__municipio=salida.escuela.municipio)
+                if len(valida_detalle_entrada) >=1:
+                    detalle_entrada =inv_m.EntradaDetalle.objects.filter(proyecto__id=salida.cooperante.id,tipo_dispositivo=validar_dispositivos,entrada__municipio=salida.escuela.municipio)
+                    parametros["entrada_detalle__in"]=detalle_entrada
+                else:
+                    return Response(
+                                    {'mensaje': 0},
+                                    status=status.HTTP_200_OK)
         if(validar_dispositivos.kardex):
             cantidad_kardex = kax_m.Equipo.objects.get(nombre=tipo_dispositivo)
             numero_dispositivos = cantidad_kardex.existencia
         else:
-            numero_dispositivos = inv_m.Dispositivo.objects.filter(
-                tipo=validar_dispositivos,
-                etapa=etapa_transito,
-                estado=estado,
-                entrada_detalle__in=detalle_entrada).count()
+            numero_dispositivos = inv_m.Dispositivo.objects.filter(**parametros).count()
         return Response(
                 {'mensaje': numero_dispositivos},
                 status=status.HTTP_200_OK)

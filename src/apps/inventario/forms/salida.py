@@ -4,6 +4,7 @@
 from django import forms
 from apps.inventario import models as inv_m
 from apps.crm import models as crm_m
+from apps.tpe.models import TicketSoporte
 from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
 
@@ -41,7 +42,8 @@ class SalidaInventarioForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(SalidaInventarioForm, self).__init__(*args, **kwargs)
-        self.fields['garantia'].label="Ticket"                
+        self.fields['garantia'].label="Ticket"
+        self.fields['garantia'].queryset = TicketSoporte.objects.filter(cerrado=False)               
         if self.instance.en_creacion:
             self.fields['beneficiario'].widget = forms.Select(
                 attrs={'style': "visibility:hidden", 'class': 'form-control select2', 'tabindex': '6'})

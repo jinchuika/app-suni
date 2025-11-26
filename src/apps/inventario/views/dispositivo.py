@@ -273,7 +273,7 @@ class SolicitudMovimientoUpdateView(LoginRequiredMixin, UpdateView):
 
     def get_form(self, form_class=None):
         form = super(SolicitudMovimientoUpdateView, self).get_form(form_class)
-        estado = inv_m.DispositivoEstado.objects.get(id=inv_m.DispositivoEstado.PD)
+        estado = inv_m.DispositivoEstado.objects.get(id=inv_m.DispositivoEstado.PD)        
         if self.object.no_salida:
             dispositivos_salida = inv_m.CambioEtapa.objects.filter(
                 solicitud__no_salida = self.object.no_salida,
@@ -296,8 +296,10 @@ class SolicitudMovimientoUpdateView(LoginRequiredMixin, UpdateView):
 
         queryset = inv_m.Dispositivo.objects.filter(
                 etapa=self.object.etapa_inicial,
-                tipo=self.object.tipo_dispositivo
-            )
+                tipo=self.object.tipo_dispositivo,
+                entrada_detalle__proyecto=self.object.no_salida.cooperante,
+                entrada_detalle__entrada__municipio=self.object.no_salida.escuela.municipio
+            )        
 
         if self.object.devolucion:
             form.fields['dispositivos'].queryset = queryset.filter(id__in=dispositivos_salida)

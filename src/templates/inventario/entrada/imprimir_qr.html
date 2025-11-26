@@ -1,7 +1,18 @@
 {% load staticfiles %}
 <!DOCTYPE html>
 <html>
+    {%csrf_token%}
+{% if  impresos|stringformat:"s" == "1" %}
 <body>
+  <div>
+    <center>
+      <img src="{% static "image/QRImpresos.png" %}" class="img-thumbnail" alt="{{codigos_qr}}">
+    </center>
+  </div>
+  
+</body>
+{% else %}
+<body>  
     {%for codigos_qr in dispositivo_qr%}
   <div style="width:2.8cm; height:1.5cm;">
     <center>
@@ -15,7 +26,6 @@
   </div>
     {%endfor%}
 </body>
-</html>
 <style type="text/css">
 	@page{
 	margin: 0;
@@ -30,7 +40,35 @@ div{
 }
 </style>
 {% block extra_js %}
+<script src="{% static "js/jquery.min.js" %}"></script>
 <script>
-window.onload= function () { window.print();window.close();   }
+  
+window.onload= function () { 
+  window.print();
+}
+window.onafterprint = function(){  
+  $.ajax({
+                    type: 'POST',
+                    url: "{{url_bloqueo}}",
+                    dataType: 'json',
+                    data: {
+                      csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
+                      detalles_id :"{{detalle}}",
+                      id:"{{id}}"
+                    },
+                    success: function (response) {
+                      alert(response.mensaje);
+                      location.reload();
+                    },
+                    error: function (response) {
+                     alert(response.mensaje);
+                    }
+                  });
+  
+
+}
 </script>
 {% endblock extra_js %}
+{% endif %}
+</html>
+

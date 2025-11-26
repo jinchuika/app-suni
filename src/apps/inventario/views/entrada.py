@@ -235,21 +235,29 @@ class ImprimirQr(LoginRequiredMixin, GroupRequiredMixin, DetailView):
     group_required = [u"inv_bodega", u"inv_admin"]
 
     def get_context_data(self, **kwargs):
-        context = super(ImprimirQr, self).get_context_data(**kwargs)
-        imprimir_qr = inv_m.Dispositivo.objects.filter(entrada=self.object.id,
-                                                       entrada_detalle=self.kwargs['detalle']).order_by('triage')
-        for dispositivo in imprimir_qr:
-            dispositivo.impreso = True
-            dispositivo.save()
-        context['dispositivo_qr'] = imprimir_qr        
-        nueva_bitacora = inv_m.SolicitudBitacora(
-            fecha_movimiento=datetime.now(),
-            accion=inv_m.AccionBitacora.objects.get(id=6),
-            usuario=self.request.user,
-            observaciones= "Entrada No: "+str(self.object.id)+", Detalle de Entrada No:"+str(self.kwargs['detalle'])
-            )
-        nueva_bitacora.save()
-        return context
+        context = super(ImprimirQr, self).get_context_data(**kwargs)        
+        detalle_entrada = inv_m.EntradaDetalle.objects.get(id=self.kwargs["detalle"])       
+        context["id"]=self.kwargs["pk"]
+        context["detalle"]=self.kwargs["detalle"]
+        context["url_bloqueo"]=str(reverse('inventario_api:api_detalles-bloquear-impresion-qr'))        
+        if detalle_entrada.impreso:
+            context["impresos"] = 1
+            return context
+        else:
+            imprimir_qr = inv_m.Dispositivo.objects.filter(entrada=self.object.id,
+                                                        entrada_detalle=self.kwargs['detalle']).order_by('triage')
+            for dispositivo in imprimir_qr:
+                dispositivo.impreso = True
+                dispositivo.save()
+            context['dispositivo_qr'] = imprimir_qr        
+            nueva_bitacora = inv_m.SolicitudBitacora(
+                fecha_movimiento=datetime.now(),
+                accion=inv_m.AccionBitacora.objects.get(id=6),
+                usuario=self.request.user,
+                observaciones= "Entrada No: "+str(self.object.id)+", Detalle de Entrada No:"+str(self.kwargs['detalle'])
+                )
+            nueva_bitacora.save()
+            return context
 
 
 class ReporteRepuestosQr(LoginRequiredMixin, GroupRequiredMixin, DetailView):
