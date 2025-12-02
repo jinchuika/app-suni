@@ -8,13 +8,22 @@ crm_children = (
         "Donantes",
         reverse_lazy("donante_list"),
         weight=12,
+        group="crm",
         icon="fa fa-user-o"
     ),
     ViewMenuItem(
         "Ofertas",
         reverse_lazy("oferta_list"),
         weight=12,
+        group="crm",
         icon="fa fa-recycle"
+    ),
+    ViewMenuItem(
+        "Informe Proveedores",
+        reverse_lazy("informe_gastos"),
+        weight=12,
+        group="crm,crm_informe_proveedores",
+        icon="fas fa-columns"
     )
 )
 Menu.add_item(
@@ -24,7 +33,7 @@ Menu.add_item(
         reverse_lazy('donante_list'),
         weight=10,
         icon="fa fa-truck",
-        group="crm",
+        group="crm,crm_informe_proveedores",
         children=crm_children
     )
 )
