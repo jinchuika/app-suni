@@ -1230,6 +1230,13 @@ class InformeRastreoRepuesto(views.APIView):
 
             except:
                 comentario = 0
+            
+            try:
+                data_precio = conta_m.PrecioRepuesto.objects.filter(repuesto=data.id).last()
+                precio_valor = "{:.2f}".format(data_precio.precio)
+            except:
+                precio_valor = 0
+
             repuesto = {}
             repuesto["repuesto_id"] =data.id
             repuesto["repuesto_triage"] ="R-"+str(data.id)
@@ -1238,6 +1245,7 @@ class InformeRastreoRepuesto(views.APIView):
             repuesto["repuesto_tipo"] =data.tipo.tipo
             repuesto["repuesto_estado"] =data.estado.nombre
             repuesto["repuesto_descripcion"] =data.descripcion
+            repuesto["repuesto_precio"] = precio_valor
             try:
                 repuesto["repuesto_tarima"] =data.tarima.id
             except:
