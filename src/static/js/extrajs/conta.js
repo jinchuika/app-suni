@@ -656,6 +656,7 @@ class RastreoRepuestoInforme{
           return "<a href="+full.repuesto_url+">"+full.repuesto_triage+"</a>";
         }},
         {data: "repuesto_tipo"},
+        {data: "repuesto_precio"},
         {data: "repuesto_modelo",render:function(data, type, full, meta){
           if(full.repuesto_modelo==""){
             return "<strong>"+"No tiene modelo"+"</strong>"
