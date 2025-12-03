@@ -1,4 +1,5 @@
 # from django.shortcuts import render
+from django import views
 from django.urls import reverse_lazy
 from django.utils import timezone
 from braces.views import (
@@ -6,8 +7,13 @@ from braces.views import (
     CsrfExemptMixin, JsonRequestResponseMixin)
 from django.views.generic import DetailView, ListView, View, TemplateView
 from django.views.generic.edit import CreateView, UpdateView, FormView
+from rest_framework.response import Response
+from rest_framework import views,status
 from apps.crm import models as crm_m
+from apps.inventario import models as inv_m
 from apps.crm import forms as crm_f
+from django.utils.datastructures import MultiValueDictKeyError
+from decimal import Decimal
 
 
 class DonanteCreateView(LoginRequiredMixin, CreateView):
@@ -175,3 +181,107 @@ class HistoricoOfertaCrear(CsrfExemptMixin, JsonRequestResponseMixin, View):
             "fecha": str(comentario_historico.fecha),
             "usuario": str(comentario_historico.usuario.perfil)
         })
+
+class InformeDonanteView(LoginRequiredMixin, FormView):
+    """ Vista para obtener la informacion de los dispositivos para crear el informe de rastreo mediante un
+    api y el metodo GET  y lo muestra en el template
+    """
+    redirect_unauthenticated_users = True
+    raise_exception = True
+    template_name = "crm/informe_gastos_donantes.html"
+    form_class = crm_f.InformeGatosDonantesForm
+
+class DonantesGastosInformeApi(views.APIView):
+    def get(self,request):
+        donante=0
+        lista_dispositivos=[]
+        fecha_min=0
+        fecha_max=0
+        try:
+            donante=self.request.GET['donante']
+        except MultiValueDictKeyError:
+            donante=0
+        try:
+            lista_dispositivos = [x for x in self.request.GET.getlist('tipo_dispositivo[]')]         
+            if len(lista_dispositivos)==0:
+                lista_dispositivos.append(self.request.GET['tipo_dispositivo'])            
+        except MultiValueDictKeyError:   
+            lista_dispositivos=[] 
+        try:
+            fecha_min=self.request.GET['fecha_min']
+        except MultiValueDictKeyError:
+            fecha_min=0
+        try:
+            fecha_max=self.request.GET['fecha_max']
+        except MultiValueDictKeyError:
+            fecha_max=0
+        control_fecha = fecha_max != 0 and fecha_min != 0 
+        
+        data_entradas=inv_m.Entrada.objects.filter(tipo=2)
+        if donante!=0:
+            data_entradas=data_entradas.filter(proveedor=donante)
+        if control_fecha:
+            data_entradas=data_entradas.filter(fecha__range=(fecha_min,fecha_max))
+        elif fecha_min!=0:
+            data_entradas=data_entradas.filter(fecha__gte=fecha_min)
+        elif fecha_max !=0:
+            data_entradas=data_entradas.filter(fecha__lte=fecha_max)
+        dic_tipos_agrupados={}
+        dispositivos_tipos_agrupados=[]
+        dispositivos_agrupados=[]
+        dic_tipo_dispositivo={(disp["tipoDispositivo"],disp["precioUnitario"]):disp for disp in dispositivos_agrupados}
+        cantidad_dispositivos=0
+        total=0
+        for entrada in data_entradas:
+            if len(lista_dispositivos) != 0:
+                detalle=inv_m.EntradaDetalle.objects.filter(entrada=entrada.id,tipo_dispositivo__in=lista_dispositivos)
+            else:
+                detalle=inv_m.EntradaDetalle.objects.filter(entrada=entrada.id)
+            for data in detalle:
+                tipo_cantidad=(data.tipo_dispositivo.tipo,Decimal(data.precio_unitario or 0))
+                if tipo_cantidad in dic_tipo_dispositivo:
+                    dic_tipo_dispositivo[tipo_cantidad]["cantidad"]+=(data.util)
+                    dic_tipo_dispositivo[tipo_cantidad]["total"]+=Decimal(data.precio_total or 0)
+                    cantidad_dispositivos+=data.util
+                    total+=Decimal(data.precio_total or 0)
+                else:
+                    dic_tipo_dispositivo[tipo_cantidad]={
+                        "donante":entrada.proveedor.nombre,
+                        "tipoDispositivo":data.tipo_dispositivo.tipo,
+                        "cantidad":data.util,
+                        "precioUnitario": Decimal(data.precio_unitario or 0),
+                        "total" : Decimal(data.precio_total or 0)
+                    }
+                    cantidad_dispositivos+=data.util
+                    total+=Decimal(data.precio_total or 0)
+                if data.tipo_dispositivo.tipo in dic_tipos_agrupados:
+                    dic_tipos_agrupados[data.tipo_dispositivo.tipo]["cantidad"]+=data.util
+                    dic_tipos_agrupados[data.tipo_dispositivo.tipo]["monto"]+=Decimal(data.precio_total or 0)
+                else:
+                    dic_tipos_agrupados[data.tipo_dispositivo.tipo]={
+                        "dispositivoTipo":data.tipo_dispositivo.tipo,
+                        "cantidad":data.util,
+                        "monto": Decimal(data.precio_total or 0)
+                    }
+
+
+            dispositivos_agrupados=list(dic_tipo_dispositivo.values())
+            dispositivos_tipos_agrupados=list(dic_tipos_agrupados.values())
+        valores=list(objeto["cantidad"] for objeto in dispositivos_tipos_agrupados)
+        dispositivos=list(objeto["dispositivoTipo"] for objeto in dispositivos_tipos_agrupados)
+        montos=list(objeto["monto"] for objeto in dispositivos_tipos_agrupados)
+        return Response(
+            {
+                "data": dispositivos_agrupados,
+                "totales": {
+                    "cantidad_total": cantidad_dispositivos,
+                    "monto_total": total,
+                },
+                "dispositivos":dispositivos,
+                "valores":valores,
+                "montos":montos
+            },
+            status=status.HTTP_200_OK
+            )      
+
+           
