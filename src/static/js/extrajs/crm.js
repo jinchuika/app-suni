@@ -104,6 +104,7 @@
         columns: [
           
           {data:"donante",className:"nowrap"},
+          {data:"fecha",className:"nowrap"},
           {data:"tipoDispositivo",className:"nowrap"},
           {data:"cantidad",className:"nowrap"},
           {

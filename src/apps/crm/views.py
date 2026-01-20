@@ -247,6 +247,7 @@ class DonantesGastosInformeApi(views.APIView):
                 else:
                     dic_tipo_dispositivo[tipo_cantidad]={
                         "donante":entrada.proveedor.nombre,
+                        "fecha": entrada.fecha,
                         "tipoDispositivo":data.tipo_dispositivo.tipo,
                         "cantidad":data.util,
                         "precioUnitario": Decimal(data.precio_unitario or 0),
