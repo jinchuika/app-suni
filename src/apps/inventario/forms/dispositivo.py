@@ -35,6 +35,16 @@ class TecladoForm(forms.ModelForm):
             'caja': forms.TextInput({'class': 'form-control', 'tabindex': '8'}),
                    }
 
+    def __init__(self, *args, **kwargs):
+        super(TecladoForm, self).__init__(*args, **kwargs)
+        if self.instance and self.instance.pk:
+            for nombre_campo, campo in self.fields.items():
+                valor_actual = getattr(self.instance, nombre_campo, None)
+
+                if valor_actual is not None and valor_actual != "":
+                    campo.disabled = True 
+                    campo.widget.attrs['disabled'] = 'disabled'
+                    campo.widget.attrs['class'] = campo.widget.attrs.get('class', '') + ' bloqueado'
 
 class CPUForm(forms.ModelForm):
     """Formulario para la actuliazacion de :class:`CPU`.
