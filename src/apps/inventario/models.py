@@ -2042,8 +2042,8 @@ class DesechoSolicitud(models.Model):
     rechazado = models.BooleanField(default=False, blank=True)
 
     class Meta:
-        verbose_name = "Detalle de salida de solicitud"
-        verbose_name_plural = "Detalles de salida de solicitudes"
+        verbose_name = "Salida de dispositivos utiles a desecho"
+        verbose_name_plural = "Salidas de dispositivos utiles a desecho"
 
 
     def __str__(self):
