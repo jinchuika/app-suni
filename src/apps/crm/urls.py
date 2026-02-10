@@ -77,6 +77,16 @@ urlpatterns = [
         crm_v.HistoricoOfertaCrear.as_view(),
         name='historico_add'
     ),
+    url(
+        r'^informe/proveedores/$',
+        crm_v.InformeDonanteView.as_view(),
+        name='informe_gastos'
+    ),
+    url(
+        r'^api/proveedor/gastos$',
+        crm_v.DonantesGastosInformeApi.as_view(),
+        name='api_gastos_proveedor'
+    ),
     # Api
     url(r'^api/', include(('apps.crm.api_urls', 'crm'), namespace='crm_api')),
         ]
