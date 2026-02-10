@@ -946,7 +946,14 @@ class InformeResumenJson(views.APIView):
                         Q(dispositivo__tipo=tipo),
                         Q(desecho__en_creacion=False)))
 
-                salidas += desecho
+                desecho_util = len(inv_m.DesechoSolicitud.objects.filter(
+                        Q(desecho__fecha__gte=fecha_inicio),
+                        Q(desecho__fecha__lte=fecha_fin),
+                        Q(dispositivo__tipo=tipo),
+                        Q(aprobado=True),
+                        Q(desecho__en_creacion=False)))
+
+                salidas = (desecho + desecho_util)
 
                 dispositivo['tipo'] = tipo.tipo
                 dispositivo['existencia_anterior'] = existencia_anterior
