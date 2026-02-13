@@ -35,6 +35,7 @@ urlpatterns = [
     url(r'^participante/importar/$', ParticipanteCreateListView.as_view(), name='participante_importar'),
     url(r'^participante/api/naat/$',InformeParticipantesNaat.as_view(), name='informe_participantes_naat'),
     url(r'^participante/api/capacitador/$',InformeParticipanteCapacitador.as_view(), name='participantes_api_capacitador'),
+    url(r'^participante/importar/naat/$',ImportarParticipantesNaat.as_view(), name='participantes_importar_naat'),
     
     url(r'^controlacademico/grupo/$', CotrolAcademicoGruposFormView.as_view(), name='control_academico_grupo'),
     url(r'^controlacademico/api/grupo/$', InformeControlAcademicoGrupos.as_view(), name='control_academico_grupo_informe'),
@@ -67,5 +68,9 @@ urlpatterns = [
     url(r'^asistencia/$',InformeAsistenciaWebView.as_view(), name='asistencia_web'),
     url(r'^asistencia/asignar/$',AsignarAsistencia.as_view(), name='asistencia_web_asignar'),
     url(r'^chamilo/$', ChamiloAddView.as_view(), name='chamilo_add'),
-    url(r'^capacitacion/list/home/$', cache_page(5)(CapacitacionListHomeView.as_view()), name='capacitacion_list_home')
+    url(r'^capacitacion/list/home/$', cache_page(5)(CapacitacionListHomeView.as_view()), name='capacitacion_list_home'),
+
+    #conexión con php Naat
+    url(r'^naat/facilitador/list$',FacilitadoresList.as_view(), name='facilitadores_list_naat'),
+    url(r'^naat/facilitador/add$', CrearFacilitadorView.as_view(), name='facilitador_add_naat'),
 ]
