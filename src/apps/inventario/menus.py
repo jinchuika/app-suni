@@ -213,6 +213,13 @@ contabilidad_children = (
         group="inv_conta,inv_admin",
         icon="fa fa-binoculars",
     ),
+    ViewMenuItem(
+        "Informe util a desecho",
+        reverse_lazy('informe_util_desecho'),
+        weight=12,
+        group="inv_conta,inv_admin",
+        icon="fa-trash",
+    ),
     
 )
 
