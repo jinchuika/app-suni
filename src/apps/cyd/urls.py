@@ -69,8 +69,4 @@ urlpatterns = [
     url(r'^asistencia/asignar/$',AsignarAsistencia.as_view(), name='asistencia_web_asignar'),
     url(r'^chamilo/$', ChamiloAddView.as_view(), name='chamilo_add'),
     url(r'^capacitacion/list/home/$', cache_page(5)(CapacitacionListHomeView.as_view()), name='capacitacion_list_home'),
-
-    #conexión con php Naat
-    url(r'^naat/facilitador/list$',FacilitadoresList.as_view(), name='facilitadores_list_naat'),
-    url(r'^naat/facilitador/add$', CrearFacilitadorView.as_view(), name='facilitador_add_naat'),
 ]

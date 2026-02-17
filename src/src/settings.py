@@ -133,7 +133,7 @@ DATABASE_ROUTERS = ['apps.legacy.dbrouters.LegacyRouter', ]
 DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.mysql',
-            'NAME': 'suni_080525',
+            'NAME': 'suni_160226',
             'USER': 'root',
             'PASSWORD': '',
             'HOST': 'localhost',
@@ -295,5 +295,5 @@ EMAIL_HOST_USER = 'solicitudes_tpe@funsepa.org'
 EMAIL_HOST_PASSWORD = 'Funsepa2019'
 
 CORS_ORIGIN_ALLOW_ALL = True
-NAAT_LEGACY = "http://localhost/naat/index.php/api/ctr_suni/"
+NAAT_URL = "http://localhost/naat/index.php/api/ctr_suni/"
 NAAT_TOKEN = "Token27" 
