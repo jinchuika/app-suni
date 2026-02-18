@@ -35,6 +35,16 @@ class TecladoForm(forms.ModelForm):
             'caja': forms.TextInput({'class': 'form-control', 'tabindex': '8'}),
                    }
 
+    def __init__(self, *args, **kwargs):
+        super(TecladoForm, self).__init__(*args, **kwargs)
+        if self.instance and self.instance.pk:
+            for nombre_campo, campo in self.fields.items():
+                valor_actual = getattr(self.instance, nombre_campo, None)
+
+                if valor_actual is not None and valor_actual != "":
+                    campo.disabled = True 
+                    campo.widget.attrs['disabled'] = 'disabled'
+                    campo.widget.attrs['class'] = campo.widget.attrs.get('class', '') + ' bloqueado'
 
 class CPUForm(forms.ModelForm):
     """Formulario para la actuliazacion de :class:`CPU`.
@@ -113,7 +123,13 @@ class LaptopForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(LaptopForm, self).__init__(*args, **kwargs)
         self.fields['disco_duro'].queryset =inv_m.HDD.objects.filter(valido=True, asignado=False).exclude(movimientodispositivo__tipo_movimiento=conta_m.MovimientoDispositivo.BAJA)
-
+        if self.instance and self.instance.pk:
+            for nombre_campo, campo in self.fields.items():
+                valor_actual = getattr(self.instance, nombre_campo, None)
+                if valor_actual is not None and valor_actual != "":
+                    campo.disabled = True 
+                    campo.widget.attrs['disabled'] = 'disabled'
+                    campo.widget.attrs['class'] = campo.widget.attrs.get('class', '') + ' bloqueado'
 
 class MonitorForm(forms.ModelForm):
     """Formulario para la creación de :class:`Monitor`.
@@ -145,6 +161,17 @@ class MonitorForm(forms.ModelForm):
             'clase': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '9'}),
         }
 
+    def __init__(self, *args, **kwargs):
+        super(MonitorForm, self).__init__(*args, **kwargs)
+        if self.instance and self.instance.pk:
+            for nombre_campo, campo in self.fields.items():
+                valor_actual = getattr(self.instance, nombre_campo, None)
+
+                if valor_actual is not None and valor_actual != "":
+                    campo.disabled = True 
+                    campo.widget.attrs['disabled'] = 'disabled'
+                    campo.widget.attrs['class'] = campo.widget.attrs.get('class', '') + ' bloqueado'
+
 
 class MouseForm(forms.ModelForm):
     """Formulario para la creación de :class:`Mouse`.
@@ -175,6 +202,16 @@ class MouseForm(forms.ModelForm):
             'clase': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '8'}),
             'caja': forms.TextInput(attrs={'class': 'form-control', 'tabindex': '9'}),
         }
+    def __init__(self, *args, **kwargs):
+        super(MouseForm, self).__init__(*args, **kwargs)
+        if self.instance and self.instance.pk:
+            for nombre_campo, campo in self.fields.items():
+                valor_actual = getattr(self.instance, nombre_campo, None)
+
+                if valor_actual is not None and valor_actual != "":
+                    campo.disabled = True 
+                    campo.widget.attrs['disabled'] = 'disabled'
+                    campo.widget.attrs['class'] = campo.widget.attrs.get('class', '') + ' bloqueado'
 
 
 class DispositivoRedForm(forms.ModelForm):
@@ -207,6 +244,16 @@ class DispositivoRedForm(forms.ModelForm):
             'descripcion': forms.Textarea(attrs={'cols': 30, 'rows': 3, 'class': 'form-control', 'tabindex': '5'}),
             'clase': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '10'}),
         }
+    def __init__(self, *args, **kwargs):
+        super(DispositivoRedForm, self).__init__(*args, **kwargs)
+        if self.instance and self.instance.pk:
+            for nombre_campo, campo in self.fields.items():
+                valor_actual = getattr(self.instance, nombre_campo, None)
+
+                if valor_actual is not None and valor_actual != "":
+                    campo.disabled = True 
+                    campo.widget.attrs['disabled'] = 'disabled'
+                    campo.widget.attrs['class'] = campo.widget.attrs.get('class', '') + ' bloqueado'
 
 
 class DispositivoAccessPointForm(forms.ModelForm):
@@ -239,6 +286,16 @@ class DispositivoAccessPointForm(forms.ModelForm):
             'descripcion': forms.Textarea(attrs={'cols': 30, 'rows': 3, 'class': 'form-control', 'tabindex': '5'}),
             'clase': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '11'}),
         }
+    def __init__(self, *args, **kwargs):
+        super(DispositivoAccessPointForm, self).__init__(*args, **kwargs)
+        if self.instance and self.instance.pk:
+            for nombre_campo, campo in self.fields.items():
+                valor_actual = getattr(self.instance, nombre_campo, None)
+
+                if valor_actual is not None and valor_actual != "":
+                    campo.disabled = True 
+                    campo.widget.attrs['disabled'] = 'disabled'
+                    campo.widget.attrs['class'] = campo.widget.attrs.get('class', '') + ' bloqueado'
 
 
 class TabletForm(forms.ModelForm):
@@ -276,6 +333,16 @@ class TabletForm(forms.ModelForm):
             'descripcion': forms.Textarea(attrs={'cols': 30, 'rows': 3, 'class': 'form-control', 'tabindex': '5'}),
             'clase': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '15'}),
         }
+    def __init__(self, *args, **kwargs):
+        super(TabletForm, self).__init__(*args, **kwargs)
+        if self.instance and self.instance.pk:
+            for nombre_campo, campo in self.fields.items():
+                valor_actual = getattr(self.instance, nombre_campo, None)
+
+                if valor_actual is not None and valor_actual != "":
+                    campo.disabled = True 
+                    campo.widget.attrs['disabled'] = 'disabled'
+                    campo.widget.attrs['class'] = campo.widget.attrs.get('class', '') + ' bloqueado'
 
 
 class HDDForm(forms.ModelForm):
@@ -308,6 +375,16 @@ class HDDForm(forms.ModelForm):
             'descripcion': forms.Textarea(attrs={'cols': 30, 'rows': 3, 'class': 'form-control', 'tabindex': '5'}),
             'clase': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '9'}),
         }
+    def __init__(self, *args, **kwargs):
+        super(HDDForm, self).__init__(*args, **kwargs)
+        if self.instance and self.instance.pk:
+            for nombre_campo, campo in self.fields.items():
+                valor_actual = getattr(self.instance, nombre_campo, None)
+
+                if valor_actual is not None and valor_actual != "":
+                    campo.disabled = True 
+                    campo.widget.attrs['disabled'] = 'disabled'
+                    campo.widget.attrs['class'] = campo.widget.attrs.get('class', '') + ' bloqueado'
 
 
 class DispositivoFallaCreateForm(forms.ModelForm):
@@ -661,4 +738,12 @@ class CPUFormUpdate(forms.ModelForm):
         except:
              self.fields['disco_duro'].queryset = inv_m.HDD.objects.filter(valido=True,asignado=False)
 
+        self.fields['disco_duro'].queryset = inv_m.HDD.objects.filter(valido=True)
+        if self.instance and self.instance.pk:
+            for nombre_campo, campo in self.fields.items():
+                valor_actual = getattr(self.instance, nombre_campo, None)
+                if valor_actual is not None and valor_actual != "":
+                    campo.disabled = True 
+                    campo.widget.attrs['disabled'] = 'disabled'
+                    campo.widget.attrs['class'] = campo.widget.attrs.get('class', '') + ' bloqueado'
        

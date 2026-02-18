@@ -29,6 +29,10 @@ from django.utils import timezone
 from django.db import connection
 from openpyxl import load_workbook
 from apps.Evaluacion.models import Formulario
+from django.urls import reverse_lazy
+from django.http import JsonResponse
+import requests
+
 class CursoCreateView(LoginRequiredMixin, GroupRequiredMixin, CreateView):
     """ Creacion de cursos desde una vista
     """
@@ -1892,11 +1896,96 @@ class SubirControlAcademicoExcel(views.APIView):
             for data1 in data.get_participantes()['listado']:
                 data_dict["participante"] = str(data1["participante"])
                 listado_participante.append(data_dict)
-            
-            print("************")
-            
-        
+                    
         return Response(
             "Ingresados exitosamente",
             status=status.HTTP_200_OK
             )
+
+class ImportarParticipantesNaat(View):
+    """
+    Vista para importar participantes desde NAAT Mobile. Recibe un código UDI de escuela como parámetro GET, 
+    consulta la API de NAAT, y devuelve un JSON con la información de los maestros asociados a esa escuela.
+    """
+    def limpiar_texto(self, texto):
+        if not texto:
+            return ""
+        try:
+            # Forzamos la lectura como bytes Latin-1 y lo decodificamos a UTF-8
+            texto_limpio = texto.encode('latin-1').decode('utf-8')
+        except (UnicodeEncodeError, UnicodeDecodeError):
+            texto_limpio = texto
+        texto_limpio = " ".join(texto_limpio.split()).title()
+        return texto_limpio
+    
+    def get(self, request, *args, **kwargs):
+        udi_escuela = request.GET.get('udi', '').strip()
+        if not udi_escuela:
+            return JsonResponse({'error': 'Debes proporcionar un código UDI.'}, status=400)
+        
+        url = getattr(settings, 'NAAT_URL')
+        token = getattr(settings, 'NAAT_TOKEN', '')
+        endpoint = 'get_maestros'
+        url = "{}{}".format(url, endpoint)
+
+        headers= {
+            'API-KEY': token
+        }
+
+        try:
+            response = requests.get(url, params={'udi': udi_escuela}, headers=headers)
+            participantes_naat = response.json()
+
+            datos_participante = []
+
+            PUESTOS = {
+                "Docente":"Maestro",
+                "Director":"Director",
+                "Supervisor Educativo":"Director departament",
+            }
+
+            ESCOLARIDADES = {
+                "Profesor de enseñanza media":"Universitario",
+                "Licenciatura con especialdad":"Universitario",
+                "Postgrados":"Posgrado",
+                "Doctorados":"Posgrado",
+            }
+
+            for participante in participantes_naat:
+                genero_naat = str(participante.get('genero', ''))
+                if genero_naat == '1':
+                    genero = "Hombre"
+                elif genero_naat == '0':
+                    genero = "Mujer"
+
+                puesto_naat = participante.get('puesto', '')
+                puesto = PUESTOS.get(puesto_naat, "Maestro") 
+                escolaridad_naat = participante.get('escolaridad', '')
+                escolaridad = ESCOLARIDADES.get(escolaridad_naat, "")
+
+                nombre = self.limpiar_texto(participante.get('nombre', ''))
+                apellido = self.limpiar_texto(participante.get('apellido', ''))
+
+                datos = {                   
+                    'apellido': apellido,
+                    'email': participante.get('correo', ''),
+                    'etnia': participante.get('etnia', ''),
+                    'genero': genero,
+                    'nombre': nombre,
+                    'dpi': participante.get('numero_identificacion', ''),
+                    'rol': puesto,
+                    'udi': participante.get('udi', ''),
+                    'escolaridad': escolaridad,
+                }
+                datos_participante.append(datos)
+            return JsonResponse(datos_participante, safe=False, status=200)
+
+        except requests.exceptions.Timeout:
+            return JsonResponse({'error': 'El servidor tardó demasiado en responder.'}, status=504)
+        except requests.exceptions.ConnectionError:
+            return JsonResponse({'error': 'No se pudo conectar con el servidor Naat.'}, status=502)
+        except ValueError:
+            return JsonResponse({'error': 'El servidor de Naat devolvió una respuesta inválida.'}, status=500)
+        except Exception as e:
+            return JsonResponse({'error': 'Error desconocido: {}'.format(str(e))}, status=500)
+        
