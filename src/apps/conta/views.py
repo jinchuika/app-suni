@@ -803,8 +803,6 @@ class InformeDesechoJson(views.APIView):
         # Validar que el rango de fechas pertenezcan a un solo período fiscal
         validar_fecha = conta_m.PeriodoFiscal.objects.filter(fecha_inicio__lte=fecha_inicio, fecha_fin__gte=fecha_fin)
         if validar_fecha.count() == 1:
-
-            # Obtener datos de Periodo Fiscal
             periodo = validar_fecha[0]
             lista_dispositivos = {}
             lista = []
@@ -818,12 +816,20 @@ class InformeDesechoJson(views.APIView):
 
             # obtener Listado de Detalles de Desecho Aplicando Filtros
             salida_detalle = inv_m.DesechoDispositivo.objects.values('desecho').filter(
-                        Q(desecho__fecha__gte=fecha_inicio),
-                        Q(desecho__fecha__lte=fecha_fin),
-                        Q(aprobado=True),
-                        Q(desecho__en_creacion=False),
-                        reduce(AND,q)
-                        ).annotate(Count('dispositivo'))           
+                Q(desecho__fecha__gte=fecha_inicio),
+                Q(desecho__fecha__lte=fecha_fin),
+                Q(aprobado=True),
+                Q(desecho__en_creacion=False),
+                reduce(AND,q)
+                ).annotate(Count('dispositivo'))
+
+            dispositivos_desecho = inv_m.DesechoSolicitud.objects.values('desecho').filter(
+                Q(desecho__fecha__gte=fecha_inicio),
+                Q(desecho__fecha__lte=fecha_fin),
+                Q(aprobado=True),
+                Q(desecho__en_creacion=False),
+                reduce(AND,q)
+                ).annotate(Count('dispositivo'))       
 
             # Obtener Existencia Inicial y Saldo Inicial
             fecha_inicial = datetime.strptime(fecha_inicio, '%Y-%m-%d') - timedelta(days=1)
@@ -843,21 +849,25 @@ class InformeDesechoJson(views.APIView):
                 cantidad = datos_desecho['dispositivo__count']
                 dispositivo = {}
                 salida_dispositivo = inv_m.DesechoDispositivo.objects.filter(desecho=salida,dispositivo__tipo=tipo_dispositivo_nombre)
-                print(salida_dispositivo)
 
-                # Obtener Precio Estandar
-                precio = conta_m.PrecioEstandar.objects.get(
-                    tipo_dispositivo=tipo_dispositivo,
-                    periodo=periodo,
-                    inventario="dispositivo").precio
+                precio_acumulado = 0
+                for dispo in salida_dispositivo:
+                    try: 
+                        precio = conta_m.PrecioDispositivo.objects.get(
+                        dispositivo=dispo.dispositivo,
+                        activo=True,
+                        ).precio
+                        precio_acumulado = precio_acumulado + precio
+                    except:
+                        print("No se encontró precio para el dispositivo con triage: ", dispo.dispositivo.triage)
 
                 dispositivo['fecha'] = salida.fecha
                 dispositivo['id'] = salida.id
                 dispositivo['url'] = salida.get_absolute_url()
                 dispositivo['util'] = cantidad
-                dispositivo['precio'] = precio
+                dispositivo['precio'] = ("N/A")
                 dispositivo['recolectora'] = salida.empresa.nombre
-                dispositivo['total'] = cantidad * precio
+                dispositivo['total'] = precio_acumulado
                 dispositivo['total_costo'] = precio_total_anterior
                 dispositivo['total_final'] = existencia_anterior
                 dispositivo['rango_fechas'] = str(fecha_inicio)+"  AL  "+str(fecha_fin)
@@ -865,6 +875,41 @@ class InformeDesechoJson(views.APIView):
                 dispositivo['total_costo_despues'] = precio_total
                 dispositivo['total_despues'] = existencia_actual  
                 lista.append(dispositivo)
+
+
+            if fecha_inicio >= '2025-01-01':
+                for datos_desecho in dispositivos_desecho:                
+                    salida = inv_m.DesechoSalida.objects.get(pk=datos_desecho['desecho'])
+                    cantidad = datos_desecho['dispositivo__count']
+                    dispositivo = {}
+                    salida_dispositivo = inv_m.DesechoSolicitud.objects.filter(desecho=salida,dispositivo__tipo=tipo_dispositivo_nombre)
+
+                    precio_acumulado = 0
+                    for dispo in salida_dispositivo:
+                        try: 
+                            precio = conta_m.PrecioDispositivo.objects.get(
+                            dispositivo=dispo.dispositivo,
+                            activo=True,
+                            ).precio
+                            precio_acumulado = precio_acumulado + precio
+                        except:
+                            print("No se encontró precio para el dispositivo con triage: ", dispo.dispositivo.triage)
+                    print("Precio acumulado: ", precio_acumulado)
+                    dispositivo['fecha'] = salida.fecha
+                    dispositivo['id'] = salida.id
+                    dispositivo['url'] = salida.get_absolute_url()
+                    dispositivo['util'] = cantidad
+                    dispositivo['precio'] = ("N/A")
+                    dispositivo['recolectora'] = salida.empresa.nombre
+                    dispositivo['total'] = precio_acumulado
+                    dispositivo['total_costo'] = precio_total_anterior
+                    dispositivo['total_final'] = existencia_anterior
+                    dispositivo['rango_fechas'] = str(fecha_inicio)+"  AL  "+str(fecha_fin)
+                    dispositivo['tipo_dispositivo'] = tipo_dispositivo_nombre.tipo
+                    dispositivo['total_costo_despues'] = precio_total
+                    dispositivo['total_despues'] = existencia_actual  
+                    lista.append(dispositivo)
+                    
             return Response(lista)
         else:
             print("No existe en el periodo fiscal")
