@@ -46,14 +46,13 @@
 									<th>FECHA</th>
 									<th colspan="2">EXISTENCIA INICIAL</th>
 									{% if request.user|has_group:"inv_conta" %}
-									<th colspan="2">SALDO INICIAL</th>
+									<th >SALDO INICIAL</th>
 									{% endif %}
 								</tr>
 								<tr>
 									<th>Fecha</th>
 									<th>Salida</th>
 									<th>Cantidad</th>
-									<th>Precio</th>
 									<th>Total</th>
 									<th>Recolectora</th>
 								</tr>
@@ -62,7 +61,7 @@
 							</tbody>
 							<tfoot style="font-size:large">
 								<th>EXISTENCIA FINAL</th>
-								<th colspan="2">CANTIDAD TOTAL</th>
+								<th>CANTIDAD TOTAL</th>
 								{% if request.user|has_group:"inv_conta" %}
 								<th colspan="2">TOTAL</th>
 								<th>SALDO FINAL</th>

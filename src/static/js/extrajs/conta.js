@@ -399,9 +399,6 @@ class DesechoInforme {
           return "<a href="+full.url+">"+full.id+"</a>";
         }},
         {data: "util"},
-        {data: "precio", render: function(data, type, full, meta){
-          return parseFloat(full.precio).toLocaleString('en');
-        }},
         {data: "total", render: function(data, type, full, meta){
           return parseFloat(full.total).toLocaleString('en');
         }},
