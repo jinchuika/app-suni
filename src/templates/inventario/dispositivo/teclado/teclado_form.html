@@ -4,6 +4,18 @@
 <title>Teclado</title>
 {% endblock page_title %}
 {% block content %}
+<style>
+    .bloqueado {
+        background-color: #e9ecef;
+        pointer-events: none; 
+        cursor: not-allowed;
+    }
+    .select2-container--disabled, 
+    .select2-container.bloqueado-visual { 
+        pointer-events: none; 
+        opacity: 0.6;
+    }
+</style>
 {% if object.estado.id == 1 or object.estado.id == 2  and object.etapa.id == 1 or object.etapa.id == 2 or object.etapa.id == 3 %}
 <section class="content">
   <div class="container-fluid">

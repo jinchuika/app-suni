@@ -1630,7 +1630,7 @@ CalendarioCyD.init = function () {
             allowInvalid: true},
             {data: 'nombre'},
             {data: 'apellido'},
-            {
+            {data: 'genero',
                 type: 'handsontable',
                 strict: true,
                 handsontable: {
@@ -1642,7 +1642,7 @@ CalendarioCyD.init = function () {
                     }
                 }
             },
-            {
+            {data: 'rol',
                 type: 'handsontable',
                 strict: true,
                 handsontable: {
@@ -1657,28 +1657,30 @@ CalendarioCyD.init = function () {
             },
             {data: 'email', validator: email_validator, allowInvalid: true},
             {data: 'tel_movil'},
-            {type: 'handsontable',
-            strict: true,
-            handsontable: {
-                autoColumnSize: true,
-                data: etnia_list,
-               
-                getValue: function () {
-                    var selection = this.getSelected();
-                    return this.getSourceDataAtRow(selection[0]).etnia;
-                }
+            {data: 'etnia',
+                type: 'handsontable',
+                strict: true,
+                handsontable: {
+                    autoColumnSize: true,
+                    data: etnia_list,
+                
+                    getValue: function () {
+                        var selection = this.getSelected();
+                        return this.getSourceDataAtRow(selection[0]).etnia;
+                    }
             }},
-            {type: 'handsontable',
-            strict: true,
-            handsontable: {
-                autoColumnSize: true,
-                data: escolaridad_list,
-               
-                getValue: function () {
-                    var selection = this.getSelected();
-                    return this.getSourceDataAtRow(selection[0]).escolaridad;
-                }
-            }},
+            {data: 'escolaridad',
+                type: 'handsontable',
+                strict: true,
+                handsontable: {
+                    autoColumnSize: true,
+                    data: escolaridad_list,
+                
+                    getValue: function () {
+                        var selection = this.getSelected();
+                        return this.getSourceDataAtRow(selection[0]).escolaridad;
+                    }
+                }},
             {type: 'handsontable',
             strict: true,
             handsontable: {
@@ -1775,7 +1777,52 @@ CalendarioCyD.init = function () {
             tabla_importar.updateSettings({
                 data : []
             });
-        })
+        })        
+        
+        $('#btn-naat').on('click', function (e) {
+            e.preventDefault();
+            var url = $(this).data('url'); 
+
+            bootbox.prompt({
+                title: "Importar participantes desde NAAT Mobile",
+                inputType: 'text',
+                placeholder: "Ingresa el Código UDI...",
+                callback: function (udi_ingresado) {
+                    
+                    if (udi_ingresado === null || udi_ingresado.trim() === "") {
+                        return;
+                    }
+
+                    Pace.restart(); 
+                    
+                    $.ajax({
+                        url: url,
+                        type: 'GET',
+                        data: { udi: udi_ingresado },
+                        dataType: 'json',
+                        success: function(response) {
+                            if (response.error) {
+                                bootbox.alert(response.error);
+                                return;
+                            }
+
+                            if (response.length > 0) {
+                                tabla_importar.loadData(response);
+                                bootbox.alert({
+                                    message: "<h3><i class='fa fa-check'></i> Éxito</h3><br>Datos cargados correctamente.",
+                                    className: "modal modal-success fade"
+                                });
+                            } else {
+                                bootbox.alert("No se encontraron datos para ese UDI.");
+                            }
+                        },
+                        error: function(xhr) {
+                            bootbox.alert("Error al comunicarse con el servidor.");
+                        }
+                    });
+                }
+            });
+        });
     }
 }( window.ParticipanteImportar = window.ParticipanteImportar || {}, jQuery ));
 
