@@ -327,7 +327,29 @@ class RastreoRepuestoInformeForm(forms.Form):
         required=False,
         widget=forms.TextInput(attrs={'class': 'form-control datepicker'}))
    
+class UtilDesechoInformeForm(forms.Form):
+    """Este Formulario se encarga de enviar los filtros para  su respectivo informe de Resumen
+    """
+    salida = forms.ModelMultipleChoiceField(
+        queryset=inv_m.DesechoSalida.objects.all(),
+        label='No. Desecho',
+        required=False,
+        widget=forms.SelectMultiple(attrs={'class': 'form-control select2'}))  
     
+    tipo_dispositivo = forms.ModelMultipleChoiceField(
+        queryset=inv_m.DispositivoTipo.objects.all(),
+        label='Dispositivo',
+        required=False,
+        widget=forms.SelectMultiple(attrs={'class': 'form-control select2'}))
+    
+    fecha_min = forms.CharField(
+        label='Fecha Desecho (min)',
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-control datepicker'}))
+    fecha_max = forms.CharField(
+        label='Fecha Desecho (max)',
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-control datepicker'}))
 
 
 ##Formularios de BEQT
