@@ -26,6 +26,7 @@ var protector= [];
 var grid;
 var grid;
 var urldispositivo = $("#grid_id").data("url");
+var en_creacion = $("#grid_id").data("en_creacion");
 //Peticion   de los datos que se van a mostrar en el grid y asi poder actualizarlos
  $.ajax({
             type: "POST",
@@ -107,336 +108,121 @@ var urldispositivo = $("#grid_id").data("url");
                     if (name =="Regulador"){                      
                       name ="Con regulador";
                     }
-                    //Creacion de los encabezados y obtenecion de la linea que se modifico en el grid
-                   if(name=="Triage"){
-                     encabezado.push({title:name,name:token_sin,
-                       onBeforeChange: function(ev){
-                                 console.log('Before change:' + ev);
-                             },
-                             onAfterChange: function(ev){
-                               console.log('After change:' + ev);
-                               linea.push(ev.rowKey);
-                             },});
-                   }else{
-                     if(name !="Marca"){
-                       if(name =="Puerto"){
-                         encabezado.push({title:name,name:token_sin,
-                           onBeforeChange: function(ev){
-                                     console.log('Before change:' + ev);
-                                 },
-                                 onAfterChange: function(ev){
-                                   console.log('After change:' + ev);
-                                   linea.push(ev.rowKey);
-                                 }, editOptions: {
-                                 type: 'select',
-                                 listItems:puertos,
-                                 useViewMode: true
-                             },
-                             copyOptions:{
-                               useListItemText:true
-                             },
-                             component :{
-                               name:'select2'
-                             }});
+                        var columna = {
+                            title: name,
+                            name: token_sin,
+                            onBeforeChange: function(ev) { console.log('Before change:' + ev); },
+                            onAfterChange: function(ev) { 
+                                console.log('After change:' + ev);
+                                linea.push(ev.rowKey);
+                            }
+                        };
 
-                       }else{
-                         if(name == "Velocidad medida"){
-                           encabezado.push({title:name,name:token_sin,
-                             onBeforeChange: function(ev){
-                                       console.log('Before change:' + ev);
-                                   },
-                                   onAfterChange: function(ev){
-                                     console.log('After change:' + ev);
-                                     linea.push(ev.rowKey);
-                                   }, editOptions: {
-                                   type: 'select',
-                                   listItems:new_velocidad,
-                                   useViewMode: true
-                               },
-                               copyOptions:{
-                                 useListItemText:true
-                               },
-                               component :{
-                                 name:'select2'
-                               }});
-                         }else{
-                           if(name == "Version Sistema"){
-                             encabezado.push({title:name,name:token_sin,
-                               onBeforeChange: function(ev){
-                                         console.log('Before change:' + ev);
-                                     },
-                                     onAfterChange: function(ev){
-                                       console.log('After change:' + ev);
-                                       linea.push(ev.rowKey);
-                                     }, editOptions: {
-                                     type: 'select',
-                                     listItems:sistema,
-                                     useViewMode: true
-                                 },
-                                 copyOptions:{
-                                   useListItemText:true
-                                 },
-                                 component :{
-                                   name:'select2'
-                                 }});
+                        switch (name) {
+                            case "Triage":
+                                break;
 
-                           }else{
-                             if(name=="Medida ram" || name=="Medida"){
-                               encabezado.push({title:name,name:token_sin,
-                                 onBeforeChange: function(ev){
-                                           console.log('Before change:' + ev);
-                                       },
-                                       onAfterChange: function(ev){
-                                         console.log('After change:' + ev);
-                                         linea.push(ev.rowKey);
-                                       }, editOptions: {
-                                       type: 'select',
-                                       listItems:new_velocidad,
-                                       useViewMode: true
-                                   },
-                                   copyOptions:{
-                                     useListItemText:true
-                                   },
-                                   component :{
-                                     name:'select2'
-                                   }});
-                             }else{
-                               if(name=="Procesador"){
-                                 encabezado.push({title:name,name:token_sin,
-                                   onBeforeChange: function(ev){
-                                             console.log('Before change:' + ev);
-                                         },
-                                         onAfterChange: function(ev){
-                                           console.log('After change:' + ev);
-                                           linea.push(ev.rowKey);
-                                         },
-                                         editOptions: {
-                                         type: 'select',
-                                         listItems:procesador,
-                                         useViewMode: true
-                                     },
-                                     copyOptions:{
-                                       useListItemText:true
-                                     },
-                                     component :{
-                                       name:'select2'
-                                     }});
+                            case "Marca":
+                                if (en_creacion) {
+                                    columna.editOptions = {
+                                        type: 'select',
+                                        listItems: new_marcas, 
+                                        useViewMode: true
+                                    };
+                                    columna.component = { name: 'select2' };
+                                }
+                                break;
 
-                               }else{
-                                 if(name=="Disco duro"){
-                                   encabezado.push({title:name,name:token_sin,
-                                     onBeforeChange: function(ev){
-                                               console.log('Before change:' + ev);
-                                           },
-                                           onAfterChange: function(ev){
-                                             console.log('After change:' + ev);
-                                             linea.push(ev.rowKey);
-                                           }, editOptions: {
-                                           type: 'select',
-                                           listItems:hdd,
-                                           useViewMode: true
-                                       },
-                                       copyOptions:{
-                                         useListItemText:true
-                                       },
-                                       component :{
-                                         name:'select2'
-                                       }});
-                                 }else{
-                                   if(name=="Tipo monitor"){
-                                     encabezado.push({title:name,name:token_sin,
-                                       onBeforeChange: function(ev){
-                                                 console.log('Before change:' + ev);
-                                             },
-                                             onAfterChange: function(ev){
-                                               console.log('After change:' + ev);
-                                               linea.push(ev.rowKey);
-                                             }, editOptions: {
-                                             type: 'select',
-                                             listItems:tipos_monitores,
-                                             useViewMode: true
-                                         },
-                                         copyOptions:{
-                                           useListItemText:true
-                                         },
-                                         component :{
-                                           name:'select2'
-                                         }});
-                                   }else{
-                                     if(name=="Sistema Operativo"){
-                                       encabezado.push({title:name,name:token_sin,
-                                         onBeforeChange: function(ev){
-                                                   console.log('Before change:' + ev);
-                                               },
-                                               onAfterChange: function(ev){
-                                                 console.log('After change:' + ev);
-                                                 linea.push(ev.rowKey);
-                                               }, editOptions: {
-                                               type: 'select',
-                                               listItems:os,
-                                               useViewMode: true
-                                           },
-                                           copyOptions:{
-                                             useListItemText:true
-                                           },
-                                           component :{
-                                             name:'select2'
-                                           }});
-                                     }else{
-                                       if(name=="Servidor" || name=="All in one" || name=="Externo"){
-                                         encabezado.push({title:name,name:token_sin,
-                                                onBeforeChange: function(ev){
-                                                     console.log('Before change:' + ev);
-                                                 },
-                                                 onAfterChange: function(ev){
-                                                   console.log('After change:' + ev);
-                                                   linea.push(ev.rowKey);
-                                                 }, editOptions: {
-                                               type: 'checkbox',
-                                               listItems:[{text:"Si",value:'true'}],
-                                               useViewMode: false
-                                             }});
-                                       }else{
-                                        if(name=="Con regulador"){
-                                          encabezado.push({title:name,name:token_sin,
-                                                 onBeforeChange: function(ev){
-                                                      console.log('Before change:' + ev);
-                                                  },
-                                                  onAfterChange: function(ev){
-                                                    console.log('After change:' + ev);
-                                                    linea.push(ev.rowKey);
-                                                  }, editOptions: {
-                                                type: 'checkbox',
-                                                listItems:[{text:"Si",value:'true'}],
-                                                useViewMode: false
-                                              }});
-                                       }else{
-                                         if(name=="Clase"){
-                                           encabezado.push({title:name,name:token_sin,
-                                                  onBeforeChange: function(ev){
-                                                       console.log('Before change:' + ev);
-                                                   },
-                                                   onAfterChange: function(ev){
-                                                     console.log('After change:' + ev);
-                                                     linea.push(ev.rowKey);
-                                                   }, editOptions: {
-                                                 type: 'select',
-                                                 listItems:[{text:"A",value:1},{text:"B",value:2},{text:"C",value:3}],
-                                                 useViewMode: true
-                                               }});
-                                         }else{
-                                          if(name=="Cargador"){
-                                            encabezado.push({title:name,name:token_sin,
-                                              onBeforeChange: function(ev){
-                                                        console.log('Before change:' + ev);
-                                                    },
-                                                    onAfterChange: function(ev){
-                                                      console.log('After change:' + ev);
-                                                      linea.push(ev.rowKey);
-                                                    }, editOptions: {
-                                                    type: 'select',
-                                                    listItems:cargador,
-                                                    useViewMode: true
-                                                },
-                                                copyOptions:{
-                                                  useListItemText:true
-                                                },
-                                                component :{
-                                                  name:'select2'
-                                                }});
-                                            }else{
-                                                /* */
-                                                if(name=="Estuche"){
-                                                  encabezado.push({title:name,name:token_sin,
-                                                    onBeforeChange: function(ev){
-                                                              console.log('Before change:' + ev);
-                                                          },
-                                                          onAfterChange: function(ev){
-                                                            console.log('After change:' + ev);
-                                                            linea.push(ev.rowKey);
-                                                          }, editOptions: {
-                                                          type: 'select',
-                                                          listItems:estuche,
-                                                          useViewMode: true
-                                                      },
-                                                      copyOptions:{
-                                                        useListItemText:true
-                                                      },
-                                                      component :{
-                                                        name:'select2'
-                                                      }});
-                                                      
-                                                  }else{
-                                                    if(name=="Protector"){
-                                                      encabezado.push({title:name,name:token_sin,
-                                                        onBeforeChange: function(ev){
-                                                                  console.log('Before change:' + ev);
-                                                              },
-                                                              onAfterChange: function(ev){
-                                                                console.log('After change:' + ev);
-                                                                linea.push(ev.rowKey);
-                                                              }, editOptions: {
-                                                              type: 'select',
-                                                              listItems:protector,
-                                                              useViewMode: true
-                                                          },
-                                                          copyOptions:{
-                                                            useListItemText:true
-                                                          },
-                                                          component :{
-                                                            name:'select2'
-                                                          }});
+                            case "Modelo":
+                            case "Serie":
+                                if (en_creacion) {
+                                    columna.editOptions = {
+                                        type: 'text',
+                                        maxLength: 50,
+                                        useViewMode: false
+                                    };
+                                }
+                                break;
 
-                                                      }else{
+                            case "Puerto":
+                                configurarSelect(columna, puertos);
+                                break;
 
-                                                    if(name!=""){
-                                                      encabezado.push({title:name,name:token_sin,
-                                                             onBeforeChange: function(ev){
-                                                                  console.log('Before change:' + ev);
-                                                              },
-                                                              onAfterChange: function(ev){
-                                                                console.log('After change:' + ev);
-                                                                linea.push(ev.rowKey);
-                                                              }, editOptions: {
-                                                            type: 'text',
-                                                            maxLength: 50,
-                                                            useViewMode: false
-                                                          }});
-                                                           }
-                                                  }
+                            case "Velocidad medida":
+                            case "Medida ram":
+                            case "Medida":
+                                configurarSelect(columna, new_velocidad);
+                                break;
 
-                                                /**/
-                                                }
-                                            }                                  
-                                           
+                            case "Version Sistema":
+                                configurarSelect(columna, sistema);
+                                break;
 
-                                                  }
-                                                }
-                                             }
-                                         }
-                                       }
-                                     }
-                                   }
-                                 }
-                               }
-                           }
-                       }
-                     }else{
-                         encabezado.push({title:name,name:token_sin,
-                                onBeforeChange: function(ev){
-                                     console.log('Before change:' + ev);
-                                 },
-                                 onAfterChange: function(ev){
-                                   console.log('After change:' + ev);
-                                   linea.push(ev.rowKey);
-                                 }, editOptions: {
-                                 type: 'select',
-                                 listItems:new_marcas,
-                                 useViewMode:true
-                             }
-                            });
-                           }
-                         }
+                            case "Procesador":
+                                configurarSelect(columna, procesador);
+                                break;
+
+                            case "Disco duro":
+                                configurarSelect(columna, hdd);
+                                break;
+
+                            case "Tipo monitor":
+                                configurarSelect(columna, tipos_monitores);
+                                break;
+
+                            case "Sistema Operativo":
+                                configurarSelect(columna, os);
+                                break;
+                            
+                            case "Cargador":
+                                configurarSelect(columna, cargador);
+                                break;
+
+                            case "Estuche":
+                                configurarSelect(columna, estuche);
+                                break;
+
+                            case "Protector":
+                                configurarSelect(columna, protector);
+                                break;
+
+                            case "Clase":
+                                columna.editOptions = {
+                                    type: 'select',
+                                    listItems: [{text:"A",value:1}, {text:"B",value:2}, {text:"C",value:3}],
+                                    useViewMode: true
+                                };
+                                break;
+
+                            case "Servidor":
+                            case "All in one":
+                            case "Externo":
+                            case "Con regulador":
+                                columna.editOptions = {
+                                    type: 'checkbox',
+                                    listItems: [{text:"Si", value:'true'}],
+                                    useViewMode: false
+                                };
+                                break;
+
+                            default:
+                                if (name !== "") {
+                                    columna.editOptions = {
+                                        type: 'text',
+                                        maxLength: 50,
+                                        useViewMode: false
+                                    };
+                                }
+                                break;
+                        }
+                        if (name !== "") {
+                            encabezado.push(columna);
+                        }
+                        function configurarSelect(col, listaItems) {
+                            col.editOptions = { type: 'select', listItems: listaItems, useViewMode: true };
+                            col.copyOptions = { useListItemText: true };
+                            col.component = { name: 'select2' };
+                        }
                        }
                      }//fin del for
                      //majeno de errores al momento que no vengan campos de los dispositivos

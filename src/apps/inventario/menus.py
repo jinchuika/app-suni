@@ -47,7 +47,7 @@ solicitudes_children = (
         "Util -> Desecho",
         reverse_lazy('solicitudmovimiento_desecho_add'),
         weight=12,
-        group="inv_cc,inv_tecnico",
+        group="inv_desecho",
         icon="fa-recycle",
     ),
 )
