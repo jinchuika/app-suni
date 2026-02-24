@@ -370,7 +370,7 @@ class DesechoInforme {
       var api = this.api();
         for (var i in data){
           $(tfoot).find('th').eq(0).html( "CANTIDAD TOTAL: "+ parseFloat(api.column(2, {page: 'current'}).data().sum() ).toLocaleString('en'));
-          $(tfoot).find('th').eq(1).html( "TOTAL: "+ parseFloat(api.column(4, {page: 'current'}).data().sum() ).toLocaleString('en'));
+          $(tfoot).find('th').eq(1).html( "TOTAL: "+ parseFloat(api.column(3, {page: 'current'}).data().sum() ).toLocaleString('en'));
         };
       },
       dom: 'Bfrtip',
