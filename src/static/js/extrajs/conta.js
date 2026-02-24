@@ -363,18 +363,14 @@ class DesechoInforme {
       for(var i in data){
         $(thead).find('th').eq(0).html( data[i].tipo_dispositivo );
         $(thead).find('th').eq(1).html( data[i].rango_fechas);
-        $(thead).find('th').eq(2).html( "EXISTENCIA INICIAL: "+ parseFloat(data[i].total_final).toLocaleString('en') );
-        $(thead).find('th').eq(3).html( "SALDO INICIAL: " + parseFloat(data[i].total_costo).toLocaleString('en') );
       };
 
     },
     footerCallback: function( tfoot, data, start, end, display){
       var api = this.api();
         for (var i in data){
-          $(tfoot).find('th').eq(0).html( "EXISTENCIA FINAL: "+ parseFloat(data[i].total_despues).toLocaleString('en') );
-          $(tfoot).find('th').eq(1).html( "CANTIDAD TOTAL: "+ parseFloat(api.column(2, {page: 'current'}).data().sum() ).toLocaleString('en'));
-          $(tfoot).find('th').eq(2).html( "TOTAL: "+ parseFloat(api.column(4, {page: 'current'}).data().sum() ).toLocaleString('en'));
-          $(tfoot).find('th').eq(3).html( "SALDO FINAL: "+ parseFloat(data[i].total_costo_despues).toLocaleString('en') );
+          $(tfoot).find('th').eq(0).html( "CANTIDAD TOTAL: "+ parseFloat(api.column(2, {page: 'current'}).data().sum() ).toLocaleString('en'));
+          $(tfoot).find('th').eq(1).html( "TOTAL: "+ parseFloat(api.column(3, {page: 'current'}).data().sum() ).toLocaleString('en'));
         };
       },
       dom: 'Bfrtip',
@@ -399,9 +395,6 @@ class DesechoInforme {
           return "<a href="+full.url+">"+full.id+"</a>";
         }},
         {data: "util"},
-        {data: "precio", render: function(data, type, full, meta){
-          return parseFloat(full.precio).toLocaleString('en');
-        }},
         {data: "total", render: function(data, type, full, meta){
           return parseFloat(full.total).toLocaleString('en');
         }},

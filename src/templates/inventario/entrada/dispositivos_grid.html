@@ -12,7 +12,10 @@
         <link rel="stylesheet" type="text/css" href="{% static "css/bootstrap.min.css" %}">
 
   <body>
-      <div id="grid_id" class="code-html contents"  data-url="{%url 'inventario_api:api_dispositivopaquete-actualizar-dispositivos'%}" data-dispo="{%url 'inventario_api:api_detalles-nuevo-grid'%}" data-id={{object.id}}  >
+      <div id="grid_id" class="code-html contents"  
+      data-url="{%url 'inventario_api:api_dispositivopaquete-actualizar-dispositivos'%}"
+      data-dispo="{%url 'inventario_api:api_detalles-nuevo-grid'%}" data-id={{object.id}}
+      data-en_creacion={{en_creacion|lower}}>
         {%csrf_token%}
         <div id="grid"></div>
         <button  onclick="actualizar_post()" class="btn btn-success">Guardar</button>
