@@ -42,8 +42,17 @@
 						<table class="table table-datatables table-striped table-hover table-bordered" id="precioestandar-table" data-api="{%url 'contabilidad_api_desecho'%}">
 							<thead>
 								<tr style="font-size:large; background-color: darkslategrey; color: white;">
+<<<<<<< dev_aux
+									<th>DISPOSITVO</th>
+									<th>FECHA</th>
+									<th colspan="2">EXISTENCIA INICIAL</th>
+									{% if request.user|has_group:"inv_conta" %}
+									<th >SALDO INICIAL</th>
+									{% endif %}
+=======
 									<th>DISPOSITIVO</th>
 									<th colspan="2">FECHA</th>
+>>>>>>> dev
 								</tr>
 								<tr>
 									<th>Fecha</th>
@@ -56,7 +65,12 @@
 							<tbody>
 							</tbody>
 							<tfoot style="font-size:large">
+<<<<<<< dev_aux
+								<th>EXISTENCIA FINAL</th>
+								<th>CANTIDAD TOTAL</th>
+=======
 								<th colspan="3">CANTIDAD TOTAL</th>
+>>>>>>> dev
 								{% if request.user|has_group:"inv_conta" %}
 								<th colspan="2">TOTAL</th>
 								{% endif %}
