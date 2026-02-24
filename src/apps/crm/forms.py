@@ -4,6 +4,7 @@ from django.forms import ModelForm
 from django.contrib.auth.models import User
 
 from apps.crm import models as crm_m
+from apps.inventario import models as inv_m
 
 
 class DonanteForm(forms.ModelForm):
@@ -114,3 +115,24 @@ class CorreoForm(forms.ModelForm):
             qs_contacto = self.fields['contacto'].queryset
             qs_correo_contacto = qs_contacto.filter(donante=self.initial['donante'])
             self.fields['contacto'].queryset = qs_correo_contacto
+
+class InformeGatosDonantesForm(forms.Form):
+    donante = forms.ModelChoiceField(
+        queryset=crm_m.Donante.objects.all(),
+        label='Proveedor',
+        widget=forms.Select(attrs={'class': 'form-control'}),
+        required=False)
+    tipo_dispositivo = forms.ModelMultipleChoiceField(
+        queryset=inv_m.DispositivoTipo.objects.all(),
+        label='Tipo de Dispositivo',
+        required=False,
+        widget=forms.SelectMultiple(attrs={'class': 'select2 form-control'}))
+
+    fecha_min = forms.CharField(
+        label='Fecha (min)',
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-control datepicker'}))
+    fecha_max = forms.CharField(
+        label='Fecha (max)',
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-control datepicker'}))

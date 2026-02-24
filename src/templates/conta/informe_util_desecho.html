@@ -2,7 +2,7 @@
 {% load staticfiles %}
 {% load staticfiles has_group %}
 {% block page_title %}
-<title>Salidas por Desecho </title>
+<title>Informe util a desecho </title>
 {% endblock page_title %}
 {% block content %}
 <section class="content">
@@ -11,7 +11,7 @@
 			<!-- Comienza el formulario -->
 		<div class="col-md-3 col-sm-3">
 			<div class="box">
-				<form action="" id="precioestandar-list-form">
+				<form action="{%url 'informe_util_desecho_api'%}" id="util-desecho-list-form">
 					<div class="box-header">
 						<input type="submit" class="btn btn-primary col-md-12" value="Generar Informe" /><br />
 						<h3 class="box-title">Filtros</h3>
@@ -32,49 +32,34 @@
 					<div class="box-header">
 						<div class="row">
 							<div class="col-md-9">
-								<h3 class="box-title">Salidas por Desecho </h3>
+								<h3 class="box-title">Listado de dispositivos de util a desecho </h3>
 							</div>
 							<div class="col-md-3">
 							</div>
 						</div>
 					</div>
-					<div class="box-body">
-						<table class="table table-datatables table-striped table-hover table-bordered" id="precioestandar-table" data-api="{%url 'contabilidad_api_desecho'%}">
-							<thead>
-								<tr style="font-size:large; background-color: darkslategrey; color: white;">
-<<<<<<< dev_aux
-									<th>DISPOSITVO</th>
-									<th>FECHA</th>
-									<th colspan="2">EXISTENCIA INICIAL</th>
-									{% if request.user|has_group:"inv_conta" %}
-									<th >SALDO INICIAL</th>
-									{% endif %}
-=======
-									<th>DISPOSITIVO</th>
-									<th colspan="2">FECHA</th>
->>>>>>> dev
-								</tr>
+					<div class="box-body table-responsive ">
+						<table class="table table-datatables table-striped table-hover table-bordered " id="util-desecho-table" >
+							<thead> 
 								<tr>
-									<th>Fecha</th>
-									<th>Salida</th>
-									<th>Cantidad</th>
-									<th>Total</th>
-									<th>Recolectora</th>
+								<th>No.</th>
+								<th>Salida de desecho</th>								
+								<th>Triage</th>								
+								<th>Tipo dispositivo </th>
+								<th>Precio total</th>
+								<th>Empresa</th>
+								<th>Fecha de salida</th>
+								<th></th>
 								</tr>
 							</thead>
 							<tbody>
+								<tfoot style="font-size:large">
+									<th colspan="2">CANTIDAD DE DISPOSITIVOS:</th>
+									
+									<th colspan="2">ACUMULADO DE PRECIO</th>
+									
+								</tfoot>
 							</tbody>
-							<tfoot style="font-size:large">
-<<<<<<< dev_aux
-								<th>EXISTENCIA FINAL</th>
-								<th>CANTIDAD TOTAL</th>
-=======
-								<th colspan="3">CANTIDAD TOTAL</th>
->>>>>>> dev
-								{% if request.user|has_group:"inv_conta" %}
-								<th colspan="2">TOTAL</th>
-								{% endif %}
-							</tfoot>
 						</table>
 					</div>
 				</div>
@@ -87,6 +72,6 @@
 {% include "base/dataTables.html" %}
 <script src="{% static "js/extrajs/conta.js" %}"></script>
 <script>
-	let salida = new DesechoInforme();
-	</script>
+  let rastreo_desecho = new UtilDesechoInforme();
+</script>
 {% endblock extra_js %}

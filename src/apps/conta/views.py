@@ -998,7 +998,11 @@ class InformeResumenJson(views.APIView):
                         Q(aprobado=True),
                         Q(desecho__en_creacion=False)))
 
+<<<<<<< dev_aux
                 salidas = salidas + (desecho + desecho_util)
+=======
+                salidas = (desecho + desecho_util)
+>>>>>>> dev
 
                 dispositivo['tipo'] = tipo.tipo
                 dispositivo['existencia_anterior'] = existencia_anterior
@@ -1328,6 +1332,114 @@ class RepuestoRastreoInformeView(LoginRequiredMixin, GroupRequiredMixin, FormVie
     raise_exception = True
     template_name = "conta/informe_rastreo_repuesto.html"
     form_class = conta_f.RastreoRepuestoInformeForm   
+
+class DispositivosUtilDesecho(views.APIView):
+    """ Lista todas los dispositivos  con triage que se han trasladado de util a desecho y  que han sucedido en un rango de fechas,
+    entradas, salidas, proyectos y mas .
+    """
+    def get(self, request):
+        try:
+            fecha_inicio = self.request.GET['fecha_min']
+        except:
+            fecha_inicio =0
+        try:
+            fecha_fin = self.request.GET['fecha_max']
+        except:
+            fecha_fin = 0
+         
+        try:            
+            tipo_dispositivo = [int(x) for x in self.request.GET.getlist('tipo_dispositivo[]')]
+            tipo_dispositivo_list = []
+            if len(tipo_dispositivo) == 0:
+                tipo_dispositivo = self.request.GET['tipo_dispositivo']
+                tipo_dispositivo_list.append(tipo_dispositivo)
+        except MultiValueDictKeyError as e:
+            tipo_dispositivo = 0
+
+        try:
+            salidas = [int(x) for x in self.request.GET.getlist('salida[]')]
+            list_salidas = [] 
+            if len(salidas) == 0:
+                salidas = self.request.GET['salida'] 
+                list_salidas.append(salidas)                          
+        except MultiValueDictKeyError:
+            salidas=0
+        lista = []        
+        sort_params = {}
+        contador = 0
+        if salidas == 0:
+            crear_dict.crear_dict(sort_params,'desecho__fecha__lte',fecha_fin)
+            crear_dict.crear_dict(sort_params,'desecho__fecha__gte',fecha_inicio)
+            crear_dict.crear_dict(sort_params,'aprobado',True)
+            if len(tipo_dispositivo_list)==1:
+                crear_dict.crear_dict(sort_params,'dispositivo__tipo__id',tipo_dispositivo_list.pop())                
+            else:                
+                crear_dict.crear_dict(sort_params,'dispositivo__tipo__in',tipo_dispositivo)
+            validar_salidas_desechos = inv_m.DesechoSolicitud.objects.filter(**sort_params)
+            for datos in validar_salidas_desechos:
+                    contador = contador + 1
+                    dispositivo = {}
+                    baja_dispositivo = conta_m.PrecioDispositivo.objects.filter(dispositivo=datos.dispositivo).last()
+                    dispositivo["numero"] = contador
+                    dispositivo["salida_desecho"] = datos.desecho.id
+                    dispositivo["url_salida"] = datos.desecho.get_absolute_url_detail()
+                    dispositivo["triage"] =baja_dispositivo.dispositivo.triage
+                    dispositivo["url_dispositivo"]=baja_dispositivo.dispositivo.get_absolute_url()
+                    dispositivo["precio"] =baja_dispositivo.precio
+                    dispositivo["tipo"] =baja_dispositivo.dispositivo.tipo.tipo
+                    dispositivo["empresa"] = datos.desecho.empresa.nombre
+                    dispositivo["url_empresa"]=datos.desecho.empresa.get_absolute_url_detail()
+                    dispositivo["fecha_salida"]=datos.desecho.fecha
+                    lista.append(dispositivo)
+        else:
+            if len(list_salidas)==1:
+                salidas_desechos = inv_m.DesechoSalida.objects.filter(id=salidas)    
+                crear_dict.crear_dict(sort_params,'desecho__id',list_salidas.pop())
+            else:
+                salidas_desechos = inv_m.DesechoSalida.objects.filter(id__in=salidas)    
+                crear_dict.crear_dict(sort_params,'desecho__in',salidas)
+            
+            crear_dict.crear_dict(sort_params,'desecho__fecha__lte',fecha_fin)
+            crear_dict.crear_dict(sort_params,'desecho__fecha__gte',fecha_inicio)
+            crear_dict.crear_dict(sort_params,'dispositivo__tipo',tipo_dispositivo)
+            crear_dict.crear_dict(sort_params,'aprobado',True)
+
+            #validar_salidas_desechos = inv_m.DesechoSolicitud.objects.filter(desecho__in=salidas_desechos)
+            validar_salidas_desechos = inv_m.DesechoSolicitud.objects.filter(**sort_params)            
+            if len(validar_salidas_desechos.values_list('desecho__id').distinct())==len(salidas_desechos):
+                print("Si son salidas de desecho a util")
+                for datos in validar_salidas_desechos:
+                    contador = contador + 1
+                    dispositivo = {}
+                    baja_dispositivo = conta_m.PrecioDispositivo.objects.filter(dispositivo=datos.dispositivo).last()
+                    dispositivo["numero"] = contador
+                    dispositivo["salida_desecho"] = datos.desecho.id
+                    dispositivo["url_salida"] = datos.desecho.get_absolute_url_detail()
+                    dispositivo["triage"] =baja_dispositivo.dispositivo.triage
+                    dispositivo["url_dispositivo"]=baja_dispositivo.dispositivo.get_absolute_url()
+                    dispositivo["precio"] =baja_dispositivo.precio
+                    dispositivo["tipo"] =baja_dispositivo.dispositivo.tipo.tipo
+                    dispositivo["empresa"] = datos.desecho.empresa.nombre
+                    dispositivo["url_empresa"]=datos.desecho.empresa.get_absolute_url_detail()
+                    dispositivo["fecha_salida"]=datos.desecho.fecha
+                    lista.append(dispositivo)
+            else:
+                return Response(
+                {'mensaje': 'Hay salidas que no son de desecho a util por favor revise el numero de salida de desecho'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+                #print("Hay salidas que no son de desecho a util por favor revise el numero de salida de desecho")
+        return Response(lista)
+    
+class UtilDesechoInformeView(LoginRequiredMixin, GroupRequiredMixin, FormView):
+    """ Vista para obtener la informacion de los dispositivos para crear el informe de existencia mediante un
+    api mediante el metodo GET  y lo muestra en el tempalte
+    """
+    group_required = [u"inv_conta",u"inv_admin", ]
+    redirect_unauthenticated_users = True
+    raise_exception = True
+    template_name = "conta/informe_util_desecho.html"
+    form_class = conta_f.UtilDesechoInformeForm 
 
 
 """

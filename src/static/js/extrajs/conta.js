@@ -363,18 +363,14 @@ class DesechoInforme {
       for(var i in data){
         $(thead).find('th').eq(0).html( data[i].tipo_dispositivo );
         $(thead).find('th').eq(1).html( data[i].rango_fechas);
-        $(thead).find('th').eq(2).html( "EXISTENCIA INICIAL: "+ parseFloat(data[i].total_final).toLocaleString('en') );
-        $(thead).find('th').eq(3).html( "SALDO INICIAL: " + parseFloat(data[i].total_costo).toLocaleString('en') );
       };
 
     },
     footerCallback: function( tfoot, data, start, end, display){
       var api = this.api();
         for (var i in data){
-          $(tfoot).find('th').eq(0).html( "EXISTENCIA FINAL: "+ parseFloat(data[i].total_despues).toLocaleString('en') );
-          $(tfoot).find('th').eq(1).html( "CANTIDAD TOTAL: "+ parseFloat(api.column(2, {page: 'current'}).data().sum() ).toLocaleString('en'));
-          $(tfoot).find('th').eq(2).html( "TOTAL: "+ parseFloat(api.column(4, {page: 'current'}).data().sum() ).toLocaleString('en'));
-          $(tfoot).find('th').eq(3).html( "SALDO FINAL: "+ parseFloat(data[i].total_costo_despues).toLocaleString('en') );
+          $(tfoot).find('th').eq(0).html( "CANTIDAD TOTAL: "+ parseFloat(api.column(2, {page: 'current'}).data().sum() ).toLocaleString('en'));
+          $(tfoot).find('th').eq(1).html( "TOTAL: "+ parseFloat(api.column(4, {page: 'current'}).data().sum() ).toLocaleString('en'));
         };
       },
       dom: 'Bfrtip',
@@ -813,6 +809,78 @@ class RastreoDispositivoInforme{
         }},
         {data: "codigo"}
         
+
+      ]
+    });
+    //tablaPrecio.clear().draw();
+    //tablaPrecio.ajax.reload();
+
+  });
+  }
+}
+
+class UtilDesechoInforme{
+  constructor() {
+  let rastreo_dispositivo_informe = $("#util-desecho-list-form");
+  var urlRastreo= $('#util-desecho-list-form').attr('action');
+  rastreo_dispositivo_informe.submit(function (e){
+    e.preventDefault();
+    var tablaPrecio = $('#util-desecho-table').DataTable({
+      footerCallback: function( tfoot, data, start, end, display){        
+        var costo_total = 0
+        var en_bodega  = 0
+        var total_dispo = 0
+        var acumulado_precio = 0
+        for (var i in data){
+          total_dispo = total_dispo + 1;
+          costo_total = costo_total + data[i].precio;
+          acumulado_precio = acumulado_precio + data[i].precio;
+          if (data[i].tipo_etapa==1){
+            en_bodega = en_bodega +1;
+          }     
+          
+        };
+         $(tfoot).find('th').eq(0).html( "CANTIDAD DE DISPOSITIVOS: "+ parseFloat(total_dispo).toLocaleString('en') );
+         //$(tfoot).find('th').eq(1).html( "CANTIDAD EN BODEGA: "+ parseFloat(en_bodega).toLocaleString('en'));
+         $(tfoot).find('th').eq(1).html( "ACUMULADO DE PRECIO: Q."+ parseFloat(acumulado_precio).toLocaleString('en'));
+         
+      },
+      dom: 'lfrtipB',
+      buttons: ['excel', 'pdf', 'copy'],
+      searching:true,
+      paging:false,
+      ordering:true,
+      processing:true,
+      destroy:true,
+      ajax:{
+        url:urlRastreo,
+        dataSrc:'',
+        cache:false,
+        processing:true,
+        error: function(jqXHR, textStatus, errorThrown) {           
+            var responseJSON = JSON.parse(jqXHR.responseText);
+            bootbox.alert({ message: "<h2>"+responseJSON["mensaje"]+"</h2>", className:"modal modal-info fade in" });
+        },
+        data: function () {
+          return $('#util-desecho-list-form').serializeObject(true);
+        }
+        
+      },
+      columns: [
+        {data:"numero"},
+        {data: "salida_desecho",render: function(data, type, full, meta){
+          return "<a href="+full.url_salida+">"+full.salida_desecho+"</a>";
+        }},
+        {data: "triage",render: function(data, type, full, meta){
+          console.log(full);
+          return "<a href="+full.url_dispositivo+">"+full.triage+"</a>";
+        }},
+        {data: "tipo"},
+        {data: "precio"},
+        {data: "empresa",render: function(data, type, full, meta){
+          return "<a href="+full.url_empresa+">"+full.empresa+"</a>";
+        }},
+        {data: "fecha_salida"},
 
       ]
     });
