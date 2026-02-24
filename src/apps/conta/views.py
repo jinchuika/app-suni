@@ -998,11 +998,7 @@ class InformeResumenJson(views.APIView):
                         Q(aprobado=True),
                         Q(desecho__en_creacion=False)))
 
-<<<<<<< dev_aux
                 salidas = salidas + (desecho + desecho_util)
-=======
-                salidas = (desecho + desecho_util)
->>>>>>> dev
 
                 dispositivo['tipo'] = tipo.tipo
                 dispositivo['existencia_anterior'] = existencia_anterior
