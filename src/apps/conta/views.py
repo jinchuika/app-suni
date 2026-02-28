@@ -1403,7 +1403,6 @@ class DispositivosUtilDesecho(views.APIView):
             #validar_salidas_desechos = inv_m.DesechoSolicitud.objects.filter(desecho__in=salidas_desechos)
             validar_salidas_desechos = inv_m.DesechoSolicitud.objects.filter(**sort_params)            
             if len(validar_salidas_desechos.values_list('desecho__id').distinct())==len(salidas_desechos):
-                print("Si son salidas de desecho a util")
                 for datos in validar_salidas_desechos:
                     contador = contador + 1
                     dispositivo = {}
@@ -1437,6 +1436,162 @@ class UtilDesechoInformeView(LoginRequiredMixin, GroupRequiredMixin, FormView):
     template_name = "conta/informe_util_desecho.html"
     form_class = conta_f.UtilDesechoInformeForm 
 
+class RastreoEntradaSalidaInformeView(LoginRequiredMixin, GroupRequiredMixin, FormView):
+    """ Vista para obtener la informacion de los dispositivos para crear el informe de existencia mediante un
+    api mediante el metodo GET  y lo muestra en el tempalte
+    """
+    group_required = [u"inv_conta",u"inv_admin", ]
+    redirect_unauthenticated_users = True
+    template_name = "conta/informe_rastreo_entrada_salida.html"
+    form_class = conta_f.RastreoEntradaSalidaInformeForm 
+
+class RastreoEntradaSalidaAPI(views.APIView):
+    """ Lista todas los dispositivos  con triage que se han trasladado de util a desecho y  que han sucedido en un rango de fechas,
+    entradas, salidas, proyectos y mas .
+    """
+    def get(self, request):
+        ### OBTENER LOS DATOS DEL REQUEST
+        try:
+            fecha_inicio = self.request.GET['fecha_min']
+        except:
+            fecha_inicio =0
+        try:
+            fecha_fin = self.request.GET['fecha_max']
+        except:
+            fecha_fin = 0
+        try:            
+            tipo_dispositivo = self.request.GET['tipo_dispositivo']
+        except:
+            return Response(
+                {'mensaje': 'Problemas con el tipo de dispositivo'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        try:    
+            validar_fecha = conta_m.PeriodoFiscal.objects.filter(fecha_inicio__lte=fecha_inicio, fecha_fin__gte=fecha_fin)
+            if validar_fecha.count() == 1:
+                periodo = validar_fecha[0]
+                totales_anterior = get_existencia(tipo_dispositivo, fecha_inicio, periodo)
+                saldo_inicial = totales_anterior.get('existencia', 0)
+                print(saldo_inicial)
+        except Exception as e: 
+            return Response(
+                {'mensaje': 'Las fechas no pertenecen a un mismo periodo de tiempo'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+            
+        lista = []
+        ### OBTENER DISPOSITIVOS CON MOVIMEINTOS DE ENTRADA
+        entrada_detalle = inv_m.EntradaDetalle.objects.filter(
+            Q(fecha_dispositivo__gte=fecha_inicio),
+            Q(fecha_dispositivo__lte=fecha_fin),
+            Q(tipo_dispositivo__in = tipo_dispositivo),
+            Q(util__gt = 0),
+            ).exclude(entrada__tipo__nombre='Especial')
+        
+        for detalle in entrada_detalle:
+            data = {}
+            data["fecha"] = detalle.fecha_dispositivo
+            data["tipo_dispositivo"] = detalle.tipo_dispositivo.tipo
+            data["movimiento"] = "Entrada"
+            data["movimiento_referencia"] = detalle.entrada.id
+            data["movimiento_referencia_url"] = detalle.entrada.get_absolute_url()
+            data["movimiento_tipo"] = detalle.entrada.tipo.nombre
+            data["cantidad"] = detalle.util
+            lista.append(data)
+
+        ### OBTENER DISPOSITIVOS CON MOVIMEINTOS DE SALIDA
+        salida_detalle = conta_m.MovimientoDispositivo.objects.filter(
+            Q(fecha__gte=fecha_inicio),
+            Q(fecha__lte=fecha_fin),
+            Q(tipo_movimiento=conta_m.MovimientoDispositivo.BAJA),
+            Q(dispositivo__tipo__in=tipo_dispositivo),
+        ).values('referencia').annotate(
+            total_dispositivos=Count('id')
+        ).order_by('referencia')
+        
+        for tipo_salida in salida_detalle:
+            ### SALIDAS DE DESECHO
+            if tipo_salida['referencia'].startswith('Salida Desecho'):
+                referencia = str(tipo_salida['referencia']).replace('Salida Desecho','')
+                salida = inv_m.DesechoSalida.objects.get(id=referencia)
+
+                ### FORMA DE ÚTIL A DESECHO
+                desecho_util = inv_m.DesechoSolicitud.objects.filter(
+                    desecho=salida,aprobado=True,dispositivo__tipo__in = tipo_dispositivo
+                    ).values('dispositivo__tipo__tipo').annotate(cantidad=Count('id'))
+                for paquete in desecho_util:
+                    data = {}
+                    data["fecha"] = salida.fecha
+                    data["tipo_dispositivo"] = paquete["dispositivo__tipo__tipo"]
+                    data["movimiento"] = "Salida"
+                    data["movimiento_referencia"] = salida.id
+                    data["movimiento_referencia_url"] = salida.get_absolute_url_detail()
+                    data["movimiento_tipo"] = "Desecho"
+                    data["cantidad"] = paquete["cantidad"]
+                    lista.append(data)
+
+                ### FORMA TRADICIONAL DE RECHAZO DE DESIPOSITIVO
+                desecho = inv_m.DesechoDispositivo.objects.filter(
+                    dispositivo__tipo__in= tipo_dispositivo, desecho = salida
+                    ).values('dispositivo__tipo__tipo').annotate(cantidad=Count('id'))
+                for paquete in desecho:
+                    data = {}
+                    data["fecha"] = salida.fecha
+                    data["tipo_dispositivo"] = paquete["dispositivo__tipo__tipo"]
+                    data["movimiento"] = "Salida"
+                    data["movimiento_referencia"] = salida.id
+                    data["movimiento_referencia_url"] = salida.get_absolute_url_detail()
+                    data["movimiento_tipo"] = "Desecho"
+                    data["cantidad"] = paquete["cantidad"]
+                    lista.append(data)
+
+            elif tipo_salida['referencia'].startswith('Salida '):
+                ### FORMA TRADICIONAL DE SALIDA
+                referencia = str(tipo_salida['referencia']).replace('Salida ','')
+                salida = inv_m.SalidaInventario.objects.get(no_salida=referencia)
+                paquetes = inv_m.Paquete.objects.filter(
+                    salida=salida,
+                    tipo_paquete__tipo_dispositivo__in=tipo_dispositivo
+                ).values('tipo_paquete__tipo_dispositivo__tipo').annotate(total=Sum('cantidad'))
+
+                for paquete in paquetes:
+                    data = {}
+                    data["fecha"] = salida.fecha
+                    data["tipo_dispositivo"] = paquete['tipo_paquete__tipo_dispositivo__tipo']
+                    data["movimiento"] = "Salida"
+                    data["movimiento_referencia"] = salida.no_salida
+                    data["movimiento_referencia_url"] = salida.get_absolute_url()
+                    data["movimiento_tipo"] = salida.tipo_salida.nombre                    
+                    data["cantidad"] = paquete['total']
+                    lista.append(data)
+
+        ### AÑADIR COLUMNA DE SALDO
+        lista_ordenada = sorted(
+            lista, 
+            key=lambda x: (x['fecha'], x['movimiento'])
+        )
+
+        tipo_dispositivo = inv_m.DispositivoTipo.objects.get(id=tipo_dispositivo)
+        fila_saldo_inicial = {
+            "fecha": fecha_inicio,
+            "tipo_dispositivo": tipo_dispositivo.tipo,
+            "movimiento": "Saldo Inicial",
+            "movimiento_referencia": "",
+            "movimiento_tipo": "---",
+            "cantidad": saldo_inicial,
+            "saldo": saldo_inicial
+        }
+
+        saldo_actual = saldo_inicial     
+        for item in lista_ordenada:
+            if item["movimiento"] == "Entrada":
+                saldo_actual += item["cantidad"]
+            elif item["movimiento"] == "Salida":
+                saldo_actual -= item["cantidad"]
+            item["saldo"] = saldo_actual
+        lista_ordenada.insert(0, fila_saldo_inicial)
+
+        return Response(lista_ordenada)
 
 """
  Vista para la contabilidad del modulo de BEQT

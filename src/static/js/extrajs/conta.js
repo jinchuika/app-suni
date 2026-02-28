@@ -872,7 +872,6 @@ class UtilDesechoInforme{
           return "<a href="+full.url_salida+">"+full.salida_desecho+"</a>";
         }},
         {data: "triage",render: function(data, type, full, meta){
-          console.log(full);
           return "<a href="+full.url_dispositivo+">"+full.triage+"</a>";
         }},
         {data: "tipo"},
@@ -886,6 +885,53 @@ class UtilDesechoInforme{
     });
     //tablaPrecio.clear().draw();
     //tablaPrecio.ajax.reload();
+
+  });
+  }
+}
+
+
+class RastreoEntradaSalida{
+  constructor() {
+  let rastreo_dispositivo_informe = $("#rastreo-entrada-salida-form");
+  var urlRastreo= $('#rastreo-entrada-salida-form').attr('action');
+  rastreo_dispositivo_informe.submit(function (e){
+    e.preventDefault();
+    var tablaRastreo = $('#rastreo-entradas-salidas').DataTable({
+      dom: 'lfrtipB',
+      buttons: ['excel', 'pdf', 'copy'],
+      searching:true,
+      paging:false,
+      ordering:false,
+      processing:true,
+      destroy:true,
+      ajax:{
+        url:urlRastreo,
+        dataSrc:'',
+        cache:false,
+        processing:true,
+        error: function(jqXHR, textStatus, errorThrown) {           
+            var responseJSON = JSON.parse(jqXHR.responseText);
+            bootbox.alert({ message: "<h2>"+responseJSON["mensaje"]+"</h2>", className:"modal modal-info fade in" });
+        },
+        data: function () {
+          return $('#rastreo-entrada-salida-form').serializeObject(true);
+        }
+      },
+      columns: [
+        {data:"fecha"},
+        {data:"tipo_dispositivo"},
+        {data: "movimiento"},
+        {data: "movimiento_referencia",render: function(data, type, full, meta){
+          return "<a href="+full.movimiento_referencia_url+">"+full.movimiento_referencia+"</a>";
+        }},
+        {data: "movimiento_tipo"},
+        {data: "cantidad"},
+        {data: "saldo"},
+      ]
+    });
+    // tablaRastreo.clear().draw();
+    // tablaRastreo.ajax.reload();
 
   });
   }
