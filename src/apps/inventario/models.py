@@ -1807,7 +1807,7 @@ class SolicitudMovimiento(models.Model):
     observaciones = models.TextField(null=True, blank=True)
     no_salida = models.ForeignKey(SalidaInventario, on_delete=models.PROTECT, related_name='salida_inventario', null=True)
     no_inventariointerno = models.ForeignKey(InventarioInterno, on_delete=models.PROTECT, related_name='solicitudes', null=True,blank=True)
-
+    complemento = models.BooleanField(default=False)
     class Meta:
         verbose_name = 'Solicitud de movimiento'
         verbose_name_plural = 'Solicitudes de movimiento'

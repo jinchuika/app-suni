@@ -1706,6 +1706,8 @@ class SolicitudMovimientoValidar {
         $('#id_no_salida').next(".select2-container").hide();
         $('#id_no_inventariointerno').prop('required',true);
         $('#id_no_salida').prop('required',false);
+        $('#id_complemento').css({"visibility":"hidden"});
+        $("[for='id_complemento']").css({"visibility":"hidden"});
       } else {
         $("[for='id_no_inventariointerno']").css({"visibility":"hidden"});
         $('#id_no_inventariointerno').next(".select2-container").hide();
@@ -1715,7 +1717,17 @@ class SolicitudMovimientoValidar {
         $('#id_no_salida').prop('required',true);
       }
     });
-    $('#id_no_salida').change( function() {
+
+    $("#id_complemento").change(function(){
+      if($(this).is(':checked')){
+        $('#id_observaciones').prop('required',true);
+        $('#id_observaciones').attr('placeholder',"Introdusca la razon por la cual este es un complemento para la Salida");
+        document.getElementById("id_observaciones").setCustomValidity("Introdusca la razon por la cual este es un complemento para la Salida "); 
+      }else{
+        $('#id_observaciones').prop('required',false);
+      }
+    })
+    $('#id_no_salida').change(function(){
 
       $.ajax({
                   type: "GET",
@@ -1751,6 +1763,7 @@ class SolicitudMovimientoValidar {
             csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
             tipo_dispositivo: tipo_dispositivo,
             id_salida:$('#id_no_salida option:selected').val(),
+            complemento : $('#id_complemento').is(":checked")
           },
           success: function (response) {
             var disponibles = response['mensaje'];

@@ -14,6 +14,7 @@ from apps.inventario import (
     serializers as inv_s,
     models as inv_m
 )
+from apps.mye.models import Cooperante
 from apps.kardex import models as kax_m
 import json
 from django.forms.models import model_to_dict
@@ -312,9 +313,14 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
                 etapa=etapa_transito,
                 estado=estado,
                 entrada_detalle__in=detalle_entrada
-        """
+        """        
+        validar_complemento = request.data['complemento']
+        
         tipo_dispositivo = request.data['tipo_dispositivo']
-        id_salida = request.data['id_salida']
+        try:    
+            id_salida = request.data['id_salida']
+        except:
+            id_salida = ""
         etapa_transito = inv_m.DispositivoEtapa.objects.get(id=inv_m.DispositivoEtapa.AB)
         estado = inv_m.DispositivoEstado.objects.get(id=inv_m.DispositivoEstado.PD)
         validar_dispositivos = inv_m.DispositivoTipo.objects.get(tipo=tipo_dispositivo)
@@ -323,20 +329,23 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
             "etapa":etapa_transito,
             "estado":estado
         }
-
-        if id_salida is "":
-            detalle_entrada =inv_m.EntradaDetalle.objects.filter(tipo_dispositivo=validar_dispositivos)  
+        if validar_complemento == "false":            
+            if id_salida is "":
+                detalle_entrada =inv_m.EntradaDetalle.objects.filter(tipo_dispositivo=validar_dispositivos)  
+            else:
+                salida = inv_m.SalidaInventario.objects.get(id=id_salida)
+                if salida.tipo_salida.id==1:
+                    valida_detalle_entrada = inv_m.EntradaDetalle.objects.filter(proyecto__id=salida.cooperante.id,entrada__tipo__id=2,tipo_dispositivo=validar_dispositivos,entrada__municipio=salida.escuela.municipio)
+                    if len(valida_detalle_entrada) >=1:
+                        detalle_entrada =inv_m.EntradaDetalle.objects.filter(proyecto__id=salida.cooperante.id,tipo_dispositivo=validar_dispositivos,entrada__municipio=salida.escuela.municipio)
+                        parametros["entrada_detalle__in"]=detalle_entrada
+                    else:
+                        return Response(
+                                        {'mensaje': 0},
+                                        status=status.HTTP_200_OK)
         else:
-            salida = inv_m.SalidaInventario.objects.get(id=id_salida)
-            if salida.tipo_salida.id==1:
-                valida_detalle_entrada = inv_m.EntradaDetalle.objects.filter(proyecto__id=salida.cooperante.id,entrada__tipo__id=2,tipo_dispositivo=validar_dispositivos,entrada__municipio=salida.escuela.municipio)
-                if len(valida_detalle_entrada) >=1:
-                    detalle_entrada =inv_m.EntradaDetalle.objects.filter(proyecto__id=salida.cooperante.id,tipo_dispositivo=validar_dispositivos,entrada__municipio=salida.escuela.municipio)
-                    parametros["entrada_detalle__in"]=detalle_entrada
-                else:
-                    return Response(
-                                    {'mensaje': 0},
-                                    status=status.HTTP_200_OK)
+            proveedor_funsepa = Cooperante.objects.get(id=12)
+            parametros["entrada__proyecto"]= proveedor_funsepa                    
         if(validar_dispositivos.kardex):
             cantidad_kardex = kax_m.Equipo.objects.get(nombre=tipo_dispositivo)
             numero_dispositivos = cantidad_kardex.existencia
