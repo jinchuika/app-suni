@@ -1472,7 +1472,15 @@ class RastreoEntradaSalidaAPI(views.APIView):
                 periodo = validar_fecha[0]
                 totales_anterior = get_existencia(tipo_dispositivo, fecha_inicio, periodo)
                 saldo_inicial = totales_anterior.get('existencia', 0)
-                print(saldo_inicial)
+                costo_inicial = totales_anterior.get('saldo_total')
+                totales_finales = get_existencia(tipo_dispositivo, fecha_fin, periodo)
+                saldo_final = totales_finales.get('existencia', 0)
+                costo_final = totales_finales.get('saldo_total')
+            else: 
+                return Response(
+                    {'mensaje': 'Las fechas seleccionadas no pertenecen a un mismo periodo fiscal válido.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
         except Exception as e: 
             return Response(
                 {'mensaje': 'Las fechas no pertenecen a un mismo periodo de tiempo'},
@@ -1576,10 +1584,19 @@ class RastreoEntradaSalidaAPI(views.APIView):
             "fecha": fecha_inicio,
             "tipo_dispositivo": tipo_dispositivo.tipo,
             "movimiento": "Saldo Inicial",
-            "movimiento_referencia": "",
-            "movimiento_tipo": "---",
-            "cantidad": saldo_inicial,
+            "movimiento_referencia": "Costo inicial",
+            "movimiento_tipo": costo_inicial,
+            "cantidad": "Cantidad Inicial",
             "saldo": saldo_inicial
+        }
+        fila_saldo_final = {
+            "fecha": fecha_fin,
+            "tipo_dispositivo": tipo_dispositivo.tipo,
+            "movimiento": "Saldo Final",
+            "movimiento_referencia": "Costo Final",
+            "movimiento_tipo": costo_final,
+            "cantidad": "Cantidad Final",
+            "saldo": saldo_final
         }
 
         saldo_actual = saldo_inicial     
@@ -1590,6 +1607,7 @@ class RastreoEntradaSalidaAPI(views.APIView):
                 saldo_actual -= item["cantidad"]
             item["saldo"] = saldo_actual
         lista_ordenada.insert(0, fila_saldo_inicial)
+        lista_ordenada.append(fila_saldo_final)
 
         return Response(lista_ordenada)
 

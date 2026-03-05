@@ -2987,6 +2987,8 @@ class PaquetesRevisionList {
     let urlrechazar = $('#paquetes-revision').data('urlrechazar');
     var api_paquete_salida= $('#paquetes-revision').data('id');
     let api_aprobar_salida=$('#aprobar-btn').data('url');
+    let api_desbloquear_revision=$('#desbloquear-btn').data('url');
+    let api_no_revision=$('#desbloquear-btn').data('revision');
     let  dispositivo_revision_tabla = $('#dispositivo-salida-paquetes-revision');
     //tablas kardexa
     let api_paquetes_revision_kardex = $('#paquetes-revision-kardex').data('url');
@@ -3354,6 +3356,94 @@ class PaquetesRevisionList {
        }
      });
     });
+
+      let intentosFallidosDesbloqueo = 0;
+      $("#bloquear-btn").click( function(){
+          $.ajax({
+              type: "POST",
+              url: api_aprobar_salida + api_paquete_salida + "/bloquear_revision/",
+              data: {
+                  csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
+                  salida: api_paquete_salida
+              },
+              success: function (response){
+                  bootbox.alert({
+                      message: "<h4><i class='fa fa-check-circle fa-2x' style='vertical-align: middle;'></i> &nbsp; ¡ÉXITO!</h4><br><p>Salida parcialmente bloqueada, hasta pronto.</p>",
+                      className: "modal-success", 
+                      callback: function (){
+                          $("#aprobar-btn").css({"visibility":"hidden"});
+                          $("#bloquear-btn").css({"visibility":"hidden"});
+                          location.reload();
+                      }
+                  });
+              },
+              error: function (response) {
+                  var jsonResponse = JSON.parse(response.responseText);
+                  bootbox.alert({
+                      message: "<h4><i class='fa fa-frown-o fa-2x' style='vertical-align: middle;'></i> &nbsp; HA OCURRIDO UN ERROR!!</h4><br><p>" + jsonResponse.mensaje + "</p>",
+                      className: "modal-danger" 
+                  });
+              }
+          });
+      })
+
+      $("#desbloquear-btn").click(function() {
+          bootbox.prompt({
+              title: "Por seguridad, ingresa tu contraseña para desbloquear la revisión:",
+              inputType: 'password',
+              callback: function (password) {
+                  if (password === null) {
+                      return; 
+                  }
+                  if (password === "") {
+                      bootbox.alert({
+                          message: "<h4><i class='fa fa-exclamation-triangle fa-2x' style='vertical-align: middle;'></i> &nbsp; ATENCIÓN</h4><br><p>La contraseña no puede estar vacía.</p>",
+                          className: "modal-warning"
+                      });
+                      return;
+                  }
+                  var password_codificada = btoa(password);
+                  $.ajax({
+                      type: "POST",
+                      url: api_desbloquear_revision + api_no_revision + "/desbloquear_revision/",
+                      data: {
+                          csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
+                          password: password_codificada 
+                      },
+                      success: function (response) {
+                          intentosFallidosDesbloqueo = 0; 
+                          bootbox.alert({
+                              message: "<h4><i class='fa fa-unlock fa-2x' style='vertical-align: middle;'></i> &nbsp; ¡DESBLOQUEADO!</h4><br><p>Revisión desbloqueada correctamente.</p>",
+                              className: "modal-success",
+                              callback: function () {
+                                  location.reload(); 
+                              }
+                          });
+                      },
+                      error: function (response) {
+                          intentosFallidosDesbloqueo++;
+                          
+                          var mensaje = "Error al intentar desbloquear.";
+                          if (response.responseJSON && response.responseJSON.mensaje) {
+                              mensaje = response.responseJSON.mensaje;
+                          }
+
+                          if (intentosFallidosDesbloqueo === 1) {
+                              mensaje += "<br><br><b>Advertencia: Solo te queda 1 intento más antes de bloquearse y tener que contactar a IT.</b>";
+                          } else if (intentosFallidosDesbloqueo >= 2) {
+                              mensaje += "<br><br><b>Sistema bloqueado por seguridad. Por favor, contacta a IT.</b>";
+                          }
+
+                          bootbox.alert({
+                              message: "<h4><i class='fa fa-frown-o fa-2x' style='vertical-align: middle;'></i> &nbsp; HA OCURRIDO UN ERROR!!</h4><br><p>" + mensaje + "</p>",
+                              className: "modal-danger" 
+                          });
+                      }
+                  });
+              }
+          });
+      });
+
     /*Tablas de Kardex*/
     //Tabla paquetes diponibles de kardex
     var  tablaPaquetesKardex = paquetes_revision_tabla_kardex.DataTable({

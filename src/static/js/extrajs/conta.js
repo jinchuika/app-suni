@@ -921,18 +921,40 @@ class RastreoEntradaSalida{
       columns: [
         {data:"fecha"},
         {data:"tipo_dispositivo"},
-        {data: "movimiento"},
+        { 
+        data: "movimiento",
+          render: function (data, type, row) {
+            if (data === 'Entrada') {
+              return '<span style="color: #28a745; font-weight: bold;">' + data + '</span>'; 
+            } else if (data === 'Salida') {
+              return '<span style="color: #dc3545; font-weight: bold;">' + data + '</span>'; 
+            } else {
+              return '<span style="color: #0d6efd; font-weight: bold;">' + data + '</span>'; 
+            }
+          }
+        },
         {data: "movimiento_referencia",render: function(data, type, full, meta){
-          return "<a href="+full.movimiento_referencia_url+">"+full.movimiento_referencia+"</a>";
+          if(data==="Costo inicial" || data==="Costo Final"){
+            return data;
+          }
+          else{
+            return "<a href="+full.movimiento_referencia_url+">"+full.movimiento_referencia+"</a>";
+          }
         }},
-        {data: "movimiento_tipo"},
-        {data: "cantidad"},
+        {data: "movimiento_tipo",
+          render: function (data, type, row) {
+            if(data > 0){
+              return 'Q. ' + parseFloat(data).toLocaleString('en', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            }
+            else{
+              return data;
+            }           
+          }
+        },
+        { data: "cantidad"},
         {data: "saldo"},
       ]
     });
-    // tablaRastreo.clear().draw();
-    // tablaRastreo.ajax.reload();
-
   });
   }
 }
