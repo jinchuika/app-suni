@@ -1692,6 +1692,7 @@ class SolicitudMovimiento {
 
 class SolicitudMovimientoValidar {
   constructor() {
+    const observaciones = document.getElementById("id_observaciones");
     $("#proyecto-head").css({"display":"none"});
     $("[for='id_no_inventariointerno']").css({"visibility":"hidden"});
     $('#id_no_inventariointerno').next(".select2-container").hide();
@@ -1722,7 +1723,14 @@ class SolicitudMovimientoValidar {
       if($(this).is(':checked')){
         $('#id_observaciones').prop('required',true);
         $('#id_observaciones').attr('placeholder',"Introdusca la razon por la cual este es un complemento para la Salida");
-        document.getElementById("id_observaciones").setCustomValidity("Introdusca la razon por la cual este es un complemento para la Salida "); 
+        
+        observaciones.addEventListener('input', function(){
+          this.setCustomValidity("");
+          if(this.value.length <=0){
+            this.setCustomValidity("Introdusca la razon por la cual este es un complemento para la Salida ");       
+          }
+          this.reportValidity();
+        })
       }else{
         $('#id_observaciones').prop('required',false);
       }

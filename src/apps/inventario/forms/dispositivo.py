@@ -528,7 +528,7 @@ class SolicitudMovimientoCreateForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop('user',None)
         super(SolicitudMovimientoCreateForm, self).__init__(*args, **kwargs)
-        if self.user.groups.filter(id=44):
+        if "dispositivo_complemento" in self.user.groups.values_list('name', flat=True):
             self.fields['complemento'].widget =forms.CheckboxInput(attrs={'style': "visibility:visible", 'class': 'icheckbox_flat-blue'})
         self.fields['no_inventariointerno'].widget = forms.Select(attrs={'style': "visibility:hidden", 'class': 'form-control select2', 'tabindex': '1'}) 
         self.fields['no_inventariointerno'].label = "No Inventario Interno"

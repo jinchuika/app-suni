@@ -77,7 +77,8 @@ class Entrada(models.Model):
     factura = models.PositiveIntegerField(default=0)
     observaciones = models.TextField(null=True, blank=True)
     proyecto = models.ManyToManyField('mye.Cooperante', blank=True,null=True ,related_name='proyecto_inventario')
-    municipio = models.ForeignKey(Municipio, on_delete=models.CASCADE,blank=True,null=True, related_name='entradas_municipio')  
+    municipio = models.ForeignKey(Municipio, on_delete=models.CASCADE,blank=True,null=True, related_name='entradas_municipio')
+    url = models.TextField(null=True, blank=True)  
 
     class Meta:
         verbose_name = "Entrada"
