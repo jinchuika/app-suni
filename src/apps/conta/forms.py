@@ -484,3 +484,20 @@ class RastreoDispositivoInformeForm(forms.Form):
         required=False,
         widget=forms.TextInput(attrs={'class': 'form-control datepicker'}))
                                                                         
+class RastreoEntradaSalidaInformeForm(forms.Form):
+    """Este Formulario se encarga de enviar los filtros para informe de Resumen de entradas y salidas
+    """
+    tipo_dispositivo = forms.ModelMultipleChoiceField(
+        queryset=inv_m.DispositivoTipo.objects.filter(usa_triage=True),
+        label='Tipo de Dispositivo',
+        required=False,
+        widget=forms.Select(attrs={'class': 'form-control select2'}))
+    
+    fecha_min = forms.CharField(
+        label='Fecha (min)',
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-control datepicker'}))
+    fecha_max = forms.CharField(
+        label='Fecha (max)',
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-control datepicker'}))

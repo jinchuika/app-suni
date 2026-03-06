@@ -83,15 +83,15 @@
 								<td>
 									{% if donante.tratamiento == "INDIVIDUAL" %}
 										{% if donante.genero == "F"%}
-											Estimada 
+											Estimada señora  
 										{% elif donante.genero == "M" %}
-											Estimado
+											Estimado señor
 										{% endif %}
 									{% else %}
 										{% if donante.genero == "F"%}
-											Estimadas
+											Estimadas señoras
 										{% elif donante.genero == "M" %}
-											Estimados
+											Estimados señores 
 										{% endif %}
 									{% endif %}
 									{{ donante.nombre|default_if_none:"" }}
