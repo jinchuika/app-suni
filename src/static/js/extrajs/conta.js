@@ -872,7 +872,6 @@ class UtilDesechoInforme{
           return "<a href="+full.url_salida+">"+full.salida_desecho+"</a>";
         }},
         {data: "triage",render: function(data, type, full, meta){
-          console.log(full);
           return "<a href="+full.url_dispositivo+">"+full.triage+"</a>";
         }},
         {data: "tipo"},
@@ -887,6 +886,75 @@ class UtilDesechoInforme{
     //tablaPrecio.clear().draw();
     //tablaPrecio.ajax.reload();
 
+  });
+  }
+}
+
+
+class RastreoEntradaSalida{
+  constructor() {
+  let rastreo_dispositivo_informe = $("#rastreo-entrada-salida-form");
+  var urlRastreo= $('#rastreo-entrada-salida-form').attr('action');
+  rastreo_dispositivo_informe.submit(function (e){
+    e.preventDefault();
+    var tablaRastreo = $('#rastreo-entradas-salidas').DataTable({
+      dom: 'lfrtipB',
+      buttons: ['excel', 'pdf', 'copy'],
+      searching:true,
+      paging:false,
+      ordering:false,
+      processing:true,
+      destroy:true,
+      ajax:{
+        url:urlRastreo,
+        dataSrc:'',
+        cache:false,
+        processing:true,
+        error: function(jqXHR, textStatus, errorThrown) {           
+            var responseJSON = JSON.parse(jqXHR.responseText);
+            bootbox.alert({ message: "<h2>"+responseJSON["mensaje"]+"</h2>", className:"modal modal-info fade in" });
+        },
+        data: function () {
+          return $('#rastreo-entrada-salida-form').serializeObject(true);
+        }
+      },
+      columns: [
+        {data:"fecha"},
+        {data:"tipo_dispositivo"},
+        { 
+        data: "movimiento",
+          render: function (data, type, row) {
+            if (data === 'Entrada') {
+              return '<span style="color: #28a745; font-weight: bold;">' + data + '</span>'; 
+            } else if (data === 'Salida') {
+              return '<span style="color: #dc3545; font-weight: bold;">' + data + '</span>'; 
+            } else {
+              return '<span style="color: #0d6efd; font-weight: bold;">' + data + '</span>'; 
+            }
+          }
+        },
+        {data: "movimiento_referencia",render: function(data, type, full, meta){
+          if(data==="Costo inicial" || data==="Costo Final"){
+            return data;
+          }
+          else{
+            return "<a href="+full.movimiento_referencia_url+">"+full.movimiento_referencia+"</a>";
+          }
+        }},
+        {data: "movimiento_tipo",
+          render: function (data, type, row) {
+            if(data > 0){
+              return 'Q. ' + parseFloat(data).toLocaleString('en', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            }
+            else{
+              return data;
+            }           
+          }
+        },
+        { data: "cantidad"},
+        {data: "saldo"},
+      ]
+    });
   });
   }
 }

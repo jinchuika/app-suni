@@ -229,6 +229,15 @@ urlpatterns = [
     conta_v.InformeResumenBeqtJson.as_view(),
     name='contabilidad_beqt_api_resumen'
     ),   
+ url(
+    r'^informe/rastreo/entradasalida/$',
+    conta_v.RastreoEntradaSalidaInformeView.as_view(),
+    name='informe_rastreo_entrada_salida'
+   ), url(
+    r'^api/rastreo/entradasalida/$',
+    conta_v.RastreoEntradaSalidaAPI.as_view(),
+    name='informe_rastreo_entrada_salida_api'
+   ),
      
 
 ## Planilla Contabilidad

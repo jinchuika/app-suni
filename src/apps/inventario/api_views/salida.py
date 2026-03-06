@@ -18,6 +18,7 @@ from apps.escuela import models as escuela_m
 from apps.crm import models as crm_m
 from django.db.models import Count, Sum
 from decimal import Decimal
+import base64
 
 
 class SalidaInventarioFilter(filters.FilterSet):
@@ -714,5 +715,39 @@ class RevisionSalidaViewSet(viewsets.ModelViewSet):
             status=status.HTTP_200_OK
         )
     
+    @action(methods=['post'], detail=True)
+    def bloquear_revision(self, request, pk=None):
+        """Metodo para bloquear o desbloquear momenteamente la revisión  
+        """
+        id_salida = request.data["salida"]
+        finalizar_revision = inv_m.RevisionSalida.objects.get(salida=id_salida)
+        finalizar_revision.aprobada = True
+        finalizar_revision.save()
+        return Response({
+            'mensaje': 'la revision ha sido aprobada',
+            'usuario':  str(request.user.perfil)
+        },
+            status=status.HTTP_200_OK
+        )
+    
+    @action(methods=['post'], detail=True)
+    def desbloquear_revision(self, request, pk=None):
+        """Método para validar contraseña y desbloquear la revisión"""
+        password_codificada = request.data.get("password", "")
+        password = base64.b64decode(password_codificada).decode('utf-8')
+        
+        if request.user.check_password(password):
+            revision = self.get_object()
+            revision.aprobada = False
+            revision.save()
+            
+            return Response({
+                'mensaje': 'Revisión desbloqueada con éxito.',
+                'usuario': str(request.user.perfil)
+            }, status=status.HTTP_200_OK)
+        else:
+            return Response({
+                'mensaje': 'Contraseña incorrecta. Intenta de nuevo.'
+            }, status=status.HTTP_401_UNAUTHORIZED)
     
    
