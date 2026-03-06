@@ -16,7 +16,7 @@
         }
         
         .contenedor-texto {
-            padding: 40px 40px 0 40px;
+            padding: 40px ;
         }
 
         .header-top {
@@ -46,7 +46,10 @@
         .imagen-fondo-pie {
             width: 100%;
             display: block;
-            margin-top: -50px;
+            position: fixed; 
+            bottom: 0;
+            left: 0;
+            margin: 0;
             padding: 0;
         }
     </style>
@@ -102,17 +105,17 @@
             </p>
         
             <p>
-                Espero que esta carta le encuentre bien. En nombre de todo el equipo de Funsepa, queremos expresar nuestra 
+                Espero que esta carta le encuentre bien. En nombre de todo el equipo de <b>Funsepa</b>, queremos expresar nuestra 
                 sincera gratitud y aprecio por su generosidad y compromiso con nuestro propósito de tener una Guatemala más 
                 y mejor educada, con tecnología, para velar por el desarrollo de nuestra niñez y juventud. 
             </p>
         
             <p class="info_donacion">
                 Su apoyo ha sido fundamental para que pudiéramos generar un impacto significativo en la vida de las personas 
-                a quienes servimos. Gracias a su contribución de 
+                a quienes servimos. Gracias a su contribución de <b>
                 {% for tipo in dispositivotipo_list %}
                     {{ tipo.total }} {{ tipo.descripcion }}{% if forloop.revcounter == 2 %} y {% elif not forloop.last %}, {% endif %}
-                {% endfor %}
+                {% endfor %} </b>
                 más niños podrán tener acceso a un entorno virtual.
             </p>
 
@@ -142,7 +145,9 @@
         <div class="firma">
             <img src="{% static 'image/Logo_Funsepa-01.png' %}" alt="Logo Funsepa" style="max-width: 150px; display: block;" />
         </div>
-    </div> <img src="{% static 'image/pie_de_pagina.png' %}" class="imagen-fondo-pie" alt="Decoración pie de página" />
+    </div> 
+    
+    <img src="{% static 'image/pie_de_pagina.png' %}" class="imagen-fondo-pie" alt="Decoración pie de página" />
 
     {% block extra_js %}
     <script>
