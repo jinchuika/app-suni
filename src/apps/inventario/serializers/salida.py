@@ -15,6 +15,7 @@ class SalidaInventarioSerializer(serializers.ModelSerializer):
     escuela_url = serializers.StringRelatedField(source='escuela.get_absolute_url')
     precio_total = serializers.SerializerMethodField()
     grupos = serializers.SerializerMethodField()
+    nombre_cooperante = serializers.StringRelatedField(source='cooperante.nombre')
 
     class Meta:
         model = inv_m.SalidaInventario
@@ -59,6 +60,8 @@ class RevisionSalidaSerializer(serializers.ModelSerializer):
     escuela = serializers.StringRelatedField(source='salida.escuela.codigo')
     tipo_salida = serializers.StringRelatedField(source='salida.tipo_salida')
     beneficiario = serializers.StringRelatedField(source='salida.beneficiario')
+    nombre_cooperante = serializers.StringRelatedField(source='salida.cooperante.nombre')
+    municipio = serializers.StringRelatedField(source='salida.escuela.municipio')
 
     class Meta:
         model = inv_m.RevisionSalida

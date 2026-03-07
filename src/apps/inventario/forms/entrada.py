@@ -35,7 +35,12 @@ class EntradaForm(forms.ModelForm):
             'proveedor': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '3'}),
             'factura': forms.NumberInput({'class': 'form-control', 'tabindex': '4'}),
             'observaciones': forms.Textarea({'class': 'form-control', 'tabindex': '5'}),
+            'municipio': forms.Select(attrs={'class': 'form-control select2', 'tabindex': '6'}),
+            'url': forms.TextInput({'class': 'form-control', 'tabindex': '5'},),
             
+        }
+        labels = {
+                'url': ('Carpeta fotos'),
         }
 
     def clean(self):
@@ -59,9 +64,10 @@ class EntradaUpdateForm(forms.ModelForm):
     class Meta:
         model = inv_m.Entrada
         fields = '__all__'
-        exclude = ['factura', 'fecha_cierre','proyecto']
+        exclude = ['factura', 'fecha_cierre','proyecto','municipio']
         labels = {
                 'en_creacion': _('En Desarrollo'),
+                'url': ('Carpeta fotos'),
         }
         widgets = {
                 'recibida_por': forms.HiddenInput(),
@@ -71,6 +77,7 @@ class EntradaUpdateForm(forms.ModelForm):
                 'proveedor': forms.HiddenInput(),
                 'observaciones': forms.Textarea({'class': 'form-control', 'tabindex': '1'}),
                 'en_creacion': forms.CheckboxInput({'class': 'icheckbox_flat-green', 'tabindex': '2'}),
+                'url': forms.TextInput({'class': 'form-control', 'tabindex': '3'}),
         }
 
     def __init__(self, *args, **kwargs):

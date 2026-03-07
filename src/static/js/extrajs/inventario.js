@@ -1692,6 +1692,8 @@ class SolicitudMovimiento {
 
 class SolicitudMovimientoValidar {
   constructor() {
+    const observaciones = document.getElementById("id_observaciones");
+    $("#proyecto-head").css({"display":"none"});
     $("[for='id_no_inventariointerno']").css({"visibility":"hidden"});
     $('#id_no_inventariointerno').next(".select2-container").hide();
     $('#id_no_inventariointerno').prop('required',false);
@@ -1705,6 +1707,8 @@ class SolicitudMovimientoValidar {
         $('#id_no_salida').next(".select2-container").hide();
         $('#id_no_inventariointerno').prop('required',true);
         $('#id_no_salida').prop('required',false);
+        $('#id_complemento').css({"visibility":"hidden"});
+        $("[for='id_complemento']").css({"visibility":"hidden"});
       } else {
         $("[for='id_no_inventariointerno']").css({"visibility":"hidden"});
         $('#id_no_inventariointerno').next(".select2-container").hide();
@@ -1713,6 +1717,46 @@ class SolicitudMovimientoValidar {
         $('#id_no_inventariointerno').prop('required',false);
         $('#id_no_salida').prop('required',true);
       }
+    });
+
+    $("#id_complemento").change(function(){
+      if($(this).is(':checked')){
+        $('#id_observaciones').prop('required',true);
+        $('#id_observaciones').attr('placeholder',"Introdusca la razon por la cual este es un complemento para la Salida");
+        
+        observaciones.addEventListener('input', function(){
+          this.setCustomValidity("");
+          if(this.value.length <=0){
+            this.setCustomValidity("Introdusca la razon por la cual este es un complemento para la Salida ");       
+          }
+          this.reportValidity();
+        })
+      }else{
+        $('#id_observaciones').prop('required',false);
+      }
+    })
+    $('#id_no_salida').change(function(){
+
+      $.ajax({
+                  type: "GET",
+                  url: $('#solicitud').data('proyecto'),
+                  data:{
+                    csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
+                    id:$('#id_no_salida option:selected').val(),
+                    
+                  },
+                  success: function (data){                    
+                    $("[for='proyectos']").text(data[0].nombre_cooperante);
+                    $("#proyecto-head").css({"display":"block"});                   
+                   
+                  },
+                  error: function (response) {
+                      /*var jsonResponse = JSON.parse(response.responseText);
+                      bootbox.alert(jsonResponse["mensaje"]);*/
+                      console.log("No tiene cooperante")
+                  }
+                });
+      
     });
 
     var tipo_dispositivo;
@@ -1726,6 +1770,8 @@ class SolicitudMovimientoValidar {
           data: {
             csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
             tipo_dispositivo: tipo_dispositivo,
+            id_salida:$('#id_no_salida option:selected').val(),
+            complemento : $('#id_complemento').is(":checked")
           },
           success: function (response) {
             var disponibles = response['mensaje'];
@@ -1788,6 +1834,7 @@ class SolicitudMovimientoUpdate {
         let cantidad_disponible = $("#solicitud-table").data("dispo");
         let cantidad_asignar = cantidad-cantidad_disponible;
         let salida=  $("#solicitud-table").data("salida");
+        let proyecto=  $("#solicitud-table").data("proyecto");
         $('#id_dispositivos').val("").trigger('change');
         var lista_triage = [];
         sel_dispositivos.select2({
@@ -1926,7 +1973,9 @@ class SolicitudMovimientoUpdate {
                      etapa: etapa_inicial,
                      estado: estado_inicial,
                      triage: mensaje.triage,
-                     solicitud:true
+                     solicitud:true,
+                     id_salida:salida,
+                     proyecto:proyecto
                     
                    },
                    error:function(){
@@ -1949,20 +1998,20 @@ class SolicitudMovimientoUpdate {
                            processResults: function (data){
                              return {
                                results : data.map(lista_triage =>{
-                                 return {id: lista_triage["id"], text:lista_triage["triage"]};
+                                 return {id:lista_triage["id"],text:lista_triage["triage"]};
                                })
                              };
                            },
-                           width : '100%'
+                           width : '50%'
                        });
                       for(var i = 0; i<(lista_triage.length);i++){
                           seleccion[i] = lista_triage[i].id;
                      }
-                       $('#id_dispositivo').val(seleccion).trigger('change');
+                       $('#id_dispositivos').val(seleccion).trigger('change');
                        /**/
 
                      }else{
-                      bootbox.alert({message: "<h3>Este dispositivo no esta disponible</h3>", className:"modal modal-danger fade in"});
+                      bootbox.alert({message: "<h3>Este dispositivo no esta disponible para este proyecto por favor utilice solo dispositivos correspondientes</h3>", className:"modal modal-danger fade in"});
                       $("#area_scanner").val("");
                      }
                    },
@@ -2197,6 +2246,20 @@ class SalidasRevisarList {
         }
 
         }},
+        {data:"nombre_cooperante",render: function(data, type, full, meta){
+          if(data==undefined){
+            return "No tiene"
+          }else{
+            return data
+          }
+        }},
+        {data:"municipio",render: function(data, type, full, meta){
+          if(data==undefined){
+            return "No tiene"
+          }else{
+            return data
+          }
+        }},
         {data:"beneficiario"},
         {data:"fecha_revision", render: function(data, type, full, meta){
          var newDate = new Date(full.fecha_revision);
@@ -2285,6 +2348,13 @@ class Salidas {
           }
         }},
         {data:"id"},
+        {data:"nombre_cooperante",render: function(data, type, full, meta){
+          if(data==undefined){
+            return "No tiene"
+          }else{
+            return data
+          }
+        }},
         {data:"tipo_salida"},
         {data:"fecha"},
         {data: "estado", render: function(data, type, full, meta){
@@ -2825,8 +2895,8 @@ class Salidas {
         $("#id_udi").val(" ");
         $('#id_beneficiario').next(".select2-container").hide();
          /**/
-         $("[for='id_cooperante']").css({"visibility":"hidden"});
-         $('#id_cooperante').next(".select2-container").hide();
+        /* $("[for='id_cooperante']").css({"visibility":"hidden"});
+         $('#id_cooperante').next(".select2-container").hide();*/
          /* */
          $("#id_beneficiario").val(" ");
          $("[for='id_caja_repuesto']").css({"visibility":"hidden"});
@@ -3151,11 +3221,10 @@ class PaquetesRevisionList {
                   },
                   success: function (response){
                       if(response.code == 1){
-                        bootbox.alert(response.mensaje, function (){
-                          location.reload();
-                        });
-                      }else{
-                       bootbox.alert("El dispositivo ha sido aprobado");
+                        bootbox.alert({message: "<h3><i class='fa fa-frown-o' style='font-size: 45px;'></i>&nbsp;&nbsp;&nbsp;HA OCURRIDO UN ERROR!!</h3></br>" + response.mensaje, className:"modal modal-danger fade"});
+                        location.reload();
+                      }else{                       
+                        bootbox.alert({message: "<h3><i class='fa fa-smile-o' style='font-size: 45px;'></i>&nbsp;&nbsp;&nbsp;REVISADO</h3></br>"+response.mensaje, className:"modal modal-success fade"});
                        $("#area_scanner").focus();
                        location.reload();
 
@@ -3163,7 +3232,7 @@ class PaquetesRevisionList {
                   },
                   error: function (response) {
                       var jsonResponse = JSON.parse(response.responseText);
-                      bootbox.alert(jsonResponse["mensaje"]);
+                      bootbox.alert({message: "<h3><i class='fa fa-frown-o' style='font-size: 45px;'></i>&nbsp;&nbsp;&nbsp;HA OCURRIDO UN ERROR!!</h3></br>" + jsonResponse["mensaje"], className:"modal modal-danger fade"});
                   }
                 });
                  /**/

@@ -182,10 +182,8 @@ class IInternoDispositivoViewSet(viewsets.ModelViewSet):
         fecha_max = self.request.query_params.get('fecha_max', None)
 
         if no_asignacion or estado or colaborador or tipo_dispositivo or fecha_min or fecha_max:
-            print("Todos")
             queryset = inv_m.IInternoDispositivo.objects.all()
         else:
-            print("Estado")
             queryset = inv_m.IInternoDispositivo.objects.filter(no_asignacion__estado__id=inv_m.IInternoEstado.AS)
 
        
