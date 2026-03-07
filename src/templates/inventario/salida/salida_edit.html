@@ -52,6 +52,33 @@
 								</td>
 							</tr>
 							<tr>
+								<th>Escuela</th>
+								<td>
+										{{salidainventario.escuela | default_if_none:"" }}
+
+
+									<br>
+								</td>
+							</tr>
+							<tr>
+								<th>Departamento</th>
+								<td>
+										{{salidainventario.escuela.municipio.departamento | default_if_none:"" }}
+
+
+									<br>
+								</td>
+							</tr>
+							<tr>
+								<th>Municipio</th>
+								<td>
+										{{salidainventario.escuela.municipio | default_if_none:"" }}
+
+
+									<br>
+								</td>
+							</tr>
+							<tr>
 								<th>Responsable</th>
 								<td>{{salidainventario.creada_por.get_full_name}}<br></td>
 							</tr>
@@ -67,6 +94,10 @@
 									{% endif %}
 									<br>
 								</td>
+							</tr>
+							<tr>
+								<th>Cooperante</th>
+								<td>{{salidainventario.cooperante}}<br></td>
 							</tr>
 						</table>
 					</div>

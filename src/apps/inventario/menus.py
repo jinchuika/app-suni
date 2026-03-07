@@ -219,6 +219,13 @@ contabilidad_children = (
         weight=12,
         group="inv_conta,inv_admin",
         icon="fa-trash",
+    ),    
+    ViewMenuItem(
+        "Informe rastreo kardex",
+        reverse_lazy('informe_rastreo_entrada_salida'),
+        weight=12,
+        group="inv_conta,inv_admin",
+        icon="fa-arrows",
     ),
     
 )

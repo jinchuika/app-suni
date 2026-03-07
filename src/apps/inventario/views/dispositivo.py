@@ -112,7 +112,6 @@ class SolicitudMovimientoCreateView(LoginRequiredMixin, CreateView):
         chk_inventario_interno = form.cleaned_data['inventario_interno']
         no_salida = form.cleaned_data['no_salida']
         no_inventariointerno = form.cleaned_data['no_inventariointerno']
-
         if cantidad <= 0:
             form.add_error('cantidad', 'La cantidad debe ser mayor a 0')
             return self.form_invalid(form)
@@ -166,6 +165,11 @@ class SolicitudMovimientoCreateView(LoginRequiredMixin, CreateView):
         form = super(SolicitudMovimientoCreateView, self).get_form(form_class)
         form.fields['tipo_dispositivo'].queryset = self.request.user.tipos_dispositivos.tipos.filter(Q(usa_triage=True) | Q(kardex=True))
         return form
+    
+    def get_form_kwargs(self):
+        kwargs = super(SolicitudMovimientoCreateView,self).get_form_kwargs()
+        kwargs.update({'user':self.request.user})
+        return kwargs
 
 
 class DevolucionCreateView(LoginRequiredMixin, CreateView):
@@ -273,7 +277,7 @@ class SolicitudMovimientoUpdateView(LoginRequiredMixin, UpdateView):
 
     def get_form(self, form_class=None):
         form = super(SolicitudMovimientoUpdateView, self).get_form(form_class)
-        estado = inv_m.DispositivoEstado.objects.get(id=inv_m.DispositivoEstado.PD)
+        estado = inv_m.DispositivoEstado.objects.get(id=inv_m.DispositivoEstado.PD)        
         if self.object.no_salida:
             dispositivos_salida = inv_m.CambioEtapa.objects.filter(
                 solicitud__no_salida = self.object.no_salida,
@@ -293,11 +297,18 @@ class SolicitudMovimientoUpdateView(LoginRequiredMixin, UpdateView):
             'data-slug': self.object.tipo_dispositivo.slug,
             'data-id': self.object.id,
         })
-
-        queryset = inv_m.Dispositivo.objects.filter(
-                etapa=self.object.etapa_inicial,
-                tipo=self.object.tipo_dispositivo
-            )
+        if not self.object.desecho:
+            queryset = inv_m.Dispositivo.objects.filter(
+                    etapa=self.object.etapa_inicial,
+                    tipo=self.object.tipo_dispositivo,
+                    entrada_detalle__proyecto=self.object.no_salida.cooperante,
+                    entrada_detalle__entrada__municipio=self.object.no_salida.escuela.municipio
+                )
+        else:
+            queryset = inv_m.Dispositivo.objects.filter(
+                    etapa=self.object.etapa_inicial,
+                    tipo=self.object.tipo_dispositivo
+                )           
 
         if self.object.devolucion:
             form.fields['dispositivos'].queryset = queryset.filter(id__in=dispositivos_salida)

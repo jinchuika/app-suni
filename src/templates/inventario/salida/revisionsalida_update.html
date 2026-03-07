@@ -101,8 +101,11 @@
                 </div>
               </div>
             </div>
+{% endif %}
+
            <!---->
-            <div class="col-md-5">
+           {% if object.salida.estado.nombre == "Pendiente" %}
+              <div class="col-md-5">
                 <div class="box">
                     <div class="box-header">
                       <div class="row">
@@ -111,11 +114,13 @@
                         </div>
                         <div class="col-md-4">
                             {% if not object.aprobada == True %}
-                                <button id="aprobar-btn" class="btn btn-danger"  data-url="{% url 'inventario_api:api_revisionsalidas-list' %}">Finalizar</button>
+                              <button id="bloquear-btn" class="btn btn-warning"  data-url="{% url 'inventario_api:api_revisionsalidas-list' %}"> <i class="fa fa-lock"></i> Bloquear Revisión </button>
+                              <button id="aprobar-btn" class="btn btn-danger"  data-url="{% url 'inventario_api:api_revisionsalidas-list' %}">Finalizar</button>
+                            {% else %}
+                              <button id="desbloquear-btn" class="btn btn-success"  data-url="{% url 'inventario_api:api_revisionsalidas-list' %}" data-revision="{{ object.id}}"> <i class="fa fa-unlock"></i> Desbloquear Revisión</button>
                             {% endif %}
                         </div>
                       </div>
-
                     </div>
                     <div class="box-body">
                         <table class="table table-condensed ">                                                       
@@ -132,7 +137,14 @@
                                   <td><a href="{{ object.salida.escuela.get_absolute_url }}">{{ object.salida.escuela.codigo }}</a></td>
                               </tr>
                               {% endif %}
-
+                                <tr>
+                                  <th>Proyecto</th>
+                                  <td><span class='label label-success'>{{object.salida.cooperante | default_if_none:"" }}</span></td>
+                              </tr>
+                               <tr>
+                                  <th>Municipio</th>
+                                  <td><span class='label label-warning'>{{object.salida.escuela.municipio | default_if_none:""}}</span></td>
+                              </tr>
                                 <tr>
                                     <th>Fecha de revisión</th>
                                     <td>{{ object.fecha_revision|date:"Y-m-d" }}</td>
@@ -146,9 +158,11 @@
                                   {% csrf_token %}                        
                                 {{ form.as_table }}
                                 <tr>
+                                  {% if not object.aprobada == True %}
                                     <td colspan="2">
                                         <input type="submit" value="Guardar" class="btn btn-success pull-right">
                                     </td>
+                                  {% endif %}
                                 </tr>
                                 <tr>
                               
@@ -174,6 +188,7 @@
                     </div>
                 </div>
             </div>
+          
            <!---->  
         <div class="col-md-5">
                 <div class="box">
@@ -188,8 +203,8 @@
                 </div>
             </div> 
         </div>
+        {% endif %}
     </section>
-{% endif %}
 {% endblock content%}
 {% block extra_js %}
 {% include "base/dataTables.html" %}

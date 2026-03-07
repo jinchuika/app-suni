@@ -14,7 +14,7 @@
 }
 </style>
 <section class="content">
-  <div id="solicitud" class="container-fluid" data-url={%url 'inventario_api:api_detalles-validar-solicitud-movimientos' %} data-devolucion={%url 'inventario_api:api_detalles-validar-devoluciones' %}>
+  <div id="solicitud" class="container-fluid" data-url={%url 'inventario_api:api_detalles-validar-solicitud-movimientos' %} data-devolucion={%url 'inventario_api:api_detalles-validar-devoluciones' %} data-proyecto={%url 'inventario_api:api_inventariosalidas-list' %}>
     <div class="row">
       <div class="col-md-6">
         <div class="box">
@@ -37,7 +37,7 @@
                     <div class="icon"><i class="icon fa fa-info" style="top: 15px !important;"></i></div>
                   </div>
                 </div>
-              </div>
+              </div>              
               {% if form.errors %}
               {% for field in form %}
               {% for error in field.errors %}
@@ -81,7 +81,21 @@
             </div>
           </div>
         </div>
+        <div class="col-md-6">
+        <div class="row" id="proyecto-head">
+              <div class="col-lg-12 col-xs-12">
+                <div class="small-box bg-green">
+                  <div class="inner">
+                    <h2>Proyecto<h2>
+                    <h3><label for="proyectos"></label></h3>
+                    
+                    </div>
+                    <div class="icon"><i class="icon fa fa-info" style="top: 15px !important;"></i></div>
+                  </div>
+                </div>
+              </div>
       </div>
+      </div>      
     </div>
   </section>
   {% endblock content %}
