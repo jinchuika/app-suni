@@ -1502,6 +1502,7 @@ class RastreoEntradaSalidaAPI(views.APIView):
             data["tipo_dispositivo"] = detalle.tipo_dispositivo.tipo
             data["movimiento"] = "Entrada"
             data["movimiento_referencia"] = detalle.entrada.id
+            data["movimiento_referencia_entidad"] = detalle.entrada.proveedor.nombre
             data["movimiento_referencia_url"] = detalle.entrada.get_absolute_url()
             data["movimiento_tipo"] = detalle.entrada.tipo.nombre
             data["cantidad"] = detalle.util
@@ -1533,6 +1534,7 @@ class RastreoEntradaSalidaAPI(views.APIView):
                     data["tipo_dispositivo"] = paquete["dispositivo__tipo__tipo"]
                     data["movimiento"] = "Salida"
                     data["movimiento_referencia"] = salida.id
+                    data["movimiento_referencia_entidad"] = salida.empresa.nombre
                     data["movimiento_referencia_url"] = salida.get_absolute_url_detail()
                     data["movimiento_tipo"] = "Desecho"
                     data["cantidad"] = paquete["cantidad"]
@@ -1548,6 +1550,7 @@ class RastreoEntradaSalidaAPI(views.APIView):
                     data["tipo_dispositivo"] = paquete["dispositivo__tipo__tipo"]
                     data["movimiento"] = "Salida"
                     data["movimiento_referencia"] = salida.id
+                    data["movimiento_referencia_entidad"] = salida.empresa.nombre
                     data["movimiento_referencia_url"] = salida.get_absolute_url_detail()
                     data["movimiento_tipo"] = "Desecho"
                     data["cantidad"] = paquete["cantidad"]
@@ -1563,11 +1566,19 @@ class RastreoEntradaSalidaAPI(views.APIView):
                 ).values('tipo_paquete__tipo_dispositivo__tipo').annotate(total=Sum('cantidad'))
 
                 for paquete in paquetes:
+                    if salida.cooperante:
+                        entidad = salida.cooperante.nombre
+                    elif salida.escuela: 
+                        entidad = salida.escuela.nombre
+                    else:
+                        entidad = salida.beneficiario.nombre
+
                     data = {}
                     data["fecha"] = salida.fecha
                     data["tipo_dispositivo"] = paquete['tipo_paquete__tipo_dispositivo__tipo']
                     data["movimiento"] = "Salida"
                     data["movimiento_referencia"] = salida.no_salida
+                    data["movimiento_referencia_entidad"] = entidad
                     data["movimiento_referencia_url"] = salida.get_absolute_url()
                     data["movimiento_tipo"] = salida.tipo_salida.nombre                    
                     data["cantidad"] = paquete['total']
@@ -1585,6 +1596,7 @@ class RastreoEntradaSalidaAPI(views.APIView):
             "tipo_dispositivo": tipo_dispositivo.tipo,
             "movimiento": "Saldo Inicial",
             "movimiento_referencia": "Costo inicial",
+            "movimiento_referencia_entidad": "",
             "movimiento_tipo": costo_inicial,
             "cantidad": "Cantidad Inicial",
             "saldo": saldo_inicial
@@ -1594,6 +1606,7 @@ class RastreoEntradaSalidaAPI(views.APIView):
             "tipo_dispositivo": tipo_dispositivo.tipo,
             "movimiento": "Saldo Final",
             "movimiento_referencia": "Costo Final",
+            "movimiento_referencia_entidad": "",
             "movimiento_tipo": costo_final,
             "cantidad": "Cantidad Final",
             "saldo": saldo_final
