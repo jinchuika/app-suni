@@ -951,7 +951,8 @@ class RastreoEntradaSalida{
             }           
           }
         },
-        { data: "cantidad"},
+        {data: "movimiento_referencia_entidad"},
+        {data: "cantidad"},
         {data: "saldo"},
       ]
     });
