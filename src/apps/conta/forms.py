@@ -501,3 +501,21 @@ class RastreoEntradaSalidaInformeForm(forms.Form):
         label='Fecha (max)',
         required=False,
         widget=forms.TextInput(attrs={'class': 'form-control datepicker'}))
+                                                                        
+class RastreoDispositivosSalidaForm(forms.Form):
+    """Este Formulario se encarga de enlistar los dispositivos con triage de un paquete en una salida 
+    """
+    salida = forms.ModelMultipleChoiceField(
+        queryset=inv_m.SalidaInventario.objects.filter(en_creacion=False),
+        label='No. Salida',
+        required=True,
+        widget=forms.SelectMultiple(attrs={'class': 'form-control select2'}))
+                                                                             
+class RastreoDispositivosEntradaForm(forms.Form):
+    """Este Formulario se encarga de enlistar los dispositivos con triage de un detalle de entrada 
+    """
+    entrada = forms.ModelMultipleChoiceField(
+        queryset=inv_m.Entrada.objects.filter(en_creacion=False),
+        label='No. Entrada',
+        required=True,
+        widget=forms.SelectMultiple(attrs={'class': 'form-control select2'})) 

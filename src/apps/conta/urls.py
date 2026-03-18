@@ -233,12 +233,32 @@ urlpatterns = [
     r'^informe/rastreo/entradasalida/$',
     conta_v.RastreoEntradaSalidaInformeView.as_view(),
     name='informe_rastreo_entrada_salida'
-   ), url(
-    r'^api/rastreo/entradasalida/$',
-    conta_v.RastreoEntradaSalidaAPI.as_view(),
-    name='informe_rastreo_entrada_salida_api'
+   ), 
+   url(
+      r'^api/rastreo/entradasalida/$',
+      conta_v.RastreoEntradaSalidaAPI.as_view(),
+      name='informe_rastreo_entrada_salida_api'
+   ), 
+   url(
+      r'^informe/rastreo/dispositivos/salida/$',
+      conta_v.RastreoDispositivosSalida.as_view(),
+      name='informe_rastreo_salida_dispositivo'
    ),
-     
+   url(
+      r'^api/rastreo/dispositivos/salida/$',
+      conta_v.RastreoDispositivosSalidaAPI.as_view(),
+      name='informe_rastreo_dispositivo_salida_api'
+   ), 
+   url(
+      r'^informe/rastreo/dispositivos/entrada/$',
+      conta_v.RastreoDispositivosEntrada.as_view(),
+      name='informe_rastreo_entrada_dispositivo'
+   ),
+   url(
+      r'^api/rastreo/dispositivos/entrada/$',
+      conta_v.RastreoDispositivosEntradaAPI.as_view(),
+      name='informe_rastreo_dispositivo_entrada_api'
+   ), 
 
 ## Planilla Contabilidad
  url(
