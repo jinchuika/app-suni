@@ -693,10 +693,10 @@ class Dispositivo(models.Model):
 
         if baja_dispo.referencia.startswith('Salida Desecho'):
             referencia = str(baja_dispo.referencia).replace('Salida Desecho','')
-            salida = DesechoSalida.objects.get(id=referencia)
+            salida = DesechoSalida.objects.filter(id=referencia).first()
         elif baja_dispo.referencia.startswith('Salida '):
             referencia = str(baja_dispo.referencia).replace('Salida ','')
-            salida = SalidaInventario.objects.get(no_salida=referencia)
+            salida = SalidaInventario.objects.filter(no_salida=referencia).first()
         return salida
 
 
