@@ -22,6 +22,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from apps.conta import models as conta_m
+from apps.mye.models import Cooperante
 
 
 #################################################
@@ -277,7 +278,8 @@ class SolicitudMovimientoUpdateView(LoginRequiredMixin, UpdateView):
 
     def get_form(self, form_class=None):
         form = super(SolicitudMovimientoUpdateView, self).get_form(form_class)
-        estado = inv_m.DispositivoEstado.objects.get(id=inv_m.DispositivoEstado.PD)        
+        estado = inv_m.DispositivoEstado.objects.get(id=inv_m.DispositivoEstado.PD)
+        proveedor_funsepa = Cooperante.objects.get(id=12)        
         if self.object.no_salida:
             dispositivos_salida = inv_m.CambioEtapa.objects.filter(
                 solicitud__no_salida = self.object.no_salida,
@@ -298,12 +300,20 @@ class SolicitudMovimientoUpdateView(LoginRequiredMixin, UpdateView):
             'data-id': self.object.id,
         })
         if not self.object.desecho:
-            queryset = inv_m.Dispositivo.objects.filter(
-                    etapa=self.object.etapa_inicial,
-                    tipo=self.object.tipo_dispositivo,
-                    entrada_detalle__proyecto=self.object.no_salida.cooperante,
-                    entrada_detalle__entrada__municipio=self.object.no_salida.escuela.municipio
-                )
+            if not self.object.complemento:
+                queryset = inv_m.Dispositivo.objects.filter(
+                        etapa=self.object.etapa_inicial,
+                        tipo=self.object.tipo_dispositivo,
+                        entrada_detalle__proyecto=self.object.no_salida.cooperante,
+                        entrada_detalle__entrada__municipio=self.object.no_salida.escuela.municipio
+                    )
+            else:
+                queryset = inv_m.Dispositivo.objects.filter(
+                        etapa=self.object.etapa_inicial,
+                        tipo=self.object.tipo_dispositivo,
+                        entrada__proyecto= proveedor_funsepa
+                    )
+
         else:
             queryset = inv_m.Dispositivo.objects.filter(
                     etapa=self.object.etapa_inicial,

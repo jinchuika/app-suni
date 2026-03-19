@@ -2031,7 +2031,7 @@ class SolicitudMovimientoUpdate {
 
           /**/
           sel_dispositivos.select2({
-              maximumSelectionLength : ccantidad_asignar,
+              maximumSelectionLength : cantidad_asignar,
               debug: true,
               placeholder: "Ingrese los triage",
               ajax: {
