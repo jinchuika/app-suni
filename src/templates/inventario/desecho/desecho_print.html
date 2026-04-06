@@ -1,103 +1,97 @@
-{%load staticfiles %}
+{% load staticfiles %}
 <!DOCTYPE html>
 <html>
-<head><title>
-Constancia Desecho
-  </title>
-</head>
+<head>
+  <title>Constancia Desecho</title>
   <meta charset="utf-8" />
+</head>
 <body>
   <div class="encabezado">
-    <img src="{% static "image/Logo_Funsepa-01.png" %}" width="150" height="150" />
-
+    <img src="{% static 'image/Logo_Funsepa-01.png' %}" width="150" height="150" />
   </div>
 
 <div class="fecha">
   <td>
   Guatemala, {{desechosalida.fecha}}
-  </br>
-  </br>
+  <br/>
+  <br/>
   <img src="{{object.codigo_qr.url}}" class="img-thumbnail" alt="{{object.codigo_qr}}" width="60">
   </td>
 </div>
-<!--Saludo y presentacion-->
+
 <div class="presentacion">
 </div>
 <br />
 <p class="saludo">
 Por este medio se hace constar que se esta entregando a la empresa {{desechosalida.empresa}} lo siguiente en desecho:
 </p>
+
 <center>
 <table class="cuerpo">
   {% if desechodetalles|length > 0  %}
   <thead>
     <tr>
-      <th width="34%">
-      <center>
-        Entrada</center>
-      </th>
-      <th >
-      <center>Cantidad</center>
-      </th>
-      <th width="33%">
-      <center>Dispositivo</center>
-      </th>
+      <th width="34%">Entrada</th>
+      <th>Cantidad</th>
+      <th width="33%">Dispositivo</th>
     </tr>
   </thead>
   <tbody>
-    {%for desecho in desechodetalles%}
+    {% for desecho in desechodetalles %}
       <tr>
-        <td>
-          <center>
+        <td style="text-align: center;">
             {{desecho.entrada_detalle.entrada}}
-          </center>
         </td>
         <td style="border:none; border-width: 1px;border-color:gray;text-align:center">
           {{desecho.cantidad}}
         </td>
-        <td>
+        <td style="text-align: left;">
           {{desecho.entrada_detalle.descripcion}}
         </td>
       </tr>
-      {%endfor%}
-    {%endif%}
+      {% endfor %}
+    {% endif %}
   </tbody>
   <tfoot>
     <table class="cuerpo">
       {% if desechodispositivo or desechosolicitud %}
       
         {% if desechodetalles|length > 0  %}
-          <thead style="text-align: center;">
-          Dispositivos con Triage
-          <tr style="text-align: center;">
-        {% endif%} 
-            <th> 
-              Triage
-            </th>
-            <th>
-              Tipo
-            </th>
+          <thead>
+          <tr>
+            <th colspan="3" style="text-align: center; padding-top: 15px;">Dispositivos con Triage</th>
+          </tr>
+          <tr>
+        {% endif %} 
+            <th style="text-align: center;">Triage</th>
+            <th style="text-align: center;">Tipo</th>
+            <th style="text-align: center;">Motivo de Desecho</th>
+          </tr>
           </thead>
           
       <tbody>
-
         {% for dispositivos in desechodispositivo  %}
           <tr>
-            <td style="border:none; border-width: 1px;border-color:gray;text-align:center;">
+            <td style="border:none; border-width: 1px;border-color:gray; text-align:center;">
               {{dispositivos.dispositivo}}
             </td>
-            <td>
+            <td style="text-align: center;">
               {{dispositivos.dispositivo.tipo}}
             </td>
+            <td></td>
           </tr>
         {% endfor %}
+        
         {% for dispositivos in desechosolicitud  %}
           <tr>
-            <td style="border:none; border-width: 1px;border-color:gray;text-align:center;">
+            <td style="border:none; border-width: 1px;border-color:gray; text-align:center;">
               {{dispositivos.dispositivo}}
             </td>
-            <td>
+            <td style="text-align: center;">
               {{dispositivos.dispositivo.tipo}}
+            </td>            
+            <td style="text-align: left; padding-left: 10px;">
+              {{dispositivos.motivo}}
             </td>
           </tr>
         {% endfor %}
@@ -105,31 +99,31 @@ Por este medio se hace constar que se esta entregando a la empresa {{desechosali
       {% endif %}
       <tfoot>
         <tr>
+          <td></td>
           <td>
             <b>Dispositivos Totales:</b>
           </td>
           <td style="border:none; border-width: 1px;border-color:gray">
               {{cantidad_total}}
           </td>
-          <td></td>
         </tr>
         <tr>
+          <td></td>
           <td>
             <b>Monto Total:</b>
           </td>
           <td style="border:none; border-width: 1px;border-color:gray">
              Q {{desechosalida.precio_total}}
           </td>
-          <td></td>
         </tr>
          <tr>
+        <td></td>
          <td>
             <b>Peso Total:</b>
           </td>
           <td style="border:none; border-width: 1px;border-color:gray">
               {{object.peso |default_if_none:0}} lbs
           </td>
-          <td></td>
         </tr>
         <tr>
           <td>
@@ -140,6 +134,7 @@ Por este medio se hace constar que se esta entregando a la empresa {{desechosali
     </table>
   </tfoot>
 </table>
+
 <div class="container">
   <div class="row">
     <div class="col">
@@ -156,20 +151,21 @@ Por este medio se hace constar que se esta entregando a la empresa {{desechosali
 <br />
 <br />
 <br />
-<table  width="100%">
+
+<table width="100%">
   <thead>
     <tr>
-      <th>
+      <th style="text-align: center;">
         _______________________
         <br />
         Técnico Encargado
       </th>
-      <th>
+      <th style="text-align: center;">
         _________________
         <br />
         Esdin Pacaja
       </th>
-      <th>
+      <th style="text-align: center;">
         __________________
         <br/>
         Técnico Senior
@@ -201,16 +197,15 @@ Por este medio se hace constar que se esta entregando a la empresa {{desechosali
   <footer>
     <center>
       Centro de Reacondicionamiento Guatemala.
-    </br>
+    <br/>
     14 Ave 19-50 Z.4 de Mixco Condado el Naranjo OfiBodegas San Sebastian No.36
-  </br>
+  <br/>
   Telefono 2435-2612 / 2435-2739
     </center>
   </footer>
 </body>
-<!--INICIA EL CSS-->
-<style type="text/css">
 
+<style type="text/css">
 body{
   font-size: 12px;
   font-family: tahoma;
@@ -220,10 +215,9 @@ body{
   margin-bottom: 0mm;
   margin-left: 10mm;
   margin-right: 10mm;
-
 }
 .encabezado{
-margin-top: 50px;
+  margin-top: 50px;
 }
 .fecha{
   text-align: right;
@@ -233,28 +227,26 @@ margin-top: 50px;
   margin-top: 40px;
   margin-left: 7mm;
 }
+
+th {
+  text-align: center !important;
+}
+
 .cuerpo tr:nth-child(odd) {
   border:none;
   border-width: 1px;
   border-color:gray;
   align-items: center;
-  text-align: center;
 }
 .cuerpo td:nth-child(odd) {
-border:none;
-border-width: 1px;
-border-color:gray;
-text-align: center;
-align-items: center;
+  border:none;
+  border-width: 1px;
+  border-color:gray;
+  align-items: center;
 }
-
-.cuerpo tr:nth-child(even) {
-
-}style="border:none; border-width: 1px;border-color:gray
-.saludostyle="border:none; border-width: 1px;border-color:gray{
+.saludo {
   margin-left: 7mm;
 }
-
 .despedida{
   margin-left: 7mm;
 }
@@ -263,8 +255,10 @@ footer{
   margin-top: 75px;
 }
 </style>
+
 {% block extra_js %}
 <script>
 window.onload= function () { window.print()}
 </script>
 {% endblock extra_js %}
+</html>
