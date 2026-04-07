@@ -1639,7 +1639,7 @@ class RastreoDispositivosSalidaAPI(views.APIView):
     """ Lista todas los dispositivos con triage de un paquete de las salidas
     """
     def get(self, request):
-        ### OBTENER LOS DATOS DEL REQUEST
+        #Obtener los datos del request
         salidas = request.GET.getlist('salida')
         if not salidas:
             return Response(
@@ -1696,7 +1696,7 @@ class RastreoDispositivosEntradaAPI(views.APIView):
     """ Lista todas los dispositivos con triage de un detalle de entrada
     """
     def get(self, request):
-        ### OBTENER LOS DATOS DEL REQUEST
+        #Obtener los datos del request
         entrada = request.GET.getlist('entrada')
         if not entrada:
             return Response(

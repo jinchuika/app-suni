@@ -1020,7 +1020,6 @@ class RastreoDispositivosEntrada{
   constructor() {
   let rastreo_dispositivo_informe = $("#rastreo-dispositivos-entrada-form");
   var urlRastreo= $('#rastreo-dispositivos-entrada-form').attr('action');
-  console.log(urlRastreo);
   rastreo_dispositivo_informe.submit(function (e){
     e.preventDefault();
     var tablaRastreo = $('#rastreo-dispositivos-entrada').DataTable({
