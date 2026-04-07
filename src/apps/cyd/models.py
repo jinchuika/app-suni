@@ -177,9 +177,9 @@ class Sede(models.Model):
             asignaciones__grupo__sede__id=self.id, asignaciones__grupo__curso__id__in=[69], asignaciones__grupo__numero=2).annotate(
             cursos_sede=Count('asignaciones'))
         for participante in participantes:
-            invitado = participantes_invitados.filter(id=participante.id).count()                     
-            asignaciones = participante.asignaciones.filter(grupo__sede=self)
+            invitado = participantes_invitados.filter(id=participante.id).count() 
             if invitado==1:
+                asignaciones = participante.asignaciones.filter(grupo__sede=self, grupo__numero=2)
                 resultado['listado'].append({
                     'participante': participante,
                     'nota': sum(a.get_nota_final() for a in asignaciones),
@@ -189,6 +189,7 @@ class Sede(models.Model):
                     'invitado':"Si"               
                     })
             else:
+                asignaciones = participante.asignaciones.filter(grupo__sede=self)
                 resultado['listado'].append({
                     'participante': participante,
                     'nota': sum(a.get_nota_promediada()['nota'] for a in asignaciones),
