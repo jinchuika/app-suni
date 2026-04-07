@@ -226,6 +226,20 @@ contabilidad_children = (
         weight=12,
         group="inv_conta,inv_admin",
         icon="fa-arrows",
+    ),    
+    ViewMenuItem(
+        "Dispositivos por salida",
+        reverse_lazy('informe_rastreo_salida_dispositivo'),
+        weight=12,
+        group="inv_conta,inv_admin",
+        icon="fa-mail-forward",
+    ),    
+    ViewMenuItem(
+        "Dispositivos por entrada",
+        reverse_lazy('informe_rastreo_entrada_dispositivo'),
+        weight=12,
+        group="inv_conta,inv_admin",
+        icon="fa-mail-reply",
     ),
     
 )
