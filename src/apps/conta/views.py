@@ -1570,6 +1570,8 @@ class RastreoEntradaSalidaAPI(views.APIView):
                         entidad = salida.cooperante.nombre
                     elif salida.escuela: 
                         entidad = salida.escuela.nombre
+                    elif salida.garantia:
+                        entidad = (salida.garantia.garantia.equipamiento.escuela.codigo, salida.garantia.garantia.equipamiento.escuela.nombre)
                     else:
                         entidad = salida.beneficiario.nombre
 
@@ -1623,6 +1625,123 @@ class RastreoEntradaSalidaAPI(views.APIView):
         lista_ordenada.append(fila_saldo_final)
 
         return Response(lista_ordenada)
+
+class RastreoDispositivosSalida(LoginRequiredMixin, GroupRequiredMixin, FormView):
+    """ Vista para obtener la informacion de los dispositivos para crear el informe de existencia mediante un
+    api mediante el metodo GET  y lo muestra en el tempalte
+    """
+    group_required = [u"inv_conta",u"inv_admin", ]
+    redirect_unauthenticated_users = True
+    template_name = "conta/informe_dispositivos_salida.html"
+    form_class = conta_f.RastreoDispositivosSalidaForm 
+
+class RastreoDispositivosSalidaAPI(views.APIView):
+    """ Lista todas los dispositivos con triage de un paquete de las salidas
+    """
+    def get(self, request):
+        #Obtener los datos del request
+        salidas = request.GET.getlist('salida')
+        if not salidas:
+            return Response(
+                {'mensaje': 'Por favor, selecciona al menos una salida.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+            salidas = inv_m.SalidaInventario.objects.filter(id__in=salidas)
+        except Exception as e:
+            return Response(
+                {'mensaje': 'Error al seleccionar salidas. '},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        lista = []
+        paquetes = inv_m.Paquete.objects.filter(salida__in=salidas)
+        for paquete in paquetes:
+            dispositivos = inv_m.DispositivoPaquete.objects.filter(paquete=paquete)
+            for dispositivo in dispositivos:
+                data = {}
+                data["salida"] = paquete.salida.no_salida
+                data["salida_url"] = paquete.salida.get_absolute_url()
+                data["salida_fecha"] = paquete.salida.fecha
+                data["dispositivo_tipo"] = dispositivo.dispositivo.tipo.tipo
+                data["dispositivo_triage"] = dispositivo.dispositivo.triage
+                data["dispositivo_url"] = dispositivo.dispositivo.get_absolute_url()
+                if dispositivo.dispositivo.marca:
+                    data["dispositivo_marca"] = dispositivo.dispositivo.marca.marca
+                else: 
+                    data["dispositivo_marca"] = ""
+                data["dispositivo_modelo"] = dispositivo.dispositivo.modelo
+                data["dispositivo_serie"] = dispositivo.dispositivo.serie
+                if dispositivo.dispositivo.clase:
+                    data["dispositivo_clase"] = dispositivo.dispositivo.clase.clase
+                else: 
+                        data["dispositivo_clase"] = ""
+                data["entrada"] = dispositivo.dispositivo.entrada.id
+                data["entrada_url"] = dispositivo.dispositivo.entrada.get_absolute_url()
+                lista.append(data)
+
+        return Response(lista)
+
+class RastreoDispositivosEntrada(LoginRequiredMixin, GroupRequiredMixin, FormView):
+    """ Vista para obtener la informacion de los dispositivos para crear el informe de existencia mediante un
+    api mediante el metodo GET y lo muestra en el tempalte
+    """
+    group_required = [u"inv_conta",u"inv_admin", ]
+    redirect_unauthenticated_users = True
+    template_name = "conta/informe_dispositivos_entrada.html"
+    form_class = conta_f.RastreoDispositivosEntradaForm
+
+class RastreoDispositivosEntradaAPI(views.APIView):
+    """ Lista todas los dispositivos con triage de un detalle de entrada
+    """
+    def get(self, request):
+        #Obtener los datos del request
+        entrada = request.GET.getlist('entrada')
+        if not entrada:
+            return Response(
+                {'mensaje': 'Por favor, selecciona al menos una entrada.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        try:
+            entradas = inv_m.Entrada.objects.filter(id__in=entrada)
+        except Exception as e:
+            return Response(
+                {'mensaje': 'Error al seleccionar entradas. '},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        lista = []
+        dispositivos = inv_m.Dispositivo.objects.filter(entrada__in=entradas)
+        for dispositivo in dispositivos:
+            data = {}
+            data["entrada"] = dispositivo.entrada.id
+            data["entrada_url"] = dispositivo.entrada.get_absolute_url()
+            data["entrada_fecha"] = dispositivo.entrada.fecha
+            data["dispositivo_tipo"] = dispositivo.tipo.tipo
+            data["dispositivo_triage"] = dispositivo.triage
+            data["dispositivo_url"] = dispositivo.get_absolute_url()
+            if dispositivo.marca:
+                data["dispositivo_marca"] = dispositivo.marca.marca
+            else: 
+                data["dispositivo_marca"] = ""
+            data["dispositivo_modelo"] = dispositivo.modelo
+            data["dispositivo_serie"] = dispositivo.serie
+            if dispositivo.clase:
+                data["dispositivo_clase"] = dispositivo.clase.clase
+            else: 
+                    data["dispositivo_clase"] = ""
+            if dispositivo.get_salida() is not None:
+                try:
+                    data["salida"] = dispositivo.get_salida().no_salida
+                except AttributeError:
+                    data["salida"] = dispositivo.get_salida().id
+                data["salida_url"] = dispositivo.get_salida().get_absolute_url()
+            else:
+                data["salida"] = ""
+                data["salida_url"] = ""
+            lista.append(data)
+        return Response(lista)
 
 """
  Vista para la contabilidad del modulo de BEQT

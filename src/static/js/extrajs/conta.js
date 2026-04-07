@@ -959,3 +959,115 @@ class RastreoEntradaSalida{
   });
   }
 }
+
+class RastreoDispositivosSalida{
+  constructor() {
+  let rastreo_dispositivo_informe = $("#rastreo-dispositivos-salida-form");
+  var urlRastreo= $('#rastreo-dispositivos-salida-form').attr('action');
+  rastreo_dispositivo_informe.submit(function (e){
+    e.preventDefault();
+    var tablaRastreo = $('#rastreo-dispositivos-salidas').DataTable({
+      dom: 'lfrtipB',
+      buttons: ['excel', 'pdf', 'copy'],
+      searching:true,
+      paging:false,
+      ordering:true,
+      processing:true,
+      traditional: true,
+      destroy:true,
+      ajax:{
+        url:urlRastreo,
+        dataSrc:'',
+        cache:false,
+        processing:true,
+        error: function(jqXHR, textStatus, errorThrown) {           
+            var responseJSON = JSON.parse(jqXHR.responseText);
+            bootbox.alert({ message: "<h2>"+responseJSON["mensaje"]+"</h2>", className:"modal modal-info fade in" });
+        },
+        data: function () {
+          return $('#rastreo-dispositivos-salida-form').serialize();
+        }
+      },
+      columns: [
+        {data:"salida",
+          render: function(data, type, full, meta){
+             return "<a href="+full.salida_url+">"+full.salida+"</a>";
+          }
+        },
+        {data:"salida_fecha"},
+        {data:"dispositivo_tipo"},
+        {data:"dispositivo_triage",
+          render: function(data, type, full, meta){
+             return "<a href="+full.dispositivo_url+">"+full.dispositivo_triage+"</a>";
+          }
+        },
+        {data: "dispositivo_marca"},
+        {data: "dispositivo_modelo"},
+        {data: "dispositivo_serie"},
+        {data: "dispositivo_clase"},
+        {data:"entrada",
+          render: function(data, type, full, meta){
+             return "<a href="+full.entrada_url+">"+full.entrada+"</a>";
+          }
+        },
+      ]
+    });
+  });
+  }
+}
+
+class RastreoDispositivosEntrada{
+  constructor() {
+  let rastreo_dispositivo_informe = $("#rastreo-dispositivos-entrada-form");
+  var urlRastreo= $('#rastreo-dispositivos-entrada-form').attr('action');
+  rastreo_dispositivo_informe.submit(function (e){
+    e.preventDefault();
+    var tablaRastreo = $('#rastreo-dispositivos-entrada').DataTable({
+      dom: 'lfrtipB',
+      buttons: ['excel', 'pdf', 'copy'],
+      searching:true,
+      paging:false,
+      ordering:true,
+      processing:true,
+      traditional: true,
+      destroy:true,
+      ajax:{
+        url:urlRastreo,
+        dataSrc:'',
+        cache:false,
+        processing:true,
+        error: function(jqXHR, textStatus, errorThrown) {           
+            var responseJSON = JSON.parse(jqXHR.responseText);
+            bootbox.alert({ message: "<h2>"+responseJSON["mensaje"]+"</h2>", className:"modal modal-info fade in" });
+        },
+        data: function () {
+          return $('#rastreo-dispositivos-entrada-form').serialize();
+        }
+      },
+      columns: [
+        {data:"entrada",
+          render: function(data, type, full, meta){
+             return "<a href="+full.entrada_url+">"+full.entrada+"</a>";
+          }
+        },
+        {data:"entrada_fecha"},
+        {data:"dispositivo_tipo"},
+        {data:"dispositivo_triage",
+          render: function(data, type, full, meta){
+             return "<a href="+full.dispositivo_url+">"+full.dispositivo_triage+"</a>";
+          }
+        },
+        {data:"dispositivo_marca"},
+        {data:"dispositivo_modelo"},
+        {data:"dispositivo_serie"},
+        {data:"dispositivo_clase"},
+        {data:"salida",
+          render: function(data, type, full, meta){
+             return "<a href="+full.salida_url+">"+full.salida+"</a>";
+          }
+        },
+      ]
+    });
+  });
+  }
+}
