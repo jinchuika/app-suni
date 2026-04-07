@@ -334,20 +334,25 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
                 detalle_entrada =inv_m.EntradaDetalle.objects.filter(tipo_dispositivo=validar_dispositivos)  
             else:
                 salida = inv_m.SalidaInventario.objects.get(id=id_salida)
-                if salida.tipo_salida.id==1:
-                    valida_detalle_entrada = inv_m.EntradaDetalle.objects.filter(proyecto__id=salida.cooperante.id,entrada__tipo__id=2,tipo_dispositivo=validar_dispositivos,entrada__municipio=salida.escuela.municipio)
-                    if len(valida_detalle_entrada) >=1:
-                        detalle_entrada =inv_m.EntradaDetalle.objects.filter(proyecto__id=salida.cooperante.id,tipo_dispositivo=validar_dispositivos,entrada__municipio=salida.escuela.municipio)
-                        parametros["entrada_detalle__in"]=detalle_entrada
-                    else:
-                        return Response(
-                                        {'mensaje': 0},
-                                        status=status.HTTP_200_OK)
+                if validar_dispositivos.usa_triage:
+                    if salida.tipo_salida.id==1:
+                        valida_detalle_entrada = inv_m.EntradaDetalle.objects.filter(proyecto__id=salida.cooperante.id,entrada__tipo__id=2,tipo_dispositivo=validar_dispositivos,entrada__municipio=salida.escuela.municipio)
+                        if len(valida_detalle_entrada) >=1:
+                            detalle_entrada =inv_m.EntradaDetalle.objects.filter(proyecto__id=salida.cooperante.id,tipo_dispositivo=validar_dispositivos,entrada__municipio=salida.escuela.municipio)
+                            parametros["entrada_detalle__in"]=detalle_entrada
+                        else:
+                            return Response(
+                                            {'mensaje': 0},
+                                            status=status.HTTP_200_OK)
+                else:
+                    cantidad_kardex = kax_m.Equipo.objects.get(nombre=validar_dispositivos)
+                    numero_dispositivos = cantidad_kardex.existencia
+
         else:
             proveedor_funsepa = Cooperante.objects.get(id=12)
             parametros["entrada__proyecto"]= proveedor_funsepa                    
         if(validar_dispositivos.kardex):
-            cantidad_kardex = kax_m.Equipo.objects.get(nombre=tipo_dispositivo)
+            cantidad_kardex = kax_m.Equipo.objects.get(nombre=validar_dispositivos)
             numero_dispositivos = cantidad_kardex.existencia
         else:
             numero_dispositivos = inv_m.Dispositivo.objects.filter(**parametros).count()
