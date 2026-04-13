@@ -68,7 +68,7 @@ class IndexView(LoginRequiredMixin, TemplateView):
             today = datetime.now()
             equipamiento_list = Equipamiento.objects.filter(fecha__year=today.year)
             reparaciones = TicketReparacion.objects.filter(fecha_fin__year=today.year).count()
-            ccts = equipamiento_list.filter(renovacion=False, escuela__nombre__startswith="CENTRO COMUNITARIO TECNOLOGICO").count()
+            ccts = equipamiento_list.filter(renovacion=False, escuela__nombre__iregex=r"^CENTRO COMUNITARIO TECNOL[OÓ]GICO").count()
 
             widgets.append({
                 'queryset': '',
