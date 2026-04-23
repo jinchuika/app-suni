@@ -628,14 +628,14 @@ class NewListadoMaestroView(TemplateView):
                             data_sedes["certificado"]=False
                 elif sum(id_cursos)==290:
                    if data.grupo.numero==2:
-                      if data.get_nota_final()>=0:
+                      if data.get_nota_final()>=70:
                         data_sedes["tipo"]=signing.dumps("constancia_tna")
                         data_sedes["constancia"]=True
                       else:
                          data_sedes["constancia"]=False                      
                    else:
                       if data.grupo.curso.id in [84]:                       
-                         if data.get_nota_final()>=0:                          
+                         if data.get_nota_final()>=70:                          
                           data_sedes["tipo"]=signing.dumps("certificado_tna")
                           data_sedes["certificado"]=True
                          else:                            
