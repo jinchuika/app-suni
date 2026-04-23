@@ -509,17 +509,26 @@ class NewListadoMaestroView(TemplateView):
             data_sedes = {}
             numero_sede = listado_sedes.pop()
             cursos = []
-            #recorrido para obtener los cursos
+            # recorrido para obtener los cursos
+            # se obtiene el pk de cada curso de la class:cyp.Cursos: para luego sumar el pk para obtner un resultado
+            # en base a la suma de los pk de cada curso se obtiene que tipo de certificado o constancia que se les va mostrar
+              
             for  data_tni in info_asignaciones.filter(grupo__sede__id=numero_sede):               
                contador_curso = contador_curso +1
                #TNI2024
                if(data_tni.grupo.curso.id) in [66,67,68,69]:
                   id_cursos.append(data_tni.grupo.curso.id)
+               #TNB2026
+               elif(data_tni.grupo.curso.id) in [71,67,68,83]:
+                  id_cursos.append(data_tni.grupo.curso.id)
+               #TNA2026
+               elif(data_tni.grupo.curso.id) in [71,67,68,84]:
+                  id_cursos.append(data_tni.grupo.curso.id)
                #TNI2023 Y RESTO 2024
-               if(data_tni.grupo.curso.id) in [66,67,68,53]:
+               elif(data_tni.grupo.curso.id) in [66,67,68,53]:
                   id_cursos.append(data_tni.grupo.curso.id)
                #Kolibri-Khan Y RESTO 2024
-               if(data_tni.grupo.curso.id) in [71,67,68,69]:
+               elif(data_tni.grupo.curso.id) in [71,67,68,69]:
                   id_cursos.append(data_tni.grupo.curso.id)
                 #TNI2023  
                elif (data_tni.grupo.curso.id) in [53,55,56,57]:
@@ -603,6 +612,35 @@ class NewListadoMaestroView(TemplateView):
                         data_sedes["constancia"]=True
                       else:
                          data_sedes["constancia"]=False
+                elif sum(id_cursos)==289:
+                   if data.grupo.numero==2:
+                      if data.get_nota_final()>=70:
+                        data_sedes["tipo"]=signing.dumps("constancia_tnb")
+                        data_sedes["constancia"]=True
+                      else:
+                         data_sedes["constancia"]=False                      
+                   else:
+                      if data.grupo.curso.id in [83]:                       
+                         if data.get_nota_final()>=70:                          
+                          data_sedes["tipo"]=signing.dumps("certificado_tnb")
+                          data_sedes["certificado"]=True
+                         else:                            
+                            data_sedes["certificado"]=False
+                elif sum(id_cursos)==290:
+                   if data.grupo.numero==2:
+                      if data.get_nota_final()>=0:
+                        data_sedes["tipo"]=signing.dumps("constancia_tna")
+                        data_sedes["constancia"]=True
+                      else:
+                         data_sedes["constancia"]=False                      
+                   else:
+                      if data.grupo.curso.id in [84]:                       
+                         if data.get_nota_final()>=0:                          
+                          data_sedes["tipo"]=signing.dumps("certificado_tna")
+                          data_sedes["certificado"]=True
+                         else:                            
+                            data_sedes["certificado"]=False
+
                       
                    
                data_cursos["asignacion"] =data.id
@@ -614,7 +652,7 @@ class NewListadoMaestroView(TemplateView):
                except:
                   data_cursos["fecha_final"] = None                  
                data_cursos["nota"] = data.get_nota_final()
-               data_cursos["aprobado"] = data.get_aprobado()                                         
+               data_cursos["aprobado"] = data.get_aprobado()
                cursos.append(data_cursos)                
             data_sedes["numero_cursos"] = contador_curso
             contador_curso = 0
@@ -623,11 +661,10 @@ class NewListadoMaestroView(TemplateView):
             else:
                data_sedes["botones"] = False                         
             data_sedes["nombre"] = info_asignaciones.filter(grupo__sede__id=numero_sede).first().grupo.sede.nombre
-            data_sedes["finalizada"] = info_asignaciones.filter(grupo__sede__id=numero_sede).first().grupo.sede.finalizada            
+            data_sedes["finalizada"] = info_asignaciones.filter(grupo__sede__id=numero_sede).first().grupo.sede.finalizada
             data_sedes["cursos"] = cursos
             sedes.append(data_sedes)
          data_certificado["sedes"]=sedes
-         #print(data_certificado)
          context['sedes'] = data_certificado
          return context
 
@@ -695,6 +732,18 @@ class NuevoDiplomaPdfView(View):
       elif tipo_decifrada =="constancia_tni":
          nombre_archivo = "constancia_tni-"+str(dpi)
          ruta_diploma = str(settings.STATICFILES_DIRS[0] ) + str("/css/constancia/2024/constancia-TNI-24.jpg")
+      elif tipo_decifrada =="constancia_tnb":
+         nombre_archivo = "constancia_tnb-"+str(dpi)
+         ruta_diploma = str(settings.STATICFILES_DIRS[0] ) + str("/css/constancia/2026/constancia-TNB-26.jpg")
+      elif tipo_decifrada =="certificado_tnb":
+         nombre_archivo = "certificado-combo-tnb-"+str(dpi)
+         ruta_diploma = str(settings.STATICFILES_DIRS[0] ) + str("/css/diploma/2026/certificado-TNB-26.jpg")
+      elif tipo_decifrada =="constancia_tna":
+         nombre_archivo = "constancia_tna-"+str(dpi)
+         ruta_diploma = str(settings.STATICFILES_DIRS[0] ) + str("/css/constancia/2026/constancia-TNA-26.jpg")
+      elif tipo_decifrada =="certificado_tna":
+         nombre_archivo = "certificado-combo-tna-"+str(dpi)
+         ruta_diploma = str(settings.STATICFILES_DIRS[0] ) + str("/css/diploma/2026/certificado-TNA-26.jpg")
 
       
       #ruta_diploma = str(settings.STATICFILES_DIRS[0] ) + str("/css/diploma/TNIVirtual2024.jpg") 
@@ -732,10 +781,22 @@ class NuevoDiplomaPdfView(View):
       #c.setFont("MyriadPro_Regular",30,leading=None)
       c.setFillColor((0,0,0))
       #c.drawCentredString(x+w*0.0,y+h*0.5, str(data[0]['nombre'].upper())+" "+str(data[0]['apellido'].upper()))
-      c.drawCentredString(x+w*0.0,y+h*0.5, str(participante.nombre)+" "+str(participante.apellido))
-      c.setFont("MyriadPro_BoldIt",18,leading=None)
-      #c.drawCentredString(x+w*0.0,60+h*0.5, "Guatemala, " + datetime.datetime.now().strftime("%d de %B del %Y"))         
-      c.drawCentredString(x+w*0.0,60+h*0.3, "Guatemala, " + fecha_finalizacion.date().strftime("%d de %B del %Y")) 
+      if tipo_decifrada  =="certificado_tnb":
+         c.drawCentredString(460+w*0.0,240+h*0.5, str(participante.nombre)+" "+str(participante.apellido))
+         c.setFont("MyriadPro_BoldIt",18,leading=None)
+         #c.drawCentredString(500+w*0.0,60+h*0.3, "Guatemala, " + datetime.datetime.now().strftime("%d de %B del %Y"))         
+         c.drawCentredString(500+w*0.0,25+h*0.3, "Guatemala, " + fecha_finalizacion.date().strftime("%d de %B del %Y")) 
+      elif tipo_decifrada  =="certificado_tna":
+         c.drawCentredString(460+w*0.0,240+h*0.5, str(participante.nombre)+" "+str(participante.apellido))
+         c.setFont("MyriadPro_BoldIt",18,leading=None)
+         #c.drawCentredString(600+w*0.0,0+h*0.3, "Guatemala, " + datetime.datetime.now().strftime("%d de %B del %Y"))         
+         c.drawCentredString(500+w*0.0,25+h*0.3, "Guatemala, " + fecha_finalizacion.date().strftime("%d de %B del %Y")) 
+      
+      else:
+         c.drawCentredString(x+w*0.0,y+h*0.5, str(participante.nombre)+" "+str(participante.apellido))
+         c.setFont("MyriadPro_BoldIt",18,leading=None)
+         #c.drawCentredString(x+w*0.0,60+h*0.3, "Guatemala, " + datetime.datetime.now().strftime("%d de %B del %Y"))         
+         c.drawCentredString(x+w*0.0,60+h*0.3, "Guatemala, " + fecha_finalizacion.date().strftime("%d de %B del %Y")) 
       c.setTitle('Diploma Funsepa')
       c.showPage()
       c.save()
