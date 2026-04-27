@@ -967,3 +967,24 @@ class estadoFormularioAPI(views.APIView):
 
           return Response("Objetos creados correctamente: {}".format(formularios_creados), status=status.HTTP_200_OK)
 
+
+class EntradasProyectoUpdate(views.APIView): 
+    """Api para cambiar el proyecto de las entradas :class:`Entrad`"""
+
+    def get(self, request): 
+          entradas = inv_m.Entrada.objects.filter(tipo__nombre="Donación",proyecto__isnull=True)
+          if entradas.count() == 0:
+               return Response(
+                    "No hay mas entradas de tipo donacion sin proyecto asignado.", 
+                    status=status.HTTP_200_OK
+               )
+          cooperante = Cooperante.objects.get(id=12,nombre="FUNSEPA")
+
+          for entrada in entradas:
+            entrada.proyecto.add(cooperante)
+
+          return Response(
+               "Entradas actualizadas con éxito", 
+               status=status.HTTP_200_OK
+          )
+    
