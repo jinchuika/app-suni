@@ -39,6 +39,8 @@ class TecladoForm(forms.ModelForm):
         super(TecladoForm, self).__init__(*args, **kwargs)
         if self.instance and self.instance.pk:
             for nombre_campo, campo in self.fields.items():
+                if nombre_campo == "tarima" or nombre_campo == "caja" or nombre_campo == "descripcion":
+                    continue
                 valor_actual = getattr(self.instance, nombre_campo, None)
 
                 if valor_actual is not None and valor_actual != "":
@@ -125,6 +127,8 @@ class LaptopForm(forms.ModelForm):
         self.fields['disco_duro'].queryset =inv_m.HDD.objects.filter(valido=True, asignado=False).exclude(movimientodispositivo__tipo_movimiento=conta_m.MovimientoDispositivo.BAJA)
         if self.instance and self.instance.pk:
             for nombre_campo, campo in self.fields.items():
+                if nombre_campo == "tarima" or nombre_campo == "caja" or nombre_campo == "descripcion":
+                    continue
                 valor_actual = getattr(self.instance, nombre_campo, None)
                 if valor_actual is not None and valor_actual != "":
                     campo.disabled = True 
@@ -165,6 +169,8 @@ class MonitorForm(forms.ModelForm):
         super(MonitorForm, self).__init__(*args, **kwargs)
         if self.instance and self.instance.pk:
             for nombre_campo, campo in self.fields.items():
+                if nombre_campo == "tarima" or nombre_campo == "caja" or nombre_campo == "descripcion":
+                    continue
                 valor_actual = getattr(self.instance, nombre_campo, None)
 
                 if valor_actual is not None and valor_actual != "":
@@ -206,6 +212,8 @@ class MouseForm(forms.ModelForm):
         super(MouseForm, self).__init__(*args, **kwargs)
         if self.instance and self.instance.pk:
             for nombre_campo, campo in self.fields.items():
+                if nombre_campo == "tarima" or nombre_campo == "caja" or nombre_campo == "descripcion":
+                    continue
                 valor_actual = getattr(self.instance, nombre_campo, None)
 
                 if valor_actual is not None and valor_actual != "":
@@ -248,6 +256,8 @@ class DispositivoRedForm(forms.ModelForm):
         super(DispositivoRedForm, self).__init__(*args, **kwargs)
         if self.instance and self.instance.pk:
             for nombre_campo, campo in self.fields.items():
+                if nombre_campo == "tarima" or nombre_campo == "caja" or nombre_campo == "descripcion":
+                    continue
                 valor_actual = getattr(self.instance, nombre_campo, None)
 
                 if valor_actual is not None and valor_actual != "":
@@ -290,6 +300,8 @@ class DispositivoAccessPointForm(forms.ModelForm):
         super(DispositivoAccessPointForm, self).__init__(*args, **kwargs)
         if self.instance and self.instance.pk:
             for nombre_campo, campo in self.fields.items():
+                if nombre_campo == "tarima" or nombre_campo == "caja" or nombre_campo == "descripcion":
+                    continue
                 valor_actual = getattr(self.instance, nombre_campo, None)
 
                 if valor_actual is not None and valor_actual != "":
@@ -337,6 +349,8 @@ class TabletForm(forms.ModelForm):
         super(TabletForm, self).__init__(*args, **kwargs)
         if self.instance and self.instance.pk:
             for nombre_campo, campo in self.fields.items():
+                if nombre_campo == "tarima" or nombre_campo == "caja" or nombre_campo == "descripcion":
+                    continue
                 valor_actual = getattr(self.instance, nombre_campo, None)
 
                 if valor_actual is not None and valor_actual != "":
@@ -379,6 +393,8 @@ class HDDForm(forms.ModelForm):
         super(HDDForm, self).__init__(*args, **kwargs)
         if self.instance and self.instance.pk:
             for nombre_campo, campo in self.fields.items():
+                if nombre_campo == "tarima" or nombre_campo == "caja" or nombre_campo == "descripcion":
+                    continue
                 valor_actual = getattr(self.instance, nombre_campo, None)
 
                 if valor_actual is not None and valor_actual != "":
@@ -746,6 +762,8 @@ class CPUFormUpdate(forms.ModelForm):
         self.fields['disco_duro'].queryset = inv_m.HDD.objects.filter(valido=True)
         if self.instance and self.instance.pk:
             for nombre_campo, campo in self.fields.items():
+                if nombre_campo != "clase" and nombre_campo != "modelo" and nombre_campo != "serie" and nombre_campo != "marca" and nombre_campo != "all_in_one":
+                    continue
                 valor_actual = getattr(self.instance, nombre_campo, None)
                 if valor_actual is not None and valor_actual != "":
                     campo.disabled = True 
