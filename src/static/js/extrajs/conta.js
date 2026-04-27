@@ -826,27 +826,12 @@ class UtilDesechoInforme{
   rastreo_dispositivo_informe.submit(function (e){
     e.preventDefault();
     var tablaPrecio = $('#util-desecho-table').DataTable({
-      footerCallback: function( tfoot, data, start, end, display){        
-        var costo_total = 0
-        var en_bodega  = 0
-        var total_dispo = 0
-        var acumulado_precio = 0
-        for (var i in data){
-          total_dispo = total_dispo + 1;
-          costo_total = costo_total + data[i].precio;
-          acumulado_precio = acumulado_precio + data[i].precio;
-          if (data[i].tipo_etapa==1){
-            en_bodega = en_bodega +1;
-          }     
-          
-        };
-         $(tfoot).find('th').eq(0).html( "CANTIDAD DE DISPOSITIVOS: "+ parseFloat(total_dispo).toLocaleString('en') );
-         //$(tfoot).find('th').eq(1).html( "CANTIDAD EN BODEGA: "+ parseFloat(en_bodega).toLocaleString('en'));
-         $(tfoot).find('th').eq(1).html( "ACUMULADO DE PRECIO: Q."+ parseFloat(acumulado_precio).toLocaleString('en'));
-         
-      },
       dom: 'lfrtipB',
-      buttons: ['excel', 'pdf', 'copy'],
+      buttons: [
+          { extend: 'excel', footer: true },
+          { extend: 'pdf', footer: true },
+          { extend: 'copy', footer: true }
+      ],
       searching:true,
       paging:false,
       ordering:true,
@@ -857,39 +842,59 @@ class UtilDesechoInforme{
         dataSrc:'',
         cache:false,
         processing:true,
-        error: function(jqXHR, textStatus, errorThrown) {           
+        error: function(jqXHR, textStatus, errorThrown) {          
             var responseJSON = JSON.parse(jqXHR.responseText);
-            bootbox.alert({ message: "<h2>"+responseJSON["mensaje"]+"</h2>", className:"modal modal-info fade in" });
-        },
+            bootbox.alert({ message: "<h2>"+responseJSON["mensaje"]+"</h2>", className: "modal modal-info fade in" });
+          },
         data: function () {
           return $('#util-desecho-list-form').serializeObject(true);
         }
-        
+      },        
+      footerCallback: function (row, data, start, end, display) {        
+        var total_dispo = 0;
+        var acumulado_precio = 0;
+        for (var i in data) {
+          total_dispo += 1;
+          acumulado_precio += parseFloat(data[i].precio || 0); 
+        }
+          
+        var api = this.api();
+        var $tfoot = $(api.table().footer());
+        $tfoot.find('th').html('');
+        $tfoot.find('th').eq(2).html("CANTIDAD: " + total_dispo);
+        $tfoot.find('th').eq(3).html("TOTAL ACUMULADO:");
+        var totalFormateado = acumulado_precio.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        $tfoot.find('th').eq(4).html("Q." + totalFormateado);
       },
+        
       columns: [
         {data:"numero"},
-        {data: "salida_desecho",render: function(data, type, full, meta){
-          return "<a href="+full.url_salida+">"+full.salida_desecho+"</a>";
-        }},
-        {data: "triage",render: function(data, type, full, meta){
-          return "<a href="+full.url_dispositivo+">"+full.triage+"</a>";
-        }},
-        {data: "tipo"},
-        {data: "precio"},
-        {data: "empresa",render: function(data, type, full, meta){
-          return "<a href="+full.url_empresa+">"+full.empresa+"</a>";
-        }},
-        {data: "fecha_salida"},
-
+        { data: "salida_desecho", render: function (data, type, full, meta) {
+            return "<a href=" + full.url_salida + ">" + full.salida_desecho + "</a>";
+          }
+        },
+        {data: "triage", render: function (data, type, full, meta) {
+            return "<a href=" + full.url_dispositivo + ">" + full.triage + "</a>";
+          }
+        },
+        {data:"tipo"},
+        { 
+          data: "precio", 
+          render: function (data, type, full, meta) {
+            var precioNum = parseFloat(data || 0);
+            return precioNum.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+          }
+        },
+          { data: "empresa", render: function (data, type, full, meta) {
+              return "<a href=" + full.url_empresa + ">" + full.empresa + "</a>";
+            }
+          },
+        {data:"fecha_salida"}
       ]
     });
-    //tablaPrecio.clear().draw();
-    //tablaPrecio.ajax.reload();
-
   });
   }
 }
-
 
 class RastreoEntradaSalida{
   constructor() {

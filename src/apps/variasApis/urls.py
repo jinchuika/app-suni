@@ -72,5 +72,10 @@ url(
    r'^evaluacion/estadoformulario/$',
    varias_v.estadoFormularioAPI.as_view(),
    name='estado_formulario_api'
+ ),
+url(
+   r'^entrada/proyecto/$',
+   varias_v.EntradasProyectoUpdate.as_view(),
+   name='entrada_proyecto_update'
  )
 ]
