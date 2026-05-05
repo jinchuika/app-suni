@@ -174,7 +174,7 @@ class Sede(models.Model):
             asignaciones__grupo__sede__id=self.id, activo=True).annotate(
             cursos_sede=Count('asignaciones'))        
         participantes_invitados = Participante.objects.filter(
-            asignaciones__grupo__sede__id=self.id, asignaciones__grupo__curso__id__in=[69], asignaciones__grupo__numero=2).annotate(
+            asignaciones__grupo__sede__id=self.id, asignaciones__grupo__curso__id__in=[69,83,84], asignaciones__grupo__numero=2).annotate(
             cursos_sede=Count('asignaciones'))
         for participante in participantes:
             invitado = participantes_invitados.filter(id=participante.id).count()                     
