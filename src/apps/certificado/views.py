@@ -490,7 +490,6 @@ class NewListadoMaestroView(TemplateView):
          info_notas = 0
          sedes_mostrar = cyd_m.Asignacion.objects.values_list('grupo__sede',flat=True).order_by("-grupo__sede").filter(participante=info_participante).distinct()        
          listado_sedes = list(sedes_mostrar)
-         print(listado_sedes) 
          data_participante["nombre"]= info_participante.nombre +" "+info_participante.apellido
          data_participante["dpi"]=info_participante.dpi
          data_participante["codigo"]=signing.dumps(info_participante.dpi)
@@ -504,14 +503,12 @@ class NewListadoMaestroView(TemplateView):
          contador_curso = 0
          nota_naat =0              
          ultima_sede = listado_sedes[0]
-         es_naat= False
-         print(ultima_sede)      
+         es_naat= False     
          while len(listado_sedes) != 0:
             id_cursos =[]  
             data_sedes = {}
             numero_sede = listado_sedes.pop()
             sede = cyd_m.Sede.objects.get(id=numero_sede)
-            print(sede.fecha_creacion.year)
             cursos = []
             # recorrido para obtener los cursos
             # se obtiene el pk de cada curso de la class:cyp.Cursos: para luego sumar el pk para obtner un resultado
@@ -676,7 +673,6 @@ class NewListadoMaestroView(TemplateView):
             sedes.append(data_sedes)
          data_certificado["sedes"]=sedes
          context['sedes'] = data_certificado
-         print(data_certificado)
          return context
 
 
@@ -813,12 +809,8 @@ class NuevoDiplomaPdfView(View):
       c.setTitle('Diploma Funsepa')
       c.showPage()
       c.save()
-      pdf = buffer.seek(0)
-      response = HttpResponse(pdf, content_type='application/pdf')
-      nombre_descarga = str(participante.nombre) + str(dpi)
-      response['Content-Disposition'] = 'inline; filename='+nombre_descarga
-      #pdf = buffer.getvalue()      
-      #buffer.close()
-      #response.write(pdf)     
+      pdf = buffer.getvalue()
+      buffer.close()
+      response.write(pdf) 
       return response
       

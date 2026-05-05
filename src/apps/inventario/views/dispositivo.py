@@ -280,12 +280,13 @@ class SolicitudMovimientoUpdateView(LoginRequiredMixin, UpdateView):
         form = super(SolicitudMovimientoUpdateView, self).get_form(form_class)
         estado = inv_m.DispositivoEstado.objects.get(id=inv_m.DispositivoEstado.PD)
         proveedor_funsepa = Cooperante.objects.get(id=12)        
-        if self.object.no_salida:
+        if self.object.no_salida:            
             dispositivos_salida = inv_m.CambioEtapa.objects.filter(
                 solicitud__no_salida = self.object.no_salida,
                 solicitud__devolucion=False
             ).values('dispositivo')
-        elif self.object.no_inventariointerno:
+        elif self.object.no_inventariointerno:           
+            print(self.object.no_inventariointerno)
             dispositivos_salida = inv_m.CambioEtapa.objects.filter(
                 solicitud__no_inventariointerno = self.object.no_inventariointerno,
                 solicitud__devolucion=False
@@ -301,12 +302,18 @@ class SolicitudMovimientoUpdateView(LoginRequiredMixin, UpdateView):
         })
         if not self.object.desecho:
             if not self.object.complemento:
-                queryset = inv_m.Dispositivo.objects.filter(
-                        etapa=self.object.etapa_inicial,
-                        tipo=self.object.tipo_dispositivo,
-                        entrada_detalle__proyecto=self.object.no_salida.cooperante,
-                        entrada_detalle__entrada__municipio=self.object.no_salida.escuela.municipio
-                    )
+                if not self.object.no_inventariointerno:
+                    queryset = inv_m.Dispositivo.objects.filter(
+                            etapa=self.object.etapa_inicial,
+                            tipo=self.object.tipo_dispositivo,
+                            entrada_detalle__proyecto=self.object.no_salida.cooperante,
+                            entrada_detalle__entrada__municipio=self.object.no_salida.escuela.municipio
+                        )
+                else:
+                    queryset = inv_m.Dispositivo.objects.filter(
+                            etapa=self.object.etapa_inicial,
+                            tipo=self.object.tipo_dispositivo
+                        )
             else:
                 queryset = inv_m.Dispositivo.objects.filter(
                         etapa=self.object.etapa_inicial,
