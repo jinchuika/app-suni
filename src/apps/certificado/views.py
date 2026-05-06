@@ -489,7 +489,7 @@ class NewListadoMaestroView(TemplateView):
          info_asignaciones = cyd_m.Asignacion.objects.filter(participante=info_participante)
          info_notas = 0
          sedes_mostrar = cyd_m.Asignacion.objects.values_list('grupo__sede',flat=True).order_by("-grupo__sede").filter(participante=info_participante).distinct()        
-         listado_sedes = list(sedes_mostrar) 
+         listado_sedes = list(sedes_mostrar)
          data_participante["nombre"]= info_participante.nombre +" "+info_participante.apellido
          data_participante["dpi"]=info_participante.dpi
          data_participante["codigo"]=signing.dumps(info_participante.dpi)
@@ -503,11 +503,12 @@ class NewListadoMaestroView(TemplateView):
          contador_curso = 0
          nota_naat =0              
          ultima_sede = listado_sedes[0]
-         es_naat= False      
+         es_naat= False     
          while len(listado_sedes) != 0:
             id_cursos =[]  
             data_sedes = {}
             numero_sede = listado_sedes.pop()
+            sede = cyd_m.Sede.objects.get(id=numero_sede)
             cursos = []
             # recorrido para obtener los cursos
             # se obtiene el pk de cada curso de la class:cyp.Cursos: para luego sumar el pk para obtner un resultado
@@ -543,7 +544,8 @@ class NewListadoMaestroView(TemplateView):
             id_cursos = list(dict.fromkeys(id_cursos))
             for  data in info_asignaciones.filter(grupo__sede__id=numero_sede):               
                data_cursos = {}
-               if ultima_sede == numero_sede:                
+               #if ultima_sede == numero_sede:                
+               if sede.fecha_creacion.year >= 2024: 
                 if sum(id_cursos)== 270:                   
                     if data.grupo.numero==2:
                       if data.get_nota_final()>=70:
@@ -600,7 +602,7 @@ class NewListadoMaestroView(TemplateView):
                     else:
                        data_sedes["certificado"]=False                                         
                 elif sum(id_cursos)== 254 and es_naat==True:                                      
-                    if nota_naat>=61:                     
+                    if nota_naat>=0:                     
                       data_sedes["tipo"]=signing.dumps("certificado_naat")
                       data_sedes["certificado"]=True
                     else:                      
@@ -656,11 +658,16 @@ class NewListadoMaestroView(TemplateView):
                cursos.append(data_cursos)                
             data_sedes["numero_cursos"] = contador_curso
             contador_curso = 0
-            if ultima_sede == numero_sede:               
+            if sede.fecha_creacion.year>=2024:               
                data_sedes["botones"] = True
             else:
-               data_sedes["botones"] = False                         
+               data_sedes["botones"] = False 
+            """if ultima_sede == numero_sede:               
+               data_sedes["botones"] = True
+            else:
+               data_sedes["botones"] = False"""                         
             data_sedes["nombre"] = info_asignaciones.filter(grupo__sede__id=numero_sede).first().grupo.sede.nombre
+            data_sedes["sede_id"] = info_asignaciones.filter(grupo__sede__id=numero_sede).first().grupo.sede.id
             data_sedes["finalizada"] = info_asignaciones.filter(grupo__sede__id=numero_sede).first().grupo.sede.finalizada
             data_sedes["cursos"] = cursos
             sedes.append(data_sedes)
@@ -676,6 +683,7 @@ class NuevoDiplomaPdfView(View):
    def get( self, request, *args, **kwargs):
       codigo = self.request.GET['codigo'] 
       tipo = self.request.GET['tipo']
+      sede = self.request.GET['sede']
       dpi =signing.loads(codigo)      
       nombre_archivo =""            
       url_perfil = str('https://suni.funsepa.org')+str(reverse_lazy('new_listado'))+str('?dpi=')+str(dpi)
@@ -686,9 +694,10 @@ class NuevoDiplomaPdfView(View):
       contador_apellido = participante.apellido.split(" ")
       numero_palabras = len(contador_nombre) + len(contador_apellido)         
       encuesta = eval_m.AsignacionPregunta.objects.filter(evaluado=participante).last()     
-      asignacion =  cyd_m.Asignacion.objects.filter(participante=participante).order_by("grupo__sede__fecha_creacion").last()
-      fecha_finalizacion = asignacion.grupo.sede.fecha_finalizacion    
-      tipo_decifrada = signing.loads(tipo)       
+      #asignacion =  cyd_m.Asignacion.objects.filter(participante=participante).order_by("grupo__sede__fecha_creacion").last() 
+      info_sede = cyd_m.Sede.objects.get(id=sede)      
+      fecha_finalizacion = info_sede.fecha_finalizacion    
+      tipo_decifrada = signing.loads(tipo)      
       #Creacion de codigos QR
       qr = qrcode.QRCode(
         version=1,
@@ -800,8 +809,8 @@ class NuevoDiplomaPdfView(View):
       c.setTitle('Diploma Funsepa')
       c.showPage()
       c.save()
-      pdf = buffer.getvalue()      
+      pdf = buffer.getvalue()
       buffer.close()
-      response.write(pdf)     
+      response.write(pdf) 
       return response
       
