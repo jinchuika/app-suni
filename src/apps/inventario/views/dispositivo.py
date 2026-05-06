@@ -285,8 +285,7 @@ class SolicitudMovimientoUpdateView(LoginRequiredMixin, UpdateView):
                 solicitud__no_salida = self.object.no_salida,
                 solicitud__devolucion=False
             ).values('dispositivo')
-        elif self.object.no_inventariointerno:           
-            print(self.object.no_inventariointerno)
+        elif self.object.no_inventariointerno:
             dispositivos_salida = inv_m.CambioEtapa.objects.filter(
                 solicitud__no_inventariointerno = self.object.no_inventariointerno,
                 solicitud__devolucion=False
