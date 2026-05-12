@@ -1,0 +1,78 @@
+{% extends "base/base.html" %}
+
+{% load staticfiles %}
+
+{% block page_title %}
+	<title>Tareas NA´AT</title>
+{% endblock page_title %}
+
+{% block content %}
+<section class="content">
+ {% csrf_token %}
+	<div class="container-fluid">
+		<div class="row" id="buscador">
+		<div class="col-md-3">
+			<div class="box">
+					<form action="{% url 'participantes_tareas_naat_api' %}" id="tareas-naat-list-form">
+						<div class="box-header">
+							<input type="submit" class="btn btn-primary col-md-12" value="GENERAR INFORME" /><br />
+							<br /><h3 class="box-title">Filtros</h3>
+						</div>
+						<div class="box-body">
+							{% csrf_token %} {% for field in form %}
+							<div class="form-group">
+								{{field.label_tag}} {{field}}
+							</div>
+							{% endfor %}
+						</div>
+					</form>
+				</div>
+		</div>
+			<div class="col-md-9">
+				<div class="box box-primary">
+					<div class="box-header with-border">
+						<h3 class="box-title">Listado</h3>						
+					</div>
+                    <div id="tareasNaat" class="" data-url="{% url 'participantes_tareas_naat_api' %}">
+                        <table class="table table-bordered table-striped" id="tabla-tareas">
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Apellido</th>
+                                    <th class="text-center">Evaluación 1</th>
+                                    <th class="text-center">Evaluación 2</th>
+                                    <th class="text-center">Evaluación 3</th>
+                                    <th class="text-center">Evaluación 4</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbody-tareas">
+                                </tbody>
+                        </table>
+                    </div>
+
+                    <div class="modal fade" id="modalVerTarea" tabindex="-1" role="dialog" aria-labelledby="modalVerTareaLabel">
+                        <div class="modal-dialog modal-lg" role="document"> <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                <h4 class="modal-title" id="tituloTarea">Visualizador de Tarea</h4>
+                            </div>
+                            <div class="modal-body">
+                                <iframe id="iframeTarea" src="" width="100%" height="500px" style="border: none;"></iframe>
+                            </div>
+                            </div>
+                        </div>
+                    </div>
+				</div>
+				
+			</div>
+		</div>
+	</div>
+</section>
+{% endblock content %}
+
+{% block extra_js %}
+<script src="{% static "js/extrajs/cyd.js" %}"></script>
+<script>
+	var  nuevo = new tareasNaat();
+</script>
+{% endblock extra_js %}

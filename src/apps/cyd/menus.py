@@ -42,7 +42,15 @@ cyd_control_academico_children = (
         "Control Académico",
         reverse_lazy("control_academico_grupo"),
         weight=12,
-        icon="fa-book"),)
+        icon="fa-book"),
+        
+    ViewMenuItem(
+        "Tareas Naat",
+        reverse_lazy("participantes_tareas_naat"),
+        weight=12,
+        icon="fa-tasks"),
+        )
+
 
 cyd_calendario_children = (
     ViewMenuItem(
@@ -73,6 +81,13 @@ cyd_informes_children = (
         group="cyd_admin,cyd_informes",
         icon="fa-check-circle"),
     
+    ViewMenuItem(
+        "Informe avances Naat",
+        reverse_lazy("informe_naat_participantes"),
+        weight=12,
+        group="cyd_admin,cyd_informes,cyd_capacitador_informe",
+        icon="fa-share-alt"),
+
     ViewMenuItem(
         "Capacitadores",
         reverse_lazy("informe_capacitador"),

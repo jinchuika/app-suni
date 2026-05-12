@@ -36,6 +36,8 @@ urlpatterns = [
     url(r'^participante/api/naat/$',InformeParticipantesNaat.as_view(), name='informe_participantes_naat'),
     url(r'^participante/api/capacitador/$',InformeParticipanteCapacitador.as_view(), name='participantes_api_capacitador'),
     url(r'^participante/importar/naat/$',ImportarParticipantesNaat.as_view(), name='participantes_importar_naat'),
+    url(r'^participante/tareas/naat/$',TareasNaat.as_view(), name='participantes_tareas_naat'),
+    url(r'^participante/tareas/naat/api/$',TareasNaatApi.as_view(), name='participantes_tareas_naat_api'),
     
     url(r'^controlacademico/grupo/$', CotrolAcademicoGruposFormView.as_view(), name='control_academico_grupo'),
     url(r'^controlacademico/api/grupo/$', InformeControlAcademicoGrupos.as_view(), name='control_academico_grupo_informe'),
@@ -64,6 +66,8 @@ urlpatterns = [
     url(r'^informe/cursos/$',InformeCursosView.as_view(), name='informe_cursos'), 
     url(r'^informe/capacitador/participantes/$',InformeCapacitadorParticipanteView.as_view(), name='informe_capacitador_participantes'),
     url(r'^informe/participantes/solo/$',InformeSoloParticipanteView.as_view(), name='informe_solo_participantes'), 
+    url(r'^informe/participantes/naat/$',InformeNaatParticipanteView.as_view(), name='informe_naat_participantes'),
+    url(r'^informe/participantes/naat/api/$',InformeNaatParticipanteAPI.as_view(), name='informe_naat_participantes_api'),
     
     url(r'^asistencia/$',InformeAsistenciaWebView.as_view(), name='asistencia_web'),
     url(r'^asistencia/asignar/$',AsignarAsistencia.as_view(), name='asistencia_web_asignar'),
