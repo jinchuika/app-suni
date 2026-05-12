@@ -163,6 +163,17 @@ class EntradaDetalleViewSet(viewsets.ModelViewSet):
                     status=status.HTTP_400_BAD_REQUEST
                 )
             else:
+                detalles = inv_m.EntradaDetalle.objects.filter(entrada=entrad_id)
+                for detalle in detalles:
+                    if detalle.util > 0: 
+                        dispositivos = inv_m.Dispositivo.objects.filter(entrada_detalle=detalle)
+                        for dispositivo in dispositivos:
+                            if dispositivo.marca is None or dispositivo.modelo is None:
+                                return Response(
+                                    {'mensaje': 'Faltan datos en los dispositivos, del paquete de tipo ' + str(detalle.tipo_dispositivo)},
+                                    status=status.HTTP_400_BAD_REQUEST
+                                )
+
                 fecha_cierre = inv_m.Entrada.objects.get(id=entrad_id)
                 fecha_cierre.fecha_cierre = datetime.now()
                 fecha_cierre.save()
