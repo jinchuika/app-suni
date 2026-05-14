@@ -6,6 +6,7 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 
 from apps.escuela import models as escuela_m
+from apps.inventario import models as inv_m
 
 
 class EquipamientoEstado(models.Model):
@@ -106,6 +107,11 @@ class Equipamiento(models.Model):
         else:
             return None
 
+    def get_salida(self): 
+        try:
+            return inv_m.SalidaInventario.objects.get(id=self.no_referencia)
+        except:
+            return inv_m.SalidaInventario.objects.filter(id=self.no_referencia).first()
 
 class EquipamientoSeguimiento(models.Model):
     equipamiento = models.ForeignKey(Equipamiento, on_delete=models.CASCADE)
