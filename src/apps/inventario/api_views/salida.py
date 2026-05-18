@@ -598,6 +598,7 @@ class RevisionSalidaViewSet(viewsets.ModelViewSet):
             asignacion_fecha = inv_m.DispositivoPaquete.objects.get(dispositivo__triage=triage)
             if str(id_paquete) == str(asignacion_fecha.paquete.id):
                 asignacion_fecha.aprobado = True
+                asignacion_fecha.aprobado_por = request.user
                 asignacion_fecha.fecha_aprobacion = datetime.now()
                 asignacion_fecha.save()
                 cantidad_paquetes = inv_m.Paquete.objects.get(id=id_paquete)
