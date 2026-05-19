@@ -56,4 +56,9 @@ urlpatterns = [
     url(
         r'^api/',
         include(('apps.naat.api_urls', 'naat'), namespace='naat_api')),
+
+    url(r'^participante/tareas/$', naat_v.TareasNaat.as_view(), name='participantes_tareas_naat'),
+    url(r'^participante/tareas/api/$',naat_v.TareasNaatApi.as_view(), name='participantes_tareas_naat_api'),
+    url(r'^informe/participantes/$',naat_v.InformeNaatParticipanteView.as_view(), name='informe_naat_participantes'),
+    url(r'^informe/participantes/api/$',naat_v.InformeNaatParticipanteAPI.as_view(), name='informe_naat_participantes_api'),
 ]
