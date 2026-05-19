@@ -34,10 +34,12 @@ class EquipamientoNuevoForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(EquipamientoNuevoForm, self).__init__(*args, **kwargs)
         referencias_usadas = tpe_m.Equipamiento.objects.values_list('no_referencia', flat=True)
-        queryset_salidas = inv_m.SalidaInventario.objects.exclude(
+        queryset_salidas = inv_m.SalidaInventario.objects.filter(
+            tipo_salida__id__in=[1, 2]
+        ).exclude(
             Q(id__in=referencias_usadas) | 
-            Q(tipo_salida__id=5)  | 
-            Q(en_creacion=True))
+            Q(en_creacion=True)
+        )
         self.fields['no_referencia'].queryset = queryset_salidas
 
     def clean_no_referencia(self):
