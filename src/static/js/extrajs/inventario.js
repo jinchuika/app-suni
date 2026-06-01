@@ -2414,6 +2414,13 @@ class Salidas {
               }
             }},
             {data:"id"},
+            {data:"nombre_cooperante",render: function(data, type, full, meta){
+              if(data==undefined){
+                return "No tiene"
+              }else{
+                return data
+              }
+            }},
             {data:"tipo_salida"},
             {data:"fecha"},
             {data: "estado", render: function(data, type, full, meta){

@@ -422,6 +422,7 @@ class DispositivoAsignados(LoginRequiredMixin, GroupRequiredMixin, DetailView):
             data_dipositivos['asignado_por']=data.asignado_por
             data_dipositivos['fecha_aprobacion']=data.fecha_aprobacion
             data_dipositivos['aprobado']= data.aprobado
+            data_dipositivos['aprobado_por']= data.aprobado_por if data.aprobado_por else ""
             data_dipositivos['tipo']= data.dispositivo.tipo
             data_dipositivos['tipo_salida']=data.paquete.salida.tipo_salida
             data_dipositivos['tipo_salida.id']=data.paquete.salida.tipo_salida.id
