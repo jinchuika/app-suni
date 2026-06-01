@@ -1,5 +1,6 @@
 from django import forms
 from django.contrib.auth.models import User
+from django.urls import reverse_lazy
 
 from apps.naat import models as naat_m
 from apps.cyd import forms as cyd_f
@@ -82,3 +83,26 @@ class SesionPresencialForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(SesionPresencialForm, self).__init__(*args, **kwargs)
         self.fields['asistentes'].label_from_instance = lambda obj: '{}'.format(obj.participante)
+
+# Conexión con php Naat 
+class ParticipanteNaatTareasForm(forms.Form):
+    sede = forms.ModelChoiceField(
+        label='Sede',
+        queryset=cyd_m.Sede.objects.filter(activa=True, finalizada=False),
+        required=False,
+        widget=forms.Select(attrs={'class': 'select2 form-control', 'data-url': reverse_lazy('grupo_api_list')}))
+    
+class InformeNaatParticipanteForm(forms.Form):
+    sede = forms.ModelChoiceField(
+        label='Sede',
+        queryset=cyd_m.Sede.objects.filter(activa=True, finalizada=False),
+        required=False,
+        widget=forms.Select(attrs={'class': 'select2 form-control', 'data-url': reverse_lazy('grupo_api_list')}))
+    fecha_min = forms.CharField(
+        label='Fecha mínima',
+        widget=forms.TextInput(attrs={'class': 'form-control datepicker'}),
+        required=False)
+    fecha_max = forms.CharField(
+        label='Fecha máxima',
+        widget=forms.TextInput(attrs={'class': 'form-control datepicker'}),
+        required=False)

@@ -609,26 +609,3 @@ class InformeSoloParticipanteForm(forms.Form):
         label='Fecha máxima',
         widget=forms.TextInput(attrs={'class': 'form-control datepicker'}),
         required=True)
-
-# Conexión con php Naat 
-class ParticipanteNaatTareasForm(forms.Form):
-    sede = forms.ModelChoiceField(
-        label='Sede',
-        queryset=Sede.objects.filter(activa=True, finalizada=False),
-        required=False,
-        widget=forms.Select(attrs={'class': 'select2 form-control', 'data-url': reverse_lazy('grupo_api_list')}))
-    
-class InformeNaatParticipanteForm(forms.Form):
-    sede = forms.ModelChoiceField(
-        label='Sede',
-        queryset=Sede.objects.filter(activa=True, finalizada=False),
-        required=False,
-        widget=forms.Select(attrs={'class': 'select2 form-control', 'data-url': reverse_lazy('grupo_api_list')}))
-    fecha_min = forms.CharField(
-        label='Fecha mínima',
-        widget=forms.TextInput(attrs={'class': 'form-control datepicker'}),
-        required=False)
-    fecha_max = forms.CharField(
-        label='Fecha máxima',
-        widget=forms.TextInput(attrs={'class': 'form-control datepicker'}),
-        required=False)
