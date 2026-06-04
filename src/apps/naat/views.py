@@ -192,12 +192,19 @@ class ProcesoNaatListView(BaseNaatPermission, ListView):
     template_name = 'naat/proceso_list.html'
 
 class TareasNaat(LoginRequiredMixin, GroupRequiredMixin, FormView):
+    """ Vista para mostrar las tareas de NAAT Mobile. Recibe un código UDI de escuela como parámetro GET,
+    consulta la API de NAAT, y muestra un listado con las tareas de los maestros asociados a esa
+    escuela.
+    """
     template_name = "naat/tareas_naat.html"    
     form_class = naat_f.ParticipanteNaatTareasForm 
     group_required = [u"cyd", u"cyd_capacitador", u"cyd_admin", ]
         
 
 class TareasNaatApi(views.APIView):
+    """ Api para mostrar las tareas de NAAT Mobile. Recibe un código UDI de escuela, busca todos los codigos asociados a esa escuela y 
+    consulta la API de NAAT, y devuelve un JSON con las tareas de los maestros asociados a esas escuelas.
+    """
     def get(self, request, *args, **kwargs):
         sede = request.GET.get('sede', '').strip()
         if not sede:
@@ -267,8 +274,9 @@ class InformeNaatParticipanteView(LoginRequiredMixin, GroupRequiredMixin, FormVi
 
 class InformeNaatParticipanteAPI(View):
     """
-    Vista para importar participantes desde NAAT Mobile. Recibe un código UDI de escuela como parámetro GET, 
-    consulta la API de NAAT, y devuelve un JSON con la información de los maestros asociados a esa escuela.
+    Vista que trae informacion de participantes desde NAAT Mobile. Recibe un código UDI de escuela como parámetro GET, 
+    consulta la API de NAAT, y devuelve un JSON con la información de los maestros asociados a esa escuela. 
+    Sustituye al iniforme que provee el adminsitrador de naat. 
     """
     def get(self, request, *args, **kwargs):
         sede = request.GET.get('sede').strip()
@@ -317,6 +325,7 @@ class InformeNaatParticipanteAPI(View):
                 data = {
                     "nombre": participante.nombre if participante else par.get('nombre'),
                     'apellido': participante.apellido if participante else par.get('apellido'),
+                    'dpi': participante.dpi if participante else par.get('dpi'),
                     'url_participante': participante.get_absolute_url() if participante else None,
                     'udi': par.get('udi', {}),
                     'municipio': par.get('municipio_nombre', {}),

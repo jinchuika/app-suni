@@ -1953,7 +1953,6 @@ class ImportarParticipantesNaat(View):
             registrados = 0 
             for participante in participantes_naat:
                 try:
-                    par = cyd_m.Participante.objects.get(dpi=participante.get('numero_identificacion', ''), activo=True)
                     registrados = registrados + 1
                     if registrados == len(participantes_naat):
                         return JsonResponse({'error': 'Todos los participantes ya están registrados en el sistema.'}, status=200)
