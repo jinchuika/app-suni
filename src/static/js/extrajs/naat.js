@@ -148,7 +148,21 @@ class informeParticipantesNaat {
 
             var tablaRastreo = $('#informeParticipanteNaat-table').DataTable({
                 dom: 'lfrtipB',
-                buttons: ['excel', 'pdf', 'copy'],
+                buttons: [
+                    'excel', 
+                    {
+                        extend: 'pdfHtml5',
+                        text: 'PDF',
+                        orientation: 'landscape', 
+                        pageSize: 'TABLOID',
+                        title: 'Informe de Participantes Naat',
+                        customize: function (doc) {
+                            doc.defaultStyle.fontSize = 5;
+                            doc.styles.tableHeader.fontSize = 6;
+                        }
+                    }, 
+                    'copy'
+                ],
                 searching: true,
                 paging: false,
                 ordering: true,
@@ -177,32 +191,32 @@ class informeParticipantesNaat {
                 columns: [
                     {data: "nombre", defaultContent: ""},
                     {data: "apellido", defaultContent: ""},
+                    {data: "dpi", defaultContent: ""},
                     {data: "udi", defaultContent: ""},
                     {data: "municipio", defaultContent: ""},
                     {data: "departamento", defaultContent: ""},
                     {data: "puesto", defaultContent: ""},
                     
-                    {data: "mundo1", defaultContent: "-", className: "text-center"},
+                    {data: "mundo1", defaultContent: "-", className: "text-center borde-separador-izquierdo"},
                     {data: "mundo1_pc_nota_inicial", defaultContent: "-", className: "text-center"},
-                    {data: "mundo1_pc_nota_final", defaultContent: "-", className: "text-center"},
+                    {data: "mundo1_pc_nota_final", defaultContent: "-", className: "text-center borde-separador"},
                     
                     {data: "mundo2", defaultContent: "-", className: "text-center"},
                     {data: "mundo2_pc_nota_inicial", defaultContent: "-", className: "text-center"},
-                    {data: "mundo2_pc_nota_final", defaultContent: "-", className: "text-center"},
+                    {data: "mundo2_pc_nota_final", defaultContent: "-", className: "text-center borde-separador"},
                     
                     {data: "mundo3", defaultContent: "-", className: "text-center"},
                     {data: "mundo3_pc_nota_inicial", defaultContent: "-", className: "text-center"},
-                    {data: "mundo3_pc_nota_final", defaultContent: "-", className: "text-center"},
+                    {data: "mundo3_pc_nota_final", defaultContent: "-", className: "text-center borde-separador"},
                     
                     {data: "mundo4", defaultContent: "-", className: "text-center"},
                     {data: "mundo4_pc_nota_inicial", defaultContent: "-", className: "text-center"},
-                    {data: "mundo4_pc_nota_final", defaultContent: "-", className: "text-center"},
+                    {data: "mundo4_pc_nota_final", defaultContent: "-", className: "text-center borde-separador"},
 
                     {data: "mundo5", defaultContent: "-", className: "text-center"},
                     {data: "mundo6", defaultContent: "-", className: "text-center"},
                     {data: "mundo7", defaultContent: "-", className: "text-center"},
                     {data: "mundo8", defaultContent: "-", className: "text-center"},
-
                 ]
             });
         });
