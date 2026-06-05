@@ -1370,7 +1370,7 @@ class InformeListadoSedeEscuela(views.APIView):
                     escuela_sede["numero"] = numero       
                     escuela_sede["escuela"] =info_sede.nombre
                     escuela_sede["direccion"] = info_sede.direccion
-                    escuela_sede["codigo"]= info_sede.codigo
+                    escuela_sede["codigo"]= data_participantes.escuela_beneficiada.codigo
                     escuela_sede["cantidad_participantes"]= info_sede.cantidad_participantes
                     escuela_sede["sede"]= data_participantes.nombre                    
                     if data_participantes.fecha_creacion.year <=2023:
