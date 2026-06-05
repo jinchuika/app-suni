@@ -7,22 +7,46 @@ from django.contrib.auth.models import User
 
 from apps.tpe import models as tpe_m
 from apps.mye import models as mye_m
+from apps.inventario import models as inv_m
 from apps.escuela import models as escuela_m
 from apps.users.models import Perfil
 from apps.escuela.forms import EscuelaBuscarForm
+from django.db.models import Q
 
 
 class EquipamientoNuevoForm(forms.ModelForm):
+    no_referencia = forms.ModelChoiceField(
+        queryset=inv_m.SalidaInventario.objects.all(),
+        label='Número de entrega',
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+
     class Meta:
         model = tpe_m.Equipamiento
         fields = ('no_referencia', 'escuela')
         labels = {
             'no_referencia': 'Número de entrega'}
         widgets = {
-            #'id': forms.NumberInput(attrs={'min': 1, 'class': 'form-control'}),
-            'no_referencia': forms.NumberInput(attrs={'min': 1, 'class': 'form-control'}),   
+            'no_referencia': forms.Select(attrs={'class': 'select2 form-control'}),
             'escuela': forms.HiddenInput()
             }
+        
+    def __init__(self, *args, **kwargs):
+        super(EquipamientoNuevoForm, self).__init__(*args, **kwargs)
+        referencias_usadas = tpe_m.Equipamiento.objects.values_list('no_referencia', flat=True)
+        queryset_salidas = inv_m.SalidaInventario.objects.filter(
+            tipo_salida__id__in=[1, 2]
+        ).exclude(
+            Q(id__in=referencias_usadas) | 
+            Q(en_creacion=True)
+        )
+        self.fields['no_referencia'].queryset = queryset_salidas
+
+    def clean_no_referencia(self):
+        salida_seleccionada = self.cleaned_data.get('no_referencia')     
+        if salida_seleccionada:
+            return salida_seleccionada.id
+        return salida_seleccionada
 
 
 class EquipamientoForm(ModelForm):

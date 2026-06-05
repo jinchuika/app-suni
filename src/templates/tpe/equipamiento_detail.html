@@ -5,9 +5,9 @@
 	<div class="box-header with-border">
 		<h3 class="box-title"> Entrega 
 			{% if equipamiento.no_referencia == 0 %}
-				{{ equipamiento.id }}
+				{{ equipamiento.id }} 
 			{% else %}
-				{{ equipamiento.no_referencia}}
+				{{equipamiento.get_salida}}
 			{% endif %}
 			 
 			• {{ equipamiento.fecha|date:"d/M/Y" }}  
@@ -33,7 +33,7 @@
 		<table class="table table-hover table-striped">
 			<tr>
 				<th style="width: 40%;">Número de entrega</th>
-				<td style="width: 60%;"> {% if equipamiento.no_referencia == 0 %} {{ equipamiento.id }} {% else %} {{ equipamiento.no_referencia}} {% endif %}</td>
+				<td style="width: 60%;"> {% if equipamiento.no_referencia == 0 %} {{ equipamiento.id }} {% else %} {{ equipamiento.get_salida}} {% endif %}</td>
 			</tr>
 			<tr>
 				<th>Estado</th>

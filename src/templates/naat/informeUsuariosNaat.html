@@ -1,0 +1,103 @@
+{% extends "base/base.html" %}
+{% load staticfiles widget_tweaks %}
+{% block page_title %}
+<style>
+	.borde-separador {
+		border-right: 1px solid black !important;
+	}	
+	.borde-separador-izquierdo {
+		border-left: 1px solid black !important;
+	}
+</style>
+<title>Informe de Participantes NAAT</title>
+{% endblock page_title %} {% block content %}
+<section class="content">
+	<div class="container-fluid">
+		<div class="row">
+			<!-- Comienza el formulario -->
+			<div class="col-md-3 col-sm-3">
+				<div class="box">
+					<form action="{% url 'informe_naat_participantes_api'%}" id="informeParticipanteNaat-list-form">
+						<div class="box-header">
+							<input type="submit" class="btn btn-primary col-md-12" value="Generar Informe" /><br /><br />
+							<h3 class="box-title">Filtros</h3>
+						</div>
+						<div class="box-body">
+							{% csrf_token %} {% for field in form %}
+							<div class="form-group">
+								{{field.label_tag}} {{field}}
+							</div>
+							{% endfor %}
+						</div>
+					</form>
+				</div>
+			</div>
+			<!--Aca termina el formulario-->
+			<div class="col-md-9 col-sm-9">
+				<div class="box box-primary">
+					<div class="box-header">
+						<div class="row">
+							<div class="col-md-9">
+									<h3 class="box-title">Informe de Participantes NAAT</h3>
+							</div>
+						</div>
+					</div>
+					<div class="box-body  table-responsive">
+						<!--	<div class="col-md-12 table-responsive"> -->
+						<table id="informeParticipanteNaat-table" class="table table-striped table-hover table-bordered table-condensed">
+							<thead class="">
+                                <tr>
+                                    <th rowspan="2" class="align-middle text-center">Nombre</th>
+                                    <th rowspan="2" class="align-middle text-center">Apellido</th>
+                                    <th rowspan="2" class="align-middle text-center">DPI</th>
+                                    <th rowspan="2" class="align-middle text-center">UDI</th>
+                                    <th rowspan="2" class="align-middle text-center">Municipio</th>
+                                    <th rowspan="2" class="align-middle text-center">Departamento</th>
+                                    <th rowspan="2" class="align-middle text-center">Puesto</th>
+                                    
+                                    <th colspan="3" class="text-center" style="border-bottom: 2px solid #3c8dbc;">Mundo 1</th>
+                                    <th colspan="3" class="text-center" style="border-bottom: 2px solid #3c8dbc;">Mundo 2</th>
+                                    <th colspan="3" class="text-center" style="border-bottom: 2px solid #3c8dbc;">Mundo 3</th>
+                                    <th colspan="3" class="text-center" style="border-bottom: 2px solid #3c8dbc;">Mundo 4</th>
+                                    <th rowspan="2" class="text-center" style="border-bottom: 2px solid white;">Mundo 5</th>
+                                    <th rowspan="2" class="text-center" style="border-bottom: 2px solid white;">Mundo 6</th>
+                                    <th rowspan="2" class="text-center" style="border-bottom: 2px solid white;">Mundo 7</th>
+                                    <th rowspan="2" class="text-center" style="border-bottom: 2px solid white;">Mundo 8</th>
+                                </tr>
+                                <tr>
+                                    <th class="text-center" title="Porcentaje de avance">% Avance</th>
+                                    <th class="text-center" title="Prueba de Conocimientos Inicial">PC Inicial</th>
+                                    <th class="text-center" title="Prueba de Conocimientos Final">PC Final</th>
+                                    
+                                    <th class="text-center" title="Porcentaje de avance">% Avance</th>
+                                    <th class="text-center" title="Prueba de Conocimientos Inicial">PC Inicial</th>
+                                    <th class="text-center" title="Prueba de Conocimientos Final">PC Final</th>
+                                    
+                                    <th class="text-center" title="Porcentaje de avance">% Avance</th>
+                                    <th class="text-center" title="Prueba de Conocimientos Inicial">PC Inicial</th>
+                                    <th class="text-center" title="Prueba de Conocimientos Final">PC Final</th>
+                                    
+                                    <th class="text-center" title="Porcentaje de avance">% Avance</th>
+                                    <th class="text-center" title="Prueba de Conocimientos Inicial">PC Inicial</th>
+                                    <th class="text-center" title="Prueba de Conocimientos Final">PC Final</th>
+                                </tr> 
+                            </thead>
+							<tbody id="informeParticipanteNaat-body">
+							</tbody>
+						</table>
+						<!--	</div> -->
+							<strong>PC:</strong> Prueba de Conocimientos 
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+{% endblock content %}
+{% block extra_js %}
+{% include "base/dataTables.html" %}
+<script src="{% static "js/extrajs/naat.js" %}"></script>
+<script>
+	var  informeNaat = new informeParticipantesNaat();
+</script>
+{% endblock extra_js %}

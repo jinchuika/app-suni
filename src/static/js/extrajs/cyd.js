@@ -1744,10 +1744,6 @@ CalendarioCyD.init = function () {
                 $('#tbody-listado').html(filas);
             });
         });
-
-        /*
-        Valida que el UDI ingresado sea real
-        */
         $('#form_participante #id_udi').on('input', function () {
             $('#escuela_label').html('Escuela no encontrada');
             //$('#btn-crear').prop('disabled', true);
@@ -1792,9 +1788,7 @@ CalendarioCyD.init = function () {
                     if (udi_ingresado === null || udi_ingresado.trim() === "") {
                         return;
                     }
-
                     Pace.restart(); 
-                    
                     $.ajax({
                         url: url,
                         type: 'GET',
@@ -1802,10 +1796,12 @@ CalendarioCyD.init = function () {
                         dataType: 'json',
                         success: function(response) {
                             if (response.error) {
-                                bootbox.alert(response.error);
+                                bootbox.alert({
+                                    message: "<h3><i class='fa fa-exclamation-triangle'></i>Atención</h3><br>" + response.error,
+                                    className: "modal modal-warning fade"
+                                });
                                 return;
                             }
-
                             if (response.length > 0) {
                                 tabla_importar.loadData(response);
                                 bootbox.alert({
@@ -1817,7 +1813,14 @@ CalendarioCyD.init = function () {
                             }
                         },
                         error: function(xhr) {
-                            bootbox.alert("Error al comunicarse con el servidor.");
+                            var mensajeError = "Error desconocido al comunicarse con el servidor.";
+                            if (xhr.responseJSON && xhr.responseJSON.error) {
+                                mensajeError = xhr.responseJSON.error;
+                            }
+                            bootbox.alert({
+                                message: "<h3><i class='fa fa-times-circle'></i> Error del Sistema</h3><br>" + mensajeError,
+                                className: "modal modal-danger fade"
+                            });
                         }
                     });
                 }
@@ -4105,3 +4108,4 @@ class NaatInforme{
   
     }
   }
+

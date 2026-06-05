@@ -38,6 +38,7 @@
 									{% if request.user|has_group:"inv_conta" %}
 									<th>Precio Unitario</th>									
 									{% endif %}
+                  					<th>Aprobado por</th>
                   					<th>Fecha Aprobacion</th>
 									<th>Asignación</th>
 									
@@ -68,6 +69,9 @@
 									{% endif %}
 								
 								<td>
+									{{dispositivo.aprobado_por.get_full_name|default_if_none:""}}
+								</td>								
+								<td>
 									{{dispositivo.fecha_aprobacion|default_if_none:""}}
 								</td>
 								<td>
@@ -94,6 +98,10 @@
 									<th>Fecha Asignacion</th>
 									<th>Tecnico</th>
 									<th>Dispositivo</th>
+									{% if request.user|has_group:"inv_conta" %}
+									<th>Precio Unitario</th>									
+									{% endif %}
+                  					<th>Aprobado por</th>
                   					<th>Fecha Aprobacion</th>
 									<th>Asignación</th>
 							</tfoot>

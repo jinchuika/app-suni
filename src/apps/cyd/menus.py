@@ -42,7 +42,9 @@ cyd_control_academico_children = (
         "Control Académico",
         reverse_lazy("control_academico_grupo"),
         weight=12,
-        icon="fa-book"),)
+        icon="fa-book"),
+        )
+
 
 cyd_calendario_children = (
     ViewMenuItem(
@@ -73,6 +75,7 @@ cyd_informes_children = (
         group="cyd_admin,cyd_informes",
         icon="fa-check-circle"),
     
+
     ViewMenuItem(
         "Capacitadores",
         reverse_lazy("informe_capacitador"),

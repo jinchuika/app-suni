@@ -1370,7 +1370,7 @@ class InformeListadoSedeEscuela(views.APIView):
                     escuela_sede["numero"] = numero       
                     escuela_sede["escuela"] =info_sede.nombre
                     escuela_sede["direccion"] = info_sede.direccion
-                    escuela_sede["codigo"]= info_sede.codigo
+                    escuela_sede["codigo"]= data_participantes.escuela_beneficiada.codigo
                     escuela_sede["cantidad_participantes"]= info_sede.cantidad_participantes
                     escuela_sede["sede"]= data_participantes.nombre                    
                     if data_participantes.fecha_creacion.year <=2023:
@@ -1902,6 +1902,7 @@ class SubirControlAcademicoExcel(views.APIView):
             status=status.HTTP_200_OK
             )
 
+
 class ImportarParticipantesNaat(View):
     """
     Vista para importar participantes desde NAAT Mobile. Recibe un código UDI de escuela como parámetro GET, 
@@ -1923,9 +1924,9 @@ class ImportarParticipantesNaat(View):
         if not udi_escuela:
             return JsonResponse({'error': 'Debes proporcionar un código UDI.'}, status=400)
         
-        url = getattr(settings, 'NAAT_URL')
+        url = getattr(settings, 'NAAT_URL_APIS')
         token = getattr(settings, 'NAAT_TOKEN', '')
-        endpoint = 'get_maestros'
+        endpoint = 'get_maestros_info'
         url = "{}{}".format(url, endpoint)
 
         headers= {
@@ -1935,7 +1936,6 @@ class ImportarParticipantesNaat(View):
         try:
             response = requests.get(url, params={'udi': udi_escuela}, headers=headers)
             participantes_naat = response.json()
-
             datos_participante = []
 
             PUESTOS = {
@@ -1950,8 +1950,15 @@ class ImportarParticipantesNaat(View):
                 "Postgrados":"Posgrado",
                 "Doctorados":"Posgrado",
             }
-
+            registrados = 0 
             for participante in participantes_naat:
+                try:
+                    registrados = registrados + 1
+                    if registrados == len(participantes_naat):
+                        return JsonResponse({'error': 'Todos los participantes ya están registrados en el sistema.'}, status=200)
+                    continue
+                except:
+                    pass
                 genero_naat = str(participante.get('genero', ''))
                 if genero_naat == '1':
                     genero = "Hombre"
@@ -1988,4 +1995,3 @@ class ImportarParticipantesNaat(View):
             return JsonResponse({'error': 'El servidor de Naat devolvió una respuesta inválida.'}, status=500)
         except Exception as e:
             return JsonResponse({'error': 'Error desconocido: {}'.format(str(e))}, status=500)
-        

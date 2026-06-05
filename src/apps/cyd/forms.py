@@ -609,4 +609,3 @@ class InformeSoloParticipanteForm(forms.Form):
         label='Fecha máxima',
         widget=forms.TextInput(attrs={'class': 'form-control datepicker'}),
         required=True)
-    
