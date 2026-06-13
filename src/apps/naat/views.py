@@ -227,10 +227,9 @@ class TareasNaatApi(views.APIView):
             'API-KEY': token
         }
         try:
-            response = requests.get(url, params={'udi': udis_listado}, headers=headers)
+            response = requests.get(url, params={'udi': udis_listado}, headers=headers,verify=False)
             participantes_naat = response.json()
             maestros_agrupados = {}
-
             for item in participantes_naat:
                 dpi = item.get('usuario_dpi')
                 
@@ -308,7 +307,7 @@ class InformeNaatParticipanteAPI(View):
         }
 
         try:
-            response = requests.get(url, params=parametros, headers=headers)
+            response = requests.get(url, params=parametros, headers=headers,verify=False)
             participantes_naat = response.json()
             listado = []
 
