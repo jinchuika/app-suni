@@ -292,8 +292,6 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_USE_TLS = True
 EMAIL_PORT = 587
 EMAIL_HOST_USER = 'solicitudes_tpe@funsepa.org'
-EMAIL_HOST_PASSWORD = 'Funsepa2019'
+EMAIL_HOST_PASSWORD = 'Funsepa2019#'
 
 CORS_ORIGIN_ALLOW_ALL = True
-NAAT_URL = "http://localhost/naat/index.php/api/ctr_suni/"
-NAAT_TOKEN = "Token27" 
