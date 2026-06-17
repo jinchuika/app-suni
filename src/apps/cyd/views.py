@@ -1934,7 +1934,7 @@ class ImportarParticipantesNaat(View):
         }
 
         try:
-            response = requests.get(url, params={'udi': udi_escuela}, headers=headers)
+            response = requests.get(url, params={'udi': udi_escuela}, headers=headers,verify=False)
             participantes_naat = response.json()
             datos_participante = []
 
