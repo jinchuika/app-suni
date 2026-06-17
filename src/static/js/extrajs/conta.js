@@ -795,6 +795,7 @@ class RastreoDispositivoInforme{
         {data: "fecha_ingreso"},
         {data: "tipo_entrada"},
         {data: "proyecto"},
+        {data: "municipio"},
         {data: "proveedor"},
         {data: "etapa"},
         {data: "salida",render: function(data, type, full, meta){

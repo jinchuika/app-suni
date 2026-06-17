@@ -602,7 +602,7 @@ class NewListadoMaestroView(TemplateView):
                     else:
                        data_sedes["certificado"]=False                                         
                 elif sum(id_cursos)== 254 and es_naat==True:                                      
-                    if nota_naat>=0:                     
+                    if nota_naat>=70:                     
                       data_sedes["tipo"]=signing.dumps("certificado_naat")
                       data_sedes["certificado"]=True
                     else:                      
