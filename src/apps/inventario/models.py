@@ -631,7 +631,11 @@ class Dispositivo(models.Model):
         resultado["tipo_etapa"]= self.etapa.id
         resultado["entrada"] =self.entrada.id
         resultado["tipo_entrada"] =self.entrada.tipo.nombre
-        resultado["proyecto"] =[x.nombre for x in self.entrada.proyecto.all()]  
+        resultado["proyecto"] =[x.nombre for x in self.entrada.proyecto.all()]
+        try:
+            resultado["municipio"] = self.entrada.municipio.nombre
+        except:
+            resultado["municipio"] = "No tiene"
         resultado["proveedor"] = self.entrada.proveedor.nombre
         resultado["etapa"] =self.etapa.proceso
         resultado["url_dispositivo"] =self.get_absolute_url()
