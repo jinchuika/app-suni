@@ -1,28 +1,23 @@
+import json
+from datetime import datetime
+
 import django_filters
+from django.contrib.auth.models import User
+from django.core.exceptions import ObjectDoesNotExist
+from django.db.models import Count, F
+from django.http import JsonResponse
+from django.template import loader
+from django.utils.datastructures import MultiValueDictKeyError
 from django_filters import rest_framework as filters
 from rest_framework import status, viewsets
+from rest_framework.authentication import SessionAuthentication, TokenAuthentication
 from rest_framework.decorators import action
-from rest_framework.response import Response
-from django.core.exceptions import ObjectDoesNotExist
-from django.core.mail import send_mail
-from datetime import datetime
-from django.http import JsonResponse
-from django.utils.datastructures import MultiValueDictKeyError
-from django.conf import settings
-from django.template import loader
-import time
-from braces.views import LoginRequiredMixin
-from apps.inventario import (
-    serializers as inv_s,
-    models as inv_m
-)
-from django.contrib.auth.models import User
-from apps.kardex import models as kax_m
-from django.db.models import Count,F
-import json
-from rest_framework.authentication import TokenAuthentication, SessionAuthentication
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 
+from apps.inventario import models as inv_m
+from apps.inventario import serializers as inv_s
+from apps.kardex import models as kax_m
 
 
 class DispositivoFilter(filters.FilterSet):
@@ -51,9 +46,7 @@ class DispositivoFilter(filters.FilterSet):
         tipo_dispositivo= qs.last()        
         if tipo_dispositivo.tipo.id == 7:          
             return qs.filter(laptop__procesador= procesador)
-        elif tipo_dispositivo.tipo.id == 4:           
-            return qs.filter(procesador = procesador)
-        elif tipo_dispositivo.tipo.id == 6:            
+        elif tipo_dispositivo.tipo.id == 4 or tipo_dispositivo.tipo.id == 6:           
             return qs.filter(procesador = procesador)
         else:
             print("Esto es cualquier otro dispsoitivo")
@@ -120,8 +113,7 @@ class DispositivoViewSet(viewsets.ModelViewSet):
                 tipo_dis = inv_m.DispositivoTipo.objects.filter(id=tipo)
                     
 
-            if  dispositivo or etapa:                
-                #nueva_salida  = inv_m.SalidaInventario.objects.get(id=salida)                      
+            if  dispositivo or etapa:           
                 dispositivos_salida = inv_m.CambioEtapa.objects.filter(
                     solicitud__no_salida = salida,
                     dispositivo__tipo__in = tipo_dis
@@ -224,7 +216,7 @@ class DispositivoViewSet(viewsets.ModelViewSet):
         solicitud_disco_duro = inv_m.SolicitudMovimiento.objects.filter(no_salida=newtipo.first().paquete.salida.id,tipo_dispositivo__id=3,terminada=True)
         #paquete_disco_duro= inv_m.CambioEtapa.objects.filter(solicitud=solicitud_disco_duro).values('dispositivo__triage')
         #print(paquete_disco_duro.values('dispositivo__triage'))
-        disco= inv_m.CambioEtapa.objects.filter(solicitud=solicitud_disco_duro).values(triage=F('dispositivo__triage'))
+        disco= inv_m.CambioEtapa.objects.filter(solicitud__in=solicitud_disco_duro).values(triage=F('dispositivo__triage'))
         """disco = inv_m.HDD.objects.filter(
             estado=inv_m.DispositivoEstado.PD,
             etapa=inv_m.DispositivoEtapa.AB).values('triage')"""
@@ -895,31 +887,31 @@ class DispositivosPaquetesViewSet(viewsets.ModelViewSet):
                 new_dispositivo = inv_m.Teclado.objects.get(triage=datos['triage'])
                 try:
                     new_dispositivo.marca = inv_m.DispositivoMarca.objects.get(id=datos['marca'])
-                except ObjectDoesNotExist as e:
+                except ObjectDoesNotExist:
                     print("Marca no necesita actualizar")
                 try:
                     new_dispositivo.modelo = datos['modelo']
-                except ObjectDoesNotExist as e:
+                except ObjectDoesNotExist:
                     print("Modelo no necesita actualizacion")
                 try:
                     new_dispositivo.serie = datos['serie']
-                except ObjectDoesNotExist as e:
+                except ObjectDoesNotExist:
                     print("Serie no necesita actualizacion")
                 try:
                     new_dispositivo.tarima = inv_m.Tarima.objects.get(id=datos['tarima'])
-                except ObjectDoesNotExist as e:
+                except ObjectDoesNotExist:
                     print("Tarima no necesita actualizacion")
                 try:
                     new_dispositivo.puerto = inv_m.DispositivoPuerto.objects.get(id=datos['puerto'])
-                except ObjectDoesNotExist as e:
+                except ObjectDoesNotExist:
                     print("Puerto no necesita actualizacion")
                 try:
                     new_dispositivo.caja = datos['caja']
-                except ObjectDoesNotExist as e:
+                except ObjectDoesNotExist:
                     print("Caja no necesita actualizacion")
                 try:
                     new_dispositivo.clase = inv_m.DispositivoClase.objects.get(id=datos['clase'])
-                except ObjectDoesNotExist as e:
+                except ObjectDoesNotExist:
                     print("Clase no necesita actualizacion")
                 new_dispositivo.save()
         elif tipo == "MOUSE":
@@ -927,31 +919,31 @@ class DispositivosPaquetesViewSet(viewsets.ModelViewSet):
                 new_dispositivo = inv_m.Mouse.objects.get(triage=datos['triage'])
                 try:
                     new_dispositivo.marca = inv_m.DispositivoMarca.objects.get(id=datos['marca'])
-                except ObjectDoesNotExist as e:
+                except ObjectDoesNotExist:
                     print("Marca no necesita actualizar")
                 try:
                     new_dispositivo.modelo = datos['modelo']
-                except ObjectDoesNotExist as e:
+                except ObjectDoesNotExist:
                     print("Modelo no necesita actualizacion")
                 try:
                     new_dispositivo.serie = datos['serie']
-                except ObjectDoesNotExist as e:
+                except ObjectDoesNotExist:
                     print("Serie no necesita actualizacion")
                 try:
                     new_dispositivo.tarima = inv_m.Tarima.objects.get(id=datos['tarima'])
-                except ObjectDoesNotExist as e:
+                except ObjectDoesNotExist:
                     print("Tarima no necesita actualizacion")
                 try:
                     new_dispositivo.puerto = inv_m.DispositivoPuerto.objects.get(id=datos['puerto'])
-                except ObjectDoesNotExist as e:
+                except ObjectDoesNotExist:
                     print("Puerto no necesita actualizacion")
                 try:
                     new_dispositivo.caja = datos['caja']
-                except ObjectDoesNotExist as e:
+                except ObjectDoesNotExist:
                     print("Caja no necesita actualizacion")
                 try:
                     new_dispositivo.clase = inv_m.DispositivoClase.objects.get(id=datos['clase'])
-                except ObjectDoesNotExist as e:
+                except ObjectDoesNotExist:
                     print("Clase no necesita actualizacion")
                 new_dispositivo.save()
         elif tipo == "HDD":
@@ -959,35 +951,35 @@ class DispositivosPaquetesViewSet(viewsets.ModelViewSet):
                 new_dispositivo = inv_m.HDD.objects.get(triage=datos['triage'])
                 try:
                     new_dispositivo.marca = inv_m.DispositivoMarca.objects.get(id=datos['marca'])
-                except ObjectDoesNotExist as e:
+                except ObjectDoesNotExist:
                     print("Marca no necesita actualizar")
                 try:
                     new_dispositivo.modelo = datos['modelo']
-                except ObjectDoesNotExist as e:
+                except ObjectDoesNotExist:
                     print("Modelo no necesita actualizacion")
                 try:
                     new_dispositivo.serie = datos['serie']
-                except ObjectDoesNotExist as e:
+                except ObjectDoesNotExist:
                     print("Serie no necesita actualizacion")
                 try:
                     new_dispositivo.tarima = inv_m.Tarima.objects.get(id=datos['tarima'])
-                except ObjectDoesNotExist as e:
+                except ObjectDoesNotExist:
                     print("Tarima no necesita actualizacion")
                 try:
                     new_dispositivo.puerto = inv_m.DispositivoPuerto.objects.get(id=datos['puerto'])
-                except ObjectDoesNotExist as e:
+                except ObjectDoesNotExist:
                     print("Puerto no necesita actualizacion")
                 try:
                     new_dispositivo.capacidad = datos['capacidad']
-                except ObjectDoesNotExist as e:
+                except ObjectDoesNotExist:
                     print("Capacidad no necesita actualizacion")
                 try:
                     new_dispositivo.medida = inv_m.DispositivoMedida.objects.get(id=datos['medida'])
-                except ObjectDoesNotExist as e:
+                except ObjectDoesNotExist:
                     print("Medida no necesita actualizacion")
                 try:
                     new_dispositivo.clase = inv_m.DispositivoClase.objects.get(id=datos['clase'])
-                except ObjectDoesNotExist as e:
+                except ObjectDoesNotExist:
                     print("Clase no necesita actualizacion")
                 
                 new_dispositivo.save()
@@ -996,35 +988,35 @@ class DispositivosPaquetesViewSet(viewsets.ModelViewSet):
                 new_dispositivo = inv_m.Monitor.objects.get(triage=datos['triage'])
                 try:
                     new_dispositivo.marca = inv_m.DispositivoMarca.objects.get(id=datos['marca'])
-                except ObjectDoesNotExist as e:
+                except ObjectDoesNotExist:
                     print("Marca no necesita actualizar")
                 try:
                     new_dispositivo.modelo = datos['modelo']
-                except ObjectDoesNotExist as e:
+                except ObjectDoesNotExist:
                     print("Modelo no necesita actualizacion")
                 try:
                     new_dispositivo.serie = datos['serie']
-                except ObjectDoesNotExist as e:
+                except ObjectDoesNotExist:
                     print("Serie no necesita actualizacion")
                 try:
                     new_dispositivo.tarima = inv_m.Tarima.objects.get(id=datos['tarima'])
-                except ObjectDoesNotExist as e:
+                except ObjectDoesNotExist:
                     print("Tarima no necesita actualizacion")
                 try:
                     new_dispositivo.puerto = inv_m.DispositivoPuerto.objects.get(id=datos['puerto'])
-                except ObjectDoesNotExist as e:
+                except ObjectDoesNotExist:
                     print("Puerto no necesita actualizacion")
                 try:
                     new_dispositivo.pulgadas = datos['pulgadas']
-                except ObjectDoesNotExist as e:
+                except ObjectDoesNotExist:
                     print("Pulgadas del monitor no necesita actualizacion")
                 try:
                     new_dispositivo.tipo_monitor = inv_m.MonitorTipo.objects.get(id=datos['tipo_monitor'])
-                except ObjectDoesNotExist as e:
+                except ObjectDoesNotExist:
                     print("Tipo monitor no necesita actualizacion")
                 try:
                     new_dispositivo.clase = inv_m.DispositivoClase.objects.get(id=datos['clase'])
-                except ObjectDoesNotExist as e:
+                except ObjectDoesNotExist:
                     print("Clase no necesita actualizacion")
                 new_dispositivo.save()
         elif tipo == "CPU":
@@ -1032,52 +1024,52 @@ class DispositivosPaquetesViewSet(viewsets.ModelViewSet):
                 new_dispositivo = inv_m.CPU.objects.get(triage=datos['triage'])
                 try:
                     new_dispositivo.marca = inv_m.DispositivoMarca.objects.get(id=datos['marca'])
-                except ObjectDoesNotExist as e:
+                except ObjectDoesNotExist:
                     print("Marca no necesita actualizar")
                 try:
                     new_dispositivo.modelo = datos['modelo']
-                except ObjectDoesNotExist as e:
+                except ObjectDoesNotExist:
                     print("Modelo no necesita actualizacion")
                 try:
                     new_dispositivo.serie = datos['serie']
-                except ObjectDoesNotExist as e:
+                except ObjectDoesNotExist:
                     print("Serie no necesita actualizacion")
                 try:
                     new_dispositivo.tarima = inv_m.Tarima.objects.get(id=datos['tarima'])
-                except ObjectDoesNotExist as e:
+                except ObjectDoesNotExist:
                     print("Tarima no necesita actualizacion")
                 try:
                     new_dispositivo.procesador = inv_m.Procesador.objects.get(id=datos['procesador'])
-                except ObjectDoesNotExist as e:
+                except ObjectDoesNotExist:
                     print("Procesador no necesita actualizacion")
                 try:
                     new_dispositivo.version_sistema = inv_m.VersionSistema.objects.get(id=datos['version_sistema'])
-                except ObjectDoesNotExist as e:
+                except ObjectDoesNotExist:
                     print("La version del sistema no necisita actualizacion")
                 try:
                     new_dispositivo.disco_duro = inv_m.HDD.objects.get(triage=datos['disco_duro__triage'])
-                except ObjectDoesNotExist as e:
+                except ObjectDoesNotExist:
                     print("El disco duro no necesita actualizacion")
                 try:
                     new_dispositivo.ram = datos['ram']
-                except ObjectDoesNotExist as e:
+                except ObjectDoesNotExist:
                     print("Memoria ram no necesita actualizacion")
                 try:
                     new_dispositivo.ram_medida = inv_m.DispositivoMedida.objects.get(id=datos['ram_medida'])
-                except ObjectDoesNotExist as e:
+                except ObjectDoesNotExist:
                     print("Medidad de ram no necesita actualizacion")
                 # Datos del checkbox
                 try:
                     new_dispositivo.servidor = bool(datos['servidor'])
-                except ObjectDoesNotExist as e:
+                except ObjectDoesNotExist:
                     print("El campo servidor no necesita actualizacion")
                 try:
                     new_dispositivo.all_in_one = bool(datos['all_in_one'])
-                except ObjectDoesNotExist as e:
+                except ObjectDoesNotExist:
                     print("el campor all in one no necesita actualizacion")
                 try:
                     new_dispositivo.clase = inv_m.DispositivoClase.objects.get(id=datos['clase'])
-                except ObjectDoesNotExist as e:
+                except ObjectDoesNotExist:
                     print("Clase no necesita actualizacion")
                 new_dispositivo.save()
         elif tipo == "TABLET":
@@ -1085,53 +1077,53 @@ class DispositivosPaquetesViewSet(viewsets.ModelViewSet):
                 new_dispositivo = inv_m.Tablet.objects.get(triage=datos['triage'])
                 try:
                     new_dispositivo.marca = inv_m.DispositivoMarca.objects.get(id=datos['marca'])
-                except ObjectDoesNotExist as e:
+                except ObjectDoesNotExist:
                     print("Marca no necesita actualizar")
                 try:
                     new_dispositivo.modelo = datos['modelo']
-                except ObjectDoesNotExist as e:
+                except ObjectDoesNotExist:
                     print("Modelo no necesita actualizacion")
                 try:
                     new_dispositivo.serie = datos['serie']
-                except ObjectDoesNotExist as e:
+                except ObjectDoesNotExist:
                     print("Serie no necesita actualizacion")
                 try:
                     new_dispositivo.tarima = inv_m.Tarima.objects.get(id=datos['tarima'])
-                except ObjectDoesNotExist as e:
+                except ObjectDoesNotExist:
                     print("Tarima no necesita actualizacion")
                 try:
                     new_dispositivo.procesador = inv_m.Procesador.objects.get(id=datos['procesador'])
-                except ObjectDoesNotExist as e:
+                except ObjectDoesNotExist:
                     print("Procesador no necesita actualizacion")
                 try:
                     new_dispositivo.version_sistema = inv_m.VersionSistema.objects.get(id=datos['version_sistema'])
-                except ObjectDoesNotExist as e:
+                except ObjectDoesNotExist:
                     print("La version del sistema no necisita actualizacion")
                 try:
                     new_dispositivo.ram = datos['ram']
-                except ObjectDoesNotExist as e:
+                except ObjectDoesNotExist:
                     print("Memoria ram no necesita actualizacion")
                 try:
                     new_dispositivo.medida_ram = inv_m.DispositivoMedida.objects.get(id=datos['medida_ram'])
-                except ObjectDoesNotExist as e:
+                except ObjectDoesNotExist:
                     print("Medidad de ram no necesita actualizacion")
                 try:
                     new_dispositivo.so_id = inv_m.Software.objects.get(id=datos['so_id'])
-                except ObjectDoesNotExist as e:
+                except ObjectDoesNotExist:
                     print("Sistema operativo no necesita actualizacion")
                 try:
                     new_dispositivo.pulgadas = datos['pulgadas']
-                except ObjectDoesNotExist as e:
+                except ObjectDoesNotExist:
                     print("Pulgadas del monitor no necesita actualizacion")
                 try:
                     new_dispositivo.almacenamiento = datos['almacenamiento']
-                except ObjectDoesNotExist as e:
+                except ObjectDoesNotExist:
                     print("Almacenamiento no necesita actualizacion")
                 try:
                     new_dispositivo.medida_almacenamiento = inv_m.DispositivoMedida.objects.get(
                         id=datos['medida_almacenamiento']
                         )
-                except ObjectDoesNotExist as e:
+                except ObjectDoesNotExist:
                     print("Medida de almacenamiento no necesita actualizacion")
                 # Datos del checkbox
                 try:
@@ -1139,11 +1131,11 @@ class DispositivosPaquetesViewSet(viewsets.ModelViewSet):
                         new_dispositivo.almacenamiento_externo = False
                     else:
                         new_dispositivo.almacenamiento_externo = True
-                except ObjectDoesNotExist as e:
+                except ObjectDoesNotExist:
                     print("almacenamiento externo no necesita actualizacion")
                 try:
                     new_dispositivo.clase = inv_m.DispositivoClase.objects.get(id=datos['clase'])
-                except ObjectDoesNotExist as e:
+                except ObjectDoesNotExist:
                     print("Clase no necesita actualizacion")
                 new_dispositivo.save()
         elif tipo == "LAPTOP":
@@ -1151,54 +1143,54 @@ class DispositivosPaquetesViewSet(viewsets.ModelViewSet):
                 new_dispositivo = inv_m.Laptop.objects.get(triage=datos['triage'])
                 try:
                     new_dispositivo.marca = inv_m.DispositivoMarca.objects.get(id=datos['marca'])
-                except ObjectDoesNotExist as e:
+                except ObjectDoesNotExist:
                     print("Marca no necesita actualizar")
                 try:
                     new_dispositivo.modelo = datos['modelo']
-                except ObjectDoesNotExist as e:
+                except ObjectDoesNotExist:
                     print("Modelo no necesita actualizacion")
                 try:
                     new_dispositivo.serie = datos['serie']
-                except ObjectDoesNotExist as e:
+                except ObjectDoesNotExist:
                     print("Serie no necesita actualizacion")
                 try:
                     new_dispositivo.tarima = inv_m.Tarima.objects.get(id=datos['tarima'])
-                except ObjectDoesNotExist as e:
+                except ObjectDoesNotExist:
                     print("Tarima no necesita actualizacion")
                 try:
                     new_dispositivo.procesador = inv_m.Procesador.objects.get(id=datos['procesador'])
-                except ObjectDoesNotExist as e:
+                except ObjectDoesNotExist:
                     print("Procesador no necesita actualizacion")
                 try:
                     new_dispositivo.version_sistema = inv_m.VersionSistema.objects.get(id=datos['version_sistema'])
-                except ObjectDoesNotExist as e:
+                except ObjectDoesNotExist:
                     print("La version del sistema no necisita actualizacion")
                 try:
                     new_dispositivo.disco_duro = inv_m.HDD.objects.get(triage=datos['disco_duro__triage'])
-                except ObjectDoesNotExist as e:
+                except ObjectDoesNotExist:
                     print("El disco duro no necesita actualizacion")
                 try:
                     new_dispositivo.ram = datos['ram']
-                except ObjectDoesNotExist as e:
+                except ObjectDoesNotExist:
                     print("Memoria ram no necesita actualizacion")
                 try:
                     new_dispositivo.ram_medida = inv_m.DispositivoMedida.objects.get(id=datos['ram_medida'])
-                except ObjectDoesNotExist as e:
+                except ObjectDoesNotExist:
                     print("Medidad de ram no necesita actualizacion")
                 try:
                     new_dispositivo.pulgadas = datos['pulgadas']
-                except ObjectDoesNotExist as e:
+                except ObjectDoesNotExist:
                     print("Pulgadas del monitor no necesita actualizacion")
                 try:
                     new_dispositivo.clase = inv_m.DispositivoClase.objects.get(id=datos['clase'])
-                except ObjectDoesNotExist as e:
+                except ObjectDoesNotExist:
                     print("Clase no necesita actualizacion")
                 try:
                     if datos['servidor']:
                         new_dispositivo.servidor = True
                     else:
                          new_dispositivo.servidor = False
-                except ObjectDoesNotExist as e:
+                except ObjectDoesNotExist:
                     print("Servidor no necesita actualizacion")
                 new_dispositivo.save()
         elif tipo == "SWITCH":
@@ -1206,39 +1198,39 @@ class DispositivosPaquetesViewSet(viewsets.ModelViewSet):
                 new_dispositivo = inv_m.DispositivoRed.objects.get(triage=datos['triage'])
                 try:
                     new_dispositivo.marca = inv_m.DispositivoMarca.objects.get(id=datos['marca'])
-                except ObjectDoesNotExist as e:
+                except ObjectDoesNotExist:
                     print("Marca no necesita actualizar")
                 try:
                     new_dispositivo.modelo = datos['modelo']
-                except ObjectDoesNotExist as e:
+                except ObjectDoesNotExist:
                     print("Modelo no necesita actualizacion")
                 try:
                     new_dispositivo.serie = datos['serie']
-                except ObjectDoesNotExist as e:
+                except ObjectDoesNotExist:
                     print("Serie no necesita actualizacion")
                 try:
                     new_dispositivo.tarima = inv_m.Tarima.objects.get(id=datos['tarima'])
-                except ObjectDoesNotExist as e:
+                except ObjectDoesNotExist:
                     print("Tarima no necesita actualizacion")
                 try:
                     new_dispositivo.puerto = inv_m.DispositivoPuerto.objects.get(id=datos['puerto'])
-                except ObjectDoesNotExist as e:
+                except ObjectDoesNotExist:
                     print("Puerto no necesita actualizacion")
                 try:
                     new_dispositivo.cantidad_puertos = datos['cantidad_puertos']
-                except ObjectDoesNotExist as e:
+                except ObjectDoesNotExist:
                     print("Cantidad de puerto no necesita actualizacion")
                 try:
                     new_dispositivo.velocidad = datos['velocidad']
-                except ObjectDoesNotExist as e:
+                except ObjectDoesNotExist:
                     print("Velocidad de trasmicon no necesita actualizacion")
                 try:
                     new_dispositivo.velocidad_medida = inv_m.DispositivoMedida.objects.get(id=datos['velocidad_medida'])
-                except ObjectDoesNotExist as e:
+                except ObjectDoesNotExist:
                     print("Velocidad medida no necesita actualizacion")
                 try:
                     new_dispositivo.clase = inv_m.DispositivoClase.objects.get(id=datos['clase'])
-                except ObjectDoesNotExist as e:
+                except ObjectDoesNotExist:
                     print("Clase no necesita actualizacion")
                 new_dispositivo.save()
         elif tipo == "ACCESS POINT":
@@ -1246,39 +1238,39 @@ class DispositivosPaquetesViewSet(viewsets.ModelViewSet):
                 new_dispositivo = inv_m.AccessPoint.objects.get(triage=datos['triage'])
                 try:
                     new_dispositivo.marca = inv_m.DispositivoMarca.objects.get(id=datos['marca'])
-                except ObjectDoesNotExist as e:
+                except ObjectDoesNotExist:
                     print("Marca no necesita actualizar")
                 try:
                     new_dispositivo.modelo = datos['modelo']
-                except ObjectDoesNotExist as e:
+                except ObjectDoesNotExist:
                     print("Modelo no necesita actualizacion")
                 try:
                     new_dispositivo.serie = datos['serie']
-                except ObjectDoesNotExist as e:
+                except ObjectDoesNotExist:
                     print("Serie no necesita actualizacion")
                 try:
                     new_dispositivo.tarima = inv_m.Tarima.objects.get(id=datos['tarima'])
-                except ObjectDoesNotExist as e:
+                except ObjectDoesNotExist:
                     print("Tarima no necesita actualizacion")
                 try:
                     new_dispositivo.puerto = inv_m.DispositivoPuerto.objects.get(id=datos['puerto'])
-                except ObjectDoesNotExist as e:
+                except ObjectDoesNotExist:
                     print("Puerto no necesita actualizacion")
                 try:
                     new_dispositivo.cantidad_puertos = datos['cantidad_puertos']
-                except ObjectDoesNotExist as e:
+                except ObjectDoesNotExist:
                     print("Cantidad de puerto no necesita actualizacion")
                 try:
                     new_dispositivo.velocidad = datos['velocidad']
-                except ObjectDoesNotExist as e:
+                except ObjectDoesNotExist:
                     print("Velocidad de trasmicon no necesita actualizacion")
                 try:
                     new_dispositivo.velocidad_medida = inv_m.DispositivoMedida.objects.get(id=datos['velocidad_medida'])
-                except ObjectDoesNotExist as e:
+                except ObjectDoesNotExist:
                     print("Velocidad medida no necesita actualizacion")
                 try:
                     new_dispositivo.clase = inv_m.DispositivoClase.objects.get(id=datos['clase'])
-                except ObjectDoesNotExist as e:
+                except ObjectDoesNotExist:
                     print("Clase no necesita actualizacion")
                 new_dispositivo.save()
         else:
@@ -1343,7 +1335,7 @@ class SolicitudMovimientoViewSet(viewsets.ModelViewSet):
             if len(tipo_solicitud) == 0:
                 tipo = self.request.GET['devolucion']
                 tipo_solicitud.append(tipo)
-        except MultiValueDictKeyError as e:
+        except MultiValueDictKeyError:
             tipo_solicitud = 0
 
         # Obtener valores de lista para estado
@@ -1353,7 +1345,7 @@ class SolicitudMovimientoViewSet(viewsets.ModelViewSet):
             if len(estado) == 0:
                 tipo = self.request.GET['estado']
                 estado.append(tipo)
-        except MultiValueDictKeyError as e:
+        except MultiValueDictKeyError:
             estado = 0
 
         # Obtener valores de lista para tipo de dispositivo
@@ -1363,7 +1355,7 @@ class SolicitudMovimientoViewSet(viewsets.ModelViewSet):
             if len(tipo_dispositivo) == 0:
                 tipo = self.request.GET['tipo_dispositivo']
                 tipo_dispositivo.append(tipo)
-        except MultiValueDictKeyError as e:
+        except MultiValueDictKeyError:
             tipo_dispositivo = 0
 
         # Filtrar por tipos de dispositivos seleccionados
