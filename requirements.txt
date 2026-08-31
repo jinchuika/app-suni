@@ -39,5 +39,5 @@ requests==2.11.1
 requests-oauthlib==0.6.2
 six==1.10.0
 sqlparse==0.2.4
-reportlab==3.5.32
+reportlab==3.5.55
 openpyxl==2.6.4
