@@ -153,6 +153,36 @@ class DesechoSalidaPrintView(LoginRequiredMixin, DetailView, GroupRequiredMixin)
         cantidad_total = total_dispositivo + total_dispo_solicitudes + total_detalles['total_util']
         context['cantidad_total'] = cantidad_total
         return context
+    
+class DesechoSalidaActaPrintView(LoginRequiredMixin, DetailView, GroupRequiredMixin):
+    """Vista encargada de mostrar los detalles de la :class:`SalidaInventario` y sirve acta de desecho
+    """
+    model = inv_m.DesechoSalida
+    template_name = 'inventario/desecho/desecho_acta_print.html'
+    group_required = [u"inv_bodega", u"inv_admin", u"inv_monitoreo"]
+
+    def get_context_data(self, **kwargs):
+        context = super(DesechoSalidaActaPrintView, self).get_context_data(**kwargs)
+        context['desechodetalles'] = inv_m.DesechoDetalle.objects.filter(desecho=self.object.id)
+        context['desechodispositivo'] = inv_m.DesechoDispositivo.objects.filter(desecho=self.object.id)
+        desecho_solicitud = []
+        dispositivo_solicitud = inv_m.DesechoSolicitud.objects.filter(desecho=self.object.id, aprobado=True)
+        for solicitud in dispositivo_solicitud:
+            motivo = inv_m.CambioEtapa.objects.filter(dispositivo=solicitud.dispositivo).first()
+            desecho_solicitud.append({
+                'dispositivo': solicitud.dispositivo,
+                'motivo': motivo.motivo,
+            })
+        context['desechosolicitud'] = desecho_solicitud
+        total_detalles = inv_m.DesechoDetalle.objects.filter(
+                desecho=self.object.id).aggregate(total_util=Sum('cantidad'))        
+        if total_detalles['total_util'] is None:
+            total_detalles['total_util'] = 0
+        total_dispositivo = inv_m.DesechoDispositivo.objects.filter(desecho=self.object.id).count()
+        total_dispo_solicitudes =  + inv_m.DesechoSolicitud.objects.filter(desecho=self.object.id, aprobado=True).count()
+        cantidad_total = total_dispositivo + total_dispo_solicitudes + total_detalles['total_util']
+        context['cantidad_total'] = cantidad_total
+        return context
 
 class DesechoSalidaListView(LoginRequiredMixin,  FormView, GroupRequiredMixin):
     """Vista encargada de mostrar los listados de la :class:`DesechoSalida`

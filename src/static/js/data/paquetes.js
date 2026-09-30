@@ -362,20 +362,34 @@ $.ajax({
                                                             name:'select2'
                                                           }});
                                                       }else{
-                                                    if(name!=""){
-                                                      encabezado.push({title:name,name:token_sin,
-                                                             onBeforeChange: function(ev){
-                                                                  console.log('Before change:' + ev);
-                                                              },
-                                                              onAfterChange: function(ev){
-                                                                console.log('After change:' + ev);
-                                                                linea.push(ev.rowKey);
-                                                              }, editOptions: {
-                                                            type: 'text',
-                                                            maxLength: 50,
-                                                            useViewMode: false
-                                                          }});
-                                                           }
+                                                        if(name != ""){
+                                                            if(name === "Modelo" || name === "Serie") {
+                                                                encabezado.push({
+                                                                    title: name,
+                                                                    name: token_sin,
+                                                                    onBeforeChange: function(ev){ console.log('Before change:' + ev); },
+                                                                    onAfterChange: function(ev){ 
+                                                                        console.log('After change:' + ev); 
+                                                                        linea.push(ev.rowKey); 
+                                                                    }
+                                                                });
+                                                            } else {
+                                                                encabezado.push({
+                                                                    title: name,
+                                                                    name: token_sin,
+                                                                    onBeforeChange: function(ev){ console.log('Before change:' + ev); },
+                                                                    onAfterChange: function(ev){ 
+                                                                        console.log('After change:' + ev); 
+                                                                        linea.push(ev.rowKey); 
+                                                                    }, 
+                                                                    editOptions: {
+                                                                        type: 'text',
+                                                                        maxLength: 50,
+                                                                        useViewMode: false
+                                                                    }
+                                                                });
+                                                            }
+                                                        }
                                                   }
 
                                                 /**/
@@ -393,19 +407,23 @@ $.ajax({
                           }
                       }
                     }else{
-                        encabezado.push({title:name,name:token_sin,
-                               onBeforeChange: function(ev){
-                                    console.log('Before change:' + ev);
-                                },
-                                onAfterChange: function(ev){
-                                  console.log('After change:' + ev);
-                                  linea.push(ev.rowKey);
-                                }, editOptions: {
-                                type: 'select',
-                                listItems:new_marcas,
-                                useViewMode:true
-                            }
-                           });
+                          encabezado.push({
+                              title: name,
+                              name: token_sin,
+                              onBeforeChange: function(ev){ console.log('Before change:' + ev); },
+                              onAfterChange: function(ev){ 
+                                  console.log('After change:' + ev); 
+                                  linea.push(ev.rowKey); 
+                              },
+                              
+                              formatter: function(props) {
+                                  var id_marca = (props && props.value !== undefined) ? props.value : props;
+                                  var marca_encontrada = new_marcas.find(function(m) { 
+                                      return m.value == id_marca; 
+                                  });
+                                  return marca_encontrada ? marca_encontrada.text : id_marca;
+                              }
+                          });
                           }
                         }
                     //
