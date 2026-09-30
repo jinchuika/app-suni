@@ -3,7 +3,7 @@
 <html lang="es">
 <head>
   <meta charset="utf-8">
-  <title>Constancia de Desecho</title>
+  <title>Acta de Desecho</title>
   
   <style type="text/css">
     body {
@@ -171,11 +171,13 @@
   </div>
 
   <div class="titulo-acta">
-    Constancia de desecho
+    Acta de desecho
   </div>
 
   <p class="texto-principal">
-    Por este medio se hace constar que se está entregando a la empresa <strong>{{desechosalida.empresa}}</strong> lo siguiente en desecho:
+    Se hace constar por medio de la presente acta el desecho y baja del equipo electronico que, ha sido evaluado y se
+    considera deteriorado, obsoleto y fuera de funcionamiento para la Fundación. EI equipo siguiente sera destinado a
+    desecho, reciclaje correspondiente, de acuerdo con los procedimientos internos de la Fundación.
   </p>
 
   {% if desechodetalles|length > 0 %}
@@ -256,48 +258,35 @@
     </div>
   </div>
 
+  <div class="cierre-acta"> 
+    <p class="texto-principal" style="text-align: justify; margin-top: 30px;"> 
+      Y para constancia de lo anterior, se firma la presente acta en la ciudad de Guatemala a los <strong>{{ desechosalida.fecha|date:"d" }}</strong> días del mes de <strong>{{ desechosalida.fecha|date:"F"|lower }}</strong> del año <strong>{{ desechosalida.fecha|date:"Y" }}</strong>.
+    </p> 
+  </div>
+
   <div class="seccion-firmas">
     <div class="firma">
       <div class="linea-firma"></div>
-      <strong>Tecnico Encargado</strong> </br>
-    </div>
-    <div class="firma">
-      <div class="linea-firma"></div>
-      <strong>Esdin Pacaja</strong> </br>
+      <strong>Edgar Patzán</strong> </br>
+      Administrador IT
     </div>
     <div class="firma">
       <div class="linea-firma"></div>
       <strong>Luis Morales</strong> </br>
+      Administrador Centro de Reacondicionamiento
+    </div>
+
+    <div class="firma">
+      <div class="linea-firma"></div>
+      <strong>Karla del Valle</strong> </br>
+      Coordinadora TPE
+    </div>
+    <div class="firma">
+      <div class="linea-firma"></div>
+      <strong>Andrea Hernández</strong> </br>
+      Coordinadora Administrativa
     </div>
   </div>
-
-  <div class="info-empresa">
-    <table>
-      <tr>
-        <td class="etiqueta">Empresa de Desecho:</td>
-        <td>{{desechosalida.empresa.nombre}}</td>
-      </tr>
-      <tr>
-        <td class="etiqueta">Encargado:</td>
-        <td>{{desechosalida.empresa.encargado}}</td>
-      </tr>
-      <tr>
-        <td class="etiqueta">DPI:</td>
-        <td>{{desechosalida.empresa.dpi}}</td>
-      </tr>
-      <tr>
-        <td class="etiqueta" style="vertical-align: bottom; padding-top: 15px;">Firma:</td>
-        <td style="vertical-align: bottom; padding-top: 15px;"><span class="linea-texto"></span></td>
-      </tr>
-    </table>
-  </div>
-
-  <footer>
-    <strong>Centro de Reacondicionamiento Guatemala.</strong><br/>
-    14 Ave 19-50 Z.4 de Mixco Condado el Naranjo OfiBodegas San Sebastian No.36<br/>
-    Teléfono 2435-2612 / 2435-2739
-  </footer>
-
 </div>
 
 {% block extra_js %}
