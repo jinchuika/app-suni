@@ -74,11 +74,6 @@ url(
    name='estado_formulario_api'
  ),
 url(
-   r'^reastreoDesecho/$',
-   varias_v.reastreoDesecho.as_view(),
-   name='reastreoDesecho'
- ),
-url(
    r'^entrada/proyecto/$',
    varias_v.EntradasProyectoUpdate.as_view(),
    name='entrada_proyecto_update'
