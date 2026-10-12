@@ -3660,7 +3660,7 @@ class PaqueteDetail {
     let id_salida = $('#salida-id').data('pk');
     tablabodyRechazar.on('click','.btn-rechazar', function () {
       let data_triage = $(this).attr("data-triage");
-      let data_paquete=$(this).attr("data-paquete");
+      let data_paquete=$(this).attr("data-idpaquete");
       bootbox.confirm({
          message: "Esta seguro de rechazar el dispositivo",
          buttons: {
