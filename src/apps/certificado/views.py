@@ -642,6 +642,22 @@ class NewListadoMaestroView(TemplateView):
                           data_sedes["certificado"]=True
                          else:                            
                             data_sedes["certificado"]=False
+                elif data.grupo.curso.id in [84]:
+                     if data.grupo.numero==2:                       
+                        if data.get_nota_final()>=70:                          
+                           data_sedes["tipo"]=signing.dumps("constancia_tna")
+                           data_sedes["constancia"]=True
+                        else:                            
+                           data_sedes["constancia"]=False
+                elif data.grupo.curso.id in [83]:
+                     if data.grupo.numero==2:                       
+                        if data.get_nota_final()>=70:                          
+                           data_sedes["tipo"]=signing.dumps("constancia_tnb")
+                           data_sedes["constancia"]=True
+                        else:                            
+                           data_sedes["constancia"]=False
+
+
 
                       
                    
@@ -672,7 +688,7 @@ class NewListadoMaestroView(TemplateView):
             data_sedes["cursos"] = cursos
             sedes.append(data_sedes)
          data_certificado["sedes"]=sedes
-         context['sedes'] = data_certificado
+         context['sedes'] = data_certificado         
          return context
 
 
