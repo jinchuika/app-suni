@@ -131,6 +131,13 @@ var en_creacion = $("#grid_id").data("en_creacion");
                                     };
                                     columna.component = { name: 'select2' };
                                 }
+                                columna.formatter = function(props) {
+                                    var id_marca = (props && props.value !== undefined) ? props.value : props;
+                                    var marca_encontrada = new_marcas.find(function(m) { 
+                                        return m.value == id_marca; 
+                                    });
+                                    return marca_encontrada ? marca_encontrada.text : id_marca;
+                                };
                                 break;
 
                             case "Modelo":
