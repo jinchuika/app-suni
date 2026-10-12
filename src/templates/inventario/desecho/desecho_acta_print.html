@@ -1,0 +1,300 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <title>Acta de Desecho</title>
+  
+  <style type="text/css">
+    body {
+      font-family: 'Tahoma', sans-serif;
+      font-size: 13px;
+      color: #000;
+      margin: 0;
+      padding: 0;
+    }
+
+    @page {
+      size: letter;
+      margin: 15mm;
+    }
+
+    @media print {
+      * {
+        -webkit-print-color-adjust: exact !important;
+        color-adjust: exact !important;
+      }
+      .tabla-datos th {
+        background-color: #f0f0f0 !important;
+      }
+    }
+
+    .contenedor {
+      width: 100%;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .encabezado {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    .fecha-qr {
+      text-align: right;
+    }
+    .fecha-qr img {
+      margin-top: 10px;
+      border: 1px solid #ccc;
+      padding: 3px;
+    }
+
+    .titulo-acta {
+      text-align: center;
+      text-transform: uppercase;
+      font-size: 18px;
+      margin-bottom: 20px;
+      font-weight: bold;
+    }
+    .texto-principal {
+      font-size: 14px;
+      margin-bottom: 20px;
+    }
+
+    .tabla-datos {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 25px;
+    }
+    .tabla-datos th, .tabla-datos td {
+      border: 1px solid #888;
+      padding: 8px;
+      text-align: center;
+    }
+    .tabla-datos th {
+      background-color: #f0f0f0;
+      font-weight: bold;
+    }
+    .texto-izq {
+      text-align: left !important;
+    }
+
+    .seccion-totales {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 40px;
+    }
+    .observaciones-caja {
+      width: 55%;
+    }
+    .observaciones-caja .contenido-obs {
+      border: 1px solid #ccc;
+      background-color: #f9f9f9;
+      padding: 10px;
+      min-height: 70px;
+      margin-top: 5px;
+    }
+    .totales-caja {
+      width: 40%;
+    }
+    .totales-caja table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .totales-caja th, .totales-caja td {
+      text-align: right;
+      padding: 5px;
+      border-bottom: 1px solid #ccc;
+    }
+
+    .seccion-firmas {
+      display: flex;
+      justify-content: space-between;
+      text-align: center;
+      margin-top: 70px;
+      margin-bottom: 40px;
+    }
+    .firma {
+      width: 30%;
+    }
+    .linea-firma {
+      border-top: 1px solid #000;
+      width: 80%;
+      margin: 0 auto;
+      margin-bottom: 8px;
+    }
+
+    .info-empresa {
+      width: 50%;
+    }
+    .info-empresa table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .info-empresa td {
+      padding: 5px 0;
+    }
+    .info-empresa .etiqueta {
+      text-align: right;
+      padding-right: 15px;
+      width: 40%;
+    }
+    .linea-texto {
+      border-bottom: 1px solid #000;
+      display: inline-block;
+      width: 100%;
+      height: 15px;
+    }
+
+    footer {
+      text-align: center;
+      margin-top: 50px;
+      padding-top: 15px;
+      border-top: 2px solid darkblue;
+      color: darkblue;
+    }
+  </style>
+</head>
+<body>
+
+<div class="contenedor">
+  
+  <div class="encabezado">
+    <div class="logo">
+      <img src="{% static 'image/Logo_Funsepa-01.png' %}" width="150" alt="Logo">
+    </div>
+    <div class="fecha-qr">
+      Guatemala, {{desechosalida.fecha}} <br/>
+      <img src="{{object.codigo_qr.url}}" alt="QR" width="70">
+    </div>
+  </div>
+
+  <div class="titulo-acta">
+    Acta de desecho
+  </div>
+
+  <p class="texto-principal">
+    Se hace constar por medio de la presente acta el desecho y baja del equipo electronico que, ha sido evaluado y se
+    considera deteriorado, obsoleto y fuera de funcionamiento para la Fundación. EI equipo siguiente sera destinado a
+    desecho, reciclaje correspondiente, de acuerdo con los procedimientos internos de la Fundación.
+  </p>
+
+  {% if desechodetalles|length > 0 %}
+  <table class="tabla-datos">
+    <thead>
+      <tr>
+        <th style="width: 34%;">Entrada</th>
+        <th>Cantidad</th>
+        <th style="width: 33%;">Dispositivo</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for desecho in desechodetalles %}
+      <tr>
+        <td>{{desecho.entrada_detalle.entrada}}</td>
+        <td>{{desecho.cantidad}}</td>
+        <td class="texto-izq">{{desecho.entrada_detalle.descripcion}}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% endif %}
+
+  {% if desechodispositivo or desechosolicitud %}
+  <table class="tabla-datos">
+    <thead>
+      <tr>
+        <th colspan="3" style="padding: 12px 0;">DISPOSITIVOS CON TRIAGE</th>
+      </tr>
+      <tr>
+        <th>Triage</th>
+        <th>Tipo</th>
+        <th>Motivo de Desecho</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for dispositivos in desechodispositivo %}
+      <tr>
+        <td>{{dispositivos.dispositivo}}</td>
+        <td>{{dispositivos.dispositivo.tipo}}</td>
+        <td></td>
+      </tr>
+      {% endfor %}
+      
+      {% for dispositivos in desechosolicitud %}
+      <tr>
+        <td>{{dispositivos.dispositivo}}</td>
+        <td>{{dispositivos.dispositivo.tipo}}</td>
+        <td class="texto-izq">{{dispositivos.motivo}}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% endif %}
+
+  <div class="seccion-totales">
+    <div class="observaciones-caja">
+      <strong>Observaciones:</strong>
+      <div class="contenido-obs">
+        {{desechosalida.observaciones|linebreaks|default:"Sin observaciones."}}
+      </div>
+    </div>
+    <div class="totales-caja">
+      <table>
+        <tr>
+          <th>Dispositivos Totales:</th>
+          <td>{{cantidad_total}}</td>
+        </tr>
+        <tr>
+          <th>Monto Total:</th>
+          <td>Q {{desechosalida.precio_total}}</td>
+        </tr>
+        <tr>
+          <th>Peso Total:</th>
+          <td>{{object.peso|default_if_none:0}} lbs</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="cierre-acta"> 
+    <p class="texto-principal" style="text-align: justify; margin-top: 30px;"> 
+      Y para constancia de lo anterior, se firma la presente acta en la ciudad de Guatemala a los <strong>{{ desechosalida.fecha|date:"d" }}</strong> días del mes de <strong>{{ desechosalida.fecha|date:"F"|lower }}</strong> del año <strong>{{ desechosalida.fecha|date:"Y" }}</strong>.
+    </p> 
+  </div>
+
+  <div class="seccion-firmas">
+    <div class="firma">
+      <div class="linea-firma"></div>
+      <strong>Edgar Patzán</strong> </br>
+      Administrador IT
+    </div>
+    <div class="firma">
+      <div class="linea-firma"></div>
+      <strong>Luis Morales</strong> </br>
+      Administrador Centro de Reacondicionamiento
+    </div>
+
+    <div class="firma">
+      <div class="linea-firma"></div>
+      <strong>Karla del Valle</strong> </br>
+      Coordinadora TPE
+    </div>
+    <div class="firma">
+      <div class="linea-firma"></div>
+      <strong>Andrea Hernández</strong> </br>
+      Coordinadora Administrativa
+    </div>
+  </div>
+</div>
+
+{% block extra_js %}
+<script>
+  window.onload = function () { 
+    window.print(); 
+  }
+</script>
+{% endblock extra_js %}
+</body>
+</html>

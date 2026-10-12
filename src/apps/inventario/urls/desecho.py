@@ -53,6 +53,11 @@ urlpatterns = [
     ),
     # Imprimir de la salida de desecho
     url(
+        r'^desecho/(?P<pk>\d+)/acta/print/$',
+        inventario_v.DesechoSalidaActaPrintView.as_view(),
+        name='desechosalida_acta_print'
+    ),
+    url(
         r'^desecho/(?P<pk>\d+)/print/$',
         inventario_v.DesechoSalidaPrintView.as_view(),
         name='desechosalida_print'
