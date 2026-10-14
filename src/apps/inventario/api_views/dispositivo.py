@@ -239,7 +239,8 @@ class DispositivoViewSet(viewsets.ModelViewSet):
                 'tipo': list(tipos_mouse),
                 'puertos': list(puertos),
                 'dispositivo': str(tipo),                
-                'marcas': list(tipos)
+                'marcas': list(tipos),
+                'paquete': str(paquete),
                 })
         elif str(tipo) == "TECLADO":
             data = inv_m.Teclado.objects.filter(
@@ -258,6 +259,7 @@ class DispositivoViewSet(viewsets.ModelViewSet):
                 'data': list(data),
                 'marcas': list(tipos),
                 'puertos': list(puertos),
+                'paquete': str(paquete),
                 'dispositivo': tipo.nombre,
                 })
         elif str(tipo) == "MONITOR":
@@ -280,7 +282,8 @@ class DispositivoViewSet(viewsets.ModelViewSet):
                 'marcas': list(tipos),
                 'tipo': list(tipos_monitor),
                 'puertos': list(puertos),
-                'dispositivo': str(tipo)
+                'dispositivo': str(tipo),
+                'paquete': str(paquete),
                 })
         elif str(tipo) == "CPU":
             data = inv_m.CPU.objects.filter(
@@ -308,7 +311,8 @@ class DispositivoViewSet(viewsets.ModelViewSet):
                 'dispositivo': str(tipo),
                 'sistemas': list(version_sis),
                 'procesador': list(procesador),
-                'hdd': list(disco)
+                'hdd': list(disco),
+                'paquete': str(paquete),
                 })
         elif str(tipo) == "TABLET":
             data = inv_m.Tablet.objects.filter(
@@ -338,7 +342,8 @@ class DispositivoViewSet(viewsets.ModelViewSet):
                 'sistemas': list(version_sis),
                 'procesador': list(procesador),
                 'hdd': list(disco),
-                'os': list(os)
+                'os': list(os),
+                'paquete': str(paquete),
                 })
         elif str(tipo) == "LAPTOP":
             data = inv_m.Laptop.objects.filter(
@@ -365,7 +370,8 @@ class DispositivoViewSet(viewsets.ModelViewSet):
                 'dispositivo': str(tipo),
                 'sistemas': list(version_sis),
                 'procesador': list(procesador),
-                'hdd': list(disco)
+                'hdd': list(disco),
+                'paquete': str(paquete),
                 })
         elif str(tipo) == "HDD":
             data = inv_m.HDD.objects.filter(
@@ -386,7 +392,8 @@ class DispositivoViewSet(viewsets.ModelViewSet):
                 'marcas': list(tipos),
                 'puertos': list(puertos),
                 'medida': list(medida),
-                'dispositivo': str(tipo)
+                'dispositivo': str(tipo),
+                'paquete': str(paquete),
                 })
         elif str(tipo) == "SWITCH":
             data = inv_m.DispositivoRed.objects.filter(
@@ -408,7 +415,8 @@ class DispositivoViewSet(viewsets.ModelViewSet):
                 'marcas': list(tipos),
                 'puertos': list(puertos),
                 'medida': list(medida),
-                'dispositivo': str(tipo)
+                'dispositivo': str(tipo),
+                'paquete': str(paquete),
                 })
 
         elif str(tipo) == "ACCESS POINT":
@@ -431,7 +439,8 @@ class DispositivoViewSet(viewsets.ModelViewSet):
                 'marcas': list(tipos),
                 'puertos': list(puertos),
                 'medida': list(medida),
-                'dispositivo': str(tipo)
+                'dispositivo': str(tipo),
+                'paquete': str(paquete),
                 })
 
         return Response(
@@ -879,6 +888,14 @@ class DispositivosPaquetesViewSet(viewsets.ModelViewSet):
     def actualizar_dispositivos(self, request, pk=None):
         """ Metodo para actualizar nuevos dispositivos mediante el grid
         """
+        paquete = inv_m.Paquete.objects.get(id=request.data["paquete"])
+        if paquete.aprobado: 
+            return Response({
+                'mensaje': 'Ya no es posible actualizar los dispositivos de este paquete'
+            },
+                status=status.HTTP_200_OK
+            )
+
         dispositivos = json.loads(request.data["datos_actualizar"])
 
         tipo = request.data["dispositivo"]
@@ -1280,7 +1297,7 @@ class DispositivosPaquetesViewSet(viewsets.ModelViewSet):
                 new_dispositivo.save()
 
         return Response({
-            'mensaje': 'Actualizados'
+            'mensaje': 'Dispositivos actualizados correctamente'
         },
             status=status.HTTP_200_OK)
 

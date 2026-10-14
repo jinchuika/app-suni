@@ -176,7 +176,6 @@ class SalidaPaqueteUpdateView(LoginRequiredMixin, GroupRequiredMixin, UpdateView
         return reverse_lazy('salidainventario_edit', kwargs={'pk': self.object.id})
 
     def get_form(self, form_class=None):
-        print('Get Form')
         form = super(SalidaPaqueteUpdateView, self).get_form(form_class)
         form.fields['entrada'].widget = forms.SelectMultiple(attrs={
             'data-api-url': reverse_lazy('inventario_api:api_entrada-list')
@@ -187,6 +186,10 @@ class SalidaPaqueteUpdateView(LoginRequiredMixin, GroupRequiredMixin, UpdateView
         return form
 
     def form_valid(self, form):       
+        if form.instance.estado.nombre != 'Pendiente': 
+            messages.error(self.request, 'No se pueden crear paquetes porque la salida ya fue revisada por contabilidad.')
+            return super(SalidaPaqueteUpdateView, self).form_valid(form)
+        
         cantidad_disponible = form.cleaned_data['entrada']
         tipo = inv_m.PaqueteTipo.objects.get(id=self.request.POST['tipo_paquete'])
         cantidad = form.cleaned_data['cantidad']
@@ -1013,7 +1016,7 @@ class PrestamoCartaPrintView(LoginRequiredMixin, GroupRequiredMixin, DetailView)
 class PaquetesDetalleGrid(LoginRequiredMixin, GroupRequiredMixin, DetailView):
     """ Muestra los QR por Detalle de Entrada Creados
     """
-    model = inv_m.DispositivoPaquete
+    model = inv_m.Paquete
     template_name = 'inventario/salida/dispositivos_grid_paquetes.html'
     group_required = [u"inv_bodega", u"inv_tecnico", u"inv_admin"]
 

@@ -20,6 +20,7 @@ var estuche= [];
 var protector= [];
 
 var urldispositivo = $("#grid_id").data("url");
+var aprobado = $("#grid_id").data("aprobado");
 $.ajax({
   type: 'POST',  
   url: $('#grid_id').data('dispo'), 
@@ -34,6 +35,7 @@ $.ajax({
     marcas = response.marcas;
     datos=response.data;
     dispositivo = response.dispositivo
+    paquete = response.paquete
     sistema = response.sistemas
     nueva_data =JSON.stringify(datos[0]).toString()
     var separators = [':',',', '\\\{', '\\\}'];
@@ -127,7 +129,13 @@ $.ajax({
                             },
                             component :{
                               name:'select2'
-                            }});
+                            },
+                            formatter: function(props) {
+                                var val = (props && props.value !== undefined) ? props.value : props;
+                                var encontrado = puertos.find(function(m) { return m.value == val; });
+                                return encontrado ? encontrado.text : val;
+                            }
+                          });
 
                       }else{
                         if(name == "Velocidad medida"){
@@ -148,7 +156,13 @@ $.ajax({
                               },
                               component :{
                                 name:'select2'
-                              }});
+                              },
+                            formatter: function(props) {
+                                  var val = (props && props.value !== undefined) ? props.value : props;
+                                  var encontrado = new_velocidad.find(function(m) { return m.value == val; });
+                                  return encontrado ? encontrado.text : val;
+                              }
+                            });
                         }else{
                           if(name == "Version Sistema"){
                             encabezado.push({title:name,name:token_sin,
@@ -168,7 +182,13 @@ $.ajax({
                                 },
                                 component :{
                                   name:'select2'
-                                }});
+                                },
+                            formatter: function(props) {
+                                  var val = (props && props.value !== undefined) ? props.value : props;
+                                  var encontrado = sistema.find(function(m) { return m.value == val; });
+                                  return encontrado ? encontrado.text : val;
+                              }
+                              });
 
                           }else{
                             if(name=="Medida ram" || name=="Medida"){
@@ -189,9 +209,16 @@ $.ajax({
                                   },
                                   component :{
                                     name:'select2'
-                                  }});
+                                  },
+                                  formatter: function(props) {
+                                  var val = (props && props.value !== undefined) ? props.value : props;
+                                  var encontrado = new_velocidad.find(function(m) { return m.value == val; });
+                                  return encontrado ? encontrado.text : val;
+                              }
+                              });
                             }else{
-                              if(name=="Procesador"){
+                              if(name=="Procesador"){ 
+                                
                                 encabezado.push({title:name,name:token_sin,
                                   onBeforeChange: function(ev){
                                             console.log('Before change:' + ev);
@@ -210,8 +237,13 @@ $.ajax({
                                     },
                                     component :{
                                       name:'select2'
-                                    }});
-
+                                    },
+                                    formatter: function(props) {
+                                      var val = (props && props.value !== undefined) ? props.value : props;
+                                      var encontrado = procesador.find(function(m) { return m.value == val; });
+                                      return encontrado ? encontrado.text : val;
+                                    }
+                                  });
                               }else{
                                 if(name=="Disco duro"){
                                   encabezado.push({title:name,name:token_sin,
@@ -251,7 +283,13 @@ $.ajax({
                                         },
                                         component :{
                                           name:'select2'
-                                        }});
+                                        },
+                                      formatter: function(props) {
+                                      var val = (props && props.value !== undefined) ? props.value : props;
+                                      var encontrado = tipos_monitores.find(function(m) { return m.value == val; });
+                                      return encontrado ? encontrado.text : val;
+                                    }
+                                  });
                                   }else{
                                     if(name=="Sistema Operativo"){
                                       encabezado.push({title:name,name:token_sin,
@@ -271,7 +309,13 @@ $.ajax({
                                           },
                                           component :{
                                             name:'select2'
-                                          }});
+                                          },
+                                      formatter: function(props) {
+                                      var val = (props && props.value !== undefined) ? props.value : props;
+                                      var encontrado = os.find(function(m) { return m.value == val; });
+                                      return encontrado ? encontrado.text : val;
+                                    }
+                                  });
                                     }else{
                                       if(name=="Servidor" || name=="All in one" || name=="Externo"){
                                         encabezado.push({title:name,name:token_sin,
@@ -285,7 +329,14 @@ $.ajax({
                                               type: 'checkbox',
                                               listItems:[{text:"Si",value:'true'}],
                                               useViewMode: false
-                                            }});
+                                            },
+                                          formatter: function(props) {
+                                            var val = (props && props.value !== undefined) ? props.value : props;
+                                            if (val === 'true' || val === true) {
+                                                return 'Sí';
+                                            }
+                                            return ''; 
+                                        }});
                                       }else{
                                         if(name=="Clase"){
                                           encabezado.push({title:name,name:token_sin,
@@ -299,7 +350,14 @@ $.ajax({
                                                 type: 'select',
                                                 listItems:[{text:"A",value:1},{text:"B",value:2},{text:"C",value:3}],
                                                 useViewMode: true
-                                              }});
+                                              },
+                                            formatter: function(props) {
+                                                var val = (props && props.value !== undefined) ? props.value : props;
+                                                if (val == 1) return "A";
+                                                if (val == 2) return "B";
+                                                if (val == 3) return "C";
+                                                return val;
+                                            }});
                                         }else{
                                           if(name=="Cargador"){
                                             encabezado.push({title:name,name:token_sin,
@@ -548,6 +606,14 @@ $.ajax({
                         console.log("No usa este campo");
                       } 
     //Inicido del grid y  nombre de los encabezados
+              if (aprobado === "True" || aprobado === true) {
+                  for (var i = 0; i < encabezado.length; i++) {
+                      if (encabezado[i].editOptions) {
+                          delete encabezado[i].editOptions;
+                      }
+                  }
+              }
+
         grid = new tui.Grid({
            el: $('#grid'),
            scrollX: false,
@@ -582,10 +648,11 @@ $.ajax({
         data: {
           datos_actualizar :JSON.stringify(actualizar),
           dispositivo:dispositivo,
+          paquete:paquete
         },
         headers:{"X-CSRFToken":$('input[name="csrfmiddlewaretoken"]').val()},
         success: function (response) {
-          bootbox.alert("Dispositivos actualizados correctamente");
+          bootbox.alert(response.mensaje);
           actualizar=[];
         },
         error: function (response) {
