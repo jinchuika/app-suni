@@ -112,12 +112,21 @@ class DispositivoViewSet(viewsets.ModelViewSet):
             else:            
                 tipo_dis = inv_m.DispositivoTipo.objects.filter(id=tipo)
                     
-
+            if etapa and not salida:
+                return inv_m.Dispositivo.objects.filter(
+                    valido=True,
+                    tipo__in=tipo_dis
+                )
             if  dispositivo or etapa:           
-                dispositivos_salida = inv_m.CambioEtapa.objects.filter(
-                    solicitud__no_salida = salida,
-                    dispositivo__tipo__in = tipo_dis
-                )                         
+                if salida:                    
+                    dispositivos_salida = inv_m.CambioEtapa.objects.filter(
+                        solicitud__no_salida = salida,
+                        dispositivo__tipo__in = tipo_dis
+                    ) 
+                else:  
+                    dispositivos_salida = inv_m.CambioEtapa.objects.filter(
+                        dispositivo__tipo__in = tipo_dis
+                    )                        
                 for data in dispositivos_salida.values('dispositivo'):
                     lista_dispositivos.append(data['dispositivo'])            
                 return inv_m.Dispositivo.objects.all().filter(id__in=lista_dispositivos)
