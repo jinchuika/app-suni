@@ -2718,7 +2718,7 @@ class RastreoDispositivoContabilidad(views.APIView):
             data  = conta_m.MovimientoDispositivo.objects.filter(**sort_params)       
         for info in data:
             data_resultado= info.dispositivo.rastreo_dispositivo()                       
-            lista.append(data_resultado)        
+            lista.append(data_resultado)
         return Response(lista)
     
 class InformeRastreoDispositivoView(LoginRequiredMixin, FormView):
