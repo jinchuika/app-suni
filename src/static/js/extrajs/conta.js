@@ -798,6 +798,9 @@ class RastreoDispositivoInforme{
         {data: "municipio"},
         {data: "proveedor"},
         {data: "etapa"},
+        {data: "solicitud_movimiento",render: function(data, type, full, meta){
+          return "<a href="+full.url_solicitud_movimiento+">"+full.solicitud_movimiento+"</a>";
+        }},
         {data: "salida",render: function(data, type, full, meta){
           return "<a href="+full.url_salida+">"+full.salida+"</a>";
         }},

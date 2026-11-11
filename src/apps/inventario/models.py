@@ -665,6 +665,16 @@ class Dispositivo(models.Model):
             resultado["url_salida"]=salida.get_absolute_url()
             resultado["tipo_salida"]=salida.tipo_salida.nombre
             resultado["cooperante"]=salida.cooperante.nombre
+            
+            solicitudes = SolicitudMovimiento.objects.filter(
+                no_salida=salida,
+                terminada=True,
+                cambios__dispositivo=self,
+            ).distinct()
+            if solicitudes.exists():
+                solicitud = solicitudes.first()
+                resultado["solicitud_movimiento"] = solicitud.id
+                resultado["url_solicitud_movimiento"] = solicitud.get_absolute_url()
 
         except:
             resultado["escuela"]="No tiene"
@@ -675,6 +685,8 @@ class Dispositivo(models.Model):
             resultado["url_salida"]="No tiene"
             resultado["tipo_salida"]="No tiene"
             resultado["cooperante"]="No tiene"
+            resultado["solicitud_movimiento"]="No tiene"
+            resultado["url_solicitud_movimiento"]="No tiene"
         return resultado
 
     @classmethod
